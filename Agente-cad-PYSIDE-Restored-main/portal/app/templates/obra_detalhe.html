@@ -48,6 +48,7 @@
 
 {% block conteudo %}
 <link rel="stylesheet" href="/static/pillar_ficha.css?v={{ request.app.state.static_versao | default('0') }}">
+<link rel="stylesheet" href="/static/fv_ficha.css?v={{ request.app.state.static_versao | default('0') }}">
 <div class="shell-obra">
     <nav class="painel-2" aria-label="Etapas da obra" style="display: flex; flex-direction: column;">
     <!-- Fases da Obra Global -->
@@ -142,7 +143,7 @@
     <p class="subtitulo obra-page-code" id="obra-code-publico-slot"></p>
 
     {% if obra.estado == 'erro' and obra.erro_msg %}
-    <div class="faixa faixa-erro" role="alert" style="white-space:pre-wrap;font-family:monospace;font-size:.82rem">
+    <div class="faixa faixa-erro" id="obra-erro-alerta" role="alert" style="white-space:pre-wrap;font-family:monospace;font-size:.82rem">
       <span aria-hidden="true">🔴</span> {{ obra.erro_msg }}
     </div>
     {% endif %}
@@ -325,7 +326,7 @@
             <span class="obra-action-ico" aria-hidden="true">▶</span>
             <span class="obra-action-txt">
               <span class="obra-action-title">Triagem + Recortes</span>
-              <span class="obra-action-sub">etapa principal — classifica e gera torres limpas</span>
+              <span class="obra-action-sub">etapa inicial — classifica e gera torres limpas</span>
             </span>
           </button>
         </div>
@@ -434,17 +435,8 @@
               {# Um link por pavimento COM torre limpa — cada pavimento tem seu
                  próprio bruto (…-6000-13P, …-7000-14P, …-8000-COB). O link
                  único com pavimento fixo abria sempre o mesmo desenho. #}
-              {% if pavimentos_viewer %}
-              <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">
-                {% for p in pavimentos_viewer %}
-                <a class="btn btn-sm" href="/app/obras/{{ obra.id }}/viewer/{{ p.pavimento }}"
-                   style="font-size:0.65rem;padding:3px 6px;text-decoration:none{% if not p.tem_sa %};opacity:.6{% endif %}"
-                   title="Estrutural limpo de {{ p.pavimento }}{% if not p.tem_sa %} — sem SA rodado{% endif %}">
-                  🔎 {{ p.pavimento }}
-                </a>
-                {% endfor %}
-              </div>
-              {% endif %}
+              <div class="painel-status-pavimentos" data-status-pavimentos="fase2"
+                   aria-label="Status dos pavimentos na fase 2"></div>
               <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
                 Validados: <span id="global-fase2-val">0</span>/<span id="global-fase2-tot">0</span> (<span id="global-fase2-perc">0</span>%)
               </div>
@@ -458,6 +450,8 @@
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
                 <span><span id="fase3-icon" aria-hidden="true">{% if etapa_atual >= 5 %}✓{% else %}⏳{% endif %}</span> <b>Fase 3:</b> Aprovação N1 → N3</span>
               </div>
+              <div class="painel-status-pavimentos" data-status-pavimentos="fase3"
+                   aria-label="Status dos pavimentos na fase 3"></div>
               <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
                 Validados: <span id="global-fase3-val">0</span>/<span id="global-fase3-tot">0</span> (<span id="global-fase3-perc">0</span>%)
               </div>
@@ -471,6 +465,8 @@
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
                 <span><span id="fase4-icon" aria-hidden="true">{% if n5_feito %}✓{% else %}⏳{% endif %}</span> <b>Fase 4:</b> Aprovação N3 → N5</span>
               </div>
+              <div class="painel-status-pavimentos" data-status-pavimentos="fase4"
+                   aria-label="Status dos pavimentos na fase 4"></div>
               <div style="font-size:0.75rem; color:#aaa; margin-bottom:5px; text-align:right;">
                 Validados: <span id="global-fase4-val">0</span>/<span id="global-fase4-tot">0</span> (<span id="global-fase4-perc">0</span>%)
               </div>
@@ -483,6 +479,8 @@
               <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
                 <span><span id="fase5-icon" aria-hidden="true">{% if etapa_atual >= 7 %}✓{% else %}⏳{% endif %}</span> <b>Fase 5:</b> Certificação e Download</span>
               </div>
+              <div class="painel-status-pavimentos" data-status-pavimentos="fase5"
+                   aria-label="Status dos pavimentos na fase 5"></div>
               <button class="btn btn-sm painel2-acao-btn" data-acao="download" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%; background: #28a745; color: white; border: none;">Download Todos N5 (Zip)</button>
             </li>
           </ul>
@@ -500,6 +498,7 @@
 <script>
   var OBRA_ID = {{ obra.id|tojson }};
   var _todosJobs = {{ jobs|tojson }};
+  window._todosJobs = _todosJobs;
   // [2026-07-12] Código público (App de Consulta) da obra — carregado à
   // parte (não bloqueia o resto da página se a obra ainda não foi
   // auto-publicada, ou se o ciclo de auto-publish ainda não rodou).
@@ -513,7 +512,8 @@
         slot.innerHTML = 'Código <strong style="cursor:pointer" title="Copiar" ' +
           'onclick="navigator.clipboard.writeText(\'' + data.code_publico + '\')">' +
           data.code_publico + '</strong>' +
-          (data.referencia ? ' <span class="muted">· ' + data.referencia.replace(/</g, '&lt;') + '</span>' : '');
+          (data.referencia ? ' <span class="muted">· ' + data.referencia.replace(/</g, '&lt;') + '</span>' : '') +
+          ' <a href="/consulta/obra/' + encodeURIComponent(data.code_publico) + '" target="_blank" rel="noopener">Abrir acompanhamento ↗</a>';
       })
       .catch(function () { /* silencioso — não é crítico pro resto da página */ });
   })();
@@ -540,24 +540,10 @@
   function afinarSvgEstruturalDom(svg) {
     if (!svg || svg.dataset.structThin === '1') return;
     if (svg.classList && svg.classList.contains('destaque-overlay')) return;
+    if (svg.closest && svg.closest('.n1-tag-arete')) return;
     svg.dataset.structThin = '1';
-    var st = svg.querySelector('style#cad-thin-strokes-dom');
-    if (!st) {
-      st = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-      st.setAttribute('id', 'cad-thin-strokes-dom');
-      st.textContent =
-        'path,line,polyline,polygon{' +
-        'vector-effect:non-scaling-stroke!important;' +
-        'stroke-width:0.55px!important;' +
-        'stroke-linecap:butt!important;stroke-linejoin:miter!important}' +
-        /* desenho do usuário: NÃO herdar 0.55px (linha sumia / ponto virava bola) */
-        '.poly-draw-layer path,.poly-draw-layer line,.poly-draw-layer polyline,' +
-        '.poly-draw-layer circle{vector-effect:none!important;stroke-width:unset!important}' +
-        '.poly-draw-layer .osnap-mark line,.poly-draw-layer .osnap-mark circle{' +
-        'vector-effect:non-scaling-stroke!important}' +
-        '.crop-svg-layer *{stroke-width:unset!important}';
-      svg.insertBefore(st, svg.firstChild);
-    }
+    var legacyThin = svg.querySelector('style#cad-thin-strokes');
+    if (legacyThin) legacyThin.remove();
   }
   window.afinarSvgEstruturalDom = afinarSvgEstruturalDom;
 
@@ -1879,6 +1865,8 @@
         if (!r.ok) throw new Error('http ' + r.status);
         return r.json();
       }).then(function (data) {
+        var alertaAnterior = document.getElementById('obra-erro-alerta');
+        if (alertaAnterior) alertaAnterior.remove();
         res.className = 'faixa faixa-info';
         res.textContent = data.total
           ? data.total + ' pavimentos enfileirados. O processamento será sequencial.'
@@ -1888,9 +1876,10 @@
             _todosJobs.push({
                 id: data.job_id,
                 status: 'na_fila',
-                meta: { pav: body.pav },
+                meta: { etapa: acao, pav: body.pav },
                 enfileirado_em: new Date().toISOString()
             });
+            window._todosJobs = _todosJobs;
             atualizarTagsJob(_pavimentoSelecionado);
         }
         if (data && Array.isArray(data.jobs)) {
@@ -1902,9 +1891,11 @@
                     enfileirado_em: new Date().toISOString()
                 });
             });
+            window._todosJobs = _todosJobs;
             atualizarTagsJob(_pavimentoSelecionado);
         }
-        btn.disabled = false;
+        // O polling libera somente quando o job deste pavimento terminar.
+        atualizarTagsJob(_pavimentoSelecionado);
         setTimeout(function () { res.style.display = 'none'; }, 3000);
       }).catch(function () {
         res.className = 'faixa faixa-erro';
@@ -2295,7 +2286,82 @@
       });
   }
 
+  function carregarFichaFundoViga(itemId) {
+    mostrarDetalhe('n1');
+    var painel = document.getElementById('n1-detalhe-painel');
+    var escolhido = (_painel3Estado.itens || []).filter(function (item) {
+      return item.item_id === itemId;
+    })[0] || {};
+    var beam = escolhido.beam_name || String(escolhido.titulo || '').split(' (segmento')[0];
+    var segmento = escolhido.segmento || '';
+    if (!painel || !beam || !window.FvFicha) {
+      if (painel) painel.innerHTML = '<p class="muted">Ficha HI-FI de fundo indisponível.</p>';
+      return;
+    }
+    painel.innerHTML = '<div id="fv-ficha-root"></div>';
+    window.FvFicha.mount(document.getElementById('fv-ficha-root'), {
+      obraId: OBRA_ID,
+      pavimento: _pavimentoSelecionado,
+      beam: beam,
+      initialSegment: segmento || 'todos'
+    });
+  }
+
+  function carregarFichaLateralViga(itemId) {
+    mostrarDetalhe('n1');
+    var painel = document.getElementById('n1-detalhe-painel');
+    var escolhido = (_painel3Estado.itens || []).filter(function (item) {
+      return item.item_id === itemId;
+    })[0] || {};
+    var campos = escolhido.campos || {};
+    var beam = escolhido.beam_name || campos.Nome || String(escolhido.titulo || '').split(' (segmento')[0];
+    var segmento = campos.Segmento || escolhido.segmento || '';
+    var classe = String(_painel3Estado.classe || '').toLowerCase();
+    var lado = classe.indexOf('lateral_b_') === 0 ? 'B' : 'A';
+    var behavior = classe.indexOf('_passa') > -1 ? 'passa' : 'para';
+    if (!painel || !beam || !window.LvFicha) {
+      if (painel) painel.innerHTML = '<p class="muted">Ficha HI-FI de lateral indisponível.</p>';
+      return;
+    }
+    painel.innerHTML = '<div id="lv-ficha-root"></div>';
+    window.LvFicha.mount(document.getElementById('lv-ficha-root'), {
+      obraId: OBRA_ID,
+      pavimento: _pavimentoSelecionado,
+      beam: beam,
+      behavior: behavior,
+      initialSide: lado,
+      initialSegment: segmento
+    });
+  }
+
+  function carregarFichaLaje(itemId) {
+    mostrarDetalhe('n1');
+    var painel = document.getElementById('n1-detalhe-painel');
+    if (!painel || !itemId || !window.LajeFicha) {
+      if (painel) painel.innerHTML = '<p class="muted">Ficha HI-FI de laje indisponível.</p>';
+      return;
+    }
+    painel.innerHTML = '<div id="laje-ficha-root"></div>';
+    window.LajeFicha.mount(document.getElementById('laje-ficha-root'), {
+      obraId: OBRA_ID,
+      pavimento: _pavimentoSelecionado,
+      item: itemId
+    });
+  }
+
   function carregarDetalheItemN1(itemId) {
+    if (_painel3Estado.classe === 'fundo') {
+      carregarFichaFundoViga(itemId);
+      return;
+    }
+    if (/^lateral_[ab]_(?:para|passa)$/.test(String(_painel3Estado.classe || ''))) {
+      carregarFichaLateralViga(itemId);
+      return;
+    }
+    if (_painel3Estado.classe === 'lajes') {
+      carregarFichaLaje(itemId);
+      return;
+    }
     mostrarDetalhe('n1');
     var painel = document.getElementById('n1-detalhe-painel');
     painel.innerHTML =
@@ -2504,6 +2570,7 @@
         function selecionarSubabaN1(subId) {
           var subviewer = document.getElementById('pillar-n1-subviewer');
           if (!subviewer) return;
+          subviewer.classList.toggle('n1-tag-arete', subId === 'com_tag');
           viewerPilar.querySelectorAll('[data-pillar-n1-subtab]').forEach(function (button) {
             var ativo = button.getAttribute('data-pillar-n1-subtab') === subId;
             button.classList.toggle('active', ativo);
@@ -3578,6 +3645,10 @@
   }
   window.ligarDesenhoPolyline = ligarDesenhoPolyline;
   window.rebuildSnapIndex = rebuildSnapIndex;
+  // O editor granular FV reutiliza exatamente o mesmo resolvedor OSNAP e a
+  // mesma conversao zoom-aware do editor "Criar item".
+  window.nearestSnapClient = nearestSnapClient;
+  window.screenPxToSvgUnits = screenPxToSvgUnits;
 
   // ── Destaques por classe (do viewer estrutural limpo) ─────────────────
   // API: GET /obras/{id}/viewer/{pav} — grupos com pontos_px. Overlay SVG
@@ -3587,6 +3658,8 @@
   var COR_DESTAQUE_ESTRUTURAL = '#4ea1ff';
   var CORES_DESTAQUE = {
     pilares: COR_DESTAQUE_ESTRUTURAL,
+    laterais_para: COR_DESTAQUE_ESTRUTURAL,
+    laterais_passa: COR_DESTAQUE_ESTRUTURAL,
     lat_a_para: COR_DESTAQUE_ESTRUTURAL,
     lat_a_passa: COR_DESTAQUE_ESTRUTURAL,
     lat_b_para: COR_DESTAQUE_ESTRUTURAL,
@@ -3598,6 +3671,8 @@
   // Filtro de destaque → classe SA no drill (Interpretação)
   var DESTAQUE_PARA_CLASSE_SA = {
     pilares: 'pilares',
+    laterais_para: 'laterais_para',
+    laterais_passa: 'laterais_passa',
     lat_a_para: 'lateral_a_para',
     lat_a_passa: 'lateral_a_passa',
     lat_b_para: 'lateral_b_para',
@@ -3606,6 +3681,41 @@
     laterais: 'lateral_a_para',
     lajes: 'lajes'
   };
+
+  function gruposDestaqueParaExibicao(gruposOriginais) {
+    var grupos = [];
+    var combinados = {};
+    (gruposOriginais || []).forEach(function (grupo) {
+      var id = grupo.grupo;
+      var combinadoId = null;
+      var rotulo = null;
+      if (id === 'lat_a_para' || id === 'lat_b_para') {
+        combinadoId = 'laterais_para';
+        rotulo = 'Lateral A.B. · Para';
+      } else if (id === 'lat_a_passa' || id === 'lat_b_passa') {
+        combinadoId = 'laterais_passa';
+        rotulo = 'Lateral A.B. · Passa';
+      }
+      if (!combinadoId) {
+        grupos.push(grupo);
+        return;
+      }
+      if (!combinados[combinadoId]) {
+        combinados[combinadoId] = {
+          grupo: combinadoId,
+          rotulo: rotulo,
+          total: 0,
+          fora_do_frame: 0,
+          itens: []
+        };
+        grupos.push(combinados[combinadoId]);
+      }
+      combinados[combinadoId].total += Number(grupo.total) || (grupo.itens || []).length;
+      combinados[combinadoId].fora_do_frame += Number(grupo.fora_do_frame) || 0;
+      combinados[combinadoId].itens = combinados[combinadoId].itens.concat(grupo.itens || []);
+    });
+    return grupos;
+  }
 
   function montarBarraDestaques(hostEl) {
     if (!hostEl || hostEl.querySelector('.destaque-bar')) return hostEl.querySelector('.destaque-bar');
@@ -3789,11 +3899,12 @@
         aplicarPanZoomDual(vp, svgFundo, overlay);
         ligarDesenhoRetangulos(vp);
 
+        var gruposDestaque = gruposDestaqueParaExibicao(dados.grupos || []);
         var ativos = {};
         var SVGNS = 'http://www.w3.org/2000/svg';
         // OSNAP: vértices dos itens SA (endpoints + mids)
         window._destaqueSnapPts = [];
-        (dados.grupos || []).forEach(function (grupo) {
+        gruposDestaque.forEach(function (grupo) {
           (grupo.itens || []).forEach(function (item) {
             (item.pontos_px || []).forEach(function (p) {
               if (p && p.length >= 2) window._destaqueSnapPts.push([+p[0], +p[1]]);
@@ -3805,7 +3916,7 @@
           overlay.innerHTML = '';
           var mostrarRotulos = !!(document.getElementById('destaque-rotulos') || {}).checked;
           var visiveis = 0;
-          (dados.grupos || []).forEach(function (grupo) {
+          gruposDestaque.forEach(function (grupo) {
             if (!ativos[grupo.grupo]) return;
             var cor = CORES_DESTAQUE[grupo.grupo] || '#fff';
             (grupo.itens || []).forEach(function (item) {
@@ -3889,12 +4000,12 @@
 
         if (botoesEl) {
           botoesEl.innerHTML = '';
-          if (!(dados.grupos || []).length) {
+          if (!gruposDestaque.length) {
             botoesEl.innerHTML = '<span class="meta">' +
               (dados.sa_rodado ? 'Nenhum item com geometria' : 'SA ainda não rodou neste pav') +
               '</span>';
           } else {
-            dados.grupos.forEach(function (grupo) {
+            gruposDestaque.forEach(function (grupo) {
               ativos[grupo.grupo] = false;
               var b = document.createElement('button');
               b.type = 'button';
@@ -4726,8 +4837,10 @@
       }
     };
 
-    // Preferência vinda do drill ("+ Criar novo item" com classe já aberta)
+    // Preferências vindas do drill: classe lateral real e, quando a pessoa
+    // escolheu uma viga, o mesmo nome para anexar o próximo segmento a ela.
     var pref = window._criarItemClassePref;
+    var prefViga = window._criarItemVigaPref;
     if (pref && selClasse) {
       for (var i = 0; i < selClasse.options.length; i++) {
         if (selClasse.options[i].value === pref) { selClasse.selectedIndex = i; break; }
@@ -4737,6 +4850,10 @@
       window._modoCropManualAtivo = false;
       window._criarItemClassePref = null;
     }
+    if (prefViga && inpNome) {
+      inpNome.value = normalizarNomeViga(prefViga);
+    }
+    window._criarItemVigaPref = null;
     atualizarUiSegmento();
 
     if (selClasse) selClasse.addEventListener('change', function () {
@@ -4989,7 +5106,7 @@
         '</div>' +
       '</details>' +
       (isTorre ?
-        '<details class="criar-item-coll" id="criar-item-coll">' +
+        '<details class="criar-item-coll" id="criar-item-coll"' + (prefClasse ? ' open' : '') + '>' +
           '<summary>✏️ Criar item no estrutural <span class="meta">· desenhe geometria SA</span></summary>' +
           '<div class="criar-item-body">' + htmlCriarItemPanel(prefClasse) + '</div>' +
         '</details>'
@@ -5083,12 +5200,13 @@ function pollTodosJobs() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
         if (!data.jobs) return;
-        window._todosJobs = data.jobs;
+        _todosJobs = data.jobs;
+        window._todosJobs = _todosJobs;
         
         var somethingFinished = false;
         var currentActive = {};
         
-        window._todosJobs.forEach(function(j) {
+        _todosJobs.forEach(function(j) {
             if (j.status === 'na_fila' || j.status === 'executando') {
                 currentActive[j.id] = true;
             } else if (j.status === 'concluido' || j.status === 'erro' || j.status === 'pronta') {
@@ -5102,6 +5220,9 @@ function pollTodosJobs() {
         
         if (window.atualizarTagsJob) {
             window.atualizarTagsJob(window._pavimentoSelecionado);
+        }
+        if (window.DrillGrade && typeof window.DrillGrade.render === 'function') {
+            window.DrillGrade.render();
         }
         
         if (somethingFinished) {
@@ -5158,21 +5279,52 @@ window.atualizaAposJob = function() {
 
 
 window.atualizarEstatisticasGlobais = function() {
+    function pavimentosCanonicos() {
+      return window.DrillGrade && typeof window.DrillGrade.listPavimentos === 'function'
+        ? window.DrillGrade.listPavimentos() : [];
+    }
+    function renderStatusPavimentos(fase, statusPorPavimento) {
+      var host = document.querySelector('[data-status-pavimentos="' + fase + '"]');
+      if (!host) return {total: 0, concluidos: 0};
+      var pavimentos = pavimentosCanonicos();
+      var concluidos = 0;
+      host.innerHTML = pavimentos.map(function (pavimento) {
+        var status = statusPorPavimento[pavimento] || {};
+        var concluido = Boolean(status.concluido);
+        if (concluido) concluidos += 1;
+        var texto = concluido ? 'Concluído' : 'Pendente';
+        var href = '/app/obras/' + encodeURIComponent(OBRA_ID) + '/viewer/' + encodeURIComponent(pavimento);
+        return '<a class="painel-status-pavimento ' + (concluido ? 'concluido' : 'pendente') + '" href="' + href + '">' +
+          '<span>' + (concluido ? '✓' : '⏳') + '</span><b>' + String(pavimento).replace(/&/g,'&amp;').replace(/</g,'&lt;') +
+          '</b><small>' + texto + '</small></a>';
+      }).join('') || '<span class="painel-status-pavimentos-vazio">Nenhum pavimento identificado</span>';
+      return {total: pavimentos.length, concluidos: concluidos};
+    }
     // Fase 2 (Recortes)
-    var f2_tot = 0;
-    var f2_val = 0;
+    var fase2PorPavimento = {};
     if (window._recortesBrutosCache && window._recortesItensPorBruto) {
       window._recortesBrutosCache.forEach(function(bruto) {
         var itens = window._recortesItensPorBruto[bruto.bruto_id] || [];
-        f2_tot += itens.length;
+        var pavimento = String(bruto.pavimento || '').trim();
+        if (!pavimento) return;
+        var status = fase2PorPavimento[pavimento] || {total: 0, validados: 0};
+        status.total += itens.length;
         itens.forEach(function(item) {
           var chave = bruto.bruto_id + '_' + item.item_id;
           if (window.statusValidacaoRecorte && window.statusValidacaoRecorte(bruto.bruto_id, item.item_id) && (!window._recortesInvalidadosLocal || !window._recortesInvalidadosLocal[chave])) {
-            f2_val++;
+            status.validados += 1;
           }
         });
+        fase2PorPavimento[pavimento] = status;
       });
     }
+    Object.keys(fase2PorPavimento).forEach(function (pavimento) {
+      var status = fase2PorPavimento[pavimento];
+      status.concluido = status.total > 0 && status.validados === status.total;
+    });
+    var resumoF2 = renderStatusPavimentos('fase2', fase2PorPavimento);
+    var f2_tot = resumoF2.total;
+    var f2_val = resumoF2.concluidos;
     var perc2 = f2_tot === 0 ? 0 : Math.round((f2_val / f2_tot) * 100);
     var elF2Val = document.getElementById('global-fase2-val');
     var elF2Tot = document.getElementById('global-fase2-tot');
@@ -5189,6 +5341,16 @@ window.atualizarEstatisticasGlobais = function() {
       .then(function(data) {
         var n1 = data.n1;
         var n3 = data.n3;
+        var porPavimento = data.pavimentos || {};
+        var fase3 = {}, fase4 = {}, fase5 = {};
+        Object.keys(porPavimento).forEach(function (pavimento) {
+          fase3[pavimento] = {concluido: Boolean(porPavimento[pavimento].fase3_concluida)};
+          fase4[pavimento] = {concluido: Boolean(porPavimento[pavimento].fase4_concluida)};
+          fase5[pavimento] = {concluido: Boolean(porPavimento[pavimento].fase5_concluida)};
+        });
+        renderStatusPavimentos('fase3', fase3);
+        renderStatusPavimentos('fase4', fase4);
+        renderStatusPavimentos('fase5', fase5);
         
         var perc3 = n1.total === 0 ? 0 : Math.round((n1.validados / n1.total) * 100);
         var elF3Val = document.getElementById('global-fase3-val');
@@ -5236,7 +5398,17 @@ window.atualizarEstatisticasGlobais = function() {
           body: JSON.stringify(body)
       }).then(function(r) {
           if (!r.ok) throw new Error();
+          if (acao === 'validar' && stage === 'n1') {
+            var qs = _pavimentoSelecionado ? '?pavimento=' + encodeURIComponent(_pavimentoSelecionado) : '';
+            return fetch('/obras/' + OBRA_ID + '/n1/' + encodeURIComponent(_painel3Estado.classe) + '/' +
+              encodeURIComponent(itemId) + '/campo/_item_/validar' + qs, {
+                method: 'POST', headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({validado:true})
+              }).then(function(markResponse) { if (!markResponse.ok) throw new Error(); });
+          }
+      }).then(function() {
           window.atualizarEstatisticasGlobais();
+          if (window.DrillGrade && window.DrillGrade.refreshItems) window.DrillGrade.refreshItems();
           alert("Ação '" + acao + "' registrada com sucesso.");
       }).catch(function(e) {
           alert("Não foi possível registrar a ação.");
@@ -5303,6 +5475,9 @@ window.atualizarEstatisticasGlobais = function() {
     });
   })();
 </script>
+<script src="/static/fv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&fv=20260912unvalidate"></script>
+<script src="/static/lv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lv=20260912lazyviewer"></script>
+<script src="/static/laje_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lj=20260912hifi"></script>
 <script src="/static/pillar_ficha.js?v={{ request.app.state.static_versao | default('0') }}"></script>
 <script src="/static/drill_grade.js?v={{ request.app.state.static_versao | default('0') }}"></script>
 {% endblock %}

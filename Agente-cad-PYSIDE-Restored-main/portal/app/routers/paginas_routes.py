@@ -249,7 +249,9 @@ def pagina_obra_detalhe(
         )
         jobs = [dict(j) for j in repo.listar_jobs_por_obra(conn, obra_id)]
         for j in jobs:
-            j["meta"] = request.app.state.job_meta.get(j["id"], {})
+            j["meta"] = request.app.state.job_meta.get(j["id"]) or repo.obter_job_meta(conn, j["id"])
+            if j["status"] == "cancelado" and j.get("erro_msg") == repo.PAUSA_OPERADOR:
+                j["status"] = "pausado"
         n5_releases = repo.listar_n5_releases_por_obra(conn, obra_id)
         comentarios = repo.listar_comentarios_por_obra(conn, obra_id)
         documentos = repo.listar_documentos_por_obra(conn, obra_id)

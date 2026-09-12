@@ -42,11 +42,8 @@ def test_ler_estado_pavimento_inexistente_devolve_none():
 def test_listar_itens_n1_pilares_tem_campos_reais():
     estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
     itens = fr.listar_itens_n1(estado, "pilares")
-    # [2026-07-30] A obra tem 46 pilares no estado do SA, mas a classe "pilares"
-    # devolve só os RETANGULARES — os demais saem em "pilares_especiais". Antes
-    # da divisão este assert era 46; agora 44 + 2, e a soma continua sendo 46
-    # (ver test_pilares_retangulares_mais_especiais_somam_o_total).
-    assert len(itens) == 44
+    # A VPS expõe uma única classe de pilares: retangulares e especiais juntos.
+    assert len(itens) == 46
     p1 = next(i for i in itens if i["item_id"] == "P1")
     assert p1["campos"]["Nome"] == "P1"
     # [2026-07-30] Era "Nível"; o campo virou "Nível Relativo" (mesmo valor).
@@ -183,31 +180,18 @@ def test_extrair_fotos_sem_dir_fichas_devolve_ausente_sem_lancar():
     assert fr.extrair_fotos_ficha(None, "pilares", item) == {"n1": None, "n3": None}
 
 
-def test_pilares_retangulares_mais_especiais_somam_o_total():
-    """Nenhum pilar pode sumir na divisão retangular/especial.
-
-    A obra tem 46 pilares no estado do SA. `pilares` traz os retangulares e
-    `pilares_especiais` o resto; se a classificação de formato mudar, a soma
-    ainda tem de fechar — um pilar que caia fora das duas listas desaparece da
-    UI em silêncio, e ninguém percebe que o item não foi desenhado.
-    """
+def test_lista_unica_de_pilares_contem_o_total_do_sa():
+    """A lista pública única não pode perder pilares especiais."""
     estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
-    retangulares = fr.listar_itens_n1(estado, "pilares")
-    especiais = fr.listar_itens_n1(estado, "pilares_especiais")
-    assert len(retangulares) + len(especiais) == len(estado["pilares"]) == 46
+    pilares = fr.listar_itens_n1(estado, "pilares")
+    assert len(pilares) == len(estado["pilares"]) == 46
 
 
-def test_pilares_em_L_vao_para_especiais_nao_somem():
-    """P26 e P27 são 'em L' (7 pontos) e só aparecem em pilares_especiais.
-
-    Existem no N2 com confiança 0.95 e têm recorte real em disco — se sumissem
-    da listagem, pareceria que o SA não os extraiu.
-    """
+def test_pilares_em_l_estao_na_lista_unica():
+    """P26 e P27 continuam acessíveis sem uma classe especial separada."""
     estado = fr.ler_estado_pavimento(_OBRA_DIR, _PAVIMENTO)
-    especiais = {i["item_id"] for i in fr.listar_itens_n1(estado, "pilares_especiais")}
-    retangulares = {i["item_id"] for i in fr.listar_itens_n1(estado, "pilares")}
-    assert {"P26", "P27"} <= especiais
-    assert not ({"P26", "P27"} & retangulares)
+    pilares = {i["item_id"] for i in fr.listar_itens_n1(estado, "pilares")}
+    assert {"P26", "P27"} <= pilares
 
 
 def test_preview_n1_producao_vem_do_snapshot_sem_html():
@@ -238,6 +222,25 @@ def test_n3_producao_localiza_artefato_permanente_sem_pack_html(tmp_path):
     assert found == dxf
 
 
+def test_pilar_n3_localiza_cada_dxf_desenhado(tmp_path):
+    fase6 = tmp_path / "Fase-6_Execucao_CAD"
+    para = fase6 / "n3_variants" / "para"
+    passa = fase6 / "n3_variants" / "passa"
+    para.mkdir(parents=True)
+    passa.mkdir(parents=True)
+    expected = {
+        "cima": para / "PL_CIMA_preview_P7.dxf",
+        "abcd-para": para / "PL_ABCD_preview_P7.dxf",
+        "abcd-passa": passa / "PL_ABCD_preview_P7.dxf",
+        "grades-para": para / "PL_GRADES_preview_P7.dxf",
+        "grades-passa": passa / "PL_GRADES_preview_P7.dxf",
+    }
+    for path in expected.values():
+        path.write_text("DXF", encoding="utf-8")
+    for vista, path in expected.items():
+        assert fr._pilar_n3_dxf(tmp_path, {"beam_name": "P7"}, vista) == path
+
+
 def test_resolver_fotos_portal_prioriza_svg_canonico(monkeypatch, tmp_path):
     canonico_n1 = '<svg class="img-geo"><path d="M 0 0 L 10 10"/></svg>'
     canonico_n3 = '<svg class="img-n3"><text>N3 completo</text></svg>'
@@ -261,6 +264,37 @@ def test_resolver_fotos_portal_prioriza_svg_canonico(monkeypatch, tmp_path):
     assert fotos["n3"] == canonico_n3
     assert fotos["n1_origem"] == "ficha_html_canonica"
     assert fotos["n3_origem"] == "ficha_html_canonica"
+
+
+def test_leitor_lateral_seletivo_preserva_svg_e_nao_usa_parser_dom(tmp_path, monkeypatch):
+    pack = tmp_path / "13_PAV_pack"
+    pasta = pack / "laterais_viga" / "LV-PASSA"
+    pasta.mkdir(parents=True)
+    svg_a1 = '<svg class="img-geo" aria-label="N1 próximo / local" viewBox="0 0 9 7"><path d="M0 0L9 7"/></svg>'
+    svg_a2 = '<svg class="img-geo" aria-label="N1 próximo / local" viewBox="0 0 8 6"><path d="M0 0L8 6"/></svg>'
+    svg_n3a = '<svg class="img-n4" aria-label="N3 · Lateral A" viewBox="0 0 20 10"><text>A</text></svg>'
+    html_ficha = (
+        '<div class="side-block"><h3>Lado A</h3>'
+        '<div class="evidence-card"><div>segmento 1; fonte seg_side_a</div>' + svg_a1 + '</div>'
+        '<div class="evidence-card"><div>fonte viga_a_seg_2 / seg_side_a</div>' + svg_a2 + '</div>'
+        '<div class="evidence-card"><b>N3 · Lateral A</b>' + svg_n3a + '</div>'
+        '<div class="evidence-card"><div>segmento 1; fonte seg_side_b</div>'
+        '<svg class="img-geo" aria-label="N1 próximo / local"><text>B</text></svg></div>'
+        '</div>'
+    )
+    (pasta / "V301-Passa.html").write_text(html_ficha, encoding="utf-8")
+    item = {"beam_name": "V301", "campos": {"Segmento": "2"}}
+    monkeypatch.setattr(
+        fr, "_parse_html_cache",
+        lambda *_args: (_ for _ in ()).throw(AssertionError("parser DOM não deve rodar")),
+    )
+
+    assert fr._extrair_foto_lateral_seletiva(
+        pack, "lateral_a_passa", item, "n1",
+    ) == svg_a2
+    assert fr._extrair_foto_lateral_seletiva(
+        pack, "lateral_a_passa", item, "n3",
+    ) == svg_n3a
 
 
 def test_resolver_camadas_qa_pilar_nao_inventa_fallback(monkeypatch, tmp_path):
@@ -313,3 +347,27 @@ def test_resolver_visualizacoes_n1_pilar_separa_proximo_distante_e_tag(monkeypat
     assert 'id="longe"' in views["distante"]
     assert 'id="tag"' in views["com_tag"]
     assert "<?xml" not in views["com_tag"]
+
+
+def test_resolver_visualizacoes_n1_pilar_le_paineis_reais_sem_classe_svg(monkeypatch, tmp_path):
+    pack = tmp_path / "13_PAV_pack_real"
+    pilares = pack / "pilares"
+    pilares.mkdir(parents=True)
+    (pilares / "P8.html").write_text(
+        '<div data-n1panel="near"><div data-layer="sa_plain">'
+        '<svg viewBox="0 0 10 10"><path id="plain"/></svg></div>'
+        '<div data-layer="sa"><svg><path id="tag"/></svg></div></div>'
+        '<div data-n1panel="far"><svg viewBox="0 0 100 100">'
+        '<path id="contexto"/></svg></div>',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(fr, "_encontrar_dir_ficha_item", lambda *_args: pack)
+
+    views = fr.resolver_visualizacoes_n1_pilar(
+        tmp_path, "13_PAV", "pilares", {"beam_name": "P8"},
+        foto_n1_fallback='<svg id="fallback"/>',
+    )
+
+    assert 'id="plain"' in views["proximo"]
+    assert 'id="tag"' not in views["proximo"]
+    assert 'id="contexto"' in views["distante"]

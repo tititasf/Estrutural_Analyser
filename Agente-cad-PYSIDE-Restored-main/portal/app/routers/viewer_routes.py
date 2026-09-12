@@ -43,7 +43,7 @@ log = logging.getLogger("portal.viewer_routes")
 #    tratamento sozinho pra validar a interpretação
 #  - Fundos e lajes
 GRUPOS_VIEWER: tuple[tuple[str, str, tuple[str, ...]], ...] = (
-    ("pilares", "Pilares", ("pilares", "pilares_especiais")),
+    ("pilares", "Pilares", ("pilares",)),
     ("lat_a_para", "Lat. A · Para", ("lateral_a_para",)),
     ("lat_a_passa", "Lat. A · Passa", ("lateral_a_passa",)),
     ("lat_b_para", "Lat. B · Para", ("lateral_b_para",)),

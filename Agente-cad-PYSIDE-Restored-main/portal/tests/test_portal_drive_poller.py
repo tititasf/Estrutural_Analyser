@@ -101,6 +101,21 @@ def test_u1_1_detecta_arquivo_novo(conn, settings, tmp_path):
     assert client.download_calls == 1
 
 
+def test_arquivo_ignorado_por_id_nao_baixa_nem_cria_obra(conn, settings, tmp_path):
+    fake_raiz = tmp_path / "drive"
+    _dxf_valido(fake_raiz / "folder-ana" / "obra_ignorada.dxf")
+    client = ContadorFakeDrive(fake_raiz)
+    membro = _membro(conn, "ana", "folder-ana")
+    file_id = client.list_new_files("folder-ana")[0].file_id
+    settings.drive_ignored_file_ids = frozenset({file_id})
+
+    novas = varrer_uma_vez(conn, client, settings, membros=[membro])
+
+    assert novas == []
+    assert client.download_calls == 0
+    assert conn.execute("SELECT COUNT(*) FROM portal_obras").fetchone()[0] == 0
+
+
 # --------------------------------------------------------------------------- #
 # U1.2 — idempotência (o núcleo): mesmo conteúdo não rebaixa nem reprocessa
 # --------------------------------------------------------------------------- #

@@ -67,9 +67,8 @@ async def test_listar_classes_n1_conta_itens_reais(settings):
         # [2026-07-30] "pilares" traz só os RETANGULARES; os 2 em L (P26, P27)
         # saem em "pilares_especiais". A obra tem 46 no estado do SA e a soma
         # tem de continuar fechando — pilar fora das duas listas some da UI.
-        assert por_classe["pilares"] == 44
-        assert por_classe["pilares_especiais"] == 2
-        assert por_classe["pilares"] + por_classe["pilares_especiais"] == 46
+        assert por_classe["pilares"] == 46
+        assert "pilares_especiais" not in por_classe
         assert por_classe["lajes"] == 31
         assert por_classe["fundo"] == 106
 
@@ -83,10 +82,10 @@ async def test_listar_itens_de_uma_classe(settings):
         assert r.status_code == 200
         body = r.json()
         assert body["pavimento"] == "13_PAV"
-        assert len(body["itens"]) == 44  # retangulares; ver test_listar_classes_n1
+        assert len(body["itens"]) == 46  # lista web unificada
         assert any(i["item_id"] == "P1" for i in body["itens"])
         # P26/P27 sao "em L" e nao podem aparecer aqui
-        assert not any(i["item_id"] in ("P26", "P27") for i in body["itens"])
+        assert all(any(i["item_id"] == wanted for i in body["itens"]) for wanted in ("P26", "P27"))
 
 
 @pytest.mark.asyncio
@@ -139,6 +138,23 @@ async def test_obter_item_n1_fundo_com_n1_e_n3_reais(settings):
         body = r3.json()
         assert body["foto_n1"] is not None
         assert body["foto_n3"] is not None
+
+
+@pytest.mark.asyncio
+async def test_obter_ficha_fv_agrupada_por_viga(settings):
+    """A ficha por viga usa o SA como autoridade e expõe o contrato nativo."""
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_com_sa_real(settings)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        r = await client.get(f"/obras/{obra_id}/fv/V301?pavimento=13_PAV")
+        assert r.status_code == 200
+        body = r.json()
+        assert body["schema"] == "portal.fv.ficha/v1"
+        assert body["obra"]["id"] == obra_id
+        assert body["beam"]["name"] == "V301"
+        assert body["beam"]["segment_count"] == len(body["segments"])
+        assert body["segments"]
+        assert set(body["context"]["layers"]) == {"sa", "c1", "c2", "c3", "n3"}
 
 
 @pytest.mark.asyncio

@@ -13,3 +13,9 @@ def test_zoom_das_faces_permite_afastar_ate_dez_por_cento():
     assert "var FACE_ZOOM_MIN = 0.1;" in javascript
     assert "Math.max(FACE_ZOOM_MIN" in javascript
     assert "Math.max(1,Math.min(5,scale" not in javascript
+
+
+def test_troca_de_aba_n3_busca_o_dxf_da_vista_selecionada():
+    javascript = PILLAR_FICHA_JS.read_text(encoding="utf-8")
+    assert "self.tab = spec[0];\n          self.load();" in javascript
+    assert "self.tab = spec[0]; self.render();" not in javascript

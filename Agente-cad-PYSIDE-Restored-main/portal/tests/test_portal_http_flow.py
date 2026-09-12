@@ -106,6 +106,41 @@ async def test_fluxo_login_listar_enfileirar_consultar(settings):
         assert job["job_id"] == job_id
         assert job["obra_id"] == obra_id
         assert job["estado"] in ("queued", "running", "done", "error")
+        assert "progresso" in job
+        assert job["progresso"]["percentual_estimado"] in (0, 2, 100, None) or (
+            2 <= job["progresso"]["percentual_estimado"] <= 95
+        )
+
+
+@pytest.mark.asyncio
+async def test_controles_http_pausar_continuar_cancelar(settings):
+    async with _app_cliente(settings) as (app, client):
+        # O teste controla o estado deterministamente; nenhum worker deve consumir
+        # o job entre uma requisição e outra.
+        app.state.worker.stop()
+        obra_id = _obra_da_ana(settings, arquivo_hash="hash-controles-http")
+        c = connection.init_db(settings.db_path)
+        job_id = repo.enfileirar_job(c, obra_id=obra_id)
+        repo.salvar_job_meta(c, job_id, {"etapa": "qa_agentico"})
+        c.close()
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+
+        response = await client.post(f"/jobs/{job_id}/pausar")
+        assert response.status_code == 200
+        assert response.json()["estado"] == "pausado"
+        listed = await client.get(f"/obras/{obra_id}/jobs")
+        assert listed.json()["jobs"][0]["status"] == "pausado"
+        detail = await client.get(f"/jobs/{job_id}")
+        assert detail.json()["estado"] == "paused"
+
+        response = await client.post(f"/jobs/{job_id}/continuar")
+        assert response.status_code == 200
+        assert response.json()["estado"] == "na_fila"
+
+        response = await client.post(f"/jobs/{job_id}/cancelar")
+        assert response.status_code == 200
+        assert response.json()["estado"] == "cancelado"
+        assert (await client.post(f"/jobs/{job_id}/continuar")).status_code == 409
 
 
 @pytest.mark.asyncio

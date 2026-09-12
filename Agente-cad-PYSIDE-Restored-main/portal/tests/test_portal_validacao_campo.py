@@ -139,3 +139,29 @@ async def test_validar_campo_de_obra_de_outro_membro_e_recusado_403(settings, tm
         await client.post("/login", json={"login": "ana", "senha": "segredo123"})
         r = await client.post(f"/obras/{obra_bruno}/n1/pilares/P1/campo/nivel/validar", json={"validado": True})
         assert r.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_adotar_camada_fv_exige_confirmacao_explicita(settings, tmp_path):
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_com_pavimento_falso(settings, tmp_path)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        r = await client.post(
+            f"/obras/{obra_id}/fv/V301/adotar-camada?pavimento=Terreo",
+            json={"layer": "c1", "confirmado": False},
+        )
+        assert r.status_code == 409
+        assert "confirmacao obrigatoria" in r.json()["detail"]
+
+
+@pytest.mark.asyncio
+async def test_excluir_camada_fv_exige_confirmacao_explicita(settings, tmp_path):
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_com_pavimento_falso(settings, tmp_path)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        r = await client.post(
+            f"/obras/{obra_id}/fv/V301/excluir-camada?pavimento=Terreo",
+            json={"layer": "c1", "confirmado": False},
+        )
+        assert r.status_code == 409
+        assert "confirmacao obrigatoria" in r.json()["detail"]

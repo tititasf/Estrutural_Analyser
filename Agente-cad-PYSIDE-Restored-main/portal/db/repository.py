@@ -564,6 +564,59 @@ def salvar_job_meta(conn: sqlite3.Connection, job_id: str, meta: dict[str, Any])
     conn.commit()
 
 
+def enfileirar_job_unico_por_meta(
+    conn: sqlite3.Connection,
+    *,
+    obra_id: str,
+    meta: dict[str, Any],
+    chaves: tuple[str, ...],
+    prioridade: int = 0,
+    engine_version: Optional[str] = None,
+) -> tuple[str, bool]:
+    """Enfileira job + metadados atomicamente, reutilizando um equivalente ativo.
+
+    O ``BEGIN IMMEDIATE`` serializa solicitações concorrentes antes da consulta.
+    Assim, dois cliques/requisições simultâneos para o mesmo escopo não conseguem
+    criar dois jobs, e o worker nunca enxerga um job antes de seus metadados.
+    """
+    job_id = _new_id()
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        rows = conn.execute(
+            """SELECT j.id, m.meta_json
+                 FROM portal_jobs j
+                 JOIN portal_job_meta m ON m.job_id=j.id
+                WHERE j.obra_id=? AND (
+                      j.status IN ('na_fila','executando') OR
+                      (j.status='cancelado' AND j.erro_msg=?)
+                )
+                ORDER BY j.enfileirado_em DESC, j.rowid DESC""",
+            (obra_id, PAUSA_OPERADOR),
+        ).fetchall()
+        for row in rows:
+            try:
+                existente = json.loads(row["meta_json"] or "{}")
+            except (TypeError, json.JSONDecodeError):
+                continue
+            if all(existente.get(chave) == meta.get(chave) for chave in chaves):
+                conn.commit()
+                return str(row["id"]), False
+        conn.execute(
+            """INSERT INTO portal_jobs (id, obra_id, prioridade, engine_version)
+               VALUES (?,?,?,?)""",
+            (job_id, obra_id, prioridade, engine_version),
+        )
+        conn.execute(
+            "INSERT INTO portal_job_meta(job_id, meta_json) VALUES(?,?)",
+            (job_id, json.dumps(meta, ensure_ascii=False, sort_keys=True)),
+        )
+        conn.commit()
+        return job_id, True
+    except Exception:
+        conn.rollback()
+        raise
+
+
 def obter_job_meta(conn: sqlite3.Connection, job_id: str) -> dict[str, Any]:
     row = conn.execute(
         "SELECT meta_json FROM portal_job_meta WHERE job_id=?", (job_id,)
@@ -716,6 +769,22 @@ def gravar_resultado_qa_item(conn: sqlite3.Connection, round_id: str, result: An
         )
 
 
+def gravar_falha_qa_item(
+    conn: sqlite3.Connection, round_id: str, item_id: str, erro: str,
+) -> None:
+    """Fecha apenas o item com falha operacional; a rodada continua."""
+    with conn:
+        cursor = conn.execute(
+            """UPDATE portal_qa_items SET status='failed', verdict=NULL,
+               note=?, decision_authority='PENDENTE', training_eligible=0,
+               updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')
+               WHERE round_id=? AND item_id=?""",
+            (erro, round_id, item_id),
+        )
+    if cursor.rowcount != 1:
+        raise KeyError(f"item QA ausente: {round_id}/{item_id}")
+
+
 def finalizar_qa_round(conn: sqlite3.Connection, round_id: str, status: str) -> None:
     conn.execute(
         """UPDATE portal_qa_rounds SET status=?,
@@ -738,6 +807,7 @@ def detalhe_qa_round(conn: sqlite3.Connection, round_id: str) -> Optional[dict[s
                 item["suggestion"] = json.loads(item["suggestion_json"])
             except json.JSONDecodeError:
                 pass
+        item["confidence_percent"] = (item["suggestion"] or {}).get("confidence_percent")
         item.pop("suggestion_json", None)
         item["evidence"] = []
         if item.get("evidence_json"):
@@ -754,6 +824,37 @@ def detalhe_qa_round(conn: sqlite3.Connection, round_id: str) -> Optional[dict[s
         item["attempts"] = [dict(row) for row in attempts]
     round_row["items"] = items
     return round_row
+
+
+def listar_qa_resumos(
+    conn: sqlite3.Connection, obra_id: str, pavimento: str, classe: str,
+) -> dict[str, dict[str, dict[str, Any]]]:
+    """Último veredito por item/camada para feedback compacto da interface."""
+    rows = conn.execute(
+        """SELECT qi.item_id, qr.layer, qi.status, qi.verdict, qi.note,
+                  qi.suggestion_json, qi.provider, qi.model, qr.criado_em
+             FROM portal_qa_items qi
+             JOIN portal_qa_rounds qr ON qr.id=qi.round_id
+            WHERE qr.obra_id=? AND qr.pavimento=? AND qr.classe=?
+            ORDER BY qr.criado_em DESC, qr.rowid DESC""",
+        (obra_id, pavimento, classe.upper()),
+    ).fetchall()
+    result: dict[str, dict[str, dict[str, Any]]] = {}
+    for row in rows:
+        item_layers = result.setdefault(row["item_id"], {})
+        if row["layer"] in item_layers:
+            continue
+        suggestion = {}
+        try:
+            suggestion = json.loads(row["suggestion_json"] or "{}")
+        except json.JSONDecodeError:
+            pass
+        item_layers[row["layer"]] = {
+            "status": row["status"], "verdict": row["verdict"],
+            "confidence_percent": suggestion.get("confidence_percent"),
+            "note": row["note"], "provider": row["provider"], "model": row["model"],
+        }
+    return result
 
 
 def proximo_job(conn: sqlite3.Connection) -> Optional[dict[str, Any]]:
@@ -853,12 +954,91 @@ def finalizar_job(
     conn.commit()
 
 
+PAUSA_OPERADOR = "pausado pelo operador"
+CANCELAMENTO_OPERADOR = "cancelado pelo operador"
+
+
+def pausar_job(conn: sqlite3.Connection, job_id: str) -> Optional[dict[str, Any]]:
+    """Pausa duravelmente um job na fila ou uma execução cooperativa.
+
+    O schema legado permite cinco estados apenas. A pausa usa ``cancelado`` com
+    motivo inequívoco; a API apresenta essa combinação como ``pausado``.
+    """
+    with conn:
+        cur = conn.execute(
+            """UPDATE portal_jobs
+                  SET status='cancelado', erro_msg=?,
+                      finalizado_em=strftime('%Y-%m-%dT%H:%M:%SZ','now'),
+                      updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')
+                WHERE id=? AND status IN ('na_fila','executando')""",
+            (PAUSA_OPERADOR, job_id),
+        )
+    if cur.rowcount != 1:
+        return None
+    return _row_to_dict(conn.execute("SELECT * FROM portal_jobs WHERE id=?", (job_id,)).fetchone())
+
+
+def continuar_job(conn: sqlite3.Connection, job_id: str) -> Optional[dict[str, Any]]:
+    """Recoloca uma pausa do operador na fila, preservando resultados parciais."""
+    with conn:
+        cur = conn.execute(
+            """UPDATE portal_jobs
+                  SET status='na_fila', erro_msg=NULL, iniciado_em=NULL,
+                      finalizado_em=NULL,
+                      updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')
+                WHERE id=? AND status='cancelado' AND erro_msg=?""",
+            (job_id, PAUSA_OPERADOR),
+        )
+        if cur.rowcount == 1:
+            conn.execute(
+                """UPDATE portal_qa_rounds
+                      SET status='queued', finalizado_em=NULL,
+                          updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')
+                    WHERE job_id=?""",
+                (job_id,),
+            )
+    if cur.rowcount != 1:
+        return None
+    return _row_to_dict(conn.execute("SELECT * FROM portal_jobs WHERE id=?", (job_id,)).fetchone())
+
+
+def cancelar_job_operador(conn: sqlite3.Connection, job_id: str) -> Optional[dict[str, Any]]:
+    """Cancela um job pendente/pausado (ou uma execução QA cooperativa)."""
+    with conn:
+        cur = conn.execute(
+            """UPDATE portal_jobs
+                  SET status='cancelado', erro_msg=?,
+                      finalizado_em=strftime('%Y-%m-%dT%H:%M:%SZ','now'),
+                      updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')
+                WHERE id=? AND (
+                    status='na_fila' OR status='executando' OR
+                    (status='cancelado' AND erro_msg=?)
+                )""",
+            (CANCELAMENTO_OPERADOR, job_id, PAUSA_OPERADOR),
+        )
+        if cur.rowcount == 1:
+            conn.execute(
+                """UPDATE portal_qa_rounds
+                      SET status=CASE WHEN EXISTS(
+                            SELECT 1 FROM portal_qa_items qi
+                             WHERE qi.round_id=portal_qa_rounds.id AND qi.status='completed'
+                          ) THEN 'partial_failed' ELSE 'failed' END,
+                          finalizado_em=strftime('%Y-%m-%dT%H:%M:%SZ','now'),
+                          updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')
+                    WHERE job_id=? AND status!='running'""",
+                (job_id,),
+            )
+    if cur.rowcount != 1:
+        return None
+    return _row_to_dict(conn.execute("SELECT * FROM portal_jobs WHERE id=?", (job_id,)).fetchone())
+
+
 def listar_jobs_por_obra(
     conn: sqlite3.Connection, obra_id: str
 ) -> list[dict[str, Any]]:
     """Q4: histórico/estado dos jobs de uma obra."""
     rows = conn.execute(
-        "SELECT * FROM portal_jobs WHERE obra_id = ? ORDER BY enfileirado_em DESC, id",
+        "SELECT * FROM portal_jobs WHERE obra_id = ? ORDER BY enfileirado_em DESC, rowid DESC",
         (obra_id,),
     ).fetchall()
     return [dict(r) for r in rows]
@@ -973,6 +1153,106 @@ def marcar_comentario_exportado(conn: sqlite3.Connection, coment_id: str) -> Non
         (coment_id,),
     )
     conn.commit()
+
+
+# --------------------------------------------------------------------------- #
+# Apontamentos visuais globais da interface (feedback comunitario por usuario)
+# --------------------------------------------------------------------------- #
+
+def inserir_apontamento_ui(
+    conn: sqlite3.Connection,
+    *,
+    obra_id: Optional[str],
+    membro_id: str,
+    texto: str,
+    pagina_url: str,
+    pagina_titulo: Optional[str],
+    seletor_elemento: Optional[str],
+    elemento_tag: Optional[str],
+    elemento_role: Optional[str],
+    elemento_texto: Optional[str],
+    elemento_json: str,
+    clique_x: float,
+    clique_y: float,
+    pagina_x: float,
+    pagina_y: float,
+    viewport_largura: int,
+    viewport_altura: int,
+    captura_mime: Optional[str],
+    captura_blob: Optional[bytes],
+) -> str:
+    apontamento_id = _new_id()
+    conn.execute(
+        """INSERT INTO portal_apontamentos_ui
+           (id,obra_id,membro_id,texto,pagina_url,pagina_titulo,
+            seletor_elemento,elemento_tag,elemento_role,elemento_texto,
+            elemento_json,clique_x,clique_y,pagina_x,pagina_y,
+            viewport_largura,viewport_altura,captura_mime,captura_blob)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+        (
+            apontamento_id, obra_id, membro_id, texto, pagina_url, pagina_titulo,
+            seletor_elemento, elemento_tag, elemento_role, elemento_texto,
+            elemento_json, clique_x, clique_y, pagina_x, pagina_y,
+            viewport_largura, viewport_altura, captura_mime, captura_blob,
+        ),
+    )
+    conn.commit()
+    return apontamento_id
+
+
+def listar_apontamentos_ui(
+    conn: sqlite3.Connection, *, membro: dict[str, Any], somente_meus: bool = False,
+) -> list[dict[str, Any]]:
+    if somente_meus:
+        filtro = "WHERE a.membro_id = ?"
+        params: tuple[Any, ...] = (membro["id"],)
+    elif membro.get("papel") == "dono":
+        filtro = ""
+        params = ()
+    else:
+        # Feedback geral e feedback de obras que este membro pode abrir.
+        filtro = """WHERE a.obra_id IS NULL OR a.membro_id = ? OR EXISTS (
+            SELECT 1 FROM portal_obras visivel
+            WHERE visivel.id = a.obra_id AND visivel.membro_id = ?
+        )"""
+        params = (membro["id"], membro["id"])
+    rows = conn.execute(
+        """SELECT a.id,a.obra_id,a.membro_id,a.texto,a.pagina_url,
+                  a.pagina_titulo,a.seletor_elemento,a.elemento_tag,
+                  a.elemento_role,a.elemento_texto,a.elemento_json,
+                  a.clique_x,a.clique_y,a.pagina_x,a.pagina_y,
+                  a.viewport_largura,a.viewport_altura,a.captura_mime,
+                  a.created_at,m.login AS autor_login,m.nome AS autor_nome,
+                  o.nome AS obra_nome
+           FROM portal_apontamentos_ui a
+           JOIN portal_membros m ON m.id = a.membro_id
+           LEFT JOIN portal_obras o ON o.id = a.obra_id
+           """ + filtro +
+        " ORDER BY a.created_at DESC, a.id DESC",
+        params,
+    ).fetchall()
+    return [dict(row) for row in rows]
+
+
+def obter_apontamento_ui(
+    conn: sqlite3.Connection, apontamento_id: str,
+) -> Optional[dict[str, Any]]:
+    row = conn.execute(
+        "SELECT * FROM portal_apontamentos_ui WHERE id = ?", (apontamento_id,),
+    ).fetchone()
+    return _row_to_dict(row)
+
+
+def pode_ver_apontamento_ui(
+    conn: sqlite3.Connection, apontamento: dict[str, Any], membro: dict[str, Any],
+) -> bool:
+    if membro.get("papel") == "dono" or apontamento["membro_id"] == membro["id"]:
+        return True
+    obra_id = apontamento.get("obra_id")
+    if obra_id is None:
+        return True
+    obra = obter_obra(conn, obra_id)
+    return bool(obra and obra["membro_id"] == membro["id"])
 
 
 # --------------------------------------------------------------------------- #
