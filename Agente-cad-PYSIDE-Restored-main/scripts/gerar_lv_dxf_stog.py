@@ -735,6 +735,76 @@ def draw_sarr_lv_horizontal_from_n2(msp, x0, y0, sarrafos_horizontais,
             continue
         msp.add_line((x1, y), (x2, y), dxfattribs=attrs)
         n += 1
+
+    # ── Tampa de ponta em abertura de pilar ────────────────────────────────
+    # Em painel SARRAFEADO a passagem do pilar nao e' desenhada como retangulo
+    # tracejado (esse e' o outro modo, ver `holes`): ela aparece como a
+    # INTERRUPCAO da corrida de sarrafos, e cada sarrafo interrompido leva uma
+    # tampa vertical de 7cm na ponta. A interrupcao ja' vinha da ficha
+    # (`x_left` > 0) e o N4 ja' respeitava, mas desenhava a corrida sem tampa
+    # (achado 2026-09-11, V13 face A: abertura de 78, handles 53 e 54 do N2).
+    #
+    # A tampa e' por SARRAFO (banda de 7cm), nao por linha: as linhas a ate'
+    # 7.5 uma da outra sao as duas bordas do mesmo sarrafo e dividem a tampa.
+    # Linha solta ganha os 7cm medidos para o lado da face mais proxima.
+    #
+    # NOTA: painel GRADEADO tem comportamento proprio para a mesma abertura —
+    # ainda sem caso observado (o 13_PAV inteiro e' Sarrafeado). Quando
+    # aparecer, registrar o segundo modo aqui.
+    por_y: dict = {}
+    for spec in sarrafos_horizontais or []:
+        try:
+            yo = float(spec.get('y_offset', 0) or 0)
+            xl = float(spec.get('x_left', 0) or 0)
+            xr = float(spec.get('x_right', 0) or 0)
+        except Exception:
+            continue
+        a, b = por_y.get(yo, (xl, xr))
+        por_y[yo] = (min(a, xl), max(b, xr))
+
+    if por_y:
+        # So' a ponta ESQUERDA. Inferir interrupcao a direita por "terminou
+        # antes da corrida mais longa" gera tampa inventada: o sarrafo do
+        # painel de fechamento fino acaba em 200 porque o painel tem 200 de
+        # largura, nao porque foi interrompido — e o N2 nao tem vertical ali
+        # (medido na V13). Abertura encostada na ponta direita fica pendente
+        # de um caso real que mostre como ela e' desenhada.
+        # Sarrafo ja' comeca afastado da borda por causa do inset de canto
+        # (SARR_INSET_H). Tratar esse recuo normal como interrupcao gerava
+        # tampa em quase toda viga (medido: 601 tampas inventadas nas 32).
+        # Interrupcao e' a corrida que comeca MUITO depois das outras da
+        # mesma face — a referencia e' o inicio natural da face.
+        base = min(a for a, _b in por_y.values())
+        for lado in ('esq',):
+            cortados = sorted(y for y, (a, _b) in por_y.items()
+                              if a > base + 10.0)
+            bandas: list = []
+            for yo in cortados:
+                if bandas and yo - bandas[-1][-1] <= 7.5:
+                    bandas[-1].append(yo)
+                else:
+                    bandas.append([yo])
+            for banda in bandas:
+                ref = por_y[banda[0]]
+                x_cap = x0 + (ref[0] if lado == 'esq' else por_y[banda[0]][1])
+                if len(banda) >= 2:
+                    yb, yt = y0 + banda[0], y0 + banda[-1]
+                else:
+                    unico = banda[0]
+                    if unico <= 7.5:
+                        yb, yt = y0 + unico - 7.0, y0 + unico
+                    else:
+                        yb, yt = y0 + unico, y0 + unico + 7.0
+                # A tampa fecha a ponta de UM sarrafo, entao tem a espessura
+                # dele (2.2x7 -> 7). Banda fora dessa faixa e' agrupamento
+                # errado, nao abertura: sem esse guarda saiam tampas de 1.0 e
+                # 2.0 na V302, alturas que nao existem no N2 dela (so' ha'
+                # vertical de 7/43/44/45/59). Melhor nao desenhar do que
+                # inventar.
+                if not (5.0 <= yt - yb <= 9.0):
+                    continue
+                msp.add_line((x_cap, yb), (x_cap, yt), dxfattribs=attrs)
+                n += 1
     return n
 
 
