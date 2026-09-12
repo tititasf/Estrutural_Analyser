@@ -108,6 +108,26 @@ interpretador. Eles nao mudam o desenho nem o fingerprint.
 - `holes[]` pertence ao painel que o declarou; o motor posiciona o vazio pelo
   `corner`, `width`, `height` e `position`, relativo a esse painel.
 
+#### 5.2.1 Modos de abertura de pilar (2026-09-11)
+
+A passagem de pilar na lateral tem **mais de uma representacao de desenho**. Nao
+generalizar a partir de uma so.
+
+1. **Retangulo tracejado** — `LWPOLYLINE` DASHED em `Painéis`. E' o modo que
+   `holes[]` / `holes_lwpoly` ja' cobriam.
+2. **Vazio de sarrafos (painel SARRAFEADO)** — nao ha' tracejado nenhum: a
+   abertura e' a INTERRUPCAO da corrida de sarrafos, e cada sarrafo
+   interrompido leva uma tampa vertical de 7cm (2.2x7) na ponta. A largura da
+   abertura e' cotada da borda da face ate' a interrupcao.
+   Evidencia: V13 face A, abertura de 78, tampas nos handles 53 e 54 do N2.
+   A interrupcao ja' vem da ficha em `sarrafos_horizontais[].x_left`.
+   Discriminador: e' abertura quando a corrida comeca **muito** depois das
+   outras da mesma face. O recuo normal de canto (`SARR_INSET_H`) nao e'
+   abertura — trata-lo como tal gera tampa em quase toda viga.
+3. **Painel GRADEADO** — comportamento proprio, ainda **sem caso observado**
+   (o 13_PAV inteiro e' Sarrafeado: 360 segmentos, 29 vigas). Registrar aqui
+   quando aparecer, sem extrapolar do modo 2.
+
 ### 5.3 Hachuras N4
 
 - painel nao recebe hatch;
@@ -115,7 +135,26 @@ interpretador. Eles nao mudam o desenho nem o fingerprint.
 - laje/perfil nao recebe hatch de painel;
 - somente vazio/abertura explicito recebe `HATCH` na layer `Hachura`;
 - a geometria de corte possui regras proprias e nao autoriza transportar
-  primitivas do recorte N2 para as laterais.
+  primitivas do recorte N2 **para as laterais**.
+
+> **Emenda 2026-09-11 (decisao do dono) — proveniencia da VISAO DE CORTE.**
+> A proibicao acima vale para as LATERAIS. Para a **visao de corte**, o N4
+> passa a **replicar a geometria medida do recorte N2**; o N3 continua
+> proibido de ler N2.
+>
+> Quem decide a proveniencia e' a **propria secao** (a marca
+> `n1_contract_clean`), nao a flag de CLI. A cadeia e' de 3 niveis:
+> secao de contrato N1 -> anatomia limpa; secao vinda da ficha N2 -> replica
+> do recorte; sem primitivas -> detalhe procedural como ultimo recurso.
+>
+> Motivo: o template procedural nao reproduz o que o corte real tem. No V13
+> Corte 1 ele emitia `55x19` com cotas 55/50, enquanto o N2 tem
+> 13/59/44/7/10/19 — inclusive um desnivel de 7cm entre a laje da face A e a
+> da face B, que nenhum parametro escalar carregava.
+>
+> Consequencia operacional: as primitivas de corte do N2 vem em **escala 2x**
+> (layer `Cota Seção (2x)`). O empilhamento das secoes precisa ser **medido**,
+> nao estimado por `h_sec`, senao as secoes se sobrepoem.
 
 ### 5.4 Nomenclatura e layout
 
