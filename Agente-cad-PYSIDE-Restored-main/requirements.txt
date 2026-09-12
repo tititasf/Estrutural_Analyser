@@ -28,3 +28,4 @@ google-auth>=2.23.0
 google-auth-oauthlib>=1.2.0   # so' o script portal/ops/reautorizar_drive.py usa isso
 markdown>=3.5.0   # renderiza docs/STATUS.md em /app/status
 playwright==1.62.0  # evidencia PNG canonica das rodadas QA agenticas
+CairoSVG>=2.7.1  # rasteriza o SVG SA contextual dos fundos para o QA agentico

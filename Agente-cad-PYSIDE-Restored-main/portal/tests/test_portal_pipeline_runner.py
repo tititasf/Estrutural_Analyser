@@ -539,6 +539,31 @@ def test_promover_snapshot_sa_ignora_snapshot_visual_parcial_mais_novo(tmp_path)
     assert len(payload["segmentos"]["fundo"]) == 1
 
 
+def test_promover_snapshot_microciclo_laje_preserva_inventario(tmp_path):
+    obra_dir = tmp_path / "obra_snapshot_laje_parcial"
+    obra_dir.mkdir()
+    canonical = obra_dir / "estado_13_PAV.json"
+    canonical.write_text(json.dumps({
+        "pilares": [{"name": "P1"}],
+        "slabs": [{"name": "L301", "nivel": "antigo"}, {"name": "L302"}, {"name": "L303"}],
+        "cortes": [{"uid": "C1"}], "segmentos": {"fundo": [{"beam_name": "V1"}]},
+    }), encoding="utf-8")
+    isolated = obra_dir / "estado_13_PAV_lajes_pid999.json"
+    isolated.write_text(json.dumps({
+        "pilares": [{"name": "P1"}],
+        "slabs": [{"name": "L301", "nivel": "novo"}],
+        "cortes": [{"uid": "C1"}], "segmentos": {"fundo": [{"beam_name": "V1"}]},
+    }), encoding="utf-8")
+    isolated.touch()
+
+    promoted = pipeline_runner.promover_snapshot_sa(
+        obra_dir, "13_PAV", secao="lajes", item_names={"L301"},
+    )
+    payload = json.loads(promoted.read_text(encoding="utf-8"))
+    assert [row["name"] for row in payload["slabs"]] == ["L301", "L302", "L303"]
+    assert payload["slabs"][0]["nivel"] == "novo"
+
+
 def _escrever_pacote_n3_minimo(obra_dir: Path, name: str = "P1") -> None:
     root = obra_dir / "Fase-6_Execucao_CAD" / "n3_variants"
     for mode in ("para", "passa"):

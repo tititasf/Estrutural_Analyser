@@ -289,6 +289,14 @@ def validate_qa_payload(payload: dict[str, Any], *, item: str, layer: str) -> di
     proposed = suggestion.get("proposed", [])
     if verdict == "invalidou" and action == "corrigir" and not isinstance(proposed, list):
         raise TechnicalFailure("invalid_output", "proposed deve ser uma lista")
+    try:
+        confidence = float(payload.get("confidence_percent"))
+    except (TypeError, ValueError) as exc:
+        raise TechnicalFailure("invalid_output", "confidence_percent deve ser numerico") from exc
+    if not 0 <= confidence <= 100:
+        raise TechnicalFailure("invalid_output", "confidence_percent deve estar entre 0 e 100")
+    suggestion = dict(suggestion)
+    suggestion["confidence_percent"] = round(confidence, 1)
     return {
         "item": item,
         "layer": layer.upper(),
@@ -439,12 +447,13 @@ def default_providers(timeout_s: int = 600) -> list[ProviderInvoker]:
     ]
 
 
-def build_item_prompt(*, item: str, layer: str, context: str) -> str:
+def build_item_prompt(*, item: str, layer: str, context: str, qa_class: str = "PIL") -> str:
     schema = {
         "status": "completed",
         "item": item,
         "layer": layer.upper(),
         "verdict": "validou|invalidou",
+        "confidence_percent": 0,
         "note": "justificativa curta baseada em evidencia",
         "suggestion": {
             "action": "manter|corrigir|revisar_humano",
@@ -460,7 +469,7 @@ def build_item_prompt(*, item: str, layer: str, context: str) -> str:
             ],
         },
     }
-    return f"""Voce e o revisor agentico de PIL/SA-N1 do CAD-ANALYZER.
+    return f"""Voce e o revisor agentico de {qa_class}/SA-N1 do CAD-ANALYZER.
 Item: {item}. Camada atual: {layer.upper()}.
 
 Regras obrigatorias:
@@ -474,6 +483,7 @@ Regras obrigatorias:
   para permitir fallback ao proximo provedor.
 - Se invalidar, proponha apenas mudancas sustentadas por evidencia; se a prova faltar,
   use revisar_humano. Se validar, use manter e proposed vazio.
+- confidence_percent e obrigatorio, numerico entre 0 e 100, e mede sua confianca no veredito.
 - Responda exclusivamente com um objeto JSON no schema abaixo.
 
 Contexto e caminhos de evidencia:
@@ -492,6 +502,7 @@ def run_round(
     cwd: Path,
     context_for_item: Callable[[str], str],
     providers: Iterable[ProviderInvoker] | None = None,
+    qa_class: str = "PIL",
 ) -> RoundResult:
     provider_list = list(providers or default_providers())
     results: list[ItemResult] = []
@@ -500,7 +511,7 @@ def run_round(
         attempts: list[Attempt] = []
         final: ItemResult | None = None
         context = context_for_item(item)
-        prompt = build_item_prompt(item=item, layer=layer, context=context)
+        prompt = build_item_prompt(item=item, layer=layer, context=context, qa_class=qa_class)
         evidence = collect_evidence(cwd, context)
         for provider in provider_list:
             started = time.time()

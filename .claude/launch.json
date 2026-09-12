@@ -6,6 +6,16 @@
       "runtimeExecutable": "C:/Users/Thierry/AppData/Local/Programs/Python/Python312/python.exe",
       "runtimeArgs": ["D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/portal/run_dev.py"],
       "port": 21380
+    },
+    {
+      "name": "v301-review",
+      "runtimeExecutable": "D:/Agente-cad-PYSIDE/.venv/Scripts/python.exe",
+      "runtimeArgs": [
+        "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/servidor_revisao_pil.py",
+        "--directory", "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/v301_geometry_gate",
+        "--port", "8765"
+      ],
+      "port": 8765
     }
   ]
 }

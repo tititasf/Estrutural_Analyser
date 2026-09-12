@@ -210,7 +210,14 @@ def encontrar_dir_fichas(obra_dir: Path, pavimento: Optional[str] = None) -> Opt
     return candidatos[-1] if candidatos else None
 
 
-def promover_snapshot_sa(obra_dir: Path, pavimento: str, *, iniciado_em: float = 0.0) -> Path | None:
+def promover_snapshot_sa(
+    obra_dir: Path,
+    pavimento: str,
+    *,
+    iniciado_em: float = 0.0,
+    secao: Optional[str] = None,
+    item_names: Optional[set[str]] = None,
+) -> Path | None:
     """Publica o snapshot isolado do headless como estado canÃ´nico do portal.
 
     O headless inclui escopo/PID no nome para evitar colisÃ£o entre processos;
@@ -258,6 +265,34 @@ def promover_snapshot_sa(obra_dir: Path, pavimento: str, *, iniciado_em: float =
     if not isinstance(payload, dict) or not isinstance(payload.get("pilares"), list):
         log.warning("snapshot SA candidato sem contrato de pilares: %s", source)
         return None
+    # Microciclo LAJ materializa deliberadamente apenas o item solicitado.
+    # Esse recorte é correto para o artefato/job, mas não pode substituir o
+    # inventário canônico consumido pelo portal. Mescla somente as lajes-alvo
+    # no estado anterior e preserva todas as outras lajes do pavimento.
+    wanted = {str(name).strip().upper() for name in (item_names or set()) if str(name).strip()}
+    if secao == "lajes" and wanted and canonical.is_file():
+        try:
+            previous = json.loads(canonical.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            previous = None
+        if isinstance(previous, dict) and isinstance(previous.get("slabs"), list):
+            fresh_by_name = {
+                str(row.get("name") or "").strip().upper(): row
+                for row in (payload.get("slabs") or [])
+                if isinstance(row, dict)
+            }
+            merged_slabs = []
+            seen: set[str] = set()
+            for row in previous["slabs"]:
+                name = str((row or {}).get("name") or "").strip().upper() if isinstance(row, dict) else ""
+                merged_slabs.append(fresh_by_name.get(name, row) if name in wanted else row)
+                if name:
+                    seen.add(name)
+            merged_slabs.extend(
+                row for name, row in fresh_by_name.items()
+                if name in wanted and name not in seen
+            )
+            payload["slabs"] = merged_slabs
     canonical.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(prefix=f".{canonical.name}.", suffix=".tmp", dir=canonical.parent)
     try:
@@ -758,8 +793,19 @@ def _rodar_subprocess_sa(
         try:
             from src.core.pillar_n3_ficha import materialize_pavimento
 
+            secoes_cmd = [
+                cmd[index + 1] for index, value in enumerate(cmd[:-1])
+                if value == "--secao"
+            ]
+            itens_cmd = [
+                cmd[index + 1] for index, value in enumerate(cmd[:-1])
+                if value == "--item"
+            ]
+
             snapshot = promover_snapshot_sa(
                 obra_dir, str(pav or settings.pav_default), iniciado_em=iniciado_em,
+                secao=secoes_cmd[0] if len(secoes_cmd) == 1 else None,
+                item_names=set(itens_cmd),
             )
             if snapshot is None:
                 raise RuntimeError("o SA terminou sem publicar um estado N1 valido desta rodada")
@@ -785,10 +831,6 @@ def _rodar_subprocess_sa(
 
             # SA completo (sem --secao) ou uma solicitacao explicita de pilares
             # so conclui quando PARA e PASSA possuem contrato + ABCD + GRADES.
-            secoes_cmd = [
-                cmd[index + 1] for index, value in enumerate(cmd[:-1])
-                if value == "--secao"
-            ]
             pilares_solicitados = not secoes_cmd or "pilares" in secoes_cmd
             if pilares_solicitados:
                 n3_stats = auditar_pacote_pilares_n3(
@@ -800,10 +842,6 @@ def _rodar_subprocess_sa(
                         f"pacote N3 de pilares incompleto: "
                         f"{len(n3_stats['missing'])} artefato(s) ausente(s)"
                     )
-                itens_cmd = [
-                    cmd[index + 1] for index, value in enumerate(cmd[:-1])
-                    if value == "--item"
-                ]
                 artefatos["pilar_n1_tags"] = materializar_n1_tags_pilares(
                     settings, obra, project_id=project_id,
                     pavimento=str(pav or settings.pav_default), itens=itens_cmd,
