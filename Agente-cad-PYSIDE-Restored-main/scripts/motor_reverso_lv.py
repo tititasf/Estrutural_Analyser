@@ -2287,6 +2287,12 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         float(pair.get('x_left', 0.0) or 0.0),
                     )
                     segs_u = _propagate_laje(segs_raw, ls_u, li_u, pair)
+                    laje_trechos: list = []
+                    # Laje que a COTA ESCRITA declara para esta face, medida
+                    # antes de `ls_u` ser sobrescrito pelo ramo do painel de
+                    # topo. E' a verdade de terra do degrau: o trecho alto tem
+                    # de concordar com ela.
+                    _ls_cota = float(ls_u or 0)
                     top_panel = _top_panel_face(pair)
                     if top_panel:
                         old_body_h = float(pair.get('h_body', 0) or 0)
@@ -2359,6 +2365,76 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             + float(top_panel.get('height', 0) or 0),
                             1,
                         )
+                        # ── Degrau de laje por trecho (2026-09-13) ──────────
+                        # A laje pode ter altura diferente por trecho da mesma
+                        # face, com o topo PLANO: onde ha' painel de fechamento
+                        # no topo a laje e' mais baixa e o painel completa a
+                        # altura; fora dele a laje sobe sozinha ate' o mesmo
+                        # topo. `laje_sup` escalar nao expressa isso — ele
+                        # carrega so' o valor de BAIXO do painel, e o N4 o
+                        # aplicava na face inteira, deixando o lado sem painel
+                        # rebaixado pela espessura dele.
+                        #
+                        # Medido no N2 da V13 face A (415 de largura):
+                        #   cota "15" a direita, cota "200" sobre o trecho
+                        #   esquerdo e cota "3" na borda -> laje 15 nos 215 da
+                        #   direita, laje 12 + painel 3 nos 200 da esquerda,
+                        #   topo plano nos dois. A fronteira (x=200) NAO cai em
+                        #   divisa de painel (244/63/108), entao "laje por
+                        #   painel" nao consegue expressar o degrau — por isso
+                        #   o trecho tem x proprio.
+                        #
+                        # Fora de degrau o campo fica ausente e nada muda.
+                        _pan_h = float(top_panel.get('height', 0) or 0)
+                        _pan_w = float(top_panel.get('width', 0) or 0)
+                        _pan_x0 = float(top_panel.get('x_offset', 0) or 0)
+                        _span = round(
+                            float(pair.get('x_right', 0) or 0)
+                            - float(pair.get('x_left', 0) or 0), 1)
+                        _alta_cand = round(ls_u + _pan_h, 1)
+                        # GUARDA (obrigatoria): so' ha' degrau se o trecho alto
+                        # reproduzir a cota escrita da face. Sem isso, qualquer
+                        # marco estreito lido como "painel de topo" vira degrau
+                        # inventado — medido na V301, que nao tem degrau algum
+                        # (laje 15 uniforme) e gerava 6 unidades com trechos de
+                        # laje 21/22 e x ate' 461 numa face de 415. O mesmo erro
+                        # de inferir por geometria em vez de ler o que o desenho
+                        # declara ja' tinha aparecido nas tampas de sarrafo.
+                        _cota_ok = (
+                            _ls_cota > 0.05
+                            and abs(_alta_cand - _ls_cota) <= 0.6
+                        )
+                        # 2a evidencia, independente da 1a: o VALOR do degrau
+                        # precisa estar COTADO no desenho junto ao topo desta
+                        # face. E' assim que o projetista comunica o degrau (na
+                        # V13 o "3" esta' escrito na borda esquerda). Sozinha, a
+                        # comparacao com `_ls_cota` nao basta: nas unidades sem
+                        # rotulo da V301.B a propria leitura de cota ja' vem
+                        # errada (21), entao ela concorda consigo mesma e deixa
+                        # passar degrau inexistente.
+                        _deg_ok = any(
+                            abs(float(v) - _pan_h) <= 0.4
+                            and float(pair.get('x_left', 0)) - 35.0 <= cx
+                            <= float(pair.get('x_right', 0)) + 35.0
+                            and float(pair.get('y_top', 0)) - 5.0 <= cy
+                            <= float(pair.get('y_top', 0)) + _alta_cand + 20.0
+                            for cx, cy, v in cota_txts
+                        )
+                        if (_cota_ok and _deg_ok and _pan_h > 0.05
+                                and 0.5 < _pan_w < _span - 0.5):
+                            _x0 = round(max(0.0, _pan_x0), 1)
+                            _x1 = round(min(_span, _pan_x0 + _pan_w), 1)
+                            _alta = _alta_cand
+                            if _x0 > 0.5:
+                                laje_trechos.append(
+                                    {'x0': 0.0, 'x1': _x0, 'altura': _alta})
+                            laje_trechos.append(
+                                {'x0': _x0, 'x1': _x1, 'altura': ls_u})
+                            if _span - _x1 > 0.5:
+                                laje_trechos.append(
+                                    {'x0': _x1, 'x1': _span, 'altura': _alta})
+                            if len(laje_trechos) < 2:
+                                laje_trechos = []
                     # O bbox vertical pode incluir cotas/chamadas externas. A
                     # altura material do corpo ja esta nos paineis extraidos.
                     panel_body_heights = [
@@ -2448,6 +2524,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             h_total if h_total > 0
                             else pair.get('h_body', 0.0)),
                         'laje_sup': ls_u,
+                        'laje_sup_trechos': laje_trechos,
                         'laje_inf': li_u,
                         'pontaletes_face': _pontaletes_for_pair(pair),
                         'grade_layer_style': _grade_layer_style(pair, segs_u),

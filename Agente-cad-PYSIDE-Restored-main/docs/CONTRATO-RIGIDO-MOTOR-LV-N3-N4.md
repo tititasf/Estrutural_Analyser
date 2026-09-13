@@ -121,6 +121,29 @@ generalizar a partir de uma so.
    abertura e' cotada da borda da face ate' a interrupcao.
    Evidencia: V13 face A, abertura de 78, tampas nos handles 53 e 54 do N2.
    A interrupcao ja' vem da ficha em `sarrafos_horizontais[].x_left`.
+
+> **DEFEITO ABERTO (2026-09-13) — a tampa e' so' de abertura de PILAR.**
+> Correcao do dono: abertura comum (chegada de VIGA) interrompe a corrida de
+> sarrafos do mesmo jeito e **nao leva tampa**. O criterio implementado em
+> `draw_sarr_lv_horizontal_from_n2` e' puramente geometrico (`a > base + 10.0`:
+> "a corrida que comeca muito depois das outras foi interrompida"), entao ele
+> detecta INTERRUPCAO e nao sabe quem interrompeu.
+>
+> Medido nos recortes que o motor de fato usa (os do DB, `reverse_eng_recortes`
+> — atencao: ha' recortes homonimos de outra prancha em
+> `DADOS-OBRAS/Fase-2_Triagem/`, e medir neles da' numero errado):
+>
+> | viga | verticais SARR no N2 | com 5-9cm (tampa) | o N4 desenha |
+> |---|---|---|---|
+> | V13 (abertura de pilar) | 6 | **4** | 3 |
+> | V301 (abertura de viga) | 48 | **0** | **24** |
+>
+> Ou seja: 24 tampas inventadas na V301 e 1 faltando na V13. O desenho humano
+> marca a diferenca de forma medivel (a V13 tem verticais de exatamente 7cm; a
+> V301 nao tem nenhuma entre 5 e 9), entao o conserto e' achar no N2 o que
+> identifica a abertura como sendo de pilar — nao calibrar o limiar geometrico.
+> Mesma licao do degrau de laje (§3.4.1 do doc de interpretacao): ler o que o
+> desenho declara, nao inferir por forma.
    Discriminador: e' abertura quando a corrida comeca **muito** depois das
    outras da mesma face. O recuo normal de canto (`SARR_INSET_H`) nao e'
    abertura — trata-lo como tal gera tampa em quase toda viga.

@@ -990,7 +990,7 @@ def _marco_extension_cm(marco_laje_sup, laje_sup, *, has_marco_strip=None):
 
 def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
                           marco_laje_sup=False, laje_sup=0.0,
-                          marco_h_min=0.0):
+                          marco_h_min=0.0, laje_trechos=None):
     """Contorno Painéis fiel ao N2 — G honest (miss→0, extra→0).
 
     Regras anti-phantom (ShareX + ledger V301 A/B):
@@ -1267,7 +1267,24 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
             msp, x0, y_marco, body_end, y_marco + marco_h_base,
         )
     elif marco_h > 0.5:
-        _draw_vazio_concreto(msp, x0, y_top, body_end, y_marco)
+        # ── DEGRAU DE LAJE ────────────────────────────────────────────────
+        # Com `laje_trechos` na ficha, a laje tem altura por TRECHO e o topo
+        # fica plano: onde ha' painel de fechamento a laje e' mais baixa e o
+        # painel completa; fora dele a laje sobe sozinha ate' o mesmo topo.
+        # Sem o campo, desenha a faixa unica de sempre — byte a byte igual.
+        _tr = [t for t in (laje_trechos or [])
+               if float(t.get('altura', 0) or 0) > 0]
+        if _tr:
+            for _t in sorted(_tr, key=lambda d: float(d.get('x0', 0) or 0)):
+                _xi = max(x0, x0 + float(_t.get('x0', 0) or 0))
+                _xf = min(body_end, x0 + float(_t.get('x1', 0) or 0))
+                if _xf - _xi <= 0.05:
+                    continue
+                _draw_vazio_concreto(
+                    msp, _xi, y_top, _xf, y_top + float(_t['altura']),
+                )
+        else:
+            _draw_vazio_concreto(msp, x0, y_top, body_end, y_marco)
 
     # ── marco strip DIR (trailing) — V7 stub so (degrau grosso) ──
     # A tampa H solta (body_end+3 -> full_end em y_marco) foi removida
@@ -1327,17 +1344,47 @@ def _draw_degrau_step_verticals(msp, x0, y0, h, panels):
     return
 
 
-def _draw_marco_laje_sup(msp, x0, y0, h, panels, laje_sup, skip_layers=None):
-    """Marco da laje superior (Painéis + hachura) nos painéis altos da face."""
+def _draw_marco_laje_sup(msp, x0, y0, h, panels, laje_sup, skip_layers=None,
+                         laje_trechos=None):
+    """Marco da laje superior (Painéis + hachura) nos painéis altos da face.
+
+    `laje_trechos` (opcional) descreve DEGRAU DE LAJE: altura diferente por
+    trecho da mesma face, em coordenada x relativa a x0, no formato
+    [{x0, x1, altura}, ...]. Vem da ficha (`laje_sup_trechos`) e so' existe
+    quando o N2 declara o degrau por cota escrita — ver §3.4.1 do doc de
+    interpretacao. Ausente, o comportamento e' o de sempre: um retangulo por
+    painel com `laje_sup` unico.
+
+    A fronteira do degrau NAO cai necessariamente em divisa de painel (V13
+    face A: painel 244 com a fronteira em 200), entao o retangulo do painel e'
+    PARTIDO na fronteira e cada pedaco recebe a altura do seu trecho.
+    """
     if skip_layers is None:
         skip_layers = set()
     ls = float(laje_sup or 0)
-    if ls <= 0:
+    trechos = [t for t in (laje_trechos or [])
+               if float(t.get('altura', 0) or 0) > 0]
+    if ls <= 0 and not trechos:
         return
     hatch_ok = 'SCO-___-LAJ' not in skip_layers
     y_body_top = y0 + h
     x_cur = x0
     a = {'layer': 'Painéis'}
+
+    def _pedacos(xi, xf):
+        """Divide [xi, xf] (relativo a x0) em (ini, fim, altura) por trecho."""
+        if not trechos:
+            return [(xi, xf, ls)]
+        out = []
+        for t in sorted(trechos, key=lambda d: float(d.get('x0', 0) or 0)):
+            t0 = x0 + float(t.get('x0', 0) or 0)
+            t1 = x0 + float(t.get('x1', 0) or 0)
+            ini, fim = max(xi, t0), min(xf, t1)
+            if fim - ini > 0.05:
+                out.append((ini, fim, float(t['altura'])))
+        # Trecho nao coberto pela ficha mantem a altura global.
+        return out or ([(xi, xf, ls)] if ls > 0 else [])
+
     for panel in panels:
         pw = float(panel.get('width', 0) or 0)
         if pw <= 0:
@@ -1345,15 +1392,16 @@ def _draw_marco_laje_sup(msp, x0, y0, h, panels, laje_sup, skip_layers=None):
         if _is_degrau_panel(panel, h):
             x_cur += pw
             continue
-        pts = [
-            (x_cur, y_body_top),
-            (x_cur + pw, y_body_top),
-            (x_cur + pw, y_body_top + ls),
-            (x_cur, y_body_top + ls),
-        ]
-        msp.add_lwpolyline(pts, close=True, dxfattribs=a)
-        if hatch_ok:
-            pass  # N4: hachura somente em vazios; laje permanece como contorno.
+        for xi, xf, alt in _pedacos(x_cur, x_cur + pw):
+            pts = [
+                (xi, y_body_top),
+                (xf, y_body_top),
+                (xf, y_body_top + alt),
+                (xi, y_body_top + alt),
+            ]
+            msp.add_lwpolyline(pts, close=True, dxfattribs=a)
+            if hatch_ok:
+                pass  # N4: hachura so' em vazios; laje permanece contorno.
         x_cur += pw
 
 
@@ -2091,7 +2139,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  marco_laje_sup=False, painel_sup_alt=0.0,
                  painel_sup_width=0.0, painel_sup_x_offset=0.0,
                  endpoint_start_label=None, endpoint_end_label=None,
-                 edge_span_candidates=None):
+                 edge_span_candidates=None, laje_trechos=None):
     """Desenha uma face (A ou B) da viga lateral -- todos elementos visuais.
     panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2, reuse, panel_type}, ...]
     holes: lista de aberturas [{active, width, height, position}, ...]
@@ -2411,6 +2459,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         marco_laje_sup=marco_laje_sup,
         laje_sup=laje_sup,
         marco_h_min=_marco_h_min_data,
+        laje_trechos=laje_trechos,
     )
     # Hachura ANSI31 na faixa superior do degrau (N2 V301) — densifica visao.
 
@@ -3967,6 +4016,7 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
             endpoint_start_label=unit.get('endpoint_start_label'),
             endpoint_end_label=unit.get('endpoint_end_label'),
             edge_span_candidates=unit.get('edge_span_candidates'),
+            laje_trechos=unit.get('laje_sup_trechos'),
         )
         unit_width = sum(p['width'] for p in panels)
         x_max = max(x_max, x0 + unit_width + DIM_H_RIGHT + 40)
