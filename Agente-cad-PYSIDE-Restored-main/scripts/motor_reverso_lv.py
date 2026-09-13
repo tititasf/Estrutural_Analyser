@@ -2422,6 +2422,18 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         )
                         if (_cota_ok and _deg_ok and _pan_h > 0.05
                                 and 0.5 < _pan_w < _span - 0.5):
+                            # ARITMETICA, nao medicao (correcao do dono,
+                            # 2026-09-13): com a laje cotada em 15 e o painel
+                            # em 3, o trecho de baixo e' 15-3 = 12 exato. O
+                            # valor medido na geometria (12.3 na face A, 12.4
+                            # na B) e' folga de desenho — deixa-lo passar faz
+                            # o N4 cotar "12,3" e "12,5", numeros que nao
+                            # existem no projeto.
+                            ls_u = round(_ls_cota - _pan_h, 1)
+                            _alta_cand = round(_ls_cota, 1)
+                            h_total = round(
+                                float(pair.get('h_body', 0) or 0)
+                                + ls_u + _pan_h, 1)
                             _x0 = round(max(0.0, _pan_x0), 1)
                             _x1 = round(min(_span, _pan_x0 + _pan_w), 1)
                             _alta = _alta_cand

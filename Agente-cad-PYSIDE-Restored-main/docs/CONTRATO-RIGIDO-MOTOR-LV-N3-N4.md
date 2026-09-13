@@ -122,6 +122,21 @@ generalizar a partir de uma so.
    Evidencia: V13 face A, abertura de 78, tampas nos handles 53 e 54 do N2.
    A interrupcao ja' vem da ficha em `sarrafos_horizontais[].x_left`.
 
+> **REGRA DO DONO (2026-09-13) — como separar abertura de PILAR de abertura
+> de VIGA.** O que distingue as duas e' O QUE CADA UMA RECORTA:
+>
+> | abertura | painel | sarrafo |
+> |---|---|---|
+> | **de VIGA** | produz **vazio e recorte no painel** | tambem interrompe |
+> | **de PILAR** | **nao altera o painel** | **so' recorta o sarrafo** |
+>
+> Ou seja: se o painel foi recortado, a abertura e' de viga; se so' a corrida
+> de sarrafo foi interrompida e o painel esta' inteiro, e' de pilar.
+>
+> O marcador de origem vem do **N1**, nao do N2 — o N2 e' desenho, e o desenho
+> so' mostra a consequencia. O que o motor precisa e' ter **comportamento
+> separado para os dois casos**; a classificacao pode chegar do N1.
+>
 > **DEFEITO ABERTO (2026-09-13) — a tampa e' so' de abertura de PILAR.**
 > Correcao do dono: abertura comum (chegada de VIGA) interrompe a corrida de
 > sarrafos do mesmo jeito e **nao leva tampa**. O criterio implementado em
@@ -144,6 +159,27 @@ generalizar a partir de uma so.
 > identifica a abertura como sendo de pilar — nao calibrar o limiar geometrico.
 > Mesma licao do degrau de laje (§3.4.1 do doc de interpretacao): ler o que o
 > desenho declara, nao inferir por forma.
+
+#### 5.2.2 Cotas de abertura — pendencias medidas (2026-09-13)
+
+Apontadas pelo dono na revisao da V13 face A. Medidas, ainda sem conserto:
+
+1. **Cota do painel de topo sai 4x, deveria sair 1x.** O N2 da face A tem UMA
+   cota `3`, na borda esquerda (x=2.0). O N4 emite 4 por face (2 posicoes x 2
+   alturas: y=-137.7 e y=-141.7). O bloco de `_top_panel_h` em
+   `gerar_lv_dxf_stog.py` emite 2 (esquerda e direita) — ha' um SEGUNDO
+   emissor ainda nao localizado, responsavel pelo par de y=-137.7. A
+   duplicacao e' anterior ao degrau de laje: contagem identica nos N4 gerados
+   antes e depois daquele commit.
+2. **Cota `78` da abertura de pilar nao e' reproduzida.** O N2 tem
+   `TEXT·COTA handle=168 texto="78"` (largura da abertura, cotada da borda da
+   face ate' a interrupcao da corrida de sarrafos — §5.2.1 item 2). O N4 nao
+   emite cota nenhuma para a abertura.
+
+Resolvido nesta rodada: a cota da laje sob o painel saia `12,3` na face A e
+`12,5` na face B (com medida real 12.4 — o texto nem batia com a medida). E'
+**aritmetica, nao medicao**: laje cotada 15 menos painel 3 = 12 exato. A folga
+de desenho (0.3/0.4) nao pode virar cota. Agora sai `12` nas duas faces.
    Discriminador: e' abertura quando a corrida comeca **muito** depois das
    outras da mesma face. O recuo normal de canto (`SARR_INSET_H`) nao e'
    abertura — trata-lo como tal gera tampa em quase toda viga.
