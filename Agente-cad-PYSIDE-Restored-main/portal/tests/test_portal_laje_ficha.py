@@ -63,5 +63,31 @@ def test_frontend_laje_esta_integrado_no_template():
     assert "regenerar-n3/status" in js
     assert "Regeneração N3 em andamento" in js
     assert "data-lj-regen-monitor" in js
+    assert "options.cache='no-store'" in js
+    assert "_fresh=" in js
+    assert "cacheBust:Date.now()" in js
     assert "LajeFicha.mount" in template
     assert "/static/laje_ficha.js" in template
+
+
+def test_camada_n3_prefere_dxf_de_producao_ao_html_historico(tmp_path: Path, monkeypatch):
+    state = _state(tmp_path)
+    monkeypatch.setattr(
+        laje_ficha.ficha_reader,
+        "extrair_fotos_producao",
+        lambda *args, **kwargs: {"n1": "sa-produção", "n3": "svg-n3-novo"},
+    )
+    monkeypatch.setattr(
+        laje_ficha.ficha_reader,
+        "resolver_foto_portal",
+        lambda *args, **kwargs: {"svg": "svg-html-antigo", "origem": "ficha_html_canonica"},
+    )
+
+    result = laje_ficha.resolver_camada_laje(tmp_path, "13_PAV", "L301", state, "n3")
+
+    assert result == {
+        "layer": "n3",
+        "available": True,
+        "svg": "svg-n3-novo",
+        "origem": "artefato_producao",
+    }

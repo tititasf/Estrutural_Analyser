@@ -146,11 +146,128 @@ def _fmt_cm(value: float) -> str:
     return f"{value:.0f}" if abs(value - round(value)) < 1e-6 else f"{value:g}"
 
 
-def _cota_chain(msp, entities, origin, along, across, u0, segments, v_attach, v_line, labels, height=5.0):
-    """Cota N2/legado: ticks da borda (perfil) até a linha, texto no meio. Sem DIMENSION.
+def _add_centered_text(msp, entities, xy, text, height, rot, layer="COTA"):
+    """Centro visual na linha da cota. Insert DXF é baseline-esquerda; matplotlib ignora align."""
+    width = 0.70 * height * max(1, len(text or " "))
+    cx, cy = float(xy[0]), float(xy[1])
+    if abs(rot) >= 45.0:
+        insert = (cx + 0.18 * height, cy - width / 2.0)
+    else:
+        insert = (cx - width / 2.0, cy - 0.18 * height)
+    e = msp.add_text(
+        text,
+        dxfattribs={"layer": layer, "insert": insert, "height": height, "rotation": rot},
+    )
+    entities.append(e)
+    return e
 
-    O 2× final escala LINE+TEXT juntos; DIMENSION+transform desalinha defpoint e texto.
-    """
+
+def _text_aabb(x: float, y: float, text: str, height: float, rot: float) -> tuple[float, float, float, float]:
+    """Caixa aproximada do TEXT (insert = centro). Rot 90 troca os eixos."""
+    width = max(3.5, 0.62 * height * max(1, len(text)))
+    tall = height * 1.3
+    if abs(rot) >= 45.0:
+        width, tall = tall, width
+    return (x - width / 2.0, y - tall / 2.0, x + width / 2.0, y + tall / 2.0)
+
+
+def _boxes_overlap(a, b, pad: float = 1.6) -> bool:
+    return not (
+        a[2] + pad <= b[0] or b[2] + pad <= a[0]
+        or a[3] + pad <= b[1] or b[3] + pad <= a[1]
+    )
+
+
+def _line_hits_box(x1, y1, x2, y2, box, thick: float = 1.4) -> bool:
+    xmin, ymin, xmax, ymax = box
+    xmin -= thick
+    ymin -= thick
+    xmax += thick
+    ymax += thick
+    dx, dy = x2 - x1, y2 - y1
+    if abs(dx) < 1e-9 and abs(dy) < 1e-9:
+        return xmin <= x1 <= xmax and ymin <= y1 <= ymax
+    hits = []
+    if abs(dx) > 1e-9:
+        for xedge in (xmin, xmax):
+            t = (xedge - x1) / dx
+            if 0.0 <= t <= 1.0:
+                y = y1 + t * dy
+                if ymin <= y <= ymax:
+                    hits.append(True)
+    if abs(dy) > 1e-9:
+        for yedge in (ymin, ymax):
+            t = (yedge - y1) / dy
+            if 0.0 <= t <= 1.0:
+                x = x1 + t * dx
+                if xmin <= x <= xmax:
+                    hits.append(True)
+    if xmin <= x1 <= xmax and ymin <= y1 <= ymax:
+        return True
+    if xmin <= x2 <= xmax and ymin <= y2 <= ymax:
+        return True
+    return bool(hits)
+
+
+class CotaBook:
+    """Livro de obstáculos: linhas de cota ficam; só o texto desliza se colidir."""
+
+    def __init__(self):
+        self.lines: list[tuple[float, float, float, float]] = []
+        self.boxes: list[tuple[float, float, float, float]] = []
+
+    def add_line(self, p1, p2):
+        self.lines.append((float(p1[0]), float(p1[1]), float(p2[0]), float(p2[1])))
+
+    def blocked(self, box, rot: float) -> bool:
+        if any(_boxes_overlap(box, other) for other in self.boxes):
+            return True
+        vertical_text = abs(rot) >= 45.0
+        for x1, y1, x2, y2 in self.lines:
+            line_vertical = abs(x2 - x1) < abs(y2 - y1)
+            # Só linhas que CRUZAM o texto (a cota própria é paralela e deve ficar).
+            if vertical_text == line_vertical:
+                continue
+            if _line_hits_box(x1, y1, x2, y2, box):
+                return True
+        return False
+
+    def place(self, origin, along, across, u0, u1, v_line, text, height, rot) -> tuple[float, float]:
+        u0, u1 = (u0, u1) if u1 >= u0 else (u1, u0)
+        mid = (u0 + u1) / 2.0
+        upper = (text or "").upper()
+        # Totais GRADE / PAINEL / PARAFUSOS: sempre no centro da linha da cota.
+        is_total = any(tag in upper for tag in ("GRADE", "PAINEL", "PARAFUSO"))
+        if is_total or len(text) <= 3:
+            us = [mid]
+            vs = [v_line + 3.0, v_line + 6.5]
+        else:
+            lo, hi = u0 + 0.18 * (u1 - u0), u1 - 0.12 * (u1 - u0)
+            step = max(3.0, min(8.0, (u1 - u0) / 10.0))
+            us = [mid]
+            k = 1
+            while mid + k * step <= hi:
+                us.append(mid + k * step)
+                k += 1
+            k = 1
+            while mid - k * step >= lo:
+                us.append(mid - k * step)
+                k += 1
+            vs = [v_line + 3.0, v_line + 7.0, v_line + 11.0, v_line + 1.2]
+        for v in vs:
+            for u in us:
+                x, y = _pt(origin, along, across, u, v)
+                box = _text_aabb(x, y, text, height, rot)
+                if not self.blocked(box, rot):
+                    self.boxes.append(box)
+                    return x, y
+        x, y = _pt(origin, along, across, mid, v_line + 3.0)
+        self.boxes.append(_text_aabb(x, y, text, height, rot))
+        return x, y
+
+
+def _cota_chain(msp, entities, origin, along, across, u0, segments, v_attach, v_line, labels, height=5.0, book: CotaBook | None = None):
+    """Cota N2/legado: ticks da borda (perfil) até a linha; texto desvia de colisão."""
     if not segments:
         return
     rot = 90.0 if abs(along[1]) >= abs(along[0]) else 0.0
@@ -160,17 +277,17 @@ def _cota_chain(msp, entities, origin, along, across, u0, segments, v_attach, v_
         cursor += float(seg)
         bounds.append(cursor)
     attribs = {"layer": "COTA"}
-    entities.append(msp.add_line(
-        _pt(origin, along, across, bounds[0], v_line),
-        _pt(origin, along, across, bounds[-1], v_line),
-        dxfattribs=attribs,
-    ))
+    p_line_a = _pt(origin, along, across, bounds[0], v_line)
+    p_line_b = _pt(origin, along, across, bounds[-1], v_line)
+    entities.append(msp.add_line(p_line_a, p_line_b, dxfattribs=attribs))
+    if book is not None:
+        book.add_line(p_line_a, p_line_b)
     for u in bounds:
-        entities.append(msp.add_line(
-            _pt(origin, along, across, u, v_attach),
-            _pt(origin, along, across, u, v_line),
-            dxfattribs=attribs,
-        ))
+        tick_a = _pt(origin, along, across, u, v_attach)
+        tick_b = _pt(origin, along, across, u, v_line)
+        entities.append(msp.add_line(tick_a, tick_b, dxfattribs=attribs))
+        if book is not None:
+            book.add_line(tick_a, tick_b)
         entities.append(msp.add_line(
             _pt(origin, along, across, u - TICK, v_line),
             _pt(origin, along, across, u + TICK, v_line),
@@ -178,19 +295,16 @@ def _cota_chain(msp, entities, origin, along, across, u0, segments, v_attach, v_
         ))
     cursor = u0
     for seg, lab in zip(segments, labels):
-        entities.append(msp.add_text(
-            lab,
-            dxfattribs={
-                "layer": "COTA",
-                "insert": _pt(origin, along, across, cursor + float(seg) / 2.0, v_line + 3.0),
-                "height": height,
-                "rotation": rot,
-            },
-        ))
+        u_a, u_b = cursor, cursor + float(seg)
+        if book is not None:
+            x, y = book.place(origin, along, across, u_a, u_b, v_line, lab, height, rot)
+        else:
+            x, y = _pt(origin, along, across, (u_a + u_b) / 2.0, v_line + 3.0)
+        _add_centered_text(msp, entities, (x, y), lab, height, rot, "COTA")
         cursor += float(seg)
 
 
-def _draw_face_strip(msp, entities, origin, along, across, arm: dict, *, outer: bool):
+def _draw_face_strip(msp, entities, origin, along, across, arm: dict, *, outer: bool, book: CotaBook | None = None, thick: float = 19.0):
     """Madeira + quadradinhos + G-labels + parafusos 7×7 (MEIO_PONT) numa face longa."""
     widths = [float(w) for w in (arm.get("grade_widths") or []) if w]
     if not widths:
@@ -239,50 +353,69 @@ def _draw_face_strip(msp, entities, origin, along, across, arm: dict, *, outer: 
     v_panel = v_attach + d_panel
 
     def _label(u, v, txt, height=5.0, layer="COTA"):
-        entities.append(msp.add_text(
-            txt,
-            dxfattribs={
-                "layer": layer,
-                "insert": _pt(origin, along, across, u, v),
-                "height": height,
-                "rotation": rot,
-            },
-        ))
+        _add_centered_text(msp, entities, _pt(origin, along, across, u, v), txt, height, rot, layer)
 
     for gi, start in enumerate(starts):
         segs = [float(s) for s in (divs[gi] if gi < len(divs) else []) if float(s) > 0]
         if segs:
             _cota_chain(
                 msp, entities, origin, along, across, start, segs,
-                v_attach, v_quad, [_fmt_cm(s) for s in segs],
+                v_attach, v_quad, [_fmt_cm(s) for s in segs], book=book,
             )
         gw = widths[gi]
         _label(start + gw / 2.0, madeira_v0 + 1.5, f"G{gw:.0f}", 4.5, "NOMENCLATURA")
         _cota_chain(
             msp, entities, origin, along, across, start, [gw],
-            v_attach, v_grade, [f"{_fmt_cm(gw)}(GRADE)"],
+            v_attach, v_grade, [f"{_fmt_cm(gw)}(GRADE)"], book=book,
         )
         if gaps and gi < len(gaps) and gaps[gi] > 0.4:
             _cota_chain(
                 msp, entities, origin, along, across, start + gw, [gaps[gi]],
-                v_attach, v_quad, [_fmt_cm(gaps[gi])],
+                v_attach, v_quad, [_fmt_cm(gaps[gi])], book=book,
             )
     _cota_chain(
         msp, entities, origin, along, across, 0.0, [panel],
-        v_attach, v_panel, [f"{_fmt_cm(panel)} PAINEL"],
+        v_attach, v_panel, [f"{_fmt_cm(panel)} PAINEL"], book=book,
     )
 
     spacings = [float(v) for v in (arm.get("parafusos") or []) if v]
-    cursor = float(arm.get("parafuso_inicio") or 0.0)
-    bolt_us = []
+    if not spacings and outer:
+        spacings = [45.0, 45.0]
+    if not spacings and not outer:
+        return
+    cursor = float(arm.get("parafuso_inicio") or 0.0) - 1.0
+    bolt_us = [cursor]
     for spacing in spacings:
         cursor += spacing
-        if 0.0 < cursor < panel:
+        if cursor < panel + 1.0:
             bolt_us.append(cursor)
-    for u in bolt_us:
+    if bolt_us[-1] < panel + 0.5:
+        bolt_us.append(panel + 1.0)
+    extra = 18.4 if panel < 223 else 20.6
+    bolt_v0 = -thick - extra - 6.0
+    bolt_v1 = extra + 6.0
+    for i, u in enumerate(bolt_us):
+        if outer:
+            intermediate = 0 < i < len(bolt_us) - 1
+            if intermediate:
+                _rect(msp, entities, origin, along, across, u - 0.5, bolt_v0, 1.0, (-thick - 2.0) - bolt_v0, "Hachura")
+                _rect(msp, entities, origin, along, across, u - 0.5, -thick - 2.0, 1.0, thick + 4.0, "Hachura")
+                _rect(msp, entities, origin, along, across, u - 0.5, 2.0, 1.0, bolt_v1 - 2.0, "Hachura")
+            else:
+                _rect(msp, entities, origin, along, across, u - 0.5, bolt_v0, 1.0, bolt_v1 - bolt_v0, "Hachura")
         _rect(
             msp, entities, origin, along, across,
             u - CORNER_W / 2.0, madeira_v0, CORNER_W, madeira_h, "MEIO_PONT", 93,
+        )
+    if outer and len(bolt_us) >= 2:
+        segs = [bolt_us[i + 1] - bolt_us[i] for i in range(len(bolt_us) - 1)]
+        _cota_chain(
+            msp, entities, origin, along, across, bolt_us[0], segs,
+            v_attach, v_panel + 18.0, [_fmt_cm(s) for s in segs], book=book,
+        )
+        _cota_chain(
+            msp, entities, origin, along, across, bolt_us[0], [sum(segs)],
+            v_attach, v_panel + 36.0, [f"{_fmt_cm(sum(segs))} PARAFUSOS"], book=book,
         )
 
 
@@ -338,16 +471,20 @@ def draw_cima_l(msp, ox, oy, nome, pj: dict) -> int:
     ramo_int_along = (sign_x, 0.0)
     ramo_int_across = (0.0, sign_y)
 
+    book = CotaBook()
     strips = (
         ("haste_ext", haste_ext_origin, haste_ext_along, haste_ext_across, True),
-        ("haste_int", haste_int_origin, haste_int_along, haste_int_across, False),
         ("ramo_ext", ramo_ext_origin, ramo_ext_along, ramo_ext_across, True),
+        ("haste_int", haste_int_origin, haste_int_along, haste_int_across, False),
         ("ramo_int", ramo_int_origin, ramo_int_along, ramo_int_across, False),
     )
     for name, origin, along, across, outer in strips:
         arm = arms.get(name) or arms.get("haste" if name.startswith("haste") else "ramo")
         if arm:
-            _draw_face_strip(msp, entities, origin, along, across, arm, outer=outer)
+            _draw_face_strip(
+                msp, entities, origin, along, across, arm,
+                outer=outer, book=book, thick=thick,
+            )
 
     inner_h = float(paineis.get("haste") or secao["externa_y"])
     inner_r = float(paineis.get("ramo") or secao["externa_x"])

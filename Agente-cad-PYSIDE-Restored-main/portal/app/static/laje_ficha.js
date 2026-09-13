@@ -4,7 +4,14 @@
   function esc(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   function shown(v) { return v === null || v === undefined || v === '' ? '—' : esc(v); }
   function query(o) { return o.pavimento ? '?pavimento=' + encodeURIComponent(o.pavimento) : ''; }
-  function api(url, options) { return fetch(url, options).then(function (r) { return r.json().then(function (b) { if (!r.ok) throw new Error(b.detail || ('HTTP ' + r.status)); return b; }); }); }
+  function api(url, options) {
+    options=options||{};
+    // Fichas e camadas apontam para artefatos mutáveis por microciclo. Sem
+    // isto o Chromium pode reaproveitar o JSON/SVG anterior mesmo depois de o
+    // job publicar um DXF novo no servidor.
+    if (!options.method || options.method==='GET') options.cache='no-store';
+    return fetch(url, options).then(function (r) { return r.json().then(function (b) { if (!r.ok) throw new Error(b.detail || ('HTTP ' + r.status)); return b; }); });
+  }
   function json(method, body) { return {method:method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)}; }
 
   function cleanSvg(raw) {
@@ -101,7 +108,7 @@
         state.regenTimer=setTimeout(function(){pollRegenJob(root,data,options,state,jobId);},2500);
       } else if (job.estado==='done' && state.regenRefreshOnDone===jobId && !state.editing) {
         state.regenRefreshOnDone=null;
-        load(root,Object.assign({},options,{item:data.item.id,initialLayer:state.layer}));
+        load(root,Object.assign({},options,{item:data.item.id,initialLayer:state.layer,cacheBust:Date.now()}));
       }
     }).catch(function(e){
       if (root._ljState !== state) return;
@@ -134,7 +141,7 @@
     bind(root,data,options,state); initPanZoom(root.querySelector('.fv-web-canvas')); ensureLayer(root,data,options,state); if(state.layer==='n3')ensureRegenMonitor(root,data,options,state);
   }
 
-  function ensureLayer(root,data,options,state){var info=data.layers[state.layer];if(!info||!info.lazy||info.loading)return;info.loading=true;api('/obras/'+encodeURIComponent(options.obraId)+'/lajes/'+encodeURIComponent(data.item.id)+'/camada/'+state.layer+query(options)).then(function(p){info.loading=false;info.lazy=false;info.available=!!p.available;info.svg=p.svg||null;render(root,data,options,state);}).catch(function(e){info.loading=false;info.lazy=false;info.available=false;info.error=e.message;render(root,data,options,state);});}
+  function ensureLayer(root,data,options,state){var info=data.layers[state.layer];if(!info||!info.lazy||info.loading)return;info.loading=true;var q=query(options);q+=(q?'&':'?')+'_fresh='+encodeURIComponent(state.cacheBust);api('/obras/'+encodeURIComponent(options.obraId)+'/lajes/'+encodeURIComponent(data.item.id)+'/camada/'+state.layer+q).then(function(p){info.loading=false;info.lazy=false;info.available=!!p.available;info.svg=p.svg||null;render(root,data,options,state);}).catch(function(e){info.loading=false;info.lazy=false;info.available=false;info.error=e.message;render(root,data,options,state);});}
 
   function collectLines(root,axis){return Array.prototype.map.call(root.querySelectorAll('[data-lj-line="'+axis+'"]'),function(row){var inputs=row.querySelectorAll('input');return {value:inputs[0].value,is_union:inputs[1].checked};});}
   function bind(root,data,options,state){
@@ -151,6 +158,6 @@
     var notes=root.querySelector('[data-lj-save-notes]');if(notes)notes.addEventListener('click',function(){var values={};root.querySelectorAll('[data-lj-note]').forEach(function(t){values[t.dataset.ljNote]=t.value;});notes.disabled=true;api('/obras/'+encodeURIComponent(options.obraId)+'/lajes/'+encodeURIComponent(data.item.id)+'/notas'+query(options),json('PUT',{notes:values})).then(function(p){data.notes=p.notes;notes.disabled=false;root.querySelector('[data-lj-status]').textContent='Opiniões salvas.';}).catch(function(e){notes.disabled=false;root.querySelector('[data-lj-status]').textContent='Falha: '+e.message;});});
   }
   function bindRemovers(root){root.querySelectorAll('[data-lj-remove]').forEach(function(b){if(b.dataset.bound)return;b.dataset.bound='1';b.addEventListener('click',function(){b.closest('[data-lj-line]').remove();});});}
-  function load(root,options){if(root._ljState&&root._ljState.regenTimer)clearTimeout(root._ljState.regenTimer);root.innerHTML='<div class="fv-web-loading"><i></i><span>Montando ficha da laje '+esc(options.item)+'…</span></div>';var q=query(options);q+=(q?'&':'?')+'include_svgs=false';return api('/obras/'+encodeURIComponent(options.obraId)+'/lajes/'+encodeURIComponent(options.item)+q).then(function(data){var state={layer:options.initialLayer||'sa',editing:false,regenJob:null,regenChecking:false,regenDiscovered:false,regenError:'',regenTimer:null,regenRefreshOnDone:null};root._ljState=state;render(root,data,options,state);}).catch(function(e){root._ljState=null;root.innerHTML='<div class="fv-web-error"><strong>Não foi possível montar a ficha da laje.</strong><span>'+esc(e.message)+'</span><button>Tentar novamente</button></div>';root.querySelector('button').addEventListener('click',function(){load(root,options);});});}
+  function load(root,options){if(root._ljState&&root._ljState.regenTimer)clearTimeout(root._ljState.regenTimer);root.innerHTML='<div class="fv-web-loading"><i></i><span>Montando ficha da laje '+esc(options.item)+'…</span></div>';var fresh=options.cacheBust||Date.now(),q=query(options);q+=(q?'&':'?')+'include_svgs=false&_fresh='+encodeURIComponent(fresh);return api('/obras/'+encodeURIComponent(options.obraId)+'/lajes/'+encodeURIComponent(options.item)+q).then(function(data){var state={layer:options.initialLayer||'sa',editing:false,regenJob:null,regenChecking:false,regenDiscovered:false,regenError:'',regenTimer:null,regenRefreshOnDone:null,cacheBust:fresh};root._ljState=state;render(root,data,options,state);}).catch(function(e){root._ljState=null;root.innerHTML='<div class="fv-web-error"><strong>Não foi possível montar a ficha da laje.</strong><span>'+esc(e.message)+'</span><button>Tentar novamente</button></div>';root.querySelector('button').addEventListener('click',function(){load(root,options);});});}
   window.LajeFicha={mount:load,cleanSvg:cleanSvg};
 })();

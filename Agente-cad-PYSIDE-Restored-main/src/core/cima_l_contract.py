@@ -77,6 +77,22 @@ def secao_l_do_payload(pj: dict) -> dict[str, float] | None:
     return None
 
 
+def n3_faces_l(pj: dict | None) -> list[dict[str, Any]]:
+    """6 faces A–F do pilar L para ABCD e GRADES (mesma interpretação N1)."""
+    secao = secao_l_do_payload(pj or {})
+    if not secao:
+        return []
+    paineis = paineis_l_from_secao(secao)
+    return [
+        {"id": "A", "panel": paineis["haste_ext"], "inner": paineis["haste"]},
+        {"id": "B", "panel": paineis["haste_ext"], "inner": paineis["haste"]},
+        {"id": "C", "panel": paineis["espessura"], "inner": paineis["espessura"]},
+        {"id": "D", "panel": paineis["espessura"], "inner": paineis["espessura"]},
+        {"id": "E", "panel": paineis["ramo_ext"], "inner": paineis["ramo"]},
+        {"id": "F", "panel": paineis["ramo_int"], "inner": paineis["ramo"] - paineis["espessura"]},
+    ]
+
+
 def is_cima_l(pj: dict | None) -> bool:
     if not isinstance(pj, dict):
         return False

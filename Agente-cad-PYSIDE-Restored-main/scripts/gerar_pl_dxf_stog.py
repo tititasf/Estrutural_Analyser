@@ -1108,6 +1108,22 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         ('C', x_c, larg_c, larg_c),   # C: concrete_dim=larg_c (panel width, not larg)
         ('D', x_d, larg_d, larg_c),   # D: same
     ]
+    try:
+        from src.core.cima_l_contract import is_cima_l, n3_faces_l
+        if is_cima_l(pj) or n3_faces_l(pj):
+            l_faces = n3_faces_l(pj)
+            if len(l_faces) >= 6:
+                x_cur = base_x + X_OFFSET
+                face_info = []
+                for i, face in enumerate(l_faces):
+                    gap = GAP_AB if i == 0 else GAP_BC
+                    if i:
+                        x_cur += gap
+                    face_info.append((face["id"], x_cur, float(face["panel"]), float(face["inner"])))
+                    x_cur += float(face["panel"])
+                x_a = face_info[0][1]
+    except Exception:
+        pass
 
     entity_count = 0
 
@@ -1125,7 +1141,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     # ── 1. Nível lines: 2 horizontal PLINEs spanning all faces ───────────────
     # SCR: (-7000,-100) to (-6000,-100) and (-7000,-380) to (-6000,-380)
     x_span_l = base_x           # -7000
-    x_span_r = base_x + 1000   # -6000
+    x_span_r = max(base_x + 1000, face_info[-1][1] + face_info[-1][2] + 80)
     msp.add_lwpolyline([(x_span_l, y_top), (x_span_r, y_top)],
                        close=False, dxfattribs={'layer': 'Nível', 'linetype': 'DASHED'})
     msp.add_lwpolyline([(x_span_l, y_bot), (x_span_r, y_bot)],
@@ -2439,19 +2455,41 @@ def draw_grades(
 
     cursor_x = base_x
     drawn = []
-    panel_ab = comp + 22.0
-    for face in ('A', 'B'):
-        info = draw_face_group(face, cursor_x, panel_ab, ng_ab, gw_ab, gaps_ab)
-        drawn.append(info)
-        cursor_x = info['x_right'] + GROUP_GAP
-
-    # Faces curtas só recebem grade a partir de 50 cm, conforme decisão do dono.
-    if larg >= 50.0:
-        ng_cd, gw_cd, gaps_cd = _grade_layout_for_panel_width(larg)
-        for face in ('C', 'D'):
-            info = draw_face_group(face, cursor_x, larg, ng_cd, gw_cd, gaps_cd)
+    l_faces = []
+    try:
+        from src.core.cima_l_contract import is_cima_l, n3_faces_l, split_panel_grades
+        if is_cima_l(pj) or n3_faces_l(pj):
+            l_faces = n3_faces_l(pj)
+    except Exception:
+        l_faces = []
+    if l_faces:
+        for face in l_faces:
+            panel = float(face["panel"])
+            if panel <= 0:
+                continue
+            widths, gaps_f = split_panel_grades(panel)
+            ng_f = max(1, len(widths))
+            gw_f = float(widths[0]) if widths else panel
+            gaps_f = list(gaps_f)
+            if ng_f > 1 and len(gaps_f) < ng_f - 1:
+                gaps_f.extend([0.0] * (ng_f - 1 - len(gaps_f)))
+            info = draw_face_group(face["id"], cursor_x, panel, ng_f, gw_f, gaps_f)
             drawn.append(info)
             cursor_x = info['x_right'] + GROUP_GAP
+    else:
+        panel_ab = comp + 22.0
+        for face in ('A', 'B'):
+            info = draw_face_group(face, cursor_x, panel_ab, ng_ab, gw_ab, gaps_ab)
+            drawn.append(info)
+            cursor_x = info['x_right'] + GROUP_GAP
+
+        # Faces curtas só recebem grade a partir de 50 cm, conforme decisão do dono.
+        if larg >= 50.0:
+            ng_cd, gw_cd, gaps_cd = _grade_layout_for_panel_width(larg)
+            for face in ('C', 'D'):
+                info = draw_face_group(face, cursor_x, larg, ng_cd, gw_cd, gaps_cd)
+                drawn.append(info)
+                cursor_x = info['x_right'] + GROUP_GAP
 
     # Cadeia das travessas no lado direito do último grupo desenhado.
     last = drawn[-1]
@@ -2730,6 +2768,14 @@ def generate_pilar_zone(
     pj = _prepare_pj_for_visual(pj, visual_mode)
     nome    = pj.get('nome', f"P{pj.get('numero', '?')}")
     comp, larg = _dimensoes_canonicas_pilar(pj)
+    try:
+        from src.core.cima_l_contract import secao_l_do_payload
+        secao = secao_l_do_payload(pj)
+        if secao:
+            comp = float(secao["externa_y"])
+            larg = float(secao["externa_x"])
+    except Exception:
+        pass
     altura  = float(pj.get('altura', 280))
     grade_1 = float(pj.get('grade_1', 0))
     grade_2 = float(pj.get('grade_2', 0))

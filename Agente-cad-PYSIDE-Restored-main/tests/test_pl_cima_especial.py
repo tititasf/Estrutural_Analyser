@@ -192,3 +192,61 @@ def test_paineis_and_grade_split_match_n2():
     assert gaps_210[0] == pytest.approx(8.0, abs=0.05)
     widths_153, gaps_153 = split_panel_grades(153.0)
     assert widths_153 == [70.0, 70.0]
+
+
+def test_cota_totals_stay_centered_on_the_dim_line():
+    from pl_cima_especial import CotaBook
+
+    book = CotaBook()
+    x, y = book.place((0.0, 0.0), (1.0, 0.0), (0.0, 1.0), 0.0, 240.0, 0.0, "240 PAINEL", 5.0, 0.0)
+    assert x == pytest.approx(120.0, abs=0.2)
+    xg, _yg = book.place((0.0, 0.0), (1.0, 0.0), (0.0, 1.0), 0.0, 120.0, 28.0, "120(GRADE)", 5.0, 0.0)
+    assert xg == pytest.approx(60.0, abs=0.2)
+
+
+def test_cima_l_draws_bolts_and_six_abcd_faces():
+    from gerar_pl_dxf_stog import generate_pilar_zone, setup_doc
+    from src.core.cima_l_contract import n3_faces_l
+
+    faces = n3_faces_l({"subtipo_pil": "L", "geometry_points": P26_POINTS})
+    assert [f["id"] for f in faces] == list("ABCDEF")
+    assert faces[0]["panel"] == pytest.approx(240.0)
+    assert faces[4]["panel"] == pytest.approx(176.0)
+
+    payload = {
+        "nome": "P26",
+        "comprimento": 50.0,
+        "largura": 19.0,
+        "subtipo_pil": "L",
+        "geometry_points": P26_POINTS,
+        "grade_1": 240.0,
+        "altura": 321.0,
+    }
+    doc = setup_doc()
+    generate_pilar_zone(doc.modelspace(), payload, "cima", visual_mode="NOVA")
+    layers = {e.dxf.layer for e in doc.modelspace()}
+    assert "Hachura" in layers
+    texts = [
+        e.dxf.text for e in doc.modelspace()
+        if e.dxftype() == "TEXT" and "PARAFUSO" in (e.dxf.text or "").upper()
+    ]
+    assert texts
+
+    doc_abcd = setup_doc()
+    generate_pilar_zone(doc_abcd.modelspace(), payload, "abcd", visual_mode="NOVA")
+    labels = {
+        (e.dxf.text or "").strip()
+        for e in doc_abcd.modelspace()
+        if e.dxftype() == "TEXT"
+    }
+    joined = " ".join(labels)
+    for fid in "ABCDEF":
+        assert f"P26.{fid}" in joined or fid in labels
+
+    doc_gr = setup_doc()
+    generate_pilar_zone(doc_gr.modelspace(), payload, "grades", visual_mode="NOVA")
+    names = " ".join(
+        e.dxf.text or "" for e in doc_gr.modelspace() if e.dxftype() == "TEXT"
+    )
+    for fid in "ABCDEF":
+        assert f"P26.{fid}" in names or fid in names

@@ -57,10 +57,17 @@ def montar_ficha_laje(
     override_n3 = override.get("n3") or {}
     has_override = bool(override_n3.get("linhas_verticais") or override_n3.get("linhas_horizontais"))
     n3 = override_n3 if has_override else contract
-    photos = (
-        ficha_reader.resolver_fotos_portal(obra_dir, pavimento, "lajes", item)
-        if include_svgs else {"n1": None, "n3": None}
-    )
+    photos = {"n1": None, "n3": None}
+    if include_svgs:
+        # SA continua vindo da ficha canônica. N3, porém, é um artefato
+        # regenerável: após um microciclo o HTML histórico permanece imutável
+        # e não pode encobrir o DXF de produção recém-publicado.
+        photos["n1"] = ficha_reader.resolver_foto_portal(
+            obra_dir, pavimento, "lajes", item, "n1",
+        ).get("svg")
+        photos["n3"] = ficha_reader.extrair_fotos_producao(
+            obra_dir, pavimento, "lajes", item,
+        ).get("n3")
     return {
         "schema": "cad.portal.laje_ficha/v1",
         "item": {
@@ -99,8 +106,15 @@ def resolver_camada_laje(
     item = ficha_reader.obter_item_n1(estado, "lajes", name)
     if item is None:
         raise LookupError("laje não encontrada")
-    photo = ficha_reader.resolver_foto_portal(
-        obra_dir, pavimento, "lajes", item, "n1" if layer == "sa" else "n3",
-    )
+    if layer == "n3":
+        photo = {
+            "svg": ficha_reader.extrair_fotos_producao(
+                obra_dir, pavimento, "lajes", item,
+            ).get("n3"),
+            "origem": "artefato_producao",
+        }
+    else:
+        photo = ficha_reader.resolver_foto_portal(
+            obra_dir, pavimento, "lajes", item, "n1",
+        )
     return {"layer": layer, "available": bool(photo.get("svg")), **photo}
-
