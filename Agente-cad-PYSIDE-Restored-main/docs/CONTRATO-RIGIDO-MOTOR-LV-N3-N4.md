@@ -196,6 +196,54 @@ generalizar a partir de uma so.
 > Mesma licao do degrau de laje (§3.4.1 do doc de interpretacao): ler o que o
 > desenho declara, nao inferir por forma.
 
+#### 5.2.3 Abertura de viga SEPARA SEGMENTOS (2026-09-14)
+
+Regra do dono. Vale para o N4 por fidelidade, mas o motivo real e' o **N3**: o
+N3 nasce do N1, onde nao ha' desenho para imitar — so' estrutura. Se o segmento
+nao vier separado da interpretacao, o N3 nunca reproduz o que o N4 reproduz por
+copia. E' preparar o terreno para **N1 -> N3 identico ao N4**.
+
+1. **Um painel com abertura de viga nao e' um segmento com buraco** — sao DOIS
+   segmentos distintos, mesmo encostados.
+2. **A fronteira fica na borda DIREITA da abertura.** A abertura e a sobra
+   pertencem ao segmento que vem ANTES ("sempre a abertura faz parte do
+   segmento que vem primeiro").
+3. **Distancia entre os segmentos depende do corte:**
+
+   | corte | segmento seguinte |
+   |---|---|
+   | abertura corta o painel INTEIRO em Y | pode ficar **afastado** |
+   | sobra uma parte embaixo | **encostado, parede com parede** |
+
+4. **Parede compartilhada e' desenhada UMA vez** — a divisoria e' a parede
+   direita do primeiro e a esquerda do segundo ao mesmo tempo.
+5. **O primeiro segmento NAO emite as cotas verticais da sua parede direita**
+   quando ela e' compartilhada — senao sobrepoem as do segundo.
+
+Evidencia medida no N2 da V302.A (unidade 0..470, fundo em y=0.3):
+
+```
+vertical   x=178.5  y 5.3 -> 43.3      borda esquerda da abertura
+horizontal y=5.3    x 178.5 -> 200.5   PISO da abertura = topo da sobra
+vertical   x=200.5  y 0.3 ->  5.3      borda direita da sobra
+```
+
+Corte em **200.5** -> segmentos de **200.5** e **269.5**. A sobra e' de 22 x 5.
+
+**Deteccao:** a marca confiavel e' a **horizontal INTERMEDIARIA** (nem fundo
+nem topo), que e' o piso da abertura. Procurar no TOPO da unidade falha quando
+os segmentos tem alturas diferentes — na V302.A o seg.1 tem 43 e o seg.2 tem
+45, entao o topo do seg.1 nao e' o topo da unidade e a abertura passa batido.
+Implementado em `_detectar_aberturas_viga()` (`motor_reverso_lv.py`), que emite
+`aberturas_viga` = `[{x_ini, x_fim, sobra_h, abertura_h}]` e `cortes_segmento`
+na face unit. Medido: **20 de 120 unidades** das 32 vigas do 13_PAV.
+
+**Estado (2026-09-14):** a ficha ja' emite os campos; o DESENHO ainda nao os
+consome — V301 e V13 regeneradas saem byte a byte iguais ao que o dono validou.
+Pendente: segmentar de fato no desenho, parede compartilhada unica, supressao
+da cota vertical duplicada e as alturas por segmento (a ficha da V302.A entrega
+43 nos tres paineis, mas o N2 tem 43 no seg.1 e **45** no seg.2).
+
 #### 5.2.2 Cotas de abertura — pendencias medidas (2026-09-13)
 
 Apontadas pelo dono na revisao da V13 face A. Medidas, ainda sem conserto:

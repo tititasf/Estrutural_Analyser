@@ -2288,6 +2288,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     )
                     segs_u = _propagate_laje(segs_raw, ls_u, li_u, pair)
                     laje_trechos: list = []
+                    aberturas_viga = _detectar_aberturas_viga(
+                        paineis_h, paineis_v, pair)
                     # Laje que a COTA ESCRITA declara para esta face, medida
                     # antes de `ls_u` ser sobrescrito pelo ramo do painel de
                     # topo. E' a verdade de terra do degrau: o trecho alto tem
@@ -2537,6 +2539,13 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             else pair.get('h_body', 0.0)),
                         'laje_sup': ls_u,
                         'laje_sup_trechos': laje_trechos,
+                        'aberturas_viga': aberturas_viga,
+                        # Fronteira de SEGMENTO: a abertura de viga separa o
+                        # painel em dois segmentos, mesmo encostados, e o corte
+                        # fica na BORDA DIREITA da abertura. A abertura e a
+                        # sobra pertencem ao segmento que vem ANTES.
+                        # V302.A: corte em 200.5 -> segmentos de 200.5 e 269.5.
+                        'cortes_segmento': [a['x_fim'] for a in aberturas_viga],
                         'laje_inf': li_u,
                         'pontaletes_face': _pontaletes_for_pair(pair),
                         'grade_layer_style': _grade_layer_style(pair, segs_u),
@@ -2805,6 +2814,80 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         result['_extracao_erro'] = str(ex)
 
     return result
+
+
+def _detectar_aberturas_viga(paineis_h, paineis_v, pair, tol=1.5) -> list:
+    """Aberturas de VIGA na face — as que RECORTAM o painel.
+
+    Regra do dono (2026-09-13/14): abertura de VIGA recorta o painel; abertura
+    de PILAR so' recorta o sarrafo. E uma abertura de viga SEPARA SEGMENTOS:
+    o painel vira dois segmentos distintos, mesmo encostados.
+
+    Assinatura medida no N2 da V302.A (unidade 0..470, fundo em y=0.3):
+
+        vertical   x=178.5  y 5.3 -> 43.3      borda esquerda da abertura
+        horizontal y=5.3    x 178.5 -> 200.5   PISO da abertura = topo da sobra
+        vertical   x=200.5  y 0.3 -> 5.3       borda direita da sobra
+
+    A marca confiavel e' a **horizontal intermediaria** (nem fundo nem topo).
+    Procurar no TOPO da unidade nao funciona: quando os segmentos tem alturas
+    diferentes — na V302.A o seg.1 tem 43 e o seg.2 tem 45 — o topo do seg.1
+    nao e' o topo da unidade, e a abertura passa despercebida.
+
+    Devolve [{x_ini, x_fim, sobra_h, abertura_h}] em x relativo a` borda
+    esquerda da face. `sobra_h` = 0 seria corte completo em Y (sem sobra), mas
+    esse caso nao tem horizontal intermediaria e nao e' detectado aqui.
+
+    Medido nas 32 vigas do 13_PAV: 20 de 120 unidades tem abertura com sobra.
+    """
+    try:
+        XL = float(pair.get('x_left', 0) or 0)
+        XR = float(pair.get('x_right', 0) or 0)
+        YB = float(pair.get('y_bot', 0) or 0)
+        YT = float(pair.get('y_top', 0) or 0)
+    except Exception:
+        return []
+    if XR - XL <= 1.0:
+        return []
+
+    horiz, verts = [], []
+    for y, xl, xr in (paineis_h or []):
+        if max(xl, xr) < XL - 6 or min(xl, xr) > XR + 6:
+            continue
+        if not (YB - 6 <= y <= YT + 6):
+            continue
+        horiz.append((y - YB, min(xl, xr) - XL, max(xl, xr) - XL))
+    for x, y1, y2 in (paineis_v or []):
+        if not (XL - 6 <= x <= XR + 6):
+            continue
+        if max(y1, y2) < YB - 6 or min(y1, y2) > YT + 6:
+            continue
+        verts.append((x - XL, min(y1, y2) - YB, max(y1, y2) - YB))
+    if not horiz or not verts:
+        return []
+
+    y_fundo = min(h[0] for h in horiz)
+    y_topo = max(h[0] for h in horiz)
+    out = []
+    for y, hx0, hx1 in horiz:
+        if not (y_fundo + 2.0 < y < y_topo - 2.0):
+            continue
+        esq = [v for v in verts
+               if abs(v[0] - hx0) <= tol and abs(v[1] - y) <= tol]
+        dirs = [v for v in verts
+                if abs(v[0] - hx1) <= tol and abs(v[1] - y_fundo) <= tol]
+        if not (esq and dirs):
+            continue
+        topo_local = max(v[2] for v in esq)
+        item = {
+            'x_ini': round(hx0, 1),
+            'x_fim': round(hx1, 1),
+            'sobra_h': round(y - y_fundo, 1),
+            'abertura_h': round(topo_local - y, 1),
+        }
+        if item not in out:
+            out.append(item)
+    return sorted(out, key=lambda d: d['x_ini'])
 
 
 # ──────────────────────────────────────────────────────────────────────────────
