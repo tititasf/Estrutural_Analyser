@@ -704,7 +704,8 @@ def draw_sarr_lv_horizontal_from_n2(msp, x0, y0, sarrafos_horizontais,
                                     degrau_start=None, degrau_end=None,
                                     y_shoulder=None, panel_div_xs=None,
                                     left_sarr_x=None, right_sarr_x=None,
-                                    vertical_specs=None, aberturas_pilar=None):
+                                    vertical_specs=None, aberturas_pilar=None,
+                                    top_panel_band=None):
     """Replay fiel dos sarrafos horizontais capturados no N2.
 
     ``frame_ys``: Y de contorno Painéis (ombro/topo/base) — não redesenhar
@@ -755,6 +756,19 @@ def draw_sarr_lv_horizontal_from_n2(msp, x0, y0, sarrafos_horizontais,
             continue
         x1 = _snap_to_div(x1)
         x2 = _snap_to_div(x2)
+        # ── Dentro do painel de fechamento, parar nos verticais dele ───────
+        # Apontamento do dono (2026-09-13, P4): "este sarrafo vai de p5 a p6,
+        # tem os sarrafos verticais da extremidade que tem que respeitar".
+        # TEM de vir depois do snap: o inset de 7 cai a 7 da divisa de painel
+        # e `_snap_to_div` (raio 13) puxava de volta para a parede — medido na
+        # V13 face A, a corrida saia 1800->1993 em vez de 1807->1993.
+        if top_panel_band:
+            _byl, _byh, _bxl, _bxr = top_panel_band
+            if _byl <= float(spec.get('y_offset', 0) or 0) <= _byh:
+                x1 = max(x1, x0 + float(_bxl))
+                x2 = min(x2, x0 + float(_bxr))
+                if x2 - x1 < 0.5:
+                    continue
         # Encosta no ombro real (linha Painéis do degrau, calculada por
         # geometria) quando o sarrafo extraido do N2 cai perto mas nao
         # exato — o motor nao deve reproduzir milimetros de imprecisao
@@ -2656,13 +2670,32 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             painel_sup_width=painel_sup_width,
             painel_sup_x_offset=painel_sup_x_offset,
         )
+        # ── Sarrafo do painel de fechamento para nos verticais dele ────────
+        # Apontamento do dono (2026-09-13, P4): "este sarrafo vai de p5 a p6,
+        # tem os sarrafos verticais da extremidade que tem que respeitar".
+        # Medido na V13 face A: o painel de topo desenha a propria corrida em
+        # 1807->1993 (186, entre os verticais em SARR_INSET_H), mas o replay
+        # cru do N2 punha outra em 1800->2000 (200, de ponta a ponta) —
+        # atravessando os verticais.
+        _tp_h = float(painel_sup_alt or 0)
+        _tp_w = float(painel_sup_width or 0)
+        _tp_band = None
+        if _tp_h > 0.5 and _tp_w > 2 * SARR_INSET_H:
+            _tp_x0 = float(painel_sup_x_offset or 0)
+            _tp_x1 = _tp_x0 + _tp_w
+            _tp_band = (
+                float(h) + float(laje_sup or 0) - 1.0,
+                float(h) + float(laje_sup or 0) - 1.0 + _tp_h + 2.0,
+                _tp_x0 + SARR_INSET_H,
+                _tp_x1 - SARR_INSET_H,
+            )
         draw_sarr_lv_horizontal_from_n2(
             msp, x0, y0, sarrafos_horizontais, frame_ys=_ys_frame,
             h_face=_h_face_cap,
             degrau_start=_dstart_pre, degrau_end=_dend_pre, y_shoulder=_ysh_pre,
             left_sarr_x=_left_sarr_x, right_sarr_x=_right_sarr_x,
             panel_div_xs=_pdiv_xs, vertical_specs=_vertical_specs,
-            aberturas_pilar=_abr_pilar,
+            aberturas_pilar=_abr_pilar, top_panel_band=_tp_band,
         )
         # ── Cota da abertura de pilar (apontamento do dono P6) ─────────────
         # O N2 cota a largura da abertura dentro do corpo, perto do topo.
@@ -2673,11 +2706,18 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             _larg = round(_af - _ai, 1)
             if _larg <= 1.0:
                 continue
+            # `base` tem de ficar DESLOCADO da linha medida — com base na
+            # mesma altura de p1/p2 o ezdxf nao sabe para que lado virar as
+            # patinhas e elas saem invertidas (apontamento do dono P3). O
+            # padrao da casa esta' em `dim_total_lv`: p1/p2 no que se mede,
+            # base na linha de cota. Aqui p1/p2 vao no fundo do corpo e a
+            # linha de cota a 0.677 da altura, que e' onde o N2 a desenha
+            # (V13: "78" a 29.8 do fundo num corpo de 44).
             _y_cota = y0 + float(h) * 0.677
             try:
                 _d78 = msp.add_linear_dim(
                     base=(x0 + (_ai + _af) / 2.0, _y_cota),
-                    p1=(x0 + _ai, _y_cota), p2=(x0 + _af, _y_cota),
+                    p1=(x0 + _ai, y0), p2=(x0 + _af, y0),
                     angle=0, dimstyle='PAINEL',
                     dxfattribs={'layer': 'COTA'},
                 )
@@ -3123,20 +3163,50 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             )
             if _want
         ]
+        # ── A cota da laje segue o TRECHO onde ela esta' ───────────────────
+        # Apontamento do dono (2026-09-13, P1): "neste lado a laje e' 15cm e
+        # nao 12". Com degrau, a laje tem altura diferente por trecho e a cota
+        # de cada ponta tem de mostrar a do SEU lado — na V13 face A o lado
+        # esquerdo (sob o painel de fechamento) e' 12 e o direito e' 15. O
+        # motor usava `laje_sup` unico e escrevia 12 nas duas pontas.
+        _tr_laje = [t for t in (laje_trechos or [])
+                    if float(t.get('altura', 0) or 0) > 0]
+
+        def _laje_no_x(_x_abs):
+            if not _tr_laje:
+                return None
+            _xr = float(_x_abs) - float(x0)
+            for _t in _tr_laje:
+                if (float(_t.get('x0', 0) or 0) - 1.0 <= _xr
+                        <= float(_t.get('x1', 0) or 0) + 1.0):
+                    return float(_t['altura'])
+            # fora dos trechos: o mais proximo
+            return float(min(
+                _tr_laje,
+                key=lambda t: min(abs(_xr - float(t.get('x0', 0) or 0)),
+                                  abs(_xr - float(t.get('x1', 0) or 0))),
+            )['altura'])
+
         for _vx, _side in _marco_label_sides:
             try:
+                _alt_local = _laje_no_x(_vx)
+                _cota_local = (_alt_local if _alt_local is not None
+                               else _cota_marco)
+                _label_local = (_fmt_dim_cm(round(_alt_local, 1))
+                                if _alt_local is not None
+                                else _fmt_dim_cm(_cota_marco_label))
                 x_base15 = _vx + _side * _DIM_L1
                 d2 = msp.add_linear_dim(
                     base=(x_base15, y0 + h),
-                    p1=(_vx, y0 + h), p2=(_vx, y0 + h + _cota_marco),
+                    p1=(_vx, y0 + h), p2=(_vx, y0 + h + _cota_local),
                     angle=90, dimstyle='PAINEL',
                     dxfattribs={'layer': 'COTA'},
                 )
                 d2.render()
                 _apply_dim_text(
-                    d2, _fmt_dim_cm(_cota_marco_label),
+                    d2, _label_local,
                     (x_base15 + _side * 4.0,
-                     y0 + h + _marco_h / 2.0),
+                     y0 + h + _cota_local / 2.0),
                 )
             except Exception:
                 pass
@@ -3204,13 +3274,16 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                     if float(t.get('altura', 0) or 0) > 0]:
                 _wl = float(_top_panel_right) - float(_top_panel_x)
                 if _wl > 1.0:
+                    # p1/p2 no TOPO do painel (o que se mede) e a linha de
+                    # cota 4 acima — base na mesma altura de p1/p2 deixava as
+                    # patinhas invertidas (apontamento do dono P2).
                     _y_larg = y7_top + 4.0
                     try:
                         _dw = msp.add_linear_dim(
                             base=((_top_panel_x + _top_panel_right) / 2.0,
                                   _y_larg),
-                            p1=(_top_panel_x, _y_larg),
-                            p2=(_top_panel_right, _y_larg),
+                            p1=(_top_panel_x, y7_top),
+                            p2=(_top_panel_right, y7_top),
                             angle=0, dimstyle='PAINEL',
                             dxfattribs={'layer': 'COTA'},
                         )
