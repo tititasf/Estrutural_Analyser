@@ -608,12 +608,103 @@ def merge_sarrafos_verticais_extremidades(
     return merged
 
 
+def classificar_aberturas_pilar(panels, sarrafos_horizontais, *,
+                                painel_sup_width=0.0, painel_sup_x_offset=0.0,
+                                tol=4.0):
+    """Quais interrupcoes da corrida de sarrafo sao ABERTURA DE PILAR.
+
+    Regra do dono (2026-09-13) — o que distingue as duas aberturas e' O QUE
+    CADA UMA RECORTA:
+
+      abertura de VIGA  -> produz vazio e RECORTE NO PAINEL;
+      abertura de PILAR -> so' recorta o SARRAFO, o painel fica intacto.
+
+    O marcador de origem vem do N1; aqui a classificacao e' pela consequencia
+    visivel na propria ficha. Quatro condicoes, todas necessarias:
+
+      1. nao coincide com DIVISA entre paineis — ali o sarrafo para por
+         construcao, cada painel tem a sua corrida;
+      2. nao coincide com a borda do PAINEL DE FECHAMENTO superior — o sarrafo
+         dele acaba junto com ele, nao por interrupcao (V13: a corrida
+         0->200 acaba em 200 porque o painel tem 200, nao porque foi cortada);
+      3. o x NAO cai em faixa de painel rebaixado — painel rebaixado E' o
+         vazio, logo e' abertura de VIGA. Testar so' as BORDAS da faixa nao
+         basta: na V301.B a interrupcao em 299.7 cai no meio do painel de 244
+         rebaixado (37.6 contra 103), longe das bordas dele;
+      4. a abertura ENCOSTA na borda da face — o pilar fica na ponta da viga.
+
+    Devolve [(x_ini, x_fim), ...] em x relativo a` borda esquerda da face.
+
+    Validado contra a verdade do N2 (verticais SARR de 5-9cm no recorte do DB)
+    nas 32 vigas do 13_PAV: 25 coerentes, 7 divergentes. Acerta os dois casos
+    que o dono revisou — V13 (2 aberturas de 78, uma por face, com 4 tampas no
+    N2) e V301 (nenhuma, e o N2 dela nao tem vertical alguma entre 5 e 9 cm).
+    Os divergentes restantes sao 4 com abertura prevista sem tampa no N2
+    (V305, V310, V330, V331) e 3 com tampa no N2 sem abertura prevista
+    (V312, V320, V325). Faltar e' melhor que inventar: a regra puramente
+    geometrica que isto substitui punha 24 tampas na V301, que nao tem nenhuma.
+    """
+    segs = list(panels or [])
+    sh = list(sarrafos_horizontais or [])
+    if not segs or not sh:
+        return []
+    ws = [float(s.get('width', s.get('largura_cm', 0)) or 0) for s in segs]
+    hs = [float(s.get('height1', 0) or 0) for s in segs]
+    if not any(w > 0 for w in ws):
+        return []
+
+    divisas, acc = [0.0], 0.0
+    for w in ws:
+        acc += w
+        divisas.append(round(acc, 1))
+
+    h_max = max(hs) if hs else 0.0
+    faixas_baixas, a = [], 0.0
+    for w, hh in zip(ws, hs):
+        if h_max - hh > 3.0:
+            faixas_baixas.append((a, a + w))
+        a += w
+
+    pw = float(painel_sup_width or 0)
+    po = float(painel_sup_x_offset or 0)
+    bordas_topo = {round(po, 1), round(po + pw, 1)} if pw > 0.5 else set()
+
+    try:
+        base = min(float(s.get('x_left', 0) or 0) for s in sh)
+        topo = max(float(s.get('x_right', 0) or 0) for s in sh)
+    except ValueError:
+        return []
+
+    cand = []
+    for s in sh:
+        xl = float(s.get('x_left', 0) or 0)
+        xr = float(s.get('x_right', 0) or 0)
+        if xl > base + 10.0:
+            cand.append((round(base, 1), round(xl, 1)))
+        if xr < topo - 10.0:
+            cand.append((round(xr, 1), round(topo, 1)))
+
+    out = []
+    for ini, fim in cand:
+        x = fim if abs(ini - base) <= tol else ini
+        if any(abs(x - d) <= tol for d in divisas):
+            continue
+        if any(abs(x - d) <= tol for d in bordas_topo):
+            continue
+        if any(lo - tol <= x <= hi + tol for lo, hi in faixas_baixas):
+            continue
+        if not (abs(ini - base) <= tol or abs(fim - topo) <= tol):
+            continue
+        out.append((ini, fim))
+    return sorted(set(out))
+
+
 def draw_sarr_lv_horizontal_from_n2(msp, x0, y0, sarrafos_horizontais,
                                     *, frame_ys=None, h_face=None,
                                     degrau_start=None, degrau_end=None,
                                     y_shoulder=None, panel_div_xs=None,
                                     left_sarr_x=None, right_sarr_x=None,
-                                    vertical_specs=None):
+                                    vertical_specs=None, aberturas_pilar=None):
     """Replay fiel dos sarrafos horizontais capturados no N2.
 
     ``frame_ys``: Y de contorno Painéis (ombro/topo/base) — não redesenhar
@@ -762,22 +853,34 @@ def draw_sarr_lv_horizontal_from_n2(msp, x0, y0, sarrafos_horizontais,
         a, b = por_y.get(yo, (xl, xr))
         por_y[yo] = (min(a, xl), max(b, xr))
 
-    if por_y:
-        # So' a ponta ESQUERDA. Inferir interrupcao a direita por "terminou
-        # antes da corrida mais longa" gera tampa inventada: o sarrafo do
-        # painel de fechamento fino acaba em 200 porque o painel tem 200 de
-        # largura, nao porque foi interrompido — e o N2 nao tem vertical ali
-        # (medido na V13). Abertura encostada na ponta direita fica pendente
-        # de um caso real que mostre como ela e' desenhada.
-        # Sarrafo ja' comeca afastado da borda por causa do inset de canto
-        # (SARR_INSET_H). Tratar esse recuo normal como interrupcao gerava
-        # tampa em quase toda viga (medido: 601 tampas inventadas nas 32).
-        # Interrupcao e' a corrida que comeca MUITO depois das outras da
-        # mesma face — a referencia e' o inicio natural da face.
+    # ── Quais interrupcoes sao de PILAR ────────────────────────────────────
+    # Regra do dono (2026-09-13): abertura de VIGA recorta o PAINEL; abertura
+    # de PILAR so' recorta o SARRAFO. Quem classifica e'
+    # `classificar_aberturas_pilar`, chamada pelo desenhista da face — aqui so'
+    # se recebe a lista pronta.
+    #
+    # Antes disto o criterio era puramente geometrico ("a corrida que comeca
+    # muito depois das outras"), que detecta INTERRUPCAO sem saber quem
+    # interrompeu: punha 24 tampas na V301, cujo N2 nao tem nenhuma vertical
+    # entre 5 e 9 cm. Sem lista de aberturas, NAO desenha tampa — faltar e'
+    # melhor que inventar.
+    _abrs = list(aberturas_pilar or [])
+    if por_y and _abrs:
         base = min(a for a, _b in por_y.values())
-        for lado in ('esq',):
-            cortados = sorted(y for y, (a, _b) in por_y.items()
-                              if a > base + 10.0)
+        topo_run = max(b for _a, b in por_y.values())
+        for lado in ('esq', 'dir'):
+            if lado == 'esq':
+                _xs_abre = [round(fim, 1) for ini, fim in _abrs
+                            if abs(ini - base) <= 4.0]
+                cortados = sorted(
+                    y for y, (a, _b) in por_y.items()
+                    if any(abs(a - xa) <= 4.0 for xa in _xs_abre))
+            else:
+                _xs_abre = [round(ini, 1) for ini, fim in _abrs
+                            if abs(fim - topo_run) <= 4.0]
+                cortados = sorted(
+                    y for y, (_a, b) in por_y.items()
+                    if any(abs(b - xa) <= 4.0 for xa in _xs_abre))
             bandas: list = []
             for yo in cortados:
                 if bandas and yo - bandas[-1][-1] <= 7.5:
@@ -2548,13 +2651,43 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                 _left_sarr_x = _vx_abs
             elif abs(_xoff - (_total_w - SARR_INSET_H)) < 3.0:
                 _right_sarr_x = _vx_abs
+        _abr_pilar = classificar_aberturas_pilar(
+            panels, sarrafos_horizontais,
+            painel_sup_width=painel_sup_width,
+            painel_sup_x_offset=painel_sup_x_offset,
+        )
         draw_sarr_lv_horizontal_from_n2(
             msp, x0, y0, sarrafos_horizontais, frame_ys=_ys_frame,
             h_face=_h_face_cap,
             degrau_start=_dstart_pre, degrau_end=_dend_pre, y_shoulder=_ysh_pre,
             left_sarr_x=_left_sarr_x, right_sarr_x=_right_sarr_x,
             panel_div_xs=_pdiv_xs, vertical_specs=_vertical_specs,
+            aberturas_pilar=_abr_pilar,
         )
+        # ── Cota da abertura de pilar (apontamento do dono P6) ─────────────
+        # O N2 cota a largura da abertura dentro do corpo, perto do topo.
+        # Medido na V13: face A "78" em x=39.0 (abertura 0..78) e face B "78"
+        # em x=376.0 (abertura 337..415), as duas a 29.8 do fundo do corpo,
+        # numa face de 44 de altura — ou seja a ~0.68 da altura.
+        for _ai, _af in _abr_pilar:
+            _larg = round(_af - _ai, 1)
+            if _larg <= 1.0:
+                continue
+            _y_cota = y0 + float(h) * 0.677
+            try:
+                _d78 = msp.add_linear_dim(
+                    base=(x0 + (_ai + _af) / 2.0, _y_cota),
+                    p1=(x0 + _ai, _y_cota), p2=(x0 + _af, _y_cota),
+                    angle=0, dimstyle='PAINEL',
+                    dxfattribs={'layer': 'COTA'},
+                )
+                _d78.render()
+                _apply_dim_text(
+                    _d78, _fmt_dim_cm(_larg),
+                    (x0 + (_ai + _af) / 2.0, _y_cota),
+                )
+            except Exception:
+                pass
 
     # Recipe N2: SARR H 7cm no ombro na borda do degrau (294,5→301,5 @ y=65).
     # Se o N2 trouxe sarrafos longos cobrindo isso, o inventário casa o longo;

@@ -137,7 +137,43 @@ generalizar a partir de uma so.
 > so' mostra a consequencia. O que o motor precisa e' ter **comportamento
 > separado para os dois casos**; a classificacao pode chegar do N1.
 >
-> **DEFEITO ABERTO (2026-09-13) — a tampa e' so' de abertura de PILAR.**
+> **IMPLEMENTADO em 2026-09-13** — `classificar_aberturas_pilar()` em
+> `gerar_lv_dxf_stog.py`. Quatro condicoes, todas necessarias, para uma
+> interrupcao virar abertura de pilar:
+>
+> 1. nao coincide com DIVISA entre paineis (ali o sarrafo para por construcao);
+> 2. nao coincide com a borda do PAINEL DE FECHAMENTO superior (a corrida
+>    `0->200` da V13 acaba em 200 porque o painel tem 200, nao por corte);
+> 3. o x nao cai em FAIXA de painel rebaixado — painel rebaixado E' o vazio,
+>    logo e' abertura de viga. Testar so' as bordas da faixa nao basta: na
+>    V301.B a interrupcao em 299.7 cai no meio do painel de 244 rebaixado
+>    (37.6 contra 103);
+> 4. a abertura ENCOSTA na borda da face (o pilar fica na ponta da viga).
+>
+> Resultado medido (verticais SARR de 5-9 cm):
+>
+> | viga | N2 | regra geometrica | classificador |
+> |---|---|---|---|
+> | V13 | 4 | 3 | **4** |
+> | V301 | 0 | 40 | **16** |
+>
+> As 16 que sobram na V301 **ja' estavam no N4 de 11/09 que o dono validou** —
+> nao sao invencao desta rodada, e sao questao separada. O classificador
+> devolve a V301 exatamente ao estado aprovado.
+>
+> Validacao nas 32 do 13_PAV contra a verdade do N2: 25 coerentes, 7
+> divergentes — 4 preveem abertura sem tampa no N2 (V305, V310, V330, V331) e
+> 3 tem tampa no N2 sem abertura prevista (V312, V320, V325). Sem lista de
+> aberturas o motor NAO desenha tampa: faltar e' melhor que inventar.
+>
+> A cota da abertura (P6, o "78" da V13) passou a ser emitida junto, dentro do
+> corpo a ~0.68 da altura — medido no N2: face A "78" em x=39.0 (abertura
+> 0..78) e face B "78" em x=376.0 (abertura 337..415), as duas a 29.8 do fundo
+> num corpo de 44.
+>
+> Testes: `tests/test_lv_abertura_pilar_vs_viga.py` (7 casos).
+>
+> **Historico do defeito (2026-09-13) — a tampa e' so' de abertura de PILAR.**
 > Correcao do dono: abertura comum (chegada de VIGA) interrompe a corrida de
 > sarrafos do mesmo jeito e **nao leva tampa**. O criterio implementado em
 > `draw_sarr_lv_horizontal_from_n2` e' puramente geometrico (`a > base + 10.0`:
