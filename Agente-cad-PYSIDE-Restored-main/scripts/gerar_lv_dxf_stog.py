@@ -3012,7 +3012,34 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             y7_top = y7_bot + float(_top_panel_h)
             _left7 = float(_top_panel_x)
             _top_right_x = min(float(_top_panel_right), float(_body_end) + 0.01)
-            for _vx7, _side7 in ((_left7, -1.0), (_top_right_x, 1.0)):
+            # UMA cota, na ponta do painel que ENCOSTA na borda da face.
+            # Medido no N2 da V13 (apontamento do dono P1-P4, 2026-09-13):
+            #   face A — painel 0..200 (esquerda): "3" em x=2.0    (borda esq)
+            #   face B — painel 219..415 (direita): "3" em x=436.6 (borda dir)
+            # e a cota da laje total ("15") fica na ponta OPOSTA. Emitir nas
+            # duas pontas dobrava a cota sem respaldo no desenho.
+            # So' quando o painel NAO cobre a face inteira. Cobrindo tudo, as
+            # duas pontas encostam na borda e nao ha' evidencia de qual e' a
+            # certa — a V301.B tem 8 unidades assim (painel de 7 sobre os 418
+            # da face) e mexer nelas alterava desenho ja' validado pelo dono.
+            # ESCOPO: so' em unidade com DEGRAU DE LAJE. E' o unico caso em que
+            # o N2 foi medido (V13) e a forma geometrica sozinha nao distingue:
+            # a UNIT.B#10 da V301 tem painel comecando em 43.2 numa face de
+            # 458.2 — mesma silhueta da V13 invertida — mas ali a regra
+            # validada e' outra ("marco inicial cota na parede do corpo",
+            # test_leading_marco_cotas_sit_on_body_wall). Sem este escopo a
+            # regra vazava e quebrava aquele teste.
+            _pontas7 = [(_left7, -1.0), (_top_right_x, 1.0)]
+            if [t for t in (laje_trechos or [])
+                    if float(t.get('altura', 0) or 0) > 0]:
+                _tol7 = 2.0
+                _enc_esq = abs(_left7 - float(x0)) <= _tol7
+                _enc_dir = abs(_top_right_x - float(_body_end)) <= _tol7
+                if _enc_esq and not _enc_dir:
+                    _pontas7 = [(_left7, -1.0)]
+                elif _enc_dir and not _enc_esq:
+                    _pontas7 = [(_top_right_x, 1.0)]
+            for _vx7, _side7 in _pontas7:
                 try:
                     x_base7 = _vx7 + _side7 * _DIM_L1
                     d7 = msp.add_linear_dim(

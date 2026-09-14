@@ -174,12 +174,43 @@ def augment_face_unit_details(
         # em V301.B, 2026-08-29 — "cota de 7 duplicada"), igual ao guard
         # `has_total_already` logo abaixo para a cota total.
         top_h_text = motor._fmt_dim_cm(top_h)
-        for vx, direction in ((tx0, -1.0), (tx1, 1.0)):
+        # Mesma regra do gerador (bloco `d7`): UMA cota, na ponta do painel
+        # que encosta na borda da face. Medido no N2 da V13 — face A, painel
+        # a esquerda: "3" em x=2.0; face B, painel a direita: "3" em x=436.6.
+        # Sem isto, o gerador emitia na ponta certa e este modulo preenchia a
+        # outra, mantendo 2 por face (apontamento do dono P1-P4, 2026-09-13).
+        # So' quando o painel NAO cobre a face inteira — cobrindo tudo, as duas
+        # pontas encostam na borda e nao ha' evidencia de qual e' a certa
+        # (V301.B: 8 unidades com painel de 7 sobre os 418 da face).
+        # ESCOPO: so' em unidade com DEGRAU DE LAJE — mesmo motivo do gerador.
+        _pontas = [(tx0, -1.0), (tx1, 1.0)]
+        if [t for t in (unit.get("laje_sup_trechos") or [])
+                if float(t.get("altura", 0) or 0) > 0]:
+            _tol = 2.0
+            _enc_esq = abs(tx0 - x0) <= _tol
+            _enc_dir = abs(tx1 - right) <= _tol
+            if _enc_esq and not _enc_dir:
+                _pontas = [(tx0, -1.0)]
+            elif _enc_dir and not _enc_esq:
+                _pontas = [(tx1, 1.0)]
+        for vx, direction in _pontas:
+            # A guarda NAO pode exigir y exato. O gerador ancora a cota em
+            # `y0 + h + _marco_extension_cm(...)` e aqui a ancora e'
+            # `y0 + h + ls` (laje_sup da unidade) — os dois valores divergem
+            # (V13: 12 contra ~16), o `abs(... - ty0) < 0.5` nunca casava e a
+            # cota saia DUPLICADA: 4 por face, com o N2 tendo uma so'
+            # (medido na V13 face A: unico "3" em x=2.0). Apontado pelo dono
+            # em 2026-09-13 (P1-P4).
+            #
+            # Mesmo texto, mesmo x e dentro da faixa da laje = e' a mesma
+            # cota, venha de qual emissor vier.
+            _y_lo = y0 + h - 1.0
+            _y_hi = y0 + h + ls + top_h + 12.0
             has_top_h_already = any(
                 ent.dxftype() == "DIMENSION" and ent.dxf.layer == "COTA"
                 and str(ent.dxf.get("text", "")) == top_h_text
                 and abs(ent.dxf.defpoint2.x - vx) < 0.5
-                and abs(ent.dxf.defpoint2.y - ty0) < 0.5
+                and _y_lo <= ent.dxf.defpoint2.y <= _y_hi
                 for ent in msp
             )
             if has_top_h_already:
