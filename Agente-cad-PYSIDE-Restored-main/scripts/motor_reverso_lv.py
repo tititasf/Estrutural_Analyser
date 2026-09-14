@@ -657,6 +657,29 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 if best_confirmed is not None:
                     break
                 if cover_pair is not None:
+                    # O "minimum cover" so' vale se de fato COBRIR. Sem isto um
+                    # fragmento estreito vira fundo da face: medido na V302, a
+                    # unidade longa (top_w=976) fechava com cobertura de 242.3
+                    # (25%) e h_body=184, enquanto existia um full_floor de 44
+                    # — e' a unidade de 140.3 que o dono apontou no SEGMENTO 2A
+                    # (11 pontos `LINE·Painéis 140.3cm`), desenhada sobre a
+                    # correta ("acima dessas linhas erradas ta correto o
+                    # desenho").
+                    #
+                    # Medido nas 32 vigas: TODOS os covers da V301 cobrem 100%
+                    # do topo — o algoritmo funcionando como projetado — e so'
+                    # a V302 tem um de 25%. O limiar de 0.60 separa os dois com
+                    # folga larga dos dois lados.
+                    _uni = []
+                    for _ca, _cb in sorted(covered_intervals):
+                        if _uni and _ca <= _uni[-1][1]:
+                            _uni[-1] = (_uni[-1][0], max(_uni[-1][1], _cb))
+                        else:
+                            _uni.append((_ca, _cb))
+                    _cob = sum(_cb - _ca for _ca, _cb in _uni)
+                    if _cob < 0.60 * top_w:
+                        cover_pair = None
+                        continue
                     break  # primeiro y_top válido vence (tops ordenados por prox. ao label)
 
             best_partial_floor = cover_pair

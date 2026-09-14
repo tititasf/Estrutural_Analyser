@@ -4075,6 +4075,92 @@ def _face_unit_geom_key(unit) -> tuple:
     return (side, round(h), widths)
 
 
+def _descartar_copia_mal_laterada(units, folga=60.0, tol_x=40.0):
+    """Remove a copia de uma unidade que saiu na FACE ERRADA.
+
+    Causa (contrato §5.2.4): no N2 as faces ficam em COLUNAS — na V302 a face A
+    em x 3883..4862 e a B em 5217..6144. Unidade sem rotulo herda o lado do
+    ANCHOR, e o casamento por fileira aceita candidatos que se alinham em Y com
+    esse anchor sem olhar X. Anchor de uma coluna captura pares da outra e o
+    resultado sai com o lado errado E a altura errada:
+
+        A   -        h=56.0  x 5217.5..5619.0  w=[244.0, 157.5]
+        B   V302.B   h=44.0  x 5217.5..5619.0  w=[244.0, 157.5]
+
+    O agrupamento canonico nao desfaz isso porque a chave inclui a ALTURA, e as
+    duas variantes caem em grupos diferentes.
+
+    ESCOPO ESTREITO, de proposito. So' descarta quando as TRES valem:
+      1. as colunas A e B dos rotulados NAO se sobrepoem em x (senao nao ha'
+         territorio para comparar — e' o caso da V301 e da V13, que ficam
+         intocadas, e sao desenho ja' validado pelo dono);
+      2. o centro da unidade esta' mais perto do territorio do OUTRO lado;
+      3. existe uma GEMEA no lado certo, na mesma posicao e com as mesmas
+         larguras.
+
+    A condicao 3 e' o que impede perder desenho: medido nas 32 vigas, 16 de 120
+    unidades tem lado incoerente, mas so' 2 tem gemea (ambas na V302). As
+    outras 14 sao desenhos reais rotulados na face errada — precisam ser
+    REATRIBUIDAS, nao descartadas, e ficam fora desta funcao.
+    """
+    if not units:
+        return units
+
+    def _ctr(u):
+        bb = u.get('bbox') or {}
+        return (float(bb.get('x_left', 0) or 0)
+                + float(bb.get('x_right', 0) or 0)) / 2.0
+
+    def _ws(u):
+        return [round(float(p.get('width', 0) or 0), 1)
+                for p in (_face_unit_segments(u) or [])]
+
+    terr = {}
+    for s in ('A', 'B'):
+        cs = [_ctr(u) for u in units
+              if str(u.get('side') or '').upper() == s
+              and str(u.get('label') or '').strip()]
+        if cs:
+            terr[s] = (min(cs), max(cs))
+    if len(terr) < 2:
+        return units
+    (a0, a1), (b0, b1) = terr['A'], terr['B']
+    if not (a1 < b0 or b1 < a0):
+        return units  # colunas se sobrepoem: sem territorio, nao mexe
+
+    def _dist(c, faixa):
+        lo, hi = faixa
+        if lo - folga <= c <= hi + folga:
+            return 0.0
+        return min(abs(c - lo), abs(c - hi))
+
+    fora = []
+    for u in units:
+        s = str(u.get('side') or '').upper()
+        if s not in terr:
+            continue
+        c = _ctr(u)
+        outro = 'B' if s == 'A' else 'A'
+        if _dist(c, terr[outro]) < _dist(c, terr[s]):
+            fora.append((u, outro, c, _ws(u)))
+    if not fora:
+        return units
+
+    descartar = set()
+    for u, outro, c, ws in fora:
+        if not ws:
+            continue
+        for v in units:
+            if v is u or str(v.get('side') or '').upper() != outro:
+                continue
+            if abs(_ctr(v) - c) <= tol_x and _ws(v) == ws:
+                descartar.add(id(u))
+                break
+    if not descartar:
+        return units
+    return [u for u in units if id(u) not in descartar]
+
+
 def select_canonical_face_units(face_units, viga_nome=None):
     """Seleciona unidades de face para desenhar no N4.
 
@@ -4115,6 +4201,8 @@ def select_canonical_face_units(face_units, viga_nome=None):
         )
         if _score_face_unit_variant(best) > -1e8:
             selected.append(best)
+
+    selected = _descartar_copia_mal_laterada(selected)
 
     side_order = {'A': 0, 'B': 1}
 
