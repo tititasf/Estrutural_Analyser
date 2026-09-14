@@ -263,6 +263,47 @@ o N2 diz 59 nas duas.
 > geometria por fora. A guarda que ja' existe (`panel_body_heights`) so' age
 > entre 80 e 125 de altura com folga de 20, e por isso nao alcanca estes casos.
 
+#### 5.2.4 Lado da unidade incoerente com a posicao (2026-09-14)
+
+**Causa raiz do `h_body` errado, achada investigando a fundo.** Nao sao linhas
+espurias: e' falta de coerencia entre o LADO atribuido e a POSICAO da unidade.
+
+No N2 as faces ficam em COLUNAS: a face A numa faixa de x, a B noutra (V302:
+A em 3883..4862, B em 5217..6144). Uma unidade sem rotulo herda o lado do
+ANCHOR, e `_row_pairs_for_anchor` aceita candidatos que se alinham em **y** com
+esse anchor (tolerancia 8) — sem olhar x. Anchor de uma coluna captura pares da
+outra, e o resultado sai com o lado errado E a altura errada.
+
+Evidencia na V302 (mesma posicao, mesmas larguras, lados e alturas diferentes):
+
+```
+A   -        h=56.0  x 5217.5..5619.0  y 7061.0  w=[244.0, 157.5]
+B   V302.B   h=44.0  x 5217.5..5619.0  y 7061.0  w=[244.0, 157.5]
+```
+
+`select_canonical_face_units` nao desfaz isso porque agrupa por
+`(lado, altura, larguras)` — alturas diferentes caem em grupos diferentes e as
+duas variantes sobrevivem.
+
+Isso explica de uma vez os apontamentos do dono na V302: o bloco de 11 pontos
+com `LINE·Painéis 140.3cm` no SEGMENTO 2A e' a unidade `CONT. V302.A` de 140.3
+desenhada sobre a correta de 44 ("acima dessas linhas erradas ta correto o
+desenho"). E o `h_body` 56/24 das unidades 2A/3A e' a copia mal-laterada.
+
+**Medido nas 32 vigas: 16 unidades de 120 com lado incoerente**, em 12 vigas.
+V301 e V13 ficam FORA da regra — nelas as colunas A e B se sobrepoem em x,
+entao o teste de territorio nao se aplica. Isso e' a trava de seguranca.
+
+As 16 tem DUAS naturezas, e o conserto difere:
+
+| natureza | quantas | acao |
+|---|---|---|
+| tem GEMEA no lado certo, mesmas larguras | **2** (as duas na V302) | descartar — e' copia corrompida |
+| NAO tem gemea | **14** | reatribuir o lado; sao desenhos reais, so' rotulados na face errada |
+
+Descartar as 14 perderia desenho. Por isso a acao tem de ser por natureza, nao
+uma regra so'.
+
 #### 5.2.2 Cotas de abertura — pendencias medidas (2026-09-13)
 
 Apontadas pelo dono na revisao da V13 face A. Medidas, ainda sem conserto:
