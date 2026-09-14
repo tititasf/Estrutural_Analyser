@@ -3188,6 +3188,40 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                     )
                 except Exception:
                     pass
+            # ── Largura do painel de fechamento, cotada ACIMA dele ─────────
+            # Apontamento do dono (2026-09-13): faltava a cota superior, acima
+            # do painel e acima da laje. Medido no N2 da V13 face B —
+            # LINE COTA handle=DE, 196.0cm de (4862.8, 3079.1) a
+            # (5058.8, 3079.1): em coordenada da face, x 219->415 (os 196 do
+            # painel) a +22.1 do topo do corpo, ou seja ~4 acima do topo do
+            # conjunto laje+painel (15+3=18). Face A tem a gemea de 200.
+            #
+            # Mesmo escopo das demais regras de cota do painel: so' em unidade
+            # com DEGRAU DE LAJE. Painel cobrindo a face inteira (V301.B tem 8
+            # assim) fica de fora — la' a largura ja' e' a da face e o desenho
+            # foi validado pelo dono sem essa cota.
+            if [t for t in (laje_trechos or [])
+                    if float(t.get('altura', 0) or 0) > 0]:
+                _wl = float(_top_panel_right) - float(_top_panel_x)
+                if _wl > 1.0:
+                    _y_larg = y7_top + 4.0
+                    try:
+                        _dw = msp.add_linear_dim(
+                            base=((_top_panel_x + _top_panel_right) / 2.0,
+                                  _y_larg),
+                            p1=(_top_panel_x, _y_larg),
+                            p2=(_top_panel_right, _y_larg),
+                            angle=0, dimstyle='PAINEL',
+                            dxfattribs={'layer': 'COTA'},
+                        )
+                        _dw.render()
+                        _apply_dim_text(
+                            _dw, _fmt_dim_cm(round(_wl, 1)),
+                            ((_top_panel_x + _top_panel_right) / 2.0,
+                             _y_larg + 3.0),
+                        )
+                    except Exception:
+                        pass
     # Degrau classico: 1o vao longo (ex. 244) ate degrau_end. Espelho 111|63|244
     # nao deve emitir 44/59/65 inventados no ombro falso.
     _dbounds_chk = _degrau_zone_bounds_x(x0, h, panels) if panels else None
