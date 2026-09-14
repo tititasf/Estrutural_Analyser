@@ -2289,7 +2289,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     segs_u = _propagate_laje(segs_raw, ls_u, li_u, pair)
                     laje_trechos: list = []
                     aberturas_viga = _detectar_aberturas_viga(
-                        paineis_h, paineis_v, pair)
+                        paineis_h, paineis_v, pair, segs_u)
                     # Laje que a COTA ESCRITA declara para esta face, medida
                     # antes de `ls_u` ser sobrescrito pelo ramo do painel de
                     # topo. E' a verdade de terra do degrau: o trecho alto tem
@@ -2816,7 +2816,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
     return result
 
 
-def _detectar_aberturas_viga(paineis_h, paineis_v, pair, tol=1.5) -> list:
+def _detectar_aberturas_viga(paineis_h, paineis_v, pair, segs=None,
+                             tol=1.5) -> list:
     """Aberturas de VIGA na face — as que RECORTAM o painel.
 
     Regra do dono (2026-09-13/14): abertura de VIGA recorta o painel; abertura
@@ -2866,11 +2867,42 @@ def _detectar_aberturas_viga(paineis_h, paineis_v, pair, tol=1.5) -> list:
     if not horiz or not verts:
         return []
 
+    # ── Guarda: DEGRAU nao e' abertura de viga ────────────────────────────
+    # O degrau ja' e' modelado pelas alturas dos paineis (`height1`) e pelo
+    # ombro. Sem esta guarda o ombro dele entra como "piso de abertura": na
+    # V301.A a faixa 0->294.5 (= paineis 244 + 50.5, os BAIXOS, 44 contra 109)
+    # virava abertura e o desenho da V301 — ja' validado pelo dono — mudava.
+    # Se a faixa detectada cai sobre paineis que JA estao rebaixados, e'
+    # degrau. Mesmo discriminador usado em `classificar_aberturas_pilar`.
+    _cruas = []
+    _hs = [float(s.get('height1', 0) or 0) for s in (segs or [])]
+    if _hs:
+        _hmax = max(_hs)
+        _acc = 0.0
+        for _s, _h1 in zip(segs or [], _hs):
+            _w = float(_s.get('largura_cm', _s.get('width', 0)) or 0)
+            if _hmax - _h1 > 3.0:
+                _cruas.append((_acc, _acc + _w))
+            _acc += _w
+    # FUNDIR faixas adjacentes: a zona baixa do degrau costuma ser mais de um
+    # painel seguido. Na V301.A sao dois — 244 e 50.5, ambos com 44 contra 109
+    # — e a faixa do degrau vai de 0 a 294.5. Testando painel a painel, a
+    # abertura 0->294.5 nao cabe em nenhum isolado e a guarda nao pegava.
+    faixas_baixas = []
+    for _lo, _hi in sorted(_cruas):
+        if faixas_baixas and _lo - faixas_baixas[-1][1] <= tol:
+            faixas_baixas[-1] = (faixas_baixas[-1][0], max(faixas_baixas[-1][1], _hi))
+        else:
+            faixas_baixas.append((_lo, _hi))
+
     y_fundo = min(h[0] for h in horiz)
     y_topo = max(h[0] for h in horiz)
     out = []
     for y, hx0, hx1 in horiz:
         if not (y_fundo + 2.0 < y < y_topo - 2.0):
+            continue
+        if any(lo - tol <= hx0 and hx1 <= hi + tol
+               for lo, hi in faixas_baixas):
             continue
         esq = [v for v in verts
                if abs(v[0] - hx0) <= tol and abs(v[1] - y) <= tol]

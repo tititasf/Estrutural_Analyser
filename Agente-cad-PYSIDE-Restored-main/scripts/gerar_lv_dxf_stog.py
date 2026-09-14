@@ -1107,7 +1107,8 @@ def _marco_extension_cm(marco_laje_sup, laje_sup, *, has_marco_strip=None):
 
 def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
                           marco_laje_sup=False, laje_sup=0.0,
-                          marco_h_min=0.0, laje_trechos=None):
+                          marco_h_min=0.0, laje_trechos=None,
+                          aberturas_viga=None):
     """Contorno Painéis fiel ao N2 — G honest (miss→0, extra→0).
 
     Regras anti-phantom (ShareX + ledger V301 A/B):
@@ -1364,13 +1365,62 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
     # Excecao: ombro que passa de y_top (_degrau_tall) — aqui a zona do
     # degrau NAO tem materia em y_top (ela esta mais acima, no marco), e
     # uma linha atravessando cortaria a propria hachura do painel ao meio.
+    # ── ABERTURA DE VIGA: recorta o painel e separa segmentos ─────────────
+    # Regra do dono (§5.2.3 do contrato): abertura de VIGA recorta o PAINEL
+    # (a de pilar so' recorta o sarrafo) e parte o painel em DOIS segmentos,
+    # mesmo encostados. A abertura e a sobra pertencem ao segmento que vem
+    # ANTES; a parede da fronteira e' desenhada UMA vez.
+    #
+    # Medido no N2 da V302.A: recorte de 38 entre x 178.5 e 200.5, com SOBRA
+    # de 22 x 5 embaixo. O N4 desenhava um retangulo liso de 470 x 43.
+    _abr_v = []
+    for _av in (aberturas_viga or []):
+        try:
+            _xi = x0 + float(_av.get('x_ini', 0) or 0)
+            _xf = x0 + float(_av.get('x_fim', 0) or 0)
+            _sh = float(_av.get('sobra_h', 0) or 0)
+        except Exception:
+            continue
+        if _xf - _xi > 0.5 and x0 - 0.5 <= _xi and _xf <= body_end + 0.5:
+            _abr_v.append((_xi, _xf, _sh))
+    _abr_v.sort()
+
+    def _topo(xi, xf):
+        """Borda superior de xi a xf, pulando as aberturas de viga."""
+        if xf - xi <= 0.05:
+            return
+        if not _abr_v:
+            msp.add_line((xi, y_top), (xf, y_top), dxfattribs=a)
+            return
+        cur = xi
+        for _ai, _af, _ in _abr_v:
+            if _af <= cur + 0.05 or _ai >= xf - 0.05:
+                continue
+            if _ai > cur + 0.05:
+                msp.add_line((cur, y_top), (min(_ai, xf), y_top), dxfattribs=a)
+            cur = max(cur, _af)
+        if xf > cur + 0.05:
+            msp.add_line((cur, y_top), (xf, y_top), dxfattribs=a)
+
     if _degrau_tall:
         if degrau_start > x0 + 0.5:
-            msp.add_line((x0, y_top), (degrau_start, y_top), dxfattribs=a)
+            _topo(x0, degrau_start)
         if body_end > degrau_end + 0.5:
-            msp.add_line((degrau_end, y_top), (body_end, y_top), dxfattribs=a)
+            _topo(degrau_end, body_end)
     else:
-        msp.add_line((x0, y_top), (body_end, y_top), dxfattribs=a)
+        _topo(x0, body_end)
+
+    for _ai, _af, _sh in _abr_v:
+        _y_sobra = y0 + _sh
+        # parede esquerda da abertura: do topo da sobra ate' o topo do painel
+        if y_top - _y_sobra > 0.05:
+            msp.add_line((_ai, _y_sobra), (_ai, y_top), dxfattribs=a)
+        # piso da abertura = topo da SOBRA (parte que fica embaixo)
+        if _sh > 0.05:
+            msp.add_line((_ai, _y_sobra), (_af, _y_sobra), dxfattribs=a)
+        # A parede em _af e' a FRONTEIRA entre os dois segmentos e ja' e'
+        # desenhada como divisor de painel — nao repetir aqui (parede
+        # compartilhada sai uma vez so').
     if has_degrau and degrau_end < body_end - 0.5:
         msp.add_line((degrau_end, y0), (body_end, y0), dxfattribs=a)
     elif not has_degrau:
@@ -2256,7 +2306,8 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  marco_laje_sup=False, painel_sup_alt=0.0,
                  painel_sup_width=0.0, painel_sup_x_offset=0.0,
                  endpoint_start_label=None, endpoint_end_label=None,
-                 edge_span_candidates=None, laje_trechos=None):
+                 edge_span_candidates=None, laje_trechos=None,
+                 aberturas_viga=None):
     """Desenha uma face (A ou B) da viga lateral -- todos elementos visuais.
     panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2, reuse, panel_type}, ...]
     holes: lista de aberturas [{active, width, height, position}, ...]
@@ -2577,6 +2628,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         laje_sup=laje_sup,
         marco_h_min=_marco_h_min_data,
         laje_trechos=laje_trechos,
+        aberturas_viga=aberturas_viga,
     )
     # Hachura ANSI31 na faixa superior do degrau (N2 V301) — densifica visao.
 
@@ -4292,6 +4344,7 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
             endpoint_end_label=unit.get('endpoint_end_label'),
             edge_span_candidates=unit.get('edge_span_candidates'),
             laje_trechos=unit.get('laje_sup_trechos'),
+            aberturas_viga=unit.get('aberturas_viga'),
         )
         unit_width = sum(p['width'] for p in panels)
         x_max = max(x_max, x0 + unit_width + DIM_H_RIGHT + 40)
