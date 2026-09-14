@@ -147,15 +147,14 @@ def augment_face_unit_details(
                 else:
                     seen.add(key)
             if not has_right_dim:
-                d15 = msp.add_linear_dim(
+                motor.emitir_cota(
+                    msp, origem="augment:laje_dir",
                     base=(right + motor.DIM_H_RIGHT, y0 + h),
                     p1=(right, y0 + h), p2=(right, y0 + h + ls),
-                    angle=90, dimstyle="PAINEL", dxfattribs={"layer": "COTA"},
-                )
-                d15.render()
-                motor._apply_dim_text(
-                    d15, label,
-                    (right + motor.DIM_H_RIGHT + 4.0, y0 + h + ls / 2.0),
+                    angle=90,
+                    texto=label,
+                    texto_pos=(right + motor.DIM_H_RIGHT + 4.0,
+                               y0 + h + ls / 2.0),
                 )
                 changed = True
 
@@ -216,14 +215,12 @@ def augment_face_unit_details(
             if has_top_h_already:
                 continue
             base_x = vx + direction * motor.DIM_H_RIGHT
-            dim = msp.add_linear_dim(
+            motor.emitir_cota(
+                msp, origem="augment:painel_topo_h",
                 base=(base_x, ty0), p1=(vx, ty0), p2=(vx, ty0 + top_h),
-                angle=90, dimstyle="PAINEL", dxfattribs={"layer": "COTA"},
-            )
-            dim.render()
-            motor._apply_dim_text(
-                dim, top_h_text,
-                (base_x + direction * 4.0, ty0 + top_h / 2.0),
+                angle=90,
+                texto=top_h_text,
+                texto_pos=(base_x + direction * 4.0, ty0 + top_h / 2.0),
             )
             changed = True
 
@@ -252,16 +249,14 @@ def augment_face_unit_details(
             for ent in msp
         )
         if not has_total_already:
-            dt = msp.add_linear_dim(
+            motor.emitir_cota(
+                msp, origem="augment:total",
                 base=(anchor + direction * 2.0 * motor.DIM_H_RIGHT, y0 - li),
                 p1=(anchor, y0 - li), p2=(anchor, y0 + h + ls + top_h),
-                angle=90, dimstyle="PAINEL", dxfattribs={"layer": "COTA"},
-            )
-            dt.render()
-            motor._apply_dim_text(
-                dt, motor._fmt_dim_cm(total),
-                (anchor + direction * (2.0 * motor.DIM_H_RIGHT + 4.0),
-                 y0 - li + total / 2.0),
+                angle=90,
+                texto=motor._fmt_dim_cm(total),
+                texto_pos=(anchor + direction * (2.0 * motor.DIM_H_RIGHT + 4.0),
+                           y0 - li + total / 2.0),
             )
             changed = True
 

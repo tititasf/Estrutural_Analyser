@@ -1790,6 +1790,87 @@ def _apply_dim_text(dimstyle_override, text: str, mid_xy: tuple[float, float]):
         pass
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+# PLANO DE COTAS -- ponto unico de decisao
+# ═══════════════════════════════════════════════════════════════════════════
+# Antes deste registro, 19 pontos do codigo chamavam add_linear_dim direto,
+# cada um com a sua condicao local, olhando so' a geometria que ele mesmo
+# acabara de desenhar. Como a LISTA de cotas da unidade nao existia em lugar
+# nenhum, nao havia onde:
+#   - suprimir a cota da parede compartilhada entre dois segmentos (quem
+#     desenha o segmento 1 nao sabe que o 2 vai cotar a mesma parede);
+#   - exigir que a altura total saia (ninguem e' dono dessa obrigacao);
+#   - recusar valor que nao rastreia ate' uma medida do modelo.
+# Cada guarda somada matava um caso e abria outro. Este e' o lugar que faltava.
+#
+# FASE 1 (agora): passa-direto. `emitir_cota` renderiza na hora, na mesma
+# ordem de antes, e apenas REGISTRA -- o N4 sai identico byte a byte. O que
+# se ganha e' o inventario por face, que a fase 2 usa para decidir.
+
+_PLANO_COTAS: dict | None = None
+
+
+def plano_cotas_abrir(tag: str) -> None:
+    """Abre o registro de cotas de uma face/vista (`tag` = nome da face)."""
+    global _PLANO_COTAS
+    _PLANO_COTAS = {'tag': str(tag), 'itens': []}
+
+
+def plano_cotas_fechar() -> list:
+    """Fecha o registro e devolve os itens emitidos na face."""
+    global _PLANO_COTAS
+    itens = list((_PLANO_COTAS or {}).get('itens') or [])
+    _PLANO_COTAS = None
+    return itens
+
+
+def plano_cotas_itens() -> list:
+    """Itens ja' emitidos na face aberta (vazio se nao ha' registro aberto)."""
+    return list((_PLANO_COTAS or {}).get('itens') or [])
+
+
+def _plano_cotas_registrar(origem, p1, p2, angle, texto, medida):
+    if _PLANO_COTAS is None:
+        return
+    try:
+        _PLANO_COTAS['itens'].append({
+            'origem': str(origem),
+            'medida': round(float(medida), 2),
+            'texto': None if texto is None else str(texto),
+            'orient': 'V' if int(angle) == 90 else 'H',
+            'x': round((float(p1[0]) + float(p2[0])) / 2.0, 2),
+            'y': round((float(p1[1]) + float(p2[1])) / 2.0, 2),
+        })
+    except Exception:
+        pass
+
+
+def emitir_cota(msp, *, origem, base, p1, p2, angle, dimstyle='PAINEL',
+                layer='COTA', override=None, texto=None, texto_pos=None):
+    """UNICO caminho de emissao de cota do motor LV.
+
+    `origem` identifica o ponto do codigo que propos a cota -- e' o que
+    permite, na fase 2, decidir entre propostas concorrentes sobre a mesma
+    parede. O texto e' aplicado DEPOIS do render porque o ezdxf reverte
+    para '<>' durante ele (vaos estreitos colidiam no SVG: "28,721,8").
+    """
+    try:
+        kw = {'base': base, 'p1': p1, 'p2': p2, 'angle': angle,
+              'dimstyle': dimstyle, 'dxfattribs': {'layer': layer}}
+        if override:
+            kw['override'] = dict(override)
+        d = msp.add_linear_dim(**kw)
+        d.render()
+    except Exception:
+        return None
+    if texto is not None:
+        _apply_dim_text(d, texto, texto_pos if texto_pos is not None else base)
+    medida = (abs(float(p2[1]) - float(p1[1])) if int(angle) == 90
+              else abs(float(p2[0]) - float(p1[0])))
+    _plano_cotas_registrar(origem, p1, p2, angle, texto, medida)
+    return d
+
+
 def _panel_attach_y(x, y0, y_shoulder, degrau_end, degrau_start=None):
     """Y onde a pata da cota H encontra o painel.
 
@@ -1822,33 +1903,28 @@ def dim_panel_lv(msp, x0, x1, y_base, *, text_override: str | None = None,
         y_off = 25.0 if int(level) <= 0 else 50.0
         yp1 = float(y_base if y_p1 is None else y_p1)
         yp2 = float(y_base if y_p2 is None else y_p2)
-        d = msp.add_linear_dim(
+        mid = ((float(x0) + float(x1)) / 2.0, float(y_base) - y_off - 6.0)
+        emitir_cota(
+            msp, origem='painel_h',
             base=(x0, y_base - y_off),
             p1=(x0, yp1), p2=(x1, yp2),
-            angle=0, dimstyle='PAINEL',
-            dxfattribs={'layer': 'COTA'},
+            angle=0,
+            texto=text_override or None, texto_pos=mid,
         )
-        d.render()
-        # Override DEPOIS do render — senão o ezdxf volta a '<>' e o SVG
-        # colide texto de vãos estreitos (28.7+21.8 → "28,721,8").
-        if text_override:
-            mid = ((float(x0) + float(x1)) / 2.0, float(y_base) - y_off - 6.0)
-            _apply_dim_text(d, text_override, mid)
     except Exception:
         pass
 
 def dim_total_lv(msp, x0, x1, y_base):
     """Cota horizontal total da face -- 2o nivel."""
     try:
-        d = msp.add_linear_dim(
+        mid = ((float(x0) + float(x1)) / 2.0, float(y_base) - DIM_TOTAL_BELOW - 6.0)
+        emitir_cota(
+            msp, origem='total_h',
             base=(x0, y_base - DIM_TOTAL_BELOW),
             p1=(x0, y_base), p2=(x1, y_base),
-            angle=0, dimstyle='PAINEL',
-            dxfattribs={'layer': 'COTA'},
+            angle=0,
+            texto=_fmt_dim_cm(abs(float(x1) - float(x0))), texto_pos=mid,
         )
-        d.render()
-        mid = ((float(x0) + float(x1)) / 2.0, float(y_base) - DIM_TOTAL_BELOW - 6.0)
-        _apply_dim_text(d, _fmt_dim_cm(abs(float(x1) - float(x0))), mid)
     except Exception:
         pass
 
@@ -1863,19 +1939,15 @@ def dim_h_lateral(msp, x_right, y0, h, *, offset: float | None = None,
     try:
         off = float(DIM_H_RIGHT if offset is None else offset)
         x_base = x_right + off
-        d = msp.add_linear_dim(
+        emitir_cota(
+            msp, origem='h_lateral',
             base=(x_base, y0),
             p1=(x_right, y0), p2=(x_right, y0 + h),
-            angle=90, dimstyle='PAINEL',
-            dxfattribs={'layer': 'COTA'},
+            angle=90,
+            texto=text_override or None,
+            texto_pos=(x_base + (4.0 if off >= 0 else -4.0),
+                       float(y0) + float(h) / 2.0),
         )
-        d.render()
-        if text_override:
-            _apply_dim_text(
-                d, text_override,
-                (x_base + (4.0 if off >= 0 else -4.0),
-                 float(y0) + float(h) / 2.0),
-            )
     except Exception:
         pass
 
@@ -2252,22 +2324,12 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     dim_x_right = x_fr + 43
 
     def add_dim_v(p1, p2, base_x, layer='COTA', style='PAINEL'):
-        try:
-            d = msp.add_linear_dim(
-                base=(base_x, p1[1]), p1=p1, p2=p2,
-                angle=90, dimstyle=style, dxfattribs={'layer': layer})
-            d.render()
-        except Exception:
-            pass
+        emitir_cota(msp, origem='secao_v', base=(base_x, p1[1]), p1=p1, p2=p2,
+                    angle=90, dimstyle=style, layer=layer)
 
     def add_dim_h(p1, p2, base_y, layer='COTA', style='PAINEL'):
-        try:
-            d = msp.add_linear_dim(
-                base=(p1[0], base_y), p1=p1, p2=p2,
-                angle=0, dimstyle=style, dxfattribs={'layer': layer})
-            d.render()
-        except Exception:
-            pass
+        emitir_cota(msp, origem='secao_h', base=(p1[0], base_y), p1=p1, p2=p2,
+                    angle=0, dimstyle=style, layer=layer)
 
     # 14a. Full LEFT height
     add_dim_v((x_ml_l-20, y0), (x_ml_l, y0+h_left), x_center - 108)
@@ -2826,21 +2888,15 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             # abaixo do corpo). Medir logo abaixo da linha de cota mantem o
             # tocao curto, como no N2.
             _y_cota = y0 + float(h) * 0.492
-            try:
-                _d78 = msp.add_linear_dim(
-                    base=(x0 + (_ai + _af) / 2.0, _y_cota),
-                    p1=(x0 + _ai, _y_cota - 2.3),
-                    p2=(x0 + _af, _y_cota - 2.3),
-                    angle=0, dimstyle='PAINEL',
-                    dxfattribs={'layer': 'COTA'},
-                )
-                _d78.render()
-                _apply_dim_text(
-                    _d78, _fmt_dim_cm(_larg),
-                    (x0 + (_ai + _af) / 2.0, _y_cota),
-                )
-            except Exception:
-                pass
+            emitir_cota(
+                msp, origem='abertura_larg',
+                base=(x0 + (_ai + _af) / 2.0, _y_cota),
+                p1=(x0 + _ai, _y_cota - 2.3),
+                p2=(x0 + _af, _y_cota - 2.3),
+                angle=0,
+                texto=_fmt_dim_cm(_larg),
+                texto_pos=(x0 + (_ai + _af) / 2.0, _y_cota),
+            )
 
     # Recipe N2: SARR H 7cm no ombro na borda do degrau (294,5→301,5 @ y=65).
     # Se o N2 trouxe sarrafos longos cobrindo isso, o inventário casa o longo;
@@ -3143,15 +3199,11 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         for label, seg_h in segments:
             if seg_h <= 0:
                 continue
-            try:
-                d = msp.add_linear_dim(
-                    base=(x_dim, y_cur),
-                    p1=(x_base, y_cur), p2=(x_base, y_cur + seg_h),
-                    angle=90, dimstyle='PAINEL',
-                    dxfattribs={'layer': 'COTA'})
-                d.render()
-            except Exception:
-                pass
+            emitir_cota(
+                msp, origem=f'seg_v:{label}',
+                base=(x_dim, y_cur),
+                p1=(x_base, y_cur), p2=(x_base, y_cur + seg_h),
+                angle=90)
             y_cur += seg_h
 
     p0 = panels[0]
@@ -3309,17 +3361,14 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                                 if _alt_local is not None
                                 else _fmt_dim_cm(_cota_marco_label))
                 x_base15 = _vx + _side * _DIM_L1
-                d2 = msp.add_linear_dim(
+                emitir_cota(
+                    msp, origem='marco_laje',
                     base=(x_base15, y0 + h),
                     p1=(_vx, y0 + h), p2=(_vx, y0 + h + _cota_local),
-                    angle=90, dimstyle='PAINEL',
-                    dxfattribs={'layer': 'COTA'},
-                )
-                d2.render()
-                _apply_dim_text(
-                    d2, _label_local,
-                    (x_base15 + _side * 4.0,
-                     y0 + h + _cota_local / 2.0),
+                    angle=90,
+                    texto=_label_local,
+                    texto_pos=(x_base15 + _side * 4.0,
+                               y0 + h + _cota_local / 2.0),
                 )
             except Exception:
                 pass
@@ -3356,21 +3405,16 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                 elif _enc_dir and not _enc_esq:
                     _pontas7 = [(_top_right_x, 1.0)]
             for _vx7, _side7 in _pontas7:
-                try:
-                    x_base7 = _vx7 + _side7 * _DIM_L1
-                    d7 = msp.add_linear_dim(
-                        base=(x_base7, y7_bot),
-                        p1=(_vx7, y7_bot), p2=(_vx7, y7_top),
-                        angle=90, dimstyle='PAINEL',
-                        dxfattribs={'layer': 'COTA'},
-                    )
-                    d7.render()
-                    _apply_dim_text(
-                        d7, _fmt_dim_cm(_top_panel_h),
-                        (x_base7 + _side7 * 4.0, (y7_bot + y7_top) / 2.0),
-                    )
-                except Exception:
-                    pass
+                x_base7 = _vx7 + _side7 * _DIM_L1
+                emitir_cota(
+                    msp, origem='painel_topo_h',
+                    base=(x_base7, y7_bot),
+                    p1=(_vx7, y7_bot), p2=(_vx7, y7_top),
+                    angle=90,
+                    texto=_fmt_dim_cm(_top_panel_h),
+                    texto_pos=(x_base7 + _side7 * 4.0,
+                               (y7_bot + y7_top) / 2.0),
+                )
             # ── Largura do painel de fechamento, cotada ACIMA dele ─────────
             # Apontamento do dono (2026-09-13): faltava a cota superior, acima
             # do painel e acima da laje. Medido no N2 da V13 face B —
@@ -3394,24 +3438,18 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                     # `dimexo`. Sem essa folga a extensao encostava no painel
                     # (apontamento do dono P2); com ela, flutua como no N2.
                     _y_larg = y7_top + 6.66
-                    try:
-                        _dw = msp.add_linear_dim(
-                            base=((_top_panel_x + _top_panel_right) / 2.0,
-                                  _y_larg),
-                            p1=(_top_panel_x, y7_top),
-                            p2=(_top_panel_right, y7_top),
-                            angle=0, dimstyle='PAINEL',
-                            override={'dimexo': 3.0},
-                            dxfattribs={'layer': 'COTA'},
-                        )
-                        _dw.render()
-                        _apply_dim_text(
-                            _dw, _fmt_dim_cm(round(_wl, 1)),
-                            ((_top_panel_x + _top_panel_right) / 2.0,
-                             _y_larg + 3.0),
-                        )
-                    except Exception:
-                        pass
+                    emitir_cota(
+                        msp, origem='painel_topo_larg',
+                        base=((_top_panel_x + _top_panel_right) / 2.0,
+                              _y_larg),
+                        p1=(_top_panel_x, y7_top),
+                        p2=(_top_panel_right, y7_top),
+                        angle=0,
+                        override={'dimexo': 3.0},
+                        texto=_fmt_dim_cm(round(_wl, 1)),
+                        texto_pos=((_top_panel_x + _top_panel_right) / 2.0,
+                                   _y_larg + 3.0),
+                    )
     # Degrau classico: 1o vao longo (ex. 244) ate degrau_end. Espelho 111|63|244
     # nao deve emitir 44/59/65 inventados no ombro falso.
     _dbounds_chk = _degrau_zone_bounds_x(x0, h, panels) if panels else None
@@ -3440,40 +3478,33 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     if _classic_deg:
         h_deg = float(y0 + h - y_shoulder)
         if 12.0 < h_deg < h - 5.0:
-            try:
-                x_anchor = _dend_chk if _step_trailing else x0
-                dim_side = 1.0 if _step_trailing else -1.0
-                x_dim_l = x_anchor + dim_side * _DIM_L1
-                d = msp.add_linear_dim(
-                    base=(x_dim_l, y_shoulder),
-                    p1=(x_anchor, y_shoulder), p2=(x_anchor, y0 + h),
-                    angle=90, dimstyle='PAINEL',
-                    dxfattribs={'layer': 'COTA'},
-                )
-                d.render()
-                _apply_dim_text(
-                    d, _fmt_dim_cm(h_deg),
-                    (x_dim_l + dim_side * 4.0, y_shoulder + h_deg / 2.0),
-                )
-            except Exception:
-                pass
+            x_anchor = _dend_chk if _step_trailing else x0
+            dim_side = 1.0 if _step_trailing else -1.0
+            x_dim_l = x_anchor + dim_side * _DIM_L1
+            emitir_cota(
+                msp, origem='degrau_h',
+                base=(x_dim_l, y_shoulder),
+                p1=(x_anchor, y_shoulder), p2=(x_anchor, y0 + h),
+                angle=90,
+                texto=_fmt_dim_cm(h_deg),
+                texto_pos=(x_dim_l + dim_side * 4.0,
+                           y_shoulder + h_deg / 2.0),
+            )
             # 59 = faixa superior ~44 + marco ~15 (padrao A). Nao emitir se
             # marco grosso (>16) ou faixa fora de 40-48 (vira 58,5 inventada).
             h_outer = h_deg + float(_marco_h) + float(_top_panel_h)
             if 50.0 <= h_outer <= 62.0 and 12.0 <= float(_marco_h) <= 16.5:
                 try:
                     x_dim_o = x_anchor + dim_side * _DIM_L2
-                    d59 = msp.add_linear_dim(
+                    emitir_cota(
+                        msp, origem='altura_externa',
                         base=(x_dim_o, y_shoulder),
                         p1=(x_anchor, y_shoulder),
                         p2=(x_anchor, y0 + h + _marco_h + _top_panel_h),
-                        angle=90, dimstyle='PAINEL',
-                        dxfattribs={'layer': 'COTA'},
-                    )
-                    d59.render()
-                    _apply_dim_text(
-                        d59, _fmt_dim_cm(h_outer),
-                        (x_dim_o + dim_side * 4.0, y_shoulder + h_outer / 2.0),
+                        angle=90,
+                        texto=_fmt_dim_cm(h_outer),
+                        texto_pos=(x_dim_o + dim_side * 4.0,
+                                   y_shoulder + h_outer / 2.0),
                     )
                 except Exception:
                     pass
@@ -3485,37 +3516,27 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         step_side = 1.0 if _step_trailing else -1.0
         h_ombro = _h_ombro_chk
         if degrau_end > x0 + 0.5 and 12.0 < h_ombro < h - 5.0:
-            try:
-                x_dim_65 = step_wall + step_side * _DIM_L1
-                d65 = msp.add_linear_dim(
-                    base=(x_dim_65, y0),
-                    p1=(step_wall, y0), p2=(step_wall, y_shoulder),
-                    angle=90, dimstyle='PAINEL',
-                    dxfattribs={'layer': 'COTA'},
-                )
-                d65.render()
-                _apply_dim_text(
-                    d65, _fmt_dim_cm(h_ombro),
-                    (x_dim_65 + step_side * 4.0, (y0 + y_shoulder) / 2.0),
-                )
-            except Exception:
-                pass
-            try:
-                if _step_trailing:
-                    x_sarr_l = step_wall - SARR_INSET_H
-                    x_sarr_r = step_wall
-                else:
-                    x_sarr_l = step_wall
-                    x_sarr_r = step_wall + SARR_INSET_H
-                d4 = msp.add_linear_dim(
-                    base=(x_sarr_l, y0 - 10.0),
-                    p1=(x_sarr_l, y0), p2=(x_sarr_r, y0),
-                    angle=0, dimstyle='PAINEL',
-                    dxfattribs={'layer': 'COTA'},
-                )
-                d4.render()
-            except Exception:
-                pass
+            x_dim_65 = step_wall + step_side * _DIM_L1
+            emitir_cota(
+                msp, origem='ombro_h',
+                base=(x_dim_65, y0),
+                p1=(step_wall, y0), p2=(step_wall, y_shoulder),
+                angle=90,
+                texto=_fmt_dim_cm(h_ombro),
+                texto_pos=(x_dim_65 + step_side * 4.0,
+                           (y0 + y_shoulder) / 2.0),
+            )
+            if _step_trailing:
+                x_sarr_l = step_wall - SARR_INSET_H
+                x_sarr_r = step_wall
+            else:
+                x_sarr_l = step_wall
+                x_sarr_r = step_wall + SARR_INSET_H
+            emitir_cota(
+                msp, origem='sarrafo_ombro',
+                base=(x_sarr_l, y0 - 10.0),
+                p1=(x_sarr_l, y0), p2=(x_sarr_r, y0),
+                angle=0)
     if has_left_opening:
         _dim_seg_v(x0 + comprimento, seg_left, 'right')
         dim_h_lateral(msp, x0, y0 - laje_inf, _h_total)
@@ -3764,13 +3785,8 @@ def _draw_section_n1_contract_legacy_clean(msp, section_view, x_center, y_center
     msp.add_line((x_b_l, y0), (x_b_l, y0 + h_b), dxfattribs={'layer': 'Painéis'})
 
     def dim_v(x, height, base_x):
-        try:
-            d = msp.add_linear_dim(
-                base=(base_x, y0), p1=(x, y0), p2=(x, y0 + height),
-                angle=90, dimstyle='PAINEL', dxfattribs={'layer': 'COTA'})
-            d.render()
-        except Exception:
-            pass
+        emitir_cota(msp, origem='corte_v', base=(base_x, y0),
+                    p1=(x, y0), p2=(x, y0 + height), angle=90)
 
     def add_plain_dim_v(x, y1, y2, label, *, extension_from_x=None,
                         layer='Cota Seção (2x)'):
@@ -3839,13 +3855,8 @@ def _draw_section_n1_contract_legacy_clean(msp, section_view, x_center, y_center
                  layer, halign=1, valign=2)
 
     def dim_h(x1, x2, base_y):
-        try:
-            d = msp.add_linear_dim(
-                base=(x1, base_y), p1=(x1, y0), p2=(x2, y0),
-                angle=0, dimstyle='PAINEL', dxfattribs={'layer': 'COTA'})
-            d.render()
-        except Exception:
-            pass
+        emitir_cota(msp, origem='corte_h', base=(x1, base_y),
+                    p1=(x1, y0), p2=(x2, y0), angle=0)
 
     dim_v(x_a_l, h_a, x_a_l - 30.0)
     dim_v(x_b_r, h_b, x_b_r + 30.0)
