@@ -2706,18 +2706,22 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             _larg = round(_af - _ai, 1)
             if _larg <= 1.0:
                 continue
-            # `base` tem de ficar DESLOCADO da linha medida — com base na
-            # mesma altura de p1/p2 o ezdxf nao sabe para que lado virar as
-            # patinhas e elas saem invertidas (apontamento do dono P3). O
-            # padrao da casa esta' em `dim_total_lv`: p1/p2 no que se mede,
-            # base na linha de cota. Aqui p1/p2 vao no fundo do corpo e a
-            # linha de cota a 0.677 da altura, que e' onde o N2 a desenha
-            # (V13: "78" a 29.8 do fundo num corpo de 44).
-            _y_cota = y0 + float(h) * 0.677
+            # Geometria copiada do N2 (medida na V13 face A, handles BA/BB/BC):
+            #   linha de cota a 21.67 do fundo do corpo (h=44 -> 0.492);
+            #   linhas de extensao MINUSCULAS, 0.68 (19.34 -> 18.67);
+            #   patinhas obliquas de 45, vetor (-3,-3) e (+3,+3).
+            # A 1a tentativa punha p1/p2 no FUNDO do corpo, o que gerava
+            # extensao de 32.8 atravessando o corpo inteiro de baixo a cima —
+            # e' o que o dono viu como "patinhas invertidas" (a cota 244, que
+            # ele aceita, tem extensao de 53 mas ela corre FORA do desenho,
+            # abaixo do corpo). Medir logo abaixo da linha de cota mantem o
+            # tocao curto, como no N2.
+            _y_cota = y0 + float(h) * 0.492
             try:
                 _d78 = msp.add_linear_dim(
                     base=(x0 + (_ai + _af) / 2.0, _y_cota),
-                    p1=(x0 + _ai, y0), p2=(x0 + _af, y0),
+                    p1=(x0 + _ai, _y_cota - 2.3),
+                    p2=(x0 + _af, _y_cota - 2.3),
                     angle=0, dimstyle='PAINEL',
                     dxfattribs={'layer': 'COTA'},
                 )
@@ -3274,10 +3278,13 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                     if float(t.get('altura', 0) or 0) > 0]:
                 _wl = float(_top_panel_right) - float(_top_panel_x)
                 if _wl > 1.0:
-                    # p1/p2 no TOPO do painel (o que se mede) e a linha de
-                    # cota 4 acima — base na mesma altura de p1/p2 deixava as
-                    # patinhas invertidas (apontamento do dono P2).
-                    _y_larg = y7_top + 4.0
+                    # Geometria copiada do N2 (V13 face A, handles 8E/8F/91):
+                    # topo do conjunto laje+painel em 15.34, linha de cota em
+                    # 22.0 (6.66 acima) e a linha de extensao COMECANDO em
+                    # 18.34 — ou seja com FOLGA de 3 ate' o objeto, que e' o
+                    # `dimexo`. Sem essa folga a extensao encostava no painel
+                    # (apontamento do dono P2); com ela, flutua como no N2.
+                    _y_larg = y7_top + 6.66
                     try:
                         _dw = msp.add_linear_dim(
                             base=((_top_panel_x + _top_panel_right) / 2.0,
@@ -3285,6 +3292,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                             p1=(_top_panel_x, y7_top),
                             p2=(_top_panel_right, y7_top),
                             angle=0, dimstyle='PAINEL',
+                            override={'dimexo': 3.0},
                             dxfattribs={'layer': 'COTA'},
                         )
                         _dw.render()
