@@ -238,11 +238,30 @@ Implementado em `_detectar_aberturas_viga()` (`motor_reverso_lv.py`), que emite
 `aberturas_viga` = `[{x_ini, x_fim, sobra_h, abertura_h}]` e `cortes_segmento`
 na face unit. Medido: **20 de 120 unidades** das 32 vigas do 13_PAV.
 
-**Estado (2026-09-14):** a ficha ja' emite os campos; o DESENHO ainda nao os
-consome — V301 e V13 regeneradas saem byte a byte iguais ao que o dono validou.
-Pendente: segmentar de fato no desenho, parede compartilhada unica, supressao
-da cota vertical duplicada e as alturas por segmento (a ficha da V302.A entrega
-43 nos tres paineis, mas o N2 tem 43 no seg.1 e **45** no seg.2).
+**Estado (2026-09-14):** implementados — a ficha emite os campos, o desenho
+recorta a abertura e deixa a sobra, as alturas por segmento saem certas e a
+laje segue o TOPO PLANO (`laje_local = total - altura_do_segmento -
+painel_sup`, revelada pela cota de altura total do N2: 43+16 = 45+14 = 59 na
+V302.A). V301 e V13 regeneradas seguem byte a byte iguais ao validado.
+
+**PENDENTE — `h_body` errado em 4 unidades de 120.** Medido: a caixa da
+unidade nem sempre cerca o corpo. Na V302 a unidade 2A tem caixa de 56 (inclui
+a laje de 12 por cima) e a 3A tem 24 (CORTA 21.4 do fundo), enquanto o N2 cota
+44 e 45. Tambem V303.A (116 -> 43) e CONT.VF203.B (122.1 -> 40). Isso contamina
+a formula do topo plano nessas unidades: a 2A fecha em 60 e a 3A em 61, quando
+o N2 diz 59 nas duas.
+
+> **DUAS TENTATIVAS FALHARAM (2026-09-14) — nao repetir sem ideia nova.**
+> 1. medir o corpo pelas HORIZONTAIS de largura cheia: na CONT.V301.B elas
+>    casam com a faixa da laje e o corpo de 104.6 virava 19;
+> 2. medir pelas PAREDES verticais (extensao mais repetida entre os
+>    divisores): pior — unidades inteiras da V301 sumiam do desenho
+>    (NOMENCLATURA 6->5 em VIEW_A e 11->10 em VIEW_B).
+>
+> As duas foram revertidas. O conserto certo passa por entender a deteccao da
+> caixa da unidade (`pair`), nao por adicionar mais uma guarda medindo
+> geometria por fora. A guarda que ja' existe (`panel_body_heights`) so' age
+> entre 80 e 125 de altura com folga de 20, e por isso nao alcanca estes casos.
 
 #### 5.2.2 Cotas de abertura — pendencias medidas (2026-09-13)
 
