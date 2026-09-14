@@ -2647,6 +2647,68 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 laje_sup_u = float(unit.get('laje_sup', 0) or 0)
                 laje_inf_u = float(unit.get('laje_inf', 0) or 0)
                 top_panel_u = float(unit.get('painel_sup_alt', 0) or 0)
+
+                # ── TOPO PLANO: a laje compensa a altura do segmento ───────
+                # Regra revelada pela cota de altura TOTAL do N2, medida na
+                # V302.A (apontamento do dono, 2026-09-14):
+                #     segmento 1: altura 43 + laje 16 = 59
+                #     segmento 2: altura 45 + laje 14 = 59
+                # O topo fica plano e a laje absorve a diferenca. E' a mesma
+                # regra do degrau da V13 (44 + 12 + 3 = 59 e 44 + 15 = 59),
+                # so' que la' quem compensa e' o painel de fechamento.
+                #
+                #     laje_local = total - altura_do_segmento - painel_sup
+                #
+                # TEM de rodar AQUI, e nao no construtor da unidade: la'
+                # `ls_u` ainda vale 0 nas unidades sem painel de topo (a laje
+                # so' e' preenchida neste passe, a partir de laje_sup_A/B), e
+                # a formula devolvia valores negativos que eram descartados —
+                # a V302.A ficava sem trechos.
+                #
+                # So' entra como COMPLEMENTO: se a deteccao por painel de topo
+                # ja' resolveu (caso V13), nao mexe.
+                #
+                # GUARDA: diferenca de altura entre segmentos <= 10. Acima
+                # disso e' DEGRAU, e ali o espaco sobre o painel baixo e'
+                # VAZIO, nao laje: na V301.A (44 contra 109, degrau de 65) a
+                # formula daria laje 80. Medido, o limiar de 10 pega 26
+                # unidades em 8 vigas e deixa a V301 inteira de fora.
+                if not unit.get('laje_sup_trechos'):
+                    _segs_u2 = unit.get('panels') or []
+                    _hs2 = [float(s.get('height1', 0) or 0) for s in _segs_u2
+                            if float(s.get('height1', 0) or 0) > 0]
+                    _tot2 = h_body_u + laje_sup_u + top_panel_u
+                    _tw2 = float(unit.get('painel_sup_width', 0) or 0)
+                    _to2 = float(unit.get('painel_sup_x_offset', 0) or 0)
+                    if (_hs2 and _tot2 > 0
+                            and max(_hs2) - min(_hs2) <= 10.0
+                            and (len(set(round(v, 1) for v in _hs2)) > 1
+                                 or top_panel_u > 0.5)):
+                        _tr2, _acc2 = [], 0.0
+                        for _s2 in _segs_u2:
+                            _w2 = float(_s2.get('largura_cm',
+                                                _s2.get('width', 0)) or 0)
+                            if _w2 <= 0:
+                                continue
+                            _meio2 = _acc2 + _w2 / 2.0
+                            _sob2 = (top_panel_u if (_tw2 > 0.5
+                                     and _to2 - 1.0 <= _meio2
+                                     <= _to2 + _tw2 + 1.0) else 0.0)
+                            _alt2 = round(
+                                _tot2 - float(_s2.get('height1', 0) or 0)
+                                - _sob2, 1)
+                            if _alt2 <= 0 or _alt2 > 35.0:
+                                _tr2 = []
+                                break
+                            if _tr2 and abs(_tr2[-1]['altura'] - _alt2) <= 0.05:
+                                _tr2[-1]['x1'] = round(_acc2 + _w2, 1)
+                            else:
+                                _tr2.append({'x0': round(_acc2, 1),
+                                             'x1': round(_acc2 + _w2, 1),
+                                             'altura': _alt2})
+                            _acc2 += _w2
+                        if len(_tr2) > 1:
+                            unit['laje_sup_trechos'] = _tr2
                 total_u = float(unit.get('h_total', 0) or 0)
                 # Se a cota total fecha exatamente corpo + laje superior +
                 # painel superior, não existe laje inferior nesta unidade.
