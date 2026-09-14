@@ -1385,6 +1385,27 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
             _abr_v.append((_xi, _xf, _sh))
     _abr_v.sort()
 
+    # Faixas (x_ini, x_fim, y_topo_local) por painel — so' quando ha' abertura
+    # de viga, que e' onde a ficha traz altura POR SEGMENTO. Medido no N2 da
+    # V302.A: seg.1 termina em 43 e seg.2/3 em 45; usar a altura da unidade
+    # para todos achatava os tres em 43.
+    _faixas_h = []
+    if _abr_v:
+        _cx = float(x0)
+        for _p in (panels or []):
+            _pw = float(_p.get('width', 0) or 0)
+            if _pw <= 0:
+                continue
+            _ph = float(_p.get('height1', 0) or 0)
+            _faixas_h.append((_cx, _cx + _pw, y0 + _ph if _ph > 0 else y_top))
+            _cx += _pw
+
+    def _y_topo_em(xm):
+        for _fi, _ff, _fy in _faixas_h:
+            if _fi - 0.05 <= xm <= _ff + 0.05:
+                return _fy
+        return y_top
+
     def _topo(xi, xf):
         """Borda superior de xi a xf, pulando as aberturas de viga."""
         if xf - xi <= 0.05:
@@ -1392,15 +1413,36 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
         if not _abr_v:
             msp.add_line((xi, y_top), (xf, y_top), dxfattribs=a)
             return
-        cur = xi
+        # pedacos livres de abertura
+        livres, cur = [], xi
         for _ai, _af, _ in _abr_v:
             if _af <= cur + 0.05 or _ai >= xf - 0.05:
                 continue
             if _ai > cur + 0.05:
-                msp.add_line((cur, y_top), (min(_ai, xf), y_top), dxfattribs=a)
+                livres.append((cur, min(_ai, xf)))
             cur = max(cur, _af)
         if xf > cur + 0.05:
-            msp.add_line((cur, y_top), (xf, y_top), dxfattribs=a)
+            livres.append((cur, xf))
+        # cada pedaco ainda pode cruzar fronteira de painel com altura propria
+        for _li, _lf in livres:
+            cortes = sorted({_li, _lf} | {
+                _ff for _fi, _ff, _ in _faixas_h if _li + 0.05 < _ff < _lf - 0.05})
+            for _p0, _p1 in zip(cortes, cortes[1:]):
+                if _p1 - _p0 <= 0.05:
+                    continue
+                msp.add_line((_p0, _y_topo_em((_p0 + _p1) / 2.0)),
+                             (_p1, _y_topo_em((_p0 + _p1) / 2.0)),
+                             dxfattribs=a)
+        # degrau entre paineis vizinhos de alturas diferentes: fecha a parede
+        for (_fi, _ff, _fy), (_gi, _gf, _gy) in zip(_faixas_h, _faixas_h[1:]):
+            if abs(_fy - _gy) <= 0.05:
+                continue
+            if not (xi - 0.05 <= _ff <= xf + 0.05):
+                continue
+            if any(_ai - 0.05 <= _ff <= _af + 0.05 for _ai, _af, _ in _abr_v):
+                continue  # a abertura ja' fecha esse x
+            msp.add_line((_ff, min(_fy, _gy)), (_ff, max(_fy, _gy)),
+                         dxfattribs=a)
 
     if _degrau_tall:
         if degrau_start > x0 + 0.5:
@@ -1421,6 +1463,21 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
         # A parede em _af e' a FRONTEIRA entre os dois segmentos e ja' e'
         # desenhada como divisor de painel — nao repetir aqui (parede
         # compartilhada sai uma vez so').
+
+    # As paredes (divisores e bordas) sao desenhadas ate' `y_top`, a altura da
+    # UNIDADE. Onde o segmento e' mais alto que ela, falta o pedaco de cima:
+    # na V302.A os seg.2/3 tem 45 contra 43 da unidade, e as paredes em 200.5,
+    # 360 e 470 paravam 2 abaixo do proprio topo. Completa so' o que falta.
+    if _faixas_h:
+        _xs_parede = sorted({f[0] for f in _faixas_h} | {f[1] for f in _faixas_h})
+        for _xp in _xs_parede:
+            _viz = [f[2] for f in _faixas_h
+                    if abs(f[0] - _xp) <= 0.05 or abs(f[1] - _xp) <= 0.05]
+            if not _viz:
+                continue
+            _yv = max(_viz)
+            if _yv > y_top + 0.05:
+                msp.add_line((_xp, y_top), (_xp, _yv), dxfattribs=a)
     if has_degrau and degrau_end < body_end - 0.5:
         msp.add_line((degrau_end, y0), (body_end, y0), dxfattribs=a)
     elif not has_degrau:

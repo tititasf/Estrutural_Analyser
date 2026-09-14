@@ -94,11 +94,13 @@ def test_sem_geometria_nao_inventa():
 
 
 # ── desenho ──────────────────────────────────────────────────────────────
+# Alturas como o N2 da V302.A: seg.1 termina em 43 e seg.2/3 em 45.
 PANEIS = [
     {"width": 200.5, "height1": 43.0},
-    {"width": 159.5, "height1": 43.0},
-    {"width": 110.0, "height1": 43.0},
+    {"width": 159.5, "height1": 45.0},
+    {"width": 110.0, "height1": 45.0},
 ]
+PANEIS_LISOS = [dict(p, height1=43.0) for p in PANEIS]
 ABERTURA = [{"x_ini": 178.5, "x_fim": 200.5, "sobra_h": 5.0, "abertura_h": 38.0}]
 
 
@@ -119,8 +121,7 @@ def test_desenho_recorta_o_topo_e_deixa_a_sobra():
     msp = ezdxf.new(setup=True).modelspace()
     lv._draw_panel_frame_n2(msp, 0.0, 0.0, 43.0, PANEIS, aberturas_viga=ABERTURA)
     H, V = _linhas(msp)
-    assert (43.0, 0.0, 178.5) in H, f"topo deveria parar em 178.5; H={H}"
-    assert (43.0, 200.5, 470.0) in H, f"topo deveria retomar em 200.5; H={H}"
+    assert (43.0, 0.0, 178.5) in H, f"topo do seg.1 deveria parar em 178.5; H={H}"
     assert not any(abs(y - 43.0) < 0.1 and x1 < 179 and x2 > 200
                    for y, x1, x2 in H), "topo atravessou a abertura"
     assert (5.0, 178.5, 200.5) in H, f"piso da abertura ausente; H={H}"
@@ -128,11 +129,38 @@ def test_desenho_recorta_o_topo_e_deixa_a_sobra():
     assert (0.0, 0.0, 470.0) in H, "fundo deveria seguir inteiro (sobra apoia nele)"
 
 
+def test_altura_por_segmento_no_topo_e_nas_paredes():
+    """O seg.2/3 tem 45 e o seg.1 tem 43 — o topo e as paredes acompanham."""
+    msp = ezdxf.new(setup=True).modelspace()
+    lv._draw_panel_frame_n2(msp, 0.0, 0.0, 43.0, PANEIS, aberturas_viga=ABERTURA)
+    H, V = _linhas(msp)
+    assert any(abs(y - 45.0) < 0.1 and x1 >= 200.0 for y, x1, _x2 in H), (
+        f"topo do seg.2 deveria estar em 45; H={H}"
+    )
+    # a parede da direita tem de ALCANCAR 45, ainda que em mais de um pedaco
+    topo_470 = max((y2 for x, _y1, y2 in V if abs(x - 470.0) < 0.1), default=0)
+    assert abs(topo_470 - 45.0) < 0.1, f"parede em 470 parou em {topo_470}"
+
+
 def test_controle_sem_abertura_desenha_igual_ao_de_antes():
     ref = ezdxf.new(setup=True).modelspace()
-    lv._draw_panel_frame_n2(ref, 0.0, 0.0, 43.0, PANEIS)
+    lv._draw_panel_frame_n2(ref, 0.0, 0.0, 43.0, PANEIS_LISOS)
     got = ezdxf.new(setup=True).modelspace()
-    lv._draw_panel_frame_n2(got, 0.0, 0.0, 43.0, PANEIS, aberturas_viga=[])
+    lv._draw_panel_frame_n2(got, 0.0, 0.0, 43.0, PANEIS_LISOS, aberturas_viga=[])
     assert _linhas(ref) == _linhas(got)
     H, _ = _linhas(ref)
     assert (43.0, 0.0, 470.0) in H, "sem abertura o topo tem de sair inteiro"
+
+
+def test_controle_altura_por_segmento_so_vale_com_abertura():
+    """Sem abertura, as alturas por painel NAO podem partir o topo.
+
+    E' o escopo que protege as vigas ja' validadas: medido, aplicar altura por
+    segmento sem escopo mudava 42 de 120 unidades, as 17 da V301 inclusive.
+    """
+    msp = ezdxf.new(setup=True).modelspace()
+    lv._draw_panel_frame_n2(msp, 0.0, 0.0, 43.0, PANEIS)  # alturas variadas
+    H, _ = _linhas(msp)
+    assert (43.0, 0.0, 470.0) in H, (
+        f"sem abertura o topo tem de sair inteiro na altura da unidade; H={H}"
+    )

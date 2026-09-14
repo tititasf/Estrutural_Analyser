@@ -2290,6 +2290,19 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     laje_trechos: list = []
                     aberturas_viga = _detectar_aberturas_viga(
                         paineis_h, paineis_v, pair, segs_u)
+                    # Altura por segmento — SO' onde ha' abertura de viga, que
+                    # e' o caso em que o topo e' de fato fragmentado por
+                    # segmento. Ver o docstring de `_alturas_por_segmento`:
+                    # sem escopo isto mudava 42 de 120 unidades, as 17 da V301
+                    # inclusive (desenho ja' validado pelo dono).
+                    if aberturas_viga:
+                        _alts = _alturas_por_segmento(paineis_h, pair, segs_u)
+                        for _sg, _alt in zip(segs_u, _alts):
+                            if _alt is None or _alt <= 0:
+                                continue
+                            _h1 = float(_sg.get('height1', 0) or 0)
+                            if _h1 > 0 and abs(_alt - _h1) > 1.5:
+                                _sg['height1'] = _alt
                     # Laje que a COTA ESCRITA declara para esta face, medida
                     # antes de `ls_u` ser sobrescrito pelo ramo do painel de
                     # topo. E' a verdade de terra do degrau: o trecho alto tem
@@ -2920,6 +2933,53 @@ def _detectar_aberturas_viga(paineis_h, paineis_v, pair, segs=None,
         if item not in out:
             out.append(item)
     return sorted(out, key=lambda d: d['x_ini'])
+
+
+def _alturas_por_segmento(paineis_h, pair, segs, tol=1.5) -> list:
+    """Altura REAL de cada segmento, medida pelo topo que cobre o seu x.
+
+    `_make_seg` da' o mesmo `h_body` a todos os segmentos da unidade. Quando o
+    topo e' fragmentado isso achata alturas diferentes: medido no N2 da V302.A,
+    o seg.1 termina em y=43.3 e os seg.2/3 em y=45.3 — a ficha entregava 43 nos
+    tres.
+
+    ESCOPO: so' faz sentido onde o topo e' realmente fragmentado por segmento.
+    Em face com DEGRAU o N2 desenha a borda superior numa linha unica
+    atravessando tudo (regra ja' registrada no gerador), e ali a altura do
+    painel baixo vem do OMBRO, nao do topo — medir pelo topo devolveria a
+    altura cheia para todo painel. Medido: aplicar isto sem escopo mudava 42 de
+    120 unidades, as 17 da V301 inclusive, que e' desenho ja' validado pelo
+    dono. Por isso o chamador so' usa esta funcao em unidade com abertura de
+    viga detectada.
+
+    Devolve [altura_ou_None] na ordem dos segmentos.
+    """
+    try:
+        XL = float(pair.get('x_left', 0) or 0)
+        XR = float(pair.get('x_right', 0) or 0)
+        YB = float(pair.get('y_bot', 0) or 0)
+        YT = float(pair.get('y_top', 0) or 0)
+    except Exception:
+        return []
+    horiz = []
+    for y, xl, xr in (paineis_h or []):
+        if max(xl, xr) < XL - 6 or min(xl, xr) > XR + 6:
+            continue
+        if not (YB - 6 <= y <= YT + 6):
+            continue
+        horiz.append((y - YB, min(xl, xr) - XL, max(xl, xr) - XL))
+    if not horiz:
+        return []
+    y_fundo = min(h[0] for h in horiz)
+    out, acc = [], 0.0
+    for s in (segs or []):
+        w = float(s.get('largura_cm', s.get('width', 0)) or 0)
+        meio = acc + w / 2.0
+        acc += w
+        cobre = [h for h in horiz
+                 if h[1] - tol <= meio <= h[2] + tol and h[0] > y_fundo + 2.0]
+        out.append(round(max(h[0] for h in cobre) - y_fundo, 1) if cobre else None)
+    return out
 
 
 # ──────────────────────────────────────────────────────────────────────────────
