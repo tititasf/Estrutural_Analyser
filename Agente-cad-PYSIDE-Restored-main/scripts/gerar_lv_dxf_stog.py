@@ -1545,13 +1545,41 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
         _tr = [t for t in (laje_trechos or [])
                if float(t.get('altura', 0) or 0) > 0]
         if _tr:
+            def _topo_do_trecho(_xi, _xf):
+                """Topo do corpo SOB o trecho — a laje assenta no painel que
+                esta' embaixo dela, nao no topo global da face.
+
+                Apontamento do dono (V302 SEGMENTO 1A, P5): a hachura saia
+                2 cm abaixo, sobreposta ao painel. Medido: y0=-193, h=43
+                punha o 2o trecho em -150, mas o painel ali tem 45 (-148).
+                E' o que fecha a regra de topo plano: 43+16 = 45+14 = 59.
+
+                Guarda igual a de `_draw_marco_laje_sup`: so' vale quando
+                height1 E' a altura do corpo ali. Em degrau alto ele e'
+                sub-banda (V301: height1=44 num corpo de 109).
+                """
+                _mid = (float(_xi) + float(_xf)) / 2.0 - float(x0)
+                _acc = 0.0
+                for _p in (panels or []):
+                    _w = float(_p.get('width', 0) or 0)
+                    if _w <= 0:
+                        continue
+                    if _acc - 1.0 <= _mid <= _acc + _w + 1.0:
+                        _ph = float(_p.get('height1', 0) or 0)
+                        if _ph > 0 and abs(_ph - float(h)) <= 10.0:
+                            return y0 + _ph
+                        break
+                    _acc += _w
+                return y_top
+
             for _t in sorted(_tr, key=lambda d: float(d.get('x0', 0) or 0)):
                 _xi = max(x0, x0 + float(_t.get('x0', 0) or 0))
                 _xf = min(body_end, x0 + float(_t.get('x1', 0) or 0))
                 if _xf - _xi <= 0.05:
                     continue
+                _yb = _topo_do_trecho(_xi, _xf)
                 _draw_vazio_concreto(
-                    msp, _xi, y_top, _xf, y_top + float(_t['altura']),
+                    msp, _xi, _yb, _xf, _yb + float(_t['altura']),
                 )
         else:
             _draw_vazio_concreto(msp, x0, y_top, body_end, y_marco)
@@ -1637,9 +1665,32 @@ def _draw_marco_laje_sup(msp, x0, y0, h, panels, laje_sup, skip_layers=None,
     if ls <= 0 and not trechos:
         return
     hatch_ok = 'SCO-___-LAJ' not in skip_layers
-    y_body_top = y0 + h
     x_cur = x0
     a = {'layer': 'Painéis'}
+
+    def _topo_local(panel):
+        """Topo do corpo SOB este painel — nao o topo global da face.
+
+        A laje assenta no painel que esta' embaixo dela, e num segmento com
+        alturas diferentes esse painel nao tem a altura global `h`. Apontado
+        pelo dono na V302 SEGMENTO 1A (P5-P9): laje e cota 2 cm abaixo do
+        lugar, sobrepostas ao painel. Medido: y0=-193, h=43 punha a laje do
+        2o trecho em -150, mas o painel ali tem 45, ou seja -148.
+
+        E' o outro lado da regra de topo plano -- 43+16 = 45+14 = 59 so'
+        fecha se cada trecho assentar no SEU painel.
+
+        So' vale quando `height1` E' a altura do corpo ali. Em unidade com
+        degrau alto ele e' uma SUB-BANDA: na V301 os paineis tem height1=44
+        num corpo de 109, e usar isso jogava as 10 cotas de laje 65 cm para
+        baixo (medido contra o desenho validado). Mesma folga de 10 cm que
+        a regra de topo plano usa para decidir que as alturas sao do mesmo
+        segmento.
+        """
+        ph = float((panel or {}).get('height1', 0) or 0)
+        if ph > 0 and abs(ph - float(h)) <= 10.0:
+            return y0 + ph
+        return y0 + h
 
     def _pedacos(xi, xf):
         """Divide [xi, xf] (relativo a x0) em (ini, fim, altura) por trecho."""
@@ -1662,6 +1713,7 @@ def _draw_marco_laje_sup(msp, x0, y0, h, panels, laje_sup, skip_layers=None,
         if _is_degrau_panel(panel, h):
             x_cur += pw
             continue
+        y_body_top = _topo_local(panel)
         for xi, xf, alt in _pedacos(x_cur, x_cur + pw):
             pts = [
                 (xi, y_body_top),
@@ -3439,6 +3491,27 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                                   abs(_xr - float(t.get('x1', 0) or 0))),
             )['altura'])
 
+        def _corpo_no_x(_x_abs):
+            """Topo do corpo SOB este x — o mesmo que `_topo_local` usa para
+            assentar o retangulo da laje. A cota tem de nascer onde a laje
+            nasce; com `y0 + h` fixo ela ficava 2 cm abaixo do desenho num
+            segmento de altura diferente (V302 1A, P7-P9)."""
+            _xr = float(_x_abs) - float(x0)
+            _acc = 0.0
+            for _p in (panels or []):
+                _w = float(_p.get('width', 0) or 0)
+                if _w <= 0:
+                    continue
+                if _acc - 1.0 <= _xr <= _acc + _w + 1.0:
+                    _ph = float(_p.get('height1', 0) or 0)
+                    # Mesma guarda de `_topo_local`: em degrau alto o
+                    # height1 do painel e' sub-banda, nao o corpo.
+                    if _ph > 0 and abs(_ph - float(h)) <= 10.0:
+                        return _ph
+                    return float(h)
+                _acc += _w
+            return float(h)
+
         for _vx, _side in _marco_label_sides:
             try:
                 _alt_local = _laje_no_x(_vx)
@@ -3448,14 +3521,15 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                                 if _alt_local is not None
                                 else _fmt_dim_cm(_cota_marco_label))
                 x_base15 = _vx + _side * _DIM_L1
+                _y_base = y0 + _corpo_no_x(_vx)
                 emitir_cota(
                     msp, origem='marco_laje',
-                    base=(x_base15, y0 + h),
-                    p1=(_vx, y0 + h), p2=(_vx, y0 + h + _cota_local),
+                    base=(x_base15, _y_base),
+                    p1=(_vx, _y_base), p2=(_vx, _y_base + _cota_local),
                     angle=90,
                     texto=_label_local,
                     texto_pos=(x_base15 + _side * 4.0,
-                               y0 + h + _cota_local / 2.0),
+                               _y_base + _cota_local / 2.0),
                 )
             except Exception:
                 pass
