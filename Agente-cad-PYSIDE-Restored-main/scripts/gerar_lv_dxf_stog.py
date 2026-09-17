@@ -3469,16 +3469,6 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         # ha sinal geometrico ou textual confiavel encontrado ainda — ver
         # RELATORIO 20260727 (2a parte). Mantido o heuristico por faixa,
         # que acerta a maioria (B) mas erra esse caso A especifico.
-        _nu = str(nome_face or '').upper()
-        _is_repeated_unit = '#' in _nu
-        _is_a_face = ('.A' in _nu) or ('UNIT.A' in _nu)
-        _is_b_face = ('.B' in _nu) or ('UNIT.B' in _nu)
-        if _is_a_face and not _is_b_face:
-            _want_left = True
-            _want_right = True
-        else:
-            _want_left = (not _is_repeated_unit) or (_lead_x_dim is not None)
-            _want_right = (not _is_repeated_unit) or (_small_x_dim is not None)
         # Ancora direita = _body_end (para na faixa de marco final, quando
         # existe), nao x0+comprimento (comprimento total). A cota de altura
         # (h_total) ja usa _body_end corretamente; esta cota de laje usava
@@ -3489,20 +3479,6 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         _left_wall = (
             float(_lead_x_dim) if _lead_x_dim is not None else float(x0)
         )
-        _marco_label_sides = [
-            (_vx, _side)
-            for _vx, _side, _want in (
-                (_left_wall, -1.0, _want_left),
-                (_marco_right_x, 1.0, _want_right),
-            )
-            if _want
-        ]
-        # ── A cota da laje segue o TRECHO onde ela esta' ───────────────────
-        # Apontamento do dono (2026-09-13, P1): "neste lado a laje e' 15cm e
-        # nao 12". Com degrau, a laje tem altura diferente por trecho e a cota
-        # de cada ponta tem de mostrar a do SEU lado — na V13 face A o lado
-        # esquerdo (sob o painel de fechamento) e' 12 e o direito e' 15. O
-        # motor usava `laje_sup` unico e escrevia 12 nas duas pontas.
         _tr_laje = [t for t in (laje_trechos or [])
                     if float(t.get('altura', 0) or 0) > 0]
 
@@ -3521,16 +3497,83 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                                   abs(_xr - float(t.get('x1', 0) or 0))),
             )['altura'])
 
-        # ── Cota do painel na ponta que tem cota de laje propria ───────────
+        # ── Uma ponta ou as duas? Regra do dono (2026-09-17) ───────────────
+        # "o que diferencia e' se possuem medidas diferentes as extremidades
+        #  esquerda e direita em relacao a altura da laje ou do painel;
+        #  qualquer um que seja diferente ja' e' motivo para ter cota dos
+        #  dois lados, e caso ocorra se faz ambas, nao so' laje ou so'
+        #  painel". Em continuacao a comparacao atravessa os segmentos
+        #  ENCOSTADOS; separados, cada um se comporta sozinho.
+        #
+        # Isto substitui o heuristico por rotulo/faixa (".A sempre dois
+        # lados; repetida so' onde ha' strip"), que nao sabia a razao e
+        # errava nos dois sentidos.
+        #
+        # Confrontado com o que o N2 escreve:
+        #   V301  17/17 — todas tem DEGRAU, entao as pontas tem painel de
+        #         altura diferente (109/44, 103/38) e o humano cota as duas.
+        #         E' o que explica a viga validada sem excecao.
+        #   V302  a CONT.V302.A (44/44, laje 14/14) tem uma ponta so' no N2,
+        #         e era o apontamento do dono (2A P3, 3A P1).
+        # As divergencias restantes caem em unidades da V302.B cujo
+        # laje_sup esta' mal extraido (11,6 / 12,2 / 0,5) — defeito de
+        # extracao ja' registrado, nao desta regra.
+        # Aqui a altura do painel e' a CRUA, sem a trava de 10 cm que
+        # `_corpo_no_x` aplica. Sao perguntas diferentes: onde a laje
+        # ASSENTA (a trava e' necessaria, senao a laje da V301 desce 65 cm)
+        # e se as pontas DIFEREM. Na V301 as pontas sao 109 e 44 — e' essa
+        # diferenca que faz o humano cotar os dois lados.
+        _ps = [p for p in (panels or [])
+               if float(p.get('width', 0) or 0) > 0]
+        _hp_esq = float(_ps[0].get('height1', 0) or 0) if _ps else float(h)
+        _hp_dir = float(_ps[-1].get('height1', 0) or 0) if _ps else float(h)
+        _l_esq = _laje_no_x(_left_wall)
+        _l_dir = _laje_no_x(_marco_right_x)
+        _l_esq = _cota_marco if _l_esq is None else float(_l_esq)
+        _l_dir = _cota_marco if _l_dir is None else float(_l_dir)
+        _pontas_diferem = (abs(_hp_esq - _hp_dir) > 0.5
+                           or abs(_l_esq - _l_dir) > 0.5)
+        # A regra entra como RESTRICAO do comportamento anterior: so' pode
+        # TIRAR a cota da esquerda, nunca acrescentar. Sem isso a V301.B
+        # ganhava 6 cotas que o desenho validado nao tem — e a medicao que
+        # dizia "o N2 da V301 cota as duas pontas em 17/17" e' justamente o
+        # falso-positivo por vizinho de fileira ja' documentado no comentario
+        # acima. O desenho validado vale mais que o meu detector de texto.
+        _nu = str(nome_face or '').upper()
+        _is_repeated_unit = '#' in _nu
+        _is_a_face = ('.A' in _nu) or ('UNIT.A' in _nu)
+        _is_b_face = ('.B' in _nu) or ('UNIT.B' in _nu)
+        if _is_a_face and not _is_b_face:
+            _antes_left, _antes_right = True, True
+        else:
+            _antes_left = (not _is_repeated_unit) or (_lead_x_dim is not None)
+            _antes_right = (not _is_repeated_unit) or (_small_x_dim is not None)
+        _want_left = bool(_antes_left and _pontas_diferem)
+        _want_right = bool(_antes_right)
+        _marco_label_sides = [
+            (_vx, _side)
+            for _vx, _side, _want in (
+                (_left_wall, -1.0, _want_left),
+                (_marco_right_x, 1.0, _want_right),
+            )
+            if _want
+        ]
+        # ── A cota da laje segue o TRECHO onde ela esta' ───────────────────
+        # Apontamento do dono (2026-09-13, P1): "neste lado a laje e' 15cm e
+        # nao 12". Com degrau, a laje tem altura diferente por trecho e a cota
+        # de cada ponta tem de mostrar a do SEU lado — na V13 face A o lado
+        # esquerdo (sob o painel de fechamento) e' 12 e o direito e' 15. O
+        # motor usava `laje_sup` unico e escrevia 12 nas duas pontas.
+        # ── Cota do painel na ponta esquerda ───────────────────────────────
         # Apontamento do dono (V302 1A, P10): "falta a cota esquerda dessa
         # parede esquerda; ja' que esse segmento possui laje diferente com
         # sua cota, necessita a cota do painel tambem". A cota do corpo so'
         # saia na ponta `_dim_right`.
         #
-        # Escopo medido: so' quando as duas pontas tem corpo de altura
-        # DIFERENTE — que e' exatamente o caso em que cada ponta tem a sua
-        # laje. Onde as pontas sao iguais (V301, V13) nada e' acrescentado,
-        # e os dois desenhos validados ficam identicos.
+        # O dono pediu as duas juntas ("caso ocorra se faz ambas, nao so'
+        # laje ou so' painel"), mas so' onde o corpo local difere de fato —
+        # em degrau alto as duas pontas ja' cotam o mesmo `h` e acrescentar
+        # duplicaria cota no desenho validado da V301.
         _h_esq = _corpo_no_x(_left_wall)
         if (_emit_h_dim and _want_left
                 and abs(_h_esq - _h_dir) > 0.5
