@@ -161,10 +161,65 @@ generalizar a partir de uma so.
 > nao sao invencao desta rodada, e sao questao separada. O classificador
 > devolve a V301 exatamente ao estado aprovado.
 >
-> Validacao nas 32 do 13_PAV contra a verdade do N2: 25 coerentes, 7
-> divergentes — 4 preveem abertura sem tampa no N2 (V305, V310, V330, V331) e
-> 3 tem tampa no N2 sem abertura prevista (V312, V320, V325). Sem lista de
-> aberturas o motor NAO desenha tampa: faltar e' melhor que inventar.
+> **REESCRITO em 2026-09-17 — a assinatura e' a VARIACAO POR ALTURA.** As
+> quatro condicoes acima descreviam mal o que o codigo fazia, e a de numero 4
+> era VAZIA: o candidato era montado a partir da borda da face
+> (`(base, x_left)` e `(x_right, topo)`), entao todo candidato encostava na
+> borda por construcao. Numa face com varios paineis, cada corrida que nao
+> comecasse em `base` virava uma abertura ate' a borda — na V302.A isso
+> produzia 171,5 / 298,5 / 117 e na CONT.V302.A um 927, todos desenhados como
+> tampa e cotados.
+>
+> O pilar sobe do fundo, para as corridas de baixo, e a corrida de cima passa
+> POR CIMA dele. Medido no N2:
+>
+> | unidade | alturas de baixo | altura de cima | abertura |
+> |---|---|---|---|
+> | V13.A | y=7,3/18,3/25,3 comecam em 78 | y=37,3 comeca em 0 | 0..78 |
+> | V13.B | y=7,4/18,4/25,4 acabam em 337 | y=37,4 vai a 415 | 337..415 |
+> | CONT.V302.A | cobrem [7,784] e [934,976] | y=37,3 cobre [7,976] | 784..934 |
+>
+> ABERTURA = cobertura na altura mais alta do corpo MENOS a uniao das de
+> baixo, exigindo que a diferenca seja um ENTALHE num painel que tenha
+> cobertura baixa em outro ponto (sem isso a V302.A daria o painel 3 inteiro,
+> que so' tem uma corrida). A regra do dono — abertura de viga recorta o
+> painel — fica como guarda semantica.
+>
+> Isso derruba tambem a condicao 4: a abertura da CONT.V302.A esta' em
+> 784..934 de uma face de 976, **no meio**, e 150 e' valor escrito no N2.
+
+##### Como validar (o oraculo antigo nao validava nada)
+
+> `scripts/arete/validar_abertura_pilar_lv.py [VIGA ...]`
+>
+> A tampa no N2 e' um SARR vertical curto (5-9 cm) e vem em **PAR VERTICAL no
+> mesmo x** — duas por PAREDE, nao duas por abertura. Parede que coincide com
+> a borda da face nao leva tampa (V13.A: a abertura 0..78 so' tem tampa em
+> 78). A verificacao correta e' por POSICAO DE PAREDE: cada parede com tampa
+> tem de bater com uma parede prevista, e cada parede prevista longe da borda
+> tem de ter tampa.
+>
+> O oraculo anterior contava tampas e dividia por dois. Contagem nao verifica
+> nada: ele dava "25 coerentes, 7 divergentes" para um classificador que
+> produzia abertura de 927 de largura, e devolvia ZERO tampas para a V13, que
+> tem 4. Nao reusar aquele numero.
+>
+> **Estado medido em 2026-09-17** (paredes, nao vigas):
+> 29 acertadas · 64 tampas sem previsao · 10 previsoes sem tampa.
+>
+> Perfeitas: V13, V301, V302, V305, V306, V310, V311, V315, V317, V319, V321,
+> V323, V324, V326, V327, V328, V330, V331, V332, VF203, VF301.
+> Falham: V312/V320/V325 (nenhuma previsao), V314/V318/V322 (1 de 12),
+> V316 (1 de 8), V308 (3 de 6), e uma parede solta em V303/V304/V329.
+>
+> **Causa conhecida das falhas grandes, ainda sem fix:** nessas unidades a
+> corrida-lintel fica ACIMA do corpo e o filtro `y > h_corpo + tol` a
+> descarta. Medido na V312 (unidade x 5877,3..6126,6, corpo 103, paineis de
+> 103/67/38,2/103/59/103): o vao 74,4..137,4 existe e casa com as tampas, mas
+> o lintel esta' em y=120,3. Tirar o filtro quebra a V13, onde ele e' o que
+> exclui a corrida do painel de fechamento (y=57,8 num corpo de 44). Nao
+> mexer sem uma regra que atenda os dois — faltar continua melhor que
+> inventar, e o motor NAO desenha tampa sem lista de aberturas.
 >
 > A cota da abertura (P6, o "78" da V13) passou a ser emitida junto, dentro do
 > corpo a ~0.68 da altura — medido no N2: face A "78" em x=39.0 (abertura
