@@ -3153,12 +3153,34 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                     return parts
         return []
 
+    # Qual grupo e' o SEGMENTO DE BORDA — o mesmo que o bloco de complemento
+    # logo abaixo exclui do span. Saber isso e' o que permite dar nivel por
+    # papel estrutural em vez de por tamanho.
+    _idx_borda = None
+    if len(groups) >= 3:
+        if float(groups[0][1]) >= 150.0:
+            _idx_borda = 0
+        elif float(groups[-1][1]) >= 150.0:
+            _idx_borda = len(groups) - 1
+
     for gi, (x_off, w_sum, n_p) in enumerate(groups):
         if w_sum < 5.0:
             continue
-        # Painel principal largo de qualquer extremidade ocupa o nivel externo;
-        # a cadeia de paineis menores permanece no nivel interno.
-        if ((w_sum >= 150.0 and len(groups) >= 2)
+        # Nivel da cota H por PAPEL, nao por largura:
+        #   nivel 1 (50) = o que particiona a face em segmentos;
+        #   nivel 0 (25) = os paineis DENTRO de um segmento.
+        # A regra anterior era "w_sum >= 150 -> nivel externo", que nao sabe
+        # a diferenca: na V302.A jogava o painel 159,5 para o nivel da cota
+        # total (apontamento do dono, P1/P2 do SEGMENTO 1A) e na CONT.V302.A
+        # jogava os quatro 244 junto com o 732 que os agrupa (P1/P2 do 2A).
+        # Com o segmento de borda conhecido, o particionamento e' borda +
+        # complemento, e todo o resto e' painel interno:
+        #   V302.A  200,5 | 269,5  externo ; 159,5 e 110  interno
+        #   CONT.A  244   | 732    externo ; os outros 244 interno
+        #   V13.A   244   | 171    externo ; 63 e 108     interno  (ja' era)
+        if _idx_borda is not None:
+            level = 1 if gi == _idx_borda else 0
+        elif ((w_sum >= 150.0 and len(groups) >= 2)
                 or _clean_group_parts(x_off, n_p)):
             level = 1
         else:
