@@ -3409,13 +3409,43 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     #   nivel 2 = 50 cm  → 59/124
     _DIM_L1 = 25.0
     _DIM_L2 = 50.0
+
+    def _corpo_no_x(_x_abs):
+        """Altura do corpo SOB este x — a mesma que assenta a laje.
+
+        Num segmento de alturas diferentes o corpo nao e' `h` em toda a
+        face: na V302.A o painel da esquerda tem 43 e o da direita 45. Usar
+        `h` deixava a cota do corpo da direita dizendo 43 e terminando em
+        -150, com 2 cm de vao ate' a laje que comeca em -148 -- e 43+14=57
+        nao fechava com o total 59 escrito ao lado.
+
+        So' vale quando height1 E' a altura do corpo ali. Em unidade com
+        degrau alto ele e' sub-banda (V301: height1=44 num corpo de 109),
+        e usar isso derrubava as cotas da viga inteira -- medido contra o
+        desenho validado. Folga de 10 cm, a da regra de topo plano.
+        """
+        _xr = float(_x_abs) - float(x0)
+        _acc = 0.0
+        for _p in (panels or []):
+            _w = float(_p.get('width', 0) or 0)
+            if _w <= 0:
+                continue
+            if _acc - 1.0 <= _xr <= _acc + _w + 1.0:
+                _ph = float(_p.get('height1', 0) or 0)
+                if _ph > 0 and abs(_ph - float(h)) <= 10.0:
+                    return _ph
+                break
+            _acc += _w
+        return float(h)
+
     # Faces altas (h>=130) sem strip de marco: N2 nao emite 142/157
     # (UNIT.B h=142 inventava). So cota h se h em faixa tipica ou ha strip.
     _emit_h_dim = bool(_has_strip_dim) or float(h) <= 125.0
+    _h_dir = _corpo_no_x(_dim_right)
     if _emit_h_dim:
         dim_h_lateral(
-            msp, _dim_right, y0 - laje_inf, h,
-            offset=_body_dim_side * _DIM_L1, text_override=_fmt_dim_cm(h),
+            msp, _dim_right, y0 - laje_inf, _h_dir,
+            offset=_body_dim_side * _DIM_L1, text_override=_fmt_dim_cm(_h_dir),
         )
     if _cota_marco > 0.5 and _emit_h_dim:
         dim_h_lateral(
@@ -3491,26 +3521,24 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                                   abs(_xr - float(t.get('x1', 0) or 0))),
             )['altura'])
 
-        def _corpo_no_x(_x_abs):
-            """Topo do corpo SOB este x — o mesmo que `_topo_local` usa para
-            assentar o retangulo da laje. A cota tem de nascer onde a laje
-            nasce; com `y0 + h` fixo ela ficava 2 cm abaixo do desenho num
-            segmento de altura diferente (V302 1A, P7-P9)."""
-            _xr = float(_x_abs) - float(x0)
-            _acc = 0.0
-            for _p in (panels or []):
-                _w = float(_p.get('width', 0) or 0)
-                if _w <= 0:
-                    continue
-                if _acc - 1.0 <= _xr <= _acc + _w + 1.0:
-                    _ph = float(_p.get('height1', 0) or 0)
-                    # Mesma guarda de `_topo_local`: em degrau alto o
-                    # height1 do painel e' sub-banda, nao o corpo.
-                    if _ph > 0 and abs(_ph - float(h)) <= 10.0:
-                        return _ph
-                    return float(h)
-                _acc += _w
-            return float(h)
+        # ── Cota do painel na ponta que tem cota de laje propria ───────────
+        # Apontamento do dono (V302 1A, P10): "falta a cota esquerda dessa
+        # parede esquerda; ja' que esse segmento possui laje diferente com
+        # sua cota, necessita a cota do painel tambem". A cota do corpo so'
+        # saia na ponta `_dim_right`.
+        #
+        # Escopo medido: so' quando as duas pontas tem corpo de altura
+        # DIFERENTE — que e' exatamente o caso em que cada ponta tem a sua
+        # laje. Onde as pontas sao iguais (V301, V13) nada e' acrescentado,
+        # e os dois desenhos validados ficam identicos.
+        _h_esq = _corpo_no_x(_left_wall)
+        if (_emit_h_dim and _want_left
+                and abs(_h_esq - _h_dir) > 0.5
+                and abs(_left_wall - _dim_right) > 1.0):
+            dim_h_lateral(
+                msp, _left_wall, y0 - laje_inf, _h_esq,
+                offset=-1.0 * _DIM_L1, text_override=_fmt_dim_cm(_h_esq),
+            )
 
         for _vx, _side in _marco_label_sides:
             try:
