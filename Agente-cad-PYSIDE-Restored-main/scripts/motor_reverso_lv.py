@@ -2671,6 +2671,119 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             flags=re.IGNORECASE,
                         )
 
+            # ── Lado pela POSICAO, quando ele contradiz o territorio ──────────
+            # No N2 as faces ocupam COLUNAS de x separadas. Uma unidade sem
+            # rotulo herda o lado da ancora, e `_row_pairs_for_anchor` casa
+            # candidatos por alinhamento em Y (tolerancia 8) sem olhar X — se a
+            # ancora e' da outra coluna, a unidade sai com o lado trocado e o
+            # desenho vai para a face errada.
+            #
+            # Medido nas 32 vigas: 14 unidades em 10 vigas ficam fora do
+            # territorio do proprio lado. O bloco acima nao as alcanca porque
+            # ele so' age quando TODAS tem o mesmo lado.
+            #
+            # Age so' quando ha' certeza: as duas colunas rotuladas existem e
+            # NAO se sobrepoem em x. Onde se sobrepoem (V13, V301, V311, V315,
+            # V317, V319, V324, V326) nao ha' territorio e nada e' mexido.
+            _centro = lambda _b: (float(_b.get('x_left', 0) or 0)
+                                  + float(_b.get('x_right', 0) or 0)) / 2.0
+            _terr: dict = {}
+            for _u in units:
+                _s = str(_u.get('side') or '').upper()
+                if _s in ('A', 'B') and str(_u.get('label') or '').strip():
+                    _c = _centro(_u.get('bbox') or {})
+                    _lo, _hi = _terr.get(_s, (_c, _c))
+                    _terr[_s] = (min(_lo, _c), max(_hi, _c))
+            if len(_terr) == 2:
+                (_a0, _a1), (_b0, _b1) = _terr['A'], _terr['B']
+                if _a1 < _b0 or _b1 < _a0:          # colunas disjuntas
+                    for _u in units:
+                        if str(_u.get('label') or '').strip():
+                            continue                 # rotulada manda
+                        _s = str(_u.get('side') or '').upper()
+                        if _s not in ('A', 'B'):
+                            continue
+                        _o = 'B' if _s == 'A' else 'A'
+                        _c = _centro(_u.get('bbox') or {})
+
+                        def _dist(_lado, _c=_c):
+                            _lo, _hi = _terr[_lado]
+                            if _lo - 60.0 <= _c <= _hi + 60.0:
+                                return 0.0
+                            return min(abs(_c - _lo), abs(_c - _hi))
+
+                        if _dist(_o) < _dist(_s):
+                            _u['side'] = _o
+
+            # ── Duplicata na mesma posicao: fica a que casa com a BANDA ───────
+            # `_pair_for_label` pode devolver dois pares para o mesmo bbox com
+            # h_body diferente (V302 x=5217 y=7061: 44 e 56). Ate' agora a
+            # copia errada era descartada no GERADOR por ter o lado
+            # contradizendo a posicao — com o lado corrigido acima esse
+            # descarte perde o gancho e as duplicatas voltam (medido: 118 -> 122
+            # unidades). O desempate certo nao e' o lado, e' a geometria: a
+            # banda de painel do proprio N2 diz qual h_body e' o verdadeiro.
+            # Agrupa por SOBREPOSICAO, nao por chave exata: o par espurio nem
+            # sempre repete o y_bot (V302 x=5718 tem um com y_bot 7061 e outro
+            # com 7082, 21 de diferenca, e o segundo tem h_body=24 no meio de
+            # uma fileira de 44/45).
+            def _cx(_u):
+                _b = _u.get('bbox') or {}
+                return (float(_b.get('x_left', 0) or 0),
+                        float(_b.get('x_right', 0) or 0),
+                        float(_b.get('y_bot', 0) or 0),
+                        float(_b.get('y_bot', 0) or 0)
+                        + float(_u.get('h_body', 0) or 0))
+
+            _grupos: list = []
+            for _u in units:
+                _xl0, _xr0, _yb0, _yt0 = _cx(_u)
+                _lado = str(_u.get('side') or '').upper()
+                for _g in _grupos:
+                    _xl1, _xr1, _yb1, _yt1 = _cx(_g[0])
+                    if str(_g[0].get('side') or '').upper() != _lado:
+                        continue
+                    _ox = min(_xr0, _xr1) - max(_xl0, _xl1)
+                    _oy = min(_yt0, _yt1) - max(_yb0, _yb1)
+                    if (_ox > 0.80 * min(_xr0 - _xl0, _xr1 - _xl1)
+                            and _oy > 0.50 * min(_yt0 - _yb0, _yt1 - _yb1)):
+                        _g.append(_u)
+                        break
+                else:
+                    _grupos.append([_u])
+            _mortas = []
+            for _g in _grupos:
+                if len(_g) < 2:
+                    continue
+                _b = _g[0].get('bbox') or {}
+                _xl = float(_b.get('x_left', 0) or 0)
+                _xr = float(_b.get('x_right', 0) or 0)
+                _yb = float(_b.get('y_bot', 0) or 0)
+                if _xr <= _xl:
+                    continue
+                _teto = max(float(u.get('h_body', 0) or 0) for u in _g) + 40.0
+                _ys = sorted({
+                    y for y, a, b in paineis_h
+                    if min(b, _xr) - max(a, _xl) > 0.75 * (_xr - _xl)
+                    and _yb - 25.0 <= y <= _yb + _teto
+                })
+                if len(_ys) < 2:
+                    continue
+                _banda = round(_ys[-1] - _ys[0], 1)
+                # Tolerancia APERTADA de proposito: o par errado costuma
+                # errar por 1 cm exato (45 contra a banda de 44), e com
+                # folga de 1.0 os dois passavam por bons e nada era
+                # descartado.
+                _bons = [u for u in _g
+                         if abs(float(u.get('h_body', 0) or 0) - _banda) <= 0.6]
+                if _bons and len(_bons) < len(_g):
+                    _mortas.extend(
+                        u for u in _g if not any(u is _k for _k in _bons)
+                    )
+            if _mortas:
+                units[:] = [u for u in units
+                            if not any(u is _m for _m in _mortas)]
+
             # Altura TOTAL de cada lado: a maior soma corpo+laje entre as
             # unidades que MEDIRAM a propria laje. Serve para separar as duas
             # leituras de `laje_sup == 0` logo abaixo.
