@@ -34,13 +34,17 @@ def _sarr(x_left, x_right, y):
             "y_offset": float(y)}
 
 
-# V13 face A medida no recorte do DB: paineis 244/63/108 todos com 44 de
-# altura (painel INTACTO) e a corrida de sarrafo comecando em 78 enquanto as
-# outras comecam em 0 -> abertura de PILAR de 78, encostada na borda esquerda.
+# V13 face A, COPIADA do recorte do DB (nao estilizada): paineis 244/63/108
+# todos com 44 (painel INTACTO). O pilar sobe do fundo e para as corridas de
+# baixo em 78; a corrida de cima (y=37,3) passa POR CIMA dele e vai ate' 0.
+# E' essa variacao por ALTURA que identifica o pilar.
 V13_A_PANEIS = [_p(244, 44), _p(63, 44), _p(108, 44)]
 V13_A_SARR = [
-    _sarr(0, 244, 10), _sarr(78, 244, 20), _sarr(0, 200, 30),
-    _sarr(244, 307, 10), _sarr(307, 408, 10),
+    _sarr(78, 244, 7.3), _sarr(244, 307, 7.3), _sarr(307, 408, 7.3),
+    _sarr(78, 244, 18.3), _sarr(244, 307, 18.3), _sarr(307, 408, 18.3),
+    _sarr(78, 244, 25.3), _sarr(244, 307, 25.3), _sarr(307, 408, 25.3),
+    _sarr(0, 244, 37.3), _sarr(244, 307, 37.3), _sarr(307, 408, 37.3),
+    _sarr(0, 200, 57.8),   # corrida do painel de fechamento, ACIMA do corpo
 ]
 
 
@@ -77,20 +81,34 @@ def test_borda_do_painel_de_fechamento_nao_e_abertura():
     assert ab == [], f"borda do painel de fechamento virou abertura: {ab}"
 
 
-def test_abertura_no_meio_da_face_nao_conta():
-    """O pilar fica na ponta da viga; interrupcao no meio nao e' pilar."""
-    paineis = [_p(415, 44)]
-    sarr = [_sarr(0, 415, 10), _sarr(0, 150, 20), _sarr(200, 415, 20)]
+def test_abertura_no_meio_da_face_conta():
+    """O pilar NAO precisa ficar na ponta da viga.
+
+    Medido em CONT.V302.A (4 paineis de 244, face de 976): as corridas de
+    baixo cobrem [7,784] e [934,976]; a de cima (y=37,3) atravessa
+    [732,976]. A abertura fica em 784..934 = 150, no MEIO da face -- e 150
+    e' um valor escrito no N2. A regra antiga exigia encostar na borda e
+    por isso nao achava esta; pior, montava o candidato A PARTIR da borda,
+    o que tornava a propria condicao vazia.
+    """
+    paineis = [_p(244, 44), _p(244, 44), _p(244, 44), _p(244, 44)]
+    sarr = []
+    for y in (7.3, 18.8, 25.8):
+        sarr += [_sarr(7, 244, y), _sarr(244, 488, y), _sarr(488, 732, y),
+                 _sarr(732, 784, y), _sarr(934, 976, y)]
+    sarr += [_sarr(7, 244, 37.3), _sarr(244, 488, 37.3),
+             _sarr(488, 732, 37.3), _sarr(732, 976, 37.3)]
     ab = lv.classificar_aberturas_pilar(paineis, sarr)
-    for ini, fim in ab:
-        assert ini <= 4.0 or fim >= 411.0, (
-            f"abertura {(ini, fim)} nao encosta em borda"
-        )
+    assert ab == [(784.0, 934.0)], f"esperada a abertura de 150, veio {ab}"
 
 
 def test_lado_direito_tambem_e_detectado():
-    """V13 face B: abertura espelhada, 337..415."""
-    sarr = [_sarr(0, 415, 10), _sarr(0, 337, 20), _sarr(0, 415, 30)]
+    """V13 face B, copiada do recorte: abertura espelhada, 337..415."""
+    sarr = []
+    for y in (7.4, 18.4, 25.4):
+        sarr += [_sarr(7, 244, y), _sarr(244, 307, y), _sarr(307, 337, y)]
+    sarr += [_sarr(7, 244, 37.4), _sarr(244, 307, 37.4),
+             _sarr(307, 415, 37.4), _sarr(219, 415, 57.9)]
     ab = lv.classificar_aberturas_pilar(V13_A_PANEIS, sarr)
     assert (337.0, 415.0) in ab, f"abertura a direita nao detectada: {ab}"
 

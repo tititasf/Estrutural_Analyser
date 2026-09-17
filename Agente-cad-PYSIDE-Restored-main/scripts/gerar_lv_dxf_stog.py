@@ -22,7 +22,7 @@ Uso:
 import sys
 if __name__ == '__main__' and hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-import json, argparse, re, math
+import json, argparse, os, re, math
 from pathlib import Path
 import ezdxf
 from visual_modes import apply_visual_mode
@@ -622,27 +622,34 @@ def classificar_aberturas_pilar(panels, sarrafos_horizontais, *,
     O marcador de origem vem do N1; aqui a classificacao e' pela consequencia
     visivel na propria ficha. Quatro condicoes, todas necessarias:
 
-      1. nao coincide com DIVISA entre paineis — ali o sarrafo para por
-         construcao, cada painel tem a sua corrida;
-      2. nao coincide com a borda do PAINEL DE FECHAMENTO superior — o sarrafo
-         dele acaba junto com ele, nao por interrupcao (V13: a corrida
-         0->200 acaba em 200 porque o painel tem 200, nao porque foi cortada);
-      3. o x NAO cai em faixa de painel rebaixado — painel rebaixado E' o
-         vazio, logo e' abertura de VIGA. Testar so' as BORDAS da faixa nao
-         basta: na V301.B a interrupcao em 299.7 cai no meio do painel de 244
-         rebaixado (37.6 contra 103), longe das bordas dele;
-      4. a abertura ENCOSTA na borda da face — o pilar fica na ponta da viga.
+    A assinatura do pilar esta na VARIACAO POR ALTURA das corridas de sarrafo,
+    nao no x de uma corrida isolada. O pilar sobe do fundo e a corrida de cima
+    passa POR CIMA dele; as de baixo esbarram nele e param. Medido no N2:
+
+      V13.A (corpo 44)  y=7,3/18,3/25,3 -> corrida comeca em 78
+                        y=37,3          -> corrida comeca em  0   => 0..78
+      V13.B             y=7,4/18,4/25,4 -> ultima corrida acaba em 337
+                        y=37,4          -> acaba em 415            => 337..415
+      CONT.V302.A       baixas cobrem [7,784] e [934,976]
+                        y=37,3 cobre [7,976]                       => 784..934
+
+    Logo: ABERTURA = cobertura na altura mais ALTA do corpo MENOS a uniao das
+    coberturas nas alturas de baixo.
+
+    Uma guarda e' necessaria: a diferenca tem de ser um ENTALHE dentro de um
+    painel que tenha cobertura baixa em ALGUM outro ponto. Sem ela, a V302.A
+    daria o painel 3 inteiro (360..470) como abertura de 110 -- aquele painel
+    so' tem UMA corrida, em nenhuma altura de baixo, entao nao ha' pilar
+    algum ali, so' um painel com uma corrida so'.
 
     Devolve [(x_ini, x_fim), ...] em x relativo a` borda esquerda da face.
 
-    Validado contra a verdade do N2 (verticais SARR de 5-9cm no recorte do DB)
-    nas 32 vigas do 13_PAV: 25 coerentes, 7 divergentes. Acerta os dois casos
-    que o dono revisou — V13 (2 aberturas de 78, uma por face, com 4 tampas no
-    N2) e V301 (nenhuma, e o N2 dela nao tem vertical alguma entre 5 e 9 cm).
-    Os divergentes restantes sao 4 com abertura prevista sem tampa no N2
-    (V305, V310, V330, V331) e 3 com tampa no N2 sem abertura prevista
-    (V312, V320, V325). Faltar e' melhor que inventar: a regra puramente
-    geometrica que isto substitui punha 24 tampas na V301, que nao tem nenhuma.
+    A versao anterior montava o candidato a partir da BORDA da face
+    (`(base, x_left)` e `(x_right, topo)`), o que tornava vazia a propria
+    condicao "encosta na borda": todo candidato encostava por construcao.
+    Numa face com varios paineis, cada corrida que nao comecasse em `base`
+    virava uma abertura ate' a borda -- na V302.A isso produzia 171,5 / 298,5
+    / 117 e na CONT.V302.A um 927, todos cotados no desenho.
     """
     segs = list(panels or [])
     sh = list(sarrafos_horizontais or [])
@@ -657,45 +664,84 @@ def classificar_aberturas_pilar(panels, sarrafos_horizontais, *,
     for w in ws:
         acc += w
         divisas.append(round(acc, 1))
+    h_corpo = max(hs) if hs else 0.0
 
-    h_max = max(hs) if hs else 0.0
-    faixas_baixas, a = [], 0.0
+    # Regra do dono: abertura de VIGA recorta o painel, a de PILAR nao. Painel
+    # rebaixado E' o vazio da viga, entao nada ali e' pilar. Mantida como
+    # regra SEMANTICA declarada pelo dono, nao como heuristica geometrica.
+    faixas_baixas, _a = [], 0.0
     for w, hh in zip(ws, hs):
-        if h_max - hh > 3.0:
-            faixas_baixas.append((a, a + w))
-        a += w
+        if h_corpo - hh > 3.0:
+            faixas_baixas.append((_a, _a + w))
+        _a += w
 
-    pw = float(painel_sup_width or 0)
-    po = float(painel_sup_x_offset or 0)
-    bordas_topo = {round(po, 1), round(po + pw, 1)} if pw > 0.5 else set()
-
-    try:
-        base = min(float(s.get('x_left', 0) or 0) for s in sh)
-        topo = max(float(s.get('x_right', 0) or 0) for s in sh)
-    except ValueError:
-        return []
-
-    cand = []
+    por_y: dict = {}
     for s in sh:
+        try:
+            y = float(s.get('y_offset', -1) or -1)
+        except (TypeError, ValueError):
+            continue
+        # Fora do corpo fica o sarrafo do painel de fechamento (V13.A: y=57,8
+        # num corpo de 44). Ele nao participa: acaba junto com o painel dele,
+        # nao por interrupcao.
+        if y < 0 or y > h_corpo + tol:
+            continue
         xl = float(s.get('x_left', 0) or 0)
         xr = float(s.get('x_right', 0) or 0)
-        if xl > base + 10.0:
-            cand.append((round(base, 1), round(xl, 1)))
-        if xr < topo - 10.0:
-            cand.append((round(xr, 1), round(topo, 1)))
+        if xr - xl > 0.05:
+            por_y.setdefault(round(y, 1), []).append((xl, xr))
+    if len(por_y) < 2:
+        return []
+
+    def _uniao(ivs):
+        ivs = sorted(ivs)
+        un: list = []
+        for a, b in ivs:
+            if un and a <= un[-1][1] + tol:
+                un[-1][1] = max(un[-1][1], b)
+            else:
+                un.append([a, b])
+        return [(a, b) for a, b in un]
+
+    def _sobreposicao(i, j):
+        return min(i[1], j[1]) - max(i[0], j[0])
+
+    y_topo = max(por_y)
+    cob_topo = _uniao(por_y[y_topo])
+    cob_baixa = _uniao([iv for y, ivs in por_y.items() if y < y_topo
+                        for iv in ivs])
+
+    # cob_topo menos cob_baixa
+    difs = []
+    for a, b in cob_topo:
+        cur = a
+        for c, d in cob_baixa:
+            if d <= cur or c >= b:
+                continue
+            if c > cur:
+                difs.append((cur, min(c, b)))
+            cur = max(cur, d)
+            if cur >= b:
+                break
+        if cur < b:
+            difs.append((cur, b))
 
     out = []
-    for ini, fim in cand:
-        x = fim if abs(ini - base) <= tol else ini
-        if any(abs(x - d) <= tol for d in divisas):
+    for a, b in difs:
+        if b - a <= 10.0:          # recuo de 7cm em divisa nao e' abertura
             continue
-        if any(abs(x - d) <= tol for d in bordas_topo):
+        meio = (a + b) / 2.0
+        if any(lo - tol <= meio <= hi + tol for lo, hi in faixas_baixas):
             continue
-        if any(lo - tol <= x <= hi + tol for lo, hi in faixas_baixas):
+        painel = next((( divisas[i], divisas[i + 1])
+                       for i in range(len(divisas) - 1)
+                       if divisas[i] - tol <= meio <= divisas[i + 1] + tol),
+                      None)
+        if painel is None:
             continue
-        if not (abs(ini - base) <= tol or abs(fim - topo) <= tol):
+        if not any(_sobreposicao(painel, iv) > 1.0 for iv in cob_baixa):
             continue
-        out.append((ini, fim))
+        out.append((round(a, 1), round(b, 1)))
     return sorted(set(out))
 
 
@@ -1827,6 +1873,25 @@ def plano_cotas_fechar() -> list:
 def plano_cotas_itens() -> list:
     """Itens ja' emitidos na face aberta (vazio se nao ha' registro aberto)."""
     return list((_PLANO_COTAS or {}).get('itens') or [])
+
+
+def plano_cotas_despejar(itens: list, tag: str) -> None:
+    """Grava o inventario da unidade em LV_COTA_DUMP (JSONL), se pedido.
+
+    O gerador roda como SUBPROCESSO, entao instrumentar em processo nao
+    alcanca estas cotas -- o despejo em arquivo e' o unico jeito de ver
+    o que cada origem propos.
+    """
+    alvo = os.environ.get('LV_COTA_DUMP')
+    if not alvo or not itens:
+        return
+    try:
+        import json
+        with open(alvo, 'a', encoding='utf-8') as fh:
+            fh.write(json.dumps({'unidade': str(tag), 'cotas': itens},
+                                ensure_ascii=False) + '\n')
+    except Exception:
+        pass
 
 
 def _plano_cotas_registrar(origem, p1, p2, angle, texto, medida):
@@ -4475,6 +4540,7 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
                 hole['panel_width'] = panel_width
                 unit_holes.append(hole)
             panel_offset += panel_width
+        plano_cotas_abrir(f'{viga_nome}|{label}')
         draw_lv_face(
             msp, x0, y0, panels, h_face, label,
             holes=unit_holes,
@@ -4502,6 +4568,7 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
             laje_trechos=unit.get('laje_sup_trechos'),
             aberturas_viga=unit.get('aberturas_viga'),
         )
+        plano_cotas_despejar(plano_cotas_fechar(), f'{viga_nome}|{label}')
         unit_width = sum(p['width'] for p in panels)
         x_max = max(x_max, x0 + unit_width + DIM_H_RIGHT + 40)
         y_min = min(y_min, y0 - DIM_TOTAL_BELOW - 30)
