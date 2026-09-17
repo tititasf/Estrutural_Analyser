@@ -1706,11 +1706,29 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         # do desenho, nao espessura de laje. Sem cota local
                         # plausivel, manter apenas o corpo da face.
                         return h_body, 0.0, 0.0
-                    laje_sup = float(lo[0]) if lo else laje_total
-                    laje_inf = max(0.0, round(laje_total - laje_sup, 1))
-                    if laje_sup > 35 or laje_inf > 35:
-                        return h_body, 0.0, 0.0
-                    return h_total, laje_sup, laje_inf
+                    # A espessura da laje precisa de uma COTA que a confirme.
+                    # Sem `lo`, o valor viria so' da subtracao h_total-h_body,
+                    # e h_total e' o maior numero achado numa janela de 160 a`
+                    # direita — que alcanca o desenho vizinho quando duas
+                    # unidades dividem a fileira.
+                    #
+                    # Medido na V302 (unidade 181,5 em x 3883..4065): o vizinho
+                    # comeca em 4086 e o texto "63,5" dele, que e' LARGURA DE
+                    # PAINEL, virava h_total; a laje saia 63,5-44 = 19,5 sem
+                    # nenhuma cota de 19,5 no desenho. O N2 escreve 14 ali, e
+                    # e' o que o passo 2 mede quando este passo desiste.
+                    #
+                    # Tentativa descartada antes desta: limitar a janela pela
+                    # parede do vizinho. A parede e' dificil de identificar com
+                    # seguranca (na V301 uma vertical da propria unidade, a 3
+                    # da borda, passava por vizinha) e o corte derrubava a laje
+                    # de uma unidade da V301 de 15 para 14 — viga validada.
+                    if lo:
+                        laje_sup = float(lo[0])
+                        laje_inf = max(0.0, round(laje_total - laje_sup, 1))
+                        if laje_sup > 35 or laje_inf > 35:
+                            return h_body, 0.0, 0.0
+                        return h_total, laje_sup, laje_inf
 
             # ── Passo 2: COTA espalhada dentro da face (laje por segmento) ────
             # COTAs de laje aparecem no range Y da face inteira (não só perto de y_top).
@@ -2653,14 +2671,44 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             flags=re.IGNORECASE,
                         )
 
+            # Altura TOTAL de cada lado: a maior soma corpo+laje entre as
+            # unidades que MEDIRAM a propria laje. Serve para separar as duas
+            # leituras de `laje_sup == 0` logo abaixo.
+            _total_lado: dict = {}
+            for _u in units:
+                _lu = float(_u.get('laje_sup', 0) or 0)
+                if _lu > 0:
+                    _s = str(_u.get('side') or '').upper()
+                    _total_lado[_s] = max(
+                        _total_lado.get(_s, 0.0),
+                        float(_u.get('h_body', 0) or 0) + _lu,
+                    )
+
             for unit in units:
                 unit.pop('_side_distance', None)
                 side = str(unit.get('side') or '').upper()
                 if float(unit.get('laje_sup', 0) or 0) <= 0:
-                    unit['laje_sup'] = float(
-                        result.get('laje_sup_A' if side == 'A' else 'laje_sup_B', 0)
-                        or 0
-                    )
+                    # `laje_sup == 0` tem DUAS leituras: "nao detectei" (a
+                    # maioria — o fallback pela face e' o que faz a V301
+                    # inteira funcionar) e "nao ha' laje separada aqui".
+                    #
+                    # O que as separa e' o corpo ja' ter chegado ao total do
+                    # lado. Medido na V302.A: a unidade [53, 63,5] tem
+                    # h_body=59, e as irmas fazem 43+16=59 e 44+14=58 — o
+                    # corpo dela JA' inclui a laje, porque o N2 a desenha como
+                    # uma banda unica, sem linha separando. O fallback somava
+                    # outros 16 e o robo desenhava 75 onde o N2 tem 59; foi o
+                    # que o dono leu como "o N4 reproduziu outro N2"
+                    # (SEGMENTO 4A). Na V301 o corpo e' 109 contra um total de
+                    # 124, entao o fallback continua valendo la'.
+                    _tt = float(_total_lado.get(side, 0.0))
+                    _hb = float(unit.get('h_body', 0) or 0)
+                    if not (_tt > 0 and _hb >= _tt - 1.0):
+                        unit['laje_sup'] = float(
+                            result.get(
+                                'laje_sup_A' if side == 'A' else 'laje_sup_B', 0
+                            ) or 0
+                        )
                 if float(unit.get('laje_inf', 0) or 0) <= 0:
                     unit['laje_inf'] = float(
                         result.get('laje_inf_A' if side == 'A' else 'laje_inf_B', 0)
