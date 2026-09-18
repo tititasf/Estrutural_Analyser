@@ -2868,29 +2868,62 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             and max(_hs2) - min(_hs2) <= 10.0
                             and (len(set(round(v, 1) for v in _hs2)) > 1
                                  or top_panel_u > 0.5)):
-                        _tr2, _acc2 = [], 0.0
+                        # A fronteira do degrau de laje NAO e' so' a divisa de
+                        # painel: onde o painel de fechamento acaba, a laje
+                        # sobe para ocupar o lugar dele. Medido na V302.B, que
+                        # o dono apontou (SEGMENTO 1B, P1): painel de topo de
+                        # 125 sobre um painel de 244, e o N2 escreve laje 12
+                        # sob ele e 15 depois. Partindo so' por painel, o
+                        # degrau saia em 244 — "o degrau da cota nao conseguiu
+                        # ficar posicionado corretamente".
+                        _cortes = [0.0]
+                        _accb = 0.0
                         for _s2 in _segs_u2:
-                            _w2 = float(_s2.get('largura_cm',
+                            _wb = float(_s2.get('largura_cm',
                                                 _s2.get('width', 0)) or 0)
-                            if _w2 <= 0:
+                            if _wb > 0:
+                                _accb += _wb
+                                _cortes.append(round(_accb, 1))
+                        _larg_u = _accb
+                        if _tw2 > 0.5:
+                            for _b in (_to2, _to2 + _tw2):
+                                if 0.5 < _b < _larg_u - 0.5:
+                                    _cortes.append(round(float(_b), 1))
+                        _cortes = sorted(set(_cortes))
+
+                        def _alt_painel_em(_x):
+                            _a, _ult = 0.0, 0.0
+                            for _s in _segs_u2:
+                                _w = float(_s.get('largura_cm',
+                                                  _s.get('width', 0)) or 0)
+                                if _w <= 0:
+                                    continue
+                                _ult = float(_s.get('height1', 0) or 0)
+                                if _a - 0.5 <= _x <= _a + _w + 0.5:
+                                    return _ult
+                                _a += _w
+                            return _ult
+
+                        _tr2 = []
+                        for _i2 in range(len(_cortes) - 1):
+                            _xa, _xb = _cortes[_i2], _cortes[_i2 + 1]
+                            if _xb - _xa <= 0.05:
                                 continue
-                            _meio2 = _acc2 + _w2 / 2.0
+                            _meio2 = (_xa + _xb) / 2.0
                             _sob2 = (top_panel_u if (_tw2 > 0.5
                                      and _to2 - 1.0 <= _meio2
                                      <= _to2 + _tw2 + 1.0) else 0.0)
                             _alt2 = round(
-                                _tot2 - float(_s2.get('height1', 0) or 0)
-                                - _sob2, 1)
+                                _tot2 - _alt_painel_em(_meio2) - _sob2, 1)
                             if _alt2 <= 0 or _alt2 > 35.0:
                                 _tr2 = []
                                 break
                             if _tr2 and abs(_tr2[-1]['altura'] - _alt2) <= 0.05:
-                                _tr2[-1]['x1'] = round(_acc2 + _w2, 1)
+                                _tr2[-1]['x1'] = round(_xb, 1)
                             else:
-                                _tr2.append({'x0': round(_acc2, 1),
-                                             'x1': round(_acc2 + _w2, 1),
+                                _tr2.append({'x0': round(_xa, 1),
+                                             'x1': round(_xb, 1),
                                              'altura': _alt2})
-                            _acc2 += _w2
                         if len(_tr2) > 1:
                             unit['laje_sup_trechos'] = _tr2
                 total_u = float(unit.get('h_total', 0) or 0)

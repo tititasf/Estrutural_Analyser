@@ -3208,12 +3208,43 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     # Qual grupo e' o SEGMENTO DE BORDA — o mesmo que o bloco de complemento
     # logo abaixo exclui do span. Saber isso e' o que permite dar nivel por
     # papel estrutural em vez de por tamanho.
+    # Ha' segmentacao quando uma abertura de VIGA parte a face em dois
+    # segmentos (regra do dono). Sem isso a face inteira e' UM segmento, e
+    # entao nao ha' "borda + complemento" — ha' painel e total.
+    _tem_segmentacao = bool(aberturas_viga)
     _idx_borda = None
     if len(groups) >= 3:
         if float(groups[0][1]) >= 150.0:
             _idx_borda = 0
         elif float(groups[-1][1]) >= 150.0:
             _idx_borda = len(groups) - 1
+
+    # Sem segmentacao a face e' UM segmento: o nivel externo guarda o TOTAL e
+    # todo painel desce para o interno. Com segmentacao, o externo guarda a
+    # particao (borda + complemento) — e' o caso da V302.A, que o dono
+    # aprovou assim.
+    #
+    # Excecao medida: quando o COMPLEMENTO e' justamente o numero que o N2
+    # escreve nesta unidade, ele manda. Trocar um valor que esta' no papel por
+    # um total que nao esta' seria inventar:
+    #
+    #   V13.A          compl 171 ausente | total 415 no N2  -> total
+    #   V301 (5 unid.) compl 174 NO N2   | total 418 ausente -> complemento
+    #   CONT.V302.A    nenhum dos dois no N2                 -> total, que e'
+    #                  o que o dono pediu (2A, P1-P4: "faltou essa total
+    #                  englobar o p3 p4")
+    # Sem `edge_span_candidates` informado nao ha' como saber o que o N2
+    # escreve, e ai vale o comportamento historico — mesma convencao que
+    # `_span_ok` ja' usa logo abaixo. E' o caso dos fixtures sinteticos.
+    _compl_no_n2 = not edge_span_candidates
+    if (not _tem_segmentacao and _idx_borda is not None
+            and edge_span_candidates):
+        _c = (sum(g[1] for g in groups[1:]) if _idx_borda == 0
+              else sum(g[1] for g in groups[:-1]))
+        _compl_no_n2 = any(
+            abs(float(v) - float(_c)) <= 1.0 for v in edge_span_candidates
+        )
+    _usar_total = (not _tem_segmentacao) and not _compl_no_n2
 
     for gi, (x_off, w_sum, n_p) in enumerate(groups):
         if w_sum < 5.0:
@@ -3230,7 +3261,15 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         #   V302.A  200,5 | 269,5  externo ; 159,5 e 110  interno
         #   CONT.A  244   | 732    externo ; os outros 244 interno
         #   V13.A   244   | 171    externo ; 63 e 108     interno  (ja' era)
-        if _idx_borda is not None:
+        if _usar_total:
+            # O externo guarda so' o total, entao TODO painel fica no interno.
+            # Medido no N2 da V13.A, que o dono validou: nivel 26,5 traz
+            # 244 | 63 | 108 e o nivel 55,0 traz o 415 da face inteira — o 244
+            # nao sobe de nivel por ser largo. Apontamento do dono na
+            # CONT.V302.A (2A, P3/P4): "esse deve estar em nivel cota painel
+            # para a total abarcar ele".
+            level = 0
+        elif _idx_borda is not None:
             level = 1 if gi == _idx_borda else 0
         elif ((w_sum >= 150.0 and len(groups) >= 2)
                 or _clean_group_parts(x_off, n_p)):
@@ -3282,7 +3321,17 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     # inicial (244 | 63+111 = 174) quanto espelhado (52,5+22,5 = 75 | 244).
     if len(groups) >= 3:
         edge_span = None
-        if float(groups[0][1]) >= 150.0:
+        if _usar_total:
+            # UM segmento -> a cota externa e' o TOTAL da face, nao o
+            # complemento de uma borda. Na CONT.V302.A o complemento dava 732
+            # e deixava o primeiro 244 de fora (apontamento do dono, 2A);
+            # agora cobre os quatro. Na V13.A da' 415, que e' exatamente o que
+            # o N2 escreve no nivel externo.
+            edge_span = (
+                float(x0 + groups[0][0]),
+                float(x0 + groups[-1][0] + groups[-1][1]),
+            )
+        elif float(groups[0][1]) >= 150.0:
             edge_span = (
                 float(x0 + groups[1][0]),
                 float(x0 + groups[-1][0] + groups[-1][1]),
@@ -3548,8 +3597,19 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         else:
             _antes_left = (not _is_repeated_unit) or (_lead_x_dim is not None)
             _antes_right = (not _is_repeated_unit) or (_small_x_dim is not None)
-        _want_left = bool(_antes_left and _pontas_diferem)
-        _want_right = bool(_antes_right)
+        # A regra do dono manda nos DOIS sentidos: pontas diferentes exigem os
+        # dois lados; pontas iguais dispensam o segundo. O heuristico antigo
+        # por rotulo/faixa so' entra como piso quando as pontas sao iguais.
+        #
+        # Apontamento do dono (V302 SEGMENTO 6B, P1): "faltou a cota da laje
+        # aqui a direita". A unidade e' repetida (V302.B#4) e o heuristico
+        # cortava a direita por nao haver faixa de marco final — mas as pontas
+        # dela tem laje 15 e 12, entao as duas sao necessarias.
+        if _pontas_diferem:
+            _want_left = _want_right = True
+        else:
+            _want_left = False
+            _want_right = bool(_antes_right)
         _marco_label_sides = [
             (_vx, _side)
             for _vx, _side, _want in (
