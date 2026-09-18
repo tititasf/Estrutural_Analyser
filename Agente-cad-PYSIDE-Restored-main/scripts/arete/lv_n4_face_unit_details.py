@@ -165,8 +165,42 @@ def augment_face_unit_details(
             continue
 
         tx0 = x0 + top_off
-        ty0 = y0 + h + ls
         tx1 = tx0 + top_w
+        # ANCORA NO DESENHO, nao na aritmetica propria. Este modulo recompoe
+        # y0 a partir do crop (`crop[1] + li + DIM_TOTAL_BELOW + 25 + top_h`)
+        # e isso diverge do frame do gerador: medido na V302.B, o painel de
+        # fechamento e a cota total saiam 4 cm abaixo do topo real da laje —
+        # a cota "3" flutuando no meio da faixa e a "59" parando antes do
+        # topo, que foi o que o dono leu como "patinhas da cota fora de
+        # posicao" (SEGMENTO 1B, P1/P2). O topo da laje ja' esta' desenhado:
+        # usa-lo elimina a conta e a divergencia.
+        # ESCOPO: so' em unidade com DEGRAU DE LAJE, que e' onde o topo plano
+        # passou a ser desenhado e onde a divergencia aparece. Sem o escopo,
+        # as unidades da V301 (sem trechos) mudavam: la' o N2 mostra a laje de
+        # 15 e NENHUMA faixa de 7 acima dela — o "7" e' outra coisa — e a
+        # ancora pela hachura punha a cota dentro da laje, expondo uma
+        # duplicata que ate' entao ficava empilhada no mesmo y.
+        _tem_degrau_laje = bool([
+            t for t in (unit.get("laje_sup_trechos") or [])
+            if float(t.get("altura", 0) or 0) > 0
+        ])
+        _topo_laje = None
+        for _ht in (msp if _tem_degrau_laje else ()):
+            if _ht.dxftype() != "HATCH" or _ht.dxf.pattern_name != "AR-CONC":
+                continue
+            _pts = []
+            for _path in _ht.paths:
+                for _v in getattr(_path, "vertices", []) or []:
+                    _pts.append((_v[0], _v[1]))
+            if not _pts:
+                continue
+            _xs = [q[0] for q in _pts]
+            if min(_xs) > right + 1.0 or max(_xs) < x0 - 1.0:
+                continue
+            _ys = [q[1] for q in _pts]
+            _topo_laje = max(_topo_laje or -1e9, max(_ys))
+        ty0 = (float(_topo_laje) - top_h if _topo_laje is not None
+               else y0 + h + ls)
         # O motor principal (draw_lv_face, bloco `d7`) ja desenha essa mesma
         # cota de 7cm do painel de fechamento nos dois lados, na mesma
         # ancora (vx, ty0). Sem este guard duplicava (achado ponto-a-ponto
@@ -252,7 +286,12 @@ def augment_face_unit_details(
             motor.emitir_cota(
                 msp, origem="augment:total",
                 base=(anchor + direction * 2.0 * motor.DIM_H_RIGHT, y0 - li),
-                p1=(anchor, y0 - li), p2=(anchor, y0 + h + ls + top_h),
+                # Mesma ancora do painel de fechamento: o topo REAL do
+                # desenho, nao `y0 + h + ls + top_h`. Na V302.B a diferenca
+                # era de 4 cm e a cota total parava antes do topo da laje.
+                p1=(anchor, y0 - li),
+                p2=(anchor, (float(_topo_laje) if _topo_laje is not None
+                             else y0 + h + ls + top_h)),
                 angle=90,
                 texto=motor._fmt_dim_cm(total),
                 texto_pos=(anchor + direction * (2.0 * motor.DIM_H_RIGHT + 4.0),

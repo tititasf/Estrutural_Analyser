@@ -3802,7 +3802,20 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             except Exception:
                 pass
         if _top_panel_h > 0.5:
-            y7_bot = float(y0) + float(h) + float(_cota_marco)
+            # A laje SOB o painel de fechamento vem do trecho, nao do
+            # `_cota_marco` global. Sem isso o painel e a cota total ficam
+            # fora do topo plano que a laje agora desenha: medido na V302.B,
+            # a laje vai ate' -135,4 e o painel saia em -142,4..-139,4, 4 cm
+            # abaixo, com a cota "3" flutuando no meio da faixa e a "59"
+            # parando antes do topo — o que o dono leu como "patinhas da cota
+            # fora de posicao" (SEGMENTO 1B, P1/P2).
+            _laje_sob_topo = _laje_no_x(
+                (float(_top_panel_x) + float(_top_panel_right)) / 2.0
+            )
+            _marco_sob_topo = (float(_laje_sob_topo)
+                               if _laje_sob_topo is not None
+                               else float(_cota_marco))
+            y7_bot = float(y0) + float(h) + _marco_sob_topo
             y7_top = y7_bot + float(_top_panel_h)
             _left7 = float(_top_panel_x)
             _top_right_x = min(float(_top_panel_right), float(_body_end) + 0.01)
