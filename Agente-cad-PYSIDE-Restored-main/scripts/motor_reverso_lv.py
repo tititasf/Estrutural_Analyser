@@ -248,6 +248,11 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         panel_boxes:  list = []   # (xl, yl, xr, yr) caixas fechadas de Paineis
         reap_boxes:   list = []   # (xl, yl, xr, yr) HATCH REAPROVEITAMENTO
         laje_boxes:   list = []   # (xl, yl, xr, yr) HATCH Hachura de laje/faixas
+        # AR-CONC e' a hachura da LAJE e vive na layer COTA, nao em
+        # 'Hachura' — por isso nunca entrava em `laje_boxes`. O fundo
+        # dela e' o topo REAL do corpo, referencia crua para medir a
+        # laje sob o painel de fechamento sem arredondamento no meio.
+        conc_boxes:   list = []   # (xl, yl, xr, yr) HATCH AR-CONC (laje)
         cota_txts:    list = []   # (x, y, val)
         panel_num_txts: list = [] # (x, y, val) numeros desenhados na layer Paineis
         secao_txts:   list = []   # (x, y, val)  camada "Cota Seção (2x)"
@@ -386,7 +391,13 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             elif etype == 'HATCH':
                 try:
                     layer_u = str(layer).upper()
-                    if layer_u in ('REAPROVEITAMENTO', 'HACHURA'):
+                    _pat_u = str(
+                        getattr(e.dxf, 'pattern_name', '') or ''
+                    ).upper()
+                    # AR-CONC (a laje) vive na layer COTA, fora do filtro
+                    # abaixo — por isso nunca era coletada.
+                    if layer_u in ('REAPROVEITAMENTO', 'HACHURA') \
+                            or _pat_u == 'AR-CONC':
                         xs_h = []
                         ys_h = []
                         for path in e.paths:
@@ -397,6 +408,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                                     ys_h.append(float(v[1]))
                         if xs_h and ys_h:
                             box = (min(xs_h), min(ys_h), max(xs_h), max(ys_h))
+                            if _pat_u == 'AR-CONC':
+                                conc_boxes.append(box)
                             if layer_u == 'REAPROVEITAMENTO':
                                 reap_boxes.append(box)
                             elif layer_u == 'HACHURA':
@@ -2130,11 +2143,32 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 if not candidates:
                     return {}
                 gap, _neg_width, bxl, byl, bxr, byr = min(candidates)
+                # `yt` vem do pair e ja' esta' ARREDONDADO; as caixas de painel
+                # sao cruas. Medir o gap entre os dois mistura referencias e
+                # devolve fracao onde o desenho tem inteiro: na V302.B o pair
+                # diz y_top=7105,0 (o topo real e' 7104,6) e a caixa do painel
+                # comeca em 7116,6 — gap 11,6 em vez de 12,0, e o N4 escrevia
+                # "11,5"/"14,5" onde o N2 escreve 12 e 15 (apontamento do dono,
+                # SEGMENTO 1B). Usar o topo da caixa do CORPO, que e' crua como
+                # a do painel, tira o arredondamento do meio.
+                # A referencia crua e' o FUNDO da hachura de laje, que por
+                # definicao assenta no topo do corpo.
+                _topo_corpo = None
+                for _bxl, _byl, _bxr, _byr in conc_boxes:
+                    if _bxr - _bxl < 50.0:
+                        continue
+                    if _bxr < xl - 4.0 or _bxl > xr + 4.0:
+                        continue
+                    if abs(_byl - yt) <= 2.5:
+                        if _topo_corpo is None or _byl < _topo_corpo:
+                            _topo_corpo = float(_byl)
+                _gap_real = (byl - _topo_corpo if _topo_corpo is not None
+                             else gap)
                 return {
                     'height': round(byr - byl, 1),
                     'width': round(bxr - bxl, 1),
                     'x_offset': round(bxl - xl, 1),
-                    'slab_height': round(gap, 1),
+                    'slab_height': round(_gap_real, 1),
                 }
 
             def _sarrafos_verticais_face(pair: dict) -> tuple[bool, bool, list]:
