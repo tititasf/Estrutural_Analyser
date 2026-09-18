@@ -2943,7 +2943,15 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     and laje_sup_u + laje_inf_u > 0.5
                 ):
                     unit['h_total'] = round(h_body_u + laje_sup_u + laje_inf_u, 1)
-                if laje_sup_u >= 12.0:
+                # Com DEGRAU a laje global subestima: na V302.B ela vale 11,6
+                # (a do trecho sob o painel de fechamento) e fica abaixo do
+                # limiar, mas o trecho da direita tem 14,6 e o N2 cota ali.
+                # Sem isto o gerador pula o bloco inteiro do marco e a
+                # unidade sai SEM nenhuma cota de laje — apontamento do dono
+                # (V302 SEGMENTO 1B, P5: "falta essa cota da laje").
+                _alt_tr = [float(t.get('altura', 0) or 0)
+                           for t in (unit.get('laje_sup_trechos') or [])]
+                if laje_sup_u >= 12.0 or (_alt_tr and max(_alt_tr) >= 12.0):
                     unit['marco_laje_sup'] = True
             return units
 

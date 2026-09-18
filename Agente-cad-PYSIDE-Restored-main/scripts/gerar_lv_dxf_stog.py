@@ -3632,11 +3632,29 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             msp, _dim_right, y0 - laje_inf, _h_dir,
             offset=_body_dim_side * _DIM_L1, text_override=_fmt_dim_cm(_h_dir),
         )
-    if _cota_marco > 0.5 and _emit_h_dim:
-        dim_h_lateral(
-            msp, _dim_right, y0 - laje_inf, _h_total,
-            offset=_body_dim_side * _DIM_L2, text_override=_fmt_dim_cm(_h_total),
-        )
+    # Com DEGRAU a laje por TRECHO e' a verdade, e ela pode existir mesmo com
+    # `_cota_marco` zerado: na V302.B a laje global e' 11,6 (a do trecho sob o
+    # painel de fechamento), abaixo do limiar de 12, e a unidade nao tem faixa
+    # de marco estreita — entao `_marco_extension_cm` devolve 0 e o bloco
+    # inteiro era pulado, deixando a unidade SEM nenhuma cota de laje. O
+    # trecho da direita tem 14,6 e o N2 cota ali (dono, V302 1B P5: "falta
+    # essa cota da laje"). Nao mexo em `_cota_marco`: ele entra na altura
+    # total, que segue o modelo antigo de painel ACIMA da laje.
+    _tem_trecho_laje = any(
+        float(t.get('altura', 0) or 0) > 0.5 for t in (laje_trechos or [])
+    )
+    if (_cota_marco > 0.5 or _tem_trecho_laje) and _emit_h_dim:
+        # `_h_total` = h + laje_inf + _cota_marco + painel_sup segue o modelo
+        # ANTIGO, de painel de fechamento ACIMA da laje. Com trecho de laje o
+        # painel fica DENTRO dela e essa soma inventa: na V302.B dava 47
+        # (44 + 3) ao lado do 59 verdadeiro. Ali quem emite a total e' o
+        # augment, que ancora no topo real do desenho.
+        if _cota_marco > 0.5:
+            dim_h_lateral(
+                msp, _dim_right, y0 - laje_inf, _h_total,
+                offset=_body_dim_side * _DIM_L2,
+                text_override=_fmt_dim_cm(_h_total),
+            )
         # A cota da laje pertence às extremidades do contorno superior, não à
         # parede interna do degrau. Usar _dim_right criava 14/15 no centro e
         # deixava as patas direitas fora do retângulo.

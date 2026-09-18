@@ -185,6 +185,7 @@ def augment_face_unit_details(
             if float(t.get("altura", 0) or 0) > 0
         ])
         _topo_laje = None
+        _fundo_laje = None
         for _ht in (msp if _tem_degrau_laje else ()):
             if _ht.dxftype() != "HATCH" or _ht.dxf.pattern_name != "AR-CONC":
                 continue
@@ -199,8 +200,17 @@ def augment_face_unit_details(
                 continue
             _ys = [q[1] for q in _pts]
             _topo_laje = max(_topo_laje or -1e9, max(_ys))
+            _fundo_laje = min(_fundo_laje if _fundo_laje is not None else 1e9,
+                              min(_ys))
         ty0 = (float(_topo_laje) - top_h if _topo_laje is not None
                else y0 + h + ls)
+        # O FUNDO da laje e' o topo do corpo; o fundo do corpo esta' `h`
+        # abaixo dele. Ancorar so' o topo no desenho e deixar o pe' em
+        # `y0 - li` fazia a cota total medir 62,6 com o texto dizendo 59
+        # (V302.B). O dono apontou exatamente isso: "deveria medir de p3 a
+        # p4", sendo p3 o topo da laje e p4 o fundo do corpo.
+        _fundo_corpo = (float(_fundo_laje) - h if _fundo_laje is not None
+                        else y0 - li)
         # O motor principal (draw_lv_face, bloco `d7`) ja desenha essa mesma
         # cota de 7cm do painel de fechamento nos dois lados, na mesma
         # ancora (vx, ty0). Sem este guard duplicava (achado ponto-a-ponto
@@ -285,11 +295,12 @@ def augment_face_unit_details(
         if not has_total_already:
             motor.emitir_cota(
                 msp, origem="augment:total",
-                base=(anchor + direction * 2.0 * motor.DIM_H_RIGHT, y0 - li),
+                base=(anchor + direction * 2.0 * motor.DIM_H_RIGHT,
+                      _fundo_corpo),
                 # Mesma ancora do painel de fechamento: o topo REAL do
                 # desenho, nao `y0 + h + ls + top_h`. Na V302.B a diferenca
                 # era de 4 cm e a cota total parava antes do topo da laje.
-                p1=(anchor, y0 - li),
+                p1=(anchor, _fundo_corpo),
                 p2=(anchor, (float(_topo_laje) if _topo_laje is not None
                              else y0 + h + ls + top_h)),
                 angle=90,
