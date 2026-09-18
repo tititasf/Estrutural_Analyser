@@ -3762,8 +3762,14 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         if _pontas_diferem:
             _want_left = _want_right = True
         else:
+            # Pontas iguais: UMA cota, na direita. O heuristico antigo
+            # (`_antes_right`: unidade repetida so' recebe onde ha' faixa de
+            # marco) ficava como piso e matava casos que o N2 tem — a
+            # V302.B#1, paineis [170, 244] sem faixa estreita, saia sem
+            # NENHUMA cota de laje, e o N2 escreve "14" na direita
+            # (apontamento do dono, SEGMENTO 5B).
             _want_left = False
-            _want_right = bool(_antes_right)
+            _want_right = True
         _marco_label_sides = [
             (_vx, _side)
             for _vx, _side, _want in (
