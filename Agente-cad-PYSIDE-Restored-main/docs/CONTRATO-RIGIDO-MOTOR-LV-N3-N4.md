@@ -386,6 +386,109 @@ de desenho (0.3/0.4) nao pode virar cota. Agora sai `12` nas duas faces.
    (o 13_PAV inteiro e' Sarrafeado: 360 segmentos, 29 vigas). Registrar aqui
    quando aparecer, sem extrapolar do modo 2.
 
+#### 5.2.5 Laje superior: uma faixa, topo plano (2026-09-18)
+
+Medido no N2 em quatro unidades de tres vigas. A hachura `AR-CONC` — que E'
+a laje — e' **SEMPRE UMA por unidade**, cobrindo a largura inteira:
+
+| unidade | largura | faixa |
+|---|---|---|
+| V13.A | 415 | +44..+59 |
+| V302.B | 401,5 | +44..+59 |
+| V302.A | 470 | fundo em DOIS niveis (43 e 45), topo plano |
+| CONT.V302.A | 976 | +44..+59 |
+
+Regras que decorrem disso:
+
+1. **Degrau de laje so' existe quando o CORPO muda de altura.** Onde o corpo
+   muda, o FUNDO da faixa acompanha o degrau e o topo continua plano — e' um
+   poligono com entalhe, nao dois retangulos (`_draw_laje_escalonada`).
+2. **O painel de fechamento ocupa os centimetros de CIMA da faixa**, sobreposto
+   a ela, nao acima dela. V302.B: `ANSI31` de +56 a +59 sobre a `AR-CONC` de
+   +44 a +59. A altura menor que o N2 escreve ali (12 contra 15) e' a laje
+   VISIVEL sob o painel: **assunto de cota, nao de desenho**.
+3. **A laje assenta no painel que esta' embaixo dela**, nao no topo global da
+   face. Guarda medida: `height1` so' vale como altura de corpo quando esta' a
+   menos de 10 cm de `h` — em degrau alto ele e' SUB-BANDA (V301: height1=44
+   num corpo de 109, e sem a guarda as 10 cotas de laje da viga caiam 65 cm).
+4. **`AR-CONC` vive na layer `COTA`**, nao em `Hachura`. O coletor de HATCH
+   filtrava por layer e nunca a via — ver a armadilha de medicao em §5.2.7.
+
+#### 5.2.6 Cotas: nivel, ponta e o que a abertura de viga leva (2026-09-18)
+
+**Nivel da cota horizontal — por PAPEL, nao por largura.**
+`nivel 0 (25)` = paineis; `nivel 1 (50)` = o que particiona a face.
+Sem abertura de viga a face e' UM segmento: todo painel vai para o nivel 0 e o
+externo guarda o TOTAL. Com abertura, o externo guarda a particao (borda +
+complemento). Medido no N2 da V13.A, validada: nivel 26,5 traz `244 | 63 | 108`
+e o nivel 55,0 traz o `415` da face inteira — o 244 nao sobe de nivel por ser
+largo. A regra anterior era `w_sum >= 150 -> nivel externo`.
+
+> **Excecao medida:** quando o COMPLEMENTO e' o numero que o N2 escreve naquela
+> unidade, ele manda — trocar um valor do papel por um total que nao esta' la'
+> seria inventar.
+> `V13.A` compl 171 ausente / total 415 no N2 → total.
+> `V301` (5 unid.) compl 174 NO N2 / total 418 ausente → complemento.
+> `CONT.V302.A` nenhum dos dois no N2 → total, que e' o que o dono pediu.
+> Sem `edge_span_candidates` informado vale o comportamento historico.
+
+**Qual ponta recebe cota — REGRA DO DONO (2026-09-17).** Compara-se a
+extremidade esquerda com a direita, em altura de laje **e** de painel.
+Qualquer uma diferente ja' e' motivo para cota dos **dois** lados, e ai saem
+**ambas** (laje e painel), nao so' uma. Iguais: uma so', na direita.
+Em continuacao a comparacao atravessa os segmentos ENCOSTADOS; separados,
+cada um se comporta sozinho.
+
+- A comparacao usa a altura CRUA do painel, nao a travada pelos 10 cm — sao
+  perguntas diferentes: onde a laje ASSENTA e se as pontas DIFEREM. Na V301 as
+  pontas sao 109 e 44, e e' isso que faz o humano cotar os dois lados.
+- **Nao ha' piso heuristico.** O antigo ("unidade repetida so' recebe onde ha'
+  faixa de marco") matava casos reais: a V302.B#1, paineis [170, 244], saia sem
+  NENHUMA cota de laje e o N2 escreve 14 na direita.
+- O bloco do marco tem de abrir tambem quando ha' TRECHO de laje: a laje global
+  pode ficar abaixo do limiar de 12 (V302.B: 12 sob o painel) enquanto o trecho
+  da outra ponta tem 15.
+
+**Abertura de viga leva tampa e duas cotas.** Medido no N2 da unidade
+[53, 63,5] da V302 (x0=4086, y0=6708,1), tudo em layer `COTA`:
+
+```
+LINE 22 em (4117, 6767,1)->(4139, 6767,1)      tampa, no topo do SEGMENTO
+LINE 22 em (4117, 6776,2)->(4139, 6776,2)      cota da largura, 9,1 acima
+LINE 44 em (4105,2, 6723,1)->(4105,2, 6767,1)  cota da altura, 11,8 a` esquerda
+```
+
+**Patinhas.** O N2 deixa **3 cm de folga** entre o objeto e a linha de extensao
+(`dimexo=3`), e 3 de sobra alem da linha de cota (`dimexe=3`). Medido na V302.B
+com a borda em x rel 0: cotas 44/12/3 com extensao de -3,0 a -16,9 e linha em
+-13,9; cota 59 com extensao de -3,0 a -42,9 e linha em -39,9.
+
+#### 5.2.7 Armadilhas de medicao ja' pagas (nao repetir)
+
+1. **Misturar referencia arredondada com crua.** `_top_panel_face` media a laje
+   sob o painel como `caixa_do_painel - pair.y_top`. O `y_top` do pair vem
+   ARREDONDADO e a caixa e' crua: na V302.B dava `7116,6 - 7105,0 = 11,6` onde
+   o desenho tem `7116,6 - 7104,6 = 12,0`. A fracao nao estava no desenho — era
+   o arredondamento vazando para a medida, e dali para o trecho e para a cota
+   ("11,5"/"14,5" onde o N2 escreve 12 e 15). Referencia crua correta: o FUNDO
+   da hachura `AR-CONC`, que por definicao assenta no topo do corpo.
+2. **Filtrar hachura por layer.** `AR-CONC` esta' em `COTA`; o coletor so'
+   guardava `REAPROVEITAMENTO` e `Hachura`.
+3. **Dois frames de coordenada.** `lv_n4_face_unit_details` recompoe o proprio
+   `y0` a partir do crop e isso diverge do frame do gerador — na V302.B o painel
+   de fechamento e a cota total saiam 4 cm abaixo do topo real. Ancorar no que
+   ja' esta' DESENHADO (a hachura da laje) elimina a conta e a divergencia.
+4. **Ancorar so' uma ponta.** Ao ancorar o topo da cota total no desenho e
+   deixar o pe' em `y0 - li`, ela passou a medir 62,6 com o texto dizendo 59.
+   Os dois extremos tem de sair da mesma fonte.
+5. **Detector de texto por proximidade mente.** Contar textos numericos numa
+   janela ao redor da unidade pega o VIZINHO de fileira. Foi o que me fez
+   concluir que "o N2 da V301 cota as duas pontas em 17/17" — falso. O desenho
+   validado vale mais que o detector.
+6. **`dimtad: 0` so' e' honrado na cota VERTICAL.** Na horizontal empurra o
+   texto de 8 para 11 acima. E reposicionar o MTEXT dentro do bloco renderizado
+   funciona chamando a funcao direto, mas nao no caminho real do gerador.
+
 ### 5.3 Hachuras N4
 
 - painel nao recebe hatch;
