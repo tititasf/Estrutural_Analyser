@@ -77,16 +77,41 @@ def test_degrau_deixa_o_topo_da_laje_plano():
     )
 
 
-def test_degrau_respeita_a_fronteira_que_nao_e_divisa_de_painel():
-    """A fronteira x=200 cai dentro do painel de 244 e parte o retangulo."""
+def test_laje_e_uma_hachura_so_com_topo_continuo():
+    """A fronteira do degrau NAO parte a laje em dois retangulos.
+
+    Este teste afirmava o contrario ("a fronteira x=200 parte o retangulo").
+    A medicao do N2 derrubou isso (2026-09-18): a hachura AR-CONC e' SEMPRE
+    UMA por unidade —
+
+        V13.A        415 de largura, +44..+59, uma so'
+        V302.B       401,5 de largura, +44..+59, uma so'
+        V302.A       470 de largura, fundo em dois niveis (43 e 45), uma so'
+        CONT.V302.A  976 de largura, uma so'
+
+    Onde ha' painel de fechamento ele ocupa os centimetros de CIMA dessa
+    faixa, sobreposto a ela (V302.B: ANSI31 de +56 a +59 sobre a AR-CONC de
+    +44 a +59). A altura menor que o N2 escreve ali — 12 contra 15 — e' a
+    laje visivel sob o painel: assunto de cota, nao de desenho.
+
+    Apontado pelo dono no SEGMENTO 6B: "essa divisao entre os dois hatchs
+    nao precisa".
+    """
     msp = _msp()
     lv._draw_panel_frame_n2(
         msp, 0.0, 0.0, 44.0, PANEIS_V13,
         marco_laje_sup=True, laje_sup=12.3, laje_trechos=TRECHOS_V13,
     )
-    xs = {x for _y, x1, x2 in _horizontais(msp, y_min=44.5) for x in (x1, x2)}
-    assert any(abs(x - 200.0) <= 0.15 for x in xs), (
-        f"fronteira do degrau (x=200) nao aparece; x vistos: {sorted(xs)}"
+    hachuras = [e for e in msp if e.dxftype() == "HATCH"
+                and e.dxf.pattern_name == "AR-CONC"]
+    assert len(hachuras) == 1, (
+        f"laje saiu em {len(hachuras)} hachuras; o N2 tem uma so'"
+    )
+    largura = sum(p['width'] for p in PANEIS_V13)
+    topos = _horizontais(msp, y_min=44.5)
+    assert any(abs(x1) <= 0.15 and abs(x2 - largura) <= 0.15
+               for _y, x1, x2 in topos), (
+        f"o topo da laje nao e' continuo de 0 a {largura}: {topos}"
     )
 
 

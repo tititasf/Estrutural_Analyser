@@ -94,6 +94,53 @@ AR_CONC_PATTERN = [
 ]
 
 
+def _draw_laje_escalonada(msp, faixas):
+    """Laje como UM vazio de concreto, com o fundo acompanhando o degrau.
+
+    Medido no N2 (V13.A, V302.A, V302.B e CONT.V302.A): a hachura AR-CONC e'
+    SEMPRE UMA por unidade, mesmo quando o corpo embaixo muda de altura — na
+    V302.A ela cobre os 470 de largura com o fundo em dois niveis (43 e 45) e
+    o topo plano. Um retangulo por trecho produzia a "divisao entre os dois
+    hatchs" que o dono apontou (V302 SEGMENTO 6B, P1/P2).
+
+    O topo e' sempre o topo PLANO da unidade: onde ha' painel de fechamento
+    ele ocupa os centimetros de cima DESTA faixa, sobreposto a ela — no N2 da
+    V302.B a AR-CONC vai de +44 a +59 e a ANSI31 do painel de +56 a +59. A
+    altura menor que o N2 escreve ali (12 contra 15) e' a laje VISIVEL sob o
+    painel, assunto de cota, nao de desenho.
+
+    `faixas` = [(x_ini, x_fim, y_base), ...] em ordem de x; `y_topo` e' comum.
+    """
+    faixas = [f for f in (faixas or []) if f[1] - f[0] > 0.05]
+    if not faixas:
+        return
+    y_topo = max(f[3] for f in faixas)
+    a_cota = {'layer': 'COTA'}
+    pts = []
+    for _x0, _x1, _yb, _yt in faixas:
+        pts.append((_x0, _yb))
+        pts.append((_x1, _yb))
+    for _x0, _x1, _yb, _yt in reversed(faixas):
+        pts.append((_x1, y_topo))
+        pts.append((_x0, y_topo))
+    # Tampa: uma linha continua no topo, de ponta a ponta.
+    msp.add_line((faixas[0][0], y_topo), (faixas[-1][1], y_topo),
+                 dxfattribs=a_cota)
+    # E o degrau do FUNDO, onde o corpo muda de altura.
+    for _i in range(len(faixas) - 1):
+        _xb = faixas[_i][1]
+        _ya, _yb2 = faixas[_i][2], faixas[_i + 1][2]
+        if abs(_ya - _yb2) > 0.05:
+            msp.add_line((_xb, _ya), (_xb, _yb2), dxfattribs=a_cota)
+    if DRAW_HATCHES_LAJE:
+        ht = msp.add_hatch(dxfattribs={'layer': 'COTA', 'color': 7})
+        ht.paths.add_polyline_path(pts, is_closed=True)
+        ht.set_pattern_fill(
+            'AR-CONC', color=7, angle=0.0, scale=1.0, style=1, pattern_type=0,
+            definition=AR_CONC_PATTERN,
+        )
+
+
 def _draw_vazio_concreto(msp, x_left, y_bot, x_right, y_top):
     """Vazio/laje de concreto (AR-CONC) com retangulo visual fechado.
 
@@ -196,8 +243,19 @@ def setup_doc():
     ds.dxf.dimtxt  = 10.0
     ds.dxf.dimgap  = 3.0
     ds.dxf.dimexe  = 3.0
-    # dimexo=0: patas (linhas de extensao) chegam ate o painel, sem gap
-    ds.dxf.dimexo  = 0.0
+    # dimexo=3: a linha de extensao NASCE 3 cm afastada do objeto, nao
+    # encostada nele. Medido no N2 da V302.B (apontamento do dono, SEGMENTO
+    # 1B, P1/P2: "patinhas da cota fora de posicao"), com a borda da unidade
+    # em x rel 0:
+    #     cota 44   extensao de -3,0 a -16,9   linha de cota em -13,9
+    #     cota 12   extensao de -3,0 a -16,9   linha de cota em -13,9
+    #     cota  3   extensao de -3,0 a -16,9   linha de cota em -13,9
+    #     cota 59   extensao de -3,0 a -42,9   linha de cota em -39,9
+    # Ou seja folga de 3 antes e sobra de 3 depois (dimexe, ja' correto). Com
+    # dimexo=0 a pata encostava no painel e o dono leu como fora de posicao —
+    # a mesma folga que o `override={'dimexo': 3.0}` da cota de largura do
+    # painel de topo ja' aplicava por fora desde 2026-09-13.
+    ds.dxf.dimexo  = 3.0
     ds.dxf.dimclrd = 4
     ds.dxf.dimclrt = 240
     ds.dxf.dimclre = 4
@@ -1154,7 +1212,9 @@ def _marco_extension_cm(marco_laje_sup, laje_sup, *, has_marco_strip=None):
 def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
                           marco_laje_sup=False, laje_sup=0.0,
                           marco_h_min=0.0, laje_trechos=None,
-                          aberturas_viga=None):
+                          aberturas_viga=None,
+                          painel_sup_alt=0.0, painel_sup_width=0.0,
+                          painel_sup_x_offset=0.0):
     """Contorno Painéis fiel ao N2 — G honest (miss→0, extra→0).
 
     Regras anti-phantom (ShareX + ledger V301 A/B):
@@ -1510,6 +1570,49 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
         # desenhada como divisor de painel — nao repetir aqui (parede
         # compartilhada sai uma vez so').
 
+        # ── Tampa do topo da abertura + as duas cotas dela ─────────────────
+        # Apontamento do dono (V302 SEGMENTO 4A): "falta essa tampinha da
+        # abertura no n4" e "falta as cotas da abertura no n4".
+        #
+        # Medido no N2 da unidade [53, 63,5] (x0=4086, y0=6708,1), tudo em
+        # layer COTA:
+        #   LINE 22 em (4117, 6767,1)->(4139, 6767,1)    = a tampa, no topo
+        #   LINE 22 em (4117, 6776,2)->(4139, 6776,2)    = cota da largura
+        #   LINE 44 em (4105,2, 6723,1)->(4105,2, 6767,1) = cota da altura
+        #
+        # Ou seja: tampa no topo do segmento, a cota de largura 9,1 acima
+        # dela e a de altura 11,8 a` esquerda da parede da abertura. O topo
+        # do corpo e' o do SEGMENTO, nao o da unidade — a mesma correcao que
+        # a laje precisou.
+        _y_topo_ab = y_top
+        for _f0, _f1, _fy in (_faixas_h or []):
+            if _f0 - 0.05 <= _ai and _af <= _f1 + 0.05 and _fy > _y_topo_ab:
+                _y_topo_ab = _fy
+        _larg_ab = float(_af) - float(_ai)
+        _alt_ab = float(_y_topo_ab) - float(_y_sobra)
+        if _larg_ab > 1.0:
+            msp.add_line((_ai, _y_topo_ab), (_af, _y_topo_ab),
+                         dxfattribs={'layer': 'COTA'})
+            emitir_cota(
+                msp, origem='abertura_viga_larg',
+                base=((_ai + _af) / 2.0, _y_topo_ab + 9.1),
+                p1=(_ai, _y_topo_ab), p2=(_af, _y_topo_ab),
+                angle=0,
+                texto=_fmt_dim_cm(_larg_ab),
+                texto_pos=((_ai + _af) / 2.0, _y_topo_ab + 12.0),
+            )
+        if _alt_ab > 1.0:
+            _x_cota_ab = float(_ai) - 11.8
+            emitir_cota(
+                msp, origem='abertura_viga_alt',
+                base=(_x_cota_ab, _y_sobra),
+                p1=(_ai, _y_sobra), p2=(_ai, _y_topo_ab),
+                angle=90,
+                texto=_fmt_dim_cm(_alt_ab),
+                texto_pos=(_x_cota_ab - 4.0,
+                           (_y_sobra + _y_topo_ab) / 2.0),
+            )
+
     # As paredes (divisores e bordas) sao desenhadas ate' `y_top`, a altura da
     # UNIDADE. Onde o segmento e' mais alto que ela, falta o pedaco de cima:
     # na V302.A os seg.2/3 tem 45 contra 43 da unidade, e as paredes em 200.5,
@@ -1572,15 +1675,29 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
                     _acc += _w
                 return y_top
 
+            # UMA faixa so' (ver `_draw_laje_escalonada`): o fundo acompanha o
+            # degrau do corpo e o topo e' plano. Onde ha' painel de fechamento
+            # a altura que o N2 escreve ja' vem descontada dele na ficha, mas
+            # o DESENHO da laje vai ate' o topo plano — o painel se sobrepoe.
+            _faixas_laje = []
             for _t in sorted(_tr, key=lambda d: float(d.get('x0', 0) or 0)):
                 _xi = max(x0, x0 + float(_t.get('x0', 0) or 0))
                 _xf = min(body_end, x0 + float(_t.get('x1', 0) or 0))
                 if _xf - _xi <= 0.05:
                     continue
                 _yb = _topo_do_trecho(_xi, _xf)
-                _draw_vazio_concreto(
-                    msp, _xi, _yb, _xf, _yb + float(_t['altura']),
+                _meio_t = (_xi + _xf) / 2.0 - float(x0)
+                _sob_t = (float(painel_sup_alt or 0)
+                          if (float(painel_sup_width or 0) > 0.5
+                              and float(painel_sup_x_offset or 0) - 1.0
+                              <= _meio_t
+                              <= float(painel_sup_x_offset or 0)
+                              + float(painel_sup_width or 0) + 1.0)
+                          else 0.0)
+                _faixas_laje.append(
+                    (_xi, _xf, _yb, _yb + float(_t['altura']) + _sob_t)
                 )
+            _draw_laje_escalonada(msp, _faixas_laje)
         else:
             _draw_vazio_concreto(msp, x0, y_top, body_end, y_marco)
 
@@ -2865,6 +2982,9 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         marco_h_min=_marco_h_min_data,
         laje_trechos=laje_trechos,
         aberturas_viga=aberturas_viga,
+        painel_sup_alt=painel_sup_alt,
+        painel_sup_width=painel_sup_width,
+        painel_sup_x_offset=painel_sup_x_offset,
     )
     # Hachura ANSI31 na faixa superior do degrau (N2 V301) — densifica visao.
 
@@ -3630,13 +3750,14 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         # sua cota, necessita a cota do painel tambem". A cota do corpo so'
         # saia na ponta `_dim_right`.
         #
-        # O dono pediu as duas juntas ("caso ocorra se faz ambas, nao so'
-        # laje ou so' painel"), mas so' onde o corpo local difere de fato —
-        # em degrau alto as duas pontas ja' cotam o mesmo `h` e acrescentar
-        # duplicaria cota no desenho validado da V301.
+        # "Se tem cota da laje tem que ter a cota do painel tambem" (dono,
+        # V302 6B P3, repetindo o que ja' dissera no 1A P10). Entao a cota do
+        # painel acompanha a da laje: onde uma sai, a outra sai junto. Eu
+        # tinha deixado uma condicao a mais — so' emitir se o corpo local
+        # diferisse entre as pontas — e ela silenciava justamente o lado que
+        # o dono cobrou.
         _h_esq = _corpo_no_x(_left_wall)
         if (_emit_h_dim and _want_left
-                and abs(_h_esq - _h_dir) > 0.5
                 and abs(_left_wall - _dim_right) > 1.0):
             dim_h_lateral(
                 msp, _left_wall, y0 - laje_inf, _h_esq,
