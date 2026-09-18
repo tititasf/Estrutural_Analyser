@@ -1593,13 +1593,23 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
         if _larg_ab > 1.0:
             msp.add_line((_ai, _y_topo_ab), (_af, _y_topo_ab),
                          dxfattribs={'layer': 'COTA'})
+            # Texto CENTRADO na propria linha de cota (dono, V302 1A P1/P2:
+            # "texto da cota centralizado na cota ne"). Eu punha em +12, ou
+            # seja 2,9 alem da linha (que esta' em +9,1) e do lado oposto ao
+            # objeto — as cotas que ele aceita ficam entre a linha e o
+            # objeto, e essas duas pareciam soltas.
             emitir_cota(
                 msp, origem='abertura_viga_larg',
                 base=((_ai + _af) / 2.0, _y_topo_ab + 9.1),
                 p1=(_ai, _y_topo_ab), p2=(_af, _y_topo_ab),
                 angle=0,
+                # Sem override: o texto sai ACIMA da linha, que e' o que o N2
+                # faz nesta cota — medido na unidade [53, 63,5]: linha em
+                # y=6776,2 e texto em 6784,2, 8 acima. `dimtad: 0` foi testado
+                # e PIOROU (empurrou para 11); ezdxf so' honra dimtad na
+                # cota vertical.
                 texto=_fmt_dim_cm(_larg_ab),
-                texto_pos=((_ai + _af) / 2.0, _y_topo_ab + 12.0),
+                texto_pos=((_ai + _af) / 2.0, _y_topo_ab + 9.1),
             )
         if _alt_ab > 1.0:
             _x_cota_ab = float(_ai) - 11.8
@@ -1608,8 +1618,13 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
                 base=(_x_cota_ab, _y_sobra),
                 p1=(_ai, _y_sobra), p2=(_ai, _y_topo_ab),
                 angle=90,
+                # dimtad=0 centra o texto NA linha de cota (dono, V302 1A:
+                # "texto da cota centralizado na cota ne"). Sem isso ele saia
+                # a` esquerda da linha, do lado oposto a` parede da abertura,
+                # e ficava solto sobre os sarrafos.
+                override={'dimtad': 0},
                 texto=_fmt_dim_cm(_alt_ab),
-                texto_pos=(_x_cota_ab - 4.0,
+                texto_pos=(_x_cota_ab,
                            (_y_sobra + _y_topo_ab) / 2.0),
             )
 
@@ -2087,6 +2102,7 @@ def emitir_cota(msp, *, origem, base, p1, p2, angle, dimstyle='PAINEL',
     permite, na fase 2, decidir entre propostas concorrentes sobre a mesma
     parede. O texto e' aplicado DEPOIS do render porque o ezdxf reverte
     para '<>' durante ele (vaos estreitos colidiam no SVG: "28,721,8").
+
     """
     try:
         kw = {'base': base, 'p1': p1, 'p2': p2, 'angle': angle,
