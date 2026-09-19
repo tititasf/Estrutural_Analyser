@@ -94,6 +94,51 @@ AR_CONC_PATTERN = [
 ]
 
 
+PAINEL_COMPLETO_LV = 244.0
+
+
+def comprimir_paineis_repetidos(larguras, largura_completa=PAINEL_COMPLETO_LV,
+                                tol=0.6):
+    """Colapsa a sequencia INTERNA de paineis completos iguais num fator "NX".
+
+    REGRA DO DONO (2026-09-19), para montar o N3 a partir do N1 — la' vem a
+    lista real de segmentos e o desenho tem de ser a versao comprimida, do
+    mesmo jeito que o humano desenha no N2:
+
+      - a sequencia comeca a partir do SEGUNDO painel;
+      - so' entram paineis COMPLETOS (244) e todos iguais entre si;
+      - o PRIMEIRO e o ULTIMO painel nunca entram no multiplicador;
+      - com menos de 2 paineis na sequencia nao ha' multiplicador.
+
+    Exemplos dados pelo dono:
+
+        244 244 244          -> sem multiplicador (sobra 1 no meio)
+        244 244 244 244      -> 244 | 244x2 | 244
+        80  244 244 122      -> 80  | 244x2 | 122
+        244 244 80  244      -> sem multiplicador (a sequencia quebra)
+
+    E o caso real da V303.B, cuja soma o dono confirmou em 2262,5:
+
+        [244]*8 + [66,5] + [244]  ->  244 | 244x7 | 66,5 | 244
+
+    Devolve [(largura, fator), ...] na ordem do desenho.
+    """
+    ws = [float(w) for w in (larguras or [])]
+    n = len(ws)
+    saida = [(w, 1) for w in ws]
+    if n < 4:
+        return saida
+    if abs(ws[1] - float(largura_completa)) > tol:
+        return saida
+    k = 1
+    while k + 1 < n - 1 and abs(ws[k + 1] - float(largura_completa)) <= tol:
+        k += 1
+    if k < 2:                      # k paineis na sequencia (indices 1..k)
+        return saida
+    return ([(ws[0], 1), (float(largura_completa), k)]
+            + [(w, 1) for w in ws[k + 1:]])
+
+
 def _draw_laje_escalonada(msp, faixas):
     """Laje como UM vazio de concreto, com o fundo acompanhando o degrau.
 

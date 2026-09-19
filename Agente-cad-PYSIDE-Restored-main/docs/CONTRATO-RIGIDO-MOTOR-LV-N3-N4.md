@@ -489,6 +489,59 @@ com a borda em x rel 0: cotas 44/12/3 com extensao de -3,0 a -16,9 e linha em
    texto de 8 para 11 acima. E reposicionar o MTEXT dentro do bloco renderizado
    funciona chamando a funcao direto, mas nao no caminho real do gerador.
 
+#### 5.2.8 Fator de repeticao "NX" (2026-09-19)
+
+O desenho humano **comprime** sequencias de paineis iguais e marca o fator no
+papel. Medido no N2 da V303.B: a face ocupa 798,5 no desenho — `244 | 244 |
+66,5 | 244` — e um texto **`7X`** sobre o segundo painel diz que ele vale por
+sete. A soma real, confirmada pelo dono, e' `244 + 7x244 + 66,5 + 244 =
+2262,5`. Na V302 ha' um `8X` equivalente na `CONT.V302.A`.
+
+**Niveis de cota passam a ter tres degraus:**
+
+| | nivel 1 (25) | nivel 2 (50) | nivel 3 (75) |
+|---|---|---|---|
+| sem fator | paineis | **total** | — |
+| com fator | paineis | **`NX`** | **total** |
+
+A cota do fator cobre SO' o painel que ela multiplica. A total mantem o vao que
+a face ocupa no papel, mas o TEXTO e' a soma com fator.
+
+##### N4 (vem do N2): ler
+
+O marcador era descartado em silencio — a coleta de `TEXT` da layer `COTA` faz
+`float(txt)` e `"7X"` levanta excecao que o `except` de fora engole. Agora
+`fator_txts` guarda `^\d{1,2}\s*[Xx]$` e `_fatores_por_painel` associa cada
+marca ao painel cujo intervalo contem o x do texto (na V303.B o `7X` cai no
+centro exato do 2o painel).
+
+##### N3 (vem do N1): gerar
+
+No N3 chega a lista REAL de segmentos, e o desenho tem de ser montado ja'
+comprimido. **Regra do dono:**
+
+- a sequencia comeca a partir do **segundo** painel;
+- so' entram paineis **completos** (244) e todos iguais entre si;
+- o **primeiro** e o **ultimo** painel nunca entram no multiplicador;
+- com menos de 2 paineis na sequencia nao ha' multiplicador.
+
+```
+244 244 244          ->  sem multiplicador (sobra 1 no meio)
+244 244 244 244      ->  244 | 244x2 | 244
+80  244 244 122      ->  80  | 244x2 | 122
+244 244 80  244      ->  sem multiplicador (a sequencia quebra)
+[244]*8 + 66,5 + 244 ->  244 | 244x7 | 66,5 | 244     (a V303.B real)
+```
+
+`comprimir_paineis_repetidos()` em `gerar_lv_dxf_stog.py` implementa isso, com
+`tests/test_lv_fator_repeticao.py` (9 casos, incluindo o real da V303.B e a
+invariante de que comprimir nao muda a soma).
+
+> **Por que isso importa para o N3** (dono, 2026-09-19): "nos n1 vamos ter os
+> valores de cada segmento e vamos montar o n3 com base no SA/N1, que vai
+> definir o numero de segmentos". O N1 nao traz o desenho comprimido — traz os
+> segmentos reais. A compressao e' responsabilidade do montador do N3.
+
 ### 5.3 Hachuras N4
 
 - painel nao recebe hatch;
