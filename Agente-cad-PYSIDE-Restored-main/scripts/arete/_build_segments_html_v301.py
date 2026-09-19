@@ -52,11 +52,30 @@ PREV = GATE / "previews_dxf"
 
 
 def _set_item(item: str) -> None:
-    """Reaponta o item corrente e os diretorios derivados dele."""
+    """Reaponta o item corrente e os diretorios derivados dele.
+
+    E' aqui que o cache de preview morre. Os SVG sao gravados como
+    `seg_{i}_N2_{tag}.svg`, com `i` = POSICAO na lista de unidades — e a lista
+    muda toda vez que o motor passa a reconhecer melhor o desenho. Quando isso
+    acontece o indice escorrega e o cartao reexibe o recorte de OUTRA unidade,
+    como se nada tivesse mudado.
+
+    Medido na V304 (2026-09-19): depois que o lado do desenho de 722 foi
+    corrigido de A para B, o cartao do SEGMENTO 1A continuava mostrando o
+    recorte inteiro, com as duas fileiras — era o SVG da rodada anterior. O
+    dono apontou como "o recorte nao ta focado". Cache de revisao que
+    sobrevive a uma mudanca de motor nao economiza tempo: esconde o resultado.
+    """
     global ITEM, GATE, PREV
     ITEM = str(item).strip().upper()
     GATE = ARETE / "relatorios" / "g2v" / f"{ITEM.lower()}_geometry_gate"
     PREV = GATE / "previews_dxf"
+    if PREV.exists() and not os.environ.get("LV_KEEP_PREVIEWS"):
+        for _svg in PREV.glob("seg_*.svg"):
+            try:
+                _svg.unlink()
+            except OSError:
+                pass
     PREV.mkdir(parents=True, exist_ok=True)
 import os  # noqa: E402
 # Idem run_geometry_gate_lv: LV_N4_DIR redireciona a leitura dos N4 para a

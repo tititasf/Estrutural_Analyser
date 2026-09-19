@@ -2825,48 +2825,90 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         )
 
             # ── Lado pela POSICAO, quando ele contradiz o territorio ──────────
-            # No N2 as faces ocupam COLUNAS de x separadas. Uma unidade sem
-            # rotulo herda o lado da ancora, e `_row_pairs_for_anchor` casa
-            # candidatos por alinhamento em Y (tolerancia 8) sem olhar X — se a
-            # ancora e' da outra coluna, a unidade sai com o lado trocado e o
-            # desenho vai para a face errada.
-            #
+            # Uma unidade sem rotulo herda o lado da ancora, e
+            # `_row_pairs_for_anchor` casa candidatos por alinhamento em Y
+            # (tolerancia 8) sem olhar X — se a ancora e' de outra face, a
+            # unidade sai com o lado trocado e o desenho vai para a face errada.
             # Medido nas 32 vigas: 14 unidades em 10 vigas ficam fora do
-            # territorio do proprio lado. O bloco acima nao as alcanca porque
-            # ele so' age quando TODAS tem o mesmo lado.
+            # territorio do proprio lado.
             #
-            # Age so' quando ha' certeza: as duas colunas rotuladas existem e
-            # NAO se sobrepoem em x. Onde se sobrepoem (V13, V301, V311, V315,
-            # V317, V319, V324, V326) nao ha' territorio e nada e' mexido.
+            # O N2 separa as duas faces de um jeito OU de outro: ou em COLUNAS
+            # de x, ou em FILEIRAS empilhadas. A FILEIRA vem primeiro porque e'
+            # a separacao inequivoca — quando ela existe, as bases distam
+            # centenas de cm (V13 213, V303 206, V304 213). O x so' entra onde
+            # as fileiras se misturam (V301, V302), e ali a coluna e' mesmo a
+            # unica pista.
+            #
+            # Isto e' o que conserta a V304: a face A ocupa a fileira y 5586 e
+            # a face B a fileira y 5373. O desenho de 722 esta' na fileira DA B
+            # e saia como `V304.A#4` — o dono contou 3 desenhos em A e 2 em B,
+            # e o motor entregava 4 e 1. Pior: era o proprio criterio de x que
+            # o VIRAVA de B para A, porque com uma unidade rotulada por lado os
+            # "territorios" sao dois PONTOS — na V304 a 25 cm um do outro — e
+            # dois pontos sao sempre disjuntos.
             _centro = lambda _b: (float(_b.get('x_left', 0) or 0)
                                   + float(_b.get('x_right', 0) or 0)) / 2.0
-            _terr: dict = {}
-            for _u in units:
-                _s = str(_u.get('side') or '').upper()
-                if _s in ('A', 'B') and str(_u.get('label') or '').strip():
-                    _c = _centro(_u.get('bbox') or {})
-                    _lo, _hi = _terr.get(_s, (_c, _c))
-                    _terr[_s] = (min(_lo, _c), max(_hi, _c))
-            if len(_terr) == 2:
-                (_a0, _a1), (_b0, _b1) = _terr['A'], _terr['B']
-                if _a1 < _b0 or _b1 < _a0:          # colunas disjuntas
-                    for _u in units:
-                        if str(_u.get('label') or '').strip():
-                            continue                 # rotulada manda
-                        _s = str(_u.get('side') or '').upper()
-                        if _s not in ('A', 'B'):
-                            continue
-                        _o = 'B' if _s == 'A' else 'A'
-                        _c = _centro(_u.get('bbox') or {})
+            _base = lambda _b: float(_b.get('y_bot', 0) or 0)
 
-                        def _dist(_lado, _c=_c):
-                            _lo, _hi = _terr[_lado]
-                            if _lo - 60.0 <= _c <= _hi + 60.0:
-                                return 0.0
-                            return min(abs(_c - _lo), abs(_c - _hi))
+            def _territorio(_medida) -> dict:
+                _t: dict = {}
+                for _u in units:
+                    _s = str(_u.get('side') or '').upper()
+                    if _s in ('A', 'B') and str(_u.get('label') or '').strip():
+                        _c = _medida(_u.get('bbox') or {})
+                        _lo, _hi = _t.get(_s, (_c, _c))
+                        _t[_s] = (min(_lo, _c), max(_hi, _c))
+                return _t
 
-                        if _dist(_o) < _dist(_s):
-                            _u['side'] = _o
+            def _reatribuir(_terr: dict, _medida, _tol: float) -> None:
+                for _u in units:
+                    if str(_u.get('label') or '').strip():
+                        continue                     # rotulada manda
+                    _s = str(_u.get('side') or '').upper()
+                    if _s not in ('A', 'B'):
+                        continue
+                    _o = 'B' if _s == 'A' else 'A'
+                    _c = _medida(_u.get('bbox') or {})
+
+                    def _dist(_lado, _c=_c):
+                        _lo, _hi = _terr[_lado]
+                        if _lo - _tol <= _c <= _hi + _tol:
+                            return 0.0
+                        return min(abs(_c - _lo), abs(_c - _hi))
+
+                    if _dist(_o) < _dist(_s):
+                        _u['side'] = _o
+
+            _terr_y = _territorio(_base)
+            _fileiras_separam = False
+            if len(_terr_y) == 2:
+                (_a0, _a1), (_b0, _b1) = _terr_y['A'], _terr_y['B']
+                # Duas condicoes, e as duas sao estruturais:
+                #
+                # 1. cada face ocupa UMA fileira so'. Se os rotulos de um lado
+                #    aparecem em varias, fileira nao identifica face — e' o
+                #    caso da V303, onde a face A vem em tres fileiras
+                #    ("CONT. V303.A") e cada fileira traz um desenho de A e um
+                #    de B lado a lado. La' quem separa e' a coluna;
+                # 2. as duas fileiras distam mais que a altura de uma face, ou
+                #    seja, o topo de uma nao alcanca a base da outra.
+                _uma_fileira_por_face = (_a1 - _a0 <= 20.0
+                                         and _b1 - _b0 <= 20.0)
+                _fileiras_separam = (
+                    _uma_fileira_por_face
+                    and max(_b0 - _a1, _a0 - _b1) > _H_BODY_MAX
+                )
+            if _fileiras_separam:
+                _reatribuir(_terr_y, _base, 20.0)
+            else:
+                # Age so' quando ha' certeza: as duas colunas rotuladas existem
+                # e NAO se sobrepoem em x. Onde se sobrepoem (V301, V311, V315,
+                # V317, V319, V324, V326) nao ha' territorio e nada e' mexido.
+                _terr = _territorio(_centro)
+                if len(_terr) == 2:
+                    (_a0, _a1), (_b0, _b1) = _terr['A'], _terr['B']
+                    if _a1 < _b0 or _b1 < _a0:      # colunas disjuntas
+                        _reatribuir(_terr, _centro, 60.0)
 
             # ── Duplicata na mesma posicao: fica a que casa com a BANDA ───────
             # `_pair_for_label` pode devolver dois pares para o mesmo bbox com
