@@ -1387,6 +1387,24 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
             _draw_vazio_concreto(msp, x0, y_top, body_end, y_marco)
         return
 
+    # x das paredes de ABERTURA DE VIGA, para o laco de divisas nao desenhar
+    # uma parede cheia por cima delas. Apontamento do dono (V303 SEGMENTO 5B,
+    # P2): "nao tem divisao e painel vertical aqui, vai somente ate' o fundo
+    # da abertura, mas o painel segue ate' o final". Medido no N2 dessa
+    # unidade: a vertical em x=7955,1 vai de 6484,3 a 6524,3 — 40, a altura da
+    # ABERTURA — e nao do fundo do corpo. Abaixo do piso o painel e' continuo
+    # ate' a ponta. O bloco de abertura, mais abaixo, ja' desenha essa parede
+    # com a altura certa; a divisa cheia era duplicata errada por cima.
+    _x_paredes_abertura = []
+    for _av0 in (aberturas_viga or []):
+        try:
+            _xi0 = float(x0) + float(_av0.get('x_ini', 0) or 0)
+            _xf0 = float(x0) + float(_av0.get('x_fim', 0) or 0)
+            if _xf0 - _xi0 > 0.5:
+                _x_paredes_abertura.append(_xi0)
+        except Exception:
+            continue
+
     low_div_xs = []  # so divisores com V base→ombro (nao o phantom A@244)
     x_cur = float(x0)
     for idx, panel in enumerate(panels):
@@ -1403,6 +1421,13 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
             continue
 
         is_body_end = abs(x_right - body_end) < 0.15
+
+        if any(abs(x_right - _xa) <= 0.5 for _xa in _x_paredes_abertura):
+            # Parede de abertura: quem a desenha e' o bloco de abertura, com
+            # a altura do vazio. Aqui sairia do fundo do corpo e cortaria o
+            # painel que segue por baixo.
+            x_cur = x_right
+            continue
 
         if is_body_end:
             # Fecha ate y_marco pelo mesmo motivo da parede esquerda: e a
@@ -3380,10 +3405,41 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         _compl_no_n2 = any(
             abs(float(v) - float(_c)) <= 1.0 for v in edge_span_candidates
         )
-    _usar_total = (not _tem_segmentacao) and not _compl_no_n2
+    # ...e tambem quando o N2 escreve o TOTAL DA FACE nesta unidade. Com
+    # abertura de viga na PONTA a face nao se parte em dois desenhos: o painel
+    # segue por baixo da abertura ate' a ponta, e o N2 cota a face inteira.
+    # Medido na V303 (unidade 157,5 + 29): o desenho traz "186.5" e nenhuma
+    # largura de painel, enquanto o robo emitia "157,5" — apontamento do dono
+    # (SEGMENTO 5B, P1: "a total deve abarcar incluso o painelzinho abaixo da
+    # abertura").
+    # ESCOPO: so' quando a abertura encosta numa PONTA da face. No meio dela
+    # a face se parte mesmo em dois segmentos, e ai vale a particao — medido:
+    # V302.A abre em 178,5..200,5 de uma face de 470, e a [53, 63,5] abre em
+    # 31..53 de 116,5; nas duas o N2 escreve as larguras de painel, nao o
+    # total, e forcar o total mudava desenho ja' APROVADO.
+    _total_face = sum(float(g[1]) for g in groups)
+    _abertura_na_ponta = any(
+        abs(float(_av.get('x_ini', 0) or 0)) <= 1.0
+        or abs(float(_av.get('x_fim', 0) or 0) - _total_face) <= 1.0
+        for _av in (aberturas_viga or [])
+    )
+    _total_no_n2 = (
+        _abertura_na_ponta and bool(edge_span_candidates) and any(
+            abs(float(v) - _total_face) <= 1.0 for v in edge_span_candidates
+        )
+    )
+    _usar_total = ((not _tem_segmentacao) and not _compl_no_n2) or _total_no_n2
+
+    # Abertura na ponta com o N2 escrevendo SO' o total: as larguras de
+    # painel sao invencao. Medido na V303 (unidade 157,5 + 29): o unico numero
+    # que o desenho traz embaixo e' "186.5" — nem 157,5 nem 29. O "29" que
+    # existe no N2 esta' ACIMA, e e' a largura da ABERTURA, nao do painel.
+    _so_total = _total_no_n2 and len({
+        round(float(v), 1) for v in (edge_span_candidates or [])
+    }) == 1
 
     for gi, (x_off, w_sum, n_p) in enumerate(groups):
-        if w_sum < 5.0:
+        if w_sum < 5.0 or _so_total:
             continue
         # Nivel da cota H por PAPEL, nao por largura:
         #   nivel 1 (50) = o que particiona a face em segmentos;
@@ -3455,7 +3511,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                     px += pw
     # Complemento da cadeia no segundo nivel: funciona tanto para degrau
     # inicial (244 | 63+111 = 174) quanto espelhado (52,5+22,5 = 75 | 244).
-    if len(groups) >= 3:
+    if len(groups) >= 3 or (_total_no_n2 and len(groups) >= 2):
         edge_span = None
         if _usar_total:
             # UM segmento -> a cota externa e' o TOTAL da face, nao o
