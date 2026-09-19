@@ -265,6 +265,10 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         # laje sob o painel de fechamento sem arredondamento no meio.
         conc_boxes:   list = []   # (xl, yl, xr, yr) HATCH AR-CONC (laje)
         cota_txts:    list = []   # (x, y, val)
+        # Fator de repeticao escrito no desenho ("7X" = este painel vale
+        # por 7). E' texto NAO numerico na layer COTA, entao o float()
+        # abaixo o descartava em silencio.
+        fator_txts:   list = []   # (x, y, fator)
         panel_num_txts: list = [] # (x, y, val) numeros desenhados na layer Paineis
         secao_txts:   list = []   # (x, y, val)  camada "Cota Seção (2x)"
         face_labels:  list = []   # (x, y, txt, side)  camada "Texto Seção" / "5"
@@ -370,6 +374,9 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     txt = e.dxf.text.strip()
                     ix, iy = float(e.dxf.insert[0]), float(e.dxf.insert[1])
                     if layer == 'COTA':
+                        _mf = re.match(r'^(\d{1,2})\s*[Xx]$', txt)
+                        if _mf:
+                            fator_txts.append((ix, iy, int(_mf.group(1))))
                         val = float(txt)
                         cota_txts.append((ix, iy, val))
                     elif layer_key.startswith('PAINE'):
@@ -2036,6 +2043,34 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     return 0
                 return vals
 
+            def _fatores_por_painel(fg: dict, segs: list) -> list:
+                """Fator de repeticao de cada painel, do texto "NX" do desenho.
+
+                Medido na V303.B: "7X" em (7258,2, 6439,5) cai exatamente no
+                centro do 2o painel (7136,2..7380,2). O texto fica ABAIXO do
+                corpo, no nivel seguinte ao da cadeia de cotas de painel.
+
+                Devolve um fator por painel, 1 onde nao ha' marca.
+                """
+                out = [1] * len(segs or [])
+                if not segs or not fator_txts:
+                    return out
+                xl = float(fg.get('x_left', 0.0))
+                yb = float(fg.get('y_bot', 0.0))
+                faixas, acc = [], 0.0
+                for _s in segs:
+                    _w = float(_s.get('largura_cm', _s.get('width', 0)) or 0)
+                    faixas.append((xl + acc, xl + acc + _w))
+                    acc += _w
+                for fx, fy, fat in fator_txts:
+                    if not (yb - 90.0 <= fy <= yb - 2.0):
+                        continue
+                    for _i, (_a, _b) in enumerate(faixas):
+                        if _a - 1.0 <= fx <= _b + 1.0:
+                            out[_i] = int(fat)
+                            break
+                return out
+
             def _grade_layer_style(pair: dict, segs: list) -> str:
                 if not any(seg.get('panel_type') == 'Grade' for seg in segs):
                     return 'native'
@@ -2683,6 +2718,14 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         'edge_span_candidates': [
                             round(float(v), 1) for v in horizontal_dims
                         ],
+                        # Fator de repeticao por painel. Medido na V303.B: o
+                        # texto "7X" em (7258,2, 6439,5) fica exatamente sobre
+                        # o 2o painel (7136,2..7380,2, centro 7258,2), com
+                        # linha de cota propria num nivel ABAIXO da cadeia de
+                        # paineis. Significa que aquele painel vale por 7, e a
+                        # total soma 244 + 7x244 + 66,5 + 244 = 2262,5 (regra
+                        # do dono, 2026-09-19).
+                        'fatores_painel': _fatores_por_painel(pair, segs_u),
                     }
                     units_by_bbox[key] = unit
                     units.append(unit)

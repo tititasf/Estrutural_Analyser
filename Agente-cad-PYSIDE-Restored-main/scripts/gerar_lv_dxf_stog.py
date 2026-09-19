@@ -2174,8 +2174,13 @@ def dim_panel_lv(msp, x0, x1, y_base, *, text_override: str | None = None,
     y_p1/y_p2: onde as patas tocam o painel (ombro no vao recuado).
     """
     try:
-        # Niveis H: nivel 0 = 25 cm (cadeia), nivel 1 = 50 cm (244 / 161,5)
-        y_off = 25.0 if int(level) <= 0 else 50.0
+        # Niveis H: 0 = 25 (cadeia de paineis), 1 = 50, 2 = 75.
+        # O nivel 2 existe por causa do FATOR DE REPETICAO (regra do dono,
+        # 2026-09-19): sem fator a total fica no nivel 1; com fator, o "NX"
+        # ocupa o nivel 1 e a total desce para o 2.
+        y_off = {0: 25.0, 1: 50.0}.get(int(level), 75.0)
+        if int(level) <= 0:
+            y_off = 25.0
         yp1 = float(y_base if y_p1 is None else y_p1)
         yp2 = float(y_base if y_p2 is None else y_p2)
         mid = ((float(x0) + float(x1)) / 2.0, float(y_base) - y_off - 6.0)
@@ -2701,7 +2706,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  painel_sup_width=0.0, painel_sup_x_offset=0.0,
                  endpoint_start_label=None, endpoint_end_label=None,
                  edge_span_candidates=None, laje_trechos=None,
-                 aberturas_viga=None):
+                 aberturas_viga=None, fatores_painel=None):
     """Desenha uma face (A ou B) da viga lateral -- todos elementos visuais.
     panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2, reuse, panel_type}, ...]
     holes: lista de aberturas [{active, width, height, position}, ...]
@@ -3372,6 +3377,23 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     # Ha' segmentacao quando uma abertura de VIGA parte a face em dois
     # segmentos (regra do dono). Sem isso a face inteira e' UM segmento, e
     # entao nao ha' "borda + complemento" — ha' painel e total.
+    # Fator de repeticao por painel ("7X" no desenho): qual painel vale por
+    # varios, e quanto a total tem de somar.
+    _fatores = [int(f) for f in (fatores_painel or [])]
+    _idx_fator = next((i for i, f in enumerate(_fatores) if f > 1), None)
+
+    def _texto_total(_span):
+        """Texto da cota total. Com fator, soma cada painel pelo seu fator:
+        na V303.B da' 244 + 7x244 + 66,5 + 244 = 2262,5, e nao os 798,5 que a
+        face ocupa no papel."""
+        if _idx_fator is None:
+            return _fmt_dim_cm(_span)
+        _soma = 0.0
+        for _i, _p in enumerate(panels or []):
+            _w = float(_p.get('width', 0) or 0)
+            _soma += _w * (_fatores[_i] if _i < len(_fatores) else 1)
+        return _fmt_dim_cm(round(_soma, 1))
+
     _tem_segmentacao = bool(aberturas_viga)
     _idx_borda = None
     if len(groups) >= 3:
@@ -3579,11 +3601,37 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                 yp1, yp2 = _span_panel_attachments(x_a, x_b)
                 dim_panel_lv(
                     msp, x_a, x_b, y0,
-                    text_override=_fmt_dim_cm(span),
-                    level=1,
+                    text_override=_texto_total(span),
+                    level=2 if _idx_fator is not None else 1,
                     y_p1=yp1,
                     y_p2=yp2,
                 )
+
+    # ── FATOR DE REPETICAO ("7X") ─────────────────────────────────────────
+    # Regra do dono (2026-09-19): "indicacao de 7 paineis de 244 (...) o nosso
+    # total deveria somar essa quantidade no calculo (...) cuidado para nao
+    # ficar no mesmo nivel de cota essa cota indicadora de fator".
+    #
+    # Medido no N2 da V303.B: a cadeia de paineis fica no nivel 26,8 e o "7X"
+    # num nivel proprio, 48,6, com linha de cota cobrindo SO' o painel que ele
+    # multiplica (7136,2..7380,2). Dai a escala de niveis:
+    #     sem fator   paineis 25  |  total 50
+    #     com fator   paineis 25  |  "NX" 50  |  total 75
+    if _idx_fator is not None and panels:
+        _accf = 0.0
+        for _if, _pf in enumerate(panels):
+            _wf = float(_pf.get('width', 0) or 0)
+            if _if == _idx_fator and _wf > 1.0:
+                _xfa = float(x0) + _accf
+                _xfb = _xfa + _wf
+                _yf1, _yf2 = _span_panel_attachments(_xfa, _xfb)
+                dim_panel_lv(
+                    msp, _xfa, _xfb, y0,
+                    text_override=f"{_fatores[_idx_fator]}X",
+                    level=1, y_p1=_yf1, y_p2=_yf2,
+                )
+                break
+            _accf += _wf
 
     # Sem dim_total cego da face (N2 LV face unit costuma não ter total).
 
@@ -5049,6 +5097,7 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
             edge_span_candidates=unit.get('edge_span_candidates'),
             laje_trechos=unit.get('laje_sup_trechos'),
             aberturas_viga=unit.get('aberturas_viga'),
+            fatores_painel=unit.get('fatores_painel'),
         )
         plano_cotas_despejar(plano_cotas_fechar(), f'{viga_nome}|{label}')
         unit_width = sum(p['width'] for p in panels)
