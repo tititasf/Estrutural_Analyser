@@ -175,7 +175,18 @@ def _collect_seg_line(layer: str, x1: float, y1: float, x2: float, y2: float,
     if layer == 'Painéis':
         if dy < _EPS_LINE and dx > 5:
             paineis_h.append((min(y1, y2), min(x1, x2), max(x1, x2)))
-        elif dx < _EPS_LINE and dy > 5:
+        elif dx < _EPS_LINE and dy > 4.9:
+            # Limiar era `> 5`, que descarta parede de painel com EXATAMENTE
+            # 5,0 de altura. Medido na V303 (unidade x 7797,6..7984,1): a
+            # borda DIREITA e' uma vertical de 5,0 (y 6479,3..6484,3) — o
+            # pedaco de corpo sob um vazio de 54. Sem ela a face terminava em
+            # 7955,1, o painel de 29 nunca existia e a unidade saia com
+            # paineis=[157,5] em vez de [157,5; 29]: R de 11% no gate.
+            #
+            # `> 4.9` e nao `> 2`: baixar ate' 2 mexia na V302.B#1, ja'
+            # APROVADA — a laje virava 15 em vez de 14 e a total 67 em vez de
+            # 59, porque verticais entre 2 e 5 mudam o par daquela unidade.
+            # A layer ja' e' `Painéis`, entao tique de cota nao entra aqui.
             paineis_v.append((min(x1, x2), min(y1, y2), max(y1, y2)))
     elif layer in ('SARR_2.2x7', 'SARR_EDITAR', 'SARR_3.5x7'):
         if dx < _EPS_LINE and dy > 5:
