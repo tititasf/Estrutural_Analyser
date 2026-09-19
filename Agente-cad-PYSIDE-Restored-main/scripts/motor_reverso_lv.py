@@ -3246,9 +3246,6 @@ def _detectar_aberturas_viga(paineis_h, paineis_v, pair, segs=None,
     for y, hx0, hx1 in horiz:
         if not (y_fundo + 2.0 < y < y_topo - 2.0):
             continue
-        if any(lo - tol <= hx0 and hx1 <= hi + tol
-               for lo, hi in faixas_baixas):
-            continue
         esq = [v for v in verts
                if abs(v[0] - hx0) <= tol and abs(v[1] - y) <= tol]
         dirs = [v for v in verts
@@ -3256,11 +3253,27 @@ def _detectar_aberturas_viga(paineis_h, paineis_v, pair, segs=None,
         if not (esq and dirs):
             continue
         topo_local = max(v[2] for v in esq)
+        _sobra_h = y - y_fundo
+        _abert_h = topo_local - y
+        # A SOBRA e' remanescente — "sobra uma partezinha abaixo" (dono). Numa
+        # abertura de viga ela e' bem menor que o vazio; num DEGRAU a faixa de
+        # baixo e' a principal. Medido:
+        #     V302.A   sobra  5 x abertura 38      abertura
+        #     V303 8B  sobra  5 x abertura 40      abertura
+        #     V301.A   sobra 65 x "abertura" 44    DEGRAU
+        # Com isso a guarda de painel rebaixado pode ser dispensada quando a
+        # proporcao ja' diz que e' abertura — foi o que destravou a V303, onde
+        # o painel de 29 tem height1 39,7 contra 45 e parecia degrau.
+        _proporcao_de_abertura = 0.0 < _sobra_h < _abert_h
+        if not _proporcao_de_abertura and any(
+                lo - tol <= hx0 and hx1 <= hi + tol
+                for lo, hi in faixas_baixas):
+            continue
         item = {
             'x_ini': round(hx0, 1),
             'x_fim': round(hx1, 1),
-            'sobra_h': round(y - y_fundo, 1),
-            'abertura_h': round(topo_local - y, 1),
+            'sobra_h': round(_sobra_h, 1),
+            'abertura_h': round(_abert_h, 1),
         }
         if item not in out:
             out.append(item)
