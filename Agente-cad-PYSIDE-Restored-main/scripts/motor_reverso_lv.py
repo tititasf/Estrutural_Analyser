@@ -37,6 +37,8 @@ _MIN_FACE_W  = 80     # largura mínima de H-line para ser borda de face (não V
 _H_BODY_MIN  = 8      # h_body mínimo válido (cm)
 _H_BODY_MAX  = 200    # h_body máximo válido (cm) — beams can reach 130–200cm in practice
 _MIN_OVERLAP = 40     # sobreposição x mínima entre H-lines do mesmo par (cm)
+_MARCO_MAX   = 90     # altura máxima de marco acima do topo do corpo (cm) —
+                      # mesma janela que `_has_laje_box` já usa para o topo
 _LABEL_Y_GAP = 120    # máximo de distância y abaixo do label para encontrar face (cm)
 _LABEL_X_GAP = 80     # máximo de distância x entre label e face (cm)
 
@@ -865,10 +867,38 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     score = abs(ly - pair['y_top']) + x_dist
                     if best_score is None or score < best_score:
                         best_score = score
+                        _yb, _yt = pair['y_bot'], pair['y_top']
+                        # A ALTURA da faixa orfa se mede NELA, nao se herda do
+                        # vizinho de fileira. Deste par so' aproveitamos a
+                        # base; o topo sai das verticais que nascem nessa base
+                        # dentro da propria banda X.
+                        #
+                        # Medido na V304.B (banda 2263,7..2323,7, base 5373):
+                        # a borda superior dela mede 31 cm de largura e cai no
+                        # filtro `_MIN_FACE_W = 40`, que existe para excluir
+                        # detalhe de VC. Sem borda no catalogo nao ha' par, e a
+                        # face herdava os 45 do vizinho de 722. Com 45 a linha
+                        # do topo real (59) fica fora da janela do detector de
+                        # abertura, e o vazio de 29x44 com sobra 15 — os
+                        # numeros que o N2 escreve — virava "laje de 29" mais
+                        # um painel de 31 que nao existe no desenho.
+                        _tops = [
+                            max(vy1, vy2) for vx, vy1, vy2 in paineis_v
+                            if edge_xl - 2.0 <= vx <= edge_xr + 2.0
+                            and min(vy1, vy2) <= _yb + 2.0
+                            and max(vy1, vy2) > _yb + 20.0
+                        ]
+                        if _tops:
+                            # Mesmo arredondamento do catalogo `ys`: medir o
+                            # topo cru contra uma base ja' agrupada e' o que
+                            # produz cota fracionada.
+                            _cand = round(max(_tops) / _EPS_Y) * _EPS_Y
+                            if _H_BODY_MIN < _cand - _yb < _H_BODY_MAX:
+                                _yt = _cand
                         best = {
-                            'y_bot': pair['y_bot'],
-                            'y_top': pair['y_top'],
-                            'h_body': pair['h_body'],
+                            'y_bot': _yb,
+                            'y_top': _yt,
+                            'h_body': round(_yt - _yb, 1),
                             'x_left': edge_xl,
                             'x_right': edge_xr,
                             'total_w': round(edge_xr - edge_xl, 1),
@@ -1663,11 +1693,24 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         all_panel_ws = {round(p['width']) for p in panels_A + panels_B}
         b_round = round(result['b_geom'])
 
-        def _has_marco_top_paineis(xl: float, xr: float, y_top: float) -> bool:
-            """Marco da laje superior costuma aparecer como Painéis acima do topo."""
+        def _has_marco_top_paineis(xl: float, xr: float, y_top: float,
+                                   teto: float | None = None) -> bool:
+            """Marco da laje superior costuma aparecer como Painéis acima do topo.
+
+            `teto` limita a que distancia acima do topo o marco pode nascer.
+            Sem ele a busca atravessa a fileira inteira, e e' o comportamento
+            historico — manter assim onde ja' esta' validado: apertar este
+            teto para todos os chamadores muda V301, V302 e V303.
+            """
             for vx, vy1, vy2 in paineis_v:
-                if xl - 8.0 <= vx <= xr + 8.0 and min(vy1, vy2) >= y_top - 3.0:
-                    return True
+                if not (xl - 8.0 <= vx <= xr + 8.0):
+                    continue
+                _base = min(vy1, vy2)
+                if _base < y_top - 3.0:
+                    continue
+                if teto is not None and _base > y_top + float(teto):
+                    continue
+                return True
             return False
 
         def _has_laje_box(xl: float, xr: float, y_bot: float, y_top: float,
@@ -1699,7 +1742,19 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             y_bot, y_top = fg['y_bot'], fg['y_top']
             x_left, x_right = fg['x_left'], fg['x_right']
             h_body = fg['h_body']
-            exclude = all_panel_ws | {b_round}
+            # A LARGURA de uma abertura de viga nao e' espessura de laje. Ela
+            # e' escrita logo acima da abertura, dentro do X da face e perto do
+            # topo — exatamente a janela de onde sai o candidato a laje.
+            # Medido na V304: o 27 da A#1 virava laje (altura 59+27 = 86) e o
+            # 29 da B virava laje (59+29 = 88). Nenhum dos dois numeros e'
+            # cota vertical no desenho.
+            # A deteccao aqui e' previa (sem `segs`, que ainda nao existem), e
+            # por isso so' alimenta a lista de EXCLUSAO — nunca a ficha.
+            _larg_abr = {
+                round(float(a.get('x_fim', 0)) - float(a.get('x_ini', 0)))
+                for a in _detectar_aberturas_viga(paineis_h, paineis_v, fg)
+            }
+            exclude = all_panel_ws | {b_round} | _larg_abr
             # Em folhas STOG explodidas, cotas da lateral podem permanecer
             # na layer Painéis; a janela geométrica abaixo separa cota de ID.
             height_txts = cota_txts + panel_num_txts
@@ -1786,7 +1841,17 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             if laje_sup > 0 and laje_inf > 0 and laje_sup == laje_inf:
                 laje_inf = 0.0
 
-            if _has_marco_top_paineis(x_left, x_right, y_top):
+            # AQUI o marco tem teto. Este ramo escolhe a espessura da laje pelo
+            # MAIOR numero junto ao topo, e por isso precisa de um marco que
+            # seja mesmo desta face. Medido na V304.B (topo 5432): o marco
+            # achado nascia em 5585,9 — 154 cm acima, ja' na fileira de CIMA —
+            # e o "maior numero junto ao topo" virava o 29, que e' a LARGURA
+            # da abertura de viga. A face saia com 59+29 = 88 de altura e uma
+            # hachura de laje que o N2 nao desenha.
+            # O teto so' vale neste chamador: aplicado a todos, muda V301,
+            # V302 e V303, onde ha' marco legitimo mais alto.
+            if _has_marco_top_paineis(x_left, x_right, y_top,
+                                      teto=_MARCO_MAX):
                 near_top = [
                     v for cx, cy, v in height_txts
                     if (x_left - 10 <= cx <= x_right + 120)
@@ -3289,13 +3354,30 @@ def _detectar_aberturas_viga(paineis_h, paineis_v, pair, segs=None,
     for y, hx0, hx1 in horiz:
         if not (y_fundo + 2.0 < y < y_topo - 2.0):
             continue
-        esq = [v for v in verts
-               if abs(v[0] - hx0) <= tol and abs(v[1] - y) <= tol]
-        dirs = [v for v in verts
-                if abs(v[0] - hx1) <= tol and abs(v[1] - y_fundo) <= tol]
-        if not (esq and dirs):
+        # A assinatura tem DUAS maos. Na V302.A a vertical da esquerda SOBE do
+        # piso da abertura e a da direita DESCE ate' o fundo (a sobra segue
+        # para a direita). Na V304.B e' o espelho: a abertura encosta na ponta
+        # ESQUERDA, entao quem sobe e' a vertical da direita (x=29, de 15 a
+        # 58,5 — os 44 de vazio) e quem desce e' a borda da propria face
+        # (x=0, do fundo ate' 15 — os 15 de sobra). So' a primeira mao estava
+        # escrita, e por isso toda abertura na ponta esquerda passava
+        # despercebida; a face saia sem abertura, com laje inventada de 29.
+        sobe_esq = [v for v in verts
+                    if abs(v[0] - hx0) <= tol and abs(v[1] - y) <= tol]
+        desce_dir = [v for v in verts
+                     if abs(v[0] - hx1) <= tol and abs(v[1] - y_fundo) <= tol]
+        sobe_dir = [v for v in verts
+                    if abs(v[0] - hx1) <= tol and abs(v[1] - y) <= tol]
+        desce_esq = [v for v in verts
+                     if abs(v[0] - hx0) <= tol and abs(v[1] - y_fundo) <= tol]
+        _espelhada = False
+        if sobe_esq and desce_dir:
+            topo_local = max(v[2] for v in sobe_esq)
+        elif sobe_dir and desce_esq:
+            topo_local = max(v[2] for v in sobe_dir)
+            _espelhada = True
+        else:
             continue
-        topo_local = max(v[2] for v in esq)
         _sobra_h = y - y_fundo
         _abert_h = topo_local - y
         # A SOBRA e' remanescente — "sobra uma partezinha abaixo" (dono). Numa
@@ -3308,6 +3390,16 @@ def _detectar_aberturas_viga(paineis_h, paineis_v, pair, segs=None,
         # proporcao ja' diz que e' abertura — foi o que destravou a V303, onde
         # o painel de 29 tem height1 39,7 contra 45 e parecia degrau.
         _proporcao_de_abertura = 0.0 < _sobra_h < _abert_h
+        # Na mao ESPELHADA a proporcao e' EXIGENCIA, nao desempate. A guarda
+        # de `faixas_baixas` compara a faixa detectada com os paineis
+        # rebaixados, e so' vale quando as duas coincidem. Medido na V301.B
+        # (ja' validada): pela mao espelhada o degrau sai como 154,2..461,2 —
+        # mais largo que a face inteira (458,2) — e a guarda nao o alcanca,
+        # enquanto a proporcao ja' dizia degrau (sobra 65 contra vazio 38).
+        # Toda abertura de viga medida ate' aqui tem sobra menor que o vazio:
+        # V302.A 5x38, V303 8B 5x40, V304.A#1 5x54, V304.B 15x44.
+        if _espelhada and not _proporcao_de_abertura:
+            continue
         if not _proporcao_de_abertura and any(
                 lo - tol <= hx0 and hx1 <= hi + tol
                 for lo, hi in faixas_baixas):

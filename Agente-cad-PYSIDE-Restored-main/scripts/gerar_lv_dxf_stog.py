@@ -3503,15 +3503,44 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     _total_esta_no_n2 = bool(edge_span_candidates) and any(
         abs(float(v) - _total_face) <= 1.0 for v in edge_span_candidates
     )
-    _usar_total = ((not _tem_segmentacao) and not _compl_no_n2) or _total_no_n2
+    # ...e, acima de tudo, quando o N2 escreve o TOTAL DA FACE nesta unidade.
+    # Aqui nao se decide nada por heuristica: o numero esta' no papel. Medido na
+    # V304.A#1 (paineis 176 | 27 | 172 | 27 | 176, com abertura de viga no
+    # meio): `_tem_segmentacao` e' True, entao o externo ia para "borda +
+    # complemento" = 402, que NAO esta' no desenho — e `_span_ok` matava a cota.
+    # Resultado: a unidade ficava SEM nenhuma total, com o 578 escrito no N2.
+    # Nas ja' aprovadas isso nao mexe, porque la' o total nao esta' no papel:
+    # V302.A (face 470) e a [53, 63,5] escrevem largura de painel, e a V301
+    # escreve o complemento 174 e nao o 418.
+    _usar_total = (((not _tem_segmentacao) and not _compl_no_n2)
+                   or _total_no_n2 or _total_esta_no_n2)
 
     # Abertura na ponta com o N2 escrevendo SO' o total: as larguras de
     # painel sao invencao. Medido na V303 (unidade 157,5 + 29): o unico numero
     # que o desenho traz embaixo e' "186.5" — nem 157,5 nem 29. O "29" que
     # existe no N2 esta' ACIMA, e e' a largura da ABERTURA, nao do painel.
-    _so_total = _total_no_n2 and len({
-        round(float(v), 1) for v in (edge_span_candidates or [])
-    }) == 1
+    # O teste e' direto: o N2 escreve alguma LARGURA DE PAINEL desta unidade?
+    # Se nao escreve nenhuma, so' ha' o total, e emitir larguras e' inventar.
+    # Antes isto era "ha' exatamente um candidato", que diz a mesma coisa so'
+    # quando o desenho nao traz mais nada embaixo. Medido na V304.B: os
+    # candidatos sao 15 (altura da sobra) e 60 (o total) — dois valores, mas
+    # nenhuma das larguras (29 e 31) esta' no papel, e o robo desenhava as
+    # duas. Na V303 (157,5 + 29, candidato unico 186,5) o resultado nao muda.
+    # O TOTAL da face nao conta como largura — e' ele que esta' no papel, e
+    # confundi-lo com uma largura faria o teste se anular sozinho sempre que a
+    # unidade tem um grupo so'.
+    _larguras_painel = {
+        _w for _w in (
+            {round(float(p.get('width', 0) or 0), 1) for p in (panels or [])}
+            | {round(float(g[1]), 1) for g in groups}
+        )
+        if abs(_w - _total_face) > 1.0
+    }
+    _so_total = _total_no_n2 and not any(
+        abs(float(v) - _w) <= 1.0
+        for v in (edge_span_candidates or [])
+        for _w in _larguras_painel
+    )
 
     for gi, (x_off, w_sum, n_p) in enumerate(groups):
         if w_sum < 5.0 or _so_total:
@@ -3603,7 +3632,13 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     # / 75 / 244 e NAO traz 319 — ali o 75 e' o grupo e nao ha' total. Nas de
     # 2 grupos da V302 e da V303 o total esta' no papel em TODAS, e por isso
     # a V302 tambem passa a ter as dela.
-    if len(groups) >= 3 or (len(groups) >= 2 and _total_esta_no_n2):
+    # `_so_total` diz que o unico numero embaixo, no N2, e' o total — entao ele
+    # tem de sair, independentemente de quantos grupos a unidade tenha. Medido
+    # na V304.B: a unidade forma UM grupo de 60, e era esse grupo que aparecia
+    # como se fosse a total. Suprimindo os grupos (o N2 nao escreve 29 nem 31)
+    # a face ficava sem numero nenhum embaixo.
+    if (_so_total or len(groups) >= 3
+            or (len(groups) >= 2 and _total_esta_no_n2)):
         edge_span = None
         if _usar_total:
             # UM segmento -> a cota externa e' o TOTAL da face, nao o
