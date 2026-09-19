@@ -3428,6 +3428,14 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             abs(float(v) - _total_face) <= 1.0 for v in edge_span_candidates
         )
     )
+    # Com 3+ grupos o nivel externo ja' saia de qualquer jeito e o que se
+    # decide aqui e' o ALCANCE dele. Com 2 grupos nao saia nada, e criar uma
+    # total exige que o N2 a escreva: medido na V301 (paineis 52,5+22,5+244,
+    # dois grupos) o desenho traz 7 / 22,5 / 52,5 / 75 / 244 e NAO traz 319 —
+    # o 75 e' o grupo, e e' ele que vai para o nivel externo.
+    _total_esta_no_n2 = bool(edge_span_candidates) and any(
+        abs(float(v) - _total_face) <= 1.0 for v in edge_span_candidates
+    )
     _usar_total = ((not _tem_segmentacao) and not _compl_no_n2) or _total_no_n2
 
     # Abertura na ponta com o N2 escrevendo SO' o total: as larguras de
@@ -3511,7 +3519,24 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                     px += pw
     # Complemento da cadeia no segundo nivel: funciona tanto para degrau
     # inicial (244 | 63+111 = 174) quanto espelhado (52,5+22,5 = 75 | 244).
-    if len(groups) >= 3 or (_total_no_n2 and len(groups) >= 2):
+    # REGRA DO DONO (2026-09-19): "se for so' 1 painel nao precisa, mas se
+    # tiver mais de 1 painel ai sim tem a total". Antes so' a partir de 3
+    # grupos — a V303.B#2, paineis [174, 244], ficava com as duas cotas de
+    # painel e NENHUMA total (apontamento do dono, SEGMENTO 3B).
+    # Medido: o N2 escreve o total em TODAS as unidades de 2 grupos das duas
+    # vigas (V303 e V302), entao a V302 tambem ganha as dela.
+    # REGRA DO DONO (2026-09-19): "se for so' 1 painel nao precisa, mas se
+    # tiver mais de 1 painel ai sim tem a total". Com 3+ grupos o nivel
+    # externo ja' saia; com 2 ele nao saia nunca — a V303.B#2, paineis
+    # [174, 244], ficava com as duas cotas de painel e NENHUMA total
+    # (SEGMENTO 3B).
+    #
+    # Com 2 grupos a total so' sai se o N2 a escrever. Medido na V301
+    # (52,5 + 22,5 + 244, agrupados em dois): o desenho traz 7 / 22,5 / 52,5
+    # / 75 / 244 e NAO traz 319 — ali o 75 e' o grupo e nao ha' total. Nas de
+    # 2 grupos da V302 e da V303 o total esta' no papel em TODAS, e por isso
+    # a V302 tambem passa a ter as dela.
+    if len(groups) >= 3 or (len(groups) >= 2 and _total_esta_no_n2):
         edge_span = None
         if _usar_total:
             # UM segmento -> a cota externa e' o TOTAL da face, nao o
