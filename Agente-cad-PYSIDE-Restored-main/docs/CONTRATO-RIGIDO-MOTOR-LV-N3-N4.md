@@ -588,11 +588,54 @@ quatro fichas isoladas: A/B x Para/Passa. A conversao define paineis executivos
 e publica `generation_ready`. O gerador recebe `--behavior` e nao carrega
 `fichas_lv_v2.json`.
 
-#### 6.1 Gramatica da viga no N1 (regras do dono, 2026-09-20)
+#### 6.1 Gramatica da viga no N1 (2026-09-20)
 
-Ditadas pelo dono nesta ordem, e todas ainda NAO implementadas na conversao.
-Estao aqui para que o refino do SA tenha contra o que ser medido — a regua e'
-`scripts/arete/comparar_lv_n3_n4.py`.
+> **A AUTORIDADE E' O GUIA DO DONO**, nao esta secao:
+> `scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260706_103941/laterais_viga/interpretacao_laterais.html`
+> — "Guia de Interpretacao das Laterais de Viga — A/B e Para/Passa", listado
+> como `protected_guide` em `squads/qa-global-evidencias/data/class_profiles/lv.json`.
+>
+> O arquivo estava AUSENTE do disco (a pasta `scripts/arete/html_fichas` entrou
+> no `.gitignore` e a copia local se perdeu). Recuperado do commit `2b3c4f4654`
+> em 2026-09-20. Se sumir de novo, esta' no historico do git.
+>
+> O que segue e' resumo para consulta rapida, com o estado de implementacao de
+> cada regra. Divergiu do guia? o guia manda.
+
+Regua para medir o refino: `scripts/arete/comparar_lv_n3_n4.py`.
+
+**G0 — LV tem somente A e B.** "Laterais de viga usam somente A e B — C/D nao
+fazem parte deste contrato." A face sai do vinculo `seg_side_a`/`seg_side_b`,
+nunca da posicao na tela. Em viga horizontal B fica acima e A abaixo; em viga
+vertical A fica a' esquerda e B a' direita. O lado A le-se da esquerda para a
+direita (ou de cima para baixo); **o lado B le-se invertido**, e o ponto
+inicial/final do segmento tem de respeitar esse sentido.
+
+**G6 — `Para`/`Passa` e' relacao com PILAR, nao com viga.**
+
+| classe | o que acontece | segmentos por lado | vinculo |
+|---|---|---|---|
+| `Para` | as paredes PARAM nas faces do pilar central | 2 (A1+A2, B1+B2) | `comprimento_total` |
+| `Passa` | as paredes ATRAVESSAM o pilar | 1 continuo | `comp_total_passa` |
+
+**G7 — Encontro entre VIGAS decide-se por PROFUNDIDADE.** "No encontro entre
+vigas, nao classificar como Para ou Passa: comparar as profundidades."
+
+- incidente **menos profunda** -> a lateral prolonga-se por baixo dela ate' a
+  face oposta;
+- incidente **mais profunda** -> a lateral termina na primeira face encontrada.
+
+Vale igualmente nos casos `Para` e `Passa`.
+
+**G8 — Folgas de desenho (hardcoded no guia).**
+
+    laje                              + 2 cm
+    altura da viga                    + 4 cm      <- e' o "+4" de G3
+    largura da viga incidente na abertura + 8 cm  <- 4 de cada lado
+    pilar: distancia a' extremidade    - 11 cm de cada lado
+    abertura do pilar atravessado = comprimento_pilar + 22 cm
+
+A abertura representa o trecho da lateral que sera' sarrafeado.
 
 **G1 — Segmento e' trecho entre mudancas.** Ao longo da extensao, a viga muda
 de tamanho e de secao varias vezes. *Cada mudanca abre um segmento novo.* Nao
@@ -614,21 +657,29 @@ dono. Vale contra a altura TOTAL da lateral (corpo + laje), nao contra o corpo:
     V13    55+4 = 59    V301  120+4 = 124    V302  55+4 = 59 (43+16)
     V303   55+4 = 59    V304   55+4 = 59
 
-**G4 — Largura na extremidade depende de QUEM esta' do outro lado.**
+**G4/G5 — RETIRADAS.** Eu as havia escrito a partir da fala do dono, antes de
+achar o guia, e nesta forma estavam erradas:
 
-| encontro | o que a lateral faz |
-|---|---|
-| outra VIGA cruzando | encosta nela ou recua 4 cm |
-| PILAR | chega nele e NAO desconta nada |
+> ~~"viga cruzando: encosta ou recua 4 | pilar: chega e nao desconta"~~
+> ~~"A e B decidem por Para/Passa; faces C e D de pilar sao sempre Passa"~~
 
-**G5 — Quem decide encostar ou recuar.** Para os lados **A e B**, decide o
-comportamento `Para`/`Passa`. Para as faces **C e D dos pilares**, e' *sempre*
-`Passa`.
+O guia coloca cada peca no lugar: `Para`/`Passa` e' com PILAR (G6), viga com
+viga e' por PROFUNDIDADE (G7), e o "4" do dono e' a folga por lado da viga
+incidente — o guia a escreve como **+8 cm** no total (G8). LV nao tem C/D (G0).
 
-> ATENCAO — o codigo de hoje faz o INVERSO de G4. `_passa_endpoint_adjustments`
-> aplica `-4` por causa de PILAR ("lado oposto ao volume do pilar recua 4 cm") e
-> nao faz nada em cruzamento de viga. Corrigir isto e' mudanca de convencao, nao
-> de heuristica: exige a confirmacao que G4/G5 registram.
+**Dois pontos a arbitrar com o dono** (fala de 2026-09-20 x guia):
+
+1. *"se for pilar chega e nao desconta"* — o guia aplica `-11 cm` de cada lado
+   na distancia a' extremidade do pilar. Podem ser assuntos diferentes (a regra
+   de profundidade x a abertura sarrafeada), mas nao arbitro sozinho.
+2. *"para as faces C e D dos pilares sempre Passa"* — o guia diz que LV so'
+   usa A e B. Provavel leitura: ao encontrar as faces CURTAS de um pilar, o
+   comportamento e' sempre `Passa`. Nao confirmado.
+
+> ATENCAO — o codigo de hoje nao implementa G6 nem G7.
+> `_passa_endpoint_adjustments` aplica `-4` por causa de PILAR ("lado oposto ao
+> volume do pilar recua 4 cm"), que nao e' nenhuma das duas regras, e ignora
+> completamente o encontro entre vigas.
 
 ### N4
 
