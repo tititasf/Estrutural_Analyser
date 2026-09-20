@@ -44,6 +44,20 @@ APROVADAS = ('V301', 'V302', 'V303', 'V304')
 
 TOL = 1.0   # cm
 
+# Comportamento que o N4 do corpus representa. DECLARACAO DO DONO
+# (2026-09-20): "das vigas que fizemos tinha aberturas de pilar, entao
+# provavelmente todo N4 e' na convencao de vigas PASSAM".
+#
+# Nao consegui confirmar isso na ficha N4 e registro o porque: `holes`
+# (abertura de pilar) sai ZERO nas cinco — mas isso e' gap de extracao
+# conhecido, entao ausencia ali nao prova nada; e o vao de `pilar + 22` entre
+# corridas de sarrafo, que e' a assinatura descrita no guia, so' aparece em
+# V302.A (150, 36) e V304.A (41, 34) — nas outras oito faces nao ha' vao.
+#
+# Fica como declaracao, nao como medicao. `None` volta a escolher o
+# comportamento que chega mais perto do N4.
+COMPORTAMENTO = 'Passa'
+
 
 def _carregar_n3(projeto: str, vigas: tuple[str, ...]) -> dict:
     """Contratos N3 por viga, direto do N1 (beams.data_json.links)."""
@@ -144,6 +158,10 @@ def comparar(vigas: tuple[str, ...], projeto: str, detalhe: bool = False) -> int
     print('REGUA N3 x N4 — laterais de viga')
     print(f'projeto {projeto}')
     print(f'referencia: N4 das vigas aprovadas pelo dono  |  tolerancia {TOL} cm')
+    print('comportamento cobrado: '
+          + (f'{COMPORTAMENTO}  (DECLARADO pelo dono, nao medido — ver topo '
+             'do arquivo)' if COMPORTAMENTO
+             else 'o que chegar mais perto do N4'))
     print()
 
     pendencias = 0
@@ -165,31 +183,65 @@ def comparar(vigas: tuple[str, ...], projeto: str, detalhe: bool = False) -> int
 
         for lado in ('A', 'B'):
             ref = item4['lados'][lado]
+            # O N4 e' UM desenho, logo corresponde a UM comportamento. Cobrar
+            # `Para` e `Passa` ao mesmo tempo conta erro onde nao ha': por
+            # construcao um dos dois TEM de divergir. A regua mede os dois,
+            # marca qual chega mais perto (`<<`) e cobra so' esse.
+            #
+            # Quando os dois saem IDENTICOS (`==`) o desenho nao os distingue,
+            # e' esperado em viga curta que nao cruza pilar (regra do dono,
+            # 2026-09-20) e nao ha' o que escolher.
+            medidas = {}
             for comportamento in ('Para', 'Passa'):
                 c = ct[comportamento][lado]
                 larg3 = [round(float(p['width']), 1) for p in c['panels']]
                 falta, sobra = _cmp_multiset(larg3, ref['larguras'])
-                h3 = float(c['total_height'] or 0)
-                dh = h3 - ref['h']
-                ok_h = abs(dh) <= TOL
+                dh = float(c['total_height'] or 0) - ref['h']
                 dt = float(c['total_length'] or 0) - ref['total']
-                ok_t = abs(dt) <= TOL
-                ok = ok_h and ok_t and falta == 0 and sobra == 0
-                if not ok:
-                    pendencias += 1
+                medidas[comportamento] = {
+                    'larg': larg3, 'falta': falta, 'sobra': sobra,
+                    'h': float(c['total_height'] or 0), 'dh': dh, 'dt': dt,
+                    'total': float(c['total_length'] or 0),
+                    # Distancia ao N4. Painel sem par pesa mais que centimetro
+                    # de comprimento: e' diferenca de DIVISAO, nao de medida.
+                    'dist': abs(dh) + abs(dt) / 100.0 + 10.0 * (falta + sobra),
+                }
+            empate = (medidas['Para']['larg'] == medidas['Passa']['larg']
+                      and abs(medidas['Para']['dt']
+                              - medidas['Passa']['dt']) <= 0.05)
+            if COMPORTAMENTO:
+                melhor = COMPORTAMENTO
+            else:
+                melhor = min(medidas, key=lambda k: medidas[k]['dist'])
+            for comportamento in ('Para', 'Passa'):
+                m = medidas[comportamento]
+                ok = (abs(m['dh']) <= TOL and abs(m['dt']) <= TOL
+                      and m['falta'] == 0 and m['sobra'] == 0)
+                marca = ('==' if empate
+                         else '<<' if comportamento == melhor else '  ')
+                if COMPORTAMENTO and comportamento == COMPORTAMENTO:
+                    marca = '==' if empate else '**'
                 print(
-                    f'   {lado} {comportamento:5s} '
+                    f'   {lado} {comportamento:5s} {marca} '
                     f'{"OK " if ok else "DIF"} | '
-                    f'h {h3:6.1f} vs {ref["h"]:6.1f} ({dh:+6.1f}) | '
-                    f'total {float(c["total_length"] or 0):8.1f} vs '
-                    f'{ref["total"]:8.1f} ({dt:+8.1f}) | '
-                    f'paineis {len(larg3):3d} vs {len(ref["larguras"]):3d} '
-                    f'(so N3 {falta}, so N4 {sobra})'
+                    f'h {m["h"]:6.1f} vs {ref["h"]:6.1f} ({m["dh"]:+6.1f}) | '
+                    f'total {m["total"]:8.1f} vs '
+                    f'{ref["total"]:8.1f} ({m["dt"]:+8.1f}) | '
+                    f'paineis {len(m["larg"]):3d} vs {len(ref["larguras"]):3d} '
+                    f'(so N3 {m["falta"]}, so N4 {m["sobra"]})'
                 )
-                if detalhe:
-                    print(f'        N3: {larg3}')
+                if detalhe and (empate or comportamento == melhor):
+                    print(f'        N3: {m["larg"]}')
                     print(f'        N4: {ref["larguras"]}  '
                           f'({ref["desenhos"]} desenhos)')
+            if empate:
+                print('        (Para e Passa IDENTICOS — o desenho nao os '
+                      'distingue)')
+            # UMA pendencia por lado: a do comportamento escolhido.
+            mm = medidas[melhor]
+            if not (abs(mm['dh']) <= TOL and abs(mm['dt']) <= TOL
+                    and mm['falta'] == 0 and mm['sobra'] == 0):
+                pendencias += 1
             fonte = ct['Para'][lado]['_sa_meta']['dimension_source']
             print(f'        fonte da dimensao = {fonte}  |  '
                   f'h_section = {ct["Para"][lado]["h_section"]}  |  '
@@ -204,22 +256,29 @@ def comparar(vigas: tuple[str, ...], projeto: str, detalhe: bool = False) -> int
                   '(o contrato exige faces nao intercambiaveis)')
         print()
 
-    print(f'linhas com diferenca: {pendencias}')
+    print(f'lados com diferenca: {pendencias} de {len(vigas)*2}  '
+          f'(um comportamento por lado — o N4 e UM desenho)')
     return 0 if pendencias == 0 else 1
 
 
 def main() -> int:
-    global DB
+    global DB, COMPORTAMENTO
     ap = argparse.ArgumentParser()
     ap.add_argument('vigas', nargs='*', default=list(APROVADAS))
     ap.add_argument('--projeto', default=PROJETO_13PAV)
     ap.add_argument('--detalhe', action='store_true',
                     help='lista as larguras dos paineis dos dois lados')
+    ap.add_argument('--comportamento', default=COMPORTAMENTO,
+                    choices=['Para', 'Passa', 'melhor'],
+                    help='qual comportamento o N4 representa (declaracao do '
+                         'dono; "melhor" escolhe o que chega mais perto)')
     ap.add_argument('--db', default=str(DB),
                     help='DB a ler (use uma COPIA para testar refino do SA '
                          'sem tocar em producao)')
     args = ap.parse_args()
     DB = Path(args.db)
+    COMPORTAMENTO = (None if args.comportamento == 'melhor'
+                     else args.comportamento)
     return comparar(tuple(args.vigas or APROVADAS), args.projeto, args.detalhe)
 
 
