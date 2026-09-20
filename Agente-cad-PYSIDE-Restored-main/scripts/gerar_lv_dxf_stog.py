@@ -482,7 +482,15 @@ def _is_degrau_panel(p, h_face):
     """Painel P1 mais baixo que a face — alinhamento superior, não inferior.
 
     height1 < 12 cm é quase sempre faixa de laje/marco mal extraída (não degrau).
+
+    Painel EMBAIXO de abertura de viga nunca é degrau: ali o `height1` é a
+    SOBRA, medida do fundo para cima, e o vazio fica ACIMA dela. Degrau é o
+    contrário — o painel sobe para alinhar o topo com a face. Medido na
+    V304.B: o painel de 29 com sobra 15 numa face de 59 saía pendurado no topo
+    (`y0 + 59 - 15`), desenhando uma caixa de 29x15 dentro do vazio.
     """
+    if p.get('sob_abertura'):
+        return False
     if _panel_has_laje_central(p, h_face):
         return False
     h1 = float(p.get('height1', 0) or 0)
@@ -1440,6 +1448,14 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
     # ABERTURA — e nao do fundo do corpo. Abaixo do piso o painel e' continuo
     # ate' a ponta. O bloco de abertura, mais abaixo, ja' desenha essa parede
     # com a altura certa; a divisa cheia era duplicata errada por cima.
+    #
+    # Na V303 5B a abertura encosta na ponta DIREITA e a parede interna dela e'
+    # a da esquerda (`x_ini`). Quando ela encosta na ponta ESQUERDA a parede
+    # interna e' a da DIREITA (`x_fim`) — mesmo desenho, espelhado. Medido no
+    # N2 da V304.B: em x=2292,7 ha' uma unica vertical, de 5387,5 a 5431,5 —
+    # 44, a altura do vazio — e nada abaixo do piso, porque ali o painel
+    # atravessa a unidade inteira. O robo desenhava a divisa cheia, do fundo
+    # ao topo, cortando esse painel (apontamento do dono: falta a linha de 44).
     _x_paredes_abertura = []
     for _av0 in (aberturas_viga or []):
         try:
@@ -1447,6 +1463,8 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
             _xf0 = float(x0) + float(_av0.get('x_fim', 0) or 0)
             if _xf0 - _xi0 > 0.5:
                 _x_paredes_abertura.append(_xi0)
+                if abs(float(_av0.get('x_ini', 0) or 0)) <= 1.0:
+                    _x_paredes_abertura.append(_xf0)   # abertura na ponta esq.
         except Exception:
             continue
 
@@ -1630,9 +1648,16 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
 
     for _ai, _af, _sh in _abr_v:
         _y_sobra = y0 + _sh
-        # parede esquerda da abertura: do topo da sobra ate' o topo do painel
-        if y_top - _y_sobra > 0.05:
+        # parede esquerda da abertura: do topo da sobra ate' o topo do painel.
+        # Quando a abertura encosta na ponta ESQUERDA, essa "parede" e' a borda
+        # da propria face, que o corpo ja' desenhou inteira — repetir so' um
+        # pedaco dela e' linha duplicada. Nesse caso quem precisa da vertical
+        # e' o lado DIREITO do vazio, que acima ja' saiu da lista de divisas.
+        _na_ponta_esq = abs(_ai - float(x0)) <= 1.0
+        if y_top - _y_sobra > 0.05 and not _na_ponta_esq:
             msp.add_line((_ai, _y_sobra), (_ai, y_top), dxfattribs=a)
+        if y_top - _y_sobra > 0.05 and _na_ponta_esq and _af < body_end - 0.5:
+            msp.add_line((_af, _y_sobra), (_af, y_top), dxfattribs=a)
         # piso da abertura = topo da SOBRA (parte que fica embaixo)
         if _sh > 0.05:
             msp.add_line((_ai, _y_sobra), (_af, _y_sobra), dxfattribs=a)
@@ -5002,6 +5027,10 @@ def _panel_from_face_unit_segment(seg: dict, h_face: float) -> dict:
         'holes':            seg.get('holes', []),
         'panel_type':       ptype,
         'codigos':          seg.get('codigos_forma', []),
+        # Painel EMBAIXO de abertura de viga: o `height1` dele e' a SOBRA,
+        # medida do fundo, e nao a altura de um painel rebaixado alinhado pelo
+        # TOPO. Ver `_is_degrau_panel`.
+        'sob_abertura':     bool(seg.get('sob_abertura', False)),
     }
 
 
@@ -5530,6 +5559,10 @@ def main():
                         'reuse':            bool(seg.get('reuse', False)),
                         'reuse_regions':    seg.get('reuse_regions', []),
                         'panel_type':       ptype,
+                        # Painel EMBAIXO de abertura de viga: o `height1` e' a
+                        # SOBRA, medida do fundo, e nao a altura de um painel
+                        # rebaixado alinhado pelo TOPO. Ver `_is_degrau_panel`.
+                        'sob_abertura':     bool(seg.get('sob_abertura', False)),
                     })
                 return result
             elif widths_only:

@@ -2489,6 +2489,26 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             _h1 = float(_sg.get('height1', 0) or 0)
                             if _h1 > 0 and abs(_alt - _h1) > 1.5:
                                 _sg['height1'] = _alt
+                    # Painel que fica EMBAIXO de uma abertura de viga: o
+                    # `height1` dele e' a SOBRA, medida do fundo para cima, e
+                    # nao a altura de um painel rebaixado alinhado pelo TOPO.
+                    # O gerador nao tem como saber a diferenca so' pelo numero
+                    # — os dois sao "menor que a face" — e tratava como degrau:
+                    # medido na V304.B, o painel de 29 com sobra 15 saia
+                    # pendurado no topo, como uma caixa de 29x15 em y -165..-150
+                    # (apontamento do dono: "essa linha nao deveria existir
+                    # aqui, e' uma abertura"). A ficha passa a dizer.
+                    if aberturas_viga:
+                        _cx_sg = 0.0
+                        for _sg in segs_u:
+                            _w_sg = float(
+                                _sg.get('largura_cm', _sg.get('width', 0)) or 0)
+                            _meio = _cx_sg + _w_sg / 2.0
+                            if any(float(_a['x_ini']) - 1.0 <= _meio
+                                   <= float(_a['x_fim']) + 1.0
+                                   for _a in aberturas_viga):
+                                _sg['sob_abertura'] = True
+                            _cx_sg += _w_sg
                     # Laje que a COTA ESCRITA declara para esta face, medida
                     # antes de `ls_u` ser sobrescrito pelo ramo do painel de
                     # topo. E' a verdade de terra do degrau: o trecho alto tem
