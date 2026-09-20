@@ -99,12 +99,21 @@ def _carregar_n4(vigas: tuple[str, ...]) -> dict:
             for u in unidades:
                 larguras += [round(float(p.get('width', 0) or 0), 1)
                              for p in (u.get('panels') or [])]
+            # Altura de referencia = h_TOTAL da unidade (corpo + laje), que e'
+            # o que a regra rigida `secao + 4` prediz. O campo `h_cm` da ficha
+            # NAO serve: medido nas cinco aprovadas, as vezes ele traz o total
+            # (V13 59, V301 124) e as vezes so' o corpo (V302 43 com laje 16,
+            # V303.A 43 com laje 15) — comparar contra ele e' somar pera com
+            # maca. Com `h_total` a regra fecha nas cinco:
+            #   V13 55+4=59 | V301 120+4=124 | V302 55+4=59 | V303 55+4=58/59
+            alturas = sorted({round(float(u.get('h_total') or 0), 1)
+                              for u in unidades if float(u.get('h_total') or 0) > 0})
             lados[lado] = {
                 'desenhos': len(unidades),
                 'larguras': larguras,
                 'total': round(sum(larguras), 1),
-                'h': float(entrada.get(
-                    'h_cm' if lado == 'A' else 'h_B_cm', 0) or 0),
+                'h': max(alturas) if alturas else 0.0,
+                'alturas': alturas,
             }
         out[viga] = {
             'lados': lados,
@@ -184,7 +193,8 @@ def comparar(vigas: tuple[str, ...], projeto: str, detalhe: bool = False) -> int
             fonte = ct['Para'][lado]['_sa_meta']['dimension_source']
             print(f'        fonte da dimensao = {fonte}  |  '
                   f'h_section = {ct["Para"][lado]["h_section"]}  |  '
-                  f'regra = {ct["Para"][lado]["h_face_rule"]}')
+                  f'regra = {ct["Para"][lado]["h_face_rule"]}  |  '
+                  f'alturas medidas no N4 = {ref["alturas"]}')
 
         # Sinais de isolamento que o contrato promete (PROVENIENCIA-CAMPOS-LV).
         a_para = [round(float(p['width']), 1) for p in ct['Para']['A']['panels']]
