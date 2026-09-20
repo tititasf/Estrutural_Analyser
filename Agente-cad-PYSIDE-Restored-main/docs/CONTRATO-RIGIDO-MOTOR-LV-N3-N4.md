@@ -588,6 +588,48 @@ quatro fichas isoladas: A/B x Para/Passa. A conversao define paineis executivos
 e publica `generation_ready`. O gerador recebe `--behavior` e nao carrega
 `fichas_lv_v2.json`.
 
+#### 6.1 Gramatica da viga no N1 (regras do dono, 2026-09-20)
+
+Ditadas pelo dono nesta ordem, e todas ainda NAO implementadas na conversao.
+Estao aqui para que o refino do SA tenha contra o que ser medido — a regua e'
+`scripts/arete/comparar_lv_n3_n4.py`.
+
+**G1 — Segmento e' trecho entre mudancas.** Ao longo da extensao, a viga muda
+de tamanho e de secao varias vezes. *Cada mudanca abre um segmento novo.* Nao
+existe "a secao da viga": existe a secao DE CADA SEGMENTO.
+
+> Medido na V301 (13_PAV): entre os pilares a planta escreve
+> `19/55 · 19/120 · 19/120 · 19/55` ao longo do mesmo rotulo. O N2 confirma,
+> com `h_section_all = [55, 120]`. A conversao resolve UMA secao por viga e
+> aplica a todos os paineis — incapaz de representar isto por construcao.
+
+**G2 — Cruzamento com outra viga e' abertura ou interrupcao.** Onde outra viga
+cruza, a lateral abre ou interrompe; depois o proximo segmento continua. E' a
+mesma gramatica que o N2 ja' usa (§5.2: abertura de viga SEPARA segmentos) —
+os dois lados falam a mesma lingua, so' o N1 ainda nao aplica.
+
+**G3 — Altura da face = secao + 4 cm.** Convencao rigida, confirmada pelo
+dono. Vale contra a altura TOTAL da lateral (corpo + laje), nao contra o corpo:
+
+    V13    55+4 = 59    V301  120+4 = 124    V302  55+4 = 59 (43+16)
+    V303   55+4 = 59    V304   55+4 = 59
+
+**G4 — Largura na extremidade depende de QUEM esta' do outro lado.**
+
+| encontro | o que a lateral faz |
+|---|---|
+| outra VIGA cruzando | encosta nela ou recua 4 cm |
+| PILAR | chega nele e NAO desconta nada |
+
+**G5 — Quem decide encostar ou recuar.** Para os lados **A e B**, decide o
+comportamento `Para`/`Passa`. Para as faces **C e D dos pilares**, e' *sempre*
+`Passa`.
+
+> ATENCAO — o codigo de hoje faz o INVERSO de G4. `_passa_endpoint_adjustments`
+> aplica `-4` por causa de PILAR ("lado oposto ao volume do pilar recua 4 cm") e
+> nao faz nada em cruzamento de viga. Corrigir isto e' mudanca de convencao, nao
+> de heuristica: exige a confirmacao que G4/G5 registram.
+
 ### N4
 
 `scripts/motor_reverso_lv.py` extrai a ficha N2. Em seguida:
