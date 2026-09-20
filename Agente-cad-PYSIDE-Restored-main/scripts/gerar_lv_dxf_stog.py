@@ -898,6 +898,14 @@ def draw_sarr_lv_horizontal_from_n2(msp, x0, y0, sarrafos_horizontais,
         # no eixo X (achado 2026-09-09, SEGMENTO 2B: uniao do sarrafo em
         # 256.5 vs uniao real do painel em 244, 12.5cm sem motivo — o
         # dono: "deve ser a uniao identica a posicao da uniao do painel").
+        # ...mas uma ponta que JA' casa com um sarrafo VERTICAL nao precisa de
+        # encosto nenhum: a uniao dela e' o sarrafo, nao a divisa de painel.
+        # Medido na V304.B: o sarrafo horizontal termina em x=36, exatamente no
+        # vertical de x=36, e o snap (raio 13) o puxava para a divisa de painel
+        # em 29 — a corrida parava 7 cm antes do vertical, sem fechar o quadro
+        # (apontamento do dono: "p1 deveria ir ate' o p2").
+        if any(abs(float(_vx) - x) < 1.0 for _vx, _, _ in (vertical_specs or [])):
+            return x
         if not _div_xs:
             return x
         best = min(_div_xs, key=lambda d: abs(d - x))
@@ -974,7 +982,14 @@ def draw_sarr_lv_horizontal_from_n2(msp, x0, y0, sarrafos_horizontais,
             # V301.A: handle 33F em y=65 = topo exato do vertical 301.5,
             # nao deveria parar nele, e sim continuar ate o vertical
             # 398.5, mais alto).
-            if not (_vyb - 1.0 <= y < _vyt - 0.5):
+            # O vertical tem de CRUZAR a altura do horizontal para bloquea-lo.
+            # Um vertical que NASCE nele apenas encosta: medido na V304.B, o
+            # vertical de x=36 comeca em y=7,5, que e' a borda interna do
+            # proprio sarrafo horizontal de baixo (bordas em 6,5 e 7,5). Com a
+            # folga de 1,0 no pe' ele "cobria" a borda de 6,5 e cortava a
+            # corrida em 36, quando no N2 ela atravessa a unidade inteira
+            # (h=83, x 0..53).
+            if not (_vyb + 0.6 < y < _vyt - 0.5):
                 continue
             if x1 < _vx < x2:
                 # Mantem o lado LONGO (o vao real do sarrafo), apara so o
@@ -1351,9 +1366,45 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
         """Fecha a parede em x: y_from->y_top no layer do painel; y_top->y_marco
         (se houver marco) no layer da laje — o trecho acima do corpo do painel
         pertence estruturalmente ao marco da laje superior, nao ao painel
-        (2026-08-29, correcao de layer pedida pelo dono via pontos no N4)."""
+        (2026-08-29, correcao de layer pedida pelo dono via pontos no N4).
+
+        Quando uma abertura de viga encosta na borda ESQUERDA, o trecho que
+        margeia o vazio nao e' linha de painel: e' o contorno do proprio vazio,
+        e vai no mesmo layer da tampa (COTA). Medido no N2 da V304.B — a borda
+        x=2263,7 vem partida em duas, `Painéis` de 5372,5 a 5387,5 (a sobra) e
+        `COTA` de 5387,5 a 5431,5 (os 44 do vazio), com a tampa h=8D tambem em
+        COTA. Nas aberturas INTERNAS da V304.A#1 as duas paredes sao `Painéis`
+        e so' a tampa e' COTA — coerente: la' as paredes sao bordas de painel
+        de verdade. Apontamento do dono: "deveria ser 2 linhas, 1 para a
+        abertura em layer de cor de rosa, e a linha de baixo a linha do
+        painel".
+
+        ESCOPO: so' a ponta esquerda, porque e' so' dela que ha' medida. Na
+        ponta DIREITA o N2 da V303 (unidade 157,5+29, borda x=7984,1) traz
+        apenas o pedaco da sobra em `Painéis`, de 6479,3 a 6484,3, e NADA
+        acima — nem `Painéis` nem `COTA`. Sao dois desenhos humanos que
+        resolvem a mesma situacao de jeitos diferentes; a V303 esta' aprovada
+        como esta' e nao se mexe nela por simetria presumida.
+        """
         y_from = min(float(y_from), y_top)
-        msp.add_line((x, y_from), (x, y_top), dxfattribs=a)
+        _y_corte = None
+        for _av1 in (aberturas_viga or []):
+            try:
+                _xi1 = float(x0) + float(_av1.get('x_ini', 0) or 0)
+                _sh1 = float(_av1.get('sobra_h', 0) or 0)
+            except Exception:
+                continue
+            if abs(float(x) - float(x0)) > 1.0 or abs(_xi1 - float(x0)) > 1.0:
+                continue
+            _yc = y0 + _sh1
+            if y_from + 0.05 < _yc < y_top - 0.05:
+                _y_corte = _yc
+        if _y_corte is not None:
+            msp.add_line((x, y_from), (x, _y_corte), dxfattribs=a)
+            msp.add_line((x, _y_corte), (x, y_top),
+                         dxfattribs={'layer': 'COTA'})
+        else:
+            msp.add_line((x, y_from), (x, y_top), dxfattribs=a)
         if y_marco > y_top + 0.01:
             msp.add_line((x, y_top), (x, y_marco), dxfattribs=a_laje)
 

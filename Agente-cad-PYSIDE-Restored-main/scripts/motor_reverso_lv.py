@@ -2301,9 +2301,39 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 # y_top-y_bot ja bate com h_body).
                 h_body_ref = float(pair.get('h_body') or (yt - float(pair.get('y_bot', 0.0))))
                 yb = yt - h_body_ref
+                # Um sarrafo vertical pode vir PARTIDO no N2, cortado pela
+                # linha do piso da abertura. Medido na V304.B: em x=2299,7 ha'
+                # 5380,5->5387,5 (7) e 5387,5->5431,5 (44). O pedaco de 7
+                # morria no filtro de comprimento abaixo e a corrida comecava
+                # so' no piso, sem encostar no sarrafo horizontal de baixo
+                # (apontamento do dono: "p2 deveria ir ate' o p1"). Colineares
+                # que se TOCAM sao um sarrafo so' e tem de ser unidos antes de
+                # qualquer filtro de tamanho.
+                # O x do grupo e' o do primeiro segmento, CRU — arredondar a
+                # chave para agrupar e depois desenhar com ela desloca o
+                # sarrafo em ate' 0,1 cm, e isso muda V13, V301, V302 e V303.
+                _por_x: dict = {}
+                for _x, _b, _t in sarr_v:
+                    if _x < xl - 4.0 or _x > xr + 4.0:
+                        continue
+                    _por_x.setdefault(round(_x, 1), []).append(
+                        (min(_b, _t), max(_b, _t), _x))
+                _sarr_v_face: list = []
+                for _segs in _por_x.values():
+                    _segs.sort()
+                    _xr0 = _segs[0][2]
+                    _cb, _ct = _segs[0][0], _segs[0][1]
+                    for _b, _t, _ in _segs[1:]:
+                        if _b <= _ct + 0.6:
+                            _ct = max(_ct, _t)
+                        else:
+                            _sarr_v_face.append((_xr0, _cb, _ct))
+                            _cb, _ct = _b, _t
+                    _sarr_v_face.append((_xr0, _cb, _ct))
+
                 specs: list = []
                 seen: set = set()
-                for x, syb, syt in sarr_v:
+                for x, syb, syt in _sarr_v_face:
                     if x < xl - 4.0 or x > xr + 4.0:
                         continue
                     overlap = min(syt, yt + 90.0) - max(syb, yb - 5.0)
