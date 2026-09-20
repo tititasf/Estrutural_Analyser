@@ -667,14 +667,24 @@ O guia coloca cada peca no lugar: `Para`/`Passa` e' com PILAR (G6), viga com
 viga e' por PROFUNDIDADE (G7), e o "4" do dono e' a folga por lado da viga
 incidente — o guia a escreve como **+8 cm** no total (G8). LV nao tem C/D (G0).
 
-**Dois pontos a arbitrar com o dono** (fala de 2026-09-20 x guia):
+**G9 — O recuo de 11 e' do `Para`; o `Passa` nao recua.** Arbitrado pelo dono
+em 2026-09-20: *"quando Para sim recua esses 11, se Passa nao"*.
 
-1. *"se for pilar chega e nao desconta"* — o guia aplica `-11 cm` de cada lado
-   na distancia a' extremidade do pilar. Podem ser assuntos diferentes (a regra
-   de profundidade x a abertura sarrafeada), mas nao arbitro sozinho.
-2. *"para as faces C e D dos pilares sempre Passa"* — o guia diz que LV so'
-   usa A e B. Provavel leitura: ao encontrar as faces CURTAS de um pilar, o
-   comportamento e' sempre `Passa`. Nao confirmado.
+Atencao ao ler o guia: o `-11` que aparece la' esta' no exemplo de **`Passa`**
+(Interpretacao 1, "Distancia extremidade esquerda: 180-11 = 169"). Nao e'
+contradicao — sao grandezas diferentes:
+
+- no `Passa`, o `-11` descreve onde comeca a ABERTURA sarrafeada, que e' 11 mais
+  larga de cada lado que o pilar (`abertura = pilar + 22`). A lateral em si
+  segue inteira;
+- no `Para`, o `-11` e' recuo da PROPRIA lateral, que termina antes da face do
+  pilar.
+
+Verificavel no N4 quando G6 for implementado; ate' la', leitura declarada.
+
+**G10 — Quem decide `Para`/`Passa`.** Os lados **A e B** decidem caso a caso.
+As faces **C e D do pilar** sao *sempre* `Passa`. (LV nomeia so' A e B — G0;
+C e D aqui sao as faces CURTAS do pilar que a lateral encontra.)
 
 > ATENCAO — o codigo de hoje nao implementa G6 nem G7.
 > `_passa_endpoint_adjustments` aplica `-4` por causa de PILAR ("lado oposto ao
