@@ -217,30 +217,71 @@ table.ficha tr+tr th,table.ficha tr+tr td{border-top:1px solid #1e1e1e}
 """
 
 JS = """
-function mostrar(prefixo){
-  document.querySelectorAll('[data-nivel]').forEach(function(el){
-    var chave = el.getAttribute('data-chave');
-    var on = chave === prefixo || prefixo.indexOf(chave + '|') === 0;
-    if(el.tagName === 'BUTTON'){ el.classList.toggle('on', on); }
+/* Navegacao por ESTADO, nao por prefixo.
+   Clicar numa aba de viga ou de segmento tem de mostrar alguma coisa: antes,
+   `mostrar('V301')` nao casava com nenhuma folha e a area ficava em branco —
+   era preciso clicar nos tres niveis toda vez. Agora qualquer clique completa
+   o que falta e PRESERVA a camada que ja' estava aberta, para dar pra varrer
+   os segmentos comparando sempre a mesma coisa. */
+var estado = {viga: null, seg: null, cam: null};
+
+function _segmentosDe(viga){
+  var bs = document.querySelectorAll(
+    'button[data-nivel="2"][data-chave^="' + viga + '|"]');
+  return Array.prototype.map.call(bs, function(b){
+    return b.getAttribute('data-chave').split('|')[1];
+  });
+}
+function _folha(viga, seg, cam){
+  return document.querySelector(
+    '[data-folha="' + viga + '|' + seg + '|' + cam + '"]');
+}
+function _primeiraCamada(viga, seg){
+  var f = document.querySelector(
+    '[data-folha^="' + viga + '|' + seg + '|"]');
+  return f ? f.getAttribute('data-folha').split('|')[2] : null;
+}
+
+function mostrar(parte){
+  var p = String(parte || '').split('|');
+  if (p[0]) { estado.viga = p[0]; }
+  if (p.length > 1) { estado.seg = p[1]; }
+  if (p.length > 2) { estado.cam = p[2]; }
+
+  var segs = _segmentosDe(estado.viga);
+  if (!segs.length) { return; }
+  if (!estado.seg || segs.indexOf(estado.seg) < 0) { estado.seg = segs[0]; }
+  if (!estado.cam || !_folha(estado.viga, estado.seg, estado.cam)) {
+    estado.cam = _primeiraCamada(estado.viga, estado.seg);
+  }
+  if (!estado.cam) { return; }
+
+  var chaveSeg = estado.viga + '|' + estado.seg;
+  var chaveFolha = chaveSeg + '|' + estado.cam;
+
+  document.querySelectorAll('button[data-nivel]').forEach(function(b){
+    var k = b.getAttribute('data-chave');
+    b.classList.toggle(
+      'on', k === estado.viga || k === chaveSeg || k === chaveFolha);
   });
   document.querySelectorAll('[data-grupo]').forEach(function(el){
     var g = el.getAttribute('data-grupo');
-    el.hidden = !(prefixo === g || prefixo.indexOf(g + '|') === 0
-                  || g.indexOf(prefixo + '|') === 0);
+    el.hidden = !(g === estado.viga || g === chaveSeg);
   });
   document.querySelectorAll('[data-folha]').forEach(function(el){
-    el.hidden = el.getAttribute('data-folha') !== prefixo;
+    el.hidden = el.getAttribute('data-folha') !== chaveFolha;
   });
-  try{ localStorage.setItem('lv_debug_aba', prefixo); }catch(e){}
+  try { localStorage.setItem('lv_debug_aba', chaveFolha); } catch(e){}
 }
+
 window.addEventListener('DOMContentLoaded', function(){
   var inicial = null;
-  try{ inicial = localStorage.getItem('lv_debug_aba'); }catch(e){}
-  var primeiro = document.querySelector('[data-folha]');
-  if(!inicial || !document.querySelector('[data-folha="'+inicial+'"]')){
-    inicial = primeiro ? primeiro.getAttribute('data-folha') : '';
+  try { inicial = localStorage.getItem('lv_debug_aba'); } catch(e){}
+  var primeira = document.querySelector('[data-folha]');
+  if (!inicial || !document.querySelector('[data-folha="' + inicial + '"]')) {
+    inicial = primeira ? primeira.getAttribute('data-folha') : '';
   }
-  if(inicial){ mostrar(inicial); }
+  if (inicial) { mostrar(inicial); }
 });
 """
 
