@@ -136,19 +136,34 @@ class BeamTracer:
             raw_lines = self._capture_fundo_geometry(
                 pos, is_h, orientations, beam_labels, content,
             )
-            lv_is_h = legacy_orientations[id(b_text)]
-            lv_raw_lines = (
-                self._capture_geometry(
-                    pos, lv_is_h, legacy_orientations, beam_labels, content,
-                )
-                if lv_is_h == is_h
-                else self._capture_geometry(
-                    pos,
-                    lv_is_h,
-                    legacy_orientations,
-                    beam_labels,
-                    content,
-                )
+            # A orientacao da LATERAL e' a mesma da viga, e sai da mesma
+            # evidencia: a ROTACAO DO PROPRIO ROTULO, por OCORRENCIA.
+            #
+            # `legacy_orientations` tinha dois vicios. Descartava a rotacao do
+            # rotulo — a prova mais forte que o desenho oferece — e era
+            # indexado por NOME, entao numa viga com continuacoes a ultima
+            # ocorrencia sobrescrevia as outras.
+            #
+            # Medido no 13_PAV: 13 das 36 vigas saiam com `lv_is_h != is_h`.
+            # Em todas as 13 o rotulo esta' certo. A V313 e' o caso limpo — o
+            # rotulo esta' deitado sobre uma faixa VERTICAL que desce ate' o
+            # P29, e o `lv_is_h` dizia horizontal; a captura entao pegava a
+            # faixa horizontal vizinha em vez da viga, e a secao adotada vinha
+            # de uma viga perpendicular (V302 e V304 ficavam com `19/120`
+            # tendo `19/55` a 2 cm do proprio eixo).
+            #
+            # CUIDADO ao medir isto: a geometria capturada NAO serve de
+            # testemunha, porque ela e' consequencia deste booleano — onde ele
+            # erra, ela erra junto e as duas concordam. A prova tem de vir do
+            # desenho.
+            lv_is_h = orientations[id(b_text)]
+            # O mapa de orientacoes dos VIZINHOS tem de ser o mesmo, senao a
+            # captura decide de quem e' cada linha com dois criterios
+            # diferentes. (O ternario que existia aqui tinha os dois ramos
+            # identicos — so' a condicao mudava, e agora ela e' sempre
+            # verdadeira.)
+            lv_raw_lines = self._capture_geometry(
+                pos, lv_is_h, orientations, beam_labels, content,
             )
             pre_beams.append({
                 'name': content,

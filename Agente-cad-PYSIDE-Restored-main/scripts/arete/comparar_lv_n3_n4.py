@@ -209,12 +209,17 @@ def comparar(vigas: tuple[str, ...], projeto: str, detalhe: bool = False) -> int
 
 
 def main() -> int:
+    global DB
     ap = argparse.ArgumentParser()
     ap.add_argument('vigas', nargs='*', default=list(APROVADAS))
     ap.add_argument('--projeto', default=PROJETO_13PAV)
     ap.add_argument('--detalhe', action='store_true',
                     help='lista as larguras dos paineis dos dois lados')
+    ap.add_argument('--db', default=str(DB),
+                    help='DB a ler (use uma COPIA para testar refino do SA '
+                         'sem tocar em producao)')
     args = ap.parse_args()
+    DB = Path(args.db)
     return comparar(tuple(args.vigas or APROVADAS), args.projeto, args.detalhe)
 
 
