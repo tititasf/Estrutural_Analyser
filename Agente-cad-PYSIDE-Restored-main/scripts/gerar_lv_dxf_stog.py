@@ -4816,11 +4816,28 @@ def _face_unit_base_label(label: str) -> str:
     return text
 
 
+# Divergencia de altura entre paineis (cm). 43 vs 45 fica o mesmo trecho;
+# 44 vs 109 e degrau. Nao e o valor da secao (59/124), e a diferenca.
+_H_DIVERGE_CM = 12.0
+
+
+def _panel_heights_diverge(a: float, b: float) -> bool:
+    return abs(float(a or 0) - float(b or 0)) >= _H_DIVERGE_CM
+
+
+def _face_unit_height_class(h: float) -> int:
+    """Rotulo curto da altura medida (arredondada), nao 59/124 fixos."""
+    return int(round(float(h or 0)))
+
+
 def _face_unit_geom_key(unit) -> tuple:
-    """Assinatura geométrica da unidade (lado + h + cadeia de larguras).
+    """Assinatura de uma ocorrencia (lado + h + larguras + posicao no recorte).
 
     CONT com larguras diferentes NÃO colapsam: são segmentos distintos da viga.
-    Só gémeos exactos (espelho/duplicata do motor) partilham a mesma chave.
+    Gémeos exactos do motor (mesmo layout no mesmo sitio) partilham a chave.
+    A mesma cadeia de paineis em Y diferente e outra peca de forma — no V301
+    o recorte humano tem 8 ocorrencias A / 12 B; agrupar so por larguras
+    derrubava as filas de baixo (8→6 e 12→10).
     """
     side = str(unit.get('side') or '').upper() or '?'
     h = float(unit.get('h_body', unit.get('h_total', unit.get('h', 0))) or 0)
@@ -4830,11 +4847,154 @@ def _face_unit_geom_key(unit) -> tuple:
         for s in segs
         if float(s.get('largura_cm', s.get('width', 0)) or 0) > 0
     )
-    # A leitura geométrica oscila subcentimetricamente entre ocorrências
-    # equivalentes (108,6/109,3). Agrupar pela altura inteira evita duplicar a
-    # mesma ficha; ocorrências com painel superior continuam separadas no
-    # adaptador N4 pela bbox explícita.
-    return (side, round(h), widths)
+    bb = unit.get('bbox') or {}
+    y_slot = round(float(bb.get('y_top') or 0) / 20.0)
+    x_slot = round(float(bb.get('x_left') or 0) / 20.0)
+    return (side, round(h), widths, y_slot, x_slot)
+
+
+def _panel_w(p: dict) -> float:
+    return float(p.get('largura_cm', p.get('width', 0)) or 0)
+
+
+def split_face_unit_by_panel_height(unit: dict) -> list[dict]:
+    """Parte a ocorrencia onde a altura dos paineis DIVERGE.
+
+    Nao usa 59/124. 43 vs 45 continua um trecho; 44 vs 109 vira dois.
+    O trecho mais baixo alinha pelo topo da laje. A primeira peca conserva
+    o rotulo; as seguintes saem sem rotulo para o desenhador atribuir #n.
+    """
+    pans = [p for p in _face_unit_segments(unit) if _panel_w(p) > 0]
+    if len(pans) < 2:
+        return [unit]
+    bb = dict(unit.get('bbox') or {})
+    x0 = float(bb.get('x_left') or 0.0)
+    y_bot = float(bb.get('y_bot') or 0.0)
+    y_top = float(bb.get('y_top') or y_bot)
+    h_body = float(unit.get('h_body') or (y_top - y_bot) or 0.0)
+    runs: list[dict] = []
+    for p in pans:
+        h1 = float(p.get('height1', p.get('h', h_body)) or h_body)
+        # Sobra debaixo da abertura nao e degrau — fica no trecho corrente.
+        if p.get('sob_abertura') or h1 < 15.0:
+            if runs:
+                runs[-1]['panels'].append(p)
+            else:
+                runs.append({'h1': h1, 'panels': [p]})
+            continue
+        if not runs or _panel_heights_diverge(h1, runs[-1]['h1']):
+            runs.append({'h1': h1, 'panels': []})
+        else:
+            n = len(runs[-1]['panels'])
+            runs[-1]['h1'] = (runs[-1]['h1'] * n + h1) / (n + 1)
+        runs[-1]['panels'].append(p)
+    if len(runs) <= 1:
+        return [unit]
+    out = []
+    acc = x0
+    for i, run in enumerate(runs):
+        w = sum(_panel_w(p) for p in run['panels'])
+        h1 = float(run['h1'])
+        piece = dict(unit)
+        piece['panels'] = list(run['panels'])
+        piece['segments'] = list(run['panels'])
+        if h_body and h1 + _H_DIVERGE_CM < h_body:
+            piece['h_body'] = h1
+            y0 = y_top - h1 if y_top else y_bot
+        else:
+            piece['h_body'] = h_body if h_body else h1
+            y0 = y_bot
+        piece['bbox'] = {
+            'x_left': acc,
+            'x_right': acc + w,
+            'y_bot': y0,
+            'y_top': y_top if y_top else y0 + float(piece['h_body']),
+        }
+        if i > 0:
+            piece['label'] = ''
+        out.append(piece)
+        acc += w
+    return out
+
+
+def split_face_unit_by_aberturas(unit: dict) -> list[dict]:
+    """Parte no fim da abertura de viga (borda direita).
+
+    A abertura e a sobra ficam no segmento de ANTES; o que vem depois e
+    outro segmento. Cortes em `cortes_segmento` / `aberturas_viga.x_fim`
+    sao relativos a x_left da unidade.
+    """
+    cortes = [float(c) for c in (unit.get('cortes_segmento') or []) if c]
+    if not cortes:
+        for a in unit.get('aberturas_viga') or []:
+            if a.get('x_fim') not in (None, ''):
+                cortes.append(float(a['x_fim']))
+    pans = [p for p in _face_unit_segments(unit) if _panel_w(p) > 0]
+    if not cortes or not pans:
+        return [unit]
+    bb = dict(unit.get('bbox') or {})
+    x0 = float(bb.get('x_left') or 0.0)
+    y_bot = float(bb.get('y_bot') or 0.0)
+    y_top = float(bb.get('y_top') or y_bot)
+    total = sum(_panel_w(p) for p in pans) or 1.0
+    cuts = sorted({c for c in cortes if 1.0 < c < total - 1.0})
+    if not cuts:
+        return [unit]
+    out = []
+    acc_rel = 0.0
+    piece_pans: list = []
+    ci = 0
+    n_emit = 0
+    abs_x = x0
+
+    def _emit(pp, x_a, x_b):
+        nonlocal n_emit
+        piece = dict(unit)
+        piece['panels'] = list(pp)
+        piece['segments'] = list(pp)
+        piece['bbox'] = {
+            'x_left': x_a, 'x_right': x_b,
+            'y_bot': y_bot, 'y_top': y_top,
+        }
+        if n_emit > 0:
+            piece['label'] = ''
+            piece['cortes_segmento'] = []
+            piece['aberturas_viga'] = []
+        n_emit += 1
+        out.append(piece)
+
+    for p in pans:
+        w = _panel_w(p)
+        piece_pans.append(p)
+        acc_rel += w
+        while ci < len(cuts) and acc_rel + 0.6 >= cuts[ci]:
+            x_b = x0 + acc_rel
+            _emit(piece_pans, abs_x, x_b)
+            piece_pans = []
+            abs_x = x_b
+            ci += 1
+            if ci >= len(cuts):
+                break
+    if piece_pans:
+        _emit(piece_pans, abs_x, x0 + sum(_panel_w(p) for p in pans))
+    return out or [unit]
+
+
+def split_face_unit_for_tags(unit: dict) -> list[dict]:
+    """Altura que diverge, depois abertura de viga — ordem do dono."""
+    out = []
+    for piece in split_face_unit_by_panel_height(unit):
+        out.extend(split_face_unit_by_aberturas(piece))
+    return out or [unit]
+
+
+def prepare_n4_face_units(face_units, viga_nome=None) -> list:
+    """Ocorrencias distintas + split por divergencia de altura e abertura."""
+    canon = select_canonical_face_units(face_units, viga_nome=viga_nome)
+    out = []
+    for unit in canon:
+        out.extend(split_face_unit_for_tags(unit))
+    return out
 
 
 def _descartar_copia_mal_laterada(units, folga=60.0, tol_x=40.0):
@@ -4988,7 +5148,7 @@ def select_canonical_face_units(face_units, viga_nome=None):
 def layout_lv_face_unit_bboxes(face_units, x_origin=0.0, y_top=0.0, view='A'):
     """Espelha o posicionamento horizontal de draw_viga_lateral_face_units."""
     view = str(view or 'A').upper()
-    canonical = select_canonical_face_units(face_units)
+    canonical = prepare_n4_face_units(face_units)
     # Espelha a segunda ordenacao espacial feita pelo desenhador. Sem isto, o
     # pos-processador aplicava os detalhes de uma ficha sobre a ocorrencia
     # seguinte quando CONT. e unidades sem rotulo se intercalavam.
@@ -5099,7 +5259,7 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
     view = str(view or 'ALL').upper()
     if view not in {'ALL', 'CORTE', 'A', 'B'}:
         raise ValueError(f'Vista LV invalida: {view}')
-    valid_units = select_canonical_face_units(face_units, viga_nome=viga_nome)
+    valid_units = prepare_n4_face_units(face_units, viga_nome=viga_nome)
     if not valid_units and view != 'CORTE':
         return x_origin, y_top
 

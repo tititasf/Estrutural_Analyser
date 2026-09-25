@@ -2457,6 +2457,39 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             existing['label_source'] = 'text'
                         continue
 
+                    # Copia da outra face no mesmo sitio. `_row_pairs_for_anchor`
+                    # alinha so em Y (tol 8 cm na base) e o ancora B da
+                    # fileira puxa os pares da coluna A. No V301 isso inflava
+                    # o B com 4 desenhos que ja eram A (12 raw → 8 verdadeiros).
+                    # Ancora nomeada sempre entra; o par extra, so se nao
+                    # sobrepor unidade ja criada do outro lado.
+                    if not is_named_anchor:
+                        _px0 = float(pair.get('x_left', 0) or 0)
+                        _px1 = float(pair.get('x_right', 0) or 0)
+                        _py0 = float(pair.get('y_bot', 0) or 0)
+                        _py1 = float(pair.get('y_top', 0) or 0)
+                        _pw = max(1.0, _px1 - _px0)
+                        _ph = max(1.0, _py1 - _py0)
+                        _copia = False
+                        for _ex in units_by_bbox.values():
+                            if str(_ex.get('side') or '').upper() == side:
+                                continue
+                            _eb = _ex.get('bbox') or {}
+                            _ex0 = float(_eb.get('x_left', 0) or 0)
+                            _ex1 = float(_eb.get('x_right', 0) or 0)
+                            _ey0 = float(_eb.get('y_bot', 0) or 0)
+                            _ey1 = float(_eb.get('y_top', 0) or 0)
+                            _ox = min(_px1, _ex1) - max(_px0, _ex0)
+                            _oy = min(_py1, _ey1) - max(_py0, _ey0)
+                            _ew = max(1.0, _ex1 - _ex0)
+                            _eh = max(1.0, _ey1 - _ey0)
+                            if (_ox > 0.80 * min(_pw, _ew)
+                                    and _oy > 0.50 * min(_ph, _eh)):
+                                _copia = True
+                                break
+                        if _copia:
+                            continue
+
                     pair = _refine_body_top(pair) or pair
                     h_total, ls_u, li_u = _face_heights(pair)
                     # Marco/tampa acima do topo de corpo (ex. 124−102.4 = 21.6)
@@ -3028,6 +3061,44 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             if _mortas:
                 units[:] = [u for u in units
                             if not any(u is _m for _m in _mortas)]
+
+            # Mesmo sitio, lados diferentes: fica a rotulada, cai a copia
+            # sem rotulo (V301 B#7/8/13/14 = A da mesma fileira).
+            _mortas_lado = []
+            for _u in units:
+                if str(_u.get('label') or '').strip():
+                    continue
+                _b = _u.get('bbox') or {}
+                _xl0 = float(_b.get('x_left', 0) or 0)
+                _xr0 = float(_b.get('x_right', 0) or 0)
+                _yb0 = float(_b.get('y_bot', 0) or 0)
+                _yt0 = float(_b.get('y_top', 0) or 0)
+                _s = str(_u.get('side') or '').upper()
+                _w0 = max(1.0, _xr0 - _xl0)
+                _h0 = max(1.0, _yt0 - _yb0)
+                for _v in units:
+                    if _v is _u:
+                        continue
+                    if str(_v.get('side') or '').upper() == _s:
+                        continue
+                    if not str(_v.get('label') or '').strip():
+                        continue
+                    _b2 = _v.get('bbox') or {}
+                    _xl1 = float(_b2.get('x_left', 0) or 0)
+                    _xr1 = float(_b2.get('x_right', 0) or 0)
+                    _yb1 = float(_b2.get('y_bot', 0) or 0)
+                    _yt1 = float(_b2.get('y_top', 0) or 0)
+                    _ox = min(_xr0, _xr1) - max(_xl0, _xl1)
+                    _oy = min(_yt0, _yt1) - max(_yb0, _yb1)
+                    _w1 = max(1.0, _xr1 - _xl1)
+                    _h1 = max(1.0, _yt1 - _yb1)
+                    if (_ox > 0.80 * min(_w0, _w1)
+                            and _oy > 0.50 * min(_h0, _h1)):
+                        _mortas_lado.append(_u)
+                        break
+            if _mortas_lado:
+                units[:] = [u for u in units
+                            if not any(u is _m for _m in _mortas_lado)]
 
             # Altura TOTAL de cada lado: a maior soma corpo+laje entre as
             # unidades que MEDIRAM a propria laje. Serve para separar as duas

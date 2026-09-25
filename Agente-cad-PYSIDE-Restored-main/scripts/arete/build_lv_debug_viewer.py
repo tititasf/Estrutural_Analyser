@@ -58,7 +58,7 @@ DB_PADRAO = 'D:/Agente-cad-PYSIDE/project_data.vision'
 PROJETO = 'dd238e47-1dc6-4f63-a760-4e7ce19a7386'
 VIGAS = ('V301', 'V302', 'V303', 'V304')
 N4_APROVADO = (
-    ARETE / 'relatorios' / 'g2v' / 'lv_13pav_rodada_20260911' / 'n4_AN'
+    ARETE / 'relatorios' / 'g2v' / 'lv_13pav_rodada_20260911' / 'n4_AQ'
 )
 DXF_ESTRUTURAL = (
     'D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes/'
@@ -107,6 +107,7 @@ def _svg(caminho: str, janela=None, largura=11.0, altura=4.2,
             x0, y0, x1, y1 = janela
             ax.set_xlim(x0, x1)
             ax.set_ylim(y0, y1)
+            ax.set_aspect('auto')
         ax.set_axis_off()
         ax.set_facecolor('#0d0d0d')
         for tag in (tags or []):
@@ -244,8 +245,8 @@ def _n4_tag_anchor(unit: dict) -> tuple[float, float, list]:
 
 
 def _n4_height_class(h: float) -> int:
-    """59 = secao 19/55 (corpo ~44 + laje); 124 = secao 19/120 (corpo ~109)."""
-    return 59 if float(h or 0) < 75 else 124
+    """Altura medida arredondada — nao 59/124 fixos."""
+    return int(round(float(h or 0)))
 
 
 def _tags_n4(units: list, destaque: int | None = None) -> list:
@@ -259,12 +260,7 @@ def _tags_n4(units: list, destaque: int | None = None) -> list:
 
 
 def _split_n4_degrau(msp, unit: dict) -> list[dict]:
-    """Parte uma ocorrencia N4 em dois segmentos se houver degrau 59|124.
-
-    No V301 o mesmo rotulo (V301.A, CONT., #n) junta o trecho baixo da
-    secao 19/55 (altura ~59) com o trecho alto da 19/120 (altura ~124).
-    O dono conta cada altura como um segmento.
-    """
+    """Parte uma ocorrencia N4 se as horizontais de Painéis divergirem em Y."""
     ox, yb = unit.get('origin') or (0.0, 0.0)
     ox, yb = float(ox), float(yb)
     end = float(unit.get('body_end_x') or ox)
@@ -295,7 +291,7 @@ def _split_n4_degrau(msp, unit: dict) -> list[dict]:
     if len(ys) < 3:
         return [base]
     y_bot, y_top = ys[0], ys[-1]
-    mids = [y for y in ys[1:-1] if 50.0 <= (y - y_bot) <= 80.0]
+    mids = [y for y in ys[1:-1] if 12.0 <= (y - y_bot) <= h - 12.0]
     if not mids:
         return [base]
 
@@ -324,11 +320,63 @@ def _split_n4_degrau(msp, unit: dict) -> list[dict]:
         return piece
 
     pieces = [
-        _piece(x_t0, x_t1, y_bot, y_top, 124),
-        _piece(x_s0, x_s1, y_mid, y_top, 59),
+        _piece(x_t0, x_t1, y_bot, y_top, int(round(y_top - y_bot))),
+        _piece(x_s0, x_s1, y_mid, y_top, int(round(y_top - y_mid))),
     ]
     pieces.sort(key=lambda u: float(u['origin'][0]))
     return pieces
+
+
+def _n2_recorte_path(viga: str) -> Path | None:
+    conn = sqlite3.connect(f'file:{DB_PADRAO}?mode=ro', uri=True)
+    row = conn.execute(
+        """
+        SELECT recorte_path FROM reverse_eng_recortes
+         WHERE UPPER(elemento_id)=? AND UPPER(classe)='LV'
+         ORDER BY id DESC LIMIT 1
+        """,
+        (str(viga).upper(),),
+    ).fetchone()
+    if not row or not row[0]:
+        return None
+    p = Path(str(row[0]))
+    return p if p.exists() else None
+
+
+def _n2_split_unit(fu: dict) -> list[dict]:
+    """Parte N2 por divergencia de altura e por abertura de viga."""
+    from gerar_lv_dxf_stog import (
+        split_face_unit_for_tags, _face_unit_height_class, _panel_w,
+    )
+    out = []
+    for piece in split_face_unit_for_tags(fu):
+        bb = piece.get('bbox') or {}
+        x0 = float(bb.get('x_left') or 0.0)
+        x1 = float(bb.get('x_right') or x0 + 100.0)
+        y0 = float(bb.get('y_bot') or 0.0)
+        h = float(piece.get('h_body') or 0.0)
+        pans = piece.get('panels') or piece.get('segments') or []
+        ws = [_panel_w(p) for p in pans if _panel_w(p) > 0]
+        hc = _face_unit_height_class(h)
+        lab = str(piece.get('label') or '').strip()
+        out.append({
+            'label': lab, 'side': str(piece.get('side') or '').upper(),
+            'h_class': hc,
+            'origin': (x0, y0), 'body_end_x': x1,
+            'h_body': max(20.0, h) if h else 20.0,
+            'x_band': (x0 - 8.0, x1 + 8.0),
+            'widths': ws,
+        })
+    return out
+
+
+def _n2_units_from_entry(entry: dict | None, side: str) -> list[dict]:
+    out: list[dict] = []
+    for fu in (entry or {}).get('face_units') or []:
+        if str(fu.get('side') or '').upper() != str(side).upper():
+            continue
+        out.extend(_n2_split_unit(fu))
+    return out
 
 
 def _n4_units(path: Path, side: str) -> list[dict]:
@@ -496,7 +544,8 @@ JS = """
 var estado = {viga: null, lado: null, seg: null, cam: null};
 
 var CAMADAS_OK = {
-  'SA-Para':1,'SA-Passa':1,'N3-Para':1,'N3-Passa':1,
+  'SA-Para':1,'SA-Passa':1,'N2-Segmentos':1,
+  'N3-Para':1,'N3-Passa':1,
   'N3-Corte':1,'N4-Corte':1,'N4-Segmentos':1
 };
 function _kind(s){
@@ -757,7 +806,8 @@ def montar(dados: list[dict], destino: Path) -> Path:
             'onclick="mostrar(\'%s\')">%s</button>' % (v, v, v))
     partes.append('</div>')
 
-    CAMADAS = ('SA-Para', 'SA-Passa', 'N3-Para', 'N3-Passa',
+    CAMADAS = ('SA-Para', 'SA-Passa', 'N2-Segmentos',
+               'N3-Para', 'N3-Passa',
                'N3-Corte', 'N4-Corte', 'N4-Segmentos')
 
     folhas = []
@@ -777,6 +827,16 @@ def montar(dados: list[dict], destino: Path) -> Path:
             for side in ('A', 'B'):
                 n4_por_lado[side] = _n4_units(n4_a, side)
 
+        from arete.gerar_lv_n4_fichas import _entry_from_live_recorte
+        n2_path = _n2_recorte_path(viga)
+        try:
+            n2_entry = _entry_from_live_recorte(viga)
+        except Exception:
+            n2_entry = {}
+        n2_por_lado = {
+            s: _n2_units_from_entry(n2_entry, s) for s in ('A', 'B')
+        }
+
         segs_por = {
             c: {s: (ct.get(c) or {}).get(s, {}).get('structural_segments') or []
                 for s in ('A', 'B')}
@@ -786,6 +846,8 @@ def montar(dados: list[dict], destino: Path) -> Path:
             (len(segs_por[c][s]) for c in segs_por for s in ('A', 'B')),
             default=0)
         n4_max = max((len(n4_por_lado[s]) for s in ('A', 'B')), default=0)
+        n2_max = max((len(n2_por_lado[s]) for s in ('A', 'B')), default=0)
+        n4_max = max(n4_max, n2_max)
 
         partes.append('<div class="barra n2" data-grupo="%s" hidden>' % viga)
         for cam in CAMADAS:
@@ -946,7 +1008,7 @@ def montar(dados: list[dict], destino: Path) -> Path:
                     _tab_ficha([
                         ('lado', lado),
                         ('segmentos N4 deste lado', len(units)),
-                        ('alturas 59|124', ', '.join(
+                        ('alturas (cm)', ', '.join(
                             str(u.get('h_class')
                                 or _n4_height_class(u.get('h_body') or 0))
                             for u in units)),
@@ -973,13 +1035,17 @@ def montar(dados: list[dict], destino: Path) -> Path:
                         _tab_ficha([
                             ('unidade N4', '%s · %d/%d · %s'
                              % (lado, j, len(units), lab)),
-                            ('altura (59 ou 124)', unit.get('h_class')
+                            ('altura (cm)', unit.get('h_class')
                              or _n4_height_class(unit.get('h_body') or 0)),
                             ('h_body', '%.1f cm' % float(
                                 unit.get('h_body') or 0)),
                             ('larguras', ', '.join(
                                 '%.1f' % w for w in (unit.get('widths') or []))),
                         ]), j, len(units), lado))
+
+            folhas.extend(_n2_lado_painels(
+                viga, lado, n2_path, n2_por_lado[lado],
+                n4_count=len(n4_por_lado[lado])))
 
         extra_corte = _tab_ficha([
             ('secao medida no N2', d['n4'].get('h_section_all')),
@@ -1026,14 +1092,14 @@ def _n4_lado_painels(viga: str, lado: str, n4_a: Path,
         '<div class="rot">N4 validado · lado %s · Todos '
         '<span class="arq">%s</span></div>'
         '<div class="desenho">%s</div>%s'
-        '<div class="legenda">N4 recem revisado (n4_AN), lado %s '
-        '(%d segmentos). Painel 59 e painel 124 no mesmo rotulo '
+        '<div class="legenda">N4 fechado (n4_AQ), lado %s '
+        '(%d segmentos). Altura que diverge e abertura de viga '
         'viram dois segmentos.</div>' % (
             lado, _html.escape(n4_nome), _svg_tag(png_todos),
             _tab_ficha([
                 ('lado', lado),
                 ('segmentos N4 deste lado', len(units)),
-                ('alturas 59|124', ', '.join(
+                ('alturas (cm)', ', '.join(
                     str(u.get('h_class')
                         or _n4_height_class(u.get('h_body') or 0))
                     for u in units)),
@@ -1053,20 +1119,179 @@ def _n4_lado_painels(viga: str, lado: str, n4_a: Path,
             '<span class="arq">%s</span></div>'
             '<div class="desenho">%s</div>%s'
             '<div class="legenda">Segmento %d de %d do lado %s '
-            'no DXF N4 recem revisado (n4_AN).'
+            'no DXF N4 fechado (n4_AQ).'
             '</div>' % (
                 lado, _html.escape(lab), _html.escape(n4_nome),
                 _svg_tag(png),
                 _tab_ficha([
                     ('unidade N4', '%s · %d/%d · %s'
                      % (lado, j, len(units), lab)),
-                    ('altura (59 ou 124)', unit.get('h_class')
+                    ('altura (cm)', unit.get('h_class')
                      or _n4_height_class(unit.get('h_body') or 0)),
                     ('h_body', '%.1f cm' % float(unit.get('h_body') or 0)),
                     ('larguras', ', '.join(
                         '%.1f' % w for w in (unit.get('widths') or []))),
                 ]), j, len(units), lado)))
     return out
+
+
+def _n2_lado_painels(viga: str, lado: str, recorte: Path | None,
+                     units: list, n4_count: int = 0) -> list[str]:
+    nome = recorte.name if recorte else '(recorte N2 ausente)'
+    n2n, n4n = len(units), int(n4_count or 0)
+    faltam = max(0, n2n - n4n)
+    extra = max(0, n4n - n2n)
+    if faltam:
+        veredito = 'N4 tem %d segmento(s) a menos que o N2 humano' % faltam
+    elif extra:
+        veredito = 'N4 tem %d segmento(s) a mais que o N2 humano' % extra
+    else:
+        veredito = 'N2 e N4 tem a mesma quantidade neste lado'
+    out = []
+    clip_todos = _union_clips([_n4_clip(u) for u in units])
+    png_todos = (
+        _svg(str(recorte), janela=clip_todos, altura=5.2, tags=_tags_n4(units))
+        if recorte and recorte.exists() and clip_todos else '')
+    out.append(_painel(
+        '%s|%s|Todos|N2-Segmentos' % (viga, lado),
+        '<div class="rot">N2 humano · lado %s · Todos '
+        '<span class="arq">%s</span></div>'
+        '<div class="desenho">%s</div>%s'
+        '<div class="legenda">Recorte STOG que voce desenhou. '
+        'Painel 59 e 124 no mesmo rotulo viram dois segmentos, '
+        'igual no N4. %s.</div>' % (
+            lado, _html.escape(nome), _svg_tag(png_todos),
+            _tab_ficha([
+                ('lado', lado),
+                ('segmentos N2 (humano)', n2n),
+                ('segmentos N4', n4n),
+                ('veredito', veredito),
+                ('alturas (cm)', ', '.join(
+                    str(u.get('h_class')
+                        or _n4_height_class(u.get('h_body') or 0))
+                    for u in units)),
+                ('rotulos', ', '.join(
+                    str(u.get('label') or '') for u in units)),
+                ('arquivo', nome),
+            ]), veredito)))
+    for j, unit in enumerate(units, 1):
+        clip = _n4_clip(unit)
+        png = _svg(
+            str(recorte), janela=clip, altura=4.2,
+            tags=_tags_n4(units, destaque=j)
+        ) if recorte and recorte.exists() else ''
+        lab = str(unit.get('label') or ('%s%d' % (lado, j)))
+        out.append(_painel(
+            '%s|%s|%d|N2-Segmentos' % (viga, lado, j),
+            '<div class="rot">N2 humano · %s · %s '
+            '<span class="arq">%s</span></div>'
+            '<div class="desenho">%s</div>%s'
+            '<div class="legenda">Segmento %d de %d do lado %s '
+            'no recorte N2 humano.'
+            '</div>' % (
+                lado, _html.escape(lab), _html.escape(nome),
+                _svg_tag(png),
+                _tab_ficha([
+                    ('unidade N2', '%s · %d/%d · %s'
+                     % (lado, j, n2n, lab)),
+                    ('altura (cm)', unit.get('h_class')
+                     or _n4_height_class(unit.get('h_body') or 0)),
+                    ('h_body', '%.1f cm' % float(unit.get('h_body') or 0)),
+                    ('larguras', ', '.join(
+                        '%.1f' % w for w in (unit.get('widths') or []))),
+                    ('N4 neste lado', n4n),
+                ]), j, n2n, lado)))
+    return out
+
+
+def patch_n2(html_path: Path) -> Path:
+    """Injeta folhas N2 no HTML existente — sem rerender de SA/N3/N4."""
+    from arete.gerar_lv_n4_fichas import _entry_from_live_recorte
+
+    html = html_path.read_text(encoding='utf-8')
+    if "'N2-Segmentos':1" not in html and '"N2-Segmentos":1' not in html:
+        html = html.replace(
+            "'SA-Passa':1,'N3-Para':1",
+            "'SA-Passa':1,'N2-Segmentos':1,'N3-Para':1",
+        )
+        html = html.replace(
+            '"SA-Passa":1,"N3-Para":1',
+            '"SA-Passa":1,"N2-Segmentos":1,"N3-Para":1',
+        )
+    if 'N2 · Segmentos' not in html:
+        html = re.sub(
+            r'(<button class="aba" data-nivel="2" '
+            r'data-chave="(V30[1-4])\|SA-Passa"[^>]*>SA · Passa</button>\n)',
+            lambda m: m.group(1) + (
+                '<button class="aba" data-nivel="2" '
+                'data-chave="%s|N2-Segmentos" '
+                'onclick="mostrar(\'%s|N2-Segmentos\')">'
+                'N2 · Segmentos</button>\n' % (m.group(2), m.group(2))),
+            html)
+
+    kept = []
+    dropped = 0
+    n2_folha_re = re.compile(
+        r'data-folha="V30[1-4]\|[AB]\|[^"]+\|N2-Segmentos"')
+    for line in html.split('\n'):
+        if n2_folha_re.search(line):
+            dropped += 1
+            continue
+        kept.append(line)
+    html = '\n'.join(kept)
+    print('drop N2 folhas', dropped)
+
+    new_folhas: list[str] = []
+    n2_max: dict[str, int] = {}
+    for viga in VIGAS:
+        recorte = _n2_recorte_path(viga)
+        try:
+            entry = _entry_from_live_recorte(viga)
+        except Exception:
+            entry = {}
+        n4_a = N4_APROVADO / ('LV_preview_%s_A.dxf' % viga)
+        print('N2', viga, recorte.name if recorte else 'AUSENTE')
+        por = {}
+        for lado in ('A', 'B'):
+            units = _n2_units_from_entry(entry, lado)
+            n4n = len(_n4_units(n4_a, lado)) if n4_a.exists() else 0
+            por[lado] = units
+            print(' ', lado, 'N2=', len(units), 'N4=', n4n,
+                  'h=', [u.get('h_class') for u in units])
+            new_folhas.extend(
+                _n2_lado_painels(viga, lado, recorte, units, n4_count=n4n))
+        n2_max[viga] = max((len(por[s]) for s in ('A', 'B')), default=0)
+
+    if '<script>' not in html:
+        raise RuntimeError('HTML sem <script> — nao sei onde inserir N2')
+    html = html.replace('<script>', '\n'.join(new_folhas) + '\n<script>', 1)
+
+    def _botoes_num(viga: str, nmax: int) -> str:
+        return ''.join(
+            '<button class="aba" data-nivel="4" data-chave="%s|%d" '
+            'onclick="mostrar(\'%s|%d\')">%d</button>\n'
+            % (viga, j, viga, j, j)
+            for j in range(1, nmax + 1))
+
+    for viga, nmax in n2_max.items():
+        existentes = [
+            int(m) for m in re.findall(
+                r'data-chave="%s\|(\d+)"' % viga, html)
+        ]
+        nmax = max([nmax] + existentes)
+        html = re.sub(
+            r'<button class="aba" data-nivel="4" data-chave="%s\|\d+"'
+            r'[^>]*>\d+</button>\n?' % viga,
+            '', html)
+        html = re.sub(
+            r'(<button class="aba" data-nivel="4" data-chave="%s\|Todos"'
+            r'[^>]*>Todos</button>\n)' % viga,
+            lambda m, v=viga, n=nmax: m.group(1) + _botoes_num(v, n),
+            html, count=1)
+
+    html_path.write_text(html, encoding='utf-8')
+    print('HTML', html_path, 'n2_max', n2_max)
+    return html_path
 
 
 def patch_n4(html_path: Path, n4_dir: Path) -> Path:
@@ -1145,8 +1370,13 @@ def main() -> int:
     ap.add_argument('--out', required=True)
     ap.add_argument('--patch-n4', action='store_true',
                     help='so re-renderiza folhas N4 no HTML existente')
+    ap.add_argument('--patch-n2', action='store_true',
+                    help='injeta folhas N2 (recorte humano) no HTML existente')
     a = ap.parse_args()
     n4 = Path(a.n4)
+    if a.patch_n2:
+        patch_n2(Path(a.out))
+        return 0
     if a.patch_n4:
         patch_n4(Path(a.out), n4)
         return 0
