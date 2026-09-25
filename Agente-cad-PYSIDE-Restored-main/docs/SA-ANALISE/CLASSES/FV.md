@@ -77,7 +77,7 @@ python scripts/arete/g2v_harness.py --classe FV --pav <PAV> --par n1xn2 `
 ```
 
 O N1-V (interpretação N1×N2) usa somente SVGs-fonte e manifesto do harness; o
-modelo/agente CLI dá o veredito. API visual é proibida.
+modelo/agente CLI dá o veredito (agente lê o PNG rasterizado desse SVG (+ `--zoom` vetorial em região densa)). API visual é proibida.
 
 ## 4. Taxonomia de casos e decisão de motor
 

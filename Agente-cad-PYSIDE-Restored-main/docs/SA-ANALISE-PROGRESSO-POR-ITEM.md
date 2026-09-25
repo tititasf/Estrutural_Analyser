@@ -8,7 +8,7 @@ usar N2/N4 como fonte de N1/N3.
 > N2×N4), G3 (UI/persistência), G4 (convergência/interpretação N1), G5 (paridade
 > final N3×N4) e G6 (golden/regressão). A validação visual de G2-V, N1-V/G4-V e
 > G5-V ocorre exclusivamente via `g2v_harness.py --backend cli`: o
-> **modelo/agente CLI** lê os SVGs-fonte e o manifesto vetorial. API visual é proibida.
+> **modelo/agente CLI** lê os PNGs rasterizados dos SVGs-fonte (+ `--zoom` vetorial) e o manifesto. API visual é proibida.
 
 ## Onde o histórico mora
 

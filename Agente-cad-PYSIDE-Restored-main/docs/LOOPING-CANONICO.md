@@ -269,7 +269,7 @@ python scripts/arete/g2v_harness.py \
 
 **Integridade do ciclo:** o microciclo é para descobrir e reverificar uma causa com
 rapidez, nunca para certificar o pavimento. Corrigir a fórmula geral (nunca um caso
-hardcoded), rodar de novo os mesmos itens, ler os SVGs-fonte/HTML e registrar a triagem em
+hardcoded), rodar de novo os mesmos itens, ler a evidência (PNG do SVG-fonte/HTML) e registrar a triagem em
 append-only. Todo toque em extrator compartilhado ou motor exige depois o headless
 completo (`sem --secao/--item`, sempre `--wait`), comparação dos quatro diagnósticos e a
 regressão/gate aplicável antes de fechar ou selar. `--persist-db` no microciclo só pode
@@ -318,7 +318,8 @@ campos nem selo — aponta para DB, ficha, SVG e triagem schema v2.
 Nível 0 — G1 round-trip           dados da ficha sobrevivem N2→N4→N2′
 Nível 1 — G2 canônico             matemática semântica (contagens/valores)  ← MÍNIMO, nunca suficiente
 Nível 2 — G2-V veredito visual    SVGs-fonte lado a lado do recorte N2 (humano) × DXF N4 (robô);
-                                  DOM/SVG preserva texto exato, cotas e geometria vetorial —
+                                  DOM/SVG preserva texto exato, cotas e geometria vetorial;
+                                  agente lê o PNG desses SVGs (+ --zoom) —
                                   REGISTRADO no relatório
 Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N2 (ex.: GRADES)
 ```
@@ -377,7 +378,7 @@ Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N
 | `g2v_harness.py` | **VEREDITO VISUAL obrigatório** de todo gate visual: `--par n2xn4`(G2-V) / `n1xn2`(N1-V) / `n3xn4`(G5-V), `--backend cli` (agente lê a imagem). Ver §1.5 e `VISION-VALIDACAO-CAMINHOS.md` |
 | `revisao_{laj,pil}_n2_n4_html.py` (+ `dxf_to_svg_casos.render(..., highlight_polys=)`) + `servidor_revisao_pil.py --serve` | Painel dinâmico N2×N4 com pan/zoom pra depuração humana do Eixo A, persistência real em `revisoes_humanas.json` via servidor local (LAJ, 27/07) — companheiro do `arete_runner.py`, não substitui `g2v_harness.py` na selagem — ver §"Painel dinâmico" logo acima |
 | `qa_error_review.py` | Triagem humana (abrir/ler checkboxes) |
-| `playwright_loop.py` | Legado de captura raster; não usar para gates. O veredito QA usa SVGs-fonte exportados por `g2v_harness.py --backend cli`. |
+| `playwright_loop.py` | Legado de captura raster; não usar para gates. O veredito QA usa SVGs-fonte exportados por `g2v_harness.py --backend cli` (agente lê o PNG deles). |
 | `triagem_concordancia.py` | Rollup de concordância auto×humano |
 | `gerar_status.py` | STATUS.md gerado (nunca escrever número à mão) |
 | `single_instance.py` | Trava anti-OOM (biblioteca) |

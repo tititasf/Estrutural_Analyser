@@ -115,7 +115,7 @@ robô SCR legado (`_ROBOS_ABAS/Robo_Pilares/`):
   painel nunca deveria ter hatch próprio. Reaproveitamento de hachura de
   painel entre variantes é feature futura, **compreensão pendente** — não
   investigar/cobrar isso ainda em G2-V/G5-V.
-- Consequência prática pro agente QA: ao ler SVG de G2-V/G5-V (N1-V não se
+- Consequência prática pro agente QA: ao ler a evidência (PNG/SVG) de G2-V/G5-V (N1-V não se
   aplica aqui — os cards N1 são geometria bruta do SA, sem ABCD/sarrafo/
   hachura; ver `docs/SA-ANALISE/HISTORICO/PIL.md`, entrada 2026-07-16), se o N4
   não tiver a hachura de vazio que o N3 tem, registrar como achado real
