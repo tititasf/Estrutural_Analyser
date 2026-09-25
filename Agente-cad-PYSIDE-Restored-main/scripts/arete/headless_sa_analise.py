@@ -88,6 +88,9 @@ _FAST_CONTEXT_ENGINE_FILES = (
     'src/core/beam_interpreters/__init__.py',
     'src/core/beam_interpreters/fundo_viga.py',
     'src/core/beam_interpreters/lateral_viga.py',
+    'src/core/beam_interpreters/lateral_viga_cells.py',
+    'src/core/lv_beam_scene.py',
+    'src/core/preficha_segments.py',
     'src/core/beam_interpreters/pilar_viga.py',
     # O fast path reaplica este contrato depois de restaurar o snapshot. Logo
     # ele é dono real do resultado LV e precisa participar da assinatura.
@@ -1241,6 +1244,22 @@ def _run_legacy_analysis(
         FundoVigaInterpreter.repair_area_links(
             b, context_beams=runner.beams_found
         )
+
+    # LV: passada global das QUATRO celulas (A/B x Para/Passa) pelas regras do
+    # guia de laterais — cena medida no DXF (faixa pelo rotulo, pilar pelo
+    # poligono real, vigas que tocam cada face com a secao delas). O fundo so'
+    # entra como referencia de fronteira de secao, nunca como lei.
+    from src.core.beam_interpreters.lateral_viga_cells import apply_lv_cells_all
+    lv_cells_report = apply_lv_cells_all(
+        runner.beams_found, texts, all_geo,
+        runner.pavimento_pillar_report, runner.slabs_found,
+    )
+    runner._lv_cells_report = lv_cells_report
+    print(
+        f"[SA] LV celulas: {len(lv_cells_report) - 1} viga(s) reinterpretada(s); "
+        f"sem cena: {lv_cells_report.get('__sem_cena__')}",
+        flush=True,
+    )
 
     # FV fecha as fichas depois dos campos textuais/LV. Reconciliar agora
     # garante que PIL e o DB consumam B/H e eixo da geometria real da viga.

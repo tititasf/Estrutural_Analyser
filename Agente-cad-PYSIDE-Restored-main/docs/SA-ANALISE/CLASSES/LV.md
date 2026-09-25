@@ -18,6 +18,12 @@ mas nunca autorização para espelhar dado. `BeamTracer` fornece topologia bruta
 FV não pode fornecer dimensão, painel, apoio nem fallback semântico a LV. A presença
 de `_sa_meta.fv_dimension_fallback` é FAIL de isolamento, não conveniência.
 
+**Regra do dono (2026-09-25): FV é referência/comparação para a LV, nunca lei.**
+A segmentação N1 das quatro células sai de `lateral_viga_cells.py` sobre a cena
+medida em `lv_beam_scene.py` (regras do guia G0/G1/G6-G9, Casos 9 e 11). Estado,
+defeitos corrigidos e prova: `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md` §6.1.1.
+Dúvidas abertas: `docs/QUESTIONARIO-LV-SA-2026-09-25.md`.
+
 ## 2. Ficha e matriz de campos N1
 
 A ficha `laterais_viga/` deve separar explicitamente lista PARA/PASSA e face A/B.

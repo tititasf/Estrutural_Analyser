@@ -11714,29 +11714,9 @@ class MainWindow(QMainWindow):
             LateralVigaBPassaInterpreter().interpret(b, classified)
             b['lv_interpreter_contract_version'] = _contract_version
 
-            # Compatibilidade para registros legados sem candidato lateral:
-            # copia somente quando Para ficou vazio e Passa já possuía vínculo.
-            _links_now = b.get('links', {})
-            _para_empty = not any(
-                any(bool(value) for value in _links_now.get(key, {}).values())
-                for key in _links_now
-                if 'comprimento_total' in key and 'viga_' in key
-            )
-            if _para_empty:
-                for key, slots in list(_links_now.items()):
-                    if (
-                        'comp_total_passa' not in key
-                        or 'viga_' not in key
-                        or not any(bool(value) for value in slots.values())
-                    ):
-                        continue
-                    para_key = key.replace(
-                        'comp_total_passa', 'comprimento_total'
-                    )
-                    _links_now[para_key] = {
-                        slot: list(values)
-                        for slot, values in slots.items()
-                    }
+            # (2026-09-25) Removida a "compatibilidade" que copiava Passa -> Para
+            # quando Para ficava vazio: celula LV nunca recebe dado de outra
+            # celula (LV.md §1). Para vazio e' estado honesto, nao lacuna a tapar.
             try:
                 self._populate_lv_segment_ui_fields(b)
             except Exception as _pop_exc:

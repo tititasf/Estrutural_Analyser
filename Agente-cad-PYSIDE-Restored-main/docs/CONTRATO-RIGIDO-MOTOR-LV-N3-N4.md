@@ -691,6 +691,71 @@ C e D aqui sao as faces CURTAS do pilar que a lateral encontra.)
 > volume do pilar recua 4 cm"), que nao e' nenhuma das duas regras, e ignora
 > completamente o encontro entre vigas.
 
+#### 6.1.1 SA/N1 das laterais: as quatro celulas pelas regras do guia (2026-09-25)
+
+**Regra do dono (2026-09-25): o fundo (FV) serve de REFERENCIA e comparacao
+para a lateral, NUNCA de lei.** Consequencias ja' aplicadas:
+
+- `harmonize_lateral_segment_links` (`preficha_segments.py`) NAO reescreve mais
+  a lateral com a borda do fundo. Ele forcava o segmento lateral N = borda do
+  segmento de fundo N (LV virava copia do FV, sujeiras incluidas) e fixava A na
+  borda de y maximo, invertendo A/B em toda viga horizontal (G0 manda A
+  embaixo). Hoje so' mede a divergencia em `beam['_lv_fv_reference_divergence']`.
+- `main.py` deixou de copiar Passa -> Para quando Para ficava vazio.
+
+**O que estava errado, medido no 13_PAV (Obra_TREINO_1, V301-V304):**
+
+| defeito | causa | dono |
+|---|---|---|
+| A/B/Para/Passa identicos | os 4 interpretadores liam UMA lista (`lv_merged_bottom_*`, segmentacao do fundo) | `beam_tracer.py:394` + `lateral_viga.py:144` |
+| A = face de cima | `_edge_from_fundo` e o harmonize usavam y maximo para A | `lateral_viga.py`, `preficha_segments.py` |
+| segmentos sobrepostos (V301 S5/S6, S7/S8, S15/S16) | duas ocorrencias do rotulo consolidadas sem dedup | `consolidate_occurrences` |
+| V303 com 4 de 6 segmentos da V306 (442 cm ao lado) | captura lateral por proximidade | `BeamTracer` |
+| V304 na faixa errada (2422-2441; o DXF so' tem bordas em 2441/2460) | contorno de fundo deslocado uma largura (o "caso V304" do §5c do CLAUDE.md) | `BeamTracer`/FV |
+| P26 (U de 165 cm) cortando a V304 em pedacos de 34 | bbox do pilar no lugar do poligono | `BeamTracer` (obstaculo por bbox) |
+| uma secao por viga (V301 toda 19/55; V302/V304 com 120 vazado) | `lv_dimension_text` / `dim_global` unico | `beam_tracer.py:237`, `main.py _populate_lv_segment_ui_fields` |
+| `nivel = null`, `pillar_openings = []` | nunca calculados | — |
+
+**Implementacao nova (nao altera o schema N1 — so' os vinculos laterais que ja' existem):**
+
+- `src/core/lv_beam_scene.py` — topologia BRUTA medida no DXF: faixa pelo
+  PROPRIO rotulo (rotacao -> orientacao; par de bordas paralelas encostado nele,
+  largura do rotulo `b/h`), extensao seguindo as bordas, pilar pelo POLIGONO
+  real, vigas que tocam cada face (T ou X) com a secao delas no ponto de
+  encontro, zonas de secao pelos rotulos da propria viga (fronteira entre
+  rotulos diferentes usa os divisores do fundo so' como referencia; sem ela,
+  ponto medio, marcado), lajes encostadas em cada face.
+- `src/core/beam_interpreters/lateral_viga_cells.py` — decide por celula:
+  G0 (A=t_lo, B=t_hi, B lido invertido), G6/G9 (Para para nas faces do pilar;
+  o -11 vai como ajuste de ponta e e' aplicado no N3 — o SA desenha de face a
+  face), Passa: o pilar fica INTEIRO num so' segmento, com `pos_inicio`/`pos_fim`
+  do pilar a partir do inicio do segmento e abertura = pilar + 22 (nenhuma
+  fronteira cai dentro de pilar), G7 (incidente menos profunda OU de mesma
+  profundidade -> abertura +8/+4 — na mesma profundidade, de altura inteira —
+  com fronteira na borda FINAL da abertura, §5.2.3; mais profunda -> termina
+  na primeira face), G1 (cada segmento tem UMA secao: a troca de secao abre
+  segmento novo, encostado), Caso 9 (T parte so' a face que recebe a viga),
+  Caso 11 (lajes/nivel por segmento).
+  **Respostas do dono ao questionario (2026-09-25):** Q1 troca de secao abre
+  segmento; Q2 mesma profundidade = abertura (b); Q3 Passa = pilar inteiro num
+  segmento com inicio/fim registrados; Q4 pilar e viga coincidentes = ambos;
+  Q5 -11 so' no N3; Q6 contagem do N4 NAO e' referencia (o humano pode ter
+  errado) — vale o comportamento e a leitura autonoma do SA; Q7 livre.
+  Detalhes do segmento vivem no proprio vinculo (`lv_cell`), porque os campos
+  `viga_{a|b}_seg_N_*` sao por lado+indice e compartilhados entre Para e Passa.
+- Passada global no headless (`apply_lv_cells_all`), depois da passada global
+  do FV. Celula com segmento validado por humano fica congelada.
+
+**Prova (DXF real da VPS, pipeline headless read-only):** V301 com 16
+segmentos por lado (305,5 19/55 | 134,5 19/120 com P42 inteiro | 84,5 |
+318 ...), fronteiras de secao conferidas contra a cadeia de cotas do DXF
+(ex.: 106,5 | 19 | 41,5 junto ao P48) e overlays PNG lidos para V301/V303/V304. PIL (46), FV (76), LAJ (31)
+com hash identico com e sem a passada. Testes: `tests/test_lv_cells_guia.py`.
+
+**Fora desta passada:** V307, V330, VF202 (rotulo diagonal/orientacao mista)
+ficam com a saida antiga e listadas em `__sem_cena__`. Duvidas abertas ao dono:
+`docs/QUESTIONARIO-LV-SA-2026-09-25.md`.
+
 ### N4
 
 `scripts/motor_reverso_lv.py` extrai a ficha N2. Em seguida:
