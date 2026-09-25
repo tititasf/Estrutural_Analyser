@@ -324,10 +324,14 @@ Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N
 ```
 
 > **Quem dá o veredito do Nível 2:** a visão do agente CLI (Claude Code / Codex) lendo
-> os SVGs-fonte e o manifesto vetorial — **única fonte de qualidade comprovada e a ÚNICA
-> permitida hoje** (`g2v_harness.py --backend cli`). Backends de API permanecem proibidos;
-> o harness não contém API nem captura raster. Caminhos explorados e decisões anteriores:
-> `docs/VISION-VALIDACAO-CAMINHOS.md`.
+> a evidência do par — **única fonte de qualidade comprovada e a ÚNICA permitida hoje**
+> (`g2v_harness.py --backend cli`). Backends de API permanecem proibidos; o harness não
+> contém API. **Fonte = SVG canônico da ficha; o agente lê o PNG rasterizado DESSE SVG**
+> (mesma fonte, hash no manifesto — decisão do dono 2026-09-25, eficiência: o SVG como
+> texto custa 30k–300k tokens e não traz as cotas como texto). Região densa:
+> `g2v_harness.py --zoom <svg> x0 y0 x1 y1` re-renderiza a sub-região pelo viewBox
+> (vetorial, nítido). Raster à parte do DXF continua vetado. Caminhos explorados e
+> decisões anteriores: `docs/VISION-VALIDACAO-CAMINHOS.md`.
 
 **Regras operacionais (valem para TODA classe, TODA rodada):**
 1. **Selar golden exige Nível 2 no mínimo:** G2 PASS torna o item *candidato*;

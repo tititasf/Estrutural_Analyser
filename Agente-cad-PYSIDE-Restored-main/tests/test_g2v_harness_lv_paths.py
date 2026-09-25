@@ -42,7 +42,7 @@ def test_cli_pass_requires_every_visual_check(tmp_path: Path):
     verdict["veredito"] = "PASS"
 
     assert verdict["svgs_para_ler"] == [str(svg)]
-    assert "png_para_ler" not in verdict
+    assert "pngs_para_ler" not in verdict  # só emitido quando o harness gerou PNG
     assert "inventario_minimo_extraido" in verdict["checklist_visual"]
 
     valid, reason = g2v_harness.validar_veredito_cli(verdict)
@@ -68,6 +68,38 @@ def test_cli_pass_requires_every_visual_check(tmp_path: Path):
     valid, reason = g2v_harness.validar_veredito_cli(verdict)
     assert valid, reason
     assert reason == ""
+
+
+def test_cli_pass_accepts_png_read_from_canonical_svg(tmp_path: Path):
+    svg = tmp_path / "LV_V301_n2xn4_01_N2.svg"
+    png = svg.with_suffix(".png")
+    inv = tmp_path / "trace.json"
+    for path in (svg, png, inv):
+        path.write_text("{}", encoding="utf-8")
+    verdict = g2v_harness.avaliar_cli(
+        [svg], "prompt", tmp_path / "manifest.json", png_paths=[png]
+    )
+    assert verdict["pngs_para_ler"] == [str(png)]
+    verdict.update({
+        "veredito": "PASS", "confianca": 0.9, "inventario": {"path": str(inv)},
+        "checklist_visual": {key: True for key in verdict["checklist_visual"]},
+    })
+
+    verdict["pngs_lidos"] = [str(tmp_path / "outro.png")]
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+    assert not valid
+    assert "não intersecta" in reason
+
+    verdict["pngs_lidos"] = [str(png)]
+    valid, reason = g2v_harness.validar_veredito_cli(verdict)
+    assert valid, reason
+
+
+def test_zoom_svg_rejects_invalid_region(tmp_path: Path):
+    import pytest
+
+    with pytest.raises(ValueError):
+        g2v_harness.zoom_svg(tmp_path / "x.svg", 0.5, 0, 0.4, 1)
 
 
 def test_cli_pass_blocked_without_inventory_file(tmp_path: Path):

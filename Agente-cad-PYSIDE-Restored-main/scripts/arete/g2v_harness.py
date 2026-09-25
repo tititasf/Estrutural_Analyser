@@ -17,7 +17,8 @@ Cobre os 3 pares visuais do Arete (--par):
   n1xn2            N1-V   : N1 (Structural Analyzer no DXF limpo) × N2 (gabarito) — interpretação SA
   n3xn4            G5-V   : N3 (robô via conversão N1) × N4 (já validado) — vazamento/conversão
 A ficha HTML granular contém os cards N1/N2/N3/N4 em SVG. O harness extrai somente
-os SVGs do par solicitado; muda só o foco do prompt.
+os SVGs do par solicitado e rasteriza cada um em PNG (mesma fonte); muda só o foco
+do prompt.
 
 Foco POR CLASSE (CLASSE_FOCUS) — injetado no prompt, aumenta precisão e coerência:
   PIL  VISÃO CIMA + ABCD (faces A/B longas, C/D curtas; subtipo ret/L/U/T→EFGH);
@@ -31,22 +32,28 @@ Fonte visual — docs/QA-VISAO-EVIDENCIA-CANONICA.md (dual-mode):
   SVG obrigatório no HTML com --persist-db / app / portal web (zoom humano).
   Headless sem persist: pode ser só imagem (dinâmico).
   N2 = recorte DXF full layers (não plot LINE-only).
-  html  extrai SVGs da ficha; agente deve rasterizar/PNG vision antes do PASS.
+  html  extrai SVGs da ficha e rasteriza cada SVG em PNG (lado maior PNG_LADO_MAIOR).
+        O PNG sai do MESMO SVG canônico (hash no manifesto) — nunca de um raster à
+        parte do DXF. Agente lê o PNG (barato); SVG fica como fonte/prova e para zoom.
+  zoom  --zoom SVG x0 y0 x1 y1 re-renderiza uma sub-região do SVG pelo viewBox
+        (vetorial, nítido) — para cota pequena, sarrafo, canto. Não amplia pixel.
 O item é sempre resolvido pelo par canônico (get_recorte_path/get_real_n4_path) —
 zero contaminação por vizinho.
 
 Backend de veredito (--backend), plugável, mesmo schema de saída:
-  cli    emit-only: gera SVGs + manifesto + stub de veredito vazio para o agente CLI
-          ler os vetores e preencher o loop. Não existe backend de API neste harness.
+  cli    emit-only: gera SVGs + PNGs + manifesto + stub de veredito vazio para o agente
+          CLI ler e preencher o loop. Não existe backend de API neste harness.
 
 Uso:
-    # via agente CLI: gera SVGs + manifesto, o agente lê e preenche
+    # via agente CLI: gera SVGs + PNGs + manifesto, o agente lê os PNGs e preenche
     python g2v_harness.py --classe LAJ --pav 13_PAV --n 5 --backend cli
     python g2v_harness.py --classe PIL --par n1xn2 --item P1 P5 --backend cli
     python g2v_harness.py --classe FV --item V301 --backend cli
+    # zoom vetorial de uma região (frações 0–1 do card: x0 y0 x1 y1)
+    python g2v_harness.py --zoom relatorios/g2v/<ts>/LV_V301_n2xn4_02_N4.svg 0.5 0 1 0.5
 
-Saída: SVGs + manifesto + JSON em scripts/arete/relatorios/g2v/{timestamp}/. Formato
-pronto para o "veredito visual REGISTRADO" que a doutrina exige.
+Saída: SVGs + PNGs + manifesto + JSON em scripts/arete/relatorios/g2v/{timestamp}/.
+Formato pronto para o "veredito visual REGISTRADO" que a doutrina exige.
 """
 
 from __future__ import annotations
@@ -239,9 +246,17 @@ sobreposição, esquadro e gestalt).
 
 {classe_focus}
 
-Os SVGs vêm em cartões vetoriais: [N1] contexto do Structural Analyzer | [N2] recorte
-humano | [N3] robô via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO
-acima; os outros cards são contexto. Leia cada SVG indicado no manifesto.
+Os cards são: [N1] contexto do Structural Analyzer | [N2] recorte humano | [N3] robô
+via conversão N1 | [N4] robô via ficha N2. Compare o par do ALVO acima; os outros
+cards são contexto.
+
+Como ler a evidência: cada card vem em PNG (pngs_para_ler), rasterizado do SVG
+canônico da ficha (svgs_para_ler, mesma fonte, hash no manifesto). Leia os PNGs com
+a visão. Em região densa (cota pequena, sarrafo, canto, sobreposição), gere um zoom
+vetorial com `g2v_harness.py --zoom <svg> x0 y0 x1 y1` (frações 0–1 do card) e leia o
+PNG gerado — não amplie pixels. O texto do SVG não traz as cotas (são curvas); use-o
+só para buscar um atributo pontual, sem ler o arquivo inteiro. Registre em
+pngs_lidos (e svgs_lidos, se consultou) o que foi realmente lido.
 
 Regra de conteúdo: julgue MESMO CONTEÚDO SEMÂNTICO, não traço idêntico. O robô desenha
 no estilo-padrão SCR; não penalize diferença de estilo. Confira contagem e tamanho
@@ -260,9 +275,8 @@ painel, HLAZ e hachuras são independentes. Acertar somente comprimento×largura
 bbox nunca basta. Qualquer campo falso/não verificável, nota humana ainda visível,
 contaminação ou fonte desatualizada proíbe PASS.
 
-VISÃO CANÓNICA (docs/QA-VISAO-EVIDENCIA-CANONICA.md):
-agente: ler PNG full-render (camadas + cotas + hatch). Humano/web: SVG.
-Extract LINE-only NÃO é N2 do CE. Validação rasa = ruído.
+VISÃO CANÓNICA (docs/QA-VISAO-EVIDENCIA-CANONICA.md): conteúdo full-render (camadas +
+cotas + hatch). Extract LINE-only NÃO é N2 do CE. Validação rasa = ruído.
 
 INVENTÁRIO MÍNIMO (obrigatório — ver docs/QA-INVENTARIO-MINIMO-VALIDACAO-VISUAL.md):
 antes do veredito, extrair e anexar rastreio linha/cota/texto (não só contagem).
@@ -310,16 +324,21 @@ def build_prompt(par: str, classe: str = "") -> str:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
-# 3. Backend visual — SVG fonte, sem raster e sem API
+# 3. Backend visual — SVG fonte + PNG derivado dele, sem API
 # ═════════════════════════════════════════════════════════════════════════════
 
-def avaliar_cli(svg_paths: list[Path], prompt: str, manifesto_svg: Path, classe: str = "") -> dict:
-    """Emite a evidência SVG vetorial para leitura do agente CLI.
+# Lado maior do PNG. Desenho técnico ganha com resolução; região densa usa --zoom.
+PNG_LADO_MAIOR = 2560
 
-    SVG é a fonte de verdade visual: mantém texto, cotas, camadas e geometria
-    selecionável. O harness não materializa PNG e não chama nenhuma API visual.
+
+def avaliar_cli(svg_paths: list[Path], prompt: str, manifesto_svg: Path, classe: str = "",
+                png_paths: list[Path] | None = None) -> dict:
+    """Emite a evidência para leitura do agente CLI.
+
+    SVG é a fonte de verdade visual; o PNG é o mesmo SVG rasterizado, para a visão
+    do agente ler barato. O harness não chama nenhuma API visual.
     """
-    return {
+    stub = {
         "_backend": "cli",
         "aguardando_agente": True,
         "svgs_para_ler": [str(path) for path in svg_paths],
@@ -327,10 +346,13 @@ def avaliar_cli(svg_paths: list[Path], prompt: str, manifesto_svg: Path, classe:
         "prompt": prompt,
         "veredito": None, "confianca": None, "achados": [], "resumo": "",
         "checklist_visual": checklist_visual_defaults(classe),
-        "_instrucao": "Agente CLI: leia todos os svgs_para_ler e o manifesto_svg, aplique o prompt e preencha "
-                      "checklist_visual/veredito/confianca/achados/resumo. PASS com "
-                      "qualquer checklist diferente de true é inválido.",
+        "_instrucao": "Agente CLI: leia os pngs_para_ler (ou os svgs_para_ler) e o manifesto_svg, "
+                      "aplique o prompt e preencha checklist_visual/veredito/confianca/achados/resumo. "
+                      "Região densa: --zoom. PASS com qualquer checklist diferente de true é inválido.",
     }
+    if png_paths:
+        stub["pngs_para_ler"] = [str(path) for path in png_paths]
+    return stub
 BACKENDS = {"cli": avaliar_cli}
 
 
@@ -392,9 +414,81 @@ def resolver_html_ficha(
     return None
 
 
+_JS_AJUSTAR_SVG = """([lado, sub]) => {
+  const s = document.querySelector('svg');
+  const vb = s.viewBox && s.viewBox.baseVal;
+  let x = 0, y = 0, w, h;
+  if (vb && vb.width) { x = vb.x; y = vb.y; w = vb.width; h = vb.height; }
+  else { const b = s.getBBox(); w = b.width; h = b.height; }
+  if (sub) {
+    const [fx0, fy0, fx1, fy1] = sub;
+    x += fx0 * w; y += fy0 * h; w *= (fx1 - fx0); h *= (fy1 - fy0);
+  }
+  s.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+  const k = lado / Math.max(w, h);
+  const W = Math.max(1, Math.round(w * k)), H = Math.max(1, Math.round(h * k));
+  s.setAttribute('width', W); s.setAttribute('height', H);
+  s.style.cssText = 'display:block';
+  return [W, H];
+}"""
+
+
+def _render_svg_png(page, svg_path: Path, png_path: Path, lado_maior: int,
+                    sub: list[float] | None = None) -> None:
+    """Rasteriza um SVG (ou uma sub-região dele, pelo viewBox) em PNG nítido."""
+    svg_text = svg_path.read_text(encoding="utf-8")
+    svg_text = svg_text[svg_text.find("<svg"):]
+    page.set_content(f"<html><body style='margin:0;background:#fff'>{svg_text}</body></html>")
+    w, h = page.evaluate(_JS_AJUSTAR_SVG, [lado_maior, sub])
+    page.set_viewport_size({"width": w, "height": h})
+    page.locator("svg").first.screenshot(path=str(png_path))
+
+
+def rasterizar_svgs(svg_paths: list[Path],
+                    lado_maior: int = PNG_LADO_MAIOR) -> list[Path | None]:
+    """PNG ao lado de cada SVG (mesmo stem). Falha num card não derruba os outros."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        return [None] * len(svg_paths)
+    pngs: list[Path | None] = []
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True)
+        page = browser.new_page()
+        try:
+            for svg in svg_paths:
+                png = svg.with_suffix(".png")
+                try:
+                    _render_svg_png(page, svg, png, lado_maior)
+                    pngs.append(png)
+                except Exception as exc:
+                    print(f"  [WARN] PNG não gerado para {svg.name}: {exc}")
+                    pngs.append(None)
+        finally:
+            browser.close()
+    return pngs
+
+
+def zoom_svg(svg_path: Path, x0: float, y0: float, x1: float, y1: float,
+             lado_maior: int = PNG_LADO_MAIOR) -> Path:
+    """Re-renderiza a região [x0,x1]×[y0,y1] (frações do card) do SVG em PNG."""
+    if not (0 <= x0 < x1 <= 1 and 0 <= y0 < y1 <= 1):
+        raise ValueError("região inválida: use frações 0 <= x0 < x1 <= 1 e 0 <= y0 < y1 <= 1")
+    from playwright.sync_api import sync_playwright
+    tag = f"{x0:g}_{y0:g}_{x1:g}_{y1:g}".replace(".", "p")
+    png = svg_path.with_name(f"{svg_path.stem}_zoom_{tag}.png")
+    with sync_playwright() as pw:
+        browser = pw.chromium.launch(headless=True)
+        try:
+            _render_svg_png(browser.new_page(), svg_path, png, lado_maior, [x0, y0, x1, y1])
+        finally:
+            browser.close()
+    return png
+
+
 def export_evidence_svgs(html_path: Path, out_dir: Path, stem: str,
                          par: str = "n2xn4") -> tuple[list[Path], Path] | None:
-    """Extrai SVGs já presentes na ficha, sem rasterizar ou alterar a ficha fonte."""
+    """Extrai SVGs já presentes na ficha (sem alterar a ficha fonte) e gera o PNG de cada um."""
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -452,6 +546,10 @@ def export_evidence_svgs(html_path: Path, out_dir: Path, stem: str,
         })
     if not exported:
         return None
+    for card, png in zip(manifest_cards, rasterizar_svgs(exported)):
+        if png is not None:
+            card["png"] = str(png)
+            card["png_sha256"] = hashlib.sha256(png.read_bytes()).hexdigest()
     manifest = out_dir / f"{stem}_svg_manifest.json"
     manifest.write_text(json.dumps({
         "format": "svg-evidence-v1", "pair": par, "source_html": str(html_path),
@@ -496,7 +594,8 @@ def validar_veredito_cli(veredito: dict) -> tuple[bool, str]:
     """Veto mecânico FAIL-closed: PASS exige checklist, confiança, gate0, leitura e inventário.
 
     Portão 0 (gate0_geometry): se presente e status != PASS, proíbe PASS visual.
-    Portão 1: checklist todo True + confianca >= PASS_MIN_CONFIANCA + svgs_lidos.
+    Portão 1: checklist todo True + confianca >= PASS_MIN_CONFIANCA + evidência lida
+    (pngs_lidos ou svgs_lidos intersectando o que o harness emitiu).
     Portão inventário: path de rastreio linha/cota/texto (proíbe PASS por contagem).
     """
     verdict = str(veredito.get("veredito") or "").upper()
@@ -524,11 +623,13 @@ def validar_veredito_cli(veredito: dict) -> tuple[bool, str]:
                 )
             if checklist.get("gate0_geometria_ok") is not True:
                 return False, "PASS inválido; checklist.gate0_geometria_ok deve ser true"
-        para_ler = list(veredito.get("svgs_para_ler") or [])
-        lidos = list(veredito.get("svgs_lidos") or [])
+        para_ler = list(veredito.get("svgs_para_ler") or []) + list(
+            veredito.get("pngs_para_ler") or [])
+        lidos = list(veredito.get("svgs_lidos") or []) + list(
+            veredito.get("pngs_lidos") or [])
         if para_ler:
             if not lidos:
-                return False, "PASS inválido; preencha svgs_lidos com paths realmente lidos"
+                return False, "PASS inválido; preencha pngs_lidos/svgs_lidos com paths realmente lidos"
             if checklist.get("svgs_lidos_registrados") is not True:
                 return False, "PASS inválido; checklist.svgs_lidos_registrados deve ser true"
             lidos_norm = {str(Path(p)) for p in lidos}
@@ -536,7 +637,7 @@ def validar_veredito_cli(veredito: dict) -> tuple[bool, str]:
             if not (lidos_norm & para_norm) and not (
                 set(map(str, lidos)) & set(map(str, para_ler))
             ):
-                return False, "PASS inválido; svgs_lidos não intersecta svgs_para_ler"
+                return False, "PASS inválido; evidência lida não intersecta a emitida (pngs/svgs_para_ler)"
         # Inventário mínimo (docs/QA-INVENTARIO-MINIMO-VALIDACAO-VISUAL.md)
         if "inventario_minimo_extraido" in checklist:
             if checklist.get("inventario_minimo_extraido") is not True:
@@ -814,8 +915,8 @@ def avaliar_item(row: dict, backends: list[str], out_dir: Path,
 
     if fonte_imagem != "html":
         resultado["erro"] = (
-            "O gate visual é SVG-only: --fonte-imagem dxf não é aceito porque "
-            "renderiza raster. Gere a ficha HTML/SVG canônica do item."
+            "O gate visual parte do SVG canônico da ficha: --fonte-imagem dxf não é aceito "
+            "porque seria um raster à parte do DXF. Gere a ficha HTML/SVG canônica do item."
         )
         return resultado
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -832,14 +933,16 @@ def avaliar_item(row: dict, backends: list[str], out_dir: Path,
         resultado["erro"] = "Ficha não contém SVGs vetoriais para o par solicitado."
         return resultado
     svg_paths, manifest_path = evidence
+    png_paths = [p.with_suffix(".png") for p in svg_paths if p.with_suffix(".png").is_file()]
     resultado.update({
         "fonte_imagem": "html_svg_vetorial", "html_path": str(html_path),
         "svg_paths": [str(path) for path in svg_paths],
+        "png_paths": [str(path) for path in png_paths],
         "svg_manifest_path": str(manifest_path),
     })
 
     for backend in backends:
-        v = BACKENDS[backend](svg_paths, prompt, manifest_path, classe)
+        v = BACKENDS[backend](svg_paths, prompt, manifest_path, classe, png_paths=png_paths)
         if resultado.get("gate0"):
             v["gate0"] = resultado["gate0"]
             v["_instrucao"] = (
@@ -847,7 +950,7 @@ def avaliar_item(row: dict, backends: list[str], out_dir: Path,
                 + " GATE0 (geometria): status="
                 + str(resultado["gate0"].get("status"))
                 + " — PASS visual PROIBIDO se gate0 != PASS. "
-                "Preencha svgs_lidos e checklist (incl. gate0_geometria_ok)."
+                "Preencha pngs_lidos/svgs_lidos e checklist (incl. gate0_geometria_ok)."
             )
         resultado["vereditos"][backend] = v
 
@@ -872,10 +975,31 @@ def _resolver_itens(classe: str, pav: str, itens: list[str] | None, n: int | Non
     return all_rows[:n] if n else all_rows
 
 
+def _main_zoom(argv: list[str]) -> int:
+    parser = argparse.ArgumentParser(description="Zoom vetorial de um SVG de evidência do harness")
+    parser.add_argument("--zoom", nargs=5, required=True, metavar=("SVG", "X0", "Y0", "X1", "Y1"),
+                        help="SVG e região em frações 0–1 do card (x0 y0 x1 y1, y para baixo)")
+    parser.add_argument("--lado", type=int, default=PNG_LADO_MAIOR, help="lado maior do PNG em px")
+    args = parser.parse_args(argv)
+    svg = Path(args.zoom[0])
+    if not svg.is_file():
+        print(f"[ERRO] SVG não encontrado: {svg}")
+        return 1
+    try:
+        png = zoom_svg(svg, *map(float, args.zoom[1:]), lado_maior=args.lado)
+    except ValueError as exc:
+        print(f"[ERRO] {exc}")
+        return 2
+    print(png)
+    return 0
+
+
 def main():
+    if "--zoom" in sys.argv[1:]:
+        return _main_zoom(sys.argv[1:])
     parser = argparse.ArgumentParser(
         description="Harness de veredito VISUAL SVG do Arete (G2-V/N1-V/G5-V); "
-                    "default cli = agente lê SVGs vetoriais")
+                    "default cli = agente lê PNGs do SVG canônico")
     parser.add_argument("--classe", required=True, choices=CLASSES)
     parser.add_argument("--pav", default=PAV_13)
     parser.add_argument("--par", default="n2xn4", choices=list(PAR_FOCUS.keys()),
@@ -884,9 +1008,9 @@ def main():
     parser.add_argument("--item", nargs="+", default=None, help="elemento_id específico(s), ex: V13 V16")
     parser.add_argument("--n", type=int, default=None, help="Avaliar os N primeiros itens da classe/pav")
     parser.add_argument("--backend", nargs="+", default=["cli"], choices=["cli"],
-                        help="cli (único): emit-only para o agente ler SVGs vetoriais.")
+                        help="cli (único): emit-only: SVG canônico + PNG para o agente ler.")
     parser.add_argument("--fonte-imagem", default="html", choices=["html"],
-                        help="html = extrai SVGs vetoriais da ficha granular (única fonte aceita)")
+                        help="html = extrai SVGs da ficha granular e rasteriza em PNG (única fonte aceita)")
     parser.add_argument(
         "--lista-lv",
         default="passa",
@@ -934,8 +1058,9 @@ def main():
         else:
             for backend, v in r["vereditos"].items():
                 if v.get("aguardando_agente"):
-                    print(f"  {r['classe']} {r['elemento_id']} [cli]: SVGs prontos -> "
-                          f"{', '.join(v['svgs_para_ler'])} (agente lê e preenche)")
+                    pngs = v.get("pngs_para_ler") or v["svgs_para_ler"]
+                    print(f"  {r['classe']} {r['elemento_id']} [cli]: evidência pronta -> "
+                          f"{', '.join(pngs)} (agente lê e preenche)")
                 else:
                     print(f"  {r['classe']} {r['elemento_id']} [{backend}]: "
                           f"{v.get('veredito','?')} (confiança={v.get('confianca','?')}, "
@@ -950,11 +1075,11 @@ def main():
         encoding="utf-8",
     )
     print(f"\nRelatório: {relatorio_path}")
-    print(f"SVGs:      {out_dir}")
+    print(f"Evidência: {out_dir}")
     if "cli" in args.backend:
-        print("\n>>> Backend CLI: os SVGs vetoriais estão prontos. O AGENTE (Claude Code/Codex) "
-              "deve LER cada SVG e preencher veredito/achados no relatorio.json. "
-              "Sem esse passo, NÃO há veredito visual — não selar.")
+        print("\n>>> Backend CLI: PNGs (do SVG canônico) prontos. O AGENTE (Claude Code/Codex) "
+              "deve LER cada PNG (zoom vetorial: --zoom) e preencher veredito/achados no "
+              "relatorio.json. Sem esse passo, NÃO há veredito visual — não selar.")
     return 0
 
 

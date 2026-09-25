@@ -65,6 +65,7 @@ def build_verdict_payload(
     agent: str,
     svgs: list[str],
     manifesto: str | None,
+    pngs: list[str] | None = None,
 ) -> dict:
     payload = {
         "_backend": "cli",
@@ -72,6 +73,7 @@ def build_verdict_payload(
         "recorded_at": utc_now(),
         "recorded_by": agent,
         "svgs_lidos": list(svgs),
+        "pngs_lidos": list(pngs or []),
         "manifesto_svg": manifesto,
         "veredito": veredito.upper(),
         "confianca": confianca,
@@ -105,6 +107,8 @@ def record_item(
     # preserve svgs list from stub if present
     if not payload.get("svgs_lidos") and existing.get("svgs_para_ler"):
         payload["svgs_lidos"] = list(existing["svgs_para_ler"])
+    if not payload.get("pngs_lidos") and existing.get("pngs_para_ler"):
+        payload["pngs_lidos"] = list(existing["pngs_para_ler"])
     if not payload.get("manifesto_svg"):
         payload["manifesto_svg"] = existing.get("manifesto_svg") or row.get("svg_manifest_path")
     vereditos[backend] = payload
@@ -124,6 +128,7 @@ def record_item(
         "confianca": payload.get("confianca"),
         "recorded_at": payload.get("recorded_at"),
         "svg_paths": row.get("svg_paths") or payload.get("svgs_lidos") or [],
+        "png_paths": row.get("png_paths") or payload.get("pngs_lidos") or [],
         "svg_manifest_path": row.get("svg_manifest_path"),
         "html_path": row.get("html_path"),
         "payload": payload,
@@ -145,8 +150,9 @@ def record_item(
             f"- Pacote: `{out.resolve()}`",
             f"- Resumo: {payload.get('resumo')}",
             "",
-            "## SVGs lidos",
+            "## Evidência lida (PNG / SVG)",
             "",
+            *[f"- `{p}`" for p in (pack.get("png_paths") or [])[:40]],
             *[f"- `{p}`" for p in (pack.get("svg_paths") or [])[:40]],
             "",
             pack["anti_superselo"],
@@ -207,6 +213,7 @@ def main() -> int:
         agent=agent,
         svgs=list(stub.get("svgs_para_ler") or row.get("svg_paths") or []),
         manifesto=stub.get("manifesto_svg") or row.get("svg_manifest_path"),
+        pngs=list(stub.get("pngs_para_ler") or row.get("png_paths") or []),
     )
     result = record_item(
         args.relatorio.resolve(),

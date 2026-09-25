@@ -78,7 +78,7 @@ headless_sa_analise.py ... --secao ... --item ... --persist-db --wait
 |------------|--------------------|----------|
 | Agente CLI | PNG render full (N2×N4 ou par do gate) + manifesto | `Read` nos PNG |
 | Humano / harness HTML | SVG da ficha ou DXF→SVG | browser / DOM |
-| Harness `g2v_harness --backend cli` | continua a exportar SVG da ficha; **agente deve rasterizar ou usar pack PNG vision** antes do veredito | não declarar PASS só “olhei o path do SVG” sem pixels |
+| Harness `g2v_harness --backend cli` | exporta o SVG da ficha **e** o PNG rasterizado desse mesmo SVG (`pngs_para_ler`, hash no manifesto; 2026-09-25) | agente `Read` nos PNG; região densa com `--zoom <svg> x0 y0 x1 y1` (viewBox, vetorial); registrar `pngs_lidos` |
 
 Ordem FAIL-closed (todas as classes):
 
