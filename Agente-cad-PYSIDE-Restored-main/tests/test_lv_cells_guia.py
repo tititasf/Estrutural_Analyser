@@ -184,3 +184,34 @@ def test_pillar_marked_ignore_in_beams_by_preinterpretation_is_not_solid():
                      "points": [(400, 0), (450, 0), (450, 19), (400, 19), (400, 0)]}}
     v1 = build_scenes([{"name": "V1"}], texts, lines, report)["V1"]
     assert v1.pillars["A"] == [] and len(segment_cell(v1, "A", "para")) == 1
+
+
+def _tick(x, y):
+    return (x - 3.55, y - 3.55, x + 3.55, y + 3.55)
+
+
+def test_dimension_chain_is_recognized_by_geometry_not_layer():
+    from src.core.lv_beam_scene import split_dimension_lines
+    chain = [(0.0, -80.0, 305.5, -80.0), (305.5, -80.0, 405.5, -80.0)]
+    ticks = [_tick(0.0, -80.0), _tick(305.5, -80.0), _tick(405.5, -80.0)]
+    edge = (0.0, 0.0, 405.5, 0.0)
+    texts = [{"text": "305.5", "pos": (150.0, -77.0)}]  # o "100" nao tem texto: vem pela cadeia
+    structural, dimension = split_dimension_lines(chain + ticks + [edge], texts)
+    assert set(dimension) == set(chain)
+    assert edge in structural
+
+
+def test_edge_touched_by_a_tick_is_not_a_dimension():
+    """Cota vertical termina NA face: a borda recebe tique e continua borda."""
+    from src.core.lv_beam_scene import split_dimension_lines
+    edge = (0.0, 19.0, 38.5, 19.0)
+    structural, dimension = split_dimension_lines([edge, _tick(10.0, 19.0)], [])
+    assert edge in structural and not dimension
+
+
+def test_segment_over_dimension_line_is_flagged():
+    scene = _scene()
+    scene.face_coverage = {"A": [[0.0, 1000.0]], "B": [[0.0, 1000.0]]}
+    scene.dimension_coverage = {"A": [[0.0, 300.0]], "B": []}
+    assert "sobre_linha_de_cota" in segment_cell(scene, "A", "passa")[0].flags
+    assert "sobre_linha_de_cota" not in segment_cell(scene, "B", "passa")[0].flags

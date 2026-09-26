@@ -47,6 +47,7 @@ MIN_SEGMENT = 1.0
 # Invariante do dono (2026-09-25): o destaque tem de estar SOBRE linha real do
 # estrutural. Passa por pilar/abertura interrompe a borda, por isso nao se exige 100%.
 LINE_COVERAGE_MIN = 0.5
+DIMENSION_OVERLAP_MAX = 0.05
 
 
 @dataclass
@@ -67,6 +68,7 @@ class CellSegment:
     adjustment_start: float = 0.0
     adjustment_end: float = 0.0
     line_coverage: float = 0.0
+    dimension_overlap: float = 0.0
     flags: list[str] = field(default_factory=list)
 
 
@@ -223,6 +225,10 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         seg.line_coverage = round(scene.line_coverage(side, a0, a1), 3)
         if seg.line_coverage < LINE_COVERAGE_MIN:
             seg.flags.append("fora_da_linha_estrutural")
+        # Antialucinacao (dono 2026-09-26): segmento sobre LINHA DE COTA e' erro.
+        seg.dimension_overlap = round(scene.dimension_overlap(side, a0, a1), 3)
+        if seg.dimension_overlap > DIMENSION_OVERLAP_MAX:
+            seg.flags.append("sobre_linha_de_cota")
         if not zones:
             seg.flags.append("G1_secao_nao_lida")
         if len({z["dim"] for z in zones}) > 1:
@@ -386,6 +392,7 @@ def _link_entry(scene: LvScene, side: str, behavior: str, seg: CellSegment) -> d
             "adjustment_start": seg.adjustment_start,
             "adjustment_end": seg.adjustment_end,
             "cobertura_linha": seg.line_coverage,
+            "sobre_cota": seg.dimension_overlap,
             "flags": seg.flags,
         },
     }

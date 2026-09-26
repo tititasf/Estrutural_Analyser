@@ -1157,11 +1157,19 @@ def collect_preficha_segments(
                             "beam_openings": [b.get("name", "") for b in cell.get("beam_openings") or []],
                             "lv_cell": cell,
                         })
-                        if "fora_da_linha_estrutural" in (cell.get("flags") or []):
-                            cell_attention = (
+                        cell_flags = cell.get("flags") or []
+                        avisos = []
+                        if "sobre_linha_de_cota" in cell_flags:
+                            avisos.append(
+                                "SA: segmento sobre LINHA DE COTA "
+                                f"({float(cell.get('sobre_cota') or 0):.0%})"
+                            )
+                        if "fora_da_linha_estrutural" in cell_flags:
+                            avisos.append(
                                 "SA: destaque fora da linha do estrutural "
                                 f"(cobertura {float(cell.get('cobertura_linha') or 0):.0%})"
                             )
+                        cell_attention = " · ".join(avisos)
                 result[kind].append({
                     "uid": uid,
                     "kind": kind,

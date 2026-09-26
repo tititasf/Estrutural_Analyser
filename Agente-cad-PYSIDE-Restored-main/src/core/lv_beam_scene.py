@@ -98,6 +98,15 @@ class LvScene:
     # Trechos da face cobertos por LINHA REAL do DXF (invariante do dono
     # 2026-09-25: destaque que nao esta' sobre linha do estrutural e' erro).
     face_coverage: dict[str, list[list[float]]] = field(default_factory=lambda: {"A": [], "B": []})
+    # Trechos da face que coincidem com LINHA DE COTA (antialucinacao).
+    dimension_coverage: dict[str, list[list[float]]] = field(default_factory=lambda: {"A": [], "B": []})
+
+    def dimension_overlap(self, side: str, a0: float, a1: float) -> float:
+        lo, hi = min(a0, a1), max(a0, a1)
+        if hi - lo <= 0:
+            return 0.0
+        covered = sum(max(0.0, min(hi, y) - max(lo, x)) for x, y in self.dimension_coverage.get(side, []))
+        return covered / (hi - lo)
 
     def line_coverage(self, side: str, a0: float, a1: float) -> float:
         lo, hi = min(a0, a1), max(a0, a1)
@@ -153,6 +162,101 @@ def _line_segments(lines: Iterable[dict]) -> list[tuple[float, float, float, flo
             except (TypeError, ValueError, IndexError):
                 continue
     return segs
+
+
+# ------------------------------------------------------- antialucinacao: cotas
+#
+# Pedido do dono (2026-09-26): nenhum segmento pode nascer sobre LINHA DE COTA
+# do estrutural limpo. O DXF do 13_PAV nao tem entidade DIMENSION — as cotas
+# sao LINE + TEXT soltos —, e a extracao nunca usa nome de layer. A cota e'
+# reconhecida pela GEOMETRIA, medida na cadeia sob a V301 (305,5 | 100 | 19 ...):
+# cada trecho e' uma LINE axial com um TIQUE obliquo (~10 cm a 45 graus)
+# cruzando cada ponta; a linha de chamada e' a perpendicular curta que passa
+# pelo meio de um tique.
+
+TICK_LEN = (4.0, 16.0)
+TICK_TOL = 1.5
+
+
+def _is_tick(seg: tuple[float, float, float, float]) -> bool:
+    x0, y0, x1, y1 = seg
+    length = math.hypot(x1 - x0, y1 - y0)
+    if not (TICK_LEN[0] <= length <= TICK_LEN[1]):
+        return False
+    ang = math.degrees(math.atan2(y1 - y0, x1 - x0)) % 180.0
+    return 25.0 <= ang <= 65.0 or 115.0 <= ang <= 155.0
+
+
+def split_dimension_lines(
+    segs: list[tuple[float, float, float, float]],
+    texts: Optional[list[dict]] = None,
+) -> tuple[list[tuple[float, float, float, float]], list[tuple[float, float, float, float]]]:
+    """Separa (linhas_estruturais, linhas_de_cota) sem olhar layer.
+
+    Cota COMPROVADA: linha axial com tique nas DUAS pontas e texto numerico ao
+    lado cujo valor e' o proprio comprimento (305,5 <-> "305.5"). Trechos com
+    tique nas duas pontas encadeados a uma cota comprovada tambem sao cota
+    (os "19" da cadeia). Tique solto sobre uma borda NAO basta: a cota vertical
+    termina na face da viga, entao a borda real recebe tique (V301, 3692-3731).
+    """
+    ticks = [((x0 + x1) / 2.0, (y0 + y1) / 2.0) for x0, y0, x1, y1 in segs if _is_tick((x0, y0, x1, y1))]
+    grid: dict[tuple[int, int], list[tuple[float, float]]] = {}
+    for tx, ty in ticks:
+        grid.setdefault((int(tx // 20), int(ty // 20)), []).append((tx, ty))
+
+    def tick_near(x: float, y: float) -> bool:
+        gx, gy = int(x // 20), int(y // 20)
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                for tx, ty in grid.get((gx + dx, gy + dy), ()):
+                    if abs(tx - x) <= TICK_TOL and abs(ty - y) <= TICK_TOL:
+                        return True
+        return False
+
+    numbers = []
+    for t in texts or []:
+        try:
+            value = float(str(t.get("text") or "").strip().replace(",", "."))
+            numbers.append((value, float(t["pos"][0]), float(t["pos"][1])))
+        except (TypeError, ValueError, KeyError, IndexError):
+            continue
+
+    def text_matches(seg) -> bool:
+        x0, y0, x1, y1 = seg
+        horizontal = abs(y1 - y0) <= 0.05
+        length = math.hypot(x1 - x0, y1 - y0)
+        lo, hi = (min(x0, x1), max(x0, x1)) if horizontal else (min(y0, y1), max(y0, y1))
+        t = (y0 + y1) / 2.0 if horizontal else (x0 + x1) / 2.0
+        for value, tx, ty in numbers:
+            a, tt = (tx, ty) if horizontal else (ty, tx)
+            if abs(value - length) <= 0.6 and lo - 5.0 <= a <= hi + 5.0 and abs(tt - t) <= 12.0:
+                return True
+        return False
+
+    spans = []  # candidatos: axiais com tique nas duas pontas
+    for index, seg in enumerate(segs):
+        x0, y0, x1, y1 = seg
+        axial = abs(y1 - y0) <= 0.05 or abs(x1 - x0) <= 0.05
+        if axial and not _is_tick(seg) and tick_near(x0, y0) and tick_near(x1, y1):
+            spans.append(index)
+    confirmed = {i for i in spans if text_matches(segs[i])}
+    ends: dict[tuple[int, int], set[int]] = {}
+    for i in spans:
+        x0, y0, x1, y1 = segs[i]
+        for x, y in ((x0, y0), (x1, y1)):
+            ends.setdefault((round(x), round(y)), set()).add(i)
+    frontier = list(confirmed)
+    while frontier:
+        i = frontier.pop()
+        x0, y0, x1, y1 = segs[i]
+        for x, y in ((x0, y0), (x1, y1)):
+            for j in ends.get((round(x), round(y)), ()):
+                if j not in confirmed:
+                    confirmed.add(j)
+                    frontier.append(j)
+    structural = [seg for i, seg in enumerate(segs) if i not in confirmed]
+    dimension = [seg for i, seg in enumerate(segs) if i in confirmed]
+    return structural, dimension
 
 
 class _EdgeIndex:
@@ -621,7 +725,9 @@ def build_scene_runs(
     trechos, cada um com orientacao e A/B proprios (G0). Rotulos da mesma
     faixa colapsam num trecho so'. Rotulo diagonal (Caso 8) fica de fora.
     """
-    edges = _EdgeIndex(_line_segments(lines))
+    structural_segs, dimension_segs = split_dimension_lines(_line_segments(lines), texts)
+    edges = _EdgeIndex(structural_segs)
+    dim_edges = _EdgeIndex(dimension_segs)
     section_texts = []
     pillar_texts = []
     beam_labels = []
@@ -669,6 +775,11 @@ def build_scene_runs(
     for name, scenes in runs.items():
         for scene in scenes:
             _sections(scene, by_name[name], section_texts, pillar_texts)
+            scene.dimension_coverage = {
+                "A": dim_edges.coverage(scene.is_horizontal, scene.t_lo),
+                "B": dim_edges.coverage(scene.is_horizontal, scene.t_hi),
+            }
+            scene.provenance["linhas_de_cota_excluidas"] = len(dimension_segs)
     slab_polys = _slab_polygons(slabs)
     others = [scene for scenes in runs.values() for scene in scenes]
     for scene in others:
