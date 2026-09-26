@@ -1062,6 +1062,7 @@ def collect_preficha_segments(
                 level = ""
                 level_source = "unresolved"
                 level_slabs: list[str] = []
+                cell_attention = ""
                 if kind == "fundo":
                     from src.core.fundo_segment_levels import derive_fundo_segment_level
                     level_result = derive_fundo_segment_level(
@@ -1156,6 +1157,11 @@ def collect_preficha_segments(
                             "beam_openings": [b.get("name", "") for b in cell.get("beam_openings") or []],
                             "lv_cell": cell,
                         })
+                        if "fora_da_linha_estrutural" in (cell.get("flags") or []):
+                            cell_attention = (
+                                "SA: destaque fora da linha do estrutural "
+                                f"(cobertura {float(cell.get('cobertura_linha') or 0):.0%})"
+                            )
                 result[kind].append({
                     "uid": uid,
                     "kind": kind,
@@ -1182,7 +1188,7 @@ def collect_preficha_segments(
                     "ficha": ficha,
                     "details": details,
                     "status": str((previous or {}).get("status") or "valid"),
-                    "attention": str((previous or {}).get("attention") or ""),
+                    "attention": str((previous or {}).get("attention") or cell_attention or ""),
                     "source_key": str(link_key),
                     "source_slot": slot,
                     "_beam_ref": beam,

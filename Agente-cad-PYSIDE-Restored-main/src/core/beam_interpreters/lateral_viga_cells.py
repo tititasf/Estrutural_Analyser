@@ -44,6 +44,9 @@ PILLAR_OPENING_EXTRA = 11.0     # G8/G9: 11 cm de cada lado
 BEAM_OPENING_EXTRA_W = 8.0      # G8: largura da viga incidente + 8
 BEAM_OPENING_EXTRA_H = 4.0      # G8: altura + 4
 MIN_SEGMENT = 1.0
+# Invariante do dono (2026-09-25): o destaque tem de estar SOBRE linha real do
+# estrutural. Passa por pilar/abertura interrompe a borda, por isso nao se exige 100%.
+LINE_COVERAGE_MIN = 0.5
 
 
 @dataclass
@@ -63,6 +66,7 @@ class CellSegment:
     level: str = ""
     adjustment_start: float = 0.0
     adjustment_end: float = 0.0
+    line_coverage: float = 0.0
     flags: list[str] = field(default_factory=list)
 
 
@@ -213,6 +217,9 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
             support_end=_support_view(last_info, ascending),
             flags=list(flags_global),
         )
+        seg.line_coverage = round(scene.line_coverage(side, a0, a1), 3)
+        if seg.line_coverage < LINE_COVERAGE_MIN:
+            seg.flags.append("fora_da_linha_estrutural")
         if not zones:
             seg.flags.append("G1_secao_nao_lida")
         if len({z["dim"] for z in zones}) > 1:
@@ -375,6 +382,7 @@ def _link_entry(scene: LvScene, side: str, behavior: str, seg: CellSegment) -> d
             "level": seg.level,
             "adjustment_start": seg.adjustment_start,
             "adjustment_end": seg.adjustment_end,
+            "cobertura_linha": seg.line_coverage,
             "flags": seg.flags,
         },
     }
@@ -446,13 +454,37 @@ def apply_lv_cells_all(
     scenes = build_scenes(beams, texts, lines, pillar_report, slabs)
     report: dict[str, Any] = {}
     missing = []
+    owners: dict[str, dict] = {}
     for beam in beams or []:
         if not isinstance(beam, dict):
             continue
-        scene = scenes.get(_norm_name(beam.get("name")))
+        name = _norm_name(beam.get("parent_name") or beam.get("name"))
+        scene = scenes.get(name) or scenes.get(_norm_name(beam.get("name")))
         if scene is None:
             missing.append(str(beam.get("name")))
             continue
+        if name in owners:
+            # Fragmento irmao da mesma viga: a cena ja' foi publicada no
+            # primeiro registro. Aqui so' se esvaziam as celulas NAO
+            # congeladas, senao os segmentos sairiam em duplicata.
+            _clear_unfrozen_cells(beam)
+            continue
+        owners[name] = beam
         report[str(beam.get("name"))] = apply_cells_to_beam(beam, scene)
     report["__sem_cena__"] = missing
     return report
+
+
+def _clear_unfrozen_cells(beam: dict) -> None:
+    links = beam.get("links") or {}
+    for side in ("A", "B"):
+        for behavior, suffix in _SUFFIX.items():
+            if _cell_is_frozen(beam, side, behavior):
+                continue
+            for key in [
+                k for k in list(links)
+                if str(k).startswith(f"viga_{side.lower()}_seg_") and str(k).endswith(f"_{suffix}")
+            ]:
+                del links[key]
+    beam["lv_cells_version"] = CELL_RULES_VERSION
+    beam["_lv_cells_meta"] = {"fragmento_irmao": True}

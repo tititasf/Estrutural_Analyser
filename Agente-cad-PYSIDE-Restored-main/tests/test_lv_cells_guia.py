@@ -145,3 +145,13 @@ def test_scene_uses_real_pillar_polygon_not_bbox_and_label_band():
     assert [(p["start"], p["end"]) for p in v1.pillars["A"]] == [(400.0, 419.0)]
     assert v1.sections[0]["dim"] == "19/55"
     assert (scenes["V2"].t_lo, scenes["V2"].t_hi) == (60.0, 79.0)
+
+
+def test_segment_off_structural_line_is_flagged():
+    """Invariante do dono: destaque que nao esta' sobre linha do estrutural e' erro."""
+    scene = _scene()
+    scene.face_coverage = {"A": [[0.0, 1000.0]], "B": [[0.0, 200.0]]}
+    a = segment_cell(scene, "A", "passa")
+    b = segment_cell(scene, "B", "passa")
+    assert a[0].line_coverage == 1.0 and "fora_da_linha_estrutural" not in a[0].flags
+    assert b[0].line_coverage == 0.2 and "fora_da_linha_estrutural" in b[0].flags

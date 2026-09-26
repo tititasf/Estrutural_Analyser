@@ -2493,6 +2493,25 @@ def run_analysis(
         _log_selected_pillar_topology(window.pillars_found, item_names)
         report_stage('merge granular e saneamento N1')
         if 'laterais_viga' in active_sections:
+            # LV: as quatro celulas pelas regras do guia TAMBEM no caminho
+            # MainWindow/--production-web (o do portal). Roda depois do merge:
+            # o merge preserva memoria humana mas repoe os vinculos laterais
+            # antigos (capturados da face errada); celula validada fica
+            # congelada dentro de apply_lv_cells_all.
+            from src.core.beam_interpreters.lateral_viga_cells import apply_lv_cells_all
+            dxf_data = getattr(window, 'dxf_data', None) or {}
+            lv_cells_report = apply_lv_cells_all(
+                window.beams_found,
+                list(dxf_data.get('texts', []) or []),
+                list(dxf_data.get('lines', []) or []) + list(dxf_data.get('polylines', []) or []),
+                getattr(window, 'pavimento_pillar_report', {}) or {},
+                window.slabs_found,
+            )
+            print(
+                f'[SA-HUMAN] LV celulas (guia): {len(lv_cells_report) - 1} viga(s); '
+                f'sem cena: {lv_cells_report.get("__sem_cena__")}',
+                flush=True,
+            )
             lv_contracts_attached = _attach_lv_generation_contracts(
                 window.beams_found, window.pillars_found, pavimento
             )

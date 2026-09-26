@@ -95,6 +95,16 @@ class LvScene:
     sections: list[dict] = field(default_factory=list)
     end_supports: dict[str, list[dict]] = field(default_factory=lambda: {"start": [], "end": []})
     provenance: dict[str, Any] = field(default_factory=dict)
+    # Trechos da face cobertos por LINHA REAL do DXF (invariante do dono
+    # 2026-09-25: destaque que nao esta' sobre linha do estrutural e' erro).
+    face_coverage: dict[str, list[list[float]]] = field(default_factory=lambda: {"A": [], "B": []})
+
+    def line_coverage(self, side: str, a0: float, a1: float) -> float:
+        lo, hi = min(a0, a1), max(a0, a1)
+        if hi - lo <= 0:
+            return 0.0
+        covered = sum(max(0.0, min(hi, y) - max(lo, x)) for x, y in self.face_coverage.get(side, []))
+        return covered / (hi - lo)
 
     @property
     def width(self) -> float:
@@ -374,6 +384,10 @@ def build_band_scene(
             else:
                 start = max(start, oa)
     scene = LvScene(name, horizontal, t_lo, t_hi, start, end)
+    scene.face_coverage = {
+        "A": edges.coverage(horizontal, t_lo),
+        "B": edges.coverage(horizontal, t_hi),
+    }
     scene.labels = [{"text": t.get("text"), "pos": tuple(t["pos"])} for t, _ in candidates]
     scene.provenance = {
         "band_source": "dxf_edges_from_own_label",
