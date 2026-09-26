@@ -18,12 +18,12 @@ Regras aplicadas, por celula (lado A/B x comportamento Para/Passa):
   do inicio do segmento) e a abertura ``comprimento + 22`` (G8). Nenhuma
   fronteira cai dentro de pilar em Passa (resposta do dono Q3, 2026-09-25).
 * G7 — viga que toca a face decide-se por PROFUNDIDADE, nunca por Para/Passa:
-  incidente menos profunda OU de mesma profundidade (Q2) -> a lateral passa
-  pela abertura (+8 de largura / +4 de altura, G8; na mesma profundidade a
-  abertura e' de altura inteira) e, pela regra do dono de 2026-09-14 (contrato
-  §5.2.3), o segmento fecha na borda FINAL da abertura, com o seguinte
-  encostado; incidente MAIS profunda -> a lateral termina na primeira face e
-  recomeca na face oposta.
+  incidente MENOS profunda -> a lateral passa pela abertura (+8 de largura /
+  +4 de altura, G8) e, pela regra do dono de 2026-09-14 (contrato §5.2.3), o
+  segmento fecha na borda FINAL da abertura, com o seguinte encostado;
+  incidente de MESMA profundidade ou MAIS profunda -> a lateral termina na
+  primeira face e recomeca na face oposta (mesma altura nao se atravessa —
+  dono 2026-09-26, revendo o Q2 no cruzamento V301 x V312).
 * G1 — cada segmento tem UMA secao: a troca de secao abre segmento novo,
   encostado no anterior (resposta do dono Q1, 2026-09-25).
 * Caso 9 — encontro em T parte so' a face que recebe a viga.
@@ -39,7 +39,7 @@ from typing import Any, Optional
 
 from src.core.lv_beam_scene import LvScene
 
-CELL_RULES_VERSION = "guia_lv_cells_v2"
+CELL_RULES_VERSION = "guia_lv_cells_v3"
 PILLAR_OPENING_EXTRA = 11.0     # G8/G9: 11 cm de cada lado
 BEAM_OPENING_EXTRA_W = 8.0      # G8: largura da viga incidente + 8
 BEAM_OPENING_EXTRA_H = 4.0      # G8: altura + 4
@@ -118,16 +118,19 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
             hard.append((inc["start"], inc["end"], info))
             flags_global.append(f"G7_sem_profundidade:{inc['name']}")
             continue
-        if inc_depth > own + 0.01:
-            info["rule"] = "G7_incidente_mais_profunda_termina"
+        if inc_depth >= own - 0.01:
+            # Dono (2026-09-26, revendo o Q2 no portal, cruzamento V301 x
+            # V312): vigas de MESMA altura nao se atravessam — cada lateral
+            # para na primeira face da outra, como diante da mais profunda.
+            info["rule"] = (
+                "G7_mesma_profundidade_termina"
+                if abs(inc_depth - own) <= 0.01
+                else "G7_incidente_mais_profunda_termina"
+            )
             hard.append((inc["start"], inc["end"], info))
             continue
         info["own_depth"] = own
-        info["rule"] = (
-            "G7_mesma_profundidade_abertura_altura_inteira"
-            if abs(inc_depth - own) <= 0.01
-            else "G7_incidente_menos_profunda_passa_por_baixo"
-        )
+        info["rule"] = "G7_incidente_menos_profunda_passa_por_baixo"
         far_edge = inc["end"] if ascending else inc["start"]
         soft.append((far_edge, info))
 

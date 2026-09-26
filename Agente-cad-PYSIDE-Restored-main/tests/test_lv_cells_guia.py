@@ -67,13 +67,14 @@ def test_g7_deeper_incident_terminates_at_first_face():
     assert [(s.start, s.end) for s in a] == [(0.0, 300.0), (319.0, 1000.0)]
 
 
-def test_q2_equal_depth_incident_is_full_height_opening_in_previous_segment():
+def test_equal_depth_beams_do_not_cross_each_other():
+    """Dono 2026-09-26 (revisao do Q2): mesma altura -> para na primeira face."""
     inc = {"name": "V9", "start": 300.0, "end": 319.0, "dim": "19/55", "depth": 55.0, "width": 19.0}
     scene = _scene(incidents={"A": [inc]})
-    a = segment_cell(scene, "A", "passa")
-    assert [(s.start, s.end) for s in a] == [(0.0, 319.0), (319.0, 1000.0)]
-    opening = a[0].beam_openings[0]
-    assert opening["altura_inteira"] is True and opening["sobra"] == 0.0
+    for behavior in ("para", "passa"):
+        a = segment_cell(scene, "A", behavior)
+        assert [(s.start, s.end) for s in a] == [(0.0, 300.0), (319.0, 1000.0)]
+        assert not a[0].beam_openings
 
 
 def test_q1_section_change_opens_new_segment_touching_previous():
@@ -92,7 +93,7 @@ def test_q1_section_change_opens_new_segment_touching_previous():
 
 def test_q3_passa_keeps_pillar_whole_when_beam_crosses_inside_it():
     pillar = {"name": "P42", "start": 400.0, "end": 450.0, "classification": ""}
-    inc = {"name": "V312", "start": 415.0, "end": 434.0, "dim": "19/55", "depth": 55.0, "width": 19.0}
+    inc = {"name": "V312", "start": 415.0, "end": 434.0, "dim": "19/40", "depth": 40.0, "width": 19.0}
     scene = _scene(pillars=[pillar], incidents={"A": [inc]})
     passa = segment_cell(scene, "A", "passa")
     assert [(s.start, s.end) for s in passa] == [(0.0, 450.0), (450.0, 1000.0)]

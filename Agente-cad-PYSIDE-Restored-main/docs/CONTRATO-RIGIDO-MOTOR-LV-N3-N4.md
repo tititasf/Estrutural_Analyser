@@ -730,14 +730,16 @@ para a lateral, NUNCA de lei.** Consequencias ja' aplicadas:
   o -11 vai como ajuste de ponta e e' aplicado no N3 — o SA desenha de face a
   face), Passa: o pilar fica INTEIRO num so' segmento, com `pos_inicio`/`pos_fim`
   do pilar a partir do inicio do segmento e abertura = pilar + 22 (nenhuma
-  fronteira cai dentro de pilar), G7 (incidente menos profunda OU de mesma
-  profundidade -> abertura +8/+4 — na mesma profundidade, de altura inteira —
-  com fronteira na borda FINAL da abertura, §5.2.3; mais profunda -> termina
-  na primeira face), G1 (cada segmento tem UMA secao: a troca de secao abre
+  fronteira cai dentro de pilar), G7 (incidente MENOS profunda -> abertura
+  +8/+4 com fronteira na borda FINAL da abertura, §5.2.3; MESMA profundidade ou
+  mais profunda -> o SA PARA na primeira face e recomeca na oposta), G1 (cada segmento tem UMA secao: a troca de secao abre
   segmento novo, encostado), Caso 9 (T parte so' a face que recebe a viga),
   Caso 11 (lajes/nivel por segmento).
   **Respostas do dono ao questionario (2026-09-25):** Q1 troca de secao abre
-  segmento; Q2 mesma profundidade = abertura (b); Q3 Passa = pilar inteiro num
+  segmento; Q2 revisado em 26/09: mesma altura = o SA PARA (vigas de mesma
+  altura nao se atravessam); a "abertura de altura inteira" e' so' o ESPACO
+  que o N3 desenha entre os dois segmentos — comportamento N3, nao leitura SA;
+  Q3 Passa = pilar inteiro num
   segmento com inicio/fim registrados; Q4 pilar e viga coincidentes = ambos;
   Q5 -11 so' no N3; Q6 contagem do N4 NAO e' referencia (o humano pode ter
   errado) — vale o comportamento e a leitura autonoma do SA; Q7 livre.

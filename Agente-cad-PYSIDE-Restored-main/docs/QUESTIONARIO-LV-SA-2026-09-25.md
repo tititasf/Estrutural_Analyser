@@ -6,6 +6,12 @@
 > Q4 = (a) ambos, comportamento conforme altura da viga que chega · Q5 = (a),
 > -11 so' no N3 · Q6 = contagem do N4 nao e' referencia; vale a leitura
 > autonoma do SA · Q7 = autonomia; o dono revisa no front-end depois.
+>
+> **Revisao do Q2 (2026-09-26, cruzamento V301 x V312 no portal):** "abertura de
+> altura inteira" e' comportamento de DESENHO (N3) — no desenho ela e' um ESPACO
+> entre um segmento e o outro. No SA isso significa PARAR: a lateral termina na
+> primeira face da viga de mesma altura e recomeca na face oposta; vigas de mesma
+> altura nao se atravessam. Nao confundir comportamento N3 com leitura SA.
 
 Contexto: motor SA das laterais refeito pelas regras do guia
 (`CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md` §6.1.1). Estas sao as decisoes que o guia
