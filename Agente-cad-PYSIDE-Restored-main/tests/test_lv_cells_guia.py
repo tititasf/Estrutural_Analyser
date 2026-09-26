@@ -267,3 +267,22 @@ def test_passa_does_not_wrap_pillar_the_beam_does_not_reach():
     scene.end_supports["start"] = [{"type": "pilar", "name": "P28", "start": -80.0, "end": 0.0}]
     passa = segment_cell(scene, "A", "passa")
     assert [(s.start, s.end) for s in passa] == [(24.0, 1000.0)]
+
+
+def test_passa_runs_along_pillar_wall_but_never_through_its_core():
+    """VF301: face em cima da parede do pilar passa; face dentro do pilar para.
+
+    Faixa y 0..14 dentro da fileira de pilares (y -52..14): a face B (y=14) e'
+    a parede de cima do pilar (C/D e' parede, nao miolo); a face A (y=0) cruza
+    o corpo do pilar.
+    """
+    lines = _rect(0, 0, 1000, 14) + [{"points": [(400, -52), (419, -52)]}]
+    texts = [{"text": "V1", "pos": (20.0, 17.0), "rotation": 0.0},
+             {"text": "14/55", "pos": (300.0, 17.0), "rotation": 0.0}]
+    report = {"P2": {"name": "P2", "classification": "SEGUE",
+                     "points": [(400, -52), (419, -52), (419, 14), (400, 14), (400, -52)]}}
+    v1 = build_scenes([{"name": "V1"}], texts, lines, report)["V1"]
+    a = segment_cell(v1, "A", "passa")
+    b = segment_cell(v1, "B", "passa")
+    assert [(s.start, s.end) for s in a] == [(0.0, 400.0), (419.0, 1000.0)]
+    assert len(b) == 1 and b[0].pillar_openings[0]["name"] == "P2"

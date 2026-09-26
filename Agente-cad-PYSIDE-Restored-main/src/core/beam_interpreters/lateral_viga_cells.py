@@ -39,7 +39,7 @@ from typing import Any, Optional
 
 from src.core.lv_beam_scene import LvScene
 
-CELL_RULES_VERSION = "guia_lv_cells_v4"
+CELL_RULES_VERSION = "guia_lv_cells_v5"
 PILLAR_OPENING_EXTRA = 11.0     # G8/G9: 11 cm de cada lado
 BEAM_OPENING_EXTRA_W = 8.0      # G8: largura da viga incidente + 8
 BEAM_OPENING_EXTRA_H = 4.0      # G8: altura + 4
@@ -106,8 +106,13 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
     flags_global: list[str] = []
 
     for pillar in scene.pillars[side]:
-        if behavior == "para":
-            hard.append((pillar["start"], pillar["end"], dict(pillar, type="pilar")))
+        # Para para na face do pilar; Passa corre pela PAREDE do pilar, mas se a
+        # face passaria pelo MIOLO do pilar, para tambem (dono 2026-09-26).
+        if behavior == "para" or pillar.get("miolo"):
+            info = dict(pillar, type="pilar")
+            if behavior == "passa":
+                info["rule"] = "passa_nao_atravessa_miolo_do_pilar"
+            hard.append((pillar["start"], pillar["end"], info))
         else:
             pillar_events.append(pillar)
 
@@ -116,12 +121,17 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
     # Para continua terminando na face do pilar.
     ext_start, ext_end = scene.start, scene.end
     if behavior == "passa":
+        def _wall(sup: dict) -> bool:
+            return not (sup.get("miolo_por_lado") or {}).get(side, False)
+
         for sup in scene.end_supports["start"]:
-            if sup.get("type") == "pilar" and sup.get("end", -1e9) >= scene.start - 1.0:
+            if (sup.get("type") == "pilar" and sup.get("end", -1e9) >= scene.start - 1.0
+                    and _wall(sup)):
                 ext_start = min(ext_start, sup["start"])
                 pillar_events.append(dict(sup, extremidade="inicio"))
         for sup in scene.end_supports["end"]:
-            if sup.get("type") == "pilar" and sup.get("start", 1e9) <= scene.end + 1.0:
+            if (sup.get("type") == "pilar" and sup.get("start", 1e9) <= scene.end + 1.0
+                    and _wall(sup)):
                 ext_end = max(ext_end, sup["end"])
                 pillar_events.append(dict(sup, extremidade="fim"))
 

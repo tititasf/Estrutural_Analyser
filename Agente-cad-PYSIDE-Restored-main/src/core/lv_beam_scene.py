@@ -636,20 +636,34 @@ def _attach_context(
             inter = poly.intersection(inside)
             if inter.is_empty or inter.area <= 1e-6:
                 continue
+            outer = poly.intersection(outside)
             geoms = getattr(inter, "geoms", [inter])
             for g in geoms:
                 a0, a1 = scene.axis_bounds(g)
                 if a1 - a0 < 0.5:
                     continue
-                item = {"name": name, "start": a0, "end": a1, "classification": classification}
+                # A face corre pela PAREDE do pilar quando o pilar so' existe do
+                # lado de dentro da faixa; se o pilar existe dos DOIS lados da
+                # face, ela passaria pelo MIOLO dele (VF301 face A em y=3193
+                # dentro dos P2..P8) - ali a lateral tem de parar (dono 26/09).
+                interior = False
+                if not outer.is_empty and outer.area > 1e-6:
+                    over = 0.0
+                    for og in getattr(outer, "geoms", [outer]):
+                        o0, o1 = scene.axis_bounds(og)
+                        over += max(0.0, min(a1, o1) - max(a0, o0))
+                    interior = over >= 0.5 * (a1 - a0)
+                item = {"name": name, "start": a0, "end": a1,
+                        "classification": classification, "miolo": interior}
                 if classification.strip().upper() in ("", "INDETERMINADO"):
                     item["flag"] = "pilar_classificacao_indeterminada_tratado_como_solido"
-                if a1 <= scene.start + 1.0:
-                    if not any(s["name"] == name for s in scene.end_supports["start"]):
-                        scene.end_supports["start"].append(dict(item, type="pilar"))
-                elif a0 >= scene.end - 1.0:
-                    if not any(s["name"] == name for s in scene.end_supports["end"]):
-                        scene.end_supports["end"].append(dict(item, type="pilar"))
+                if a1 <= scene.start + 1.0 or a0 >= scene.end - 1.0:
+                    key = "start" if a1 <= scene.start + 1.0 else "end"
+                    found = next((x for x in scene.end_supports[key] if x["name"] == name), None)
+                    if found is None:
+                        found = dict(item, type="pilar", miolo_por_lado={})
+                        scene.end_supports[key].append(found)
+                    found.setdefault("miolo_por_lado", {})[side] = interior
                 else:
                     scene.pillars[side].append(item)
         for other in other_scenes:
@@ -726,13 +740,19 @@ def _trim_end_pillars(scene: LvScene) -> None:
         for item in list(scene.pillars["A"]):
             if not full_band(item):
                 continue
+            twin = next(
+                (o for o in scene.pillars["B"]
+                 if o["name"] == item["name"] and abs(o["start"] - item["start"]) < 1.0),
+                {},
+            )
+            miolo = {"A": bool(item.get("miolo")), "B": bool(twin.get("miolo"))}
             if item["start"] <= scene.start + 1.0 and item["end"] > scene.start + 0.5:
                 scene.start = item["end"]
-                scene.end_supports["start"].append(dict(item, type="pilar"))
+                scene.end_supports["start"].append(dict(item, type="pilar", miolo_por_lado=miolo))
                 changed = True
             elif item["end"] >= scene.end - 1.0 and item["start"] < scene.end - 0.5:
                 scene.end = item["start"]
-                scene.end_supports["end"].append(dict(item, type="pilar"))
+                scene.end_supports["end"].append(dict(item, type="pilar", miolo_por_lado=miolo))
                 changed = True
         for side in ("A", "B"):
             scene.pillars[side] = [
