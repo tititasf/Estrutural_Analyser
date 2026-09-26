@@ -228,10 +228,14 @@ def _pillar_polygons(pillar_report: Any) -> list[tuple[str, str, Any]]:
     for name, data in items:
         if not isinstance(data, dict) or data.get("is_invalid"):
             continue
-        # Pilar que NASCE neste pavimento nao e' solido no nivel da viga
-        # (glossario; convencao/pre-interpretacao de pilares): as paredes da
-        # lateral atravessam, sem parar e sem abertura. Mesma regra dos
-        # obstaculos do headless.
+        # Mesma regra canonica dos obstaculos de viga (main.py, "Coletar
+        # obstaculos visuais"): so' e' SOLIDO o pilar que nao e' `is_invalid`,
+        # nem `ignore_in_beams` (NASCE, visual_only/visual_noise ou decisao do
+        # humano na pre-interpretacao/convencao de pilares), nem NASCE. Pilar
+        # nao solido: as paredes da lateral atravessam, sem parar e sem abertura
+        # — o mesmo que o FV faz ao ligar o vao de um PILAR_NASCENTE.
+        if data.get("ignore_in_beams"):
+            continue
         if str(data.get("classification") or "").strip().upper() == "NASCE":
             continue
         pts = data.get("points") or []

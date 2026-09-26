@@ -173,3 +173,13 @@ def test_pillar_that_nasce_on_this_floor_is_not_solid():
     assert [p["name"] for p in v1.pillars["A"]] == ["P11"]
     para = segment_cell(v1, "A", "para")
     assert [(s.start, s.end) for s in para] == [(0.0, 700.0), (780.0, 1000.0)]
+
+
+def test_pillar_marked_ignore_in_beams_by_preinterpretation_is_not_solid():
+    lines = _rect(0, 0, 1000, 19)
+    texts = [{"text": "V1", "pos": (20.0, 22.0), "rotation": 0.0},
+             {"text": "19/55", "pos": (300.0, 22.0), "rotation": 0.0}]
+    report = {"P9": {"name": "P9", "classification": "SEGUE", "ignore_in_beams": True,
+                     "points": [(400, 0), (450, 0), (450, 19), (400, 19), (400, 0)]}}
+    v1 = build_scenes([{"name": "V1"}], texts, lines, report)["V1"]
+    assert v1.pillars["A"] == [] and len(segment_cell(v1, "A", "para")) == 1
