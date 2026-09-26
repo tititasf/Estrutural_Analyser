@@ -228,6 +228,12 @@ def _pillar_polygons(pillar_report: Any) -> list[tuple[str, str, Any]]:
     for name, data in items:
         if not isinstance(data, dict) or data.get("is_invalid"):
             continue
+        # Pilar que NASCE neste pavimento nao e' solido no nivel da viga
+        # (glossario; convencao/pre-interpretacao de pilares): as paredes da
+        # lateral atravessam, sem parar e sem abertura. Mesma regra dos
+        # obstaculos do headless.
+        if str(data.get("classification") or "").strip().upper() == "NASCE":
+            continue
         pts = data.get("points") or []
         poly = None
         if len(pts) >= 3:
@@ -337,14 +343,18 @@ def build_band_scene(
     section_texts: list[dict],
     other_labels: list[dict],
     pillars: list[tuple[str, str, Any]],
+    only_label: Optional[dict] = None,
 ) -> Optional[LvScene]:
     name = _norm_name(beam.get("name"))
-    labels = [t for t in texts if _norm_name(t.get("text")) == name and t.get("pos")]
+    labels = (
+        [only_label] if only_label is not None
+        else [t for t in texts if _norm_name(t.get("text")) == name and t.get("pos")]
+    )
     if not labels:
         return None
     axes = [_rotation_axis(t.get("rotation")) for t in labels]
     if any(a is None for a in axes) or len(set(axes)) != 1:
-        return None  # diagonal ou orientacao mista: fora do escopo desta passada
+        return None  # diagonal ou orientacao mista: use build_scene_runs (um trecho por rotulo)
     horizontal = bool(axes[0])
 
     candidates = []
@@ -474,6 +484,8 @@ def _attach_context(
                 if a1 - a0 < 0.5:
                     continue
                 item = {"name": name, "start": a0, "end": a1, "classification": classification}
+                if classification.strip().upper() in ("", "INDETERMINADO"):
+                    item["flag"] = "pilar_classificacao_indeterminada_tratado_como_solido"
                 if a1 <= scene.start + 1.0:
                     if not any(s["name"] == name for s in scene.end_supports["start"]):
                         scene.end_supports["start"].append(dict(item, type="pilar"))
@@ -592,14 +604,19 @@ def _trim_end_pillars(scene: LvScene) -> None:
     scene.sections = [z for z in scene.sections if z["end"] - z["start"] > 0.5]
 
 
-def build_scenes(
+def build_scene_runs(
     beams: list[dict],
     texts: list[dict],
     lines: list[dict],
     pillar_report: Any,
     slabs: Any = None,
-) -> dict[str, LvScene]:
-    """Uma cena por nome de viga. Vigas sem rotulo ortogonal ficam de fora."""
+) -> dict[str, list[LvScene]]:
+    """Um ou mais TRECHOS por viga: cada rotulo ortogonal abre uma faixa.
+
+    Viga em "L" (V330 no 13_PAV: um rotulo a 90 e outro a 0 graus) vira dois
+    trechos, cada um com orientacao e A/B proprios (G0). Rotulos da mesma
+    faixa colapsam num trecho so'. Rotulo diagonal (Caso 8) fica de fora.
+    """
     edges = _EdgeIndex(_line_segments(lines))
     section_texts = []
     pillar_texts = []
@@ -616,23 +633,54 @@ def build_scenes(
         elif BEAM_NAME_RE.match(_norm_name(txt)):
             beam_labels.append(t)
     pillars = _pillar_polygons(pillar_report)
-    scenes: dict[str, LvScene] = {}
+    runs: dict[str, list[LvScene]] = {}
     by_name: dict[str, dict] = {}
     for beam in beams or []:
         if not isinstance(beam, dict):
             continue
         name = _norm_name(beam.get("name"))
-        if not name or name in scenes:
+        if not name or name in runs:
             continue
-        scene = build_band_scene(beam, texts, edges, section_texts, beam_labels, pillars)
-        if scene is None:
-            continue
-        scenes[name] = scene
-        by_name[name] = beam
-    for name, scene in scenes.items():
-        _sections(scene, by_name[name], section_texts, pillar_texts)
+        own = [t for t in beam_labels if _norm_name(t.get("text")) == name]
+        found: list[LvScene] = []
+        for label in sorted(own, key=lambda t: (float(t["pos"][0]), float(t["pos"][1]))):
+            if _rotation_axis(label.get("rotation")) is None:
+                continue
+            scene = build_band_scene(
+                beam, texts, edges, section_texts, beam_labels, pillars, only_label=label,
+            )
+            if scene is None:
+                continue
+            duplicate = any(
+                other.is_horizontal == scene.is_horizontal
+                and abs(other.t_lo - scene.t_lo) < 1.0
+                and min(other.end, scene.end) - max(other.start, scene.start) > 1.0
+                for other in found
+            )
+            if not duplicate:
+                found.append(scene)
+        if found:
+            runs[name] = found
+            by_name[name] = beam
+    for name, scenes in runs.items():
+        for scene in scenes:
+            _sections(scene, by_name[name], section_texts, pillar_texts)
     slab_polys = _slab_polygons(slabs)
-    others = list(scenes.values())
-    for scene in scenes.values():
+    others = [scene for scenes in runs.values() for scene in scenes]
+    for scene in others:
         _attach_context(scene, pillars, others, slab_polys)
-    return scenes
+    return runs
+
+
+def build_scenes(
+    beams: list[dict],
+    texts: list[dict],
+    lines: list[dict],
+    pillar_report: Any,
+    slabs: Any = None,
+) -> dict[str, LvScene]:
+    """Compatibilidade: primeiro trecho de cada viga."""
+    return {
+        name: scenes[0]
+        for name, scenes in build_scene_runs(beams, texts, lines, pillar_report, slabs).items()
+    }

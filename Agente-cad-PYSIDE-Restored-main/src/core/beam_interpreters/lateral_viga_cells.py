@@ -388,8 +388,14 @@ def _link_entry(scene: LvScene, side: str, behavior: str, seg: CellSegment) -> d
     }
 
 
-def apply_cells_to_beam(beam: dict, scene: LvScene) -> dict[str, int]:
-    """Substitui os vinculos laterais das celulas NAO congeladas desta viga."""
+def apply_cells_to_beam(beam: dict, scene: "LvScene | list[LvScene]") -> dict[str, int]:
+    """Substitui os vinculos laterais das celulas NAO congeladas desta viga.
+
+    ``scene`` pode ser uma lista de TRECHOS (viga em "L"): os segmentos de cada
+    celula saem trecho a trecho, na ordem dos trechos, com numeracao continua.
+    """
+    runs = scene if isinstance(scene, list) else [scene]
+    scene = runs[0]
     links = beam.setdefault("links", {})
     counts: dict[str, int] = {}
     frozen: list[str] = []
@@ -412,10 +418,16 @@ def apply_cells_to_beam(beam: dict, scene: LvScene) -> dict[str, int]:
                 if str(k).startswith(f"viga_{side.lower()}_seg_") and str(k).endswith(f"_{suffix}")
             ]:
                 del links[key]
-            segments = segment_cell(scene, side, behavior)
-            for seg in segments:
+            segments = []
+            for run_index, run in enumerate(runs, start=1):
+                for seg in segment_cell(run, side, behavior):
+                    seg.index = len(segments) + 1
+                    if len(runs) > 1:
+                        seg.flags.append(f"trecho_{run_index}_de_{len(runs)}")
+                    segments.append((run, seg))
+            for run, seg in segments:
                 key = f"viga_{side.lower()}_seg_{seg.index}_{suffix}"
-                links[key] = {f"seg_side_{side.lower()}": [_link_entry(scene, side, behavior, seg)]}
+                links[key] = {f"seg_side_{side.lower()}": [_link_entry(run, side, behavior, seg)]}
             counts[cell] = len(segments)
             per_side_max[side] = max(per_side_max[side], len(segments))
     for side in ("A", "B"):
@@ -435,7 +447,12 @@ def apply_cells_to_beam(beam: dict, scene: LvScene) -> dict[str, int]:
         "frozen_cells": frozen,
         "band": {"is_horizontal": scene.is_horizontal, "t_lo": scene.t_lo, "t_hi": scene.t_hi,
                  "start": scene.start, "end": scene.end},
-        "sections": scene.sections,
+        "runs": [
+            {"is_horizontal": r.is_horizontal, "t_lo": r.t_lo, "t_hi": r.t_hi,
+             "start": r.start, "end": r.end}
+            for r in runs
+        ],
+        "sections": [z for r in runs for z in r.sections],
         "provenance": scene.provenance,
     }
     return counts
@@ -449,9 +466,9 @@ def apply_lv_cells_all(
     Vigas sem cena (rotulo diagonal ou orientacao mista) ficam intocadas e
     listadas em ``__sem_cena__`` para triagem — nunca recebem copia de outra.
     """
-    from src.core.lv_beam_scene import build_scenes, _norm_name
+    from src.core.lv_beam_scene import build_scene_runs, _norm_name
 
-    scenes = build_scenes(beams, texts, lines, pillar_report, slabs)
+    scenes = build_scene_runs(beams, texts, lines, pillar_report, slabs)
     report: dict[str, Any] = {}
     missing = []
     owners: dict[str, dict] = {}

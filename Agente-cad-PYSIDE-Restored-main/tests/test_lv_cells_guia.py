@@ -155,3 +155,21 @@ def test_segment_off_structural_line_is_flagged():
     b = segment_cell(scene, "B", "passa")
     assert a[0].line_coverage == 1.0 and "fora_da_linha_estrutural" not in a[0].flags
     assert b[0].line_coverage == 0.2 and "fora_da_linha_estrutural" in b[0].flags
+
+
+def test_pillar_that_nasce_on_this_floor_is_not_solid():
+    lines = _rect(0, 0, 1000, 19)
+    texts = [
+        {"text": "V1", "pos": (20.0, 22.0), "rotation": 0.0},
+        {"text": "19/55", "pos": (300.0, 22.0), "rotation": 0.0},
+    ]
+    report = {
+        "P42": {"name": "P42", "classification": "NASCE",
+                "points": [(400, 0), (450, 0), (450, 19), (400, 19), (400, 0)]},
+        "P11": {"name": "P11", "classification": "SEGUE",
+                "points": [(700, 0), (780, 0), (780, 19), (700, 19), (700, 0)]},
+    }
+    v1 = build_scenes([{"name": "V1"}], texts, lines, report)["V1"]
+    assert [p["name"] for p in v1.pillars["A"]] == ["P11"]
+    para = segment_cell(v1, "A", "para")
+    assert [(s.start, s.end) for s in para] == [(0.0, 700.0), (780.0, 1000.0)]
