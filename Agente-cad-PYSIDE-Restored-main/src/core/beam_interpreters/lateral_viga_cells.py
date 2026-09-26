@@ -39,7 +39,7 @@ from typing import Any, Optional
 
 from src.core.lv_beam_scene import LvScene
 
-CELL_RULES_VERSION = "guia_lv_cells_v3"
+CELL_RULES_VERSION = "guia_lv_cells_v4"
 PILLAR_OPENING_EXTRA = 11.0     # G8/G9: 11 cm de cada lado
 BEAM_OPENING_EXTRA_W = 8.0      # G8: largura da viga incidente + 8
 BEAM_OPENING_EXTRA_H = 4.0      # G8: altura + 4
@@ -111,6 +111,20 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         else:
             pillar_events.append(pillar)
 
+    # Passa ENGLOBA o pilar (dono 2026-09-26): tambem o pilar da PONTA entra no
+    # segmento — a lateral vai ate' a face de fora dele (V309A 1-A / 3-B no P1).
+    # Para continua terminando na face do pilar.
+    ext_start, ext_end = scene.start, scene.end
+    if behavior == "passa":
+        for sup in scene.end_supports["start"]:
+            if sup.get("type") == "pilar" and sup.get("end", -1e9) >= scene.start - 1.0:
+                ext_start = min(ext_start, sup["start"])
+                pillar_events.append(dict(sup, extremidade="inicio"))
+        for sup in scene.end_supports["end"]:
+            if sup.get("type") == "pilar" and sup.get("start", 1e9) <= scene.end + 1.0:
+                ext_end = max(ext_end, sup["end"])
+                pillar_events.append(dict(sup, extremidade="fim"))
+
     for inc in scene.incidents[side]:
         own = _own_depth(scene, inc["start"], inc["end"])
         inc_depth = inc.get("depth")
@@ -149,6 +163,25 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
             "source": left.get("end_source", ""),
         }))
 
+    # Passa: viga que chega DENTRO de um pilar (V302 no P10 da V309A) nao
+    # corta a lateral — o pilar e' englobado inteiro; a viga vira abertura
+    # desse segmento e a fronteira vai para a face final do pilar (Q3).
+    if pillar_events:
+        kept = []
+        for c0, c1, info in hard:
+            host = next(
+                (pl for pl in pillar_events
+                 if info.get("type") == "viga" and pl["start"] - 0.5 <= c0 and c1 <= pl["end"] + 0.5),
+                None,
+            )
+            if host is None:
+                kept.append((c0, c1, info))
+                continue
+            absorbed = dict(info, rule="G7_viga_dentro_do_pilar_englobada_no_passa",
+                            own_depth=_own_depth(scene, c0, c1))
+            soft.append((host["end"] if ascending else host["start"], absorbed))
+        hard = kept
+
     # Q3: em Passa nenhuma fronteira cai dentro de pilar — ela vai para a face
     # final do pilar (na ordem de leitura), e o pilar fica inteiro no segmento.
     if pillar_events:
@@ -164,19 +197,19 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
     # Pedacos livres = extensao menos cortes duros.
     cuts = sorted(hard, key=lambda item: item[0])
     pieces: list[list[Any]] = []
-    cursor = scene.start
+    cursor = ext_start
     left_info: dict = {"type": "extremidade", "supports": scene.end_supports["start"]}
     for c0, c1, info in cuts:
         if c1 <= cursor + 0.01:
             continue  # corte contido em outro (V312 dentro do P42): a face e' do maior
         if c0 > cursor + MIN_SEGMENT:
-            pieces.append([cursor, min(c0, scene.end), left_info, info])
+            pieces.append([cursor, min(c0, ext_end), left_info, info])
         cursor = max(cursor, c1)
         left_info = info
-        if cursor >= scene.end:
+        if cursor >= ext_end:
             break
-    if scene.end - cursor > MIN_SEGMENT:
-        pieces.append([cursor, scene.end, left_info, {"type": "extremidade", "supports": scene.end_supports["end"]}])
+    if ext_end - cursor > MIN_SEGMENT:
+        pieces.append([cursor, ext_end, left_info, {"type": "extremidade", "supports": scene.end_supports["end"]}])
 
     # Fronteiras moles (borda final das aberturas de viga).
     split: list[list[Any]] = []
@@ -201,6 +234,29 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
             cur, cur_left = pos, boundary
         split.append([cur, a1, cur_left, rinfo])
 
+    def _outside_pillars(a0: float, a1: float) -> list[tuple[float, float]]:
+        parts = [(a0, a1)]
+        for pl in pillar_events:
+            nxt = []
+            for x, y in parts:
+                if pl["end"] <= x or pl["start"] >= y:
+                    nxt.append((x, y))
+                    continue
+                if pl["start"] > x:
+                    nxt.append((x, pl["start"]))
+                if pl["end"] < y:
+                    nxt.append((pl["end"], y))
+            parts = nxt
+        return [(x, y) for x, y in parts if y - x > 0.01]
+
+    # Pedaco que, tirando o pilar englobado, nao tem viga (< 10 cm) e' fantasma:
+    # a viga nao alcanca aquele pilar (V311 termina na V306; o P28 vem depois).
+    if pillar_events:
+        split = [
+            item for item in split
+            if sum(y - x for x, y in _outside_pillars(item[0], item[1])) >= 10.0
+        ]
+
     if not ascending:
         split = [[a0, a1, rinfo, linfo] for a0, a1, linfo, rinfo in reversed(split)]
 
@@ -222,11 +278,22 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
             support_end=_support_view(last_info, ascending),
             flags=list(flags_global),
         )
-        seg.line_coverage = round(scene.line_coverage(side, a0, a1), 3)
+        # Trecho sobre pilar englobado (Passa) e' parede CONHECIDA pelo poligono
+        # do pilar; a auditoria de linha/cota olha so' a parte fora dos pilares.
+        free = _outside_pillars(a0, a1) if pillar_events else [(a0, a1)]
+        free_len = sum(y - x for x, y in free)
+        if free_len > 0.01:
+            seg.line_coverage = round(sum(
+                scene.line_coverage(side, x, y) * (y - x) for x, y in free
+            ) / free_len, 3)
+            seg.dimension_overlap = round(sum(
+                scene.dimension_overlap(side, x, y) * (y - x) for x, y in free
+            ) / free_len, 3)
+        else:
+            seg.line_coverage, seg.dimension_overlap = 1.0, 0.0
         if seg.line_coverage < LINE_COVERAGE_MIN:
             seg.flags.append("fora_da_linha_estrutural")
         # Antialucinacao (dono 2026-09-26): segmento sobre LINHA DE COTA e' erro.
-        seg.dimension_overlap = round(scene.dimension_overlap(side, a0, a1), 3)
         if seg.dimension_overlap > DIMENSION_OVERLAP_MAX:
             seg.flags.append("sobre_linha_de_cota")
         if not zones:
@@ -275,7 +342,10 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
             if overlap <= 0.5:
                 continue
             width = float(info["end"] - info["start"])
-            full_height = info.get("rule") == "G7_mesma_profundidade_abertura_altura_inteira"
+            full_height = (
+                info.get("depth") is not None and info.get("own_depth") is not None
+                and info["depth"] >= info["own_depth"] - 0.01
+            )
             seg.beam_openings.append({
                 "name": info["name"], "dim": info.get("dim", ""),
                 "largura": round(width, 2),
@@ -285,8 +355,8 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
                     if info.get("depth") is not None else None
                 ),
                 "sobra": (
-                    round(info["own_depth"] - info["depth"], 2)
-                    if info.get("depth") is not None else None
+                    round(max(0.0, info["own_depth"] - info["depth"]), 2)
+                    if info.get("depth") is not None and info.get("own_depth") is not None else None
                 ),
                 "altura_inteira": full_height,
                 "pos_inicio": round((info["start"] - a0) if ascending else (a1 - info["end"]), 2),

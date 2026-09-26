@@ -238,3 +238,32 @@ def test_beam_extent_needs_both_walls():
              {"text": "14/50", "pos": (-3.0, 250.0), "rotation": 90.0}]
     v1 = build_scenes([{"name": "V1"}], texts, lines, {})["V1"]
     assert (v1.start, v1.end) == (150.0, 400.0)
+
+
+def test_passa_wraps_end_pillar_and_para_stops_at_its_face():
+    """Dono 2026-09-26: Passa engloba a parede do pilar tambem na ponta."""
+    scene = _scene()
+    scene.end_supports["end"] = [{"type": "pilar", "name": "P1", "start": 1000.0, "end": 1066.0}]
+    passa = segment_cell(scene, "A", "passa")
+    para = segment_cell(scene, "A", "para")
+    assert passa[-1].end == 1066.0 and passa[-1].pillar_openings[-1]["name"] == "P1"
+    assert para[-1].end == 1000.0
+
+
+def test_passa_absorbs_beam_arriving_inside_pillar():
+    """V302 chega no P10 da V309A: o pilar fica inteiro, a viga vira abertura."""
+    pillar = {"name": "P10", "start": 400.0, "end": 460.0, "classification": "SEGUE"}
+    inc = {"name": "V302", "start": 441.0, "end": 460.0, "dim": "19/55", "depth": 55.0, "width": 19.0}
+    scene = _scene(pillars=[pillar], incidents={"A": [inc]})
+    passa = segment_cell(scene, "A", "passa")
+    assert [(s.start, s.end) for s in passa] == [(0.0, 460.0), (460.0, 1000.0)]
+    assert passa[0].beam_openings[0]["altura_inteira"] is True
+
+
+def test_passa_does_not_wrap_pillar_the_beam_does_not_reach():
+    """V311 termina na V306 (mesma altura); o P28 depois dela nao e' da V311."""
+    inc = {"name": "V306", "start": 5.0, "end": 24.0, "dim": "19/55", "depth": 55.0, "width": 19.0}
+    scene = _scene(incidents={"A": [inc]})
+    scene.end_supports["start"] = [{"type": "pilar", "name": "P28", "start": -80.0, "end": 0.0}]
+    passa = segment_cell(scene, "A", "passa")
+    assert [(s.start, s.end) for s in passa] == [(24.0, 1000.0)]
