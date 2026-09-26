@@ -1,0 +1,76 @@
+# Registro de decisões do dono
+
+**Status:** canônico · **Criado:** 2026-09-25 · **Tier:** toda decisão aqui é **T1** (validada por humano)
+
+Uma linha por decisão, com a fonte onde ela está escrita por extenso. **A fonte é a
+autoridade**: esta linha só resume para achar. Caminhos relativos a
+`Agente-cad-PYSIDE-Restored-main/`.
+
+**Como manter:**
+- Decisão nova → nova linha (ID seguinte) **e** texto completo no doc canônico do tema.
+- Decisão que muda outra → a antiga ganha `revogada por D-xx` na coluna Estado; nunca apagar.
+- Escopo `global` vale para toda obra; decisões de uma obra só levam `obra:<nome>`.
+- Antes de perguntar ao dono, procurar aqui (e em `kb_query.py`). Pergunta repetida é custo.
+
+## Processo, qualidade e visão
+
+| ID | Data | Escopo | Decisão | Fonte | Estado |
+|---|---|---|---|---|---|
+| D-01 | 2026-07-03 | global | G2 numérico sozinho não sela: selar exige veredito visual registrado (Nível 2) e o dono (Nível 3) | `docs/LOOPING-CANONICO.md` §1.5 | vigente |
+| D-02 | 2026-07-03 | global | Nada de API de visão: veredito visual só pelo agente CLI; API exige ordem explícita + calibração | `docs/VISION-VALIDACAO-CAMINHOS.md` (Ordem do dono 03/07) | vigente |
+| D-03 | 2026-09-25 | global | Evidência visual: fonte = SVG canônico da ficha; o agente lê o PNG rasterizado desse SVG, com `--zoom` vetorial em região densa | `docs/LOOPING-CANONICO.md` §1.5; `docs/QA-VISAO-EVIDENCIA-CANONICA.md` §2.4 | vigente |
+| D-04 | 2026-07-13 | global | Selo laranja isolado: só acende com 100% dos campos obrigatórios de origem `qa_agente` (revogou a versão com mistura) | `docs/CONVENCAO-SELOS-VALIDACAO.md` | vigente |
+| D-05 | 2026-07-03 | global | Loop canônico único; script fora da seção 1 não se usa sem ordem explícita | `docs/LOOPING-CANONICO.md` | vigente |
+| D-06 | — | global | Escopo incremental rígido: 13_PAV 100% → Obra_TREINO_1 completa → outras obras, uma a uma | `CLAUDE.md` regra 6 | vigente |
+| D-07 | — | global | Dúvida de interpretação vai ao dono como ficha visual, com uma pergunta respondível em uma frase; fato do desenho se mede, só convenção se pergunta | `CLAUDE.md` regra 5d | vigente |
+
+## Produto e entrega
+
+| ID | Data | Escopo | Decisão | Fonte | Estado |
+|---|---|---|---|---|---|
+| D-10 | 2026-07-03 | global | DP-1: sem distribuição de binário | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
+| D-11 | 2026-07-03 | global | DP-2: servidor = workstation do dono + VPN | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | **revogada por D-19** |
+| D-12 | 2026-07-03 | global | DP-3: equipe usa portal web com login por membro; a app PySide é do dono | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
+| D-13 | 2026-07-03 | global | DP-5: SCR não é entregável; AutoCAD sai do produto (entrada DWG→DXF via ODA) | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
+| D-14 | 2026-07-03 | global | DP-6: embeddings continuam NVIDIA NIM (dependência externa aceita) | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
+| D-15 | 2026-07-03 | global | DP-7: quantitativos só depois da estabilidade de qualidade | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
+| D-16 | 2026-07-03 | global | DP-9: Arete é o trabalho principal; em conflito, qualidade vence prazo | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
+| D-17 | — | global | DP-10 a DP-14: obras chegam pelo Google Drive (1 pasta por usuário, polling); N5 = 1 DXF por classe+pavimento; liberação do N5 é self-service após validar N1+N3; fluxo de 6 etapas | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
+| D-18 | 2026-07-30 | global | Definição de pronto: entregável = N5; as 4 classes juntas; web é o produto, PySide vira laboratório; erro do motor → escape hatch (operador desenha no viewer web) | `docs/MASTERPLAN-CONSOLIDACAO-ENTREGA.md` §1 | vigente |
+| D-19 | 2026-08-10 | global | A VPS Hetzner vira o servidor principal de tudo, com acesso público (substitui DP-2) | `docs/HANDOFF-DEVOPS-VPS-HETZNER.md` §0 | vigente |
+| D-20 | — | global | Sem sincronização campo a campo web ↔ app: a app é só treino/validação interna | `docs/MASTERPLAN-OBRAS-DRIVE.md` (Fora de escopo) | vigente |
+| D-21 | — | global | Generalização para as outras obras saiu da fila; volta quando o dono decidir | `docs/MASTERPLAN-CONSOLIDACAO-ENTREGA.md` (tabela final) | vigente |
+
+## PIL — pilar
+
+| ID | Data | Escopo | Decisão | Fonte | Estado |
+|---|---|---|---|---|---|
+| D-30 | 2026-07-16 | global | Hachura de vazio no topo do painel: N3 **e** N4 devem ter; N4 já selados não são regenerados | `docs/SA-ANALISE/CLASSES/PIL.md` §5.1 | vigente |
+| D-31 | 2026-08-20 | global | R1: o vão entre o fim da viga desenhada e a face do pilar é continuação da viga | `docs/INTERPRETACAO-VIGA-CHEGA-VAO-E-FACE.md` R1 | vigente |
+| D-32 | 2026-08-20 | global | R2: viga mais estreita que a face → `chega`; do tamanho da face → `interior` | idem R2 | vigente |
+| D-33 | 2026-08-21 | global | R3: pilar mais largo que o corredor → a viga atravessa; mesma largura + outra viga do outro lado → morre; mesma largura + a própria viga do outro lado → atravessa | idem R3 | vigente |
+| D-34 | 2026-08-22 | global | R4: chegada na esquina é chegada **e** passagem (duas informações, duas faces) | idem R4 | vigente |
+
+## LV — lateral de viga
+
+| ID | Data | Escopo | Decisão | Fonte | Estado |
+|---|---|---|---|---|---|
+| D-40 | 2026-09-11 | global | Visão de corte: o N4 replica a geometria medida do recorte N2; o N3 continua proibido de ler N2 | `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md` (emenda 2026-09-11) | vigente |
+| D-41 | 2026-09-13 | global | Abertura de VIGA recorta painel e sarrafo; abertura de PILAR não altera o painel, só recorta o sarrafo | idem §5.2.1 | vigente |
+| D-42 | 2026-09-14 | global | Abertura de viga separa segmentos — a separação vem da interpretação, para o N3 reproduzir o que o N4 copia | idem §5.2.3 | vigente |
+| D-43 | 2026-09-17 | global | Cota nas pontas: esquerda ≠ direita (laje ou painel) → cota nos dois lados, laje e painel; iguais → uma só, à direita | idem §5.2.6 | vigente |
+| D-44 | 2026-09-19 | global | Fator de repetição "NX": começa no 2º painel; só painéis completos (244) e iguais; 1º e último nunca entram; menos de 2 → sem fator | idem §5.2.8 | vigente |
+| D-45 | — | global | G3: altura da face = seção + 4 cm (contra a altura total da lateral) | idem §6.1 | vigente |
+| D-46 | — | global | G7: no encontro entre vigas decide a profundidade — menos profunda: a lateral passa por baixo até a face oposta; mais profunda: termina na primeira face | idem §6.1 | vigente |
+| D-47 | 2026-09-20 | global | G9: o recuo de 11 é do `Para`; o `Passa` não recua | idem §6.1 | vigente |
+| D-48 | — | global | G10: lados A e B decidem Para/Passa caso a caso; faces C e D do pilar são sempre `Passa` | idem §6.1 | vigente |
+| D-49 | 2026-09-25 | global | O fundo (FV) é referência e comparação para a lateral, nunca lei | `docs/SA-ANALISE/CLASSES/LV.md`; contrato §6.1.1 | vigente |
+| D-50 | 2026-09-25 | global | Questionário Q1–Q7: troca de seção abre segmento; mesma profundidade = abertura; Passa = pilar inteiro num segmento com início/fim; pilar e viga coincidentes = ambos; −11 só no N3; contagem do N4 não é referência; autonomia do SA com revisão do dono no front-end | `docs/QUESTIONARIO-LV-SA-2026-09-25.md` | vigente |
+
+## Lacunas conhecidas (decisão existe, fonte escrita não)
+
+Decisões que hoje só estão na memória de sessões de agente e precisam ir para o doc
+canônico da classe antes de entrar aqui:
+
+- PIL: `852.16` é nível válido; autoridade do nível = anotação contida no contorno (19/08).
+- PIL: invariante "viga chega ↔ lajes por face" separa erro de corpus de erro de motor (19/08).

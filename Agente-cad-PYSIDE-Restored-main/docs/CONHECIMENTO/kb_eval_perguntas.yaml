@@ -1,0 +1,55 @@
+# Perguntas de avaliação da KB global — cada uma com a(s) fonte(s) que DEVEM aparecer.
+# `esperado` = trechos do caminho (qualquer um conta como acerto). Escritas como uma
+# pessoa da equipe ou um agente perguntaria, não copiando o título do doc.
+# Rodar: python scripts/kb/kb_eval.py   (métricas por modo: texto, vetor, híbrido)
+
+- pergunta: o que significa selo laranja
+  esperado: [CONVENCAO-SELOS-VALIDACAO, GLOSSARIO]
+- pergunta: quem decide se a lateral é Para ou Passa
+  esperado: [CONTRATO-RIGIDO-MOTOR-LV, DECISOES-DO-DONO]
+- pergunta: o recuo de 11 cm vale para Passa?
+  esperado: [DECISOES-DO-DONO, CONTRATO-RIGIDO-MOTOR-LV]
+- pergunta: posso usar a API do Claude para dar veredito visual?
+  esperado: [VISION-VALIDACAO-CAMINHOS, DECISOES-DO-DONO, LOOPING-CANONICO]
+- pergunta: qual versão do python tenho que usar
+  esperado: [CLAUDE.md, PYTHON-3.12-RUNTIME]
+- pergunta: onde fica o banco de dados real do projeto
+  esperado: [CLAUDE.md, ARQUITETURA-DB-COMPLETA, MAPA-DO-CONHECIMENTO]
+- pergunta: o que é o N5 e o que conta como pronto
+  esperado: [MASTERPLAN-CONSOLIDACAO-ENTREGA, GLOSSARIO, DECISOES-DO-DONO]
+- pergunta: hachura de vazio no topo do painel do pilar precisa estar no N4?
+  esperado: [CLASSES/PIL.md, DECISOES-DO-DONO]
+- pergunta: como se calcula o nível de um segmento de fundo de viga
+  esperado: [NIVEL-SEGMENTO-FUNDO-VIGA]
+- pergunta: altura da face da lateral é a seção mais quanto
+  esperado: [CONTRATO-RIGIDO-MOTOR-LV, DECISOES-DO-DONO]
+- pergunta: zoom do SVG no navegador pode usar transform scale?
+  esperado: [PADRAO-SVG-WEB-PANZOOM-VIEWBOX, CLAUDE.md]
+- pergunta: viga termina antes da face do pilar, o vão é o quê
+  esperado: [INTERPRETACAO-VIGA-CHEGA-VAO-E-FACE, DECISOES-DO-DONO]
+- pergunta: como a equipe manda uma obra nova para o sistema
+  esperado: [MASTERPLAN-PRODUCAO-SOBERANIA, MASTERPLAN-OBRAS-DRIVE, HANDOFF-ARCHITECT-PORTAL, DECISOES-DO-DONO]
+- pergunta: o portal pode importar PySide6?
+  esperado: [HANDOFF-ARCHITECT-PORTAL, GLOSSARIO, MAPA-CODIGO]
+- pergunta: quantos painéis entram no multiplicador 7X
+  esperado: [CONTRATO-RIGIDO-MOTOR-LV, DECISOES-DO-DONO]
+- pergunta: o que é PI e NSC nos documentos da empresa
+  esperado: [HANDOFF-B-KNOWLEDGE-EXTRACTION, GLOSSARIO]
+- pergunta: G2 passou 100%, posso selar o golden?
+  esperado: [LOOPING-CANONICO, DECISOES-DO-DONO, MASTERPLAN-ARETE-QUALITY-GATES]
+- pergunta: qual script roda o headless do structural analyzer
+  esperado: [CLAUDE.md, LOOPING-CANONICO, MAPA-CODIGO]
+- pergunta: pilar que nasce no pavimento pode cortar o fundo de viga?
+  esperado: [CLASSES/FV.md]
+- pergunta: onde a VPS está e por que saímos da workstation
+  esperado: [HANDOFF-DEVOPS-VPS-HETZNER, DECISOES-DO-DONO]
+- pergunta: abertura de pilar recorta o painel da lateral?
+  esperado: [CONTRATO-RIGIDO-MOTOR-LV, DECISOES-DO-DONO]
+- pergunta: tiers de confiança do RAG, o que é T2
+  esperado: [POLITICA-CONFIANCA-RAG, GLOSSARIO, MAPA-DO-CONHECIMENTO]
+- pergunta: faces A B C D do pilar quais são as longas
+  esperado: [INTERPRETACAO-PILARES-ABCD, GLOSSARIO, CLASSES/PIL.md]
+- pergunta: quais JSONs não podem ser alterados de jeito nenhum
+  esperado: [CLAUDE.md, MAPA-DO-CONHECIMENTO, HANDOFF-ARETE-EXECUTOR]
+- pergunta: quando a dúvida é de interpretação, como perguntar ao dono
+  esperado: [CLAUDE.md, INTERPRETACAO-VIGA-CHEGA, DECISOES-DO-DONO]

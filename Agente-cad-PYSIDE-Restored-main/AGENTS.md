@@ -42,8 +42,16 @@
 7. **Git**: sem push para main; commits na branch de sessão.
 8. **Missões ativas e leituras obrigatórias**: seção "MISSÃO ATUAL" do `CLAUDE.md`
    (masterplans `MASTERPLAN-ARETE-QUALITY-GATES.md` e `MASTERPLAN-PRODUCAO-SOBERANIA.md`).
+9. **Conhecimento**: entrada = `docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md`; busca =
+   `python scripts/kb/kb_query.py "pergunta"`; decisões do dono = `DECISOES-DO-DONO.md`.
+   Conhecimento novo vai para o doc canônico do tema (seção "Conhecimento" do `CLAUDE.md`).
 
 ---
+
+> **⚠ LEGADO desde 2026-09-25 — o bloco ByteRover abaixo NÃO vale mais.** Não usar
+> `brv curate`/`brv query` nem o `.brv/context-tree` como memória ou fonte: ele está parado
+> desde 2026-08-01 e diverge dos docs. O bloco fica aqui só porque a ferramenta `brv` o
+> reinsere; a remoção está no plano de limpeza (`docs/CONHECIMENTO/PLANO-HARMONIZACAO.md` §5).
 
 <!-- BEGIN BYTEROVER RULES -->
 

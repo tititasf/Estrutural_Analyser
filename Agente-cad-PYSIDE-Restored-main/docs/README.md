@@ -1,5 +1,7 @@
 # Documentação — CAD-ANALYZER / Estrutural Analyzer
 
+> **Desde 2026-09-25 a entrada do conhecimento é [CONHECIMENTO/MAPA-DO-CONHECIMENTO.md](./CONHECIMENTO/MAPA-DO-CONHECIMENTO.md)** (mapa por domínio, glossário, decisões do dono, status de cada doc e busca `scripts/kb/kb_query.py`). Este índice de 2026-07-03 continua válido como lista por tema.
+
 **Atualizado:** 2026-07-03. Este índice aponta os documentos canônicos por tema.
 Regra de leitura: em conflito entre docs, vale a hierarquia da seção
 "Missões ativas" e, para status/números, SEMPRE o relatório mais recente em

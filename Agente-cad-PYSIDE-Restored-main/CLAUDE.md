@@ -127,6 +127,18 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 7. AutoCAD batch via `accoreconsole.exe` — NUNCA pipelines em paralelo.
 8. Git: sem push para main; commits na branch de sessão.
 
+## Conhecimento — base global (2026-09-25)
+
+- **Entrada do conhecimento:** `docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md` (onde mora cada
+  saber, quem vence em conflito, o que é legado). Termos: `GLOSSARIO.md`. Decisões do dono
+  já tomadas: `DECISOES-DO-DONO.md` — consultar **antes** de perguntar de novo.
+- **Busca:** `python scripts/kb/kb_query.py "pergunta"` (texto + significado; aponta
+  arquivo + seção). Resultado de busca não é prova: abrir a fonte.
+- **Conhecimento novo vai para o doc canônico do tema** (decisão nova do dono = linha nova
+  em `DECISOES-DO-DONO.md` + texto no doc da classe). Depois: `kb_build.py`.
+- **ByteRover (`brv`, `.brv/`), FAISS e `stog_rag_db` são legado:** não curar nem consultar
+  como fonte. Plano de limpeza: `docs/CONHECIMENTO/PLANO-HARMONIZACAO.md`.
+
 ## Multi-agente (Claude Code + Codex + Antigravity) — 1 fonte de verdade
 
 - **Este CLAUDE.md é a fonte única do projeto.** `AGENTS.md` (Codex/Antigravity) e
