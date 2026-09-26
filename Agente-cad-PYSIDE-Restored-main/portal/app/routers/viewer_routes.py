@@ -167,18 +167,22 @@ def encontrar_estrutural_limpo(
     return None
 
 
-def _rotulo(item: dict) -> str:
+def _rotulo(item: dict, classe: str = "") -> str:
     """Texto a desenhar junto da linha/área.
 
     Pilar e laje usam o próprio nome (P1, L301). Segmento de viga usa
     "<viga> SEG <n>" — o dono pediu a contagem do segmento explícita nos fundos
     (SEG 1, SEG 2, SEG 3), e "V2 (segmento 1)" é longo demais para caber sobre
-    o desenho.
+    o desenho. Lateral leva também o LADO: "V312 SEG 3-A" (pedido do dono
+    2026-09-26) — A e B tem numeracao propria, "SEG 3" sozinho e' ambiguo.
     """
     campos = item.get("campos") or {}
     viga = item.get("beam_name")
     segmento = str(campos.get("Segmento") or "").strip()
+    lado = str(campos.get("Lado") or "").strip().upper()
     if viga and segmento:
+        if str(classe).startswith("lateral_") and lado in ("A", "B"):
+            return f"{viga} SEG {segmento}-{lado}"
         return f"{viga} SEG {segmento}"
     return str(item.get("titulo") or item.get("item_id") or "")
 
@@ -218,7 +222,7 @@ def _geometria_dos_itens(estado: dict, classe: str, transform) -> list[dict]:
         saida.append({
             "item_id": item.get("item_id"),
             "classe_sa": classe,
-            "rotulo": _rotulo(item),
+            "rotulo": _rotulo(item, classe),
             "beam_name": item.get("beam_name"),
             "segmento": campos.get("Segmento"),
             "lado": campos.get("Lado"),

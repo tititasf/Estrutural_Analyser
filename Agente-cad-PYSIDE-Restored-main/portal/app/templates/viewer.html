@@ -133,7 +133,7 @@
           var rot = String(item.rotulo || "").trim();
           var linhas = (function (s) {
             if (!s) return [""];
-            var mSeg = s.match(/^(.*?)\s+(SEG\s*\d+)\s*$/i);
+            var mSeg = s.match(/^(.*?)\s+(SEG\s*\d+(?:\.\d+)?(?:-[AB])?)\s*$/i);
             if (mSeg) return [mSeg[1].trim(), mSeg[2].replace(/\s+/g, " ").toUpperCase()];
             var mPar = s.match(/^(.*?)\s*\(segmento\s+(\d+)\)\s*$/i);
             if (mPar) return [mPar[1].trim(), "SEG " + mPar[2]];
