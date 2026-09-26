@@ -102,11 +102,24 @@ class LvScene:
     dimension_coverage: dict[str, list[list[float]]] = field(default_factory=lambda: {"A": [], "B": []})
 
     def dimension_overlap(self, side: str, a0: float, a1: float) -> float:
+        """Fracao do segmento que so' existe SOBRE cota/chamada.
+
+        Chamada deitada sobre a face real (V301) nao e' alucinacao: ali existe
+        a borda estrutural. Alucinacao e' o trecho coberto por cota e SEM borda
+        estrutural por baixo.
+        """
         lo, hi = min(a0, a1), max(a0, a1)
         if hi - lo <= 0:
             return 0.0
-        covered = sum(max(0.0, min(hi, y) - max(lo, x)) for x, y in self.dimension_coverage.get(side, []))
-        return covered / (hi - lo)
+        real = _merge([tuple(i) for i in self.face_coverage.get(side, [])], gap=0.05)
+        only_dim = 0.0
+        for x, y in self.dimension_coverage.get(side, []):
+            x, y = max(lo, x), min(hi, y)
+            if y <= x:
+                continue
+            under = sum(max(0.0, min(y, b) - max(x, a)) for a, b in real)
+            only_dim += (y - x) - under
+        return max(0.0, only_dim) / (hi - lo)
 
     def line_coverage(self, side: str, a0: float, a1: float) -> float:
         lo, hi = min(a0, a1), max(a0, a1)
@@ -176,6 +189,7 @@ def _line_segments(lines: Iterable[dict]) -> list[tuple[float, float, float, flo
 
 TICK_LEN = (4.0, 16.0)
 TICK_TOL = 1.5
+WITNESS_END_TOL = 12.0  # chamada passa do tique ~10 cm no 13_PAV (3313,1 -> 3323,1)
 
 
 def _is_tick(seg: tuple[float, float, float, float]) -> bool:
@@ -254,8 +268,44 @@ def split_dimension_lines(
                 if j not in confirmed:
                     confirmed.add(j)
                     frontier.append(j)
-    structural = [seg for i, seg in enumerate(segs) if i not in confirmed]
-    dimension = [seg for i, seg in enumerate(segs) if i in confirmed]
+    # Linhas de CHAMADA: saem do objeto (com folga) e passam do tique da cota
+    # em ~3 cm. Medido no topo da V322/V309A: x=3788,4 de 3212 a 3323,1, com a
+    # cadeia "19 | 418" em y=3320. Sao colineares a' face da viga vertical e,
+    # sem esta regra, a extensao da viga subia por elas.
+    # Criterio: axial, PERPENDICULAR a uma cota comprovada, passando pelo
+    # tique dela, e o tique a ate' WITNESS_END_TOL de uma PONTA da linha.
+    # Chamada pode ficar COLINEAR a' face da viga (V301, 3692,7-3731,2: chamada
+    # de uma cota vertical deitada sobre a face); a face real e' outra linha,
+    # que continua estrutural — a cobertura da face nao depende da chamada.
+    confirmed_ticks: list[tuple[float, float, bool]] = []  # (x, y, cota_horizontal)
+    for i in confirmed:
+        x0, y0, x1, y1 = segs[i]
+        horizontal = abs(y1 - y0) <= 0.05
+        confirmed_ticks.append((x0, y0, horizontal))
+        confirmed_ticks.append((x1, y1, horizontal))
+    witness: set[int] = set()
+    for index, seg in enumerate(segs):
+        if index in confirmed or _is_tick(seg):
+            continue
+        x0, y0, x1, y1 = seg
+        horizontal = abs(y1 - y0) <= 0.05
+        vertical = abs(x1 - x0) <= 0.05
+        if not (horizontal or vertical):
+            continue
+        lo, hi = (min(x0, x1), max(x0, x1)) if horizontal else (min(y0, y1), max(y0, y1))
+        t = (y0 + y1) / 2.0 if horizontal else (x0 + x1) / 2.0
+        for tx, ty, chain_horizontal in confirmed_ticks:
+            if chain_horizontal == horizontal:
+                continue  # chamada e' perpendicular a' cota
+            a, tt = (tx, ty) if horizontal else (ty, tx)
+            if abs(tt - t) > 0.6 or not (lo - 0.6 <= a <= hi + 0.6):
+                continue
+            if min(abs(a - lo), abs(a - hi)) <= WITNESS_END_TOL:
+                witness.add(index)
+                break
+    excluded = confirmed | witness
+    structural = [seg for i, seg in enumerate(segs) if i not in excluded]
+    dimension = [seg for i, seg in enumerate(segs) if i in excluded]
     return structural, dimension
 
 
@@ -397,18 +447,18 @@ def _extent(
     scene_h: bool, t_lo: float, t_hi: float, label_axis: float,
     edges: _EdgeIndex, blockers: list[tuple[float, float]],
 ) -> Optional[tuple[float, float]]:
-    lo_cov = edges.coverage(scene_h, t_lo)
-    hi_cov = edges.coverage(scene_h, t_hi)
-    pieces = _merge([tuple(i) for i in lo_cov + hi_cov], gap=0.05)
-    if not pieces:
-        return None
-
-    def both_edges(a: float, b: float) -> bool:
-        def cov(c):
-            return sum(max(0.0, min(b, y) - max(a, x)) for x, y in c)
-        return cov(lo_cov) > 5.0 and cov(hi_cov) > 5.0
-
-    pieces = [p for p in pieces if both_edges(p[0], p[1])]
+    lo_cov = _merge([tuple(i) for i in edges.coverage(scene_h, t_lo)], gap=1.0)
+    hi_cov = _merge([tuple(i) for i in edges.coverage(scene_h, t_hi)], gap=1.0)
+    # Trecho de viga so' existe onde as DUAS paredes existem. Com a uniao,
+    # uma linha colinear a UMA face (V310: x=1380,4 desce ate' 2391 passando a
+    # ponta da V303) esticava a viga sobre o que nao e' dela.
+    pieces = []
+    for a0, a1 in lo_cov:
+        for b0, b1 in hi_cov:
+            x, y = max(a0, b0), min(a1, b1)
+            if y - x > 0.5:
+                pieces.append([x, y])
+    pieces = _merge([tuple(i) for i in pieces], gap=0.05)
     if not pieces:
         return None
     seed = min(

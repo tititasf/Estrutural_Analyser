@@ -211,7 +211,30 @@ def test_edge_touched_by_a_tick_is_not_a_dimension():
 
 def test_segment_over_dimension_line_is_flagged():
     scene = _scene()
-    scene.face_coverage = {"A": [[0.0, 1000.0]], "B": [[0.0, 1000.0]]}
-    scene.dimension_coverage = {"A": [[0.0, 300.0]], "B": []}
+    # A: trecho 0-300 so' tem cota por baixo (alucinacao). B: a cota esta'
+    # deitada sobre parede real (chamada colinear, V301) — nao e' alucinacao.
+    scene.face_coverage = {"A": [[300.0, 1000.0]], "B": [[0.0, 1000.0]]}
+    scene.dimension_coverage = {"A": [[0.0, 300.0]], "B": [[0.0, 300.0]]}
     assert "sobre_linha_de_cota" in segment_cell(scene, "A", "passa")[0].flags
     assert "sobre_linha_de_cota" not in segment_cell(scene, "B", "passa")[0].flags
+
+
+def test_witness_line_of_dimension_is_not_beam_wall():
+    """Linha de chamada (V322/V309A): perpendicular a' cota, passa o tique ~10 cm."""
+    from src.core.lv_beam_scene import split_dimension_lines
+    chain = [(0.0, 313.1, 418.0, 313.1)]
+    ticks = [_tick(0.0, 313.1), _tick(418.0, 313.1)]
+    witness = (418.0, 212.0, 418.0, 323.1)
+    wall = (418.0, 0.0, 418.0, 141.0)
+    texts = [{"text": "418", "pos": (200.0, 316.0)}]
+    structural, dimension = split_dimension_lines(chain + ticks + [witness, wall], texts)
+    assert witness in dimension and wall in structural
+
+
+def test_beam_extent_needs_both_walls():
+    """V310: linha colinear a UMA face nao estica a viga alem da V303."""
+    lines = [{"points": [(0.0, 0.0), (0.0, 400.0)]}, {"points": [(14.0, 150.0), (14.0, 400.0)]}]
+    texts = [{"text": "V1", "pos": (-3.0, 300.0), "rotation": 90.0},
+             {"text": "14/50", "pos": (-3.0, 250.0), "rotation": 90.0}]
+    v1 = build_scenes([{"name": "V1"}], texts, lines, {})["V1"]
+    assert (v1.start, v1.end) == (150.0, 400.0)
