@@ -16,24 +16,8 @@ Agente-cad-PYSIDE-Restored-main/docs/ENCICLOPEDIA-SCHEMA.md:
 MASTERPLAN-CEREBRO-RAG-MULTIMODAL-v1.0.md:
   status: historico
   motivo: antecessor da KB global (jun/26); princípios herdados em PLANO-HARMONIZACAO §2
-docs/MASTERPLAN-RAG-INTEGRACAO-COMPLETA.md:
-  status: legado
-  motivo: plano RAG de junho; substituído pela KB global + CONTRATO-KB-MULTIOBRA
-docs/MASTERPLAN-RAG-VECTORIZACAO.md:
-  status: legado
-  motivo: vetorização FAISS/NIM de junho; substituída por kb_build.py
-Agente-cad-PYSIDE-Restored-main/docs/TRAINING-PIPELINES-SPEC.md:
-  status: legado
-  motivo: spec do programa RAG de junho, sem implementação viva
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-MCP-1.0-ACTIVE-LEARNING-SEGURO.md:
-  status: legado
-  motivo: MCP de active learning inativo (docs/MCP-ACTIVE-LEARNING-SPEC)
 
 # ── Versões anteriores de masterplans e status ──
-MASTERPLAN-CAD-ANALYZER-v2.md: {status: legado, motivo: versão de mar/26; vigente é o repo (CLAUDE.md + masterplans ativos)}
-MASTERPLAN-CAD-ANALYZER-v3.md: {status: legado, motivo: versão de mar/26}
-MASTERPLAN-CAD-ANALYZER-v4.0.md: {status: legado, motivo: versão de mar/26}
-MASTERPLAN-CAD-ANALYZER-SQUADS.md: {status: legado, motivo: squads de mar/26; squad vigente em squads/qa-global-evidencias}
 RELEASE_NOTES_v3.0.md: {status: historico, motivo: notas de release de mar/26}
 README.md: {status: legado, motivo: README de mar/26 da raiz; entrada vigente é CLAUDE.md}
 Agente-cad-PYSIDE-Restored-main/STATUS.md:
@@ -57,12 +41,6 @@ Agente-cad-PYSIDE-Restored-main/docs/PROMPT-ETAPA-2-LAJE-CODEX.md: {status: hist
 Agente-cad-PYSIDE-Restored-main/docs/PROMPT-VIGA-SPLIT-FV-LV-CODEX.md: {status: historico, motivo: prompt executado em jun/26}
 
 # ── Stores legados com skill/instrução própria ──
-Agente-cad-PYSIDE-Restored-main/.claude/skills/byterover/SKILL.md:
-  status: legado
-  motivo: ByteRover parado desde 2026-08-01; conhecimento vigente está nos docs canônicos
-Agente-cad-PYSIDE-Restored-main/.agents/skills/byterover/SKILL.md:
-  status: legado
-  motivo: cópia da skill ByteRover para Codex; idem
 
 # ── Índice antigo: continua útil, mas a entrada agora é o mapa ──
 Agente-cad-PYSIDE-Restored-main/docs/README.md:
@@ -70,32 +48,18 @@ Agente-cad-PYSIDE-Restored-main/docs/README.md:
   motivo: índice de 2026-07-03; a entrada vigente é docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md
 
 # ── Stories do programa RAG de junho (RAG-0..6, STORY-RAG-*) ──
-Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-0.story.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-1.story.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-2.story.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-3.story.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-4.story.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-5.story.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-6.story.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-0.5-ANTI-SYNTHETIC-VALIDATION.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-1.1-SEMANTIC-RAG-KB-POPULADA.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-1.2-INDEXACAO-T1-AUDITADA.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-2.0-CURADORIA-OBSERVADOR-VALIDADA.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-2.7-CURADORIA-PIPELINES-TREINO.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.0-AUDITORIA-HOOKS-HUMANOS.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.1-CROP-LEARNING-DIAGNOSTIC-REVERSE.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.1B-VALIDACAO-F5-N2.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.2-MEMORIA-ARTEFATOS-N3-N4.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.2A-GALERIA-ARTEFATOS.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-4.0-RAG-POR-OBRA-AUDITADO.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-4.1-CONTEXTO-READ-ONLY-SA.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-4.2A-RETRIEVAL-LOCAL-SEGURO.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
-Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-6.0-OPERACAO-E-PLUGINS.md: {status: legado, motivo: story do programa RAG de junho; princípios herdados pela KB global}
 
 # ── Conhecimento de negócio antigo, mas valioso (entra no índice) ──
 docs/HANDOFF-B-KNOWLEDGE-EXTRACTION.md: {status: ativo, motivo: conhecimento de negócio (PI/NSC, chapas, garfos, obras reais) extraído de 18 PDFs em mar/26}
 docs/HANDOFF-A-SQUAD-ESTADO-ATUAL.md: {status: historico, motivo: estado do sistema em mar/26}
-docs/HANDOFF-C-ROADMAP-PRODUCAO.md: {status: legado, motivo: roadmap de mar/26; vigente é MASTERPLAN-CONSOLIDACAO-ENTREGA + PRODUCAO-SOBERANIA}
-MASTERPLAN-SS-v5.0.md: {status: legado, motivo: masterplan v4.7→v5.0 de jun/26, substituído}
 compreensao_global_app.md: {status: historico, motivo: auditoria de implementação de jun/26}
 ANALISE-ESTRATEGICA-E2E-NOVA-OBRA.md: {status: historico, motivo: análise E2E de nova obra (jun/26); útil quando a Fase B/C chegar}
+
+# ── Revisão dos candidatos a obsoleto (2026-09-26) ──
+Agente-cad-PYSIDE-Restored-main/PROMPTPESSOAL.MD: {status: historico, motivo: brief original do produto (origem, jun/26)}
+Agente-cad-PYSIDE-Restored-main/README.md: {status: legado, motivo: descreve pipeline ML→SCR de jun/26 (SCR saiu, DP-5); entrada vigente é CLAUDE.md + MAPA}
+Agente-cad-PYSIDE-Restored-main/REFACTORACAO_PYSYDE.MD: {status: historico, motivo: migração Tkinter→PySide concluída}
+Agente-cad-PYSIDE-Restored-main/docs/ANALISE-BASELINE-LV-VISAO-CORTE-10-VIGAS.md: {status: historico, motivo: baseline de jun/26, superada}
+Agente-cad-PYSIDE-Restored-main/docs/OCR_DXF_ECOSYSTEM_ANALYSIS.md: {status: historico, motivo: pesquisa de ferramentas de mai/26}
+Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-SA-1.1-RENDER-LINKS-HETEROGENEOS.md: {status: historico, motivo: story de jun/26 parada em Ready for Review}
+Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-UX-SA-1.2-SALVAR-MCP-E-INTERACAO-PROJETOS.md: {status: historico, motivo: story de jun/26 parada em Ready for Review}

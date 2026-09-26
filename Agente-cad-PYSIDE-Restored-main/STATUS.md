@@ -1,3 +1,5 @@
+> **⚠ LEGADO (2026-09-26):** STATUS v4.4 de jun/26, sistema desconectado. Status real = `docs/STATUS.md` (gerado por `scripts/arete/gerar_status.py`). Entrada vigente do conhecimento: `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md`.
+
 # STATUS.md — Vision-Estrutural AI v4.4
 > Atualizado: 2026-05-16 (sessão 8) | Responsável: Claude Code + Thierry
 

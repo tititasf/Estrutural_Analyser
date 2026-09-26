@@ -51,17 +51,20 @@ kb_query.py  ◄──────────┘   busca híbrida; kb_eval.py m
 Tudo abaixo de `KB-GLOBAL/` é **derivado**: apagar e rodar `kb_build.py` reproduz.
 A fonte de verdade continua sendo o texto versionado no git.
 
-**Linha de base (2026-09-25, embedder local mpnet, 262 fontes → 5.713 trechos, 25 perguntas):**
+**Escolha do embedder por medição (2026-09-26, 262 fontes → 5.719 trechos, 25 perguntas):**
 
-| Modo | hit@1 | hit@5 | MRR |
-|---|---:|---:|---:|
-| texto (FTS5) | 76% | 92% | 0,83 |
-| vetor | 56% | 88% | 0,68 |
-| **híbrido (padrão)** | **80%** | **92%** | **0,85** |
+| Embedder | Modo | hit@1 | hit@5 | MRR | Consulta CLI (processo novo) | Build completo |
+|---|---|---:|---:|---:|---:|---:|
+| — (só texto, FTS5) | texto | 76% | 92% | 0,83 | — | — |
+| local `paraphrase-multilingual-mpnet` | híbrido | 80% | 92% | 0,85 | 13,6 s | ~9 min |
+| **NIM `nemotron-3-embed-1b` (padrão)** | híbrido | **80%** | **96%** | **0,88** | **2,1 s** | **3 min** |
 
-Build completo ≈ 9 min em CPU (6 núcleos); incremental ≈ 20 s. Falhas conhecidas:
-sinônimo sem palavra em comum ("não podem ser alterados" × "intocáveis") — candidato a
-melhorar com o embedder NIM (DP-6).
+Critério do dono: "o mais eficiente e disponível" (D-22). NIM venceu em qualidade, tempo de
+consulta e de build. Riscos aceitos e mitigados: exige rede e chave; o catálogo NIM tira
+modelos do ar sem aviso (o `nv-embed-v1` da DP-6 e mais 3 embedders respondem 410 em
+2026-09-26). Se o NIM cair, a busca continua só por texto (92% hit@5 medido); trocar de
+modelo = `KB_NIM_MODELO=<modelo> kb_build.py`; offline = `kb_build.py --embedder local`.
+Rever a escolha rodando `kb_eval.py --db <índice>` para cada candidato.
 
 ## 4. Rotina de manutenção
 
@@ -73,30 +76,29 @@ melhorar com o embedder NIM (DP-6).
 | qualquer um dos acima | `kb_build.py` (incremental: só recalcula trechos alterados) e `kb_eval.py` |
 | queda de hit@5 no `kb_eval.py` | investigar antes de seguir: a busca piorou |
 
-## 5. Limpeza — só depois de harmonizar, em fases, nada destrutivo sem ordem
+## 5. Limpeza — isolar e arquivar, nada apagado
 
-A limpeza **não foi executada**. Cada fase é reversível até a última, e a última exige
-ordem explícita do dono.
+Executado em 2026-09-26 (ordem do dono: "não precisa apagar, isolar em legado e arquivar").
+Tudo com `git mv` — histórico preservado, reversível.
 
-| Fase | Ação | Alvo | Reversível? |
-|---|---|---|---|
-| L0 — marcar | status no inventário (feito) | todos | sim |
-| L1 — avisar | banner "LEGADO — ver MAPA-DO-CONHECIMENTO" no topo dos docs `legado` | 33 docs | sim |
-| L2 — desligar | skill ByteRover sai de `.claude/skills` e `.agents/skills` (arquivar, não apagar) | 2 skills | sim |
-| L3 — arquivar | mover docs `legado` para `docs/_arquivo/` (e `../docs/_arquivo/`), mantendo o histórico git | 33 docs + 14 revisados | sim (git mv) |
-| L4 — congelar stores | README "CONGELADO" em `data/vectors/faiss/`, `DADOS-OBRAS/stog_rag_db/`, `.brv/` | 3 stores | sim |
-| L5 — remover | apagar stores mortos e docs arquivados há 30+ dias sem consulta | FAISS, `stog_rag_db`, `.brv` | **não** — exige ordem do dono |
+| Fase | Ação | Estado |
+|---|---|---|
+| L0 — marcar | status de cada fonte no inventário | ✅ feito |
+| L1 — avisar | banner LEGADO no topo do que fica no lugar: `README.md` (raiz e repo), `STATUS.md` do repo; bloco ByteRover do `AGENTS.md` | ✅ feito |
+| L2 — desligar | skill ByteRover saiu de `.claude/skills` e `.agents/skills` → `_arquivo/skills/` | ✅ feito |
+| L3 — arquivar | 25 docs do programa RAG de junho + rascunho → `docs/_arquivo/`; 8 masterplans/docs antigos da raiz → `D:/Agente-cad-PYSIDE/_arquivo/` (cada arquivo com README) | ✅ feito |
+| L4 — congelar stores | `CONGELADO.md` em `data/vectors/faiss/` e `.brv/`; `DADOS-OBRAS/stog_rag_db/` marcado no `CLAUDE.md` da raiz (não se escreve em `DADOS-OBRAS`) | ✅ feito |
+| L5 — remover | apagar stores mortos e o arquivo | ⛔ não fazer sem ordem explícita do dono |
 
-Antes de L3/L5 em código: conferir que nada importa o alvo
-(`grep -r "<modulo>" src portal scripts`). Os scripts `rag_*` da raiz e o
-`obra_rag_pipeline` ainda são importados pela app PySide — ficam fora da limpeza até a
-app deixar de usá-los.
+O inventário trata qualquer caminho em `_arquivo/` como `legado` (fora do índice). Os
+scripts `rag_*` da raiz e o `obra_rag_pipeline` continuam onde estão: a app PySide ainda
+os importa.
 
 ## 6. Lacunas abertas
 
-1. Decisões PIL que só existem na memória de agente (ver fim de `DECISOES-DO-DONO.md`) → escrever no manual da classe.
+1. Invariante de face: já tinha fonte escrita → registrada como D-35. Nível de laje: regra só no código + **bug de unidade cm×m** em `main.py::_infer_slab_level_from_cut_deltas` afetando 4 lajes do 13_PAV → decisão do dono pendente (`DECISOES-DO-DONO.md`, seção "Pendente").
 2. `CLAUDE.md` do repo traz status datado de 03/07 ("LV 21/32") — número escrito à mão, contra a própria regra; trocar por ponteiro para `docs/STATUS.md`.
 3. `docs/SA-ANALISE/CLASSES/LV.md` linha 72 ainda diz "SVG-only" (alteração de outro agente em andamento na hora da harmonização).
-4. DP-6 (embeddings NIM) × índice local: a KB suporta os dois; o build inicial foi local porque NIM envia o conteúdo dos docs à NVIDIA — decisão do dono pendente.
+4. `scripts/obra_rag_utils.py` (RAG por obra da app PySide) ainda chama `nv-embed-v1`, que está fora do ar: cai em silêncio para o modelo local de 768 dimensões, mas as tabelas LanceDB das obras foram criadas com 4096 → nova ingestão na app falha ou mistura vetores. Mesmo problema em `domain_knowledge_ingestor.py`/`stog_rag_ingestor.py` (legados).
 5. 136 módulos sem docstring (ver `MAPA-CODIGO.md`): a busca de código não os enxerga pelo papel.
 6. Mini-RAG de sessão (`qa_session_index.py`): decidir se vira a camada espacial da KB de obra ou fica como ferramenta de QA separada.

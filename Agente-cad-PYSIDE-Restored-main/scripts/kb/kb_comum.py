@@ -176,24 +176,41 @@ class EmbedderLocal(Embedder):
 
 
 class EmbedderNIM(Embedder):
-    """NVIDIA NIM nv-embed-v1 (4096-dim) — DP-6. Envia o texto à API da NVIDIA."""
-    MODELO = "nvidia/nv-embed-v1"
+    """NVIDIA NIM (DP-6). Envia o texto à API da NVIDIA; exige NVIDIA_API_KEY e rede.
+
+    Modelo padrão medido em 2026-09-26: `nvidia/nemotron-3-embed-1b` (2048-dim). O
+    `nv-embed-v1` da DP-6 e outros três embedders NIM respondem 410 (fim de vida) —
+    catálogo NIM muda sem aviso; KB_NIM_MODELO troca o modelo sem mexer no código.
+    """
+    MODELO = os.environ.get("KB_NIM_MODELO", "nvidia/nemotron-3-embed-1b")
 
     def __init__(self) -> None:
-        from openai import OpenAI
+        import requests
         chave = os.environ.get("NVIDIA_API_KEY") or os.environ.get("NVIDIA_NIM_API_KEY")
         if not chave:
             raise RuntimeError("NVIDIA_API_KEY ausente")
-        base = os.environ.get("NVIDIA_BASE_URL") or "https://integrate.api.nvidia.com/v1"
-        self._c = OpenAI(api_key=chave, base_url=base)
+        self._url = (os.environ.get("NVIDIA_BASE_URL") or "https://integrate.api.nvidia.com/v1") + "/embeddings"
+        self._s = requests.Session()
+        self._s.headers.update({"Authorization": f"Bearer {chave}", "Content-Type": "application/json"})
         self.nome = "nim:" + self.MODELO
-        self.dim = 4096
+        self.dim = len(self._post(["teste"], "query")[0])
+
+    def _post(self, textos, tipo):
+        import time
+        for tentativa in range(5):
+            r = self._s.post(self._url, timeout=60, json={
+                "input": textos, "model": self.MODELO, "input_type": tipo, "truncate": "END"})
+            if r.status_code == 429 or r.status_code >= 500:
+                time.sleep(2 ** tentativa)
+                continue
+            r.raise_for_status()
+            return [d["embedding"] for d in sorted(r.json()["data"], key=lambda d: d["index"])]
+        r.raise_for_status()
 
     def codificar(self, textos, consulta=False):
         vecs = []
         for i in range(0, len(textos), 32):
-            r = self._c.embeddings.create(input=textos[i:i + 32], model=self.MODELO)
-            vecs += [d.embedding for d in r.data]
+            vecs += self._post(textos[i:i + 32], "query" if consulta else "passage")
         arr = np.asarray(vecs, dtype=np.float32)
         return arr / np.linalg.norm(arr, axis=1, keepdims=True).clip(min=1e-9)
 

@@ -55,6 +55,8 @@ FONTES_GLOB = [
     ("squads", REPO / "squads", "**/*.md"),
     ("squads_data", REPO / "squads", "**/data/*.json"),
     ("skills_repo", REPO / ".claude" / "skills", "**/SKILL.md"),
+    ("arquivo_repo", REPO / "_arquivo", "**/*.md"),
+    ("arquivo_workspace", WORKSPACE / "_arquivo", "**/*.md"),
     ("comandos", REPO / ".claude" / "commands", "**/*.md"),
     ("skills_usuario", Path.home() / ".claude" / "skills", "**/*.md"),
 ]
@@ -180,6 +182,8 @@ def classificar(fontes: list[dict]) -> None:
         citado_entrada = f["_chave"] in entradas_txt
         if f["path"] in entradas_rel:
             st, motivo = "entrada", "ponto de entrada dos agentes"
+        elif "/_arquivo/" in f["path"] or f["path"].startswith("_arquivo/"):
+            st, motivo = "legado", "arquivado em _arquivo/ (harmonização 2026-09-26)"
         elif "HISTORICO" in f["path"] or "/stories/completed/" in f["path"]:
             st, motivo = "historico", "pasta de histórico / story concluída"
         elif f["_marca_legado"] and not citado_entrada:

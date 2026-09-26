@@ -1,15 +1,15 @@
 # Fontes de conhecimento — status
 
-> Gerado por `scripts/kb/kb_inventario.py` em 2026-09-25. Não editar à mão: a curadoria vai em `fontes_override.yaml` e o arquivo é regenerado.
+> Gerado por `scripts/kb/kb_inventario.py` em 2026-09-26. Não editar à mão: a curadoria vai em `fontes_override.yaml` e o arquivo é regenerado.
 
 | Status | Qtde | Significado |
 |---|---:|---|
 | entrada | 5 | lido por todo agente antes de agir |
 | canonico | 68 | citado por uma entrada ou marcado canónico — é a verdade vigente |
 | ativo | 142 | em uso (tocado desde 2026-07-01 ou citado) |
-| historico | 50 | registro do passado; consultar só para entender decisões |
-| legado | 35 | marcado descontinuado/obsoleto — não seguir |
-| candidato_obsoleto | 8 | sem uso aparente — revisar para arquivar/remover |
+| historico | 56 | registro do passado; consultar só para entender decisões |
+| legado | 40 | marcado descontinuado/obsoleto — não seguir |
+| candidato_obsoleto | 0 | sem uso aparente — revisar para arquivar/remover |
 
 ## Stores de conhecimento fora do texto
 
@@ -28,17 +28,17 @@
 
 | Fonte | Título | Data | Citado por | Motivo |
 |---|---|---|---:|---|
-| `Agente-cad-PYSIDE-Restored-main/AGENTS.md` | AGENTS.md — Codex / Antigravity / qualquer agente que não leia CLAUDE.md | 2026-08-18 | 0 | ponto de entrada dos agentes |
-| `Agente-cad-PYSIDE-Restored-main/CLAUDE.md` | CLAUDE.md — Estrutural Analyzer (CAD-ANALYZER) | 2026-08-23 | 3 | ponto de entrada dos agentes |
-| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md` | Mapa do Conhecimento — base global da empresa | 2026-09-25 | 5 | ponto de entrada dos agentes |
+| `Agente-cad-PYSIDE-Restored-main/AGENTS.md` | AGENTS.md — Codex / Antigravity / qualquer agente que não leia CLAUDE.md | 2026-09-25 | 0 | ponto de entrada dos agentes |
+| `Agente-cad-PYSIDE-Restored-main/CLAUDE.md` | CLAUDE.md — Estrutural Analyzer (CAD-ANALYZER) | 2026-09-25 | 3 | ponto de entrada dos agentes |
+| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md` | Mapa do Conhecimento — base global da empresa | 2026-09-25 | 8 | ponto de entrada dos agentes |
 | `Agente-cad-PYSIDE-Restored-main/docs/LOOPING-CANONICO.md` | LOOPING CANÔNICO — o único loop válido (e a quarentena dos obsoletos) | 2026-09-25 | 26 | ponto de entrada dos agentes |
-| `CLAUDE.md` | CLAUDE.md — Workspace CAD-ANALYZER (raiz de dados + app) | 2026-08-10 | 28 | ponto de entrada dos agentes |
+| `CLAUDE.md` | CLAUDE.md — Workspace CAD-ANALYZER (raiz de dados + app) | 2026-09-25 | 31 | ponto de entrada dos agentes |
 
 ## canonico (68)
 
 | Fonte | Título | Data | Citado por | Motivo |
 |---|---|---|---:|---|
-| `AGENTS.md` | AGENTS.md — workspace CAD-ANALYZER (ponteiro fixo) | 2026-07-11 | 7 | citado por ponto de entrada |
+| `AGENTS.md` | AGENTS.md — workspace CAD-ANALYZER (ponteiro fixo) | 2026-07-11 | 8 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/.agents/AGENTS.md` | AGENTS | 2026-07-01 | 3 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/GEMINI.md` | GEMINI.md — ponteiro fixo (não editar; manter 1 fonte só) | 2026-07-05 | 2 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md` | ARETE — Procedimento Geral de Looping por Classe (Fichas HTML + Diagnóstico Duplo) | 2026-08-10 | 22 | citado por ponto de entrada |
@@ -50,7 +50,7 @@
 | `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/DECISOES-DO-DONO.md` | Registro de decisões do dono | 2026-09-25 | 5 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/GLOSSARIO.md` | Glossário — base global da empresa | 2026-09-25 | 2 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-CODIGO.md` | Mapa de código | 2026-09-25 | 2 | citado por ponto de entrada |
-| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/PLANO-HARMONIZACAO.md` | Plano de harmonização do conhecimento | 2026-09-25 | 5 | citado por ponto de entrada |
+| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/PLANO-HARMONIZACAO.md` | Plano de harmonização do conhecimento | 2026-09-25 | 9 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONTRATO-QA-RAG-LOOPINGS.md` | Contrato QA ↔ RAG ↔ Loopings Arete | 2026-08-10 | 10 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md` | Contrato Rigido do Motor LV N3/N4 | 2026-09-25 | 9 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONVENCAO-SELOS-VALIDACAO.md` | Convenção de Selos de Validação | 2026-08-10 | 15 | citado por ponto de entrada |
@@ -102,7 +102,7 @@
 | `Agente-cad-PYSIDE-Restored-main/docs/SEMANTICA-PILAR-NOVA.md` | Semântica dos Campos — Pilar NOVA (Sistema Fôrma) | 2026-07-11 | 10 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/SEMANTICA-VIGA-NOVA.md` | Semântica dos Campos — Viga NOVA (Sistema Fôrma) | 2026-06-25 | 7 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/SPEC-VIGA-SPLIT-FV-LV.md` | SPEC — Separação da Viga em FV (Fundo) + LV (Lateral) em TODOS os níveis | 2026-06-25 | 4 | citado por ponto de entrada |
-| `Agente-cad-PYSIDE-Restored-main/docs/STATUS.md` | STATUS — gerado automaticamente, NÃO editar à mão | 2026-09-12 | 15 | citado por ponto de entrada |
+| `Agente-cad-PYSIDE-Restored-main/docs/STATUS.md` | STATUS — gerado automaticamente, NÃO editar à mão | 2026-09-12 | 16 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/VISION-VALIDACAO-CAMINHOS.md` | Validação Visual (G2-V) — Caminhos explorados e veredito | 2026-08-10 | 7 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/squads/qa-global-evidencias/data/authority_matrix.json` | authority_matrix | 2026-08-10 | 15 | citado por ponto de entrada |
 | `docs/PYTHON-3.12-RUNTIME.md` | Runtime Python do CAD-ANALYZER | 2026-06-29 | 4 | citado por ponto de entrada |
@@ -167,7 +167,7 @@
 | `Agente-cad-PYSIDE-Restored-main/docs/QA-QUADROS-ESTADO-POR-CLASSE.md` | QA — Quadros de Estado por Classe e Pavimento | 2026-08-10 | 4 | tocado em 2026-08-10 / citado por 4 |
 | `Agente-cad-PYSIDE-Restored-main/docs/QUALITY-GATE-MASTERPLANS-FICHAS-LOOP.md` | QUALITY GATE — Masterplans Fichas F1-F9 & Loop de Treino | 2026-06-25 | 3 | tocado em 2026-06-25 / citado por 3 |
 | `Agente-cad-PYSIDE-Restored-main/docs/QUESTIONARIO-LV-SA-2026-09-25.md` | Questionario ao dono — interpretacao SA das Laterais de Viga (2026-09-25) | 2026-09-25 | 3 | tocado em 2026-09-25 / citado por 3 |
-| `Agente-cad-PYSIDE-Restored-main/docs/README.md` | Documentação — CAD-ANALYZER / Estrutural Analyzer | 2026-07-03 | 2 | curadoria: índice de 2026-07-03; a entrada vigente é docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md |
+| `Agente-cad-PYSIDE-Restored-main/docs/README.md` | Documentação — CAD-ANALYZER / Estrutural Analyzer | 2026-09-25 | 2 | curadoria: índice de 2026-07-03; a entrada vigente é docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md |
 | `Agente-cad-PYSIDE-Restored-main/docs/REVERSE_ENGINEERING.md` | Sistema de Engenharia Reversa - AgenteCAD | 2026-06-25 | 2 | tocado em 2026-06-25 / citado por 2 |
 | `Agente-cad-PYSIDE-Restored-main/docs/RODADA-LV-13PAV-REVISAO-GRANULAR.md` | Rodada de revisão granular — LV 13_PAV | 2026-09-12 | 0 | tocado em 2026-09-12 / citado por 0 |
 | `Agente-cad-PYSIDE-Restored-main/docs/SCHEMA-FICHA-GRANULAR.md` | SCHEMA-FICHA-GRANULAR | 2026-06-25 | 9 | tocado em 2026-06-25 / citado por 9 |
@@ -254,11 +254,14 @@
 | `docs/HANDOFF-B-KNOWLEDGE-EXTRACTION.md` | HANDOFF-B: Conhecimento Extraído dos PDFs | 2026-03-18 | 2 | curadoria: conhecimento de negócio (PI/NSC |
 | `docs/MCP-ACTIVE-LEARNING-SPEC.md` | MCP Active Learning - Contrato Seguro | 2026-07-02 | 5 | tocado em 2026-07-02 / citado por 5 |
 
-## historico (50)
+## historico (56)
 
 | Fonte | Título | Data | Citado por | Motivo |
 |---|---|---|---:|---|
 | `ANALISE-ESTRATEGICA-E2E-NOVA-OBRA.md` | Analise Estrategica E2E — Pipeline STOG CAD para Nova Obra | 2026-06-11 | 0 | curadoria: análise E2E de nova obra (jun/26); útil quando a Fase B/C chegar |
+| `Agente-cad-PYSIDE-Restored-main/PROMPTPESSOAL.MD` | PROMPTPESSOAL | 2026-06-25 | 0 | curadoria: brief original do produto (origem |
+| `Agente-cad-PYSIDE-Restored-main/REFACTORACAO_PYSYDE.MD` | Plano de Refatoração: Migração Tkinter para PySide6 (Robô Pilares) | 2026-06-25 | 0 | curadoria: migração Tkinter→PySide concluída |
+| `Agente-cad-PYSIDE-Restored-main/docs/ANALISE-BASELINE-LV-VISAO-CORTE-10-VIGAS.md` | Baseline LV - Visao Corte N2 x N4 | 2026-06-25 | 0 | curadoria: baseline de jun/26 |
 | `Agente-cad-PYSIDE-Restored-main/docs/CAD-10-VALIDATION-REPORT.md` | CAD-10 Validation Report -- 2026-05-19 | 2026-06-25 | 1 | curadoria: relatório de maio |
 | `Agente-cad-PYSIDE-Restored-main/docs/HISTORICO-ANALISE-LV/ANALYSIS_REPORT.md` | Fragment Analysis Report: combined DXF v35 -> v37 | 2026-09-12 | 1 | pasta de histórico / story concluída |
 | `Agente-cad-PYSIDE-Restored-main/docs/HISTORICO-ANALISE-LV/CONHECIMENTO_LV_STOG.md` | Conhecimento Extraído: Laterais de Vigas STOG | 2026-09-12 | 1 | pasta de histórico / story concluída |
@@ -268,6 +271,7 @@
 | `Agente-cad-PYSIDE-Restored-main/docs/MASTERPLAN-LOOP-TREINO-MOTOR.md` | MASTERPLAN — Loop de Treino do Motor (Análise Geral → Gabarito Eng. Reversa) | 2026-07-02 | 12 | curadoria: superseded na execução pelo ARETE-LOOP-PROCEDIMENTO-GERAL; infra de dados citada continua válida |
 | `Agente-cad-PYSIDE-Restored-main/docs/MASTER_PLAN.md` | MASTER PLAN - AgenteCAD Sistema Operacional Cognitivo | 2026-06-25 | 4 | curadoria: visão ampla anterior (Antigravity); diverge do enquadramento atual |
 | `Agente-cad-PYSIDE-Restored-main/docs/MASTER_PLAN_V2.md` | MASTER PLAN V2 - Sistema Operacional Cognitivo AgenteCAD | 2026-06-25 | 2 | curadoria: idem MASTER_PLAN |
+| `Agente-cad-PYSIDE-Restored-main/docs/OCR_DXF_ECOSYSTEM_ANALYSIS.md` | Análise do Ecossistema OCR/DXF vs. Nosso Pipeline | 2026-06-25 | 0 | curadoria: pesquisa de ferramentas de mai/26 |
 | `Agente-cad-PYSIDE-Restored-main/docs/PROMPT-ETAPA-1-CODEX.md` | PROMPT — ETAPA 1 (Fichas & Botões) para Codex executar | 2026-06-25 | 0 | curadoria: prompt executado em jun/26 |
 | `Agente-cad-PYSIDE-Restored-main/docs/PROMPT-ETAPA-2-LAJE-CODEX.md` | PROMPT-ETAPA-2-LAJE-CODEX | 2026-06-25 | 0 | curadoria: prompt executado em jun/26 |
 | `Agente-cad-PYSIDE-Restored-main/docs/PROMPT-VIGA-SPLIT-FV-LV-CODEX.md` | PROMPT — Refactor "Viga Split FV/LV em todos os níveis" para Codex | 2026-06-25 | 0 | curadoria: prompt executado em jun/26 |
@@ -277,6 +281,8 @@
 | `Agente-cad-PYSIDE-Restored-main/docs/SA-ANALISE/HISTORICO/PIL.md` | Diário SA — PIL | 2026-08-10 | 2 | pasta de histórico / story concluída |
 | `Agente-cad-PYSIDE-Restored-main/docs/STATUS-ATUAL-JUNHO-2026.md` | CAD-ANALYZER — Status Atual & Próximos Passos | 2026-06-25 | 2 | curadoria: snapshot de junho |
 | `Agente-cad-PYSIDE-Restored-main/docs/TEST_GAP_ANALYSIS.md` | Análise de Gaps de Testes — Vision-Estrutural AI | 2026-06-25 | 1 | curadoria: snapshot de junho |
+| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-SA-1.1-RENDER-LINKS-HETEROGENEOS.md` | STORY SA-1.1 - Renderizacao segura de vinculos heterogeneos | 2026-06-29 | 0 | curadoria: story de jun/26 parada em Ready for Review |
+| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-UX-SA-1.2-SALVAR-MCP-E-INTERACAO-PROJETOS.md` | STORY-UX-SA-1.2 - Salvar item SA, evidencia MCP e interacao do Gerenciar Projetos | 2026-06-29 | 0 | curadoria: story de jun/26 parada em Ready for Review |
 | `Agente-cad-PYSIDE-Restored-main/docs/stories/completed/CAD-10.1.story.md` | CAD-10.1: Mapper Fase-4 -> DetailCard | 2026-06-25 | 1 | pasta de histórico / story concluída |
 | `Agente-cad-PYSIDE-Restored-main/docs/stories/completed/CAD-10.2.story.md` | CAD-10.2: Upgrade _import_fase4_to_db() | 2026-06-25 | 1 | pasta de histórico / story concluída |
 | `Agente-cad-PYSIDE-Restored-main/docs/stories/completed/CAD-10.3.story.md` | CAD-10.3: Upgrade "Analise Geral" button | 2026-06-25 | 1 | pasta de histórico / story concluída |
@@ -309,55 +315,47 @@
 | `conversa_historico_truncado.md` | Histórico Recuperável da Conversa (Contexto Truncado) | 2026-07-09 | 0 | título marca histórico |
 | `docs/HANDOFF-A-SQUAD-ESTADO-ATUAL.md` | HANDOFF-A: Estado Atual do Sistema CAD-ANALYZER | 2026-03-18 | 0 | curadoria: estado do sistema em mar/26 |
 
-## legado (35)
+## legado (40)
 
 | Fonte | Título | Data | Citado por | Motivo |
 |---|---|---|---:|---|
-| `Agente-cad-PYSIDE-Restored-main/.agents/skills/byterover/SKILL.md` | ByteRover Knowledge Management | 2026-07-03 | 0 | curadoria: cópia da skill ByteRover para Codex; idem |
-| `Agente-cad-PYSIDE-Restored-main/.claude/skills/byterover/SKILL.md` | ByteRover Knowledge Management | 2026-07-03 | 0 | curadoria: ByteRover parado desde 2026-08-01; conhecimento vigente está nos docs canônicos |
+| `Agente-cad-PYSIDE-Restored-main/README.md` | AgenteCAD / Estrutural Analyzer | 2026-06-25 | 0 | curadoria: descreve pipeline ML→SCR de jun/26 (SCR saiu |
 | `Agente-cad-PYSIDE-Restored-main/STATUS.md` | STATUS.md — Vision-Estrutural AI v4.4 | 2026-06-25 | 0 | curadoria: STATUS v4.4 de jun/26, sistema desconectado; status real = docs/STATUS.md gerado |
-| `Agente-cad-PYSIDE-Restored-main/docs/TRAINING-PIPELINES-SPEC.md` | Training Pipelines Spec - ARETE, RAG e Humano no Loop | 2026-06-26 | 1 | curadoria: spec do programa RAG de junho, sem implementação viva |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-MCP-1.0-ACTIVE-LEARNING-SEGURO.md` | STORY MCP-1.0 - Active Learning seguro | 2026-06-29 | 0 | curadoria: MCP de active learning inativo (docs/MCP-ACTIVE-LEARNING-SPEC) |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-0.5-ANTI-SYNTHETIC-VALIDATION.md` | STORY RAG-0.5 - Anti Synthetic Validation Guard | 2026-06-26 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-1.1-SEMANTIC-RAG-KB-POPULADA.md` | STORY RAG-1.1 - semantic_rag_kb Populada | 2026-06-27 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-1.2-INDEXACAO-T1-AUDITADA.md` | STORY RAG-1.2 - Indexacao T1 Auditada | 2026-06-27 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-2.0-CURADORIA-OBSERVADOR-VALIDADA.md` | STORY RAG-2.0 - Curadoria Observador Validada | 2026-06-27 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-2.7-CURADORIA-PIPELINES-TREINO.md` | STORY RAG-2.7 - Curadoria: Pipelines de Treino | 2026-06-26 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.0-AUDITORIA-HOOKS-HUMANOS.md` | STORY RAG-3.0 - Auditoria dos Hooks Humanos | 2026-06-27 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.1-CROP-LEARNING-DIAGNOSTIC-REVERSE.md` | STORY RAG-3.1 - Crop Learning no Diagnostic Reverse Hub | 2026-06-27 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.1B-VALIDACAO-F5-N2.md` | STORY RAG-3.1b - Validacao Humana da F5/N2 | 2026-06-29 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.2-MEMORIA-ARTEFATOS-N3-N4.md` | STORY RAG-3.2 - Memoria de Artefatos N3/N4 | 2026-06-29 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-3.2A-GALERIA-ARTEFATOS.md` | STORY RAG-3.2A — Galeria de artefatos N3/N4 | 2026-06-29 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-4.0-RAG-POR-OBRA-AUDITADO.md` | STORY RAG-4.0 - RAG por Obra Auditado | 2026-06-27 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-4.1-CONTEXTO-READ-ONLY-SA.md` | STORY RAG-4.1 - Contexto RAG Read-only no Structural Analyzer | 2026-06-27 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-4.2A-RETRIEVAL-LOCAL-SEGURO.md` | STORY RAG-4.2A — Retrieval local seguro por obra | 2026-06-29 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-RAG-6.0-OPERACAO-E-PLUGINS.md` | STORY RAG-6.0 — Operação segura e plugins de classe | 2026-06-29 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-0.story.md` | RAG-0: Fundacao de confianca anti-contaminacao do RAG | 2026-06-26 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-1.story.md` | RAG-1: Regras semanticas seguras no semantic_rag_kb | 2026-06-26 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-2.story.md` | RAG-2 - Curadoria Observadora Read-Only | 2026-06-26 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-3.story.md` | RAG-3 - Validacao Humana Event-Driven | 2026-06-26 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-4.story.md` | RAG-4 - Consulta RAG Read-Only no Comparison Engine | 2026-06-26 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-5.story.md` | RAG-5 - Snapshot RAG Local por Obra | 2026-06-26 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/active/RAG-6.story.md` | RAG-6 - Registro Declarativo de Classes | 2026-06-26 | 0 | curadoria: story do programa RAG de junho; princípios herdados pela KB global |
-| `MASTERPLAN-CAD-ANALYZER-SQUADS.md` | MASTERPLAN — CAD-ANALYZER: Team Completo + Pipeline End-to-End | 2026-03-08 | 1 | curadoria: squads de mar/26; squad vigente em squads/qa-global-evidencias |
-| `MASTERPLAN-CAD-ANALYZER-v2.md` | MASTERPLAN CAD-ANALYZER v2.0 — Estado Real + Gap Analysis para ARETE | 2026-03-08 | 0 | curadoria: versão de mar/26; vigente é o repo (CLAUDE.md + masterplans ativos) |
-| `MASTERPLAN-CAD-ANALYZER-v3.md` | MASTERPLAN CAD-ANALYZER v3.0 — Geração DXF por Robô + Comparação vs. Engenharia Reversa | 2026-03-08 | 0 | curadoria: versão de mar/26 |
-| `MASTERPLAN-CAD-ANALYZER-v4.0.md` | MASTERPLAN CAD-ANALYZER v4.0 | 2026-03-23 | 1 | curadoria: versão de mar/26 |
-| `MASTERPLAN-SS-v5.0.md` | MASTERPLAN SS — Vision-Estrutural AI v4.7 → v5.0 SS | 2026-06-11 | 0 | curadoria: masterplan v4.7→v5.0 de jun/26 |
-| `README.md` | CAD-ANALYZER v3.0 | 2026-03-08 | 8 | curadoria: README de mar/26 da raiz; entrada vigente é CLAUDE.md |
-| `docs/HANDOFF-C-ROADMAP-PRODUCAO.md` | HANDOFF-C: Roadmap para Produção | 2026-03-18 | 0 | curadoria: roadmap de mar/26; vigente é MASTERPLAN-CONSOLIDACAO-ENTREGA + PRODUCAO-SOBERANIA |
-| `docs/MASTERPLAN-RAG-INTEGRACAO-COMPLETA.md` | MASTERPLAN — RAG: Integração Completa por Todas as Frentes | 2026-06-29 | 2 | curadoria: plano RAG de junho; substituído pela KB global + CONTRATO-KB-MULTIOBRA |
-| `docs/MASTERPLAN-RAG-VECTORIZACAO.md` | MASTERPLAN | 2026-06-29 | 3 | curadoria: vetorização FAISS/NIM de junho; substituída por kb_build.py |
-
-## candidato_obsoleto (8)
-
-| Fonte | Título | Data | Citado por | Motivo |
-|---|---|---|---:|---|
-| `Agente-cad-PYSIDE-Restored-main/PROMPTPESSOAL.MD` | PROMPTPESSOAL | 2026-06-25 | 0 | sem toque desde 2026-06-25 e sem citação |
-| `Agente-cad-PYSIDE-Restored-main/README.md` | AgenteCAD / Estrutural Analyzer | 2026-06-25 | 0 | sem toque desde 2026-06-25 e sem citação |
-| `Agente-cad-PYSIDE-Restored-main/REFACTORACAO_PYSYDE.MD` | Plano de Refatoração: Migração Tkinter para PySide6 (Robô Pilares) | 2026-06-25 | 0 | sem toque desde 2026-06-25 e sem citação |
-| `Agente-cad-PYSIDE-Restored-main/docs/ANALISE-BASELINE-LV-VISAO-CORTE-10-VIGAS.md` | Baseline LV - Visao Corte N2 x N4 | 2026-06-25 | 0 | sem toque desde 2026-06-25 e sem citação |
-| `Agente-cad-PYSIDE-Restored-main/docs/OCR_DXF_ECOSYSTEM_ANALYSIS.md` | Análise do Ecossistema OCR/DXF vs. Nosso Pipeline | 2026-06-25 | 0 | sem toque desde 2026-06-25 e sem citação |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-SA-1.1-RENDER-LINKS-HETEROGENEOS.md` | STORY SA-1.1 - Renderizacao segura de vinculos heterogeneos | 2026-06-29 | 0 | sem toque desde 2026-06-29 e sem citação |
-| `Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-UX-SA-1.2-SALVAR-MCP-E-INTERACAO-PROJETOS.md` | STORY-UX-SA-1.2 - Salvar item SA, evidencia MCP e interacao do Gerenciar Projetos | 2026-06-29 | 0 | sem toque desde 2026-06-29 e sem citação |
-| `Agente-cad-PYSIDE-Restored-main/task_verification.md` | Verification of Canvas Updates | 2026-06-25 | 0 | sem toque desde 2026-06-25 e sem citação |
+| `Agente-cad-PYSIDE-Restored-main/_arquivo/README.md` | Arquivo — conhecimento legado | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/_arquivo/skills/agents-byterover/SKILL.md` | ByteRover Knowledge Management | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/_arquivo/skills/claude-byterover/SKILL.md` | ByteRover Knowledge Management | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/README.md` | Arquivo — conhecimento legado | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/TRAINING-PIPELINES-SPEC.md` | Training Pipelines Spec - ARETE, RAG e Humano no Loop | 2026-09-26 | 1 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-MCP-1.0-ACTIVE-LEARNING-SEGURO.md` | STORY MCP-1.0 - Active Learning seguro | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-0.5-ANTI-SYNTHETIC-VALIDATION.md` | STORY RAG-0.5 - Anti Synthetic Validation Guard | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-1.1-SEMANTIC-RAG-KB-POPULADA.md` | STORY RAG-1.1 - semantic_rag_kb Populada | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-1.2-INDEXACAO-T1-AUDITADA.md` | STORY RAG-1.2 - Indexacao T1 Auditada | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-2.0-CURADORIA-OBSERVADOR-VALIDADA.md` | STORY RAG-2.0 - Curadoria Observador Validada | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-2.7-CURADORIA-PIPELINES-TREINO.md` | STORY RAG-2.7 - Curadoria: Pipelines de Treino | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-3.0-AUDITORIA-HOOKS-HUMANOS.md` | STORY RAG-3.0 - Auditoria dos Hooks Humanos | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-3.1-CROP-LEARNING-DIAGNOSTIC-REVERSE.md` | STORY RAG-3.1 - Crop Learning no Diagnostic Reverse Hub | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-3.1B-VALIDACAO-F5-N2.md` | STORY RAG-3.1b - Validacao Humana da F5/N2 | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-3.2-MEMORIA-ARTEFATOS-N3-N4.md` | STORY RAG-3.2 - Memoria de Artefatos N3/N4 | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-3.2A-GALERIA-ARTEFATOS.md` | STORY RAG-3.2A — Galeria de artefatos N3/N4 | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-4.0-RAG-POR-OBRA-AUDITADO.md` | STORY RAG-4.0 - RAG por Obra Auditado | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-4.1-CONTEXTO-READ-ONLY-SA.md` | STORY RAG-4.1 - Contexto RAG Read-only no Structural Analyzer | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-4.2A-RETRIEVAL-LOCAL-SEGURO.md` | STORY RAG-4.2A — Retrieval local seguro por obra | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/STORY-RAG-6.0-OPERACAO-E-PLUGINS.md` | STORY RAG-6.0 — Operação segura e plugins de classe | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/active/RAG-0.story.md` | RAG-0: Fundacao de confianca anti-contaminacao do RAG | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/active/RAG-1.story.md` | RAG-1: Regras semanticas seguras no semantic_rag_kb | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/active/RAG-2.story.md` | RAG-2 - Curadoria Observadora Read-Only | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/active/RAG-3.story.md` | RAG-3 - Validacao Humana Event-Driven | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/active/RAG-4.story.md` | RAG-4 - Consulta RAG Read-Only no Comparison Engine | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/active/RAG-5.story.md` | RAG-5 - Snapshot RAG Local por Obra | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/active/RAG-6.story.md` | RAG-6 - Registro Declarativo de Classes | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rascunhos/task_verification.md` | Verification of Canvas Updates | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `README.md` | CAD-ANALYZER v3.0 | 2026-03-08 | 9 | curadoria: README de mar/26 da raiz; entrada vigente é CLAUDE.md |
+| `_arquivo/README.md` | Arquivo — conhecimento legado | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `_arquivo/docs/HANDOFF-C-ROADMAP-PRODUCAO.md` | HANDOFF-C: Roadmap para Produção | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `_arquivo/docs/MASTERPLAN-RAG-INTEGRACAO-COMPLETA.md` | MASTERPLAN — RAG: Integração Completa por Todas as Frentes | 2026-09-26 | 2 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `_arquivo/docs/MASTERPLAN-RAG-VECTORIZACAO.md` | MASTERPLAN | 2026-09-26 | 3 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `_arquivo/masterplans-antigos/MASTERPLAN-CAD-ANALYZER-SQUADS.md` | MASTERPLAN — CAD-ANALYZER: Team Completo + Pipeline End-to-End | 2026-09-26 | 1 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `_arquivo/masterplans-antigos/MASTERPLAN-CAD-ANALYZER-v2.md` | MASTERPLAN CAD-ANALYZER v2.0 — Estado Real + Gap Analysis para ARETE | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `_arquivo/masterplans-antigos/MASTERPLAN-CAD-ANALYZER-v3.md` | MASTERPLAN CAD-ANALYZER v3.0 — Geração DXF por Robô + Comparação vs. Engenharia Reversa | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `_arquivo/masterplans-antigos/MASTERPLAN-CAD-ANALYZER-v4.0.md` | MASTERPLAN CAD-ANALYZER v4.0 | 2026-09-26 | 1 | arquivado em _arquivo/ (harmonização 2026-09-26) |
+| `_arquivo/masterplans-antigos/MASTERPLAN-SS-v5.0.md` | MASTERPLAN SS — Vision-Estrutural AI v4.7 → v5.0 SS | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |

@@ -14,8 +14,8 @@ Vetores são cacheados por hash de conteúdo + embedder: reconstruir só recalcu
 mudou. O índice é derivado — apagar KB-GLOBAL/ e rodar de novo reproduz tudo.
 
 Uso:
-    python scripts/kb/kb_build.py                         # global, embedder local
-    python scripts/kb/kb_build.py --embedder nim          # global com NVIDIA NIM (DP-6)
+    python scripts/kb/kb_build.py                         # global, embedder NIM (padrão medido)
+    python scripts/kb/kb_build.py --embedder local        # global offline (modelo local, sem rede)
     python scripts/kb/kb_build.py --obra Obra_TREINO_1 --fontes <pasta>   # KB da obra
 """
 from __future__ import annotations
@@ -178,7 +178,8 @@ def gravar(db: Path, chunks: list[dict], embedder_nome: str, escopo: str, extra_
 
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--embedder", default="local", choices=["local", "nim"])
+    ap.add_argument("--embedder", default="nim", choices=["local", "nim"],
+                    help="nim (padrão, medido melhor em 2026-09-26) | local (offline, sem rede)")
     ap.add_argument("--obra", help="constrói a KB desta obra em KB-GLOBAL/obras/<obra>.sqlite")
     ap.add_argument("--fontes", type=Path, help="pasta de textos da obra (com --obra)")
     ap.add_argument("--db", type=Path, help="caminho do índice (padrão: global ou obras/<obra>)")

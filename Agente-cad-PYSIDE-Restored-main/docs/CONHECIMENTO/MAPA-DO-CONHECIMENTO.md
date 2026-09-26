@@ -148,7 +148,7 @@ Robôs SCR legados (semântica original): `ROBO_SCR_PATTERNS.md`, `CALCULOS_ALGO
 | Camada | O que guarda | Autoridade | Estado |
 |---|---|---|---|
 | **Docs canônicos** (este mapa aponta) | intenção, regras, procedimento | fonte primária | vivo |
-| **KB global** (`kb_build.py` → SQLite) | índice buscável dos docs + glossário + decisões + regras T1+ | só aponta para a fonte; nunca é prova sozinha | vivo |
+| **KB global** (`kb_build.py` → SQLite; embedder NIM `nemotron-3-embed-1b`, reserva só-texto) | índice buscável dos docs + glossário + decisões + regras T1+ | só aponta para a fonte; nunca é prova sozinha | vivo |
 | **`semantic_rag_kb`** (tabela no DB) | regras semânticas por classe/campo, com tier | T1+ entra na KB; T0 fica em quarentena | vivo (QA consome) |
 | **KB por obra** (futuro, mesmo esquema) | conhecimento de UMA obra | isolado por obra | contrato pronto: [CONTRATO-KB-MULTIOBRA.md](CONTRATO-KB-MULTIOBRA.md) |
 | **Mini-RAG de sessão** (`qa_session_index.py`) | índice espacial do DXF de um pavimento | evidência local | latente |

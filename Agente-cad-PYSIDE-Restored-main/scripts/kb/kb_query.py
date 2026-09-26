@@ -106,8 +106,8 @@ def busca_vetor(con, pergunta, filtro_sql, filtro_args) -> list[str]:
 
 def buscar(pergunta: str, k: int = 8, classe: str | None = None, tipos: list[str] | None = None,
            obra: str | None = None, sem_historico: bool = False, modo: str = "hibrido",
-           por_fonte: int = 2) -> list[dict]:
-    dbs = [GLOBAL_DB]
+           por_fonte: int = 2, db_global: Path | None = None) -> list[dict]:
+    dbs = [db_global or GLOBAL_DB]
     if obra:
         dbs.append(OBRAS_DIR / f"{obra}.sqlite")
     fsql, fargs = _filtros(classe, tipos, sem_historico)
@@ -169,8 +169,10 @@ def main() -> int:
     ap.add_argument("--sem-historico", action="store_true")
     ap.add_argument("--modo", default="hibrido", choices=["hibrido", "texto", "vetor"])
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--db", type=Path, help="índice global alternativo (comparação)")
     args = ap.parse_args()
-    res = buscar(args.pergunta, args.k, args.classe, args.tipo, args.obra, args.sem_historico, args.modo)
+    res = buscar(args.pergunta, args.k, args.classe, args.tipo, args.obra, args.sem_historico, args.modo,
+                 db_global=args.db)
     if args.json:
         print(json.dumps(res, ensure_ascii=False, indent=1))
         return 0

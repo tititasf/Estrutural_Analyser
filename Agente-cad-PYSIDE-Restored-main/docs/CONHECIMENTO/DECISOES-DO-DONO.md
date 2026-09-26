@@ -32,7 +32,7 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 | D-11 | 2026-07-03 | global | DP-2: servidor = workstation do dono + VPN | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | **revogada por D-19** |
 | D-12 | 2026-07-03 | global | DP-3: equipe usa portal web com login por membro; a app PySide é do dono | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
 | D-13 | 2026-07-03 | global | DP-5: SCR não é entregável; AutoCAD sai do produto (entrada DWG→DXF via ODA) | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
-| D-14 | 2026-07-03 | global | DP-6: embeddings continuam NVIDIA NIM (dependência externa aceita) | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
+| D-14 | 2026-07-03 | global | DP-6: embeddings continuam NVIDIA NIM (dependência externa aceita). Nota 2026-09-26: o modelo `nv-embed-v1` está em fim de vida (HTTP 410); a KB usa `nemotron-3-embed-1b`, escolhido por medição (D-22) | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
 | D-15 | 2026-07-03 | global | DP-7: quantitativos só depois da estabilidade de qualidade | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
 | D-16 | 2026-07-03 | global | DP-9: Arete é o trabalho principal; em conflito, qualidade vence prazo | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
 | D-17 | — | global | DP-10 a DP-14: obras chegam pelo Google Drive (1 pasta por usuário, polling); N5 = 1 DXF por classe+pavimento; liberação do N5 é self-service após validar N1+N3; fluxo de 6 etapas | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` | vigente |
@@ -40,6 +40,7 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 | D-19 | 2026-08-10 | global | A VPS Hetzner vira o servidor principal de tudo, com acesso público (substitui DP-2) | `docs/HANDOFF-DEVOPS-VPS-HETZNER.md` §0 | vigente |
 | D-20 | — | global | Sem sincronização campo a campo web ↔ app: a app é só treino/validação interna | `docs/MASTERPLAN-OBRAS-DRIVE.md` (Fora de escopo) | vigente |
 | D-21 | — | global | Generalização para as outras obras saiu da fila; volta quando o dono decidir | `docs/MASTERPLAN-CONSOLIDACAO-ENTREGA.md` (tabela final) | vigente |
+| D-22 | 2026-09-26 | global | Embedder da KB = "o mais eficiente e disponível", decidido por medição (`kb_eval.py`), não por marca; hoje NIM `nemotron-3-embed-1b`, com busca só por texto como reserva | `docs/CONHECIMENTO/PLANO-HARMONIZACAO.md` §3 | vigente |
 
 ## PIL — pilar
 
@@ -50,6 +51,7 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 | D-32 | 2026-08-20 | global | R2: viga mais estreita que a face → `chega`; do tamanho da face → `interior` | idem R2 | vigente |
 | D-33 | 2026-08-21 | global | R3: pilar mais largo que o corredor → a viga atravessa; mesma largura + outra viga do outro lado → morre; mesma largura + a própria viga do outro lado → atravessa | idem R3 | vigente |
 | D-34 | 2026-08-22 | global | R4: chegada na esquina é chegada **e** passagem (duas informações, duas faces) | idem R4 | vigente |
+| D-35 | 2026-08-19 | global | Invariante de face: viga chega no meio da face → duas lajes, uma em cada canto; chega num canto → uma laje só, no canto oposto; nenhuma chegando → uma laje cobrindo a face. Checagem só expõe a incoerência, não decide quem errou | `docs/INTERPRETACAO-VIGA-CHEGA-VAO-E-FACE.md` §"Como isso se encaixa no invariante de face"; `validate_face_slab_beam_invariant` | vigente |
 
 ## LV — lateral de viga
 
@@ -67,10 +69,21 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 | D-49 | 2026-09-25 | global | O fundo (FV) é referência e comparação para a lateral, nunca lei | `docs/SA-ANALISE/CLASSES/LV.md`; contrato §6.1.1 | vigente |
 | D-50 | 2026-09-25 | global | Questionário Q1–Q7: troca de seção abre segmento; mesma profundidade = abertura; Passa = pilar inteiro num segmento com início/fim; pilar e viga coincidentes = ambos; −11 só no N3; contagem do N4 não é referência; autonomia do SA com revisão do dono no front-end | `docs/QUESTIONARIO-LV-SA-2026-09-25.md` | vigente |
 
-## Lacunas conhecidas (decisão existe, fonte escrita não)
+## Pendente de decisão do dono
 
-Decisões que hoje só estão na memória de sessões de agente e precisam ir para o doc
-canônico da classe antes de entrar aqui:
+**Nível de laje (conversa de 2026-08-19, nunca escrita em doc).** O que está no código
+(`src/core/slab_level_inference.py`, docstrings) e na memória de uma sessão de agente:
 
-- PIL: `852.16` é nível válido; autoridade do nível = anotação contida no contorno (19/08).
-- PIL: invariante "viga chega ↔ lajes por face" separa erro de corpus de erro de motor (19/08).
+1. rebaixo é rotina — laje em nível diferente das vizinhas no mesmo pavimento é válida
+   (ex.: `L312` em 852.16 entre vizinhas 852.12/852.19);
+2. autoridade do nível: anotação **contida** no contorno > contida ambígua > proximidade
+   ao rótulo (marcada para revisão) > sem evidência local;
+3. candidato a mais de **25% do pé-direito** do nível do pavimento é descartado (é de
+   outro pavimento ou outra vista). O limiar de 25% é parâmetro do código — confirmar.
+
+Achado da investigação (2026-09-26): os valores "absurdos" do corpus não eram palpite de
+longe — são **bug de unidade** em `main.py::_infer_slab_level_from_cut_deltas`
+(delta do corte em **cm** somado ao nível em **m**). Atinge 4 lajes do 13_PAV no DB real,
+3 marcadas como validadas: L317 855.12 (→852.15), L318 822.19 (→851.89), L324 859.12
+(→852.19, confirmado pelo rótulo da planta), L325 859.12 (herdou da L324).
+Até decidir: a regra fica só no código; o bug e os 4 dados ficam como estão.

@@ -1,6 +1,6 @@
 # Mapa de código
 
-> Gerado por `scripts/kb/kb_mapa_codigo.py` em 2026-09-25 a partir das docstrings. Não editar à mão.
+> Gerado por `scripts/kb/kb_mapa_codigo.py` em 2026-09-26 a partir das docstrings. Não editar à mão.
 > ★ canônico (citado pelo CLAUDE.md / LOOPING-CANONICO §1) · ✗ descontinuado · · sem docstring
 
 **648 módulos**, 136 sem docstring.
