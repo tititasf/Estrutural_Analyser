@@ -23,6 +23,11 @@
         <li><a href="/app/obras" class="{{ 'ativo' if nav_ativo == 'obras' else '' }}" title="Obras">
           <span aria-hidden="true">🗂</span><span class="nav-texto">Obras</span>
         </a></li>
+        {% if membro.papel == 'dono' %}
+        <li><a href="/app/base-global" class="{{ 'ativo' if nav_ativo == 'base_global' else '' }}" title="Base Global — mapa do conhecimento (só o dono)">
+          <span aria-hidden="true">🧠</span><span class="nav-texto">Base Global</span>
+        </a></li>
+        {% endif %}
         {% block sidebar_obras_extra %}{% endblock %}
       </ul>
       <div class="nav-rodape">

@@ -77,8 +77,12 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 | D-37 | 2026-09-26 | global | Inferência automática passa por **portões de coerência** (vários), nunca por uma decisão só; corrigido o bug cm×m do delta de corte | `scripts/arete/relatorios/20260926_correcao_nivel_laje/RELATORIO.md` | vigente |
 | D-38 | 2026-09-26 | obra:Obra_TREINO_1 | Dados do 13_PAV com o bug corrigidos pelo agente (4 lajes, 7 pilares, 24 vigas); L318 e 16 segmentos estimados ficam para revisão | idem | vigente |
 
+| D-51 | 2026-09-26 | global | Evidência E9: texto de rebaixo ("−30" etc.) próximo à cota vale; sem cota na laje, texto de rebaixo dentro dela provavelmente se refere a ela (ainda sem exemplos no corpus) | `docs/PROPOSTA-NIVEL-LAJE-POR-EVIDENCIAS.md` §Respostas | vigente |
+| D-52 | 2026-09-26 | global | Trecho demarcado com espessura/nível diferente: se **nível − espessura** (fundo) for igual nos trechos → **1 laje só**; se os fundos diferirem → **2 lajes separadas** (marcos à parte). No 13_PAV os fundos eram iguais (1 laje) | idem | vigente |
+| D-53 | 2026-09-26 | global | Validação humana é **voto muito forte**, não âncora absoluta: evidência contrária forte abre revisão (nunca muda sozinha) — serve para achar onde sistema e dono discordam | idem | vigente |
+| D-54 | 2026-09-26 | obra:Obra_TREINO_1 | Pesos da soma de evidências calibrados contra as lajes validadas do 13_PAV antes de ligar | idem | vigente |
+| D-55 | 2026-09-26 | global | Área sem laje costuma ser marcada por **X vermelho**; segmento de viga sem laje encostada pode ser isso (não é necessariamente erro) | idem | vigente (informativa) |
+
 ## Pendente de decisão do dono
 
-- As 4 perguntas de `docs/PROPOSTA-NIVEL-LAJE-POR-EVIDENCIAS.md` (evidências, sub-região,
-  validação como âncora ou voto forte, calibração).
-- L318: 852.19 validado × −30 cm do corte (rebaixo parcial?).
+- L318 e os 16 segmentos de viga estimados: o dono decide olhando a imagem (enviada 2026-09-26).

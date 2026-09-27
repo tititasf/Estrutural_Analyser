@@ -40,6 +40,7 @@ docs canônicos (git)  ──►  kb_inventario.py  ──►  FONTES-E-STATUS.m
         │                                         _inventario.json
         ├── GLOSSARIO / DECISOES-DO-DONO (curados, com fonte)
         ├── kb_mapa_codigo.py  ──►  MAPA-CODIGO.md  (gerado das docstrings)
+        ├── kb_grafo.py  ──►  grafo.json  ──►  portal, aba "Base Global" (só o dono; lacunas + cobertura)
         ▼
 kb_build.py  ──►  KB-GLOBAL/kb_global.sqlite     (FTS5 + vetores + metadados)
       ▲                 ▲
@@ -74,6 +75,7 @@ Rever a escolha rodando `kb_eval.py --db <índice>` para cada candidato.
 | decisão nova do dono | linha em `DECISOES-DO-DONO.md` + texto completo no doc do tema |
 | módulo novo | docstring de uma frase no topo; `kb_mapa_codigo.py` |
 | qualquer um dos acima | `kb_build.py` (incremental: só recalcula trechos alterados) e `kb_eval.py` |
+| qualquer um dos acima | `kb_grafo.py` (regrava `grafo.json`; o deploy leva à aba "Base Global" do portal) |
 | queda de hit@5 no `kb_eval.py` | investigar antes de seguir: a busca piorou |
 
 ## 5. Limpeza — isolar e arquivar, nada apagado
@@ -98,7 +100,7 @@ os importa.
 
 1. Invariante de face → D-35. Nível de laje: bug cm×m **corrigido** no código (com portões) e nos dados do 13_PAV (D-37, D-38, `scripts/arete/relatorios/20260926_correcao_nivel_laje/`); desenho da regra por soma de evidências aguarda o dono (`docs/PROPOSTA-NIVEL-LAJE-POR-EVIDENCIAS.md`).
 2. `CLAUDE.md` do repo traz status datado de 03/07 ("LV 21/32") — número escrito à mão, contra a própria regra; trocar por ponteiro para `docs/STATUS.md`.
-3. `docs/SA-ANALISE/CLASSES/LV.md` linha 72 ainda diz "SVG-only" (alteração de outro agente em andamento na hora da harmonização).
+3. ~~`docs/SA-ANALISE/CLASSES/LV.md` linha 72 "SVG-only"~~ — resolvido 2026-09-26.
 4. `scripts/obra_rag_utils.py` (RAG por obra da app PySide) ainda chama `nv-embed-v1`, que está fora do ar: cai em silêncio para o modelo local de 768 dimensões, mas as tabelas LanceDB das obras foram criadas com 4096 → nova ingestão na app falha ou mistura vetores. Mesmo problema em `domain_knowledge_ingestor.py`/`stog_rag_ingestor.py` (legados).
 5. 136 módulos sem docstring (ver `MAPA-CODIGO.md`): a busca de código não os enxerga pelo papel.
 6. Mini-RAG de sessão (`qa_session_index.py`): decidir se vira a camada espacial da KB de obra ou fica como ferramenta de QA separada.

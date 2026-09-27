@@ -1,6 +1,6 @@
 # Proposta — nível de laje por soma de evidências
 
-**Status:** proposta, aguardando o dono · **Criado:** 2026-09-26 · **Classe:** LAJ (usada por PIL, LV, FV)
+**Status:** aprovada com ajustes (respostas 2026-09-26), a implementar · **Criado:** 2026-09-26 · **Classe:** LAJ (usada por PIL, LV, FV)
 
 ## Por que
 
@@ -58,3 +58,16 @@ rebaixada (E1 com escopo de sub-região). É exatamente o "pode representar uma 
 3. Validação humana é **âncora absoluta** (nada a muda) ou **voto muito forte** (evidência
    contrária forte abre revisão)? O caso L318 mostra por que a segunda opção protege mais.
 4. Posso calibrar os pesos contra as lajes validadas do 13_PAV antes de ligar?
+
+## Respostas do dono (2026-09-26) — D-51..D-55
+
+1. **Evidências:** entra **E9 — texto de rebaixo** ("−30") perto da cota; sem cota na laje,
+   o texto de rebaixo dentro dela provavelmente é dela. Ainda sem exemplos no corpus.
+2. **Sub-região:** decide pelo **fundo** (nível − espessura). Fundos iguais → 1 laje (o
+   nível parcial vira campo da mesma laje); fundos diferentes → **2 lajes separadas**.
+   Logo a espessura por trecho passa a ser evidência necessária.
+3. **Validação humana = voto muito forte.** Contradição forte abre `needs_review` com o
+   placar — é a ferramenta para achar onde sistema e dono discordam.
+4. **Calibrar** contra as lajes validadas do 13_PAV antes de ligar: sim.
+5. Informação extra: área sem laje costuma ter **X vermelho** — vira evidência "sem laje"
+   para os segmentos de viga que não encostam em laje.

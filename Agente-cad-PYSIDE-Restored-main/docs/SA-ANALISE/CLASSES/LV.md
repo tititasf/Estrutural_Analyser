@@ -69,8 +69,9 @@ python scripts/arete/g2v_harness.py --classe LV --pav <PAV> --par n1xn2 `
   --item V328 --backend cli --lista-lv passa
 ```
 
-N1-V/G4-V (interpretação N1×N2) e G5-V (paridade final N3×N4) são SVG-only:
-`g2v_harness.py --backend cli`, lido pelo modelo/agente CLI, sem API visual.
+N1-V/G4-V (interpretação N1×N2) e G5-V (paridade final N3×N4): SVG canônico
+rasterizado em PNG pelo `g2v_harness.py --backend cli` — o agente CLI **lê o PNG**
+(`--zoom` para região densa), sem API visual; SVG como texto só para consulta pontual.
 
 ### 3.0 Visão canónica (obrigatória — senão é ruído)
 

@@ -29,7 +29,7 @@
 | Fonte | Título | Data | Citado por | Motivo |
 |---|---|---|---:|---|
 | `Agente-cad-PYSIDE-Restored-main/AGENTS.md` | AGENTS.md — Codex / Antigravity / qualquer agente que não leia CLAUDE.md | 2026-09-25 | 0 | ponto de entrada dos agentes |
-| `Agente-cad-PYSIDE-Restored-main/CLAUDE.md` | CLAUDE.md — Estrutural Analyzer (CAD-ANALYZER) | 2026-09-25 | 3 | ponto de entrada dos agentes |
+| `Agente-cad-PYSIDE-Restored-main/CLAUDE.md` | CLAUDE.md — Estrutural Analyzer (CAD-ANALYZER) | 2026-09-26 | 3 | ponto de entrada dos agentes |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md` | Mapa do Conhecimento — base global da empresa | 2026-09-26 | 8 | ponto de entrada dos agentes |
 | `Agente-cad-PYSIDE-Restored-main/docs/LOOPING-CANONICO.md` | LOOPING CANÔNICO — o único loop válido (e a quarentena dos obsoletos) | 2026-09-25 | 26 | ponto de entrada dos agentes |
 | `CLAUDE.md` | CLAUDE.md — Workspace CAD-ANALYZER (raiz de dados + app) | 2026-09-25 | 31 | ponto de entrada dos agentes |
@@ -56,7 +56,7 @@
 | `Agente-cad-PYSIDE-Restored-main/docs/CONVENCAO-SELOS-VALIDACAO.md` | Convenção de Selos de Validação | 2026-08-10 | 15 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/GIT_DVC_GUIDE.md` | Git + DVC — Guia de Trabalho do Projeto | 2026-06-25 | 2 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/HANDOFF-ARETE-EXECUTOR.md` | HANDOFF — Executor Arete Quality Gates (Cowork) | 2026-08-10 | 6 | citado por ponto de entrada |
-| `Agente-cad-PYSIDE-Restored-main/docs/HANDOFF-DEVOPS-VPS-HETZNER.md` | HANDOFF-DEVOPS — VPS Hetzner (servidor principal, substitui o modelo workstation+Tailscale) | 2026-09-12 | 3 | citado por ponto de entrada |
+| `Agente-cad-PYSIDE-Restored-main/docs/HANDOFF-DEVOPS-VPS-HETZNER.md` | HANDOFF-DEVOPS — VPS Hetzner (servidor principal, substitui o modelo workstation+Tailscale) | 2026-09-12 | 4 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/INDICE-DOCS-QA.md` | Índice de Documentação QA — Roteamento para Agente e Humano | 2026-08-10 | 0 | marcado Status: canónico |
 | `Agente-cad-PYSIDE-Restored-main/docs/INTERPRETACAO-PILARES-ABCD.md` | Interpretação de Lajes e Vigas que Passam para Pilares ABCD | 2026-08-10 | 9 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/INTERPRETACAO-VIGA-CHEGA-VAO-E-FACE.md` | Interpretação — quando a viga "chega" na face do pilar | 2026-08-23 | 4 | citado por ponto de entrada |

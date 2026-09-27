@@ -23,6 +23,7 @@ from .config import Settings, load_settings
 from .routers import (
     admin_publish_routes,
     auth_routes,
+    base_global_routes,
     comentarios_routes,
     fichas_routes,
     jobs_routes,
@@ -146,6 +147,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(paginas_routes.router)
     app.include_router(qa_routes.router)
     app.include_router(admin_publish_routes.router)
+    app.include_router(base_global_routes.router)
 
     @app.get("/health", tags=["infra"])
     def health():
