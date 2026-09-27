@@ -319,3 +319,37 @@ def test_diagonal_beam_is_read_on_its_own_axis_normal():
     assert math.dist(pa, face_a[0]) < 0.01
     pb = v9.point(b[0].start, "B")
     assert math.dist(pb, face_b[1]) < 0.01
+
+
+def test_orthogonal_face_reaches_outer_corner_of_l_with_diagonal():
+    """Canto em L VF203 x VF202: a face de FORA da ortogonal vai ate' o canto
+    de fora (onde encontra a linha da diagonal); a de dentro para no canto de
+    dentro."""
+    import math
+
+    c = math.sqrt(0.5)
+    def rot(x, y):  # local da diagonal (eixo +x desce p/ direita) -> DXF
+        return (x * c + y * c, -x * c + y * c)
+
+    yo, yi = -5.8 * c, 14.0 * c  # faces da diagonal (14 de largura)
+    lines = [
+        {"points": [(-5.8, 0.0), (300.0, 0.0)]},        # face de fora (A)
+        {"points": [(0.0, 14.0), (300.0, 14.0)]},       # face de dentro (B)
+        {"points": [(300.0, 0.0), (300.0, 14.0)]},
+        {"points": [rot(-290.0, yo), (-5.8, 0.0)]},
+        {"points": [rot(-290.0, yi), (0.0, 14.0)]},
+        {"points": [rot(-290.0, yo), rot(-290.0, yi)]},
+    ]
+    lx, ly = rot(-150.0, yi + 3.0)
+    sx, sy = rot(-100.0, yo - 3.0)
+    texts = [{"text": "V1", "pos": (150.0, 20.0), "rotation": 0.0},
+             {"text": "14/55", "pos": (200.0, -5.0), "rotation": 0.0},
+             {"text": "V2", "pos": (lx, ly), "rotation": 315.0},
+             {"text": "14/55", "pos": (sx, sy), "rotation": 315.0}]
+    scenes = build_scenes([{"name": "V1"}, {"name": "V2"}], texts, lines, {})
+    v1 = scenes["V1"]
+    a = segment_cell(v1, "A", "para")
+    b = segment_cell(v1, "B", "para")
+    assert len(a) == 1 and len(b) == 1
+    assert abs(min(a[0].start, a[0].end) + 5.8) < 0.01
+    assert abs(min(b[0].start, b[0].end) - 0.0) < 0.01

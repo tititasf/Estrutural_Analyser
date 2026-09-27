@@ -39,7 +39,7 @@ from typing import Any, Optional
 
 from src.core.lv_beam_scene import LvScene
 
-CELL_RULES_VERSION = "guia_lv_cells_v6"
+CELL_RULES_VERSION = "guia_lv_cells_v7"
 PILLAR_OPENING_EXTRA = 11.0     # G8/G9: 11 cm de cada lado
 BEAM_OPENING_EXTRA_W = 8.0      # G8: largura da viga incidente + 8
 BEAM_OPENING_EXTRA_H = 4.0      # G8: altura + 4

@@ -760,11 +760,16 @@ bordas junto ao rotulo); os pontos voltam ao DXF. Sentido de leitura do A =
 0 graus na horizontal, -90 na vertical e o proprio eixo na diagonal; A = lado
 DIREITO desse sentido (reproduz G0 nas ortogonais). Cada face vai ate' onde a
 propria linha vai (pontas em esquadro obliquo), sem entrar na faixa de outra
-viga. Convencao PROVISORIA, a revisar pelo dono: duas diagonais alinhadas
+viga. Convencao CONFIRMADA pelo dono (2026-09-26): duas diagonais alinhadas
 que dividem a mesma linha de face (V307 19/55 e VF202 14/55, face A) — a
 primeira termina no fim do trecho comum as duas faces dela, a seguinte
 comeca ali. Encontro obliquo deixa lasca triangular: lasca de ponta menor que
 a largura da incidente vira ponta (V306 face A passa a comecar na VF202).
+Canto em L ortogonal x diagonal (v7): na ponta em que a diagonal CONTINUA a
+viga (ocupa >= metade da largura alem da ponta), a face de fora da ortogonal
+vai ate' o canto de fora pela propria linha (VF203 A de 1444,65 -> 1439,08 na
+VF202; V309 A de 2217,51 -> 2209,33 na V307). Se outra viga encosta POR FORA
+nesse trecho (VF202 na face A da V306), a face nao estende.
 O "V330" horizontal em (4480, 1623) e' legenda solta junto ao P49, sem faixa
 de viga — nao e' segundo trecho. Duvidas abertas ao dono:
 `docs/QUESTIONARIO-LV-SA-2026-09-25.md`.

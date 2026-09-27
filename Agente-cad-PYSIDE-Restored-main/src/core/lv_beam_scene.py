@@ -976,35 +976,74 @@ def _diagonal_scene(
     return scene
 
 
-def _diagonal_face_extents(scene: LvScene, others: list[LvScene]) -> None:
+def _face_hull(scene: LvScene):
+    """Faixa da viga ate' onde as FACES vao (diagonal: face de fora passa da faixa)."""
+    if not scene.face_extent:
+        return scene.world_band()
+    (la, ha), (lb, hb) = (scene.face_extent.get(s, (scene.start, scene.end)) for s in ("A", "B"))
+    return Polygon([scene.point(la, "A"), scene.point(ha, "A"),
+                    scene.point(hb, "B"), scene.point(lb, "B")]).buffer(0)
+
+
+def _oblique_ends(scene: LvScene, others: list[LvScene]) -> tuple[str, ...]:
+    """Pontas de uma viga ORTOGONAL que encostam numa diagonal (canto em esquadro obliquo)."""
+    reach = 3.0 * scene.width
+    ends = []
+    for end, (a0, a1) in (("start", (scene.start - reach, scene.start + 0.5)),
+                          ("end", (scene.end - 0.5, scene.end + reach))):
+        probe = (box(a0, scene.t_lo, a1, scene.t_hi) if scene.is_horizontal
+                 else box(scene.t_lo, a0, scene.t_hi, a1))
+        for o in others:
+            if o.angle and o.beam_name != scene.beam_name:
+                hit = scene.to_local_geom(o.world_band()).intersection(probe)
+                if hit.is_empty or hit.area <= 1e-6:
+                    continue
+                # canto em L: a diagonal CONTINUA a viga (ocupa a largura dela
+                # alem da ponta). Diagonal chegando de fora numa face (VF202
+                # na face A da V306) so' encosta na borda da faixa.
+                minx, miny, maxx, maxy = hit.bounds
+                span = (maxy - miny) if scene.is_horizontal else (maxx - minx)
+                if span >= 0.5 * scene.width:
+                    ends.append(end)
+                    break
+    return tuple(ends)
+
+
+def _diagonal_face_extents(scene: LvScene, others: list[LvScene],
+                           ends: tuple[str, ...] = ("start", "end")) -> None:
     """Pontas em esquadro obliquo: cada face vai ate' onde a PROPRIA linha vai.
 
     Nunca entra na faixa de outra viga: a face de baixo da V307 continua reta
-    na VF202 (mesmo alinhamento) e ali a lateral da V307 ja' acabou.
+    na VF202 (mesmo alinhamento) e ali a lateral da V307 ja' acabou. Vale
+    tambem para a ponta da ortogonal que chega numa diagonal (canto em L
+    VF203 x VF202: a face de fora vai ate' o canto de fora).
     """
     reach = 3.0 * scene.width
-    bands = [
-        scene.to_local_geom(o.world_band())
-        for o in others if o is not scene and o.beam_name != scene.beam_name
-    ]
+    neighbours = [o for o in others if o is not scene and o.beam_name != scene.beam_name]
+    bands = [(scene.to_local_geom(o.world_band()), scene.to_local_geom(_face_hull(o)))
+             for o in neighbours]
     for side in ("A", "B"):
         lo, hi = scene.start, scene.end
         for a, b in _merge([tuple(i) for i in scene.face_coverage[side]], gap=1.0):
-            if a <= scene.start + 1.0 and b >= scene.start - 1.0:
+            if "start" in ends and a <= scene.start + 1.0 and b >= scene.start - 1.0:
                 lo = max(a, scene.start - reach)
-            if a <= scene.end + 1.0 and b >= scene.end - 1.0:
+            if "end" in ends and a <= scene.end + 1.0 and b >= scene.end - 1.0:
                 hi = min(b, scene.end + reach)
-        for band in bands:
+        for band, hull in bands:
             if hi > scene.end + 0.5:
-                inside, _ = _face_strips(scene, side, scene.end + 0.5, hi)
+                inside, outside = _face_strips(scene, side, scene.end + 0.5, hi)
                 hit = band.intersection(inside)
                 if not hit.is_empty and hit.area > 1e-6:
                     hi = max(scene.end, scene.axis_bounds(hit)[0])
+                if not scene.angle and hull.intersection(outside).area > 1e-6:
+                    hi = scene.end  # outra viga chega por fora nesse trecho: nao e' canto
             if lo < scene.start - 0.5:
-                inside, _ = _face_strips(scene, side, lo, scene.start - 0.5)
+                inside, outside = _face_strips(scene, side, lo, scene.start - 0.5)
                 hit = band.intersection(inside)
                 if not hit.is_empty and hit.area > 1e-6:
                     lo = min(scene.start, scene.axis_bounds(hit)[1])
+                if not scene.angle and hull.intersection(outside).area > 1e-6:
+                    lo = scene.start  # VF202 na face A da V306
         scene.face_extent[side] = (lo, hi)
 
 
@@ -1125,6 +1164,11 @@ def build_scene_runs(
         if scene.angle:
             _diagonal_face_extents(scene, others)
     _split_shared_diagonal_faces([sc for sc in others if sc.angle])
+    for scene in others:
+        if not scene.angle:
+            ends = _oblique_ends(scene, others)
+            if ends:
+                _diagonal_face_extents(scene, others, ends)
     for scene in others:
         _attach_context(scene, pillars, others, slab_polys)
     return runs
