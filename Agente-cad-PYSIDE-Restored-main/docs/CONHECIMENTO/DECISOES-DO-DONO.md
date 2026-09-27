@@ -91,4 +91,4 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 
 ## Pendente de decisão do dono
 
-- Segmentos estimados do 13_PAV — veredito do dono (2026-09-26): V308 A fora da torre (sem nível), B = nível da L325; V327 sem laje nos dois lados (rampa/X); V328 sem laje (correto); V332 A dentro tem laje, B à direita é exterior. Falta aplicar no DB e corrigir a geometria FV (D-60).
+- Segmentos estimados do 13_PAV — veredito do dono (2026-09-26): V308 A fora da torre (sem nível), B = nível da L325; V327 sem laje nos dois lados (rampa/X); V328 sem laje (correto); V332 A dentro tem laje, B à direita é exterior. Aplicado em 2026-09-27: geometria FV corrigida pelo gate D-60 (V327 voltou às laterais próprias); faces sem laje encostada (V308 A, V327, V328, V332 B) recebem nível estimado e marcado por D-61 (`nivel_viga_estimado`); V308 B medido na L325.
