@@ -249,9 +249,32 @@ def _own_pair(index: "_Lines", horizontal: bool, a: tuple[float, float],
     return best
 
 
+def _scene_walls(runs: dict, name: str, horizontal: bool, a: tuple[float, float]) -> list[float]:
+    """Paredes da viga pela CENA DO DXF (faixa medida a partir do rotulo dela —
+    a mesma autoridade das celulas LV). Independe de vinculo lateral: no job o
+    gate roda antes das celulas LV e o merge repoe laterais antigas (face
+    errada), que anularam fundo certo (V301/V303/V309/V314, 27/09)."""
+    from src.core.lv_beam_scene import _norm_name
+
+    span = a[1] - a[0]
+    out: list[float] = []
+    for scene in runs.get(_norm_name(name)) or []:
+        if scene.angle or scene.is_horizontal != horizontal:
+            continue
+        if min(scene.end, a[1]) - max(scene.start, a[0]) >= LINE_COVERAGE_MIN * span:
+            out.extend(t for t in (scene.t_lo, scene.t_hi)
+                       if all(abs(t - o) > WIDTH_TOL for o in out))
+    return sorted(out)
+
+
 def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) -> dict[str, Any]:
     """Aplica o gate a todos os contornos FV. Retorna o relatorio da rodada."""
     index = _Lines(list(texts or []), list(lines or []))
+    try:
+        from src.core.lv_beam_scene import build_scene_runs
+        runs = build_scene_runs(list(beams or []), list(texts or []), list(lines or []), {}, None)
+    except Exception:  # cena indisponivel: cai no vinculo lateral (comportamento anterior)
+        runs = {}
     report: dict[str, Any] = {"ok": 0, STATUS_REPARADO: [], STATUS_ANULADO: [],
                               STATUS_VALIDADO_FORA: [], "nao_auditavel": []}
     for beam in beams or []:
@@ -275,7 +298,12 @@ def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) 
                 horizontal, a, t = rect
                 cov = (round(index.coverage(horizontal, t[0], a), 3),
                        round(index.coverage(horizontal, t[1], a), 3))
-                own = _own_walls(beam, horizontal, a)
+                own = _scene_walls(runs, name, horizontal, a)
+                # largura da faixa do DXF e' a largura da viga (mesma autoridade)
+                own_widths = [round(own[j] - own[i], 2) for i in range(len(own))
+                              for j in range(i + 1, len(own))]
+                if not own:
+                    own = _own_walls(beam, horizontal, a)
                 alheio = bool(own) and not all(
                     any(abs(e - w) <= WIDTH_TOL for w in own) for e in t)
                 if min(cov) >= LINE_COVERAGE_MIN and not alheio:
@@ -299,7 +327,7 @@ def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) 
                     # Fundo fora das laterais da propria viga: so' o par dessas
                     # laterais serve (o reparo generico poderia achar outra viga).
                     gate["laterais_proprias"] = [round(w, 4) for w in own]
-                    widths = [gate["largura"]] + _declared_widths(beam, seg)
+                    widths = [gate["largura"]] + own_widths + _declared_widths(beam, seg)
                     hit = _own_pair(index, horizontal, a, own, widths)
                     if hit is not None:
                         pair, cov_new = hit

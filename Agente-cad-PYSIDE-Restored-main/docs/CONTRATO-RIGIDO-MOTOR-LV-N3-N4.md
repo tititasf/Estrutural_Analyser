@@ -770,6 +770,20 @@ viga (ocupa >= metade da largura alem da ponta), a face de fora da ortogonal
 vai ate' o canto de fora pela propria linha (VF203 A de 1444,65 -> 1439,08 na
 VF202; V309 A de 2217,51 -> 2209,33 na V307). Se outra viga encosta POR FORA
 nesse trecho (VF202 na face A da V306), a face nao estende.
+
+Fronteira FV x LV (2026-09-27) — regras comuns, cada classe granular:
+1. Autoridade unica de PAREDES da viga = cena do DXF (`lv_beam_scene`: faixa
+   medida a partir do rotulo da propria viga). A LV corta celulas por ela; o
+   gate D-60 do FV decide "fundo entre as laterais da propria viga" por ela
+   (largura da faixa = largura aceita no reparo). Vinculo lateral salvo so' e'
+   fallback quando a viga nao tem cena — ele pode ser antigo (o merge repoe) e
+   anulou 22 fundos certos no job LV de 27/09 (V301/V303/V309/V314...).
+2. Isolamento por classe: job que nao roda Fundos so' AUDITA o gate FV (copia
+   dos dados); reparar/anular fundo e' decisao do job de FV.
+3. FV e' referencia para a LV (fronteira de secao), nunca lei; e a LV nao e'
+   lei do FV — os dois leem o mesmo DXF.
+4. Sem fronteira do FV a LV cai no meio entre rotulos de secao: fundo anulado
+   muda a secao das laterais. Conferir as duas classes depois de job de FV.
 O "V330" horizontal em (4480, 1623) e' legenda solta junto ao P49, sem faixa
 de viga — nao e' segundo trecho. Duvidas abertas ao dono:
 `docs/QUESTIONARIO-LV-SA-2026-09-25.md`.

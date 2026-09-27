@@ -2467,13 +2467,17 @@ def run_analysis(
         from src.core.beam_interpreters.fundo_viga_linhas import (
             audit_fv_lines_all, report_summary,
         )
+        # Isolamento por classe: job que nao roda Fundos (ex.: so' LV) apenas
+        # AUDITA o fundo — reparar/anular fundo e' decisao do job de FV.
         _gate_dxf = getattr(window, 'dxf_data', None) or {}
+        _fv_apply = 'fundos_viga' in active_sections
         _fv_gate = audit_fv_lines_all(
-            window.beams_found,
+            window.beams_found if _fv_apply else copy.deepcopy(window.beams_found),
             list(_gate_dxf.get('texts', []) or []),
             list(_gate_dxf.get('lines', []) or []) + list(_gate_dxf.get('polylines', []) or []),
         )
-        print(f'[SA-HUMAN] FV gate linhas: {report_summary(_fv_gate)}', flush=True)
+        print(f'[SA-HUMAN] FV gate linhas ({"aplicado" if _fv_apply else "so auditoria"}): '
+              f'{report_summary(_fv_gate)}', flush=True)
 
         # A ficha FV fica completa só depois do merge e do reparador. Releia
         # aqui a seção/eixo canônicos antes da exportação e do commit: PIL não

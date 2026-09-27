@@ -176,3 +176,20 @@ def test_fundo_entre_paredes_de_outra_viga_volta_para_as_laterais_proprias():
     beam2["links"]["viga_segs"] = beam["links"]["viga_segs"]
     audit_fv_lines_all([beam2], [], LINES)
     assert item2["fv_line_gate"]["status"] == STATUS_ANULADO
+
+
+def test_paredes_proprias_vem_da_cena_do_dxf_nao_do_vinculo_lateral():
+    # Regressao 27/09 (V301/V303/V309/V314 do 13_PAV): no job o gate roda antes
+    # das celulas LV e o merge repoe laterais antigas de OUTRA faixa. Com o
+    # rotulo da viga no DXF, a cena manda: fundo certo fica intocado.
+    walls = LINES + [{"start": (0.0, 100.0), "end": (300.0, 100.0)},
+                     {"start": (0.0, 119.0), "end": (300.0, 119.0)}]
+    texts = [{"text": "V1", "pos": (150.0, 25.0), "rotation": 0.0},
+             {"text": "19/55", "pos": (200.0, -5.0), "rotation": 0.0}]
+    beam, item = _beam(_rect(20, 280, 0, 19))
+    stale = [{"points": [(0.0, 100.0), (300.0, 100.0)]}]
+    beam["links"]["viga_lat_seg_1"] = {"seg_side_a": stale,
+                                       "seg_side_b": [{"points": [(0.0, 119.0), (300.0, 119.0)]}]}
+    report = audit_fv_lines_all([beam], texts, walls)
+    assert report["ok"] == 1 and "fv_line_gate" not in item
+    assert sorted({p[1] for p in item["points"]}) == [0.0, 19.0]
