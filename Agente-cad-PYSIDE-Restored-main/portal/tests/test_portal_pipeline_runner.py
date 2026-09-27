@@ -763,3 +763,36 @@ def test_assets_arete_substituem_candidato_apenas_em_staging(tmp_path):
     assert result["status"] == "aplicados"
     assert candidate.read_text(encoding="utf-8") == golden.read_text(encoding="utf-8")
     assert golden.read_text(encoding="utf-8") == "<svg><!-- V329 --></svg>"
+
+
+
+def test_promover_snapshot_de_uma_classe_preserva_segmentos_das_outras(tmp_path):
+    # Incidente 27/09: job so' de LV publicou fundos crus por cima dos auditados.
+    obra_dir = tmp_path / "obra_isolamento_fv_lv"
+    obra_dir.mkdir()
+    (obra_dir / "estado_13_PAV.json").write_text(json.dumps({
+        "pilares": [], "slabs": [], "cortes": [],
+        "segmentos": {"fundo": [{"beam_name": "V1", "points": "auditado"}],
+                      "lateral_a_para": [{"beam_name": "V1", "points": "velho"},
+                                         {"beam_name": "V2", "points": "velho"}]},
+    }), encoding="utf-8")
+    snap = obra_dir / "estado_13_PAV_laterais_viga_pid1.json"
+    snap.write_text(json.dumps({
+        "pilares": [], "slabs": [], "cortes": [],
+        "segmentos": {"fundo": [{"beam_name": "V1", "points": "cru"}],
+                      "lateral_a_para": [{"beam_name": "V1", "points": "novo"},
+                                         {"beam_name": "V2", "points": "novo"}]},
+    }), encoding="utf-8")
+    seg = lambda: json.loads((obra_dir / "estado_13_PAV.json").read_text(encoding="utf-8"))["segmentos"]
+    pipeline_runner.promover_snapshot_sa(obra_dir, "13_PAV", secao="laterais_viga")
+    assert seg()["fundo"][0]["points"] == "auditado"
+    assert [r["points"] for r in seg()["lateral_a_para"]] == ["novo", "novo"]
+
+    snap.write_text(json.dumps({
+        "pilares": [], "slabs": [], "cortes": [],
+        "segmentos": {"fundo": [], "lateral_a_para": [{"beam_name": "V2", "points": "item"},
+                                                        {"beam_name": "V1", "points": "x"}]},
+    }), encoding="utf-8")
+    pipeline_runner.promover_snapshot_sa(obra_dir, "13_PAV", secao="laterais_viga", item_names={"V2"})
+    assert sorted((r["beam_name"], r["points"]) for r in seg()["lateral_a_para"]) == [("V1", "novo"), ("V2", "item")]
+    assert seg()["fundo"][0]["points"] == "auditado"

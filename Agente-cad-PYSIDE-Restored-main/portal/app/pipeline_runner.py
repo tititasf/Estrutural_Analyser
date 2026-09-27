@@ -210,6 +210,56 @@ def encontrar_dir_fichas(obra_dir: Path, pavimento: Optional[str] = None) -> Opt
     return candidatos[-1] if candidatos else None
 
 
+def _dono_do_segmento(chave: str) -> str | None:
+    """Classe (secao do headless) dona de cada chave de ``segmentos``."""
+    if chave == "fundo":
+        return "fundos_viga"
+    if chave.startswith("lateral_"):
+        return "laterais_viga"
+    return None
+
+
+def _preservar_segmentos_de_outras_classes(
+    payload: dict, canonical: Path, secao: Optional[str], wanted: set[str],
+) -> None:
+    """Job de uma classe so' publica os segmentos DELA (isolamento FV x LV).
+
+    O headless reinterpreta tudo em qualquer job, mas so' aplica os gates da
+    classe pedida: os fundos de um job de LV (ou de PIL/LAJ) saem crus, sem o
+    gate D-60 que o job de FV aplicou. Promover o snapshot inteiro publicaria
+    esses fundos crus por cima dos auditados (incidente 27/09). Aqui cada
+    chave de ``segmentos`` vem do job da classe dona; as demais ficam como
+    estavam no estado canonico anterior. Com ``--item`` so' as vigas pedidas
+    sao trocadas.
+    """
+    if not secao or not canonical.is_file():
+        return
+    fresh = payload.get("segmentos")
+    if not isinstance(fresh, dict):
+        return
+    try:
+        previous = json.loads(canonical.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return
+    old = previous.get("segmentos") if isinstance(previous, dict) else None
+    if not isinstance(old, dict):
+        return
+    merged = {}
+    for chave in set(old) | set(fresh):
+        dono = _dono_do_segmento(chave)
+        if dono is None:
+            merged[chave] = fresh.get(chave, old.get(chave))
+        elif dono != secao:
+            merged[chave] = old.get(chave, [])
+        elif wanted and isinstance(old.get(chave), list):
+            viga = lambda row: str((row or {}).get("beam_name") or "").strip().upper()
+            novos = [r for r in (fresh.get(chave) or []) if viga(r) in wanted]
+            merged[chave] = [r for r in old[chave] if viga(r) not in wanted] + novos
+        else:
+            merged[chave] = fresh.get(chave, [])
+    payload["segmentos"] = merged
+
+
 def promover_snapshot_sa(
     obra_dir: Path,
     pavimento: str,
@@ -293,6 +343,7 @@ def promover_snapshot_sa(
                 if name in wanted and name not in seen
             )
             payload["slabs"] = merged_slabs
+    _preservar_segmentos_de_outras_classes(payload, canonical, secao, wanted)
     canonical.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(prefix=f".{canonical.name}.", suffix=".tmp", dir=canonical.parent)
     try:
