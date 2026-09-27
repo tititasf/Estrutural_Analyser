@@ -82,7 +82,7 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 | D-53 | 2026-09-26 | global | Validação humana é **voto muito forte**, não âncora absoluta: evidência contrária forte abre revisão (nunca muda sozinha) — serve para achar onde sistema e dono discordam | idem | vigente |
 | D-54 | 2026-09-26 | obra:Obra_TREINO_1 | Pesos da soma de evidências calibrados contra as lajes validadas do 13_PAV antes de ligar | idem | vigente |
 | D-55 | 2026-09-26 | global | Área sem laje costuma ser marcada por **X vermelho**; segmento de viga sem laje encostada pode ser isso (não é necessariamente erro) | idem | vigente (informativa) |
-| D-56 | 2026-09-26 | LAJ | L318 **não tem** delta de −30 no corte: a associação corte→laje que gerou −30 é bug a investigar; L318 = 852.19 | revisão das fotos pelo dono (2026-09-26) | vigente |
+| D-56 | 2026-09-26 | LAJ | L318 **não tem** delta de −30 no corte: o −30 vinha da direção do corte calculada pelo centro da laje longa (corte da V314 lido no eixo errado, contra a L319) — corrigido em 2026-09-27: direção pela borda da laje; L318 = 852.19 | revisão das fotos pelo dono (2026-09-26) | vigente (bug resolvido) |
 | D-57 | 2026-09-26 | LV/FV | Segmento de viga que **toca só em parte** uma laje usa o nível dessa laje (ex.: V308 lado B via L325) | idem | vigente |
 | D-58 | 2026-09-26 | global | **Quadradinhos** hachurados = rampa (não é laje); somado ao X vermelho (D-55), lado sem laje não tem nível e não é erro | idem | nível: substituída por D-61 (resto vigente) |
 | D-59 | 2026-09-26 | LAJ | **L316** é o exemplo canônico de D-52: partes com nível/espessura diferentes e mesmo fundo → uma laje só | idem | vigente (exemplo) |
