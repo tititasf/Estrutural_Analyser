@@ -15308,7 +15308,9 @@ class MainWindow(QMainWindow):
                 if delta is None:
                     continue
 
-                calc_level = n_src['value'] + delta
+                # delta em cm, nível em m (bug de 2026-09-26: somava cm como m)
+                from src.core.slab_level_inference import cut_delta_level
+                calc_level = cut_delta_level(n_src['value'], delta)
                 confidence = 0.80 if n_src.get('human') else 0.55
                 candidate_values.append({
                     'value': round(calc_level, 2),
@@ -15335,6 +15337,32 @@ class MainWindow(QMainWindow):
                     'candidates': candidate_values,
                 }
                 continue
+
+            # Portões de coerência: o cálculo sozinho não decide o nível.
+            from src.core.slab_level_inference import gate_cut_delta_level
+            import statistics
+            ref_vals = [s['value'] for s in level_sources.values() if s.get('human')] \
+                or [s['value'] for s in level_sources.values() if s.get('value') is not None]
+            own_label = next((
+                self._parse_slab_level_value(link.get('text'))
+                for link in (self._ensure_slab_level_links(slab).get('label') or [])
+                if isinstance(link, dict) and not link.get('is_inferred')
+                and self._parse_slab_level_value(link.get('text')) is not None
+            ), None)
+            veredito = gate_cut_delta_level(
+                best['value'], best['delta'],
+                reference_level_m=statistics.median(ref_vals) if ref_vals else None,
+                own_label_level_m=own_label,
+            )
+            if not veredito['accepted']:
+                slab['level_inference'] = {
+                    'status': 'needs_review',
+                    'reason': 'cut_view_delta_reprovado_nos_portoes',
+                    'value_proposto': best['value'],
+                    'gates': veredito['gates'],
+                    'candidates': candidate_values,
+                }
+                continue
             self._apply_inferred_slab_level(
                 slab, best['value'],
                 f"cut_view_delta from {best['source_slab']} (Δ={best['delta']:+.1f}cm)",
@@ -15343,6 +15371,9 @@ class MainWindow(QMainWindow):
             # Enriquece o level_inference com metadados de confiança
             slab['level_inference']['confidence'] = best['confidence']
             slab['level_inference']['method'] = 'cut_view_delta'
+            slab['level_inference']['gates'] = veredito['gates']
+            if veredito['confirmed_by_label']:
+                slab['level_inference']['status'] = 'confirmed'
             level_sources[slab.get('id') or slab.get('name')] = {
                 'value': best['value'],
                 'slab': slab.get('name'),
