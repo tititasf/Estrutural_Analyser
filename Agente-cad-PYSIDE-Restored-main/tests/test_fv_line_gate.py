@@ -154,3 +154,25 @@ def test_aparo_que_sobraria_toco_anula():
     beam, item = _beam(_rect(0, 260, 0, 19))
     audit_fv_lines_all([beam], [], walls)
     assert item["fv_line_gate"]["status"] == STATUS_ANULADO
+
+
+def test_fundo_entre_paredes_de_outra_viga_volta_para_as_laterais_proprias():
+    # Caso V327 do 13_PAV: o fundo nasceu entre as paredes de OUTRA viga
+    # (linha no DXF, cobertura ok), mas as laterais da viga estao em y=100/114.
+    walls = LINES + [{"start": (0.0, 100.0), "end": (300.0, 100.0)},
+                     {"start": (0.0, 114.0), "end": (300.0, 114.0)}]
+    beam, item = _beam(_rect(20, 280, 0, 19))
+    beam["viga_a_seg_1_dim"] = "14/50"
+    beam["links"]["viga_segs"] = {
+        "seg_side_a": [{"points": [[20, 100], [280, 100]]}],
+        "seg_side_b": [{"points": [[20, 114], [280, 114]]}]}
+    audit_fv_lines_all([beam], [], walls)
+    gate = item["fv_line_gate"]
+    assert gate["status"] == STATUS_REPARADO and gate["largura_depois"] == 14.0
+    assert sorted({p[1] for p in item["points"]}) == [100.0, 114.0]
+
+    # Laterais proprias sem linha no DXF: anula (nao volta para a outra viga).
+    beam2, item2 = _beam(_rect(20, 280, 0, 19))
+    beam2["links"]["viga_segs"] = beam["links"]["viga_segs"]
+    audit_fv_lines_all([beam2], [], LINES)
+    assert item2["fv_line_gate"]["status"] == STATUS_ANULADO

@@ -86,7 +86,7 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 | D-57 | 2026-09-26 | LV/FV | Segmento de viga que **toca só em parte** uma laje usa o nível dessa laje (ex.: V308 lado B via L325) | idem | vigente |
 | D-58 | 2026-09-26 | global | **Quadradinhos** hachurados = rampa (não é laje); somado ao X vermelho (D-55), lado sem laje não tem nível e não é erro | idem | vigente (informativa) |
 | D-59 | 2026-09-26 | LAJ | **L316** é o exemplo canônico de D-52: partes com nível/espessura diferentes e mesmo fundo → uma laje só | idem | vigente (exemplo) |
-| D-60 | 2026-09-26 | FV | Segmento de fundo de viga **não pode** ter linhas fora das linhas originais do estrutural (como já vale para LV). V308/V331/V332/VF203/VF301 do 13_PAV estão com segmento FV desalinhado | idem | vigente — regra FV a implementar |
+| D-60 | 2026-09-26 | FV | Segmento de fundo de viga **não pode** ter linhas fora das linhas originais do estrutural (como já vale para LV). V308/V331/V332/VF203/VF301 do 13_PAV estão com segmento FV desalinhado | idem | vigente — implementada: gate `fundo_viga_linhas.py` (repara no par de paredes / largura declarada / laterais da própria viga, apara, ou anula; feedback em `fv_line_gate`) |
 
 ## Pendente de decisão do dono
 

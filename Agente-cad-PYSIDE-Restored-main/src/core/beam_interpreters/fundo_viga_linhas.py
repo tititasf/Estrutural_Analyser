@@ -202,6 +202,53 @@ def _declared_widths(beam: dict, seg: int) -> list[float]:
     return out
 
 
+def _own_walls(beam: dict, horizontal: bool, a: tuple[float, float]) -> list[float]:
+    """Coordenadas transversais das laterais da PROPRIA viga (seg_side_a/b)
+    paralelas ao fundo e cobrindo >= LINE_COVERAGE_MIN do vao dele.
+
+    Caso V327 do 13_PAV: o fundo nasceu entre as paredes de outra viga (x 2040,
+    cobertura 0.67 — passava no teste de linha), enquanto as laterais da V327
+    estao em x 4387/4401. Linha do DXF sozinha nao prova que a faixa e' desta
+    viga; as laterais da viga provam."""
+    span = a[1] - a[0]
+    out: list[float] = []
+    for slots in (beam.get("links") or {}).values():
+        if not isinstance(slots, dict):
+            continue
+        for slot in ("seg_side_a", "seg_side_b"):
+            for it in slots.get(slot) or []:
+                pts = it.get("points") if isinstance(it, dict) else None
+                for p, q in zip(pts or [], (pts or [])[1:]):
+                    try:
+                        (px, py), (qx, qy) = (float(p[0]), float(p[1])), (float(q[0]), float(q[1]))
+                    except (TypeError, ValueError, IndexError):
+                        continue
+                    if horizontal and abs(py - qy) <= ORTHO_TOL:
+                        t, lo, hi = py, min(px, qx), max(px, qx)
+                    elif not horizontal and abs(px - qx) <= ORTHO_TOL:
+                        t, lo, hi = px, min(py, qy), max(py, qy)
+                    else:
+                        continue
+                    if min(hi, a[1]) - max(lo, a[0]) >= LINE_COVERAGE_MIN * span and \
+                            all(abs(t - o) > WIDTH_TOL for o in out):
+                        out.append(t)
+    return sorted(out)
+
+
+def _own_pair(index: "_Lines", horizontal: bool, a: tuple[float, float],
+              own: list[float], widths: list[float]):
+    """Par de laterais da propria viga com largura aceita e linha no DXF."""
+    best = None
+    for i, t0 in enumerate(own):
+        for t1 in own[i + 1:]:
+            if not any(abs((t1 - t0) - w) <= WIDTH_TOL for w in widths):
+                continue
+            cov = (index.coverage(horizontal, t0, a), index.coverage(horizontal, t1, a))
+            if min(cov) >= LINE_COVERAGE_MIN and (best is None or min(cov) > min(best[1])):
+                best = ((t0, t1), cov)
+    return best
+
+
 def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) -> dict[str, Any]:
     """Aplica o gate a todos os contornos FV. Retorna o relatorio da rodada."""
     index = _Lines(list(texts or []), list(lines or []))
@@ -228,7 +275,10 @@ def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) 
                 horizontal, a, t = rect
                 cov = (round(index.coverage(horizontal, t[0], a), 3),
                        round(index.coverage(horizontal, t[1], a), 3))
-                if min(cov) >= LINE_COVERAGE_MIN:
+                own = _own_walls(beam, horizontal, a)
+                alheio = bool(own) and not all(
+                    any(abs(e - w) <= WIDTH_TOL for w in own) for e in t)
+                if min(cov) >= LINE_COVERAGE_MIN and not alheio:
                     report["ok"] += 1
                     continue
                 gate: dict[str, Any] = {
@@ -244,6 +294,39 @@ def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) 
                     item["fv_line_gate"] = gate
                     entry.update(antes=gate["antes"])
                     report[STATUS_VALIDADO_FORA].append(entry)
+                    continue
+                if alheio:
+                    # Fundo fora das laterais da propria viga: so' o par dessas
+                    # laterais serve (o reparo generico poderia achar outra viga).
+                    gate["laterais_proprias"] = [round(w, 4) for w in own]
+                    widths = [gate["largura"]] + _declared_widths(beam, seg)
+                    hit = _own_pair(index, horizontal, a, own, widths)
+                    if hit is not None:
+                        pair, cov_new = hit
+                        item["points"] = _points(horizontal, a, pair)
+                        gate.update({
+                            "status": STATUS_REPARADO,
+                            "largura_depois": round(pair[1] - pair[0], 2),
+                            "cobertura_depois": [round(c, 3) for c in cov_new],
+                            "deslocamento": round(abs(pair[0] - t[0]), 2),
+                            "motivo": "fundo fora das laterais da propria viga (entre paredes "
+                                      "de outra); movido para entre as laterais desta viga",
+                        })
+                        entry.update(deslocamento=gate["deslocamento"],
+                                     cobertura_depois=gate["cobertura_depois"],
+                                     largura_depois=gate["largura_depois"])
+                    else:
+                        item["points"] = []
+                        slots["contour"] = [c for c in slots.get("contour") or [] if c is not item]
+                        slots.setdefault(ANULADO_SLOT, []).append(item)
+                        gate.update({
+                            "status": STATUS_ANULADO,
+                            "motivo": "fundo fora das laterais da propria viga e nenhum par "
+                                      "dessas laterais com linha no estrutural: anulado, revisar",
+                        })
+                    item["fv_line_gate"] = gate
+                    entry.update(antes=gate["antes"], depois=item.get("points") or [])
+                    report[gate["status"]].append(entry)
                     continue
                 found = index.repair(horizontal, a, t, _declared_widths(beam, seg))
                 if found is not None:
