@@ -84,9 +84,10 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 | D-55 | 2026-09-26 | global | Área sem laje costuma ser marcada por **X vermelho**; segmento de viga sem laje encostada pode ser isso (não é necessariamente erro) | idem | vigente (informativa) |
 | D-56 | 2026-09-26 | LAJ | L318 **não tem** delta de −30 no corte: a associação corte→laje que gerou −30 é bug a investigar; L318 = 852.19 | revisão das fotos pelo dono (2026-09-26) | vigente |
 | D-57 | 2026-09-26 | LV/FV | Segmento de viga que **toca só em parte** uma laje usa o nível dessa laje (ex.: V308 lado B via L325) | idem | vigente |
-| D-58 | 2026-09-26 | global | **Quadradinhos** hachurados = rampa (não é laje); somado ao X vermelho (D-55), lado sem laje não tem nível e não é erro | idem | vigente (informativa) |
+| D-58 | 2026-09-26 | global | **Quadradinhos** hachurados = rampa (não é laje); somado ao X vermelho (D-55), lado sem laje não tem nível e não é erro | idem | nível: substituída por D-61 (resto vigente) |
 | D-59 | 2026-09-26 | LAJ | **L316** é o exemplo canônico de D-52: partes com nível/espessura diferentes e mesmo fundo → uma laje só | idem | vigente (exemplo) |
 | D-60 | 2026-09-26 | FV | Segmento de fundo de viga **não pode** ter linhas fora das linhas originais do estrutural (como já vale para LV). V308/V331/V332/VF203/VF301 do 13_PAV estão com segmento FV desalinhado | idem | vigente — implementada: gate `fundo_viga_linhas.py` (repara no par de paredes / largura declarada / laterais da própria viga, apara, ou anula; feedback em `fv_line_gate`) |
+| D-61 | 2026-09-27 | global | Segmento de viga **sem laje encostada** recebe nível **estimado**, marcado como tal (nunca vira nível medido; não é erro): "sempre melhor estimado que não ter informação". Ordem: laje encostada (medido) → **outro segmento da mesma viga** com laje encostada → laje com nível mais próxima. Corrige D-58 no ponto do nível. Marca: `nivel_viga_estimado` na viga (origem, laje/segmento de onde veio) | chat 2026-09-27 | vigente |
 
 ## Pendente de decisão do dono
 

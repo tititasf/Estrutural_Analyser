@@ -106,3 +106,42 @@ def test_side_b_list_label_heals_stale_side_a_display_name():
     )
 
     assert label == "LV-V327.B Para"
+
+
+def _two_face_beam():
+    links = {}
+    for side, y in (("a", 0), ("b", 19)):
+        for suffix in ("comprimento_total", "comp_total_passa"):
+            links[f"viga_{side}_seg_1_{suffix}"] = {f"seg_side_{side}": [_length([[0, y], [200, y]])]}
+    return {"name": "V1", "fields": {}, "validated_fields": [],
+            "geometry": {"classified": {}}, "links": links}
+
+
+def _slab(name, level, points):
+    return {"name": name, "text": name, "points": points, "nivel": level,
+            "fields": {"laje_nivel": level}}
+
+
+def test_d61_face_sem_laje_encostada_recebe_nivel_estimado_marcado():
+    host = _Host()
+    host.slabs_found = [_slab("L1", "852.16", [[0, -500], [200, -500], [200, -200], [0, -200]])]
+    beam = _two_face_beam()
+    host._populate_lv_segment_ui_fields(beam)
+
+    for side in ("a", "b"):
+        key = f"viga_{side}_seg_1_nivel_viga"
+        assert beam["fields"][key] == "852.16"  # melhor estimado que nada
+        assert key in beam["nivel_viga_estimado"]
+
+
+def test_d61_face_com_laje_encostada_e_medida_e_a_outra_herda_como_estimada():
+    host = _Host()
+    host.slabs_found = [_slab("L1", "852.16", [[0, 19], [200, 19], [200, 300], [0, 300]])]
+    beam = _two_face_beam()
+    host._populate_lv_segment_ui_fields(beam)
+
+    est = beam["nivel_viga_estimado"]
+    assert beam["fields"]["viga_b_seg_1_nivel_viga"] == "852.16"
+    assert "viga_b_seg_1_nivel_viga" not in est
+    assert beam["fields"]["viga_a_seg_1_nivel_viga"] == "852.16"
+    assert est["viga_a_seg_1_nivel_viga"]["origem"] == "outra_face"

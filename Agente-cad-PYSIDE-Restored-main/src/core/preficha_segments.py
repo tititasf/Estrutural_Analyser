@@ -1069,17 +1069,22 @@ def collect_preficha_segments(
                     from src.core.beam_interpreters.fundo_viga_linhas import gate_attention
                     cell_attention = gate_attention(link)
                     from src.core.fundo_segment_levels import derive_fundo_segment_level
+                    # D-61: nivel de lado marcado como estimado nao passa na
+                    # frente da laje encostada ao fundo.
+                    estimados = beam.get("nivel_viga_estimado")
+                    estimados = estimados if isinstance(estimados, dict) else {}
+                    lado_keys = [f"viga_{s}_seg_{segment_index}_nivel_viga" for s in ("a", "b")]
                     level_result = derive_fundo_segment_level(
                         points,
                         slabs,
                         explicit_levels=(
                             fields.get(f"viga_fundo_seg_{segment_index}_nivel_viga"),
-                            fields.get(f"viga_a_seg_{segment_index}_nivel_viga"),
-                            fields.get(f"viga_b_seg_{segment_index}_nivel_viga"),
+                            *(fields.get(k) for k in lado_keys if k not in estimados),
                             fields.get("nivel_lado_a"),
                             fields.get("nivel_lado_b"),
                             fields.get("nivel_viga"),
                         ),
+                        estimated_levels=[fields.get(k) for k in lado_keys if k in estimados],
                     )
                     if level_result["value"] is not None:
                         level = f'{float(level_result["value"]):g}'
@@ -1113,6 +1118,10 @@ def collect_preficha_segments(
                         "beam_level": str(_first_value(
                             beam, f"{prefix}_nivel_viga", f"nivel_lado_{side_key}"
                         ) or ""),
+                        # D-61: {origem, laje|de} quando o nivel e' estimado
+                        "beam_level_estimated": dict(
+                            (beam.get("nivel_viga_estimado") or {}).get(f"{prefix}_nivel_viga") or {}
+                        ),
                         "slabs": touching_slabs[:3],
                         "continuity": str(_first_value(beam, f"{prefix}_continuidade") or ""),
                         "adjustment": {

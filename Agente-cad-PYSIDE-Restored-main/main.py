@@ -10202,6 +10202,9 @@ class MainWindow(QMainWindow):
             if nivel and score > best_score:
                 best_nivel, best_score = nivel, score
         ctx['best_nivel'] = best_nivel
+        # D-61: score >= 10 = laje ligada a um pilar desta viga; abaixo disso
+        # e' so' a laje "melhor" do pavimento inteiro (ultimo recurso).
+        ctx['best_nivel_ligado'] = best_score >= 10
         if ctx['slab_fichas']:
             ctx['sources'].append('lajes')
 
@@ -10860,6 +10863,12 @@ class MainWindow(QMainWindow):
             if _re.match(r'^P\d+', _support_label(s).strip().upper())
         ]
 
+        # D-61: nivel_viga estimado (sem laje encostada) fica marcado aqui,
+        # por campo: {origem, laje|de, ...}. Ausente = nivel medido.
+        if not isinstance(b.get('nivel_viga_estimado'), dict):
+            b['nivel_viga_estimado'] = {}
+        nivel_est = b['nivel_viga_estimado']
+
         for side, idx in sorted(indices):
             prefix = f'viga_{side}_seg_{idx}'
             slot = f'seg_side_{side}'
@@ -11096,14 +11105,43 @@ class MainWindow(QMainWindow):
                         pass
 
             # Nível da viga (ordem cross-classe):
-            #   laje desta face → best_nivel LAJ/PIL → cota espacial → catálogo
-            lvl_txt, lvl_link = '', None
-            if highest_slab_nivel:
+            #   laje desta face (MEDIDO) → laje do pilar desta viga → nível da
+            #   ficha do pilar → cota no desenho → laje mais próxima → laje do
+            #   pavimento. Tudo depois da 1a opção é ESTIMADO (D-61) e fica
+            #   marcado em nivel_viga_estimado com a origem.
+            lvl_txt, lvl_link, lvl_est = '', None, None
+            # MEDIDO = poligono de laje encostando na face (amostragem ou toque
+            # parcial <= 1 cm, D-57), nas duas linhas da face. O vinculo
+            # face→laje do SA vem de rotulo proximo: sem contato e' estimado
+            # (V327/V328 do 13_PAV: L325 vinculada, laje mais proxima a 218 cm).
+            touch_names = None
+            if slabs_catalog:
+                from src.core.fundo_segment_levels import slabs_touching
+                for suffix in ('comp_total_passa', 'comprimento_total'):
+                    for seg in (links.get(f'{prefix}_{suffix}') or {}).get(slot) or []:
+                        hit = slabs_touching((seg or {}).get('points') or [], slabs_catalog)
+                        if hit is not None:
+                            touch_names = sorted(set(touch_names or []) | set(hit))
+            touch_best, touch_num = '', None
+            for tn in touch_names or []:
+                niv = _slab_nivel(_lookup_slab(tn))
+                m_t = level_pat.search(str(niv or ''))
+                if m_t:
+                    v_t = float(m_t.group(1).replace(',', '.'))
+                    if touch_num is None or v_t > touch_num:
+                        touch_best, touch_num = niv, v_t
+            if touch_best:
+                lvl_txt = touch_best
+            elif highest_slab_nivel:
                 lvl_txt = highest_slab_nivel
-            if not lvl_txt and cross.get('best_nivel'):
+                if touch_names == []:
+                    lvl_est = {'origem': 'laje_vinculada_sem_contato'}
+            if not lvl_txt and cross.get('best_nivel') and cross.get('best_nivel_ligado'):
                 lvl_txt = str(cross.get('best_nivel'))
+                lvl_est = {'origem': 'laje_do_pilar'}
             if not lvl_txt and cross.get('_pillar_nivel'):
                 lvl_txt = str(cross.get('_pillar_nivel'))
+                lvl_est = {'origem': 'ficha_do_pilar'}
             if not lvl_txt and level_candidates:
                 if pts:
                     cx = sum(p[0] for p in pts) / len(pts)
@@ -11120,11 +11158,12 @@ class MainWindow(QMainWindow):
                 else:
                     lvl_link = level_candidates[0]
                 lvl_txt = str((lvl_link or {}).get('text') or '')
+                lvl_est = {'origem': 'cota_de_nivel_no_desenho'}
             if not lvl_txt and slabs_catalog and (pts or all_pts):
                 ref = pts or all_pts
                 cx = sum(float(p[0]) for p in ref) / len(ref)
                 cy = sum(float(p[1]) for p in ref) / len(ref)
-                best_n, best_d = '', float('inf')
+                best_n, best_d, best_s = '', float('inf'), None
                 for s in slabs_catalog:
                     cxy = _slab_centroid(s)
                     if not cxy:
@@ -11132,15 +11171,28 @@ class MainWindow(QMainWindow):
                     d = ((cxy[0] - cx) ** 2 + (cxy[1] - cy) ** 2) ** 0.5
                     niv = _slab_nivel(s)
                     if niv and d < best_d and d < 800:
-                        best_n, best_d = niv, d
+                        best_n, best_d, best_s = niv, d, s
                 if best_n:
                     lvl_txt = best_n
+                    # D-61: sem laje encostada o nivel e' ESTIMADO (laje mais
+                    # proxima) — melhor que nada, mas marcado como tal.
+                    lvl_est = {'origem': 'laje_mais_proxima',
+                               'laje': str((best_s or {}).get('name') or ''),
+                               'distancia_cm': round(best_d, 1)}
+            if not lvl_txt and cross.get('best_nivel'):
+                lvl_txt = str(cross.get('best_nivel'))
+                lvl_est = {'origem': 'laje_do_pavimento'}
+            nivel_key = f'{prefix}_nivel_viga'
+            if nivel_key not in validated:
+                nivel_est.pop(nivel_key, None)
             if lvl_txt:
                 _set_text_field(
-                    f'{prefix}_nivel_viga', lvl_txt,
+                    nivel_key, lvl_txt,
                     {'label': [dict(lvl_link, type=lvl_link.get('type') or 'text')]}
                     if isinstance(lvl_link, dict) else None,
                 )
+                if lvl_est and nivel_key not in validated:
+                    nivel_est[nivel_key] = lvl_est
 
             # Aberturas pilares intermediários (só P* estritamente no vão)
             if pts and (span_max - span_min) > 10:
@@ -11244,19 +11296,39 @@ class MainWindow(QMainWindow):
                 continue
             idxs = sorted(idxs)
             src = f'viga_{side}_seg_{idxs[0]}'
-            for idx in idxs[1:]:
+            # D-61: o nivel da face vem do 1o segmento com nivel MEDIDO (laje
+            # encostada); so' se nenhum tiver, do seg 1 (estimado).
+            nivel_src = next(
+                (f'viga_{side}_seg_{i}' for i in idxs
+                 if (b.get(f'viga_{side}_seg_{i}_nivel_viga')
+                     or fields.get(f'viga_{side}_seg_{i}_nivel_viga'))
+                 and f'viga_{side}_seg_{i}_nivel_viga' not in nivel_est),
+                src,
+            )
+            for idx in idxs:
                 dst = f'viga_{side}_seg_{idx}'
                 for field in ('dim', 'ini_name', 'end_name', 'nivel_viga'):
-                    src_k = f'{src}_{field}'
+                    fsrc = nivel_src if field == 'nivel_viga' else src
+                    if dst == fsrc:
+                        continue
+                    src_k = f'{fsrc}_{field}'
                     dst_k = f'{dst}_{field}'
                     src_val = b.get(src_k) or fields.get(src_k)
                     if not src_val or dst_k in validated:
                         continue
+                    if field == 'nivel_viga':
+                        if src_k in nivel_est:
+                            nivel_est[dst_k] = dict(nivel_est[src_k])
+                        elif dst_k in nivel_est or not (b.get(dst_k) or fields.get(dst_k)):
+                            # segmento sem laje herda o nivel medido de outro
+                            nivel_est[dst_k] = {'origem': 'outro_segmento', 'de': fsrc}
                     # force: multi-seg herda ficha de face do seg1
                     b[dst_k] = src_val
                     fields[dst_k] = src_val
                     if src_k in links:
                         links[dst_k] = _copy.deepcopy(links[src_k])
+                if dst == src:
+                    continue
                 src_l = f'{src}_lajes'
                 dst_l = f'{dst}_lajes'
                 if src_l in links:
@@ -11279,19 +11351,25 @@ class MainWindow(QMainWindow):
         for side, idxs in by_side.items():
             for idx in idxs:
                 k = f'viga_{side}_seg_{idx}_nivel_viga'
-                if b.get(k) or fields.get(k):
-                    continue
-                if k in validated:
+                has = b.get(k) or fields.get(k)
+                # D-61: face so' com nivel estimado adota o MEDIDO da outra face
+                if (has and k not in nivel_est) or k in validated:
                     continue
                 for other_side in ('a', 'b'):
                     if other_side == side:
                         continue
                     ok = f'viga_{other_side}_seg_{idx}_nivel_viga'
                     ov = b.get(ok) or fields.get(ok)
-                    if ov:
-                        b[k] = ov
-                        fields[k] = ov
-                        break
+                    if not ov or (has and ok in nivel_est):
+                        continue
+                    b[k] = ov
+                    fields[k] = ov
+                    if ok in nivel_est:
+                        nivel_est[k] = dict(nivel_est[ok])
+                    else:
+                        nivel_est[k] = {'origem': 'outra_face',
+                                        'de': f'viga_{other_side}_seg_{idx}'}
+                    break
 
         # NÃO escrever de volta em pilares aqui.
         # PIL tem modelo multi-face (passa_esq/dir + para/ch1..3 + lajes) e

@@ -69,3 +69,27 @@ def test_zero_is_a_valid_slab_level_but_not_an_unset_explicit_default():
 
     assert result["value"] == 0.0
     assert result["source"] == "highest_touching_slab"
+
+
+def test_d61_estimated_beam_level_comes_before_nearest_slab_but_after_touching():
+    fundo = [(0, 0), (100, 0), (100, 10), (0, 10)]
+    far = [{"name": "L1", "nivel": 850, "points": [(0, 30), (100, 30), (100, 80), (0, 80)]}]
+    result = derive_fundo_segment_level(fundo, far, estimated_levels=("851.5",))
+    assert result["value"] == 851.5 and result["source"] == "estimated_beam_level"
+
+    touching = [{"name": "L2", "nivel": 852, "points": [(0, 10), (100, 10), (100, 80), (0, 80)]}]
+    result = derive_fundo_segment_level(fundo, touching, estimated_levels=("851.5",))
+    assert result["value"] == 852.0 and result["source"] == "highest_touching_slab"
+
+
+def test_d61_slabs_touching_counts_partial_touch_and_rejects_distant_slab():
+    from src.core.fundo_segment_levels import slabs_touching
+
+    face = [(0, 0), (200, 0)]
+    slabs = [
+        # toque parcial: so' encosta no ultimo trecho da face (D-57)
+        {"name": "L1", "points": [(180, 0.5), (300, 0.5), (300, 100), (180, 100)]},
+        {"name": "L2", "points": [(0, -300), (200, -300), (200, -200), (0, -200)]},
+    ]
+    assert slabs_touching(face, slabs) == ["L1"]
+    assert slabs_touching([], slabs) is None
