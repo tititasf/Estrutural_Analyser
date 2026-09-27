@@ -39,7 +39,7 @@ from typing import Any, Optional
 
 from src.core.lv_beam_scene import LvScene
 
-CELL_RULES_VERSION = "guia_lv_cells_v5"
+CELL_RULES_VERSION = "guia_lv_cells_v6"
 PILLAR_OPENING_EXTRA = 11.0     # G8/G9: 11 cm de cada lado
 BEAM_OPENING_EXTRA_W = 8.0      # G8: largura da viga incidente + 8
 BEAM_OPENING_EXTRA_H = 4.0      # G8: altura + 4
@@ -119,7 +119,8 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
     # Passa ENGLOBA o pilar (dono 2026-09-26): tambem o pilar da PONTA entra no
     # segmento — a lateral vai ate' a face de fora dele (V309A 1-A / 3-B no P1).
     # Para continua terminando na face do pilar.
-    ext_start, ext_end = scene.start, scene.end
+    # Diagonal (Caso 8): cada face ate' onde a propria linha vai.
+    ext_start, ext_end = scene.face_extent.get(side, (scene.start, scene.end))
     if behavior == "passa":
         def _wall(sup: dict) -> bool:
             return not (sup.get("miolo_por_lado") or {}).get(side, False)
@@ -535,7 +536,7 @@ def apply_cells_to_beam(beam: dict, scene: "LvScene | list[LvScene]") -> dict[st
     beam["_lv_cells_meta"] = {
         "counts": counts,
         "frozen_cells": frozen,
-        "band": {"is_horizontal": scene.is_horizontal, "t_lo": scene.t_lo, "t_hi": scene.t_hi,
+        "band": {"is_horizontal": scene.is_horizontal, "angle": scene.angle, "t_lo": scene.t_lo, "t_hi": scene.t_hi,
                  "start": scene.start, "end": scene.end},
         "runs": [
             {"is_horizontal": r.is_horizontal, "t_lo": r.t_lo, "t_hi": r.t_hi,

@@ -286,3 +286,36 @@ def test_passa_runs_along_pillar_wall_but_never_through_its_core():
     b = segment_cell(v1, "B", "passa")
     assert [(s.start, s.end) for s in a] == [(0.0, 400.0), (419.0, 1000.0)]
     assert len(b) == 1 and b[0].pillar_openings[0]["name"] == "P2"
+
+
+def test_diagonal_beam_is_read_on_its_own_axis_normal():
+    """Guia Caso 8 (V307/VF202): viga a -45 graus ganha cena propria.
+
+    Leitura do A desce para a direita (G0 estendido); A = lado direito desse
+    sentido, isto e', a face de baixo/esquerda. Os pontos voltam ao DXF.
+    """
+    import math
+
+    c = math.sqrt(0.5)
+    def rot(x, y):  # local (eixo +x) -> DXF girado de -45 graus
+        return (x * c + y * c, -x * c + y * c)
+
+    face_a = [rot(0, 0), rot(300, 0)]
+    face_b = [rot(0, 19), rot(300, 19)]
+    lines = [{"points": face_a}, {"points": face_b}]
+    lx, ly = rot(150, 22)
+    sx, sy = rot(200, -3)
+    texts = [{"text": "V9", "pos": (lx, ly), "rotation": 315.0},
+             {"text": "19/55", "pos": (sx, sy), "rotation": 315.0}]
+    v9 = build_scenes([{"name": "V9"}], texts, lines, {})["V9"]
+    assert abs(v9.angle + 45.0) < 0.01
+    assert v9.provenance["regra"] == "guia_caso_8_normal_do_eixo"
+    a = segment_cell(v9, "A", "para")
+    b = segment_cell(v9, "B", "para")
+    assert len(a) == 1 and len(b) == 1 and a[0].dim == "19/55"
+    assert abs(a[0].length - 300.0) < 0.01
+    # A comeca no alto a' esquerda da face de baixo; B e' lida ao contrario.
+    pa = v9.point(a[0].start, "A")
+    assert math.dist(pa, face_a[0]) < 0.01
+    pb = v9.point(b[0].start, "B")
+    assert math.dist(pb, face_b[1]) < 0.01

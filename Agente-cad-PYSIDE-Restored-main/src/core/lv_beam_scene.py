@@ -29,6 +29,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any, Iterable, Optional
 
+from shapely import affinity
 from shapely.geometry import Polygon, box
 from shapely.validation import make_valid
 
@@ -100,6 +101,46 @@ class LvScene:
     face_coverage: dict[str, list[list[float]]] = field(default_factory=lambda: {"A": [], "B": []})
     # Trechos da face que coincidem com LINHA DE COTA (antialucinacao).
     dimension_coverage: dict[str, list[list[float]]] = field(default_factory=lambda: {"A": [], "B": []})
+    # Viga diagonal (guia Caso 8): a cena vive num referencial GIRADO de
+    # ``angle`` graus em torno da origem, no qual o eixo da viga e' horizontal
+    # e o sentido de leitura do A aponta para +x. A = lado direito desse
+    # sentido (o mesmo que G0 da' para horizontal e vertical). 0 = ortogonal.
+    angle: float = 0.0
+    # Diagonal: cada face termina onde a PROPRIA linha termina (pontas em
+    # esquadro obliquo deixam as duas faces com comprimentos diferentes).
+    face_extent: dict[str, tuple[float, float]] = field(default_factory=dict)
+
+    def to_world(self, x: float, y: float) -> tuple[float, float]:
+        if not self.angle:
+            return (x, y)
+        c, s = math.cos(math.radians(self.angle)), math.sin(math.radians(self.angle))
+        return (x * c - y * s, x * s + y * c)
+
+    def to_local(self, x: float, y: float) -> tuple[float, float]:
+        if not self.angle:
+            return (x, y)
+        c, s = math.cos(math.radians(self.angle)), math.sin(math.radians(self.angle))
+        return (x * c + y * s, -x * s + y * c)
+
+    def to_local_geom(self, geom):
+        if not self.angle:
+            return geom
+        return affinity.rotate(geom, -self.angle, origin=(0.0, 0.0))
+
+    def world_band(self, pad: float = 0.0):
+        band = self.rect(self.start - pad, self.end + pad, self.t_lo, self.t_hi)
+        if not self.angle:
+            return band
+        return affinity.rotate(band, self.angle, origin=(0.0, 0.0))
+
+    def local_axis(self, x: float, y: float) -> float:
+        lx, ly = self.to_local(x, y)
+        return lx if self.is_horizontal else ly
+
+    @property
+    def axis_angle(self) -> float:
+        """Direcao do eixo no DXF, em graus [0, 180)."""
+        return (self.angle + (0.0 if self.is_horizontal else 90.0)) % 180.0
 
     def dimension_overlap(self, side: str, a0: float, a1: float) -> float:
         """Fracao do segmento que so' existe SOBRE cota/chamada.
@@ -135,9 +176,12 @@ class LvScene:
     def face_t(self, side: str) -> float:
         return self.t_lo if side == "A" else self.t_hi
 
-    def point(self, axis_value: float, side: str) -> tuple[float, float]:
+    def point_local(self, axis_value: float, side: str) -> tuple[float, float]:
         t = self.face_t(side)
         return (axis_value, t) if self.is_horizontal else (t, axis_value)
+
+    def point(self, axis_value: float, side: str) -> tuple[float, float]:
+        return self.to_world(*self.point_local(axis_value, side))
 
     def rect(self, a0: float, a1: float, t0: float, t1: float):
         if self.is_horizontal:
@@ -312,13 +356,13 @@ def split_dimension_lines(
 class _EdgeIndex:
     """Linhas axiais (horizontais/verticais) indexadas pela coordenada transversal."""
 
-    def __init__(self, segs: list[tuple[float, float, float, float]]):
+    def __init__(self, segs: list[tuple[float, float, float, float]], tol: float = 0.05):
         self.h: list[tuple[float, float, float]] = []  # (y, x0, x1)
         self.v: list[tuple[float, float, float]] = []  # (x, y0, y1)
         for x0, y0, x1, y1 in segs:
-            if abs(y1 - y0) <= 0.05 and abs(x1 - x0) > 0.5:
+            if abs(y1 - y0) <= tol and abs(x1 - x0) > 0.5:
                 self.h.append(((y0 + y1) / 2, min(x0, x1), max(x0, x1)))
-            elif abs(x1 - x0) <= 0.05 and abs(y1 - y0) > 0.5:
+            elif abs(x1 - x0) <= tol and abs(y1 - y0) > 0.5:
                 self.v.append(((x0 + x1) / 2, min(y0, y1), max(y0, y1)))
 
     def along(self, horizontal: bool) -> list[tuple[float, float, float]]:
@@ -356,7 +400,9 @@ def _find_band(
     return (best[1], best[2]) if best else None
 
 
-def _nearest_section_width(label: dict, horizontal: bool, sections: list[dict]) -> Optional[float]:
+def _nearest_section_width(
+    label: dict, horizontal: bool, sections: list[dict], combined: bool = False,
+) -> Optional[float]:
     lx, ly = float(label["pos"][0]), float(label["pos"][1])
     best = None
     for s in sections:
@@ -365,10 +411,13 @@ def _nearest_section_width(label: dict, horizontal: bool, sections: list[dict]) 
         sx, sy = float(s["pos"][0]), float(s["pos"][1])
         dt = abs(sy - ly) if horizontal else abs(sx - lx)
         da = abs(sx - lx) if horizontal else abs(sy - ly)
-        if dt > 8.0 or da > 700.0:
+        # Diagonal: rotulo e secao costumam ficar em lados OPOSTOS da faixa
+        # (VF202 em cima, "14/55" embaixo, 34 cm); vale a distancia somada.
+        if (dt > (LABEL_BAND_DIST if combined else 8.0)) or da > 700.0:
             continue
-        if best is None or da < best[0]:
-            best = (da, s["section"][0])
+        score = da + dt if combined else da
+        if best is None or score < best[0]:
+            best = (score, s["section"][0])
     return best[1] if best else None
 
 
@@ -435,10 +484,14 @@ def _fv_reference_boundaries(beam: dict, scene: LvScene) -> list[float]:
             pts = (link or {}).get("points") or []
             if len(pts) < 3:
                 continue
-            ts = [float(p[1] if scene.is_horizontal else p[0]) for p in pts]
+            try:
+                local = [scene.to_local(float(p[0]), float(p[1])) for p in pts]
+            except (TypeError, ValueError, IndexError):
+                continue
+            ts = [p[1] if scene.is_horizontal else p[0] for p in local]
             if min(ts) < scene.t_lo - 1.0 or max(ts) > scene.t_hi + 1.0:
                 continue  # fundo de outra faixa (contaminacao) nao e' referencia
-            axs = [float(p[0] if scene.is_horizontal else p[1]) for p in pts]
+            axs = [p[0] if scene.is_horizontal else p[1] for p in local]
             out.extend([min(axs), max(axs)])
     return sorted(set(round(v, 2) for v in out))
 
@@ -502,6 +555,7 @@ def build_band_scene(
     other_labels: list[dict],
     pillars: list[tuple[str, str, Any]],
     only_label: Optional[dict] = None,
+    combined_section_hint: bool = False,
 ) -> Optional[LvScene]:
     name = _norm_name(beam.get("name"))
     labels = (
@@ -517,7 +571,7 @@ def build_band_scene(
 
     candidates = []
     for label in labels:
-        width = _nearest_section_width(label, horizontal, section_texts)
+        width = _nearest_section_width(label, horizontal, section_texts, combined_section_hint)
         band = _find_band(label, horizontal, edges, width) or (
             _find_band(label, horizontal, edges, None) if width is None else None
         )
@@ -630,6 +684,9 @@ def _attach_context(
     slabs: list[tuple[dict, Any]],
 ) -> None:
     margin = 80.0
+    # Tudo chega em coordenadas do DXF; a cena diagonal mede no proprio referencial.
+    pillars = [(n, c, scene.to_local_geom(p)) for n, c, p in pillars]
+    slabs = [(s, scene.to_local_geom(p)) for s, p in slabs]
     for side in ("A", "B"):
         inside, outside = _face_strips(scene, side, scene.start - margin, scene.end + margin)
         for name, classification, poly in pillars:
@@ -669,9 +726,14 @@ def _attach_context(
         for other in other_scenes:
             if other is scene or other.beam_name == scene.beam_name:
                 continue
-            if other.is_horizontal == scene.is_horizontal:
-                continue
-            band = other.rect(other.start, other.end, other.t_lo, other.t_hi)
+            delta = abs(other.axis_angle - scene.axis_angle) % 180.0
+            delta = min(delta, 180.0 - delta)
+            if delta < 15.0:
+                continue  # paralela nao incide
+            # Sem folga de ponta: esticar a faixa num encontro obliquo fazia a
+            # V306 cortar a face A da V307 e a V307 encurtar a face de fora da
+            # V309 no canto em L (la' a diagonal so' vira a esquina).
+            band = scene.to_local_geom(other.world_band())
             touch = band.intersection(outside)
             through = band.intersection(inside)
             hit = touch if not touch.is_empty else through
@@ -683,12 +745,14 @@ def _attach_context(
             opposite_inside, _ = _face_strips(scene, "B" if side == "A" else "A", a0, a1)
             crossing = not band.intersection(opposite_inside).is_empty
             junction = other.t_lo + (other.t_hi - other.t_lo) / 2.0
-            face_t = scene.face_t(side)
-            zone = other.section_at(face_t)
+            # Secao da incidente no ponto onde ela encosta nesta face.
+            hx, hy = scene.to_world(*scene.point_local((a0 + a1) / 2.0, side))
+            zone = other.section_at(other.local_axis(hx, hy))
             item = {
                 "name": other.beam_name, "start": a0, "end": a1,
                 "dim": zone["dim"] if zone else "", "depth": zone["depth"] if zone else None,
                 "width": other.width, "crossing": crossing, "axis_center": junction,
+                "obliqua": delta < 85.0,
             }
             if a1 <= scene.start + 1.0:
                 scene.end_supports["start"].append(dict(item, type="viga"))
@@ -720,6 +784,32 @@ def _attach_context(
         scene.incidents[key].sort(key=lambda i: i["start"])
         scene.slabs[key].sort(key=lambda i: i["start"])
     _trim_end_pillars(scene)
+    _trim_oblique_slivers(scene)
+
+
+def _trim_oblique_slivers(scene: LvScene) -> None:
+    """Lasca de ponta antes de viga que chega OBLIQUA nao e' parede.
+
+    Encontro obliquo deixa um triangulo: na V306 a face A comecava 11,8 cm
+    antes da VF202, do lado de fora da face da diagonal. Lasca menor que a
+    largura da incidente vira ponta; a incidente passa a ser o apoio. So'
+    encontro obliquo — T ortogonal com parede curta real fica intocado.
+    """
+    for side in ("A", "B"):
+        lo, hi = scene.face_extent.get(side, (scene.start, scene.end))
+        keep = []
+        for inc in scene.incidents[side]:
+            if inc.get("obliqua") and 0.0 <= inc["start"] - lo < inc["width"]:
+                lo = inc["end"]
+                scene.end_supports["start"].append(dict(inc, type="viga", face=side))
+            elif inc.get("obliqua") and 0.0 <= hi - inc["end"] < inc["width"]:
+                hi = inc["start"]
+                scene.end_supports["end"].append(dict(inc, type="viga", face=side))
+            else:
+                keep.append(inc)
+        scene.incidents[side] = keep
+        if (lo, hi) != (scene.start, scene.end):
+            scene.face_extent[side] = (lo, hi)
 
 
 def _trim_end_pillars(scene: LvScene) -> None:
@@ -782,6 +872,179 @@ def _trim_end_pillars(scene: LvScene) -> None:
     scene.sections = [z for z in scene.sections if z["end"] - z["start"] > 0.5]
 
 
+def _reading_angle(rotation: float) -> float:
+    """Sentido de leitura do A (G0 estendido), em graus no intervalo [-90, 90).
+
+    Horizontal -> 0 (esquerda->direita), vertical -> -90 (cima->baixo); a
+    diagonal fica no meio do caminho e A = lado DIREITO desse sentido.
+    """
+    a = float(rotation or 0.0) % 180.0
+    return a - 180.0 if a >= 90.0 else a
+
+
+def _rotate_segs(segs, angle: float):
+    c, s = math.cos(math.radians(-angle)), math.sin(math.radians(-angle))
+    return [
+        (x0 * c - y0 * s, x0 * s + y0 * c, x1 * c - y1 * s, x1 * s + y1 * c)
+        for x0, y0, x1, y1 in segs
+    ]
+
+
+def _rotate_texts(texts: list[dict], angle: float) -> list[dict]:
+    c, s = math.cos(math.radians(-angle)), math.sin(math.radians(-angle))
+    out = []
+    for t in texts:
+        x, y = float(t["pos"][0]), float(t["pos"][1])
+        out.append(dict(
+            t, pos=(x * c - y * s, x * s + y * c),
+            rotation=(float(t.get("rotation") or 0.0) - angle) % 360.0,
+            _world_pos=tuple(t["pos"]),
+        ))
+    return out
+
+
+def _refine_angle(label: dict, segs, angle: float) -> Optional[float]:
+    """Angulo real das bordas junto ao rotulo (o texto erra centesimos de grau).
+
+    Media ponderada pelo comprimento das linhas longas quase paralelas ao
+    rotulo e a ate' LABEL_BAND_DIST dele. Sem borda: nao ha' viga ali.
+    """
+    lx, ly = float(label["pos"][0]), float(label["pos"][1])
+    acc = weight = 0.0
+    for x0, y0, x1, y1 in segs:
+        length = math.hypot(x1 - x0, y1 - y0)
+        if length < 30.0:
+            continue
+        ang = math.degrees(math.atan2(y1 - y0, x1 - x0))
+        diff = (ang - angle + 90.0) % 180.0 - 90.0
+        if abs(diff) > 1.0:
+            continue
+        # distancia do rotulo a' reta (e a' extensao do trecho, com folga)
+        ux, uy = (x1 - x0) / length, (y1 - y0) / length
+        along = (lx - x0) * ux + (ly - y0) * uy
+        if not (-60.0 <= along <= length + 400.0):
+            continue
+        if abs(-(lx - x0) * uy + (ly - y0) * ux) > LABEL_BAND_DIST:
+            continue
+        acc += (angle + diff) * length
+        weight += length
+    return acc / weight if weight else None
+
+
+def _diagonal_scene(
+    beam: dict, label: dict, structural_segs, dimension_segs, texts: list[dict],
+    section_texts: list[dict], pillar_texts: list[dict], beam_labels: list[dict],
+    pillars: list[tuple[str, str, Any]],
+) -> Optional[LvScene]:
+    """Caso 8 do guia: mede a viga diagonal num referencial girado.
+
+    O mesmo codigo das vigas ortogonais roda sobre o desenho girado de
+    ``-angle`` (eixo da viga vira horizontal, leitura do A para +x); a cena
+    guarda ``angle`` e devolve os pontos ja' no DXF.
+    """
+    angle = _refine_angle(label, structural_segs, _reading_angle(label.get("rotation")))
+    if angle is None:
+        return None
+    edges = _EdgeIndex(_rotate_segs(structural_segs, angle), tol=0.3)
+    rot_label = _rotate_texts([label], angle)[0]
+    near = lambda t: math.hypot(  # noqa: E731 - so' o que cabe na vizinhanca
+        float(t["pos"][0]) - float(label["pos"][0]), float(t["pos"][1]) - float(label["pos"][1])
+    ) <= 1500.0
+    rot_sections = _rotate_texts([t for t in section_texts if near(t)], angle)
+    rot_pillar_texts = _rotate_texts([t for t in pillar_texts if near(t)], angle)
+    rot_beam_labels = _rotate_texts([t for t in beam_labels if near(t)], angle)
+    rot_pillars = [(n, c, affinity.rotate(p, -angle, origin=(0.0, 0.0))) for n, c, p in pillars]
+    scene = build_band_scene(
+        beam, [], edges, rot_sections, rot_beam_labels, rot_pillars, only_label=rot_label,
+        combined_section_hint=True,
+    )
+    if scene is None or not scene.is_horizontal:
+        return None
+    scene.angle = angle
+    scene.labels = [{"text": label.get("text"), "pos": tuple(label["pos"])}]
+    scene.provenance.update({
+        "orientation_source": "label_rotation_diagonal",
+        "angulo_eixo_graus": round(angle, 3),
+        "regra": "guia_caso_8_normal_do_eixo",
+    })
+    _sections(scene, beam, rot_sections, rot_pillar_texts)
+    dim_edges = _EdgeIndex(_rotate_segs(dimension_segs, angle), tol=0.3)
+    scene.dimension_coverage = {
+        "A": dim_edges.coverage(True, scene.t_lo),
+        "B": dim_edges.coverage(True, scene.t_hi),
+    }
+    return scene
+
+
+def _diagonal_face_extents(scene: LvScene, others: list[LvScene]) -> None:
+    """Pontas em esquadro obliquo: cada face vai ate' onde a PROPRIA linha vai.
+
+    Nunca entra na faixa de outra viga: a face de baixo da V307 continua reta
+    na VF202 (mesmo alinhamento) e ali a lateral da V307 ja' acabou.
+    """
+    reach = 3.0 * scene.width
+    bands = [
+        scene.to_local_geom(o.world_band())
+        for o in others if o is not scene and o.beam_name != scene.beam_name
+    ]
+    for side in ("A", "B"):
+        lo, hi = scene.start, scene.end
+        for a, b in _merge([tuple(i) for i in scene.face_coverage[side]], gap=1.0):
+            if a <= scene.start + 1.0 and b >= scene.start - 1.0:
+                lo = max(a, scene.start - reach)
+            if a <= scene.end + 1.0 and b >= scene.end - 1.0:
+                hi = min(b, scene.end + reach)
+        for band in bands:
+            if hi > scene.end + 0.5:
+                inside, _ = _face_strips(scene, side, scene.end + 0.5, hi)
+                hit = band.intersection(inside)
+                if not hit.is_empty and hit.area > 1e-6:
+                    hi = max(scene.end, scene.axis_bounds(hit)[0])
+            if lo < scene.start - 0.5:
+                inside, _ = _face_strips(scene, side, lo, scene.start - 0.5)
+                hit = band.intersection(inside)
+                if not hit.is_empty and hit.area > 1e-6:
+                    lo = min(scene.start, scene.axis_bounds(hit)[1])
+        scene.face_extent[side] = (lo, hi)
+
+
+def _split_shared_diagonal_faces(diagonals: list[LvScene]) -> None:
+    """Duas vigas diagonais alinhadas dividindo a MESMA linha de face.
+
+    V307 (19/55) e VF202 (14/55) no 13_PAV: a face A e' uma linha continua e
+    cada uma estendia a propria ponta sobre a outra. Convencao (a revisar
+    pelo dono): a primeira termina onde acaba o trecho comum as duas faces
+    dela; a seguinte comeca exatamente ali — sem sobreposicao nem buraco.
+    """
+    for first in diagonals:
+        for second in diagonals:
+            if first is second or first.beam_name == second.beam_name:
+                continue
+            if abs(first.axis_angle - second.axis_angle) > 1.0:
+                continue
+            for side in ("A", "B"):
+                if side not in first.face_extent:
+                    continue
+                wx, wy = first.point(first.end, side)
+                sx = second.local_axis(wx, wy)
+                st = second.to_local(wx, wy)[1]
+                if sx < second.start - 3.0 * second.width or sx > second.start + 0.5:
+                    continue  # second nao vem logo depois de first
+                for other_side in ("A", "B"):
+                    if abs(second.face_t(other_side) - st) > 1.0:
+                        continue
+                    lo2, hi2 = second.face_extent.get(other_side, (second.start, second.end))
+                    lo1, hi1 = first.face_extent[side]
+                    if hi1 <= first.end + 0.5 and lo2 >= sx - 0.5:
+                        continue
+                    first.face_extent[side] = (lo1, first.end)
+                    second.face_extent[other_side] = (min(sx, second.start), hi2)
+                    first.provenance.setdefault("fronteira_face_compartilhada", []).append(
+                        {"face": side, "com": second.beam_name, "convencao": "fim_do_trecho_comum"})
+                    second.provenance.setdefault("fronteira_face_compartilhada", []).append(
+                        {"face": other_side, "com": first.beam_name, "convencao": "fim_do_trecho_comum"})
+
+
 def build_scene_runs(
     beams: list[dict],
     texts: list[dict],
@@ -825,14 +1088,18 @@ def build_scene_runs(
         found: list[LvScene] = []
         for label in sorted(own, key=lambda t: (float(t["pos"][0]), float(t["pos"][1]))):
             if _rotation_axis(label.get("rotation")) is None:
-                continue
-            scene = build_band_scene(
-                beam, texts, edges, section_texts, beam_labels, pillars, only_label=label,
-            )
+                scene = _diagonal_scene(
+                    beam, label, structural_segs, dimension_segs, texts,
+                    section_texts, pillar_texts, beam_labels, pillars,
+                )
+            else:
+                scene = build_band_scene(
+                    beam, texts, edges, section_texts, beam_labels, pillars, only_label=label,
+                )
             if scene is None:
                 continue
             duplicate = any(
-                other.is_horizontal == scene.is_horizontal
+                abs(other.axis_angle - scene.axis_angle) < 1.0
                 and abs(other.t_lo - scene.t_lo) < 1.0
                 and min(other.end, scene.end) - max(other.start, scene.start) > 1.0
                 for other in found
@@ -844,6 +1111,8 @@ def build_scene_runs(
             by_name[name] = beam
     for name, scenes in runs.items():
         for scene in scenes:
+            if scene.angle:
+                continue  # diagonal ja' mediu secoes e cotas no proprio referencial
             _sections(scene, by_name[name], section_texts, pillar_texts)
             scene.dimension_coverage = {
                 "A": dim_edges.coverage(scene.is_horizontal, scene.t_lo),
@@ -852,6 +1121,10 @@ def build_scene_runs(
             scene.provenance["linhas_de_cota_excluidas"] = len(dimension_segs)
     slab_polys = _slab_polygons(slabs)
     others = [scene for scenes in runs.values() for scene in scenes]
+    for scene in others:
+        if scene.angle:
+            _diagonal_face_extents(scene, others)
+    _split_shared_diagonal_faces([sc for sc in others if sc.angle])
     for scene in others:
         _attach_context(scene, pillars, others, slab_polys)
     return runs

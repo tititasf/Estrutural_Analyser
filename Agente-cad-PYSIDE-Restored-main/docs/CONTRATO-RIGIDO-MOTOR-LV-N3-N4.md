@@ -754,8 +754,19 @@ segmentos por lado (305,5 19/55 | 134,5 19/120 com P42 inteiro | 84,5 |
 (ex.: 106,5 | 19 | 41,5 junto ao P48) e overlays PNG lidos para V301/V303/V304. PIL (46), FV (76), LAJ (31)
 com hash identico com e sem a passada. Testes: `tests/test_lv_cells_guia.py`.
 
-**Fora desta passada:** V307, V330, VF202 (rotulo diagonal/orientacao mista)
-ficam com a saida antiga e listadas em `__sem_cena__`. Duvidas abertas ao dono:
+**Viga diagonal (guia Caso 8, 2026-09-26, `guia_lv_cells_v6`):** V307 e VF202
+tem cena propria num referencial GIRADO (`LvScene.angle`, angulo real das
+bordas junto ao rotulo); os pontos voltam ao DXF. Sentido de leitura do A =
+0 graus na horizontal, -90 na vertical e o proprio eixo na diagonal; A = lado
+DIREITO desse sentido (reproduz G0 nas ortogonais). Cada face vai ate' onde a
+propria linha vai (pontas em esquadro obliquo), sem entrar na faixa de outra
+viga. Convencao PROVISORIA, a revisar pelo dono: duas diagonais alinhadas
+que dividem a mesma linha de face (V307 19/55 e VF202 14/55, face A) — a
+primeira termina no fim do trecho comum as duas faces dela, a seguinte
+comeca ali. Encontro obliquo deixa lasca triangular: lasca de ponta menor que
+a largura da incidente vira ponta (V306 face A passa a comecar na VF202).
+O "V330" horizontal em (4480, 1623) e' legenda solta junto ao P49, sem faixa
+de viga — nao e' segundo trecho. Duvidas abertas ao dono:
 `docs/QUESTIONARIO-LV-SA-2026-09-25.md`.
 
 ### N4
