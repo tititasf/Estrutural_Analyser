@@ -13449,6 +13449,50 @@ class MainWindow(QMainWindow):
         return self._points_bbox_tuple(slab.get('points') or [])
 
     def _slab_cut_direction(self, slab: Dict, pts: list) -> str:
+        """Lado da laje onde fica a viga do corte: a borda reta da laje sobre
+        a qual o símbolo foi desenhado. O centro da laje só decide quando o
+        corte não cai sobre nenhuma borda — numa laje longa (L318) um corte
+        de viga horizontal perto da ponta parecia "Oeste" e era lido no eixo
+        errado (−30 cm fictício)."""
+        edge_dir = self._slab_cut_direction_by_edge(slab, pts)
+        return edge_dir or self._slab_cut_direction_by_center(slab, pts)
+
+    def _slab_cut_direction_by_edge(self, slab: Dict, pts: list,
+                                    max_dist: float = 60.0) -> str:
+        poly = [p[:2] for p in (slab.get('points') or [])
+                if isinstance(p, (list, tuple)) and len(p) >= 2]
+        cb = self._points_bbox_tuple(pts)
+        if len(poly) < 3 or not cb:
+            return ''
+        cx, cy = self._bbox_center_tuple(cb)
+
+        def _inside(x, y):
+            dentro = False
+            for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+                if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+                    dentro = not dentro
+            return dentro
+
+        best = None
+        for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+            if abs(y1 - y2) < 1e-6 and abs(x1 - x2) > 1e-6:
+                if not min(x1, x2) <= cx <= max(x1, x2):
+                    continue
+                dist = abs(cy - y1)
+                # laje ao norte da borda -> viga ao sul
+                direction = 'Sul' if _inside(cx, y1 + 1.0) else 'Norte'
+            elif abs(x1 - x2) < 1e-6 and abs(y1 - y2) > 1e-6:
+                if not min(y1, y2) <= cy <= max(y1, y2):
+                    continue
+                dist = abs(cx - x1)
+                direction = 'Oeste' if _inside(x1 + 1.0, cy) else 'Leste'
+            else:
+                continue
+            if dist <= max_dist and (best is None or dist < best[0]):
+                best = (dist, direction)
+        return best[1] if best else ''
+
+    def _slab_cut_direction_by_center(self, slab: Dict, pts: list) -> str:
         sb = self._slab_bounds(slab)
         cb = self._points_bbox_tuple(pts)
         if not sb or not cb:
@@ -13885,8 +13929,16 @@ class MainWindow(QMainWindow):
         pts = link.get('points') or []
         bb = self._points_bbox_tuple(pts)
         center = self._bbox_center_tuple(bb)
-        direction = ficha.get('direction') or self._slab_cut_direction(slab, pts)
-        neighbor = self._neighbor_by_direction(slab, slabs, poly_map, direction) if direction else None
+        direction = self._slab_cut_direction(slab, pts)
+        stored_dir = ficha.get('direction')
+        # Direção gravada só é mantida se não for a do cálculo antigo pelo
+        # centro da laje (essa era do motor e pode estar errada); outra
+        # direção qualquer pode ter sido corrigida à mão no LinkManager.
+        if stored_dir and stored_dir != self._slab_cut_direction_by_center(slab, pts):
+            direction = stored_dir
+        elif stored_dir != direction:
+            ficha['direction'] = direction
+        neighbor =self._neighbor_by_direction(slab, slabs, poly_map, direction) if direction else None
         own_h_str = self._slab_height_value(slab)
         neigh_h_str = self._slab_height_value(neighbor) if neighbor else ''
 
@@ -15367,8 +15419,13 @@ class MainWindow(QMainWindow):
                 if not isinstance(cut, dict):
                     continue
                 ficha = cut.get('ficha') or {}
-                neighbor_name = (ficha.get('side_a_laje_name') or '').strip()
-                if not neighbor_name or neighbor_name.lower() == 'nulo':
+                # A vizinha é o lado que NÃO é esta laje (A ou B, conforme a
+                # direção); ler sempre o lado A tomava a própria laje por vizinha.
+                own_name = (slab.get('name') or '').strip()
+                side_a = (ficha.get('side_a_laje_name') or '').strip()
+                side_b = (ficha.get('side_b_laje_name') or '').strip()
+                neighbor_name = side_b if side_a == own_name else side_a
+                if not neighbor_name or neighbor_name.lower() == 'nulo' or neighbor_name == own_name:
                     continue
 
                 # Localiza a laje vizinha pelo nome
