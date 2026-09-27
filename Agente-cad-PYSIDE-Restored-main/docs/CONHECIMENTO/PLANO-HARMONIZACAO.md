@@ -96,7 +96,7 @@ os importa.
 
 ## 6. Lacunas abertas
 
-1. Invariante de face: já tinha fonte escrita → registrada como D-35. Nível de laje: regra só no código + **bug de unidade cm×m** em `main.py::_infer_slab_level_from_cut_deltas` afetando 4 lajes do 13_PAV → decisão do dono pendente (`DECISOES-DO-DONO.md`, seção "Pendente").
+1. Invariante de face → D-35. Nível de laje: bug cm×m **corrigido** no código (com portões) e nos dados do 13_PAV (D-37, D-38, `scripts/arete/relatorios/20260926_correcao_nivel_laje/`); desenho da regra por soma de evidências aguarda o dono (`docs/PROPOSTA-NIVEL-LAJE-POR-EVIDENCIAS.md`).
 2. `CLAUDE.md` do repo traz status datado de 03/07 ("LV 21/32") — número escrito à mão, contra a própria regra; trocar por ponteiro para `docs/STATUS.md`.
 3. `docs/SA-ANALISE/CLASSES/LV.md` linha 72 ainda diz "SVG-only" (alteração de outro agente em andamento na hora da harmonização).
 4. `scripts/obra_rag_utils.py` (RAG por obra da app PySide) ainda chama `nv-embed-v1`, que está fora do ar: cai em silêncio para o modelo local de 768 dimensões, mas as tabelas LanceDB das obras foram criadas com 4096 → nova ingestão na app falha ou mistura vetores. Mesmo problema em `domain_knowledge_ingestor.py`/`stog_rag_ingestor.py` (legados).

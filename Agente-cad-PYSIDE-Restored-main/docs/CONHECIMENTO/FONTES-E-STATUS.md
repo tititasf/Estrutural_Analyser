@@ -6,7 +6,7 @@
 |---|---:|---|
 | entrada | 5 | lido por todo agente antes de agir |
 | canonico | 68 | citado por uma entrada ou marcado canónico — é a verdade vigente |
-| ativo | 142 | em uso (tocado desde 2026-07-01 ou citado) |
+| ativo | 143 | em uso (tocado desde 2026-07-01 ou citado) |
 | historico | 56 | registro do passado; consultar só para entender decisões |
 | legado | 40 | marcado descontinuado/obsoleto — não seguir |
 | candidato_obsoleto | 0 | sem uso aparente — revisar para arquivar/remover |
@@ -30,7 +30,7 @@
 |---|---|---|---:|---|
 | `Agente-cad-PYSIDE-Restored-main/AGENTS.md` | AGENTS.md — Codex / Antigravity / qualquer agente que não leia CLAUDE.md | 2026-09-25 | 0 | ponto de entrada dos agentes |
 | `Agente-cad-PYSIDE-Restored-main/CLAUDE.md` | CLAUDE.md — Estrutural Analyzer (CAD-ANALYZER) | 2026-09-25 | 3 | ponto de entrada dos agentes |
-| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md` | Mapa do Conhecimento — base global da empresa | 2026-09-25 | 8 | ponto de entrada dos agentes |
+| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md` | Mapa do Conhecimento — base global da empresa | 2026-09-26 | 8 | ponto de entrada dos agentes |
 | `Agente-cad-PYSIDE-Restored-main/docs/LOOPING-CANONICO.md` | LOOPING CANÔNICO — o único loop válido (e a quarentena dos obsoletos) | 2026-09-25 | 26 | ponto de entrada dos agentes |
 | `CLAUDE.md` | CLAUDE.md — Workspace CAD-ANALYZER (raiz de dados + app) | 2026-09-25 | 31 | ponto de entrada dos agentes |
 
@@ -47,10 +47,10 @@
 | `Agente-cad-PYSIDE-Restored-main/docs/ARQUITETURA-INTERPRETADORES-VIGA-N1-ISOLADOS.md` | Arquitetura N1 — Interpretadores de viga isolados | 2026-07-09 | 9 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CALCULOS_ALGORITMOS.md` | Algoritmos de Cálculo — Sistema NOVA CAD | 2026-06-25 | 3 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/CONTRATO-KB-MULTIOBRA.md` | Contrato — KB global e KB por obra | 2026-09-25 | 3 | citado por ponto de entrada |
-| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/DECISOES-DO-DONO.md` | Registro de decisões do dono | 2026-09-25 | 5 | citado por ponto de entrada |
+| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/DECISOES-DO-DONO.md` | Registro de decisões do dono | 2026-09-26 | 5 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/GLOSSARIO.md` | Glossário — base global da empresa | 2026-09-25 | 2 | citado por ponto de entrada |
-| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-CODIGO.md` | Mapa de código | 2026-09-25 | 2 | citado por ponto de entrada |
-| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/PLANO-HARMONIZACAO.md` | Plano de harmonização do conhecimento | 2026-09-25 | 9 | citado por ponto de entrada |
+| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-CODIGO.md` | Mapa de código | 2026-09-26 | 2 | citado por ponto de entrada |
+| `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/PLANO-HARMONIZACAO.md` | Plano de harmonização do conhecimento | 2026-09-26 | 9 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONTRATO-QA-RAG-LOOPINGS.md` | Contrato QA ↔ RAG ↔ Loopings Arete | 2026-08-10 | 10 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md` | Contrato Rigido do Motor LV N3/N4 | 2026-09-25 | 9 | citado por ponto de entrada |
 | `Agente-cad-PYSIDE-Restored-main/docs/CONVENCAO-SELOS-VALIDACAO.md` | Convenção de Selos de Validação | 2026-08-10 | 15 | citado por ponto de entrada |
@@ -107,7 +107,7 @@
 | `Agente-cad-PYSIDE-Restored-main/squads/qa-global-evidencias/data/authority_matrix.json` | authority_matrix | 2026-08-10 | 15 | citado por ponto de entrada |
 | `docs/PYTHON-3.12-RUNTIME.md` | Runtime Python do CAD-ANALYZER | 2026-06-29 | 4 | citado por ponto de entrada |
 
-## ativo (142)
+## ativo (143)
 
 | Fonte | Título | Data | Citado por | Motivo |
 |---|---|---|---:|---|
@@ -159,6 +159,7 @@
 | `Agente-cad-PYSIDE-Restored-main/docs/PROMPT-LOOPING-DESTAQUE-AGENTICO-FV-PARA-PIL.md` | Prompt — Looping de interpretação + anotação + desenho agêntico | 2026-08-10 | 1 | tocado em 2026-08-10 / citado por 1 |
 | `Agente-cad-PYSIDE-Restored-main/docs/PROMPTS-QA-CLASSES-DUAL-ZOOM-FASTPATH.md` | Prompts QA por classe — N1 em dois SVGs e microciclo rápido | 2026-07-14 | 0 | tocado em 2026-07-14 / citado por 0 |
 | `Agente-cad-PYSIDE-Restored-main/docs/PROPOSTA-MINIRAG-SESSAO-N1.md` | Proposta — Mini-RAG dinâmico de sessão para validação N1 SA | 2026-08-10 | 1 | tocado em 2026-08-10 / citado por 1 |
+| `Agente-cad-PYSIDE-Restored-main/docs/PROPOSTA-NIVEL-LAJE-POR-EVIDENCIAS.md` | Proposta — nível de laje por soma de evidências | 2026-09-26 | 2 | tocado em 2026-09-26 / citado por 2 |
 | `Agente-cad-PYSIDE-Restored-main/docs/PROVENIENCIA-CAMPOS.md` | Proveniência de Campos — Arete | 2026-07-05 | 3 | tocado em 2026-07-05 / citado por 3 |
 | `Agente-cad-PYSIDE-Restored-main/docs/QA-CAPACIDADE-POR-CLASSE.md` | Capacidade do agente por classe (paridade PIL / LAJ / FV / LV) | 2026-08-10 | 3 | tocado em 2026-08-10 / citado por 3 |
 | `Agente-cad-PYSIDE-Restored-main/docs/QA-CICLO-EFICIENCIA-E-AUTORIDADE.md` | QA Global — Ciclo treino×validação, eficiência e autoridade (permitido vs proibido) | 2026-08-10 | 3 | tocado em 2026-08-10 / citado por 3 |
@@ -319,8 +320,8 @@
 
 | Fonte | Título | Data | Citado por | Motivo |
 |---|---|---|---:|---|
-| `Agente-cad-PYSIDE-Restored-main/README.md` | AgenteCAD / Estrutural Analyzer | 2026-06-25 | 0 | curadoria: descreve pipeline ML→SCR de jun/26 (SCR saiu |
-| `Agente-cad-PYSIDE-Restored-main/STATUS.md` | STATUS.md — Vision-Estrutural AI v4.4 | 2026-06-25 | 0 | curadoria: STATUS v4.4 de jun/26, sistema desconectado; status real = docs/STATUS.md gerado |
+| `Agente-cad-PYSIDE-Restored-main/README.md` | AgenteCAD / Estrutural Analyzer | 2026-09-26 | 0 | curadoria: descreve pipeline ML→SCR de jun/26 (SCR saiu |
+| `Agente-cad-PYSIDE-Restored-main/STATUS.md` | STATUS.md — Vision-Estrutural AI v4.4 | 2026-09-26 | 0 | curadoria: STATUS v4.4 de jun/26, sistema desconectado; status real = docs/STATUS.md gerado |
 | `Agente-cad-PYSIDE-Restored-main/_arquivo/README.md` | Arquivo — conhecimento legado | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
 | `Agente-cad-PYSIDE-Restored-main/_arquivo/skills/agents-byterover/SKILL.md` | ByteRover Knowledge Management | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
 | `Agente-cad-PYSIDE-Restored-main/_arquivo/skills/claude-byterover/SKILL.md` | ByteRover Knowledge Management | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
@@ -349,7 +350,7 @@
 | `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/active/RAG-5.story.md` | RAG-5 - Snapshot RAG Local por Obra | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
 | `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rag-junho-2026/stories/active/RAG-6.story.md` | RAG-6 - Registro Declarativo de Classes | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
 | `Agente-cad-PYSIDE-Restored-main/docs/_arquivo/rascunhos/task_verification.md` | Verification of Canvas Updates | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
-| `README.md` | CAD-ANALYZER v3.0 | 2026-03-08 | 9 | curadoria: README de mar/26 da raiz; entrada vigente é CLAUDE.md |
+| `README.md` | CAD-ANALYZER v3.0 | 2026-09-26 | 9 | curadoria: README de mar/26 da raiz; entrada vigente é CLAUDE.md |
 | `_arquivo/README.md` | Arquivo — conhecimento legado | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
 | `_arquivo/docs/HANDOFF-C-ROADMAP-PRODUCAO.md` | HANDOFF-C: Roadmap para Produção | 2026-09-26 | 0 | arquivado em _arquivo/ (harmonização 2026-09-26) |
 | `_arquivo/docs/MASTERPLAN-RAG-INTEGRACAO-COMPLETA.md` | MASTERPLAN — RAG: Integração Completa por Todas as Frentes | 2026-09-26 | 2 | arquivado em _arquivo/ (harmonização 2026-09-26) |

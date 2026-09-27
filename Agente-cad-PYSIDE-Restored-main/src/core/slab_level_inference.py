@@ -299,3 +299,71 @@ def inherit_level_from_neighbours(
         if len(valores) == 1:
             inherited[name] = (valores.pop(), sorted(fontes))
     return inherited
+
+
+# ── Nível por delta de corte: conversão de unidade + portões de coerência ──────
+#
+# O delta medido na visão de corte vem em CENTÍMETROS; o nível da laje está em
+# METROS (ex. 852.12). Somar os dois direto deslocou lajes em 3, 7 e 30 m no
+# 13_PAV (L317, L324, L318 — achado de 2026-09-26). Nenhum valor por delta é
+# aceito só pelo cálculo: passa por portões independentes e cada um registra o
+# que viu, para o nível nascer de evidências que concordam, não de um palpite.
+
+CUT_DELTA_MAX_CM = 100.0     # rebaixo de laje vive em centímetros; >1 m é leitura suspeita
+CUT_DELTA_MAX_DESVIO_M = 0.75  # ≈25% de um pé-direito de 3 m (mesma regra de plausible_level_candidates)
+CUT_DELTA_TOL_ROTULO_M = 0.02  # 2 cm: arredondamento da cota escrita na planta
+
+
+def cut_delta_level(source_level_m: float, delta_cm: float) -> float:
+    """Nível desta laje = nível da vizinha (m) + delta do corte (cm → m)."""
+    return round(float(source_level_m) + float(delta_cm) / 100.0, 2)
+
+
+def gate_cut_delta_level(
+    value_m: float,
+    delta_cm: float,
+    *,
+    reference_level_m: float | None = None,
+    own_label_level_m: float | None = None,
+    max_delta_cm: float = CUT_DELTA_MAX_CM,
+    max_desvio_m: float = CUT_DELTA_MAX_DESVIO_M,
+    tol_label_m: float = CUT_DELTA_TOL_ROTULO_M,
+) -> dict[str, Any]:
+    """Confere um nível inferido por delta de corte contra evidências independentes.
+
+    Portões:
+      P2 magnitude  — |delta| tem tamanho de rebaixo (< max_delta_cm);
+      P3 pavimento  — o nível fica a menos de max_desvio_m do nível de referência
+                      do pavimento (quando conhecido);
+      P4 planta     — se a laje tem cota escrita na planta, o valor concorda com ela.
+    (P1, a conversão de unidade, é `cut_delta_level`.)
+
+    Devolve ``{"accepted", "status", "confirmed_by_label", "gates": [...]}``.
+    ``status`` é ``confirmed`` (planta concorda), ``inferred`` (passou sem planta)
+    ou ``needs_review`` (algum portão falhou — não aplicar o valor).
+    """
+    gates: list[dict[str, Any]] = []
+
+    def gate(nome: str, ok: bool | None, detalhe: str) -> None:
+        gates.append({"gate": nome, "ok": ok, "detail": detalhe})
+
+    gate("P2_magnitude", abs(float(delta_cm)) < max_delta_cm,
+         f"delta={float(delta_cm):+.1f} cm (limite {max_delta_cm:.0f} cm)")
+    if reference_level_m is None:
+        gate("P3_pavimento", None, "sem nível de referência do pavimento")
+    else:
+        desvio = abs(float(value_m) - float(reference_level_m))
+        gate("P3_pavimento", desvio <= max_desvio_m,
+             f"desvio {desvio:.2f} m do pavimento ({float(reference_level_m):.2f}; limite {max_desvio_m:.2f} m)")
+    confirmed = False
+    if own_label_level_m is None:
+        gate("P4_planta", None, "laje sem cota escrita na planta")
+    else:
+        diff = abs(float(value_m) - float(own_label_level_m))
+        confirmed = diff <= tol_label_m
+        gate("P4_planta", confirmed,
+             f"planta {float(own_label_level_m):.2f} × inferido {float(value_m):.2f} (dif. {diff:.2f} m)")
+
+    falhou = [g for g in gates if g["ok"] is False]
+    status = "needs_review" if falhou else ("confirmed" if confirmed else "inferred")
+    return {"accepted": not falhou, "status": status, "confirmed_by_label": confirmed, "gates": gates}

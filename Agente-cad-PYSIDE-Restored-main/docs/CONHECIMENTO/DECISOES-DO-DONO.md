@@ -69,21 +69,16 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 | D-49 | 2026-09-25 | global | O fundo (FV) é referência e comparação para a lateral, nunca lei | `docs/SA-ANALISE/CLASSES/LV.md`; contrato §6.1.1 | vigente |
 | D-50 | 2026-09-25 | global | Questionário Q1–Q7: troca de seção abre segmento; mesma profundidade = abertura; Passa = pilar inteiro num segmento com início/fim; pilar e viga coincidentes = ambos; −11 só no N3; contagem do N4 não é referência; autonomia do SA com revisão do dono no front-end | `docs/QUESTIONARIO-LV-SA-2026-09-25.md` | vigente |
 
+## Decisões de 2026-09-26 sobre nível de laje
+
+| ID | Data | Escopo | Decisão | Fonte | Estado |
+|---|---|---|---|---|---|
+| D-36 | 2026-09-26 | global | Nível de laje não é regra fixa: nasce da **conjunção de evidências** (cota contida — que pode ser de uma parte da laje —, vizinhas, pilares, vigas, cortes), como soma de pontos | `docs/PROPOSTA-NIVEL-LAJE-POR-EVIDENCIAS.md` (desenho aguardando respostas) | vigente (princípio) |
+| D-37 | 2026-09-26 | global | Inferência automática passa por **portões de coerência** (vários), nunca por uma decisão só; corrigido o bug cm×m do delta de corte | `scripts/arete/relatorios/20260926_correcao_nivel_laje/RELATORIO.md` | vigente |
+| D-38 | 2026-09-26 | obra:Obra_TREINO_1 | Dados do 13_PAV com o bug corrigidos pelo agente (4 lajes, 7 pilares, 24 vigas); L318 e 16 segmentos estimados ficam para revisão | idem | vigente |
+
 ## Pendente de decisão do dono
 
-**Nível de laje (conversa de 2026-08-19, nunca escrita em doc).** O que está no código
-(`src/core/slab_level_inference.py`, docstrings) e na memória de uma sessão de agente:
-
-1. rebaixo é rotina — laje em nível diferente das vizinhas no mesmo pavimento é válida
-   (ex.: `L312` em 852.16 entre vizinhas 852.12/852.19);
-2. autoridade do nível: anotação **contida** no contorno > contida ambígua > proximidade
-   ao rótulo (marcada para revisão) > sem evidência local;
-3. candidato a mais de **25% do pé-direito** do nível do pavimento é descartado (é de
-   outro pavimento ou outra vista). O limiar de 25% é parâmetro do código — confirmar.
-
-Achado da investigação (2026-09-26): os valores "absurdos" do corpus não eram palpite de
-longe — são **bug de unidade** em `main.py::_infer_slab_level_from_cut_deltas`
-(delta do corte em **cm** somado ao nível em **m**). Atinge 4 lajes do 13_PAV no DB real,
-3 marcadas como validadas: L317 855.12 (→852.15), L318 822.19 (→851.89), L324 859.12
-(→852.19, confirmado pelo rótulo da planta), L325 859.12 (herdou da L324).
-Até decidir: a regra fica só no código; o bug e os 4 dados ficam como estão.
+- As 4 perguntas de `docs/PROPOSTA-NIVEL-LAJE-POR-EVIDENCIAS.md` (evidências, sub-região,
+  validação como âncora ou voto forte, calibração).
+- L318: 852.19 validado × −30 cm do corte (rebaixo parcial?).
