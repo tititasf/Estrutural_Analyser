@@ -784,6 +784,11 @@ Fronteira FV x LV (2026-09-27) — regras comuns, cada classe granular:
    lei do FV — os dois leem o mesmo DXF.
 4. Sem fronteira do FV a LV cai no meio entre rotulos de secao: fundo anulado
    muda a secao das laterais. Conferir as duas classes depois de job de FV.
+5. Publicacao granular: o portal promove do job de uma classe so' os
+   segmentos DELA (`fundo` <- job de FV, `lateral_*` <- job de LV; com
+   `--item`, so' as vigas pedidas); o resto fica do estado anterior
+   (`pipeline_runner._preservar_segmentos_de_outras_classes`). Sem isso o job
+   de LV publicava os fundos crus por cima dos auditados (27/09).
 O "V330" horizontal em (4480, 1623) e' legenda solta junto ao P49, sem faixa
 de viga — nao e' segundo trecho. Duvidas abertas ao dono:
 `docs/QUESTIONARIO-LV-SA-2026-09-25.md`.
