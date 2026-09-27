@@ -8,7 +8,10 @@ em ``lateral_viga_cells.py``), mas aqui BLOQUEIA em vez de so' avisar:
    DXF (mesma separacao estrutural x cota e mesmo indice de bordas da LV —
    ``lv_beam_scene``; nunca por nome de layer);
 2. borda abaixo de ``LINE_COVERAGE_MIN`` -> tenta reparar: par de linhas
-   paralelas com a largura do proprio contorno, perto dele, cobrindo o vao;
+   paralelas com a largura do proprio contorno (fundo deslocado, V304) ou com
+   a largura declarada da viga (fundo largo demais, V327/V331), perto dele,
+   cobrindo o vao; sem par, apara o fundo ao trecho em que as duas bordas
+   tem parede (fundo que passa do fim da viga, V302 S9);
    o reparo so' vale se passar pelo mesmo teste;
 3. sem par que sirva -> anula: o item sai de ``contour`` e vai para o slot
    ``anulado_d60`` (pontos vazios, antes guardado no registro). Assim o
@@ -31,6 +34,7 @@ from typing import Any, Iterable
 
 LINE_COVERAGE_MIN = 0.5      # igual a LV (lateral_viga_cells.LINE_COVERAGE_MIN)
 WIDTH_TOL = 1.5              # cm: largura do par de linhas x largura do contorno
+TRIM_KEEP_MIN = 0.4          # aparo mantem >= 40% do vao (V302 S9 0.49 fica; V323 S1 0.10 anula)
 ORTHO_TOL = 0.05             # cm: contorno precisa ser retangulo alinhado aos eixos
 AREA_KEY_RE = re.compile(r"^viga_fundo_seg_(\d+)_area_segs$")
 ANULADO_SLOT = "anulado_d60"
@@ -103,9 +107,12 @@ class _Lines:
         )
         return covered / (hi - lo)
 
-    def repair(self, horizontal: bool, a: tuple[float, float], t: tuple[float, float]):
-        """Par de linhas paralelas com a largura do contorno, mais perto dele."""
+    def repair(self, horizontal: bool, a: tuple[float, float], t: tuple[float, float],
+               declared: Iterable[float] = ()):
+        """Par de linhas paralelas mais perto do contorno, com a largura dele ou
+        a largura declarada da viga (cotas laterais do segmento / ``width``)."""
         width = t[1] - t[0]
+        widths = [width] + [w for w in declared if w > 0 and abs(w - width) > WIDTH_TOL]
         center = (t[0] + t[1]) / 2.0
         radius = max(1.5 * width, 30.0)
         faces = sorted({
@@ -115,7 +122,7 @@ class _Lines:
         best = None
         for i, lo in enumerate(faces):
             for hi in faces[i + 1:]:
-                if abs((hi - lo) - width) > WIDTH_TOL:
+                if min(abs((hi - lo) - w) for w in widths) > WIDTH_TOL:
                     continue
                 shift = abs((lo + hi) / 2.0 - center)
                 if shift > radius:
@@ -127,6 +134,72 @@ class _Lines:
                 if best is None or score < best[0]:
                     best = (score, (lo, hi), (c_lo, c_hi), shift)
         return best
+
+    def trim(self, horizontal: bool, a: tuple[float, float], t: tuple[float, float]):
+        """Trecho do vao em que as DUAS bordas tem parede (fundo que passa do
+        fim da viga, V302 S9). Vaos ate' uma largura (cruzamento de viga) nao
+        cortam. Devolve o maior trecho, se guardar ``TRIM_KEEP_MIN`` do vao:
+        sobrar so' um toco e' fundo no lugar errado (V323 S1), nao excesso."""
+        width = t[1] - t[0]
+
+        def covered(tt):
+            spans = sorted((max(a[0], x), min(a[1], y)) for x, y in self.edges.coverage(horizontal, tt)
+                           if min(a[1], y) > max(a[0], x))
+            merged: list[list[float]] = []
+            for lo, hi in spans:
+                if merged and lo - merged[-1][1] <= width + WIDTH_TOL:
+                    merged[-1][1] = max(merged[-1][1], hi)
+                else:
+                    merged.append([lo, hi])
+            return merged
+
+        best = None
+        for lo0, hi0 in covered(t[0]):
+            for lo1, hi1 in covered(t[1]):
+                lo, hi = max(lo0, lo1), min(hi0, hi1)
+                if hi - lo >= width and (best is None or hi - lo > best[1] - best[0]):
+                    best = (lo, hi)
+        if best is None:
+            return None
+        # Ponta do contorno a menos de uma largura da parede: e' o encontro
+        # com o apoio/viga que cruza, nao alucinacao — nao encurta.
+        lo = a[0] if best[0] - a[0] <= width + WIDTH_TOL else best[0]
+        hi = a[1] if a[1] - best[1] <= width + WIDTH_TOL else best[1]
+        cov = (self.coverage(horizontal, t[0], (lo, hi)), self.coverage(horizontal, t[1], (lo, hi)))
+        if (min(cov) < LINE_COVERAGE_MIN or (hi - lo) >= (a[1] - a[0]) - 1e-6
+                or (hi - lo) < TRIM_KEEP_MIN * (a[1] - a[0])):
+            return None
+        return (lo, hi), cov
+
+
+_LATERAL_DIM_RE = re.compile(r"^viga_[ab]_seg_\d+_dim$")
+_DIM_RE = re.compile(r"^\s*(\d+(?:[.,]\d+)?)\s*[/xX]")
+
+
+def _dim_width(value: Any) -> float | None:
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return float(value) if value > 0 else None
+    match = _DIM_RE.match(str(value or ""))
+    return float(match.group(1).replace(",", ".")) if match else None
+
+
+def _declared_widths(beam: dict, seg: int) -> list[float]:
+    """Larguras declaradas da viga: cotas laterais (o segmento primeiro, depois
+    os demais — laterais e fundo nem sempre tem a mesma segmentacao, V331) e
+    o ``width``. O reparo continua exigindo par real de paredes cobrindo o vao.
+
+    ``viga_fundo_seg_N_dim`` fica de fora de proposito: quando o fundo nasce
+    largo demais (V327/V331 do 13_PAV) esse texto costuma ser o de um vizinho
+    associado errado, e confirmaria o proprio erro.
+    """
+    keys = [f"viga_a_seg_{seg}_dim", f"viga_b_seg_{seg}_dim"]
+    keys += sorted(k for k in beam if _LATERAL_DIM_RE.match(str(k)) and k not in keys)
+    out: list[float] = []
+    for key in keys + ["width", "largura"]:
+        w = _dim_width(beam.get(key))
+        if w is not None and all(abs(w - o) > WIDTH_TOL for o in out):
+            out.append(w)
+    return out
 
 
 def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) -> dict[str, Any]:
@@ -172,18 +245,42 @@ def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) 
                     entry.update(antes=gate["antes"])
                     report[STATUS_VALIDADO_FORA].append(entry)
                     continue
-                found = index.repair(horizontal, a, t)
+                found = index.repair(horizontal, a, t, _declared_widths(beam, seg))
                 if found is not None:
                     _score, pair, cov_new, shift = found
                     item["points"] = _points(horizontal, a, pair)
+                    largura_depois = round(pair[1] - pair[0], 2)
+                    motivo = ("borda fora da linha; faixa movida para o par de linhas "
+                              "estruturais com a mesma largura")
+                    if abs(largura_depois - gate["largura"]) > WIDTH_TOL:
+                        motivo = (f"fundo com {gate['largura']} cm entre paredes de "
+                                  f"{largura_depois} cm (largura declarada da viga); "
+                                  "faixa ajustada ao par de linhas estruturais")
+                        dim = _dim_width(beam.get(f"viga_fundo_seg_{seg}_dim"))
+                        if dim is not None and abs(dim - largura_depois) > WIDTH_TOL:
+                            gate["dim_fundo_diverge"] = beam.get(f"viga_fundo_seg_{seg}_dim")
                     gate.update({
+                        "largura_depois": largura_depois,
                         "status": STATUS_REPARADO,
                         "cobertura_depois": [round(c, 3) for c in cov_new],
                         "deslocamento": round(shift, 2),
-                        "motivo": "borda fora da linha; faixa movida para o par de linhas "
-                                  "estruturais com a mesma largura",
+                        "motivo": motivo,
                     })
-                    entry.update(deslocamento=round(shift, 2), cobertura_depois=gate["cobertura_depois"])
+                    entry.update(deslocamento=round(shift, 2), cobertura_depois=gate["cobertura_depois"],
+                                 largura=gate["largura"], largura_depois=largura_depois)
+                elif (cut := index.trim(horizontal, a, t)) is not None:
+                    (lo, hi), cov_new = cut
+                    item["points"] = _points(horizontal, (lo, hi), t)
+                    gate.update({
+                        "status": STATUS_REPARADO,
+                        "cobertura_depois": [round(c, 3) for c in cov_new],
+                        "deslocamento": 0.0,
+                        "aparado": [round(lo - a[0], 2), round(a[1] - hi, 2)],
+                        "motivo": "fundo passava do trecho com paredes; aparado ao vao "
+                                  "em que as duas bordas tem linha do estrutural",
+                    })
+                    entry.update(deslocamento=0.0, cobertura_depois=gate["cobertura_depois"],
+                                 aparado=gate["aparado"])
                 else:
                     item["points"] = []
                     slots["contour"] = [c for c in slots.get("contour") or [] if c is not item]

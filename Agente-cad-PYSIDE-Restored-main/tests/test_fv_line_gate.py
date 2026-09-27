@@ -101,3 +101,56 @@ def test_reparador_respeita_decisao_do_gate():
     assert gate_frozen(item2)
     FundoVigaInterpreter.repair_area_links(reparado)
     assert sorted({p[1] for p in item2["points"]}) == [0.0, 19.0]
+
+
+def test_fundo_largo_demais_e_ajustado_a_largura_declarada_da_viga():
+    # Caso V327/V331 do 13_PAV: viga 14/xx, fundo nasceu com 19 — uma borda na
+    # parede, a outra 5 cm para fora. O par de paredes de 14 so' serve porque
+    # a cota lateral do segmento declara 14; o dim do fundo (errado) nao conta.
+    walls = [{"start": (0.0, 0.0), "end": (300.0, 0.0)},
+             {"start": (0.0, 14.0), "end": (300.0, 14.0)}]
+    beam, item = _beam(_rect(20, 280, 0, 19))
+    beam.update(viga_a_seg_1_dim="14/40", viga_fundo_seg_1_dim="19/55")
+    audit_fv_lines_all([beam], [], walls)
+    gate = item["fv_line_gate"]
+    assert gate["status"] == STATUS_REPARADO and gate["largura_depois"] == 14.0
+    assert sorted({p[1] for p in item["points"]}) == [0.0, 14.0]
+    assert gate["dim_fundo_diverge"] == "19/55"
+
+    sem_cota, item2 = _beam(_rect(20, 280, 0, 19))
+    audit_fv_lines_all([sem_cota], [], walls)
+    assert item2["fv_line_gate"]["status"] == STATUS_ANULADO
+
+
+def test_fundo_que_passa_do_fim_da_viga_e_aparado():
+    # Caso V302 S9: paredes ate' x=300, fundo segue ate' x=600 no vazio; um
+    # cruzamento (vao de 19 na parede de baixo) nao corta o trecho.
+    walls = [{"start": (0.0, 0.0), "end": (120.0, 0.0)},
+             {"start": (139.0, 0.0), "end": (300.0, 0.0)},
+             {"start": (0.0, 19.0), "end": (300.0, 19.0)}]
+    beam, item = _beam(_rect(20, 600, 0, 19))
+    audit_fv_lines_all([beam], [], walls)
+    gate = item["fv_line_gate"]
+    assert gate["status"] == STATUS_REPARADO and gate["aparado"] == [0.0, 300.0]
+    assert sorted({p[0] for p in item["points"]}) == [20.0, 300.0]
+
+
+def test_cota_lateral_de_outro_segmento_serve_de_largura_declarada():
+    # V331: laterais com 1 segmento, fundo com 2 — a cota do seg 1 vale pro S2.
+    walls = [{"start": (0.0, 0.0), "end": (300.0, 0.0)},
+             {"start": (0.0, 14.0), "end": (300.0, 14.0)}]
+    item = {"points": _rect(20, 280, 0, 19), "tag": "fundo"}
+    beam = {"name": "V1", "viga_a_seg_1_dim": "14/40",
+            "links": {"viga_fundo_seg_2_area_segs": {"contour": [item]}}}
+    audit_fv_lines_all([beam], [], walls)
+    assert item["fv_line_gate"]["largura_depois"] == 14.0
+
+
+def test_aparo_que_sobraria_toco_anula():
+    # Caso V323 S1: so' 25 de 260 cm tem parede (junto ao pilar) — nao e'
+    # fundo que passou do fim, e' fundo no lugar errado.
+    walls = [{"start": (0.0, 0.0), "end": (25.0, 0.0)},
+             {"start": (0.0, 19.0), "end": (25.0, 19.0)}]
+    beam, item = _beam(_rect(0, 260, 0, 19))
+    audit_fv_lines_all([beam], [], walls)
+    assert item["fv_line_gate"]["status"] == STATUS_ANULADO
