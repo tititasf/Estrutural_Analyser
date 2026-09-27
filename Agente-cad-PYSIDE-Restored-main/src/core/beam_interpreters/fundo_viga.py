@@ -961,6 +961,12 @@ class FundoVigaInterpreter:
             if not contours or not isinstance(contours[0], dict):
                 continue
             link = contours[0]
+            # Gate D-60 (fundo_viga_linhas) ja' reparou este contorno no par de
+            # linhas do estrutural. Refazer aqui ressuscitaria a alucinacao que
+            # ele corrigiu. (Anulado nem chega aqui: sai de ``contour``.)
+            from src.core.beam_interpreters.fundo_viga_linhas import gate_frozen
+            if gate_frozen(link):
+                continue
             points = []
             for point in link.get("points") or []:
                 try:

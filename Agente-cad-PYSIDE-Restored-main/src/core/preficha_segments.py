@@ -1064,6 +1064,10 @@ def collect_preficha_segments(
                 level_slabs: list[str] = []
                 cell_attention = ""
                 if kind == "fundo":
+                    # Gate D-60: fundo reparado/anulado por estar fora da
+                    # linha do estrutural aparece como atencao na ficha.
+                    from src.core.beam_interpreters.fundo_viga_linhas import gate_attention
+                    cell_attention = gate_attention(link)
                     from src.core.fundo_segment_levels import derive_fundo_segment_level
                     level_result = derive_fundo_segment_level(
                         points,

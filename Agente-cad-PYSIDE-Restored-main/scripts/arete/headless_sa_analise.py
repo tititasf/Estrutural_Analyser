@@ -1259,6 +1259,14 @@ def _run_legacy_analysis(
         f"[SA] LV celulas: {len(lv_cells_report) - 1} viga(s) reinterpretada(s); "
         f"sem cena: {lv_cells_report.get('__sem_cena__')}",
         flush=True,
+    # Gate FV (D-60): fundo com borda fora das linhas estruturais do DXF e'
+    # alucinacao — repara no par de linhas certo ou anula, com registro por
+    # contorno. Antes da LV/PIL, que consomem o fundo.
+    from src.core.beam_interpreters.fundo_viga_linhas import (
+        audit_fv_lines_all, report_summary,
+    )
+    runner._fv_line_gate_report = audit_fv_lines_all(runner.beams_found, texts, all_geo)
+    print(f"[SA] FV gate linhas: {report_summary(runner._fv_line_gate_report)}", flush=True)
     )
 
     # FV fecha as fichas depois dos campos textuais/LV. Reconciliar agora
@@ -2516,6 +2524,18 @@ def run_analysis(
                 window.beams_found, window.pillars_found, pavimento
             )
             print(
+        # Gate FV (D-60) tambem no caminho MainWindow/--production-web (portal):
+        # o merge pode repor contorno antigo fora da linha do estrutural.
+        from src.core.beam_interpreters.fundo_viga_linhas import (
+            audit_fv_lines_all, report_summary,
+        )
+        _gate_dxf = getattr(window, 'dxf_data', None) or {}
+        _fv_gate = audit_fv_lines_all(
+            window.beams_found,
+            list(_gate_dxf.get('texts', []) or []),
+            list(_gate_dxf.get('lines', []) or []) + list(_gate_dxf.get('polylines', []) or []),
+        )
+        print(f'[SA-HUMAN] FV gate linhas: {report_summary(_fv_gate)}', flush=True)
                 f'[SA-HUMAN] Contratos N3 LV anexados ao snapshot: '
                 f'{lv_contracts_attached}',
                 flush=True,
@@ -2682,6 +2702,17 @@ def run_analysis(
                         str(diagnostic.get('run_id'))
                         for diagnostic in diagnostics.values()
                         if diagnostic.get('run_id')
+                # Feedback do gate FV D-60 (antes/depois por contorno) junto
+                # do pack: e' o insumo para depurar o motor de fundo.
+                if html_dir and 'fundos_viga' in active_sections:
+                    try:
+                        (Path(html_dir) / 'fv_line_gate.json').write_text(
+                            json.dumps(_fv_gate, ensure_ascii=False, indent=1),
+                            encoding='utf-8',
+                        )
+                    except OSError as exc:
+                        print(f'[WARN] fv_line_gate.json: {exc}', flush=True)
+
                     ),
                     Path(html_dir).name.rsplit('_', 1)[-1],
                 )
