@@ -93,6 +93,7 @@ Ordem de dificuldade/importância: **PIL e LV > FV > LAJ** (definição de pront
 
 Diários de evolução por classe (histórico, não procedimento): `SA-ANALISE/HISTORICO/*.md`.
 Perfis de QA por classe: `QA-PERFIS-CLASSES-SA-N1-N3.md` + `squads/qa-global-evidencias/data/class_profiles/`.
+Quantitativo de painéis/sarrafos e material de compra, por classe: `MATERIAIS-E-CONSTRUCAO.md`.
 Robôs SCR legados (semântica original): `ROBO_SCR_PATTERNS.md`, `CALCULOS_ALGORITMOS.md`, `ROBOS_GUIDE.md`.
 
 ---
