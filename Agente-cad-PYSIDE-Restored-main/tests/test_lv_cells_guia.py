@@ -148,6 +148,28 @@ def test_scene_uses_real_pillar_polygon_not_bbox_and_label_band():
     assert (scenes["V2"].t_lo, scenes["V2"].t_hi) == (60.0, 79.0)
 
 
+def test_collinear_beams_split_at_pillar_between_labels_not_at_label_text():
+    """V328/V329 (13_PAV): mesma faixa, pilar entre os rotulos. Cortar no texto
+    vizinho deixava lasca alem do pilar e, com o rotulo colado na ponta, uma
+    viga herdava a outra inteira (dono 2026-09-28)."""
+    lines = _rect(0, 0, 1000, 19)
+    texts = [
+        {"text": "V1", "pos": (2.0, 22.0), "rotation": 0.0},    # colado na ponta
+        {"text": "V2", "pos": (505.0, 22.0), "rotation": 0.0},  # alem do pilar
+        {"text": "V3", "pos": (903.0, 22.0), "rotation": 0.0},
+    ]
+    pillars = {
+        "P1": {"name": "P1", "points": [(300, -40), (500, -40), (500, 60), (300, 60), (300, -40)]},
+        "P2": {"name": "P2", "points": [(800, -40), (900, -40), (900, 60), (800, 60), (800, -40)]},
+    }
+    scenes = build_scenes([{"name": "V1"}, {"name": "V2"}, {"name": "V3"}], texts, lines, pillars)
+    assert (scenes["V1"].start, scenes["V1"].end) == (0.0, 300.0)
+    assert (scenes["V2"].start, scenes["V2"].end) == (500.0, 800.0)
+    assert scenes["V3"].start == 900.0
+    para = segment_cell(scenes["V2"], "A", "para")
+    assert [s.length for s in para] == [300.0]
+
+
 def test_segment_off_structural_line_is_flagged():
     """Invariante do dono: destaque que nao esta' sobre linha do estrutural e' erro."""
     scene = _scene()

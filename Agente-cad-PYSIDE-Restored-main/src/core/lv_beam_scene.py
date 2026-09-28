@@ -592,7 +592,12 @@ def build_band_scene(
     if not ext:
         return None
     start, end = ext
-    # Outra viga rotulada sobre a mesma faixa limita a extensao.
+    # Outra viga rotulada sobre a mesma faixa limita a extensao. A fronteira e'
+    # o PILAR entre os dois rotulos (o mais proximo do proprio rotulo), nao o
+    # ponto de insercao do texto vizinho: cortar no texto deixava lascas de
+    # 2-15 cm alem do pilar (V329 2,84 no V330; V328 5,37; V309 15 no V309A) e,
+    # com o rotulo vizinho colado na ponta, a V329 herdava a V328 inteira
+    # (dono 2026-09-28). Sem pilar entre os rotulos, vale o ponto do texto.
     for other in other_labels:
         if _norm_name(other.get("text")) == name or _rotation_axis(other.get("rotation")) is not horizontal:
             continue
@@ -600,11 +605,14 @@ def build_band_scene(
         oa, ot = (ox, oy) if horizontal else (oy, ox)
         if not (t_lo - 8.0 <= ot <= t_hi + 8.0):
             continue
-        if start + 5.0 < oa < end - 5.0:
-            if oa > label_axis:
-                end = min(end, oa)
-            else:
-                start = max(start, oa)
+        if not (start - 5.0 <= oa <= end + 5.0) or abs(oa - label_axis) < 5.0:
+            continue
+        if oa > label_axis:
+            between = [b0 for b0, b1 in blockers if label_axis - 1.0 <= b0 < oa]
+            end = min(end, min(between) if between else oa)
+        else:
+            between = [b1 for b0, b1 in blockers if oa < b1 <= label_axis + 1.0]
+            start = max(start, max(between) if between else oa)
     scene = LvScene(name, horizontal, t_lo, t_hi, start, end)
     scene.face_coverage = {
         "A": edges.coverage(horizontal, t_lo),
