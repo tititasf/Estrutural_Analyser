@@ -682,7 +682,7 @@ def _hit_face_is_short(scene: LvScene, poly, axis_value: float, side: str) -> Op
 
     D-48/G10: faces C e D do pilar (as CURTAS) sao sempre ``Passa``. Curta =
     aresta do comprimento da menor aresta do pilar e bem menor que a maior
-    (retangulo: os topos; pilar em L/U: as pontas dos ramos). Pilar quadrado
+    (so' retangulo: os topos; em L/U as pontas dos ramos sao E..H). Pilar quadrado
     nao tem face curta pela geometria -> None (fica como hoje, sinalizado).
     """
     t_probe = scene.face_t(side) + (0.6 if side == "A" else -0.6)
@@ -707,6 +707,10 @@ def _hit_face_is_short(scene: LvScene, poly, axis_value: float, side: str) -> Op
     lengths = [v for v in lengths if v > 0.5]
     if not lengths:
         return None
+    # Pilar especial (L/U/T, mais de 4 faces): as pontas dos ramos sao E/F/G/H,
+    # onde o Para PARA (dono 2026-09-28) — so' o retangular tem C/D.
+    if len(lengths) != 4:
+        return False
     shortest, longest = min(lengths), max(lengths)
     if shortest >= 0.8 * longest:
         return None
