@@ -92,3 +92,10 @@ autoridade**: esta linha só resume para achar. Caminhos relativos a
 ## Pendente de decisão do dono
 
 - Segmentos estimados do 13_PAV — veredito do dono (2026-09-26): V308 A fora da torre (sem nível), B = nível da L325; V327 sem laje nos dois lados (rampa/X); V328 sem laje (correto); V332 A dentro tem laje, B à direita é exterior. Aplicado em 2026-09-27: geometria FV corrigida pelo gate D-60 (V327 voltou às laterais próprias); faces sem laje encostada (V308 A, V327, V328, V332 B) recebem nível estimado e marcado por D-61 (`nivel_viga_estimado`); V308 B medido na L325.
+
+## Decisões de 2026-09-28 sobre LV (SA)
+
+| ID | Data | Classe | Decisão | Fonte | Estado |
+|----|------|--------|---------|-------|--------|
+| D-62 | 2026-09-28 | LV | Quando a continuação é **outra viga** (o nome muda), a viga para na **própria delimitação** (pilar) e o trecho seguinte é da outra, seja em L ou reto. Caso: V309 × V307 no P25 — trecho P25→canto (30,71 A / 22,53 B) é da V307; V309 = só 320 | chat 2026-09-28 | vigente — `_corner_stubs_beyond_pillar` + corte no pilar entre rótulos colineares (`lv_beam_scene.py`) |
+| D-63 | 2026-09-28 | LV | Passa: pilar entre duas vigas colineares, cada uma encostando de um lado → só a **mais profunda** engloba o pilar (inteiro, inclusive pilar oco em peças, P27); a outra para na face. Mesma altura: as duas englobam | chat 2026-09-28 | vigente — `_cede_shared_end_pillars` (`cede_para`/`engloba_ini`/`engloba_fim`) |
