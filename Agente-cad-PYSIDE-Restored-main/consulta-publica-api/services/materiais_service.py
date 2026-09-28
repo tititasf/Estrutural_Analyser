@@ -103,26 +103,39 @@ def medir_dxf(path: Path) -> dict:
     msp = ezdxf.readfile(str(path)).modelspace()
     linhas: list = []
     hachuras: list[tuple[float, float, float, float]] = []
-    pecas: dict[str, list[float]] = {}
+    textos: list[tuple[float, float, str]] = []
+    # peça de sarrafo = (bitola, comprimento, bbox)
+    pecas_sarr: list[tuple[str, float, tuple[float, float, float, float]]] = []
+    linhas_sarr: dict[str, list] = {}
     vistas: set = set()
     duplicados = 0
     for e in msp:
         layer = e.dxf.layer
-        if e.dxftype() == "HATCH":
+        t = e.dxftype()
+        if t == "HATCH":
             ext = bbox.extents([e])
             if ext.has_data:
                 hachuras.append((ext.extmin.x, ext.extmin.y, ext.extmax.x, ext.extmax.y))
+        elif t == "TEXT" and layer.upper() == "NOMENCLATURA":
+            textos.append((e.dxf.insert.x, e.dxf.insert.y, e.dxf.text.strip()))
         elif _PAINEL.match(layer):
             linhas += [LineString(s) for s in _segmentos_da_entidade(e) if math.dist(*s) > 0.5]
-        elif _SARRAFO.match(layer) and e.dxftype() in ("LINE", "LWPOLYLINE", "INSERT"):
-            chave = (layer, e.dxftype(), _assinatura(e))
+        elif _SARRAFO.match(layer) and t in ("LINE", "LWPOLYLINE", "INSERT"):
+            chave = (layer, t, _assinatura(e))
             if chave in vistas:
                 duplicados += 1
                 continue
             vistas.add(chave)
+            if t == "LINE":  # as grades desenham cada peça como 4 LINEs
+                linhas_sarr.setdefault(layer, []).append(e)
+                continue
             comp = _comprimento_sarrafo(e)
-            if comp > 0.5:
-                pecas.setdefault(_nome_bitola(layer), []).append(round(comp, _TOL))
+            ext = bbox.extents([e])
+            if comp > 0.5 and ext.has_data:
+                pecas_sarr.append((_nome_bitola(layer), round(comp, _TOL),
+                                   (ext.extmin.x, ext.extmin.y, ext.extmax.x, ext.extmax.y)))
+    for layer, ents in linhas_sarr.items():
+        pecas_sarr += _pecas_de_linhas(_nome_bitola(layer), ents)
 
     # 1 linha por painel físico, em ordem de leitura do desenho (de cima p/
     # baixo, da esquerda p/ a direita): o nº e o ID seguem o que se vê no N3.
@@ -143,36 +156,122 @@ def medir_dxf(path: Path) -> dict:
             # (`_add_narrow_panel_hatches`, layer Hachura/REAPROVEITAMENTO).
             tira = any(a - 0.5 <= c.x <= b + 0.5 and d - 0.5 <= c.y <= e + 0.5
                        for a, d, b, e in hachuras)
-            celulas.append((-round(y1), round(x0), round(w, _TOL), round(h, _TOL), not retangulo, tira))
+            celulas.append((-round(y1), round(x0), round(w, _TOL), round(h, _TOL), not retangulo, tira,
+                            (x0, y0, x1, y1)))
     celulas.sort()
     return {
         "paineis": [
-            {"largura_cm": w, "altura_cm": h, "quantidade": 1, "recortado": rec, "tira": tira}
-            for _, _, w, h, rec, tira in celulas
+            {"largura_cm": w, "altura_cm": h, "quantidade": 1, "recortado": rec, "tira": tira, "_bbox": bb}
+            for _, _, w, h, rec, tira, bb in celulas
         ],
         "paineis_total": len(celulas),
         "paineis_recortados": recortados,
         "paineis_area_m2": round(area_cm2 / 1e4, 2),
-        "sarrafos": [
-            {
-                "bitola": bitola,
-                "pecas": len(comps),
-                "total_m": round(sum(comps) / 100, 2),
-                "cortes": [{"comprimento_cm": c, "quantidade": n}
-                           for c, n in sorted(Counter(comps).items(), reverse=True)],
-            }
-            for bitola, comps in sorted(pecas.items())
-        ],
+        "sarrafos": _resumo_sarrafos(pecas_sarr),
+        "_pecas_sarrafo": pecas_sarr,
+        "_textos": textos,
         "sarrafos_duplicados_ignorados": duplicados,
     }
+
+
+def _pecas_de_linhas(bitola: str, ents: list) -> list[tuple]:
+    """LINEs de uma layer de sarrafo: cada retângulo estreito fechado por
+    elas é 1 peça (comprimento = lado maior); LINE que não fecha retângulo
+    é uma peça desenhada pela linha de centro."""
+    from shapely.geometry import LineString
+    from shapely.ops import polygonize, unary_union
+
+    segs = [LineString(s) for e in ents for s in _segmentos_da_entidade(e) if math.dist(*s) > 0.05]
+    pecas: list[tuple] = []
+    rets = []
+    for pol in polygonize(unary_union(segs)):
+        x0, y0, x1, y1 = pol.bounds
+        w, h = x1 - x0, y1 - y0
+        if min(w, h) <= 12.5 and abs(pol.area - w * h) < 0.02 * w * h:
+            rets.append(pol)
+            pecas.append((bitola, round(max(w, h), _TOL), (x0, y0, x1, y1)))
+    bordas = unary_union([r.boundary for r in rets]).buffer(0.05) if rets else None
+    for sg in segs:
+        if bordas is not None and bordas.contains(sg):
+            continue
+        x0, y0, x1, y1 = sg.bounds
+        pecas.append((bitola, round(sg.length, _TOL), (x0, y0, x1, y1)))
+    return pecas
+
+
+def _resumo_sarrafos(pecas: list[tuple]) -> list[dict]:
+    por: dict[str, list[float]] = {}
+    for bitola, comp, _ in pecas:
+        por.setdefault(bitola, []).append(comp)
+    return [
+        {
+            "bitola": bitola,
+            "pecas": len(comps),
+            "total_m": round(sum(comps) / 100, 2),
+            "cortes": [{"comprimento_cm": c, "quantidade": n}
+                       for c, n in sorted(Counter(comps).items(), reverse=True)],
+        }
+        for bitola, comps in sorted(por.items())
+    ]
+
+
+def _sobreposicao(p: tuple, c: tuple) -> float:
+    """Quanto da peça `p` (bbox) corre dentro da célula `c` (bbox), medido no
+    eixo longo da peça; -1 se não se tocam."""
+    t = 0.5
+    ix = min(p[2], c[2] + t) - max(p[0], c[0] - t)
+    iy = min(p[3], c[3] + t) - max(p[1], c[1] - t)
+    if ix < 0 or iy < 0:
+        return -1.0
+    return ix if (p[2] - p[0]) >= (p[3] - p[1]) else iy
+
+
+def associar_sarrafos(grupo: dict) -> None:
+    """Cada sarrafo vai para o painel sobre o qual ele mais corre: o painel
+    passa a listar os próprios sarrafos. Sem painel que o contenha → `avulsos`."""
+    paineis = [p for p in grupo.get("paineis") or [] if p.get("_bbox")]
+    por_painel: dict[int, list[tuple]] = {}
+    avulsos: list[tuple] = []
+    for peca in grupo.get("_pecas_sarrafo") or []:
+        melhor, idx = 0.5, None
+        for i, p in enumerate(paineis):
+            s = _sobreposicao(peca[2], p["_bbox"])
+            if s > melhor:
+                melhor, idx = s, i
+        (por_painel.setdefault(idx, []) if idx is not None else avulsos).append(peca)
+    for i, p in enumerate(paineis):
+        p["sarrafos"] = _cortes(por_painel.get(i, []))
+    grupo["sarrafos_avulsos"] = _cortes(avulsos)
+
+
+def _cortes(pecas: list[tuple]) -> list[dict]:
+    c = Counter((b, comp) for b, comp, _ in pecas)
+    return [{"bitola": b, "comprimento_cm": comp, "quantidade": n}
+            for (b, comp), n in sorted(c.items(), key=lambda kv: (kv[0][0], -kv[0][1]))]
+
+
+def separar_grades(grupo: dict) -> None:
+    """Grades do pilar: cada grade é rotulada no desenho (`P1.A`, `P1.B`) à
+    esquerda dela; a peça pertence ao rótulo mais próximo à sua esquerda."""
+    rotulos = sorted((x, y, t) for x, y, t in grupo.get("_textos") or [] if re.search(r"\.[A-H]$", t))
+    if not rotulos:
+        return
+    por: dict[str, list[tuple]] = {t: [] for _, _, t in rotulos}
+    for peca in grupo.get("_pecas_sarrafo") or []:
+        x0 = peca[2][0]
+        esq = [r for r in rotulos if r[0] <= x0 + 1] or rotulos[:1]
+        por[max(esq)[2]].append(peca)
+    grupo["grades"] = [{"rotulo": t, "face": t.rsplit(".", 1)[-1], "pecas": _cortes(ps)}
+                       for t, ps in por.items() if ps]
 
 
 _FACES = "ABCDEFGH"
 
 
-def _larguras_desenhadas_das_faces(path: Path) -> list[float]:
-    """Largura de cada face no ABCD, da esquerda p/ a direita, pela linha de
-    painel mais baixa de cada coluna (inclui o encosto que o desenho soma)."""
+def _colunas_das_faces(path: Path) -> list[tuple[float, float, float]]:
+    """Coluna de cada face no ABCD, da esquerda p/ a direita: (x0, x1, base).
+    A largura vem da linha de painel mais baixa (inclui o encosto que o
+    desenho soma); a base é o y dessa linha, de onde a pilha sobe."""
     import ezdxf
 
     horizontais = []
@@ -185,12 +284,13 @@ def _larguras_desenhadas_das_faces(path: Path) -> list[float]:
         colunas[(x0, x1)] = min(y, colunas.get((x0, x1), y))
     # Colunas que se sobrepõem em x são a mesma face (painéis em 2 colunas).
     faces: list[list[float]] = []
-    for x0, x1 in sorted(colunas):
+    for (x0, x1), y in sorted(colunas.items()):
         if faces and x0 < faces[-1][1] - 0.5:
             faces[-1][1] = max(faces[-1][1], x1)
+            faces[-1][2] = min(faces[-1][2], y)
         else:
-            faces.append([x0, x1])
-    return [round(x1 - x0, _TOL) for x0, x1 in faces]
+            faces.append([x0, x1, y])
+    return [(x0, x1, y) for x0, x1, y in faces]
 
 
 def _paineis_do_contrato_pilar(dxf: Path) -> Optional[dict]:
@@ -214,19 +314,22 @@ def _paineis_do_contrato_pilar(dxf: Path) -> Optional[dict]:
              and sum(float(pj.get(f"larg{k}_{f}") or 0) for k in (1, 2, 3)) > 0]
     if not faces:
         return None
-    larguras = _larguras_desenhadas_das_faces(dxf)
-    casou = len(larguras) == len(faces)
+    colunas = _colunas_das_faces(dxf)
+    casou = len(colunas) == len(faces)
     paineis: list[dict] = []
     area = 0.0
     for i, f in enumerate(faces):
-        largura = larguras[i] if casou else round(sum(
+        largura = round(colunas[i][1] - colunas[i][0], _TOL) if casou else round(sum(
             float(pj.get(f"larg{k}_{f}") or 0) for k in (1, 2, 3)), _TOL)
+        y = colunas[i][2] if casou else 0.0
         for h in pj[f"paineis_intervals_{f}"]:  # pilha de baixo p/ cima
             h = round(float(h or 0), _TOL)
             if h >= 3:
+                bb = (colunas[i][0], y, colunas[i][1], y + h) if casou else None
                 paineis.append({"face": f, "largura_cm": largura, "altura_cm": h,
-                                "quantidade": 1, "recortado": False})
+                                "quantidade": 1, "recortado": False, "_bbox": bb})
                 area += largura * h
+                y += h
     return {
         "paineis": paineis,
         "paineis_total": len(paineis),
@@ -292,14 +395,28 @@ def obter_materiais(row, dados_obras_root: Path) -> Optional[dict]:
         dxf = ficha_reader._n3_dxf_producao(obra_dir, pavimento, classe, item)
         grupo = _grupo("Fundo" if tipo == "viga_fundo" else "Painéis", dxf)
         if tipo == "laje":  # laje é só painel (decisão do dono)
-            grupo.update(sarrafos=[], sarrafos_duplicados_ignorados=0)
+            grupo.update(sarrafos=[], _pecas_sarrafo=[], sarrafos_duplicados_ignorados=0)
         grupos.append(grupo)
     else:
         return {"tipo": tipo, "grupos": []}
     from services.plano_de_corte import compra_de_grupos
 
+    for g in grupos:
+        if not g.get("disponivel"):
+            continue
+        if g.get("paineis"):
+            associar_sarrafos(g)
+        elif g["titulo"] == "Grades":
+            separar_grades(g)
+        for p in g.get("paineis") or []:
+            p.pop("_bbox", None)
+        g.pop("_pecas_sarrafo", None)
+        g.pop("_textos", None)
     prefixo = prefixo_id_painel(row)
     identificar_paineis(grupos, prefixo, laje=tipo == "laje")
+    for g in grupos:
+        for p in g.get("paineis") or []:
+            p.pop("tira", None)
     return {"tipo": tipo, "fonte": "medido no DXF N3 desenhado", "prefixo_id": prefixo,
             "grupos": grupos, "compra": compra_de_grupos(grupos)}
 
@@ -311,20 +428,31 @@ def _token(s: str) -> str:
     return re.sub(r"[^A-Z0-9.]", "", str(s).upper())
 
 
+def _campo(row, nome: str) -> str:
+    return str(row[nome] or "") if nome in row.keys() else ""
+
+
 def prefixo_id_painel(row) -> str:
     """`{OBRA}-{PAV}-{CLASSE}-{ITEM}`: identifica de onde o painel saiu, para
-    rastrear o reaproveitamento no próximo pavimento. Pilar carrega o modo
-    (P1PASSA ≠ P1PARA); LV carrega o modo do código, quando houver."""
-    obra = re.sub(r"^OBRA[_-]?", "", str(row["obra_id"] or "").upper())
+    rastrear o reaproveitamento no próximo pavimento. Usa os nomes legíveis
+    (rótulo da obra, título do item), não os ids internos. Pilar e LV levam o
+    modo (P1.PASSA ≠ P1.PARA); fundo leva o segmento (V309A.S1)."""
+    obra = _campo(row, "obra_rotulo") or Path(_campo(row, "obra_dir")).name or _campo(row, "obra_id")
+    obra = re.sub(r"^OBRA[_-]?", "", obra.upper())
     obra = re.sub(r"[^A-Z0-9_]", "", obra.replace("-", "_")) or "OBRA"
-    item = str(row["item_id"])
     tipo = row["tipo_elemento"]
+    titulo = _campo(row, "titulo_publico") or _campo(row, "item_id")
+    m = re.match(r"^\s*(\S+)\s*\(segmento\s*(\d+)\)", titulo, re.I)
+    item = f"{m.group(1)}.S{m.group(2)}" if m else titulo
     if tipo == "pilar":
-        modo = "passa" if row["classe"] == "pilares_n3_passa" else "para"
-        item = item.removesuffix("_Para").removesuffix("_Passa") + modo
+        item = item.removesuffix("_Para").removesuffix("_Passa")
+        item += ".PASSA" if row["classe"] == "pilares_n3_passa" else ".PARA"
     elif tipo == "viga_lateral":
-        modo = payload_do_row(row).get("modo")
-        item = str(payload_do_row(row).get("viga") or item) + (str(modo) if modo else "")
+        payload = payload_do_row(row)
+        modo = str(payload.get("modo") or "").lower()
+        item = str(payload.get("viga") or item)
+        if modo:
+            item += ".PASSA" if modo.startswith("passa") else ".PARA"
     return "-".join([obra, _token(row["pavimento"]), _CLASSE_ID.get(tipo, _token(tipo)), _token(item)])
 
 

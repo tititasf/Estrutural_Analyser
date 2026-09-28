@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { buscarMateriais, type GrupoMateriais, type MateriaisData } from "@/lib/api/materiais";
+import { buscarMateriais, type CorteSarrafo, type GrupoMateriais, type MateriaisData } from "@/lib/api/materiais";
 import { ChapasViewer } from "./ChapasViewer";
 import styles from "./MateriaisTab.module.css";
 
@@ -33,6 +33,23 @@ interface MateriaisTabProps {
 
 const fmt = (n: number, casas = 1) =>
   n.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: casas });
+
+/** "Sarrafo 2.2 x 7 cm" → "2,2 x 7"; pressão fica por extenso. */
+const bitolaCurta = (b: string) =>
+  /press/i.test(b) ? "Pressão" : b.replace(/^Sarrafo\s*/i, "").replace(/\s*cm$/i, "").replace(/\./g, ",");
+
+function ListaSarrafos({ itens }: { itens?: CorteSarrafo[] }) {
+  if (!itens || itens.length === 0) return <span className={styles.sub}>—</span>;
+  return (
+    <ul className={styles.listaSarr}>
+      {itens.map((c) => (
+        <li key={`${c.bitola}-${c.comprimento_cm}`}>
+          {c.quantidade} × {fmt(c.comprimento_cm)} cm <span className={styles.bitola}>{bitolaCurta(c.bitola)}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function Grupo({ grupo, laje }: { grupo: GrupoMateriais; laje: boolean }) {
   if (!grupo.disponivel) {
@@ -66,6 +83,7 @@ function Grupo({ grupo, laje }: { grupo: GrupoMateriais; laje: boolean }) {
                   <th>Altura (cm)</th>
                   {laje && <th className={styles.esq}>Classe de painel</th>}
                   {laje && <th>Pode ser reaproveitado</th>}
+                  {!laje && <th className={styles.esq}>Sarrafos do painel</th>}
                 </tr>
               </thead>
               <tbody>
@@ -81,6 +99,11 @@ function Grupo({ grupo, laje }: { grupo: GrupoMateriais; laje: boolean }) {
                     </td>
                     {laje && <td className={styles.esq}>{p.classe}</td>}
                     {laje && <td>{p.reaproveitavel ? "Sim" : "Não"}</td>}
+                    {!laje && (
+                      <td className={styles.esq}>
+                        <ListaSarrafos itens={p.sarrafos} />
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
@@ -92,28 +115,44 @@ function Grupo({ grupo, laje }: { grupo: GrupoMateriais; laje: boolean }) {
         </>
       )}
 
-      {sarrafos.map((s) => (
-        <div key={s.bitola}>
-          <p className={`${styles.resumo} tabular-nums`}>
-            {s.bitola}: {s.pecas} peças · {fmt(s.total_m, 2)} m
-          </p>
-          <div className={styles.tabelaWrap}>
-            <table className={`${styles.tabela} tabular-nums`}>
-              <thead>
-                <tr><th>Comprimento (cm)</th><th>Qtd</th></tr>
-              </thead>
-              <tbody>
-                {s.cortes.map((c) => (
-                  <tr key={c.comprimento_cm}>
-                    <td>{fmt(c.comprimento_cm)}</td>
-                    <td>{c.quantidade}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      {paineis.length > 0 && (grupo.sarrafos_avulsos?.length ?? 0) > 0 && (
+        <div className={styles.avulsos}>
+          <p className={styles.resumo}>Sarrafos fora de painel</p>
+          <ListaSarrafos itens={grupo.sarrafos_avulsos} />
         </div>
-      ))}
+      )}
+
+      {paineis.length === 0 &&
+        (grupo.grades && grupo.grades.length > 0
+          ? grupo.grades.map((g) => (
+              <div key={g.rotulo} className={styles.grade}>
+                <p className={`${styles.resumo} tabular-nums`}>
+                  Grade {g.rotulo} · lado {g.face}: {g.pecas.reduce((n, c) => n + c.quantidade, 0)} peças
+                </p>
+                <div className={styles.tabelaWrap}>
+                  <table className={`${styles.tabela} tabular-nums`}>
+                    <thead>
+                      <tr><th className={styles.esq}>Material</th><th>Comprimento (cm)</th><th>Qtd</th></tr>
+                    </thead>
+                    <tbody>
+                      {g.pecas.map((c) => (
+                        <tr key={`${c.bitola}-${c.comprimento_cm}`}>
+                          <td className={styles.esq}>{c.bitola.replace(/\./g, ",").replace(/3,5 x 7 cm/, "3,5 x 7 cm (meio pontalete)")}</td>
+                          <td>{fmt(c.comprimento_cm)}</td>
+                          <td>{c.quantidade}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ))
+          : sarrafos.map((s) => (
+              <div key={s.bitola}>
+                <p className={`${styles.resumo} tabular-nums`}>{s.bitola}: {s.pecas} peças · {fmt(s.total_m, 2)} m</p>
+                <ListaSarrafos itens={s.cortes.map((c) => ({ ...c, bitola: s.bitola }))} />
+              </div>
+            )))}
 
       {paineis.length === 0 && sarrafos.length === 0 && (
         <p className={styles.nota}>Nenhum painel ou sarrafo desenhado.</p>

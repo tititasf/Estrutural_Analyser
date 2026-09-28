@@ -124,6 +124,50 @@ def test_laje_tira_hachurada_nao_e_reaproveitavel_e_todo_painel_tem_id(tmp_path)
 def test_id_do_pilar_carrega_o_modo():
     from services.materiais_service import prefixo_id_painel
 
-    row = {"obra_id": "obra_treino_1", "pavimento": "13_PAV", "tipo_elemento": "pilar",
-           "item_id": "P1_Passa", "classe": "pilares_n3_passa"}
-    assert prefixo_id_painel(row) == "TREINO_1-13PAV-PIL-P1PASSA"
+    row = {"obra_id": "5aecf77e", "obra_rotulo": "Obra_TREINO_1", "pavimento": "13_PAV",
+           "tipo_elemento": "pilar", "item_id": "P1_Passa", "classe": "pilares_n3_passa", "titulo_publico": "P1"}
+    assert prefixo_id_painel(row) == "TREINO_1-13PAV-PIL-P1.PASSA"
+    fundo = {"obra_rotulo": "Obra_TREINO_1", "pavimento": "13_PAV", "tipo_elemento": "viga_fundo",
+             "item_id": "fundo|9d77|1|1", "classe": "fundo", "titulo_publico": "V309A (segmento 1)"}
+    assert prefixo_id_painel(fundo) == "TREINO_1-13PAV-FV-V309A.S1"
+
+
+def test_grade_peca_desenhada_com_4_linhas_e_uma_peca_e_vai_para_a_grade_do_rotulo(tmp_path):
+    from services.materiais_service import separar_grades
+
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+
+    def ret(x0, y0, x1, y1, layer):
+        for a, b in (((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1)), ((x0, y1), (x0, y0))):
+            msp.add_line(a, b, dxfattribs={"layer": layer})
+
+    for dx, rot in ((0, "P1.A"), (128, "P1.B")):
+        msp.add_text(rot, dxfattribs={"layer": "NOMENCLATURA", "insert": (dx - 10, 0)})
+        ret(dx, 0, dx + 88, 2, "SARR_2.2x7")        # travessa de base
+        ret(dx, 2, dx + 7, 201, "SARR_2.2x7")       # montante (encosta na base)
+        ret(dx + 27, 2, dx + 31, 201, "SARR_3.5x7")  # meio pontalete
+    path = tmp_path / "grades.dxf"
+    doc.saveas(path)
+
+    g = {"titulo": "Grades", "disponivel": True, **medir_dxf(path)}
+    por = {s["bitola"]: s for s in g["sarrafos"]}
+    assert por["Sarrafo 2.2 x 7 cm"]["pecas"] == 4  # 2 por grade, não 16 linhas
+    assert por["Sarrafo 3.5 x 7 cm"]["cortes"] == [{"comprimento_cm": 199.0, "quantidade": 2}]
+    separar_grades(g)
+    assert [gr["rotulo"] for gr in g["grades"]] == ["P1.A", "P1.B"]
+    assert sum(c["quantidade"] for c in g["grades"][0]["pecas"]) == 3
+
+
+def test_cada_sarrafo_vai_para_o_painel_onde_corre():
+    from services.materiais_service import associar_sarrafos
+
+    g = {"paineis": [{"_bbox": (0, 0, 88, 122)}, {"_bbox": (0, 122, 88, 244)}],
+         "_pecas_sarrafo": [("Sarrafo de pressão", 122.0, (7, 0, 7, 122)),
+                            ("Sarrafo de pressão", 122.0, (7, 122, 7, 244)),
+                            ("Sarrafo 2.2 x 7 cm", 80.0, (4, 200, 84, 200)),
+                            ("Sarrafo 2.2 x 7 cm", 30.0, (500, 0, 530, 0))]}
+    associar_sarrafos(g)
+    assert g["paineis"][0]["sarrafos"] == [{"bitola": "Sarrafo de pressão", "comprimento_cm": 122.0, "quantidade": 1}]
+    assert len(g["paineis"][1]["sarrafos"]) == 2
+    assert g["sarrafos_avulsos"] == [{"bitola": "Sarrafo 2.2 x 7 cm", "comprimento_cm": 30.0, "quantidade": 1}]

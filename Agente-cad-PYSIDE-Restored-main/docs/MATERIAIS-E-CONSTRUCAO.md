@@ -109,22 +109,45 @@ e só mede o ABCD/Grades daquele modo.
   bitola vem do nome da layer. Retângulo mede o lado maior.
 - **Duplicata** (entidade idêntica sobreposta) conta uma vez — ver §7 D1.
 - LV: um DXF por viga × lado; o item mostra "Lado A" e "Lado B".
+- **Grades desenham cada peça como retângulo de 4 LINEs**: o medidor reconstrói o
+  retângulo (lado menor ≤ 12,5 cm) e conta **1 peça** com o lado maior. Antes de
+  28/09 cada LINE contava como sarrafo (grades infladas ~4×).
+- **Sarrafo dentro do painel:** cada sarrafo vai para o painel sobre o qual mais
+  corre (sobreposição no eixo longo da peça). No ABCD a caixa do painel vem da pilha
+  do contrato empilhada a partir da base desenhada da coluna da face. Sarrafo que
+  não corre sobre painel = "fora de painel". A lista de painéis mostra, na linha de
+  cada painel, os sarrafos dele.
+- **Grades do pilar:** cada grade é o rótulo `P{n}.{face}` (layer NOMENCLATURA) à
+  esquerda dela; a aba lista grade por grade (lado A, lado B...) com o material.
+- **Laje — classe do painel:** célula dentro de um HATCH (a LJ hachura a faixa
+  estreita da união, layer `Hachura`/`REAPROVEITAMENTO`) = **Tira de escoramento**,
+  não reaproveitável; demais = **Painel comum**, reaproveitável (dono, 28/09).
 
 ## 6. Material de compra — plano de corte (`services/plano_de_corte.py`)
 
-- **Barras (1D):** First Fit Decreasing na barra de 300 cm, por material. Peça
-  maior que 3 m = **emenda** (barras inteiras + resto), contada à parte.
-- **Chapas (2D):** guilhotina, "best short side fit", rotação livre, chapa
-  244 × 122. Peça que não cabe em nenhuma orientação é dividida em faixas
-  (244 / 122) e contada como **emenda**.
+- **Barras (1D):** Best Fit e First Fit Decreasing na barra de 300 cm, vence a de
+  menos barras. **Perda de 1 cm por corte** também na barra (dono, 28/09): 150 + 149
+  cabe, 150 + 150 não. Peça maior que 3 m = **emenda** (barras inteiras + resto).
+- **Chapas (2D):** guilhotina com rotação livre, **otimizada por múltiplas
+  estratégias** (5 ordens das peças × 3 regras de encaixe × 4 direções de corte =
+  60 planos). Vence o de menos chapas; no empate, o que concentra a sobra em
+  pedaços maiores (reaproveitáveis). Determinístico. Para cedo se atingir o limite
+  inferior de área. Peça maior que a chapa vira faixas (244 / 122) = **emenda**.
 - **Perda de corte na chapa = 1 cm por corte** (horizontal ou vertical, dono
   28/09): numa faixa de 122 cabem 102 + 19, não 102 + 20. Exemplo L301: 3 chapas
-  sem a perda → **4 com a perda** (o 194 × 102 deixa 49 × 122 e 194 × 19, onde
-  nem o 50 nem o 20 cabem). Barras: ainda sem perda de corte (Q7). Sem % de quebra.
+  sem a perda → **4 com a perda** — mínimo verificado à mão (50 + 1 + 194 = 245 > 244;
+  61 + 1 + 61 = 123 > 122). Sem % de quebra.
 - As peças de todos os grupos do item saem do mesmo estoque (sobra do lado A
   corta peça do lado B).
-- **Numeração:** cada painel do item recebe um número único (1..N), mostrado na
-  coluna "Nº" da lista de painéis. Painel maior que a chapa vira faixas `4a`, `4b`.
+- **Numeração e ID Painel (todas as classes, dono 28/09):** 1 linha por painel
+  físico, em ordem de leitura do desenho (ABCD: face a face, de baixo p/ cima). Cada
+  painel tem Nº (1..N no item) e **ID rastreável**
+  `{OBRA}-{PAV}-{CLASSE}-{ITEM}-P{nn}`, ex. `TREINO_1-13PAV-LAJ-L301-P01`,
+  `TREINO_1-13PAV-PIL-P1.PASSA-P03`, `TREINO_1-13PAV-FV-V309A.S1-P02`,
+  `TREINO_1-13PAV-LV-V309A.PARA-P05`. OBRA = rótulo da obra sem "Obra_"; ITEM =
+  título público (+ modo no pilar/LV, + segmento no fundo). O ID aparece na lista e
+  no viewer de chapas; faixa de emenda herda o ID + letra. Objetivo: listagem de
+  painéis disponíveis para reaproveitamento no próximo pavimento (a fazer: Q8).
 - **Viewer de chapas:** uma mini-aba por chapa comprada; desenha a chapa
   244 × 122 com cada peça na posição de corte (x, y a partir do canto superior
   esquerdo), o número do painel, a medida e a sobra hachurada e numerada (S1,
@@ -154,7 +177,9 @@ e só mede o ABCD/Grades daquele modo.
   posiciona) ou 2,2 × 7 (como a layer diz)?
 - **Q5** — Perda: aplicar % de quebra ou perda de serra na compra, ou manter o
   mínimo físico?
-- **Q7** — A perda de 1 cm por corte vale também para sarrafo/pontalete na barra de 3 m?
+- ~~Q7~~ — perda de 1 cm por corte na barra: **sim** (dono, 28/09), aplicada.
+- **Q8** — Registro de reaproveitamento: onde a equipe marca que o painel
+  `...-P03` foi desmontado e está disponível, e como o próximo pavimento o consome?
 - **Q6** — Lista do pavimento: somar a compra por pavimento (reaproveitando
   sobra entre itens) é o que a equipe usa para pedir material?
 

@@ -15,8 +15,23 @@ export interface PainelMedido {
   classe?: string;
   /** Tira de escoramento não volta ao estoque; painel comum sim. */
   reaproveitavel?: boolean;
+  /** Sarrafos que correm sobre este painel (associados pela geometria). */
+  sarrafos?: CorteSarrafo[];
   /** Célula não retangular (recorte de viga, laje poligonal). */
   recortado: boolean;
+}
+
+export interface CorteSarrafo {
+  bitola: string;
+  comprimento_cm: number;
+  quantidade: number;
+}
+
+/** Grade do pilar (rótulo no desenho, ex. P1.A) e as peças dela. */
+export interface GradeMedida {
+  rotulo: string;
+  face: string;
+  pecas: CorteSarrafo[];
 }
 
 export interface SarrafoMedido {
@@ -37,6 +52,9 @@ export interface GrupoMateriais {
   largura_da_face?: string;
   sarrafos?: SarrafoMedido[];
   sarrafos_duplicados_ignorados?: number;
+  /** Sarrafos que não correm sobre nenhum painel. */
+  sarrafos_avulsos?: CorteSarrafo[];
+  grades?: GradeMedida[];
 }
 
 export interface PecaNaChapa {
