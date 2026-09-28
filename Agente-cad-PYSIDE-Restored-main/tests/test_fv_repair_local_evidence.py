@@ -75,7 +75,9 @@ def test_secao_do_pilar_empilhada_sob_o_rotulo_nao_vira_secao_da_viga():
                             {"text": "19/120", "pos": (1599.6, 3069.6)}],
         "texts": [{"text": "P11", "pos": (1641.6, 2712.4)}],
     }}
-    texts = [t["text"] for t in FundoVigaInterpreter._iter_dimension_texts(beam)]
+    geo = beam["geometry"]
+    kept = FundoVigaInterpreter.drop_pillar_section_texts(geo["dimension_texts"] + geo["texts"])
+    texts = [t["text"] for t in kept]
     assert "80/19" not in texts and "19/120" in texts
 
 
