@@ -1141,7 +1141,11 @@ def collect_preficha_segments(
                         depth = cell.get("depth")
                         height = f"{float(depth):g}" if depth is not None else height
                         level = str(cell.get("level") or "")
-                        level_source = "lv_cell_slabs" if level else "unresolved"
+                        # D-61: nivel sem laje encostada vem ESTIMADO e marcado
+                        level_source = (
+                            "lv_cell_estimado" if level and cell.get("level_estimado")
+                            else "lv_cell_slabs" if level else "unresolved"
+                        )
                         level_slabs = [s.get("name", "") for s in cell.get("slabs") or []]
 
                         def _cell_support(info: dict) -> dict[str, str]:
@@ -1156,6 +1160,7 @@ def collect_preficha_segments(
                             "support_start": _cell_support(cell.get("support_start")),
                             "support_end": _cell_support(cell.get("support_end")),
                             "beam_level": level,
+                            "beam_level_estimated": dict(cell.get("level_estimado") or {}),
                             "slabs": [
                                 {"name": str(s.get("name") or ""), "level": str(s.get("level") or ""),
                                  "height": _dimension_height(s.get("height"))}

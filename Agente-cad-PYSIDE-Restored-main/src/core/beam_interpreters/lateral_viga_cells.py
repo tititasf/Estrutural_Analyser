@@ -108,37 +108,57 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
     for pillar in scene.pillars[side]:
         # Para para na face do pilar; Passa corre pela PAREDE do pilar, mas se a
         # face passaria pelo MIOLO do pilar, para tambem (dono 2026-09-26).
-        if behavior == "para" or pillar.get("miolo"):
+        # G10/D-48 (dono 2026-09-28): Para NUNCA para nas faces C/D (curtas) —
+        # so' nas A/B/E/F/G/H; ali o pilar e' tratado como Passa.
+        curtas = (pillar.get("face_ini_curta"), pillar.get("face_fim_curta"))
+        g10 = behavior == "para" and all(curtas)
+        if (behavior == "para" and not g10) or pillar.get("miolo"):
             info = dict(pillar, type="pilar")
-            if behavior == "passa":
+            if behavior == "passa" or g10:
                 info["rule"] = "passa_nao_atravessa_miolo_do_pilar"
+            elif any(curtas):
+                flags_global.append(f"G10_face_curta_so_de_um_lado:{pillar['name']}")
             hard.append((pillar["start"], pillar["end"], info))
         else:
-            pillar_events.append(pillar)
+            pillar_events.append(dict(pillar, rule="G10_face_curta_CD_sempre_passa") if g10 else pillar)
 
     # Passa ENGLOBA o pilar (dono 2026-09-26): tambem o pilar da PONTA entra no
     # segmento — a lateral vai ate' a face de fora dele (V309A 1-A / 3-B no P1).
-    # Para continua terminando na face do pilar.
+    # Para continua terminando na face do pilar — exceto face C/D (G10).
     # Diagonal (Caso 8): cada face ate' onde a propria linha vai.
     ext_start, ext_end = scene.face_extent.get(side, (scene.start, scene.end))
-    if behavior == "passa":
-        def _wall(sup: dict) -> bool:
-            # Pilar entre duas vigas colineares: so' a mais profunda o engloba
-            # (dono 2026-09-28); a que cede para na face.
-            if sup.get("cede_para"):
-                return False
-            return not (sup.get("miolo_por_lado") or {}).get(side, False)
 
-        for sup in scene.end_supports["start"]:
-            if (sup.get("type") == "pilar" and sup.get("end", -1e9) >= scene.start - 1.0
-                    and _wall(sup)):
-                ext_start = min(ext_start, sup.get("engloba_ini", sup["start"]))
-                pillar_events.append(dict(sup, extremidade="inicio"))
-        for sup in scene.end_supports["end"]:
-            if (sup.get("type") == "pilar" and sup.get("start", 1e9) <= scene.end + 1.0
-                    and _wall(sup)):
-                ext_end = max(ext_end, sup.get("engloba_fim", sup["end"]))
-                pillar_events.append(dict(sup, extremidade="fim"))
+    def _wall(sup: dict) -> bool:
+        # Pilar entre duas vigas colineares: so' a mais profunda o engloba
+        # (dono 2026-09-28); a que cede para na face.
+        if sup.get("cede_para"):
+            return False
+        if (sup.get("miolo_por_lado") or {}).get(side, False):
+            return False
+        # G10/D-48: no Para, so' a ponta que bate numa face C/D (curta) engloba.
+        return behavior == "passa" or bool((sup.get("face_curta_por_lado") or {}).get(side))
+
+    for sup in scene.end_supports["start"]:
+        if (sup.get("type") == "pilar" and sup.get("end", -1e9) >= scene.start - 1.0
+                and _wall(sup)):
+            ext_start = min(ext_start, sup.get("engloba_ini", sup["start"]))
+            pillar_events.append(dict(sup, extremidade="inicio"))
+    for sup in scene.end_supports["end"]:
+        if (sup.get("type") == "pilar" and sup.get("start", 1e9) <= scene.end + 1.0
+                and _wall(sup)):
+            ext_end = max(ext_end, sup.get("engloba_fim", sup["end"]))
+            pillar_events.append(dict(sup, extremidade="fim"))
+    # Ponta que termina NA FACE de um pilar de apoio (nao englobado).
+    stops_at_pillar = {
+        "start": any(
+            s.get("type") == "pilar" and not _wall(s) and abs(s.get("end", -1e9) - ext_start) < 1.0
+            for s in scene.end_supports["start"]
+        ),
+        "end": any(
+            s.get("type") == "pilar" and not _wall(s) and abs(s.get("start", 1e9) - ext_end) < 1.0
+            for s in scene.end_supports["end"]
+        ),
+    }
 
     for inc in scene.incidents[side]:
         own = _own_depth(scene, inc["start"], inc["end"])
@@ -316,9 +336,14 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         if len({z["dim"] for z in zones}) > 1:
             seg.flags.append("G1_degrau_de_secao_no_segmento")
         if behavior == "para":
-            if first_info.get("type") == "pilar":
+            # G9: Para recua 11 onde TERMINA na face de pilar — no meio da viga
+            # e tambem na ponta (pilar de apoio nao englobado pelo G10).
+            lo_stop = abs(a0 - ext_start) < 0.5 and stops_at_pillar["start"]
+            hi_stop = abs(a1 - ext_end) < 0.5 and stops_at_pillar["end"]
+            start_stop, end_stop = (lo_stop, hi_stop) if ascending else (hi_stop, lo_stop)
+            if first_info.get("type") == "pilar" or start_stop:
                 seg.adjustment_start = -PILLAR_OPENING_EXTRA
-            if last_info.get("type") == "pilar":
+            if last_info.get("type") == "pilar" or end_stop:
                 seg.adjustment_end = -PILLAR_OPENING_EXTRA
         for pillar in pillar_events:
             if pillar["end"] <= a0 + 0.5 or pillar["start"] >= a1 - 0.5:
@@ -583,8 +608,91 @@ def apply_lv_cells_all(
             continue
         owners[name] = beam
         report[str(beam.get("name"))] = apply_cells_to_beam(beam, scene)
+    from src.core.lv_beam_scene import _slab_polygons
+    slab_polys = _slab_polygons(slabs)
+    for beam in owners.values():
+        estimate_missing_cell_levels(beam, slab_polys)
     report["__sem_cena__"] = missing
     return report
+
+
+def _cell_entries(beam: dict):
+    for key, slots in (beam.get("links") or {}).items():
+        if not (str(key).startswith("viga_") and isinstance(slots, dict)):
+            continue
+        for entries in slots.values():
+            for entry in entries if isinstance(entries, list) else []:
+                if isinstance(entry, dict) and isinstance(entry.get("lv_cell"), dict) \
+                        and entry.get("geometry_role") == "lateral":
+                    yield entry
+
+
+def estimate_missing_cell_levels(beam: dict, slab_polys: list) -> int:
+    """D-61 (dono 2026-09-27) nas celulas LV: segmento sem laje encostada recebe
+    nivel ESTIMADO, marcado em ``lv_cell['level_estimado']`` (nunca vira medido).
+    Ordem: outro segmento da mesma viga com nivel medido (mesmo lado primeiro,
+    o mais perto) -> laje com nivel mais proxima.
+    """
+    from shapely.geometry import Point
+
+    def _mid(entry):
+        pts = entry.get("points") or []
+        if len(pts) < 2:
+            return None
+        return ((pts[0][0] + pts[-1][0]) / 2.0, (pts[0][1] + pts[-1][1]) / 2.0)
+
+    entries = list(_cell_entries(beam))
+    measured = [
+        e for e in entries
+        if e["lv_cell"].get("level") and not e["lv_cell"].get("level_estimado")
+    ]
+    count = 0
+    for entry in entries:
+        cell = entry["lv_cell"]
+        if cell.get("level"):
+            continue
+        if _cell_is_frozen(beam, str(entry.get("side") or ""), str(entry.get("behavior") or "").lower()):
+            continue  # celula validada por humano nao e' reescrita
+        mid = _mid(entry)
+        if mid is None:
+            continue
+
+        def _dist(other):
+            m = _mid(other)
+            return ((m[0] - mid[0]) ** 2 + (m[1] - mid[1]) ** 2) ** 0.5 if m else 1e18
+
+        src = None
+        for same_side in (True, False):
+            pool = [e for e in measured if (e.get("side") == entry.get("side")) == same_side]
+            if pool:
+                src = min(pool, key=_dist)
+                break
+        if src is not None:
+            cell["level"] = src["lv_cell"]["level"]
+            cell["level_estimado"] = {
+                "origem": "outro_segmento",
+                "de": f"{src.get('contract_id')} seg {src.get('segment_index')}",
+            }
+            count += 1
+            continue
+        best = None
+        for slab, poly in slab_polys:
+            fields = slab.get("fields") or {}
+            raw = fields.get("laje_nivel") or slab.get("laje_nivel") or slab.get("nivel")
+            if _level_value(raw) is None:
+                continue
+            d = poly.distance(Point(mid))
+            if best is None or d < best[0]:
+                best = (d, slab, raw)
+        if best is not None:
+            cell["level"] = f"{_level_value(best[2]):g}"
+            cell["level_estimado"] = {
+                "origem": "laje_mais_proxima",
+                "laje": str(best[1].get("name") or (best[1].get("fields") or {}).get("nome") or ""),
+                "distancia_cm": round(best[0], 1),
+            }
+            count += 1
+    return count
 
 
 def _clear_unfrozen_cells(beam: dict) -> None:
