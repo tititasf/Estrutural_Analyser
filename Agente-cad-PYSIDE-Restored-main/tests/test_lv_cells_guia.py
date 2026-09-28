@@ -209,29 +209,32 @@ def test_pillar_that_nasce_on_this_floor_is_not_solid():
     report = {
         "P42": {"name": "P42", "classification": "NASCE",
                 "points": [(400, 0), (450, 0), (450, 19), (400, 19), (400, 0)]},
-        # 19x60 atravessado: a lateral A bate na face LONGA -> Para para
+        # 80x19 colinear: a lateral corre pela face LONGA (A/B) -> Para para
         "P11": {"name": "P11", "classification": "SEGUE",
-                "points": [(700, 0), (719, 0), (719, 60), (700, 60), (700, 0)]},
+                "points": [(700, 0), (780, 0), (780, 19), (700, 19), (700, 0)]},
     }
     v1 = build_scenes([{"name": "V1"}], texts, lines, report)["V1"]
     assert [p["name"] for p in v1.pillars["A"]] == ["P11"]
     para = segment_cell(v1, "A", "para")
-    assert [(s.start, s.end) for s in para] == [(0.0, 700.0), (719.0, 1000.0)]
+    assert [(s.start, s.end) for s in para] == [(0.0, 700.0), (780.0, 1000.0)]
 
 
 def test_para_never_stops_on_short_face_cd_of_pillar():
-    """G10/D-48 (dono 2026-09-28): Para nunca para nas faces C/D (curtas)."""
+    """G10/D-48 (dono 2026-09-28): Para para nas faces A/B/E..H e passa pelas
+    C/D — a letra e' a da face do pilar por onde a lateral CORRE."""
     lines = _rect(0, 0, 1000, 19)
     texts = [{"text": "V1", "pos": (20.0, 22.0), "rotation": 0.0},
              {"text": "19/55", "pos": (300.0, 22.0), "rotation": 0.0}]
-    # 80x19 colinear com a viga: a lateral bate nos topos de 19 (C/D)
+    # 19x60 atravessado: o lado A corre pela face curta de 19 (C/D) -> passa;
+    # o lado B cortaria o miolo do pilar -> para.
     report = {"P11": {"name": "P11", "classification": "SEGUE",
-                      "points": [(700, 0), (780, 0), (780, 19), (700, 19), (700, 0)]}}
+                      "points": [(700, 0), (719, 0), (719, 60), (700, 60), (700, 0)]}}
     v1 = build_scenes([{"name": "V1"}], texts, lines, report)["V1"]
-    for side in ("A", "B"):
-        para = segment_cell(v1, side, "para")
-        assert [(round(s.start), round(s.end)) for s in para] in ([(0, 1000)], [(1000, 0)])
-        assert para[0].pillar_openings[0]["name"] == "P11"
+    para_a = segment_cell(v1, "A", "para")
+    assert [(round(s.start), round(s.end)) for s in para_a] in ([(0, 1000)], [(1000, 0)])
+    assert para_a[0].pillar_openings[0]["name"] == "P11"
+    para_b = segment_cell(v1, "B", "para")
+    assert len(para_b) == 2
 
 
 def test_pillar_marked_ignore_in_beams_by_preinterpretation_is_not_solid():

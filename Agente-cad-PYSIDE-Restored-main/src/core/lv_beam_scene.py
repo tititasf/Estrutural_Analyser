@@ -677,15 +677,18 @@ def _sections(scene: LvScene, beam: dict, section_texts: list[dict], pillar_text
     scene.sections = zones
 
 
-def _hit_face_is_short(scene: LvScene, poly, axis_value: float, side: str) -> Optional[bool]:
-    """A aresta do pilar onde a lateral BATE em ``axis_value`` e' face curta (C/D)?
+def _side_face_is_short(scene: LvScene, poly, a0: float, a1: float, side: str) -> Optional[bool]:
+    """A face do pilar ao longo da qual a lateral CORRE (paralela a' viga, sobre
+    a linha da face ``side`` em [a0, a1]) e' face curta (C/D)?
 
-    D-48/G10: faces C e D do pilar (as CURTAS) sao sempre ``Passa``. Curta =
-    aresta do comprimento da menor aresta do pilar e bem menor que a maior
-    (so' retangulo: os topos; em L/U as pontas dos ramos sao E..H). Pilar quadrado
-    nao tem face curta pela geometria -> None (fica como hoje, sinalizado).
+    D-48/G10 (dono 2026-09-28): o Para PARA nas faces A/B/E/F/G/H do pilar e
+    passa pelas C/D. A letra e' a da face por onde a lateral corre: pilar
+    colinear (comprido na direcao da viga) corre pela A/B -> para. Curta =
+    aresta do comprimento da menor aresta, bem menor que a maior; so' pilar
+    retangular tem C/D (L/U: E..H -> False). Quadrado ou sem aresta sobre a
+    linha -> None (fica solido, como antes).
     """
-    t_probe = scene.face_t(side) + (0.6 if side == "A" else -0.6)
+    t_face = scene.face_t(side)
     edges: list[tuple[tuple[float, float], tuple[float, float]]] = []
     for g in getattr(poly, "geoms", [poly]):
         ring = getattr(g, "exterior", None)
@@ -716,19 +719,19 @@ def _hit_face_is_short(scene: LvScene, poly, axis_value: float, side: str) -> Op
         return None
     best = None
     for (p, q) in edges:
-        if abs(q[0] - p[0]) > 0.5:
-            continue  # so' arestas perpendiculares ao eixo
-        if abs((p[0] + q[0]) / 2.0 - axis_value) > 1.0:
+        if abs(q[1] - p[1]) > 0.5:
+            continue  # so' arestas PARALELAS ao eixo (a lateral corre ao lado)
+        t_edge = (p[1] + q[1]) / 2.0
+        if abs(t_edge - t_face) > 1.5:
             continue
-        lo, hi = min(p[1], q[1]), max(p[1], q[1])
-        if not (lo - 0.5 <= t_probe <= hi + 0.5):
+        lo, hi = min(p[0], q[0]), max(p[0], q[0])
+        if min(hi, a1) - max(lo, a0) < 0.5:
             continue
-        length = hi - lo
-        if best is None or abs((p[0] + q[0]) / 2.0 - axis_value) < best[0]:
-            best = (abs((p[0] + q[0]) / 2.0 - axis_value), length)
+        if best is None or hi - lo > best:
+            best = hi - lo
     if best is None:
         return None
-    return best[1] <= shortest + 1.0
+    return best <= shortest + 1.0
 
 
 def _face_strips(scene: LvScene, side: str, a0: float, a1: float):
@@ -774,9 +777,8 @@ def _attach_context(
                     interior = over >= 0.5 * (a1 - a0)
                 item = {"name": name, "start": a0, "end": a1,
                         "classification": classification, "miolo": interior,
-                        # G10: faces onde a lateral bate ao chegar por a0 / por a1
-                        "face_ini_curta": _hit_face_is_short(scene, poly, a0, side),
-                        "face_fim_curta": _hit_face_is_short(scene, poly, a1, side)}
+                        # G10: face do pilar por onde a lateral corre e' C/D?
+                        "face_lateral_curta": _side_face_is_short(scene, poly, a0, a1, side)}
                 if classification.strip().upper() in ("", "INDETERMINADO"):
                     item["flag"] = "pilar_classificacao_indeterminada_tratado_como_solido"
                 if a1 <= scene.start + 1.0 or a0 >= scene.end - 1.0:
@@ -786,10 +788,7 @@ def _attach_context(
                         found = dict(item, type="pilar", miolo_por_lado={})
                         scene.end_supports[key].append(found)
                     found.setdefault("miolo_por_lado", {})[side] = interior
-                    # pilar do inicio: a lateral bate na face de a1; do fim, na de a0
-                    found.setdefault("face_curta_por_lado", {})[side] = (
-                        item["face_fim_curta"] if key == "start" else item["face_ini_curta"]
-                    )
+                    found.setdefault("face_curta_por_lado", {})[side] = item["face_lateral_curta"]
                 else:
                     scene.pillars[side].append(item)
         for other in other_scenes:
@@ -907,13 +906,13 @@ def _trim_end_pillars(scene: LvScene) -> None:
             miolo = {"A": bool(item.get("miolo")), "B": bool(twin.get("miolo"))}
             if item["start"] <= scene.start + 1.0 and item["end"] > scene.start + 0.5:
                 scene.start = item["end"]
-                curta = {"A": item.get("face_fim_curta"), "B": twin.get("face_fim_curta")}
+                curta = {"A": item.get("face_lateral_curta"), "B": twin.get("face_lateral_curta")}
                 scene.end_supports["start"].append(dict(item, type="pilar", miolo_por_lado=miolo,
                                                         face_curta_por_lado=curta))
                 changed = True
             elif item["end"] >= scene.end - 1.0 and item["start"] < scene.end - 0.5:
                 scene.end = item["start"]
-                curta = {"A": item.get("face_ini_curta"), "B": twin.get("face_ini_curta")}
+                curta = {"A": item.get("face_lateral_curta"), "B": twin.get("face_lateral_curta")}
                 scene.end_supports["end"].append(dict(item, type="pilar", miolo_por_lado=miolo,
                                                       face_curta_por_lado=curta))
                 changed = True

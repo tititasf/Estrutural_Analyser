@@ -109,15 +109,13 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         # Para para na face do pilar; Passa corre pela PAREDE do pilar, mas se a
         # face passaria pelo MIOLO do pilar, para tambem (dono 2026-09-26).
         # G10/D-48 (dono 2026-09-28): Para NUNCA para nas faces C/D (curtas) —
-        # so' nas A/B/E/F/G/H; ali o pilar e' tratado como Passa.
-        curtas = (pillar.get("face_ini_curta"), pillar.get("face_fim_curta"))
-        g10 = behavior == "para" and all(curtas)
+        # so' nas A/B/E/F/G/H. A letra e' a da face por onde a lateral CORRE
+        # (pilar colinear corre pela A/B -> para); na C/D o pilar e' Passa.
+        g10 = behavior == "para" and pillar.get("face_lateral_curta") is True
         if (behavior == "para" and not g10) or pillar.get("miolo"):
             info = dict(pillar, type="pilar")
             if behavior == "passa" or g10:
                 info["rule"] = "passa_nao_atravessa_miolo_do_pilar"
-            elif any(curtas):
-                flags_global.append(f"G10_face_curta_so_de_um_lado:{pillar['name']}")
             hard.append((pillar["start"], pillar["end"], info))
         else:
             pillar_events.append(dict(pillar, rule="G10_face_curta_CD_sempre_passa") if g10 else pillar)
