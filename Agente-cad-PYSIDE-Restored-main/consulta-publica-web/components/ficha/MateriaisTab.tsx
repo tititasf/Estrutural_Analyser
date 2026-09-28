@@ -34,7 +34,7 @@ interface MateriaisTabProps {
 const fmt = (n: number, casas = 1) =>
   n.toLocaleString("pt-BR", { minimumFractionDigits: 0, maximumFractionDigits: casas });
 
-function Grupo({ grupo }: { grupo: GrupoMateriais }) {
+function Grupo({ grupo, laje }: { grupo: GrupoMateriais; laje: boolean }) {
   if (!grupo.disponivel) {
     return (
       <section className={styles.grupo}>
@@ -58,19 +58,29 @@ function Grupo({ grupo }: { grupo: GrupoMateriais }) {
           <div className={styles.tabelaWrap}>
             <table className={`${styles.tabela} tabular-nums`}>
               <thead>
-                <tr><th>Nº</th>{temFace && <th>Face</th>}<th>Largura (cm)</th><th>Altura (cm)</th><th>Qtd</th></tr>
+                <tr>
+                  <th>Nº</th>
+                  <th className={styles.esq}>ID Painel</th>
+                  {temFace && <th>Face</th>}
+                  <th>Largura (cm)</th>
+                  <th>Altura (cm)</th>
+                  {laje && <th className={styles.esq}>Classe de painel</th>}
+                  {laje && <th>Pode ser reaproveitado</th>}
+                </tr>
               </thead>
               <tbody>
                 {paineis.map((p, i) => (
-                  <tr key={i}>
-                    <td>{faixas(p.numeros)}</td>
+                  <tr key={p.id ?? i}>
+                    <td>{p.numero ?? faixas(p.numeros)}</td>
+                    <td className={`${styles.esq} ${styles.idPainel}`}>{p.id ?? "—"}</td>
                     {temFace && <td>{p.face}</td>}
                     <td>{fmt(p.largura_cm)}</td>
-                    <td>{fmt(p.altura_cm)}</td>
                     <td>
-                      {p.quantidade}
+                      {fmt(p.altura_cm)}
                       {p.recortado && <span className={styles.tag} title="Painel com recorte: medida é o retângulo envolvente">recortado</span>}
                     </td>
+                    {laje && <td className={styles.esq}>{p.classe}</td>}
+                    {laje && <td>{p.reaproveitavel ? "Sim" : "Não"}</td>}
                   </tr>
                 ))}
               </tbody>
@@ -212,7 +222,7 @@ export function MateriaisTab({ code, ativo }: MateriaisTabProps) {
         <>
           <p className={styles.fonte}>Quantidades medidas no desenho técnico (N3).</p>
           {dados.grupos.map((g) => (
-            <Grupo key={g.titulo} grupo={g} />
+            <Grupo key={g.titulo} grupo={g} laje={dados.tipo === "laje"} />
           ))}
         </>
       )}

@@ -46,8 +46,11 @@ def test_sarrafo_duplicado_conta_uma_vez_e_bitola_vem_da_layer(tmp_path):
 def test_plano_de_corte_barras_e_chapas():
     from services.plano_de_corte import barras_necessarias, chapas_necessarias
 
-    # 150+150 cabem numa barra de 300; 120 abre a 2ª; 350 = emenda (300 + 50).
-    b = barras_necessarias([150, 150, 120, 350])
+    # Perda de 1 cm por corte também na barra: 150 + 149 cabe em 300, 150 + 150 não.
+    assert barras_necessarias([150, 149])["barras"] == 1
+    assert barras_necessarias([150, 150])["barras"] == 2
+    # Peça que ocupa a barra inteira não tem corte; 350 = emenda (300 + 50).
+    b = barras_necessarias([300, 350])
     assert (b["barras"], b["emendas"]) == (3, 1)
     # 2 painéis 122x122: o corte entre eles come 1 cm → 2 chapas.
     assert chapas_necessarias([(122, 122)] * 2)["chapas"] == 2
@@ -68,6 +71,8 @@ def test_layout_da_chapa_numera_pecas_e_nao_sobrepoe():
                            {"largura_cm": 19, "altura_cm": 255, "quantidade": 1, "recortado": False}]}]
     c = compra_de_grupos(grupos)["chapas"]
     assert grupos[0]["paineis"][0]["numeros"] == [1, 2, 3]
+    # A otimização usa o mínimo: 3 x 88 x 122 + 19 x 255 cabem em 2 chapas.
+    assert c["chapas"] == 2
     rotulos = sorted(p["rotulo"] for ch in c["layout"] for p in ch["pecas"])
     assert rotulos == ["1", "2", "3", "4a", "4b"]
     for ch in c["layout"]:
@@ -76,3 +81,49 @@ def test_layout_da_chapa_numera_pecas_e_nao_sobrepoe():
         for i, a in enumerate(r):
             for b in r[i + 1:]:
                 assert min(a[2], b[2]) - max(a[0], b[0]) <= 0.05 or min(a[3], b[3]) - max(a[1], b[1]) <= 0.05
+
+
+def test_otimizacao_acha_o_minimo_que_uma_ordem_so_perde():
+    from services.plano_de_corte import chapas_necessarias
+
+    # 4 x 120 x 60 + 4 x 120 x 60 = área de ~1,93 chapa; 2 chapas é o mínimo
+    # (2 colunas de 120 + 1 cm de corte ≤ 244; 60 + 1 + 60 ≤ 122).
+    assert chapas_necessarias([(120, 60)] * 8)["chapas"] == 2
+    # Plano determinístico: mesma entrada, mesmo layout.
+    pecas = [(194, 102), (161.5, 20), (50, 20), (244, 122), (80, 40), (30, 110)]
+    assert chapas_necessarias(pecas) == chapas_necessarias(pecas)
+
+
+def test_laje_tira_hachurada_nao_e_reaproveitavel_e_todo_painel_tem_id(tmp_path):
+    from services.materiais_service import identificar_paineis, prefixo_id_painel
+
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    # Painel 194 x 102 em cima de uma tira 194 x 20 hachurada.
+    for y in (0, 20, 122):
+        msp.add_line((0, y), (194, y), dxfattribs={"layer": "Painéis"})
+    for x in (0, 194):
+        msp.add_line((x, 0), (x, 122), dxfattribs={"layer": "Painéis"})
+    h = msp.add_hatch(dxfattribs={"layer": "Hachura"})
+    h.paths.add_polyline_path([(0, 0), (194, 0), (194, 20), (0, 20)], is_closed=True)
+    path = tmp_path / "laje.dxf"
+    doc.saveas(path)
+
+    grupo = {"titulo": "Painéis", "disponivel": True, **medir_dxf(path)}
+    row = {"obra_id": "obra_treino_1", "pavimento": "13_PAV", "tipo_elemento": "laje",
+           "item_id": "L301", "classe": "lajes"}
+    prefixo = prefixo_id_painel(row)
+    assert prefixo == "TREINO_1-13PAV-LAJ-L301"
+    identificar_paineis([grupo], prefixo, laje=True)
+    p1, p2 = grupo["paineis"]  # ordem de leitura: de cima p/ baixo
+    assert (p1["altura_cm"], p1["classe"], p1["reaproveitavel"]) == (102.0, "Painel comum", True)
+    assert (p2["altura_cm"], p2["classe"], p2["reaproveitavel"]) == (20.0, "Tira de escoramento", False)
+    assert [p["id"] for p in grupo["paineis"]] == ["TREINO_1-13PAV-LAJ-L301-P01", "TREINO_1-13PAV-LAJ-L301-P02"]
+
+
+def test_id_do_pilar_carrega_o_modo():
+    from services.materiais_service import prefixo_id_painel
+
+    row = {"obra_id": "obra_treino_1", "pavimento": "13_PAV", "tipo_elemento": "pilar",
+           "item_id": "P1_Passa", "classe": "pilares_n3_passa"}
+    assert prefixo_id_painel(row) == "TREINO_1-13PAV-PIL-P1PASSA"

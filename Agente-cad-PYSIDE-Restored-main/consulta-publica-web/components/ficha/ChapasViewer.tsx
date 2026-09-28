@@ -130,7 +130,7 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
             const fs = Math.max(3, Math.min(14, menor * 0.35));
             return (
               <g key={p.rotulo}>
-                <title>{`Painel ${p.rotulo} · ${p.origem} · ${fmt(p.largura_cm)} × ${fmt(p.altura_cm)} cm${p.girado ? " (girado)" : ""}`}</title>
+                <title>{`Painel ${p.rotulo}${p.id ? ` · ${p.id}` : ""} · ${p.origem} · ${fmt(p.largura_cm)} × ${fmt(p.altura_cm)} cm${p.girado ? " (girado)" : ""}`}</title>
                 <rect
                   x={p.x}
                   y={p.y}
@@ -162,7 +162,7 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
       <div className={styles.tabelaWrap}>
         <table className={`${styles.tabela} tabular-nums`}>
           <thead>
-            <tr><th>Nº</th><th className={styles.esq}>Painel de</th><th>Corte (cm)</th></tr>
+            <tr><th>Nº</th><th className={styles.esq}>ID Painel</th><th className={styles.esq}>Painel de</th><th>Corte (cm)</th></tr>
           </thead>
           <tbody>
             {[...chapa.pecas]
@@ -173,6 +173,7 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
                     <span className={styles.bolinha} style={{ background: cor(p.origem) }} />
                     {p.rotulo}
                   </td>
+                  <td className={`${styles.esq} ${styles.idPainel}`}>{p.id || "—"}</td>
                   <td className={styles.esq}>{p.origem}</td>
                   <td>
                     {fmt(p.largura_cm)} × {fmt(p.altura_cm)}
@@ -183,6 +184,7 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
             {chapa.sobras.map((s) => (
               <tr key={s.rotulo} className={styles.linhaSobra}>
                 <td>{s.rotulo}</td>
+                <td className={styles.esq}>—</td>
                 <td className={styles.esq}>Sobra</td>
                 <td>{fmt(s.largura_cm)} × {fmt(s.altura_cm)}</td>
               </tr>

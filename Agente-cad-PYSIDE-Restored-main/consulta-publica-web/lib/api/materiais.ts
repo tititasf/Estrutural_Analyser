@@ -8,6 +8,13 @@ export interface PainelMedido {
   quantidade: number;
   /** Numeração do painel no item (casa com o rótulo no plano de corte). */
   numeros?: number[];
+  numero?: number;
+  /** ID rastreável do painel: {OBRA}-{PAV}-{CLASSE}-{ITEM}-P{nn}. */
+  id?: string;
+  /** Laje: "Painel comum" | "Tira de escoramento". */
+  classe?: string;
+  /** Tira de escoramento não volta ao estoque; painel comum sim. */
+  reaproveitavel?: boolean;
   /** Célula não retangular (recorte de viga, laje poligonal). */
   recortado: boolean;
 }
@@ -35,6 +42,8 @@ export interface GrupoMateriais {
 export interface PecaNaChapa {
   rotulo: string;
   origem: string;
+  /** ID do painel (faixa de emenda herda o ID + letra). */
+  id?: string;
   x: number;
   y: number;
   largura_cm: number;
@@ -69,6 +78,7 @@ export interface CompraBarras {
 export interface MateriaisData {
   tipo: string;
   fonte?: string;
+  prefixo_id?: string;
   grupos: GrupoMateriais[];
   /** Material de compra: plano de corte das peças (chapa 244x122, barra 3 m). */
   compra?: { chapas: CompraChapas | null; barras: CompraBarras[] };

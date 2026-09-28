@@ -98,14 +98,21 @@ def medir_dxf(path: Path) -> dict:
     from shapely.geometry import LineString
     from shapely.ops import polygonize, unary_union
 
+    from ezdxf import bbox
+
     msp = ezdxf.readfile(str(path)).modelspace()
     linhas: list = []
+    hachuras: list[tuple[float, float, float, float]] = []
     pecas: dict[str, list[float]] = {}
     vistas: set = set()
     duplicados = 0
     for e in msp:
         layer = e.dxf.layer
-        if _PAINEL.match(layer):
+        if e.dxftype() == "HATCH":
+            ext = bbox.extents([e])
+            if ext.has_data:
+                hachuras.append((ext.extmin.x, ext.extmin.y, ext.extmax.x, ext.extmax.y))
+        elif _PAINEL.match(layer):
             linhas += [LineString(s) for s in _segmentos_da_entidade(e) if math.dist(*s) > 0.5]
         elif _SARRAFO.match(layer) and e.dxftype() in ("LINE", "LWPOLYLINE", "INSERT"):
             chave = (layer, e.dxftype(), _assinatura(e))
@@ -117,7 +124,9 @@ def medir_dxf(path: Path) -> dict:
             if comp > 0.5:
                 pecas.setdefault(_nome_bitola(layer), []).append(round(comp, _TOL))
 
-    paineis: Counter = Counter()
+    # 1 linha por painel físico, em ordem de leitura do desenho (de cima p/
+    # baixo, da esquerda p/ a direita): o nº e o ID seguem o que se vê no N3.
+    celulas: list[tuple] = []
     recortados = 0
     area_cm2 = 0.0
     if linhas:
@@ -129,13 +138,19 @@ def medir_dxf(path: Path) -> dict:
             retangulo = abs(pol.area - w * h) < 0.02 * w * h
             recortados += 0 if retangulo else 1
             area_cm2 += pol.area
-            paineis[(round(w, _TOL), round(h, _TOL), retangulo)] += 1
+            c = pol.representative_point()
+            # Tira de escoramento: a LJ hachura a faixa estreita da união
+            # (`_add_narrow_panel_hatches`, layer Hachura/REAPROVEITAMENTO).
+            tira = any(a - 0.5 <= c.x <= b + 0.5 and d - 0.5 <= c.y <= e + 0.5
+                       for a, d, b, e in hachuras)
+            celulas.append((-round(y1), round(x0), round(w, _TOL), round(h, _TOL), not retangulo, tira))
+    celulas.sort()
     return {
         "paineis": [
-            {"largura_cm": w, "altura_cm": h, "quantidade": n, "recortado": not ret}
-            for (w, h, ret), n in sorted(paineis.items(), key=lambda kv: (-kv[0][0] * kv[0][1]))
+            {"largura_cm": w, "altura_cm": h, "quantidade": 1, "recortado": rec, "tira": tira}
+            for _, _, w, h, rec, tira in celulas
         ],
-        "paineis_total": sum(paineis.values()),
+        "paineis_total": len(celulas),
         "paineis_recortados": recortados,
         "paineis_area_m2": round(area_cm2 / 1e4, 2),
         "sarrafos": [
@@ -201,22 +216,20 @@ def _paineis_do_contrato_pilar(dxf: Path) -> Optional[dict]:
         return None
     larguras = _larguras_desenhadas_das_faces(dxf)
     casou = len(larguras) == len(faces)
-    contagem: Counter = Counter()
+    paineis: list[dict] = []
     area = 0.0
     for i, f in enumerate(faces):
         largura = larguras[i] if casou else round(sum(
             float(pj.get(f"larg{k}_{f}") or 0) for k in (1, 2, 3)), _TOL)
-        for h in pj[f"paineis_intervals_{f}"]:
+        for h in pj[f"paineis_intervals_{f}"]:  # pilha de baixo p/ cima
             h = round(float(h or 0), _TOL)
             if h >= 3:
-                contagem[(f, largura, h)] += 1
+                paineis.append({"face": f, "largura_cm": largura, "altura_cm": h,
+                                "quantidade": 1, "recortado": False})
                 area += largura * h
     return {
-        "paineis": [
-            {"face": f, "largura_cm": w, "altura_cm": h, "quantidade": n, "recortado": False}
-            for (f, w, h), n in sorted(contagem.items())
-        ],
-        "paineis_total": sum(contagem.values()),
+        "paineis": paineis,
+        "paineis_total": len(paineis),
         "paineis_recortados": 0,
         "paineis_area_m2": round(area / 1e4, 2),
         "largura_da_face": "desenhada" if casou else "ficha (desenho não separou as faces)",
@@ -285,5 +298,48 @@ def obter_materiais(row, dados_obras_root: Path) -> Optional[dict]:
         return {"tipo": tipo, "grupos": []}
     from services.plano_de_corte import compra_de_grupos
 
-    return {"tipo": tipo, "fonte": "medido no DXF N3 desenhado", "grupos": grupos,
-            "compra": compra_de_grupos(grupos)}
+    prefixo = prefixo_id_painel(row)
+    identificar_paineis(grupos, prefixo, laje=tipo == "laje")
+    return {"tipo": tipo, "fonte": "medido no DXF N3 desenhado", "prefixo_id": prefixo,
+            "grupos": grupos, "compra": compra_de_grupos(grupos)}
+
+
+_CLASSE_ID = {"pilar": "PIL", "viga_lateral": "LV", "viga_fundo": "FV", "laje": "LAJ"}
+
+
+def _token(s: str) -> str:
+    return re.sub(r"[^A-Z0-9.]", "", str(s).upper())
+
+
+def prefixo_id_painel(row) -> str:
+    """`{OBRA}-{PAV}-{CLASSE}-{ITEM}`: identifica de onde o painel saiu, para
+    rastrear o reaproveitamento no próximo pavimento. Pilar carrega o modo
+    (P1PASSA ≠ P1PARA); LV carrega o modo do código, quando houver."""
+    obra = re.sub(r"^OBRA[_-]?", "", str(row["obra_id"] or "").upper())
+    obra = re.sub(r"[^A-Z0-9_]", "", obra.replace("-", "_")) or "OBRA"
+    item = str(row["item_id"])
+    tipo = row["tipo_elemento"]
+    if tipo == "pilar":
+        modo = "passa" if row["classe"] == "pilares_n3_passa" else "para"
+        item = item.removesuffix("_Para").removesuffix("_Passa") + modo
+    elif tipo == "viga_lateral":
+        modo = payload_do_row(row).get("modo")
+        item = str(payload_do_row(row).get("viga") or item) + (str(modo) if modo else "")
+    return "-".join([obra, _token(row["pavimento"]), _CLASSE_ID.get(tipo, _token(tipo)), _token(item)])
+
+
+def identificar_paineis(grupos: list[dict], prefixo: str, *, laje: bool = False) -> None:
+    """Numera cada painel do item (1..N, através dos grupos) e dá o ID
+    `{prefixo}-P{nn}`. Na laje, a faixa hachurada é tira de escoramento: não
+    volta para o estoque; painel comum pode ser reaproveitado."""
+    n = 0
+    for g in grupos:
+        if not g.get("disponivel"):
+            continue
+        for p in g.get("paineis") or []:
+            n += 1
+            p["numero"] = n
+            p["id"] = f"{prefixo}-P{n:02d}"
+            tira = laje and bool(p.get("tira"))
+            p["classe"] = "Tira de escoramento" if tira else "Painel comum"
+            p["reaproveitavel"] = not tira
