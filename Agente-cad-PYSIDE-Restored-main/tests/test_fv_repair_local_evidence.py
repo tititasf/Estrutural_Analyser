@@ -106,3 +106,18 @@ def test_cruzamento_corta_nas_paredes_da_viga_funda_nao_no_rotulo():
         own_dim_text="19/55", context_beams=[v312], own_name="V301",
     )
     assert spans == [(1503.4, 1603.4), (1622.4, 1722.4)]
+
+
+def test_face_interrompida_nao_alarga_o_fundo_alem_do_vao():
+    # 13_PAV VPS: V301 S6 é 2377-2477; as faces vêm de 2059 e param em
+    # 2461.9. O contorno fica no vão canônico, não na extensão da linha.
+    faces = [[(2059.4, 2991.0), (2461.9, 2991.0)],
+             [(2059.4, 3010.0), (2461.9, 3010.0)]]
+    pts = FundoVigaInterpreter.build_area_contour(
+        axial_span=(2377.4, 2477.4), width=19.0, is_horizontal=True,
+        transverse_center=3000.5, boundary_lines=faces, allow_synthetic=False,
+    )
+    xs = [p[0] for p in pts]
+    ys = [p[1] for p in pts]
+    assert (min(xs), max(xs)) == (2377.4, 2477.4)
+    assert (min(ys), max(ys)) == (2991.0, 3010.0)

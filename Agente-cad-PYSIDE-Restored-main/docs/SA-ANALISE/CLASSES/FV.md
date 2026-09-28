@@ -68,6 +68,11 @@ ou terminar área FV. Confirmar a convenção PIL antes de classificar o encontr
 4. **Conferir contra a vizinha colinear.** Vigas paralelas cortadas pelas mesmas vigas
    (V301/V302) têm as mesmas coordenadas de corte; divergência de poucos cm = corte
    pelo rótulo ou por linha interrompida.
+5. **Vão canônico manda; a linha só ancora a faixa.** Ao reancorar um contorno nas faces
+   (`build_area_contour`), o comprimento vem sempre do vão canônico, mesmo quando a
+   parede termina antes. Usar a extensão da linha fez a V301 S6 da VPS virar 2059–2462,
+   sobreposta ao S5, e o gate não vê (o contorno fica sobre a linha). Segmentos da mesma
+   viga nunca se sobrepõem: confira isso junto com o gate.
 
 ## 3. Diagnóstico N1×N2 e barreira S5
 

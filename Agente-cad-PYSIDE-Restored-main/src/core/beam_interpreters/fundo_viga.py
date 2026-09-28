@@ -641,12 +641,15 @@ class FundoVigaInterpreter:
 
                 first_min, first_max = face_extent(first)
                 second_min, second_max = face_extent(second)
-                # se a face cobre bem o vão pedido, recorta ao span canônico
-                covers = (
-                    min(first_min, second_min) - 1.0 <= start
-                    and max(first_max, second_max) + 1.0 >= end
+                # Face que toca o vão pedido: recorta ao span canônico, mesmo
+                # quando ela termina antes (parede interrompida). Devolver a
+                # extensão da própria linha sobrepunha o segmento vizinho
+                # (V301 S6 virava 2059-2462 por cima do S5, VPS 2026-09-28).
+                touches = (
+                    min(first_min, second_min) - 1.0 <= end
+                    and max(first_max, second_max) + 1.0 >= start
                 )
-                if covers:
+                if touches:
                     return cls._rectangle_on_transverse_strip(
                         axial_span=(start, end),
                         is_horizontal=is_horizontal,
