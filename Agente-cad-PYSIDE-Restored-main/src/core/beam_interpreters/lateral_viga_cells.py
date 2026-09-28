@@ -123,17 +123,21 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
     ext_start, ext_end = scene.face_extent.get(side, (scene.start, scene.end))
     if behavior == "passa":
         def _wall(sup: dict) -> bool:
+            # Pilar entre duas vigas colineares: so' a mais profunda o engloba
+            # (dono 2026-09-28); a que cede para na face.
+            if sup.get("cede_para"):
+                return False
             return not (sup.get("miolo_por_lado") or {}).get(side, False)
 
         for sup in scene.end_supports["start"]:
             if (sup.get("type") == "pilar" and sup.get("end", -1e9) >= scene.start - 1.0
                     and _wall(sup)):
-                ext_start = min(ext_start, sup["start"])
+                ext_start = min(ext_start, sup.get("engloba_ini", sup["start"]))
                 pillar_events.append(dict(sup, extremidade="inicio"))
         for sup in scene.end_supports["end"]:
             if (sup.get("type") == "pilar" and sup.get("start", 1e9) <= scene.end + 1.0
                     and _wall(sup)):
-                ext_end = max(ext_end, sup["end"])
+                ext_end = max(ext_end, sup.get("engloba_fim", sup["end"]))
                 pillar_events.append(dict(sup, extremidade="fim"))
 
     for inc in scene.incidents[side]:

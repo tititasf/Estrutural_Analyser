@@ -995,8 +995,12 @@ def _face_hull(scene: LvScene):
 
 def _oblique_ends(scene: LvScene, others: list[LvScene]) -> tuple[str, ...]:
     """Pontas de uma viga ORTOGONAL que encostam numa diagonal (canto em esquadro obliquo)."""
+    return tuple(_oblique_end_neighbours(scene, others))
+
+
+def _oblique_end_neighbours(scene: LvScene, others: list[LvScene]) -> dict[str, LvScene]:
     reach = 3.0 * scene.width
-    ends = []
+    ends: dict[str, LvScene] = {}
     for end, (a0, a1) in (("start", (scene.start - reach, scene.start + 0.5)),
                           ("end", (scene.end - 0.5, scene.end + reach))):
         probe = (box(a0, scene.t_lo, a1, scene.t_hi) if scene.is_horizontal
@@ -1012,9 +1016,139 @@ def _oblique_ends(scene: LvScene, others: list[LvScene]) -> tuple[str, ...]:
                 minx, miny, maxx, maxy = hit.bounds
                 span = (maxy - miny) if scene.is_horizontal else (maxx - minx)
                 if span >= 0.5 * scene.width:
-                    ends.append(end)
+                    ends[end] = o
                     break
-    return tuple(ends)
+    return ends
+
+
+CORNER_STUB_SOURCE = "trecho_de_canto_em_L"
+
+
+def _corner_stubs_beyond_pillar(
+    scenes: list[LvScene], pillars: list[tuple[str, str, Any]],
+) -> list[tuple[str, LvScene]]:
+    """Canto em L (ortogonal x diagonal) com PILAR entre o rotulo e o canto.
+
+    Dono 2026-09-28 (V309 x V307 no P25): a viga termina na propria
+    delimitacao — o pilar. O trecho pilar -> canto ja' nao e' continuacao dela,
+    e' da outra viga (a diagonal que faz o L). A ortogonal passa a comecar no
+    pilar e o trecho vira um TRECHO a mais da diagonal, sobre a faixa da
+    ortogonal (mesmo mecanismo da viga em L com dois rotulos). Sem pilar entre
+    rotulo e canto vale a regra v7: a face de fora vai ate' o canto de fora.
+    """
+    stubs: list[tuple[str, LvScene]] = []
+    for scene in scenes:
+        if scene.angle or not scene.labels:
+            continue
+        pos = scene.labels[0]["pos"]
+        label_axis = float(pos[0] if scene.is_horizontal else pos[1])
+        strip = scene.rect(-1e7, 1e7, scene.t_lo + 0.2, scene.t_hi - 0.2)
+        spans = []
+        for _, _, poly in pillars:
+            inter = poly.intersection(strip)
+            if not inter.is_empty and inter.area > 1e-6:
+                spans.append(scene.axis_bounds(inter))
+        for end, diag in _oblique_end_neighbours(scene, scenes).items():
+            ext = {s: scene.face_extent.get(s, (scene.start, scene.end)) for s in ("A", "B")}
+            if end == "start":
+                cand = [s for s in spans if s[0] >= scene.start - 1.0 and s[1] <= label_axis]
+                if not cand:
+                    continue
+                cut = min(cand)[0]
+                corner = {s: ext[s][0] for s in ext}
+            else:
+                cand = [s for s in spans if s[1] <= scene.end + 1.0 and s[0] >= label_axis]
+                if not cand:
+                    continue
+                cut = max(cand, key=lambda s: s[1])[1]
+                corner = {s: ext[s][1] for s in ext}
+            if abs(cut - (scene.start if end == "start" else scene.end)) < 1.0:
+                continue  # pilar ja' encosta no canto: nao sobra trecho
+            # O lado X do trecho tem de continuar o lado X da diagonal (a face
+            # que chega no mesmo canto). Lados trocados: nao repassa (sinaliza).
+            diag_ext = {s: diag.face_extent.get(s, (diag.start, diag.end)) for s in ("A", "B")}
+            matches = []
+            for side in ("A", "B"):
+                cx, cy = scene.point(corner[side], side)
+                matches.append(min(
+                    (math.hypot(cx - px, cy - py), other, k)
+                    for other in ("A", "B")
+                    for k, (px, py) in enumerate(
+                        (diag.point(diag_ext[other][0], other), diag.point(diag_ext[other][1], other)))
+                ) + (side,))
+            if any(m[1] != m[3] for m in matches):
+                scene.provenance.setdefault("canto_em_L_nao_repassado", []).append(
+                    {"ponta": end, "viga": diag.beam_name, "motivo": "lados_trocados"})
+                continue
+            zones = sorted(diag.sections, key=lambda z: z["start"])
+            # ponta da diagonal que encosta no canto -> secao daquela ponta
+            zone = (zones[0] if matches[0][2] == 0 else zones[-1]) if zones else None
+            lo, hi = (scene.start, cut) if end == "start" else (cut, scene.end)
+            stub = LvScene(diag.beam_name, scene.is_horizontal, scene.t_lo, scene.t_hi, lo, hi)
+            stub.face_extent = {
+                s: ((corner[s], cut) if end == "start" else (cut, corner[s])) for s in ("A", "B")
+            }
+            stub.face_coverage = scene.face_coverage
+            stub.dimension_coverage = scene.dimension_coverage
+            stub.sections = [dict(zone, start=lo, end=hi, end_source=CORNER_STUB_SOURCE)] if zone else []
+            stub.provenance = {
+                "band_source": CORNER_STUB_SOURCE,
+                "viga_da_faixa": scene.beam_name,
+                "regra": "canto_em_L_alem_do_pilar_e_da_outra_viga",
+            }
+            # A ortogonal comeca na face de LA' do pilar (o pilar vira apoio de
+            # ponta dela: Para para na face, Passa engloba).
+            far = min(cand)[1] if end == "start" else max(cand, key=lambda s: s[1])[0]
+            if end == "start":
+                scene.start = far
+            else:
+                scene.end = far
+            for side in ("A", "B"):
+                lo_s, hi_s = ext[side]
+                scene.face_extent[side] = (far, hi_s) if end == "start" else (lo_s, far)
+            scene.provenance.setdefault("canto_em_L_repassado", []).append(
+                {"ponta": end, "viga": diag.beam_name, "ate_pilar": round(cut, 2)})
+            stubs.append((diag.beam_name, stub))
+    return stubs
+
+
+def _end_depth(scene: LvScene, end: str) -> Optional[float]:
+    zones = sorted(scene.sections, key=lambda z: z["start"])
+    if not zones:
+        return None
+    return float((zones[0] if end == "start" else zones[-1])["depth"])
+
+
+def _cede_shared_end_pillars(scenes: list[LvScene]) -> None:
+    """Passa: pilar entre duas vigas COLINEARES, cada uma encostando de um lado.
+
+    Dono 2026-09-28: so' a MAIS PROFUNDA engloba o pilar (a lateral dela
+    tapa o pilar); a outra para na face. Mesma altura: as duas mantem.
+    """
+    for sc in scenes:
+        for end in ("start", "end"):
+            mine = _end_depth(sc, end)
+            for sup in sc.end_supports[end]:
+                if sup.get("type") != "pilar":
+                    continue
+                for other in scenes:
+                    if other.beam_name == sc.beam_name or abs(other.axis_angle - sc.axis_angle) > 1.0:
+                        continue
+                    if abs(other.t_lo - sc.t_lo) > 1.0 or abs(other.t_hi - sc.t_hi) > 1.0:
+                        continue
+                    for oend in ("start", "end"):
+                        if not any(s.get("type") == "pilar" and s.get("name") == sup.get("name")
+                                   for s in other.end_supports[oend]):
+                            continue
+                        theirs = _end_depth(other, oend)
+                        if mine is not None and theirs is not None and theirs > mine + 0.01:
+                            sup["cede_para"] = other.beam_name
+                            # Pilar oco em pecas (P27): a mais profunda engloba
+                            # o pilar INTEIRO, inclusive a peca do lado cedido.
+                            for s in other.end_supports[oend]:
+                                if s.get("type") == "pilar" and s.get("name") == sup.get("name"):
+                                    s["engloba_ini"] = min(s.get("engloba_ini", s["start"]), sup["start"])
+                                    s["engloba_fim"] = max(s.get("engloba_fim", s["end"]), sup["end"])
 
 
 def _diagonal_face_extents(scene: LvScene, others: list[LvScene],
@@ -1177,8 +1311,18 @@ def build_scene_runs(
             ends = _oblique_ends(scene, others)
             if ends:
                 _diagonal_face_extents(scene, others, ends)
+    stubs = _corner_stubs_beyond_pillar(others, pillars)
     for scene in others:
         _attach_context(scene, pillars, others, slab_polys)
+    for owner, stub in stubs:
+        _attach_context(stub, pillars, others, slab_polys)
+        # O pilar e' a delimitacao da viga da faixa: o trecho de canto para
+        # na face dele tambem no Passa.
+        for sup in stub.end_supports["start"] + stub.end_supports["end"]:
+            if sup.get("type") == "pilar":
+                sup["cede_para"] = stub.provenance["viga_da_faixa"]
+        runs.setdefault(owner, []).append(stub)
+    _cede_shared_end_pillars([sc for scs in runs.values() for sc in scs])
     return runs
 
 

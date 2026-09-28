@@ -170,6 +170,26 @@ def test_collinear_beams_split_at_pillar_between_labels_not_at_label_text():
     assert [s.length for s in para] == [300.0]
 
 
+def test_passa_shared_pillar_goes_to_deeper_collinear_beam():
+    """V328 x V329 no P27 (dono 2026-09-28): so' a viga mais profunda engloba
+    o pilar no Passa; a outra para na face."""
+    lines = _rect(0, 0, 1000, 19)
+    texts = [
+        {"text": "V1", "pos": (100.0, 22.0), "rotation": 0.0},
+        {"text": "19/40", "pos": (150.0, 22.0), "rotation": 0.0},
+        {"text": "V2", "pos": (700.0, 22.0), "rotation": 0.0},
+        {"text": "19/60", "pos": (750.0, 22.0), "rotation": 0.0},
+    ]
+    # pilar oco em duas pecas rentes a' faixa (P27): a mais profunda leva as duas
+    pillars = {"P1": {"name": "P1", "points": [(300, 0), (360, 0), (360, 19), (300, 19), (300, 0)]},
+               "P1b": {"name": "P1", "points": [(440, 0), (500, 0), (500, 19), (440, 19), (440, 0)]}}
+    scenes = build_scenes([{"name": "V1"}, {"name": "V2"}], texts, lines, pillars)
+    v1 = segment_cell(scenes["V1"], "A", "passa")
+    v2 = segment_cell(scenes["V2"], "A", "passa")
+    assert max(s.end for s in v1) == 300.0
+    assert min(s.start for s in v2) == 300.0
+
+
 def test_segment_off_structural_line_is_flagged():
     """Invariante do dono: destaque que nao esta' sobre linha do estrutural e' erro."""
     scene = _scene()
