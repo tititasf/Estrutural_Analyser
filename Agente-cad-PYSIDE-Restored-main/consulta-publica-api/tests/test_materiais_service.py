@@ -54,3 +54,21 @@ def test_plano_de_corte_barras_e_chapas():
     assert chapas_necessarias([(88, 122)] * 3)["chapas"] == 2
     c = chapas_necessarias([(19, 255)])
     assert (c["chapas"], c["emendas"]) == (1, 1)
+
+
+def test_layout_da_chapa_numera_pecas_e_nao_sobrepoe():
+    from services.plano_de_corte import compra_de_grupos
+
+    grupos = [{"titulo": "Lado A", "disponivel": True, "sarrafos": [],
+               "paineis": [{"largura_cm": 88, "altura_cm": 122, "quantidade": 3, "recortado": False},
+                           {"largura_cm": 19, "altura_cm": 255, "quantidade": 1, "recortado": False}]}]
+    c = compra_de_grupos(grupos)["chapas"]
+    assert grupos[0]["paineis"][0]["numeros"] == [1, 2, 3]
+    rotulos = sorted(p["rotulo"] for ch in c["layout"] for p in ch["pecas"])
+    assert rotulos == ["1", "2", "3", "4a", "4b"]
+    for ch in c["layout"]:
+        r = [(p["x"], p["y"], p["x"] + p["largura_cm"], p["y"] + p["altura_cm"]) for p in ch["pecas"]]
+        assert all(x1 <= 244.05 and y1 <= 122.05 for _, _, x1, y1 in r)
+        for i, a in enumerate(r):
+            for b in r[i + 1:]:
+                assert min(a[2], b[2]) - max(a[0], b[0]) <= 0.05 or min(a[3], b[3]) - max(a[1], b[1]) <= 0.05

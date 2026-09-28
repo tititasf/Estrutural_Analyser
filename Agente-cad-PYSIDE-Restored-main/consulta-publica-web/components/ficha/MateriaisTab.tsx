@@ -3,7 +3,25 @@
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { buscarMateriais, type GrupoMateriais, type MateriaisData } from "@/lib/api/materiais";
+import { ChapasViewer } from "./ChapasViewer";
 import styles from "./MateriaisTab.module.css";
+
+/** [1,2,3,5] → "1–3, 5" */
+function faixas(nums?: number[]): string {
+  if (!nums || nums.length === 0) return "—";
+  const out: string[] = [];
+  let ini = nums[0];
+  let ant = nums[0];
+  for (const n of [...nums.slice(1), NaN]) {
+    if (n === ant + 1) {
+      ant = n;
+      continue;
+    }
+    out.push(ini === ant ? `${ini}` : `${ini}–${ant}`);
+    ini = ant = n;
+  }
+  return out.join(", ");
+}
 
 type Estado = "loading" | "ok" | "ausente";
 
@@ -39,11 +57,12 @@ function Grupo({ grupo }: { grupo: GrupoMateriais }) {
           <div className={styles.tabelaWrap}>
             <table className={`${styles.tabela} tabular-nums`}>
               <thead>
-                <tr>{temFace && <th>Face</th>}<th>Largura (cm)</th><th>Altura (cm)</th><th>Qtd</th></tr>
+                <tr><th>Nº</th>{temFace && <th>Face</th>}<th>Largura (cm)</th><th>Altura (cm)</th><th>Qtd</th></tr>
               </thead>
               <tbody>
                 {paineis.map((p, i) => (
                   <tr key={i}>
+                    <td>{faixas(p.numeros)}</td>
                     {temFace && <td>{p.face}</td>}
                     <td>{fmt(p.largura_cm)}</td>
                     <td>{fmt(p.altura_cm)}</td>
@@ -128,6 +147,9 @@ function Compra({ compra }: { compra: NonNullable<MateriaisData["compra"]> }) {
           </tbody>
         </table>
       </div>
+      {compra.chapas?.layout && compra.chapas.layout.length > 0 && (
+        <ChapasViewer layout={compra.chapas.layout} />
+      )}
       <p className={styles.nota}>
         Plano de corte das peças abaixo: painéis de chapa 244 × 122 cm, sarrafos de barra de 3 m.
         Sem perda de serra nem quebra — é o mínimo para cortar o que está desenhado.

@@ -56,52 +56,79 @@ def _encaixa(w: float, h: float, W: float, H: float) -> bool:
     return w <= W + 0.05 and h <= H + 0.05
 
 
-def chapas_necessarias(pecas: list[tuple[float, float]]) -> dict:
-    """pecas = [(largura, altura), ...] em cm."""
+def chapas_necessarias(pecas: list[tuple]) -> dict:
+    """pecas = [(largura, altura[, rotulo, origem]), ...] em cm.
+
+    Devolve também o `layout`: por chapa, onde cada peça é cortada (x, y a
+    partir do canto superior esquerdo, já na orientação de corte) e as sobras.
+    Peça maior que a chapa vira faixas `7a`, `7b`... (emenda)."""
     emendas = 0
-    itens: list[tuple[float, float]] = []
-    for w, h in pecas:
+    itens: list[tuple[float, float, str, str]] = []
+    for i, pc in enumerate(pecas):
+        w, h = float(pc[0]), float(pc[1])
+        rotulo = str(pc[2]) if len(pc) > 2 else str(i + 1)
+        origem = str(pc[3]) if len(pc) > 3 else ""
         if _encaixa(w, h, CHAPA_W, CHAPA_H) or _encaixa(h, w, CHAPA_W, CHAPA_H):
-            itens.append((w, h))
+            itens.append((w, h, rotulo, origem))
             continue
         # Maior que a chapa: faixas pelo lado maior (≤244) e pelo menor (≤122).
         emendas += 1
         a, b = max(w, h), min(w, h)
         na, nb = math.ceil(a / CHAPA_W - 1e-6), math.ceil(b / CHAPA_H - 1e-6)
-        for i in range(na):
-            for j in range(nb):
-                itens.append((min(CHAPA_W, a - i * CHAPA_W), min(CHAPA_H, b - j * CHAPA_H)))
+        k = 0
+        for ia in range(na):
+            for jb in range(nb):
+                itens.append((min(CHAPA_W, a - ia * CHAPA_W), min(CHAPA_H, b - jb * CHAPA_H),
+                              f"{rotulo}{chr(97 + k)}", origem))
+                k += 1
 
-    chapas: list[list[tuple[float, float]]] = []  # retângulos livres por chapa
-    for w, h in sorted(itens, key=lambda r: (-max(r), -min(r))):
+    # Por chapa: retângulos livres (x, y, W, H) e peças cortadas.
+    livres: list[list[tuple[float, float, float, float]]] = []
+    cortes: list[list[dict]] = []
+    for w, h, rotulo, origem in sorted(itens, key=lambda r: (-max(r[:2]), -min(r[:2]))):
         melhor = None
-        for ci, livres in enumerate(chapas):
-            for ri, (W, H) in enumerate(livres):
+        for ci, rects in enumerate(livres):
+            for ri, (_, _, W, H) in enumerate(rects):
                 for pw, ph in ((w, h), (h, w)):
                     if _encaixa(pw, ph, W, H):
                         folga = min(W - pw, H - ph)
                         if melhor is None or folga < melhor[0]:
                             melhor = (folga, ci, ri, pw, ph)
         if melhor is None:
-            chapas.append([(CHAPA_W, CHAPA_H)])
-            ci, ri = len(chapas) - 1, 0
+            livres.append([(0.0, 0.0, CHAPA_W, CHAPA_H)])
+            cortes.append([])
+            ci, ri = len(livres) - 1, 0
             pw, ph = (w, h) if _encaixa(w, h, CHAPA_W, CHAPA_H) else (h, w)
         else:
             _, ci, ri, pw, ph = melhor
-        W, H = chapas[ci].pop(ri)
+        x, y, W, H = livres[ci].pop(ri)
+        cortes[ci].append({"rotulo": rotulo, "origem": origem, "x": round(x, 1), "y": round(y, 1),
+                           "largura_cm": round(pw, 1), "altura_cm": round(ph, 1),
+                           "girado": abs(pw - w) > 0.05})
         # Corte guilhotina pelo eixo da sobra menor (mantém a maior inteira).
         if W - pw < H - ph:
-            novos = [(W - pw, ph), (W, H - ph)]
+            novos = [(x + pw, y, W - pw, ph), (x, y + ph, W, H - ph)]
         else:
-            novos = [(W - pw, H), (pw, H - ph)]
-        chapas[ci] += [r for r in novos if r[0] > 0.5 and r[1] > 0.5]
-    area = sum(w * h for w, h in itens)
-    n = len(chapas)
+            novos = [(x + pw, y, W - pw, H), (x, y + ph, pw, H - ph)]
+        livres[ci] += [r for r in novos if r[2] > 0.5 and r[3] > 0.5]
+    area = sum(w * h for w, h, _, _ in itens)
+    n = len(livres)
+    layout = []
+    for ci in range(n):
+        usada = sum(c["largura_cm"] * c["altura_cm"] for c in cortes[ci])
+        layout.append({
+            "chapa": ci + 1,
+            "aproveitamento": round(usada / (CHAPA_W * CHAPA_H), 3),
+            "pecas": cortes[ci],
+            "sobras": [{"x": round(x, 1), "y": round(y, 1), "largura_cm": round(W, 1),
+                        "altura_cm": round(H, 1)} for x, y, W, H in livres[ci]],
+        })
     return {
         "chapas": n,
         "chapa_cm": [CHAPA_W, CHAPA_H],
         "aproveitamento": round(area / (n * CHAPA_W * CHAPA_H), 3) if n else 0.0,
         "emendas": emendas,
+        "layout": layout,
     }
 
 
@@ -118,13 +145,20 @@ def material_da_bitola(bitola: str) -> str:
 def compra_de_grupos(grupos: list[dict]) -> dict:
     """Material de compra de 1 item: as peças de todos os grupos saem do
     mesmo estoque (sobra de um lado corta peça do outro)."""
-    paineis: list[tuple[float, float]] = []
+    paineis: list[tuple] = []
     por_material: dict[str, list[float]] = {}
+    numero = 0
     for g in grupos:
         if not g.get("disponivel"):
             continue
+        # Numeração única dos painéis no item (1..N), gravada na linha da
+        # lista (`numeros`) para casar com o rótulo no desenho da chapa.
         for p in g.get("paineis") or []:
-            paineis += [(p["largura_cm"], p["altura_cm"])] * int(p["quantidade"])
+            nums = list(range(numero + 1, numero + int(p["quantidade"]) + 1))
+            numero += len(nums)
+            p["numeros"] = nums
+            origem = g["titulo"] + (f" · face {p['face']}" if p.get("face") else "")
+            paineis += [(p["largura_cm"], p["altura_cm"], n, origem) for n in nums]
         for s in g.get("sarrafos") or []:
             mat = material_da_bitola(s["bitola"])
             for c in s["cortes"]:

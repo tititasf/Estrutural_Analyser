@@ -6,6 +6,8 @@ export interface PainelMedido {
   largura_cm: number;
   altura_cm: number;
   quantidade: number;
+  /** Numeração do painel no item (casa com o rótulo no plano de corte). */
+  numeros?: number[];
   /** Célula não retangular (recorte de viga, laje poligonal). */
   recortado: boolean;
 }
@@ -30,11 +32,29 @@ export interface GrupoMateriais {
   sarrafos_duplicados_ignorados?: number;
 }
 
+export interface PecaNaChapa {
+  rotulo: string;
+  origem: string;
+  x: number;
+  y: number;
+  largura_cm: number;
+  altura_cm: number;
+  girado: boolean;
+}
+
+export interface ChapaLayout {
+  chapa: number;
+  aproveitamento: number;
+  pecas: PecaNaChapa[];
+  sobras: { x: number; y: number; largura_cm: number; altura_cm: number }[];
+}
+
 export interface CompraChapas {
   material: string;
   chapas: number;
   aproveitamento: number;
   emendas: number;
+  layout?: ChapaLayout[];
 }
 
 export interface CompraBarras {

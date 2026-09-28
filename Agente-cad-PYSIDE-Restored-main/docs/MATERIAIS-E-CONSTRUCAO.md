@@ -121,6 +121,12 @@ e só mede o ABCD/Grades daquele modo.
   cortar o que está desenhado. O aproveitamento (%) aparece ao lado.
 - As peças de todos os grupos do item saem do mesmo estoque (sobra do lado A
   corta peça do lado B).
+- **Numeração:** cada painel do item recebe um número único (1..N), mostrado na
+  coluna "Nº" da lista de painéis. Painel maior que a chapa vira faixas `4a`, `4b`.
+- **Viewer de chapas:** uma mini-aba por chapa comprada; desenha a chapa
+  244 × 122 com cada peça na posição de corte (x, y a partir do canto superior
+  esquerdo), o número do painel, a medida e a sobra hachurada. Tabela ao lado:
+  nº, de onde é o painel (lado/face), corte e posição. Pan/zoom por viewBox.
 
 ## 7. Divergências e defeitos conhecidos (medidos em 28/09, 13_PAV)
 
@@ -156,4 +162,5 @@ e só mede o ABCD/Grades daquele modo.
 | Plano de corte | `consulta-publica-api/services/plano_de_corte.py` |
 | Endpoint | `GET /api/v1/ficha/{code}/materiais` (`routers/materiais_routes.py`) |
 | Aba no portal | `consulta-publica-web/components/ficha/MateriaisTab.tsx` |
+| Viewer de chapas | `consulta-publica-web/components/ficha/ChapasViewer.tsx` |
 | Testes | `consulta-publica-api/tests/test_materiais_service.py` |
