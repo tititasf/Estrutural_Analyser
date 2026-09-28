@@ -90,3 +90,19 @@ def test_parede_partida_por_viga_que_chega_continua_cobrindo_o_vao():
         transverse_center=3797.9, boundary_lines=left + right, allow_synthetic=False)
     ys = [p[1] for p in pts]
     assert (min(ys), max(ys)) == (1982.0, 2380.0)
+
+
+def test_cruzamento_corta_nas_paredes_da_viga_funda_nao_no_rotulo():
+    # 13_PAV: V312 (19/120) rotulada em x=1599.6, paredes em 1603.4/1622.4.
+    v312 = {"name": "V312", "is_h": False, "dim": "19/120", "pos": (1599.6, 2695.0),
+            "geometry": {"classified": {
+                "merged_bottom_groups_coords": [(2680.0, 3141.0)],
+                "seg_bottom": [[(1603.4, 2991.0), (1603.4, 2680.0)],
+                               [(1622.4, 2680.0), (1622.4, 2991.0)],
+                               [(1622.4, 3010.0), (1622.4, 3141.0)],
+                               [(1603.4, 3141.0), (1603.4, 3010.0)]]}}}
+    spans = FundoVigaInterpreter.split_bottom_spans_at_deeper_crossings(
+        [(1503.4, 1722.4)], is_horizontal=True, beam_pos=(1212.9, 3013.8),
+        own_dim_text="19/55", context_beams=[v312], own_name="V301",
+    )
+    assert spans == [(1503.4, 1603.4), (1622.4, 1722.4)]

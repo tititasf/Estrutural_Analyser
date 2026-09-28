@@ -2009,6 +2009,16 @@ class FundoVigaInterpreter:
             if not reaches:
                 continue  # o outro feixe não se estende até este ponto
             other_axis_pos = float(other_pos[axis])
+            walls = cls._crossing_walls(
+                other,
+                label_pos=other_axis_pos,
+                width=other_width,
+                own_transverse_pos=own_transverse_pos,
+                reach=own_width + 1.0,
+            )
+            if walls is not None:
+                crossing_zones.append((walls[0], walls[1], other_width))
+                continue
             crossing_zones.append(
                 (other_axis_pos - other_half_width, other_axis_pos + other_half_width, other_width)
             )
@@ -2040,6 +2050,50 @@ class FundoVigaInterpreter:
         return sorted(result)
 
     _DEEPER_CROSSING_RATIO = 1.5
+
+    @classmethod
+    def _crossing_walls(
+        cls,
+        other: dict,
+        *,
+        label_pos: float,
+        width: float,
+        own_transverse_pos: float,
+        reach: float,
+    ) -> tuple[float, float] | None:
+        """Par de paredes do fundo da viga que cruza, no eixo da viga cortada.
+
+        O rotulo fica ao lado da viga, nao no eixo: a V312 do 13_PAV e'
+        rotulada em x=1599.6 mas as paredes estao em 1603.4/1622.4; cortar
+        por rotulo +- meia largura encurtava a V301 S2 para 1590.1. Vale o par
+        de linhas de fundo que chega ate' esta viga, com vao igual a largura
+        da secao (25%), mais perto do rotulo. None = sem par; fica o rotulo.
+        """
+        other_is_h = bool(other.get("is_h", True))
+        other_axis = 0 if other_is_h else 1
+        classified = (other.get("geometry") or {}).get("classified") or {}
+        faces: set[float] = set()
+        for line in classified.get("seg_bottom") or []:
+            points = cls._clean_polyline_points(line)
+            if len(points) < 2:
+                continue
+            along = [point[other_axis] for point in points]
+            if not (min(along) - reach <= own_transverse_pos <= max(along) + reach):
+                continue
+            faces.add(round(cls._line_transverse(points, is_horizontal=other_is_h), 3))
+        ordered = sorted(faces)
+        best: tuple[float, float] | None = None
+        for i, low in enumerate(ordered):
+            for high in ordered[i + 1:]:
+                if abs((high - low) - width) > 0.25 * width:
+                    continue
+                if best is None or abs((low + high) / 2.0 - label_pos) < abs(
+                    (best[0] + best[1]) / 2.0 - label_pos
+                ):
+                    best = (low, high)
+        if best is None or abs((best[0] + best[1]) / 2.0 - label_pos) > 3.0 * width:
+            return None
+        return best
 
     @classmethod
     def _coords_as_tuples(cls, coords: Iterable[Interval]) -> list[Interval]:

@@ -51,6 +51,24 @@ Para cada segmento, a ficha em `fundos_viga/<Vxxx>.html` oferece **dois SVGs**:
 Pilar com convenção **nasce** não é sólido neste pavimento: não pode cortar, iniciar
 ou terminar área FV. Confirmar a convenção PIL antes de classificar o encontro.
 
+**Como não errar (caso V301 S2 × P42, 2026-09-28 — D-65):**
+
+1. **Reconhecer o NASCE pela convenção do pavimento, não pelo desenho solto.** O recorte
+   `convencao_pilares_*.dxf` diz qual símbolo é NASCE/SEGUE/MORRE (no 13_PAV: **X** =
+   NASCE). Pilar desenhado com esse símbolo não existe como sólido aqui.
+2. **Linha interrompida pelo X não é limite do fundo.** As paredes do fundo costumam ser
+   desenhadas cortadas onde passa o pilar que nasce; o fundo **ignora o pilar e segue até
+   topar a viga** (ou o apoio sólido) seguinte. Nunca encurtar o contorno até a ponta da
+   linha nem até a face do X.
+3. **Cruzamento com viga mais funda corta nas PAREDES dela, nunca no rótulo.** O rótulo
+   fica ao lado da viga: V312 rotulada em x=1599,6 tem paredes em 1603,4/1622,4. Zona de
+   corte = par de linhas de fundo da viga que cruza (vão = largura da seção), só na falta
+   desse par usa rótulo ± meia largura (`_crossing_walls`). Cortar pelo rótulo deslocou
+   V301 S2 para 1590,1 e V302 S5–S9 em ~13 cm.
+4. **Conferir contra a vizinha colinear.** Vigas paralelas cortadas pelas mesmas vigas
+   (V301/V302) têm as mesmas coordenadas de corte; divergência de poucos cm = corte
+   pelo rótulo ou por linha interrompida.
+
 ## 3. Diagnóstico N1×N2 e barreira S5
 
 Use `scripts/arete/diagnostico_fv_n1_n2.py` como alarme, não como sentença. Ele
@@ -89,6 +107,7 @@ modelo/agente CLI dá o veredito (agente lê o PNG rasterizado desse SVG (+ `--z
 | obstáculo interno | preservar área e recorte identificado | `fundo_viga` | não tratar texto/objeto visual como vazio |
 | objeto só visual | ignorar sem excluir área estrutural | `fundo_viga` | não gerar furo por proximidade |
 | pilar nasce | ignorar como sólido no pavimento | contexto PIL + FV | não dividir/encurtar fundo |
+| viga mais funda cruza | cortar nas paredes da viga que cruza | `fundo_viga` | não cortar por rótulo ± meia largura |
 | eixo/intervalo bruto errado em várias classes | corrigir captura comum | `BeamTracer` | regressão das 4 classes |
 
 O guia manual protegido é `interpretacao_fundos.html`; ler, nunca editar. V301 é
