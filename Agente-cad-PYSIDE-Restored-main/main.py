@@ -11521,6 +11521,9 @@ class MainWindow(QMainWindow):
                     raw = []
             raw.extend(geo.get('texts', []) or [])
             raw.extend(geo.get('dimension_texts', []) or [])
+            # Secao de pilar empilhada sob o rotulo (P11 / 80/19) nao e' da viga.
+            from src.core.beam_interpreters import FundoVigaInterpreter
+            raw = FundoVigaInterpreter.drop_pillar_section_texts(raw)
             candidates = []
             for item in raw:
                 if not isinstance(item, dict) or 'text' not in item:

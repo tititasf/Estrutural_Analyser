@@ -103,6 +103,8 @@ def _find_segment_dim(seg: dict, beam_pos: tuple, is_horizontal: bool, spatial_i
     coord = seg.get("coord")
     if not coord or not beam_pos:
         return None
+    # FV vertical guarda (topo, base) = (max Y, min Y); a busca exige min..max.
+    coord = (min(coord[0], coord[1]), max(coord[0], coord[1]))
     pad_axis = 120.0
     pad_trans = 260.0
     if is_horizontal:
@@ -110,7 +112,10 @@ def _find_segment_dim(seg: dict, beam_pos: tuple, is_horizontal: bool, spatial_i
     else:
         bbox = (beam_pos[0] - pad_trans, coord[0] - pad_axis, beam_pos[0] + pad_trans, coord[1] + pad_axis)
     candidates = []
-    for t in _query_texts(spatial_index, bbox):
+    # Secao de pilar empilhada sob o rotulo (P11 / 80/19) nao e' da viga.
+    from src.core.beam_interpreters import FundoVigaInterpreter
+    texts = FundoVigaInterpreter.drop_pillar_section_texts(_query_texts(spatial_index, bbox))
+    for t in texts:
         pair = _parse_dim_pair(t.get("text", ""))
         if not pair or not t.get("pos"):
             continue
@@ -657,6 +662,8 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         for cand in cands:
             if isinstance(cand, dict) and 'text' in cand:
                 dim_texts.append(cand)
+        from src.core.beam_interpreters import FundoVigaInterpreter
+        dim_texts = FundoVigaInterpreter.drop_pillar_section_texts(dim_texts)
 
     merged_groups = classified.get("merged_bottom_groups", [])
     merged_lengths = classified.get("merged_bottom_lengths", [])
