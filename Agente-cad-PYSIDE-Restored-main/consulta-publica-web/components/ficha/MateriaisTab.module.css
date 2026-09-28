@@ -158,3 +158,8 @@
   border-radius: 50%;
   margin-right: 6px;
 }
+
+.linhaSobra td {
+  color: var(--fg-muted);
+  font-style: italic;
+}

@@ -24,6 +24,7 @@ function faixas(nums?: number[]): string {
 }
 
 type Estado = "loading" | "ok" | "ausente";
+type SubAba = "pecas" | "compra";
 
 interface MateriaisTabProps {
   code: string;
@@ -150,10 +151,6 @@ function Compra({ compra }: { compra: NonNullable<MateriaisData["compra"]> }) {
       {compra.chapas?.layout && compra.chapas.layout.length > 0 && (
         <ChapasViewer layout={compra.chapas.layout} />
       )}
-      <p className={styles.nota}>
-        Plano de corte das peças abaixo: painéis de chapa 244 × 122 cm, sarrafos de barra de 3 m.
-        Sem perda de serra nem quebra — é o mínimo para cortar o que está desenhado.
-      </p>
     </section>
   );
 }
@@ -165,6 +162,7 @@ function Compra({ compra }: { compra: NonNullable<MateriaisData["compra"]> }) {
 export function MateriaisTab({ code, ativo }: MateriaisTabProps) {
   const [estado, setEstado] = useState<Estado>("loading");
   const [dados, setDados] = useState<MateriaisData | null>(null);
+  const [sub, setSub] = useState<SubAba>("pecas");
 
   useEffect(() => {
     if (!ativo || dados !== null) return;
@@ -197,11 +195,29 @@ export function MateriaisTab({ code, ativo }: MateriaisTabProps) {
   }
   return (
     <div className={styles.wrapper}>
-      <p className={styles.fonte}>Quantidades medidas no desenho técnico (N3).</p>
-      {dados.compra && <Compra compra={dados.compra} />}
-      {dados.grupos.map((g) => (
-        <Grupo key={g.titulo} grupo={g} />
-      ))}
+      <div className={styles.miniAbas} role="tablist" aria-label="Materiais">
+        {([["pecas", "Painéis e sarrafos"], ["compra", "Material de compra"]] as const).map(([v, r]) => (
+          <button
+            key={v}
+            role="tab"
+            aria-selected={sub === v}
+            className={`${styles.miniAba} ${sub === v ? styles.miniAbaAtiva : ""}`}
+            onClick={() => setSub(v)}
+          >
+            {r}
+          </button>
+        ))}
+      </div>
+      {sub === "pecas" && (
+        <>
+          <p className={styles.fonte}>Quantidades medidas no desenho técnico (N3).</p>
+          {dados.grupos.map((g) => (
+            <Grupo key={g.titulo} grupo={g} />
+          ))}
+        </>
+      )}
+      {sub === "compra" &&
+        (dados.compra ? <Compra compra={dados.compra} /> : <p className={styles.nota}>Sem material de compra.</p>)}
     </div>
   );
 }

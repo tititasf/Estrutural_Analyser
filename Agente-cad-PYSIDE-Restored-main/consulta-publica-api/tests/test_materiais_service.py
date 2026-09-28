@@ -49,8 +49,12 @@ def test_plano_de_corte_barras_e_chapas():
     # 150+150 cabem numa barra de 300; 120 abre a 2ª; 350 = emenda (300 + 50).
     b = barras_necessarias([150, 150, 120, 350])
     assert (b["barras"], b["emendas"]) == (3, 1)
-    # 2 painéis 122x122 = 1 chapa; 88x122 x3 = 2 chapas (sobra 68 não cabe 88).
-    assert chapas_necessarias([(122, 122)] * 2)["chapas"] == 1
+    # 2 painéis 122x122: o corte entre eles come 1 cm → 2 chapas.
+    assert chapas_necessarias([(122, 122)] * 2)["chapas"] == 2
+    assert chapas_necessarias([(121.5, 122)] * 2)["chapas"] == 1
+    # Perda de 1 cm por corte: 102 + 20 não cabe em 122; 102 + 19 cabe.
+    assert chapas_necessarias([(194, 102), (194, 20)])["chapas"] == 2
+    assert chapas_necessarias([(194, 102), (194, 19)])["chapas"] == 1
     assert chapas_necessarias([(88, 122)] * 3)["chapas"] == 2
     c = chapas_necessarias([(19, 255)])
     assert (c["chapas"], c["emendas"]) == (1, 1)

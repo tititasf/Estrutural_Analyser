@@ -117,16 +117,19 @@ e só mede o ABCD/Grades daquele modo.
 - **Chapas (2D):** guilhotina, "best short side fit", rotação livre, chapa
   244 × 122. Peça que não cabe em nenhuma orientação é dividida em faixas
   (244 / 122) e contada como **emenda**.
-- Sem perda de serra e sem % de quebra: o número é o **mínimo físico** para
-  cortar o que está desenhado. O aproveitamento (%) aparece ao lado.
+- **Perda de corte na chapa = 1 cm por corte** (horizontal ou vertical, dono
+  28/09): numa faixa de 122 cabem 102 + 19, não 102 + 20. Exemplo L301: 3 chapas
+  sem a perda → **4 com a perda** (o 194 × 102 deixa 49 × 122 e 194 × 19, onde
+  nem o 50 nem o 20 cabem). Barras: ainda sem perda de corte (Q7). Sem % de quebra.
 - As peças de todos os grupos do item saem do mesmo estoque (sobra do lado A
   corta peça do lado B).
 - **Numeração:** cada painel do item recebe um número único (1..N), mostrado na
   coluna "Nº" da lista de painéis. Painel maior que a chapa vira faixas `4a`, `4b`.
 - **Viewer de chapas:** uma mini-aba por chapa comprada; desenha a chapa
   244 × 122 com cada peça na posição de corte (x, y a partir do canto superior
-  esquerdo), o número do painel, a medida e a sobra hachurada. Tabela ao lado:
-  nº, de onde é o painel (lado/face), corte e posição. Pan/zoom por viewBox.
+  esquerdo), o número do painel, a medida e a sobra hachurada e numerada (S1,
+  S2…). Tabela: nº, de onde é o painel (lado/face) ou "Sobra", e a medida.
+  Pan/zoom por viewBox. A aba tem 2 sub-abas: "Painéis e sarrafos" e "Material de compra".
 
 ## 7. Divergências e defeitos conhecidos (medidos em 28/09, 13_PAV)
 
@@ -151,6 +154,7 @@ e só mede o ABCD/Grades daquele modo.
   posiciona) ou 2,2 × 7 (como a layer diz)?
 - **Q5** — Perda: aplicar % de quebra ou perda de serra na compra, ou manter o
   mínimo físico?
+- **Q7** — A perda de 1 cm por corte vale também para sarrafo/pontalete na barra de 3 m?
 - **Q6** — Lista do pavimento: somar a compra por pavimento (reaproveitando
   sobra entre itens) é o que a equipe usa para pedir material?
 

@@ -11,8 +11,8 @@ Heurísticas determinísticas (não ótimas, mas estáveis e explicáveis):
 - 2D (chapas): guilhotina com "best short side fit" e rotação livre; peça que
   não cabe na chapa em nenhuma orientação é dividida em faixas de 244/122 e
   contada como emenda.
-Sem perda de serra (kerf = 0) e sem % de quebra: o número é o mínimo físico
-para cortar o que está desenhado.
+Chapa: cada corte consome PERDA_CORTE_CHAPA (1 cm). Barras: sem perda de
+corte (a confirmar). Sem % de quebra.
 """
 
 from __future__ import annotations
@@ -20,6 +20,9 @@ from __future__ import annotations
 import math
 
 CHAPA_W, CHAPA_H = 244.0, 122.0
+# Cada corte na chapa (horizontal ou vertical) consome 1 cm (dono, 28/09):
+# 102 + 20 não sai de uma faixa de 122 — no máximo 102 + 19.
+PERDA_CORTE_CHAPA = 1.0
 BARRA_CM = 300.0
 
 
@@ -105,11 +108,13 @@ def chapas_necessarias(pecas: list[tuple]) -> dict:
         cortes[ci].append({"rotulo": rotulo, "origem": origem, "x": round(x, 1), "y": round(y, 1),
                            "largura_cm": round(pw, 1), "altura_cm": round(ph, 1),
                            "girado": abs(pw - w) > 0.05})
-        # Corte guilhotina pelo eixo da sobra menor (mantém a maior inteira).
+        # Corte guilhotina pelo eixo da sobra menor (mantém a maior inteira);
+        # cada corte come PERDA_CORTE_CHAPA da sobra ao lado dele.
+        k = PERDA_CORTE_CHAPA
         if W - pw < H - ph:
-            novos = [(x + pw, y, W - pw, ph), (x, y + ph, W, H - ph)]
+            novos = [(x + pw + k, y, W - pw - k, ph), (x, y + ph + k, W, H - ph - k)]
         else:
-            novos = [(x + pw, y, W - pw, H), (x, y + ph, pw, H - ph)]
+            novos = [(x + pw + k, y, W - pw - k, H), (x, y + ph + k, pw, H - ph - k)]
         livres[ci] += [r for r in novos if r[2] > 0.5 and r[3] > 0.5]
     area = sum(w * h for w, h, _, _ in itens)
     n = len(livres)
@@ -120,12 +125,14 @@ def chapas_necessarias(pecas: list[tuple]) -> dict:
             "chapa": ci + 1,
             "aproveitamento": round(usada / (CHAPA_W * CHAPA_H), 3),
             "pecas": cortes[ci],
-            "sobras": [{"x": round(x, 1), "y": round(y, 1), "largura_cm": round(W, 1),
-                        "altura_cm": round(H, 1)} for x, y, W, H in livres[ci]],
+            "sobras": [{"rotulo": f"S{j + 1}", "x": round(x, 1), "y": round(y, 1),
+                        "largura_cm": round(W, 1), "altura_cm": round(H, 1)}
+                       for j, (x, y, W, H) in enumerate(sorted(livres[ci], key=lambda r: -r[2] * r[3]))],
         })
     return {
         "chapas": n,
         "chapa_cm": [CHAPA_W, CHAPA_H],
+        "perda_corte_cm": PERDA_CORTE_CHAPA,
         "aproveitamento": round(area / (n * CHAPA_W * CHAPA_H), 3) if n else 0.0,
         "emendas": emendas,
         "layout": layout,

@@ -46,7 +46,7 @@ export interface ChapaLayout {
   chapa: number;
   aproveitamento: number;
   pecas: PecaNaChapa[];
-  sobras: { x: number; y: number; largura_cm: number; altura_cm: number }[];
+  sobras: { rotulo: string; x: number; y: number; largura_cm: number; altura_cm: number }[];
 }
 
 export interface CompraChapas {

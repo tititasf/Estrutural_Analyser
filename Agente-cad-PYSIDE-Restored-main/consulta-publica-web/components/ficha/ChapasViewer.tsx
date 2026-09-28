@@ -102,9 +102,27 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
             </pattern>
           </defs>
           <rect x={0} y={0} width={CHAPA_W} height={CHAPA_H} className={styles.chapaFundo} />
-          {chapa.sobras.map((s, i) => (
-            <rect key={`s${i}`} x={s.x} y={s.y} width={s.largura_cm} height={s.altura_cm} fill="url(#sobra)" />
-          ))}
+          {chapa.sobras.map((s) => {
+            const menor = Math.min(s.largura_cm, s.altura_cm);
+            return (
+              <g key={s.rotulo}>
+                <title>{`Sobra ${s.rotulo} · ${fmt(s.largura_cm)} × ${fmt(s.altura_cm)} cm`}</title>
+                <rect x={s.x} y={s.y} width={s.largura_cm} height={s.altura_cm} fill="url(#sobra)" />
+                {menor >= 4 && (
+                  <text
+                    x={s.x + s.largura_cm / 2}
+                    y={s.y + s.altura_cm / 2}
+                    fontSize={Math.max(2.5, Math.min(9, menor * 0.3))}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    className={styles.medidaPeca}
+                  >
+                    {s.rotulo}
+                  </text>
+                )}
+              </g>
+            );
+          })}
           {chapa.pecas.map((p) => {
             const cx = p.x + p.largura_cm / 2;
             const cy = p.y + p.altura_cm / 2;
@@ -139,10 +157,12 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
         </svg>
       </div>
 
+      <p className={`${styles.resumo} tabular-nums`}>Aproveitamento {Math.round(chapa.aproveitamento * 100)}%</p>
+
       <div className={styles.tabelaWrap}>
         <table className={`${styles.tabela} tabular-nums`}>
           <thead>
-            <tr><th>Nº</th><th className={styles.esq}>Painel de</th><th>Corte (cm)</th><th>Posição x, y</th></tr>
+            <tr><th>Nº</th><th className={styles.esq}>Painel de</th><th>Corte (cm)</th></tr>
           </thead>
           <tbody>
             {[...chapa.pecas]
@@ -158,16 +178,18 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
                     {fmt(p.largura_cm)} × {fmt(p.altura_cm)}
                     {p.girado && <span className={styles.sub}>girado 90°</span>}
                   </td>
-                  <td>{fmt(p.x)}, {fmt(p.y)}</td>
                 </tr>
               ))}
+            {chapa.sobras.map((s) => (
+              <tr key={s.rotulo} className={styles.linhaSobra}>
+                <td>{s.rotulo}</td>
+                <td className={styles.esq}>Sobra</td>
+                <td>{fmt(s.largura_cm)} × {fmt(s.altura_cm)}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
-      <p className={styles.nota}>
-        Chapa {chapa.chapa}: aproveitamento {Math.round(chapa.aproveitamento * 100)}%. Hachurado = sobra. Roda do mouse aproxima, arrastar move, duplo clique enquadra.
-        Posição a partir do canto superior esquerdo da chapa. Letra no número (4a, 4b) = painel maior que a chapa, em emenda.
-      </p>
     </div>
   );
 }
