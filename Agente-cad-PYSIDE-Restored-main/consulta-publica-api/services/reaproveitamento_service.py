@@ -32,7 +32,10 @@ import logging
 import os
 import re
 import tempfile
+import sqlite3
 import threading
+import time
+from concurrent.futures import ThreadPoolExecutor
 from collections import Counter
 from pathlib import Path
 from typing import Optional
@@ -351,30 +354,36 @@ def _pecas_fora_de_painel(grupo: dict) -> list[tuple[str, float]]:
     return [pc for pc, n in total.items() for _ in range(max(n, 0))]
 
 
-def alocar_pavimento(tipo: str, itens: list[dict], anterior: dict, antigo: dict) -> dict:
-    """`anterior`/`antigo` = {"montados": [...], "chapas": [...], "barras": [...]}
-    (listas consumidas aqui). Devolve alocação por painel, compra por item e
-    os retalhos novos."""
+def alocar_pavimento(classes: dict[str, list[dict]], anterior: dict, antigo: dict) -> dict:
+    """Aloca um pavimento inteiro de um cenário (Para ou Passa, D-78).
+
+    `classes` = {classe: itens}. `anterior`/`antigo` = estoque:
+        montados  {classe: [...]}  painel montado — só volta na própria classe
+        limpas    [...]            sobra limpa de chapa (sem sarrafo) — qualquer classe (D-75)
+        da_classe {classe: [...]}  retalho de painel montado (leva sarrafo) — só na classe
+        barras    {classe: [...]}  sobra de barra (sarrafo)
+    Montados: etapas por classe. Sobras: os maiores painéis pendentes de TODAS
+    as classes escolhem primeiro (D-77). As listas de sobras são consumidas e
+    estendidas aqui (o resto de uma sobra cortada continua no estoque)."""
     aloc: dict[str, dict] = {}
-    retalhos: list[dict] = []
+    retalhos: dict[str, list[dict]] = {c: [] for c in classes}
     usados: set[str] = set()
 
-    def pendentes(item, maiores_primeiro=False):
-        ps = [p for p in item["paineis"] if p["id"] not in aloc]
-        return sorted(ps, key=_area, reverse=True) if maiores_primeiro else ps
-
-    def registra(p, etapa, fonte, info, tipo_fonte):
+    def registra(p, etapa, fonte, info, tipo_fonte, cls):
         aloc[p["id"]] = {"etapa": etapa, "fonte_id": fonte.get("id"), "fonte_tipo": tipo_fonte,
                          "fonte_item": fonte.get("titulo") or fonte.get("item"),
                          "fonte_pavimento": fonte.get("pavimento"),
+                         "fonte_classe": fonte.get("classe"),
                          "fonte_medida": [fonte.get("largura_cm"), fonte.get("altura_cm")],
                          "corte": info.get("corte")}
         usados.add(fonte.get("id"))
-        for n, (rw, rh) in enumerate(info.get("retalhos") or [], 1):
-            retalhos.append({"id": f"{fonte.get('id')}-R{n}", "tipo": "chapa", "material": "Retalho de painel",
-                             "largura_cm": rw, "altura_cm": rh, "retalho_de": fonte.get("id")})
+        if tipo_fonte == "montado":  # retalho de painel montado leva sarrafo: fica na classe
+            for n, (rw, rh) in enumerate(info.get("retalhos") or [], 1):
+                retalhos[cls].append({"id": f"{fonte.get('id')}-R{n}", "tipo": "chapa",
+                                      "material": "Retalho de painel montado", "classe": cls,
+                                      "largura_cm": rw, "altura_cm": rh, "retalho_de": fonte.get("id")})
 
-    def melhor_montado(p, pool, cortar):
+    def melhor_montado(tipo, p, pool, cortar):
         cand = []
         for s in pool:
             if s["id"] in usados:
@@ -384,166 +393,255 @@ def alocar_pavimento(tipo: str, itens: list[dict], anterior: dict, antigo: dict)
                 cand.append((_area(s), s, info))
         return min(cand, key=lambda c: c[0])[1:] if cand else None
 
-    montados_ant = [s for s in anterior.get("montados", []) if s.get("reaproveitavel", True)]
-    por_chave: dict[str, list[dict]] = {}
-    for s in montados_ant:
-        por_chave.setdefault(s["chave"], []).append(s)
+    def pendentes(itens, maiores_primeiro=False):
+        ps = [p for it in itens for p in it["paineis"] if p["id"] not in aloc]
+        return sorted(ps, key=_area, reverse=True) if maiores_primeiro else ps
 
-    # 1 / 1.5 — próprio item (todos os itens antes da etapa seguinte)
-    for etapa, cortar in (("1", False), ("1.5", True)):
-        for item in itens:
-            for p in pendentes(item, cortar):
-                achado = melhor_montado(p, por_chave.get(item["chave"], []), cortar)
-                if achado:
-                    registra(p, etapa, achado[0], achado[1], "montado")
-    # Lista temporária: montados que os donos não usaram.
-    temporaria = [s for s in montados_ant if s["id"] not in usados]
-    for etapa, cortar in (("2", False), ("2.5", True)):
-        for item in itens:
-            for p in pendentes(item, cortar):
-                achado = melhor_montado(p, temporaria, cortar)
-                if achado:
-                    registra(p, etapa, achado[0], achado[1], "montado")
+    def tipo_de(itens):
+        return itens[0]["tipo"] if itens else ""
 
-    def por_sobras(etapa_ig, etapa_corte, chapas):
+    # 1 / 1.5 — próprio item; 2 / 2.5 — montados que os donos não usaram.
+    # Cada etapa roda para todos os itens da classe antes da seguinte.
+    for cls, itens in classes.items():
+        montados = [s for s in anterior["montados"].get(cls, []) if s.get("reaproveitavel", True)]
+        por_chave: dict[str, list[dict]] = {}
+        for s in montados:
+            por_chave.setdefault(s["chave"], []).append(s)
+        for etapa, cortar in (("1", False), ("1.5", True)):
+            for it in itens:
+                for p in sorted([p for p in it["paineis"] if p["id"] not in aloc], key=_area, reverse=cortar):
+                    achado = melhor_montado(tipo_de(itens), p, por_chave.get(it["chave"], []), cortar)
+                    if achado:
+                        registra(p, etapa, achado[0], achado[1], "montado", cls)
+        temporaria = [s for s in montados if s["id"] not in usados]
+        for etapa, cortar in (("2", False), ("2.5", True)):
+            for p in pendentes(itens, cortar):
+                achado = melhor_montado(tipo_de(itens), p, temporaria, cortar)
+                if achado:
+                    registra(p, etapa, achado[0], achado[1], "montado", cls)
+
+    def por_sobras(etapa_ig, etapa_corte, est):
         for etapa, cortar in ((etapa_ig, False), (etapa_corte, True)):
-            for item in itens:
-                for p in pendentes(item, True):
-                    cand = []
-                    for s in chapas:
+            pend = sorted(((cls, p) for cls, itens in classes.items() for p in pendentes(itens)),
+                          key=lambda cp: _area(cp[1]), reverse=True)
+            for cls, p in pend:
+                cand = []
+                for pool in (est["limpas"], est["da_classe"].setdefault(cls, [])):
+                    for s in pool:
                         if s["id"] in usados:
                             continue
                         info = _encaixe_sobra(s, p, cortar)
                         if info is not None:
                             W, H = _ret_sobra(s)
-                            cand.append((W * H, s, info))
-                    if not cand:
-                        continue
-                    _, s, info = min(cand, key=lambda c: c[0])
-                    registra(p, etapa, s, info, "sobra")
-                    # O que sobra da sobra continua disponível na mesma etapa.
-                    for rw, rh in info["retalhos"]:
-                        chapas.append({"id": f"{s['id']}.{len([c for c in chapas if c['id'].startswith(s['id'] + '.')]) + 1}",
-                                       "tipo": "chapa", "material": s.get("material"),
-                                       "largura_cm": rw, "altura_cm": rh, "pavimento": s.get("pavimento")})
-                    retalhos[:] = [r for r in retalhos if r.get("retalho_de") != s["id"]]
+                            cand.append((W * H, s["id"], s, info, pool))
+                if not cand:
+                    continue
+                _, _, s, info, pool = min(cand, key=lambda c: (c[0], c[1]))
+                registra(p, etapa, s, info, "sobra", cls)
+                # O resto da sobra continua disponível, com a mesma natureza.
+                filhos = sum(1 for c in pool if c["id"].startswith(s["id"] + "."))
+                for n, (rw, rh) in enumerate(info["retalhos"], filhos + 1):
+                    pool.append({"id": f"{s['id']}.{n}", "tipo": "chapa", "material": s.get("material"),
+                                 "classe": s.get("classe"), "largura_cm": rw, "altura_cm": rh,
+                                 "pavimento": s.get("pavimento")})
 
-    chapas_ant = anterior.get("chapas", [])
-    por_sobras("3", "3.5", chapas_ant)
-
-    # 4 / 4.5 — estoque antigo: montados, depois sobras.
-    antigos = [s for s in antigo.get("montados", []) if s.get("reaproveitavel", True)]
-    for etapa, cortar in (("4", False), ("4.5", True)):
-        for item in itens:
-            for p in pendentes(item, cortar):
-                achado = melhor_montado(p, antigos, cortar)
+    por_sobras("3", "3.5", anterior)
+    # 4 / 4.5 — estoque antigo: montados (por classe), depois sobras.
+    for cls, itens in classes.items():
+        antigos = [s for s in antigo["montados"].get(cls, []) if s.get("reaproveitavel", True)]
+        for etapa, cortar in (("4", False), ("4.5", True)):
+            for p in pendentes(itens, cortar):
+                achado = melhor_montado(tipo_de(itens), p, antigos, cortar)
                 if achado:
-                    registra(p, etapa, achado[0], achado[1], "montado")
-    chapas_antigas = antigo.get("chapas", [])
-    por_sobras("4", "4.5", chapas_antigas)
+                    registra(p, etapa, achado[0], achado[1], "montado", cls)
+    por_sobras("4", "4.5", antigo)
 
-    # Material novo + sarrafos (sobras de barra primeiro).
-    barras = [dict(b) for b in anterior.get("barras", []) + antigo.get("barras", []) if b["id"] not in usados]
+    # Material novo + sarrafos (sobras de barra da classe primeiro).
+    tem_estoque = any(anterior["montados"].values()) or any(antigo["montados"].values()) \
+        or bool(anterior["limpas"] or antigo["limpas"])
     compras: dict[str, dict] = {}
-    for item in itens:
-        pecas: list[tuple[str, float]] = []
-        grupos_novo = []
-        for g in item["grupos"]:
-            if not g.get("disponivel"):
-                continue
-            novos = []
-            for p in g.get("paineis") or []:
-                a = aloc.get(p.get("id"))
-                if a is None:
-                    novos.append(p)
-                    aloc[p["id"]] = {"etapa": "novo"}
-                    pecas += _pecas_sarrafo(p.get("sarrafos") or [])
-                elif a["fonte_tipo"] == "sobra":  # chapa reaproveitada, sarrafo novo
-                    pecas += _pecas_sarrafo(p.get("sarrafos") or [])
-            pecas += _pecas_fora_de_painel(g)
-            grupos_novo.append({"titulo": g["titulo"], "disponivel": True, "paineis": novos, "sarrafos": []})
-        de_sobra = []
-        restantes: list[tuple[str, float]] = []
-        for bitola, comp in sorted(pecas, key=lambda pc: -pc[1]):
-            mat = material_da_bitola(bitola)
-            b = next((b for b in barras if b["material"] == mat and b["comprimento_cm"] + 0.05 >= comp), None)
-            if b is None:
-                restantes.append((bitola, comp))
-                continue
-            de_sobra.append({"sobra_id": b["id"], "bitola": bitola, "comprimento_cm": comp})
-            usados.add(b["id"])
-            b["comprimento_cm"] = round(b["comprimento_cm"] - comp - PERDA_CORTE, 1)
-            if b["comprimento_cm"] <= 0.5:
-                barras.remove(b)
-        por_bitola: dict[str, Counter] = {}
-        for bitola, comp in restantes:
-            por_bitola.setdefault(bitola, Counter())[comp] += 1
-        if grupos_novo:
-            grupos_novo[0]["sarrafos"] = [{"bitola": b, "cortes": [{"comprimento_cm": c, "quantidade": n}
-                                                                   for c, n in sorted(cs.items(), reverse=True)]}
-                                          for b, cs in sorted(por_bitola.items())]
-        prefixo = item["paineis"][0]["id"].rsplit("-", 1)[0] if item["paineis"] else item["item"]
-        # "-N" separa a compra deste cenário da "Preparação com materiais novos";
-        # sem pavimento anterior as duas coincidem e os IDs também.
-        tem_estoque = any(anterior.get(k) or antigo.get(k) for k in ("montados", "chapas", "barras"))
-        compra = compra_de_grupos(grupos_novo, prefixo + ("-N" if tem_estoque else ""))
-        compra["barras_de_sobra"] = de_sobra
-        compras[item["code"]] = compra
+    barras_restantes: dict[str, list[dict]] = {}
+    for cls, itens in classes.items():
+        barras = [dict(b) for b in anterior["barras"].get(cls, []) + antigo["barras"].get(cls, [])]
+        for item in itens:
+            pecas: list[tuple[str, float]] = []
+            grupos_novo = []
+            for g in item["grupos"]:
+                if not g.get("disponivel"):
+                    continue
+                novos = []
+                for p in g.get("paineis") or []:
+                    a = aloc.get(p.get("id"))
+                    if a is None:
+                        novos.append(p)
+                        aloc[p["id"]] = {"etapa": "novo"}
+                        pecas += _pecas_sarrafo(p.get("sarrafos") or [])
+                    elif a["fonte_tipo"] == "sobra":  # chapa reaproveitada, sarrafo novo
+                        pecas += _pecas_sarrafo(p.get("sarrafos") or [])
+                pecas += _pecas_fora_de_painel(g)
+                grupos_novo.append({"titulo": g["titulo"], "disponivel": True, "paineis": novos, "sarrafos": []})
+            de_sobra = []
+            restantes: list[tuple[str, float]] = []
+            for bitola, comp in sorted(pecas, key=lambda pc: -pc[1]):
+                mat = material_da_bitola(bitola)
+                b = next((b for b in barras if b["material"] == mat and b["comprimento_cm"] + 0.05 >= comp), None)
+                if b is None:
+                    restantes.append((bitola, comp))
+                    continue
+                de_sobra.append({"sobra_id": b["id"], "bitola": bitola, "comprimento_cm": comp})
+                usados.add(b["id"])
+                b["comprimento_cm"] = round(b["comprimento_cm"] - comp - PERDA_CORTE, 1)
+                if b["comprimento_cm"] <= 0.5:
+                    barras.remove(b)
+            por_bitola: dict[str, Counter] = {}
+            for bitola, comp in restantes:
+                por_bitola.setdefault(bitola, Counter())[comp] += 1
+            if grupos_novo:
+                grupos_novo[0]["sarrafos"] = [{"bitola": b, "cortes": [{"comprimento_cm": c, "quantidade": n}
+                                                                       for c, n in sorted(cs.items(), reverse=True)]}
+                                              for b, cs in sorted(por_bitola.items())]
+            prefixo = item["paineis"][0]["id"].rsplit("-", 1)[0] if item["paineis"] else item["item"]
+            # "-N" separa esta compra da "Preparação com materiais novos";
+            # sem estoque as duas coincidem e os IDs também.
+            compra = compra_de_grupos(grupos_novo, prefixo + ("-N" if tem_estoque else ""))
+            compra["barras_de_sobra"] = de_sobra
+            compras[item["code"]] = compra
+        barras_restantes[cls] = barras
     return {"alocacao": aloc, "compras": compras, "retalhos": retalhos, "usados": usados,
-            "barras_restantes": barras}
+            "barras_restantes": barras_restantes}
 
 
 # --------------------------------------------------------------------------- #
-# Cadeia de pavimentos
+# Cenários (D-78) e cadeia de pavimentos
 # --------------------------------------------------------------------------- #
 
-def _estoque_do_pavimento(itens: list[dict], pav: str, compras: dict[str, dict], retalhos: list[dict]) -> dict:
-    """O que o pavimento deixa ao ser desformado: todos os painéis montados
-    reaproveitáveis + sobras novas (plano de corte do que foi comprado e
-    retalhos dos cortes)."""
-    montados = [{**p, "pavimento": pav} for it in itens for p in it["paineis"] if p.get("reaproveitavel", True)]
-    chapas, barras = [], []
-    for c in compras.values():
-        for s in c.get("sobras") or []:
-            (chapas if s.get("tipo") == "chapa" else barras).append({**s, "pavimento": pav})
-    chapas += [{**r, "pavimento": pav} for r in retalhos]
-    return {"montados": montados, "chapas": chapas, "barras": barras}
+CENARIOS = ("para", "passa")
 
 
-def _vazio() -> dict:
-    return {"montados": [], "chapas": [], "barras": []}
+def cenarios_da_classe(classe: str) -> list[str]:
+    """Pilares e laterais têm modo; fundo e laje entram nos dois cenários."""
+    if classe.endswith("_para"):
+        return ["para"]
+    if classe.endswith("_passa"):
+        return ["passa"]
+    return list(CENARIOS)
 
 
-def calcular(conn, obra_id: str, pav: str, classe: str, root: Path) -> dict:
+def classes_do_cenario(conn, obra_id: str, cenario: str) -> list[str]:
+    cls = {r[0] for r in conn.execute(
+        "SELECT DISTINCT classe FROM public_codes WHERE obra_id = ? AND kind = 'item' AND revoked = 0",
+        (obra_id,))}
+    return sorted(c for c in cls if c and cenario in cenarios_da_classe(c))
+
+
+def vazio(classes) -> dict:
+    return {"montados": {c: [] for c in classes}, "limpas": [],
+            "da_classe": {c: [] for c in classes}, "barras": {c: [] for c in classes}}
+
+
+def _estoque_do_pavimento(classes: dict[str, list[dict]], pav: str, r: dict) -> dict:
+    """O que o pavimento deixa ao ser desformado: painéis montados
+    reaproveitáveis, sobras do que foi comprado (chapa = limpa, circula entre
+    classes) e retalhos de montados (ficam na classe)."""
+    est = vazio(classes)
+    for cls, itens in classes.items():
+        est["montados"][cls] = [{**p, "pavimento": pav, "classe": cls}
+                                for it in itens for p in it["paineis"] if p.get("reaproveitavel", True)]
+        for it in itens:
+            for s in (r["compras"].get(it["code"]) or {}).get("sobras") or []:
+                if s.get("tipo") == "chapa":
+                    est["limpas"].append({**s, "pavimento": pav, "classe": cls})
+                else:
+                    est["barras"][cls].append({**s, "pavimento": pav})
+        est["da_classe"][cls] = [{**x, "pavimento": pav} for x in r["retalhos"].get(cls, [])]
+    return est
+
+
+def calcular_cenario(conn, obra_id: str, pav: str, cenario: str, root: Path) -> Optional[dict]:
     pavs = cadeia(conn, obra_id, pav)
-    invs = {p: inventario(conn, obra_id, p, classe, root) for p in pavs}
-    chave = hashlib.sha1(json.dumps([obra_id, classe, pavs, [[i["code"], len(i["paineis"]),
-                         [p["id"] + str(p["largura_cm"]) + str(p["altura_cm"]) for p in i["paineis"]]]
-                         for p in pavs for i in invs[p]]], sort_keys=True).encode()).hexdigest()
+    classes = classes_do_cenario(conn, obra_id, cenario)
+    invs = {p: {c: inventario(conn, obra_id, p, c, root) for c in classes} for p in pavs}
+    chave = hashlib.sha1(json.dumps(["cenario-1", obra_id, cenario, pavs, [
+        [c, i["code"], [q["id"] + str(q["largura_cm"]) + str(q["altura_cm"]) for q in i["paineis"]]]
+        for p in pavs for c in classes for i in invs[p][c]]], sort_keys=True).encode()).hexdigest()
     with _lock:
         if chave in _memoria:
             return _memoria[chave]
-    anterior, antigo = _vazio(), _vazio()
+    anterior, antigo = vazio(classes), vazio(classes)
     res = None
-    for i, p in enumerate(pavs):
-        itens = invs[p]
-        tipo = itens[0]["tipo"] if itens else ""
+    for k, p in enumerate(pavs):
         disponivel = {"anterior": copy.deepcopy(anterior), "antigo": copy.deepcopy(antigo)}
-        r = alocar_pavimento(tipo, itens, anterior, antigo)
-        if i == len(pavs) - 1:
-            res = {"pavimento": p, "pavimentos": pavs, "itens": itens, "disponivel": disponivel, **r}
+        r = alocar_pavimento(invs[p], anterior, antigo)
+        if k == len(pavs) - 1:
+            res = {"pavimento": p, "pavimentos": pavs, "cenario": cenario, "classes": invs[p],
+                   "disponivel": disponivel, **r}
             break
-        usados = r["usados"]
+        u = r["usados"]
         # Sobe para o próximo: o que não foi usado vira estoque antigo.
         antigo = {
-            "montados": [s for s in anterior["montados"] + antigo["montados"] if s["id"] not in usados],
-            "chapas": [s for s in anterior["chapas"] + antigo["chapas"] if s["id"] not in usados],
+            "montados": {c: [s for s in anterior["montados"][c] + antigo["montados"][c] if s["id"] not in u]
+                         for c in classes},
+            "limpas": [s for s in anterior["limpas"] + antigo["limpas"] if s["id"] not in u],
+            "da_classe": {c: [s for s in anterior["da_classe"][c] + antigo["da_classe"][c] if s["id"] not in u]
+                          for c in classes},
             "barras": r["barras_restantes"],
         }
-        anterior = _estoque_do_pavimento(itens, p, r["compras"], r["retalhos"])
+        anterior = _estoque_do_pavimento(invs[p], p, r)
     with _lock:
         _memoria[chave] = res
+        while len(_memoria) > 4:  # o estoque de um cenário é grande
+            _memoria.pop(next(iter(_memoria)))
     return res
+
+
+# --------------------------------------------------------------------------- #
+# Cálculo em segundo plano: a 1ª medição de um cenário leva minutos
+# --------------------------------------------------------------------------- #
+
+FRESCO_S = 300
+_resultados: dict[tuple, tuple[float, Optional[dict]]] = {}
+_em_curso: set[tuple] = set()
+_fila = ThreadPoolExecutor(max_workers=1, thread_name_prefix="reaproveitamento")
+
+
+def _caminho_db(conn) -> str:
+    return conn.execute("PRAGMA database_list").fetchone()[2]
+
+
+def _disparar(chave: tuple, db: str, root: Path) -> None:
+    with _lock:
+        if chave in _em_curso:
+            return
+        _em_curso.add(chave)
+
+    def trabalho():
+        try:
+            c = sqlite3.connect(f"file:{db}?mode=ro", uri=True, check_same_thread=False)
+            c.row_factory = sqlite3.Row
+            try:
+                res = calcular_cenario(c, *chave, root)
+            finally:
+                c.close()
+            with _lock:
+                _resultados[chave] = (time.time(), res)
+        except Exception:  # noqa: BLE001 — registra; o próximo pedido tenta de novo
+            log.exception("reaproveitamento %s falhou", chave)
+        finally:
+            with _lock:
+                _em_curso.discard(chave)
+
+    _fila.submit(trabalho)
+
+
+def resultado_cenario(conn, obra_id: str, pav: str, cenario: str, root: Path) -> tuple[bool, Optional[dict]]:
+    """(pronto, resultado). Um resultado com mais de FRESCO_S continua servido
+    enquanto é recalculado em segundo plano."""
+    chave = (obra_id, pav, cenario)
+    with _lock:
+        pronto = _resultados.get(chave)
+    if pronto is None or time.time() - pronto[0] > FRESCO_S:
+        _disparar(chave, _caminho_db(conn), root)
+    return (pronto is not None, pronto[1] if pronto else None)
 
 
 # --------------------------------------------------------------------------- #
@@ -554,19 +652,18 @@ def _publico_montado(p: dict) -> dict:
     return {k: p.get(k) for k in ("id", "largura_cm", "altura_cm", "pontas", "tipo", "grupo")}
 
 
-def obter_reaproveitamento(conn, row, root: Path) -> Optional[dict]:
+def montar_resposta(res: dict, row) -> Optional[dict]:
     pav, classe, code = row["pavimento"], row["classe"], row["code"]
-    res = calcular(conn, row["obra_id"], pav, classe, root)
-    if res is None:
-        return None
-    item = next((i for i in res["itens"] if i["code"] == code), None)
+    itens = res["classes"].get(classe) or []
+    item = next((i for i in itens if i["code"] == code), None)
     if item is None:
         return None
     aloc = res["alocacao"]
     usado_por = {a["fonte_id"]: pid for pid, a in aloc.items() if a.get("fonte_id")}
-    for it in res["itens"]:  # sobra de barra cortada em sarrafo
-        for b in (res["compras"].get(it["code"]) or {}).get("barras_de_sobra") or []:
-            usado_por.setdefault(b["sobra_id"], f"sarrafo de {it['titulo']}")
+    for its in res["classes"].values():  # sobra de barra cortada em sarrafo
+        for it in its:
+            for b in (res["compras"].get(it["code"]) or {}).get("barras_de_sobra") or []:
+                usado_por.setdefault(b["sobra_id"], f"sarrafo de {it['titulo']}")
     disp = res["disponivel"]
 
     def itens_disponiveis(montados):
@@ -578,31 +675,47 @@ def obter_reaproveitamento(conn, row, root: Path) -> Optional[dict]:
             por[k]["paineis"].append({**_publico_montado(s), "usado_por": usado_por.get(s["id"])})
         return sorted(por.values(), key=lambda d: (not d["proprio"], _natural(d["item"])))
 
-    sobras = [{k: s[k] for k in ("id", "tipo", "material", "largura_cm", "altura_cm", "comprimento_cm", "util")
-               if s.get(k) is not None} | {"usado_por": usado_por.get(s["id"])}
-              for s in disp["anterior"]["chapas"] + disp["antigo"]["chapas"]
-              + disp["anterior"]["barras"] + disp["antigo"]["barras"]]
+    def publica(s, limpa):
+        return {k: s[k] for k in ("id", "tipo", "material", "largura_cm", "altura_cm", "comprimento_cm", "util")
+                if s.get(k) is not None} | {"usado_por": usado_por.get(s["id"]), "limpa": limpa}
+
+    estoques = (disp["anterior"], disp["antigo"])
+    sobras = ([publica(s, True) for e in estoques for s in e["limpas"]]
+              + [publica(s, False) for e in estoques for s in e["da_classe"].get(classe, [])]
+              + [publica(s, False) for e in estoques for s in e["barras"].get(classe, [])])
     paineis = []
     for p in item["paineis"]:
         a = aloc.get(p["id"], {"etapa": "novo"})
         paineis.append({"id": p["id"], "numero": p["numero"], "grupo": p["grupo"],
                         "largura_cm": p["largura_cm"], "altura_cm": p["altura_cm"],
                         "pontas": p["pontas"], "tipo": p["tipo"], **a})
-    resumo = Counter(a["etapa"] for a in aloc.values())
-    resumo_item = Counter(p["etapa"] for p in paineis)
+    ids_classe = {p["id"] for it in itens for p in it["paineis"]}
     anteriores = res["pavimentos"][:-1]
     return {
         "pavimento": pav,
         "pavimento_anterior": anteriores[-1] if anteriores else None,
         "pavimentos_cadeia": res["pavimentos"],
+        # Fundo e laje valem para os dois cenários: não citam Para/Passa (D-78).
+        "cenario": res["cenario"] if len(cenarios_da_classe(classe)) == 1 else None,
         "etapas": ETAPAS,
         "item": {"titulo": item["titulo"], "chave": item["chave"]},
         "paineis": paineis,
-        "resumo_item": dict(resumo_item),
-        "resumo_pavimento": dict(resumo),
+        "resumo_item": dict(Counter(p["etapa"] for p in paineis)),
+        "resumo_pavimento": dict(Counter(a["etapa"] for pid, a in aloc.items() if pid in ids_classe)),
         "compra": res["compras"].get(code),
         "disponiveis": {
             "sobras": sobras,
-            "itens": itens_disponiveis(disp["anterior"]["montados"] + disp["antigo"]["montados"]),
+            "itens": itens_disponiveis([s for e in estoques for s in e["montados"].get(classe, [])]),
         },
     }
+
+
+def obter_reaproveitamento(conn, row, root: Path) -> Optional[dict]:
+    """Resposta da ficha, ou {"calculando": True} enquanto o cenário é medido.
+    Fundo/laje (sem modo) usam o cenário Para até a obra ter o campo de
+    comportamento (D-78)."""
+    cenario = cenarios_da_classe(row["classe"])[0]
+    pronto, res = resultado_cenario(conn, row["obra_id"], row["pavimento"], cenario, root)
+    if not pronto:
+        return {"calculando": True}
+    return montar_resposta(res, row) if res else None

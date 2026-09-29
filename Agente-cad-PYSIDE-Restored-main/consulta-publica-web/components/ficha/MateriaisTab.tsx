@@ -294,18 +294,24 @@ export function MateriaisTab({ code, ativo, sub: subExterna }: MateriaisTabProps
   useEffect(() => {
     if (!precisaReap || reap !== null) return;
     let cancelado = false;
+    let espera: ReturnType<typeof setTimeout> | undefined;
     setEstadoReap("loading");
-    buscarReaproveitamento(code).then((r) => {
-      if (cancelado) return;
-      if (r.status === "ok") {
-        setReap(r.data);
-        setEstadoReap("ok");
-      } else {
-        setEstadoReap("ausente");
-      }
-    });
+    const buscar = () =>
+      buscarReaproveitamento(code).then((r) => {
+        if (cancelado) return;
+        if (r.status === "ok") {
+          setReap(r.data);
+          setEstadoReap("ok");
+        } else if (r.status === "calculando") {
+          espera = setTimeout(buscar, 5000); // o cenário inteiro é medido em segundo plano
+        } else {
+          setEstadoReap("ausente");
+        }
+      });
+    buscar();
     return () => {
       cancelado = true;
+      clearTimeout(espera);
     };
   }, [precisaReap, code, reap]);
 
@@ -380,7 +386,7 @@ export function MateriaisTab({ code, ativo, sub: subExterna }: MateriaisTabProps
             (dados.compra ? <Compra compra={dados.compra} grupos={dados.grupos} /> : <p className={styles.nota}>Sem material de compra.</p>)}
           {prep !== "novos" && estadoReap === "loading" && (
             <div role="status" aria-live="polite">
-              <Skeleton variant="block" rotulo="cruzando com o estoque dos pavimentos anteriores" />
+              <Skeleton variant="block" rotulo="cruzando todas as classes do pavimento com o estoque dos anteriores (pode levar alguns minutos na primeira vez)" />
             </div>
           )}
           {prep !== "novos" && estadoReap === "ausente" && (

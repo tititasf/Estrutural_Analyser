@@ -17,6 +17,12 @@ const idCurto = (id?: string | null) => (id ? id.split("-").slice(3).join("-") :
 const PONTAS: Record<string, string> = { "true,false": "esq.", "false,true": "dir.", "true,true": "ambas", "false,false": "—" };
 const pontas = (p: [boolean, boolean]) => PONTAS[p.join(",")];
 
+/** Classe de origem sem citar Para/Passa (o cenário já é o da ficha). */
+const CLASSE: Record<string, string> = {
+  pilares_n3_para: "pilar", pilares_n3_passa: "pilar", lateral_a_para: "lateral de viga",
+  lateral_a_passa: "lateral de viga", fundo: "fundo de viga", lajes: "laje",
+};
+
 const ORDEM: EtapaReaproveitamento[] = ["1", "1.5", "2", "2.5", "3", "3.5", "4", "4.5", "novo"];
 
 function Etapa({ etapa, rotulo }: { etapa: EtapaReaproveitamento; rotulo?: string }) {
@@ -93,6 +99,7 @@ export function PreparacaoReaproveitada({
                         <span className={styles.sub}>
                           {p.fonte_tipo === "sobra" ? "sobra de chapa" : "painel montado"}
                           {p.fonte_pavimento ? ` · ${p.fonte_pavimento}` : ""}
+                          {p.fonte_classe && p.fonte_tipo === "sobra" ? ` · ${CLASSE[p.fonte_classe] ?? p.fonte_classe}` : ""}
                           {p.fonte_medida ? ` · ${fmt(p.fonte_medida[0])} × ${fmt(p.fonte_medida[1])}` : ""}
                         </span>
                       </>
@@ -149,8 +156,9 @@ export function MateriaisDisponiveis({ dados }: { dados: ReaproveitamentoData })
   const grupos = new Map<string, { tipo: string; material: string; medida: string; qtd: number; usadas: number }>();
   for (const s of dados.disponiveis.sobras) {
     const medida = medidaSobra(s);
-    const k = `${s.tipo}|${s.material}|${medida}`;
-    const g = grupos.get(k) ?? { tipo: s.tipo, material: s.material ?? "", medida, qtd: 0, usadas: 0 };
+    const material = s.tipo === "chapa" && !s.limpa ? `${s.material ?? "Chapa"} (com sarrafo)` : s.material ?? "";
+    const k = `${s.tipo}|${material}|${medida}`;
+    const g = grupos.get(k) ?? { tipo: s.tipo, material, medida, qtd: 0, usadas: 0 };
     g.qtd += 1;
     if (s.usado_por) g.usadas += 1;
     grupos.set(k, g);
@@ -206,7 +214,7 @@ export function MateriaisDisponiveis({ dados }: { dados: ReaproveitamentoData })
       </section>
       <section className={styles.grupo}>
         <h3 className={styles.tituloGrupo}>Sobras (chapas, recortes e barras)</h3>
-        <p className={`${styles.resumo} tabular-nums`}>{dados.disponiveis.sobras.length} sobras no estoque desta classe.</p>
+        <p className={`${styles.resumo} tabular-nums`}>{dados.disponiveis.sobras.length} sobras · chapas limpas servem a qualquer classe; retalhos com sarrafo e barras, só a esta.</p>
         <div className={styles.tabelaWrap}>
           <table className={`${styles.tabela} tabular-nums`}>
             <thead>

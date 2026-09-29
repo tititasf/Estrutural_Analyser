@@ -1,5 +1,6 @@
 """Regras de reaproveitamento entre pavimentos (D-70..D-73, MATERIAIS §12)."""
-from services.reaproveitamento_service import alocar_pavimento, chave_item, encaixe, numero_pavimento
+from services.reaproveitamento_service import (alocar_pavimento, cenarios_da_classe, chave_item, encaixe,
+                                                numero_pavimento, vazio)
 
 
 def _p(pid, w, h, *, item="V301", pontas=(False, False), tipo="sarrafeado", reap=True):
@@ -51,12 +52,40 @@ def test_etapas_proprio_item_antes_dos_outros_e_novo_so_o_que_falta():
                           "paineis": [{"id": f"{n}-P01", "numero": 1, "largura_cm": 82, "altura_cm": 122,
                                        "sarrafos": []}]}]}
              for c, n in (("a", "P1"), ("b", "P2"), ("c", "P3"))]
-    anterior = {"montados": [_p("13-P2-P01", 82, 122, item="P2"), _p("13-P9-P01", 82, 130, item="P9")],
-                "chapas": [], "barras": []}
-    r = alocar_pavimento("pilar", itens, anterior, {"montados": [], "chapas": [], "barras": []})
+    anterior = vazio(["pil"])
+    anterior["montados"]["pil"] = [_p("13-P2-P01", 82, 122, item="P2"), _p("13-P9-P01", 82, 130, item="P9")]
+    r = alocar_pavimento({"pil": itens}, anterior, vazio(["pil"]))
     a = r["alocacao"]
     # P2 pega o próprio mesmo sendo o segundo da lista; P1 recebe o do P9 cortado; P3 compra.
     assert a["P2-P01"]["etapa"] == "1" and a["P2-P01"]["fonte_id"] == "13-P2-P01"
     assert a["P1-P01"]["etapa"] == "2.5" and a["P1-P01"]["fonte_id"] == "13-P9-P01"
     assert a["P3-P01"]["etapa"] == "novo"
     assert r["compras"]["c"]["chapas"] and not r["compras"]["a"].get("chapas")
+
+
+def _item(code, nome, tipo, w, h):
+    return {"code": code, "item": nome, "chave": chave_item(nome), "titulo": nome, "tipo": tipo,
+            "paineis": [_p(f"{nome}-P01", w, h, item=nome)],
+            "grupos": [{"titulo": "G", "disponivel": True, "sarrafos": [],
+                        "paineis": [{"id": f"{nome}-P01", "numero": 1, "largura_cm": w, "altura_cm": h,
+                                     "sarrafos": []}]}]}
+
+
+def test_sobra_limpa_circula_entre_classes_maior_painel_primeiro():
+    """D-75: sobra limpa de chapa serve a qualquer classe; D-77: o maior painel
+    pendente escolhe primeiro, sem ordem de classes; retalho de montado fica na classe."""
+    classes = {"fundo": [_item("f", "V301", "viga_fundo", 100, 19)],
+               "lajes": [_item("l", "L301", "laje", 120, 100)]}
+    anterior = vazio(classes)
+    anterior["limpas"] = [{"id": "S1", "tipo": "chapa", "material": "Compensado", "classe": "fundo",
+                           "largura_cm": 122, "altura_cm": 110, "pavimento": "13_PAV"}]
+    anterior["da_classe"]["fundo"] = [{"id": "13-X-R1", "tipo": "chapa", "largura_cm": 101, "altura_cm": 20}]
+    a = alocar_pavimento(classes, anterior, vazio(classes))["alocacao"]
+    assert a["L301-P01"]["etapa"] == "3.5" and a["L301-P01"]["fonte_id"] == "S1"  # laje usa sobra do fundo
+    assert a["V301-P01"]["fonte_id"] == "13-X-R1"  # retalho de montado: só a própria classe
+
+
+def test_cenarios_fundo_e_laje_nos_dois():
+    assert cenarios_da_classe("pilares_n3_para") == ["para"]
+    assert cenarios_da_classe("lateral_a_passa") == ["passa"]
+    assert cenarios_da_classe("fundo") == cenarios_da_classe("lajes") == ["para", "passa"]

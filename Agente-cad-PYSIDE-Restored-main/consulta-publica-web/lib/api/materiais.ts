@@ -204,6 +204,8 @@ export interface PainelAlocado {
   fonte_tipo?: "montado" | "sobra";
   fonte_item?: string;
   fonte_pavimento?: string;
+  /** Classe de origem (sobra limpa circula entre classes, D-75). */
+  fonte_classe?: string | null;
   fonte_medida?: [number, number];
   corte?: string | null;
 }
@@ -227,12 +229,16 @@ export interface SobraDisponivel {
   comprimento_cm?: number;
   util?: { largura_cm: number; altura_cm: number };
   usado_por?: string | null;
+  /** Chapa limpa (sem sarrafo): serve qualquer classe do cenário. */
+  limpa?: boolean;
 }
 
 export interface ReaproveitamentoData {
   pavimento: string;
   pavimento_anterior: string | null;
   pavimentos_cadeia: string[];
+  /** "para" | "passa" em pilares/laterais; null em fundo e laje (valem nos dois, D-78). */
+  cenario?: "para" | "passa" | null;
   etapas: Record<EtapaReaproveitamento, string>;
   item: { titulo: string; chave: string };
   paineis: PainelAlocado[];
@@ -249,11 +255,12 @@ export interface ReaproveitamentoData {
 
 export type ReaproveitamentoResult =
   | { status: "ok"; data: ReaproveitamentoData }
+  | { status: "calculando" }
   | { status: "not_found" }
   | { status: "network_error" };
 
-/** Primeira chamada do pavimento mede todos os itens da classe (até ~1 min). */
-const REAPROVEITAMENTO_TIMEOUT_MS = 90000;
+/** O cenário é medido em segundo plano: a API responde 202 até ficar pronto. */
+const REAPROVEITAMENTO_TIMEOUT_MS = 30000;
 
 export async function buscarReaproveitamento(code: string): Promise<ReaproveitamentoResult> {
   const controller = new AbortController();
@@ -263,6 +270,7 @@ export async function buscarReaproveitamento(code: string): Promise<Reaproveitam
       signal: controller.signal,
       cache: "no-store",
     });
+    if (resp.status === 202) return { status: "calculando" };
     if (!resp.ok) return { status: "not_found" };
     return { status: "ok", data: (await resp.json()) as ReaproveitamentoData };
   } catch {

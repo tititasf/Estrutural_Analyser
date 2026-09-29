@@ -344,9 +344,15 @@ corte: pilares 219/326 painéis no próprio item; laterais 94/235; fundos
 
 ### 12.6 Implementação (29/09 — `services/reaproveitamento_service.py`)
 
-Rota `GET /api/v1/ficha/{code}/reaproveitamento`. O cálculo é por **(obra,
-classe publicada)** — pilares Para e Passa são estoques separados (nunca entre
-classes) — e roda o pavimento inteiro (todos os itens) etapa por etapa.
+Rota `GET /api/v1/ficha/{code}/reaproveitamento`. O cálculo é por **cenário
+(D-78)**: **Para** = pilares Para + laterais Para + fundos + lajes; **Passa** =
+pilares Passa + laterais Passa + fundos + lajes. Os dois cenários são estoques
+independentes (nunca se misturam). Fundo e laje entram nos dois e a ficha deles
+não cita Para/Passa — mostram o cenário Para até a obra ter o campo de
+comportamento (Para/Passa/Misto). Cada cenário roda o pavimento inteiro (todos os
+itens de todas as classes) etapa por etapa, em segundo plano: a API responde
+**202 `{calculando: true}`** até ficar pronto (≈40 s a frio) e a ficha repete a
+consulta a cada 5 s; o resultado vale 5 min e é renovado em segundo plano.
 
 **Critérios que o código aplica** (além da tabela §12.3):
 
@@ -358,6 +364,8 @@ classes) — e roda o pavimento inteiro (todos os itens) etapa por etapa.
   viga que o reaproveitado não tem = etapa cortada ("recorta a chegada de viga").
 - **Escolha dentro da etapa:** menor fonte que serve (best-fit por área); nas
   etapas cortadas os painéis maiores escolhem primeiro.
+- **Painel montado só volta na própria classe** (etapas 1–2,5 e a parte de
+  montados da 4/4,5), rodada classe a classe.
 - **Sobra de chapa** (etapas 3/3.5 e 4/4.5): usa o retângulo **útil** da sobra;
   corte em guilhotina, pode girar; o resto do corte volta na mesma etapa.
   Painel feito de sobra leva **sarrafo** — que sai primeiro de **sobra de barra**
@@ -378,23 +386,32 @@ classes) — e roda o pavimento inteiro (todos os itens) etapa por etapa.
   os de baixo (não usados, acumulados) alimentam 4/4.5. A ordem por nome é
   provisória: o portal de fôrmas vai gravar anterior/próximo por pavimento (com o
   tipo 2–10 como um pavimento só).
-- **Sobra limpa entre classes (D-75, a implementar):** recorte puro de chapa,
-  sem sarrafo, pode ir para outra classe, mantendo ID e proveniência. Painel
-  montado e retalho de painel montado (tem sarrafo) ficam na própria classe.
+- **Sobra limpa entre classes (D-75) e maiores primeiro (D-77):** sobra de chapa
+  do plano de corte (e o resto dela depois de cortada) é **limpa** e forma um
+  estoque só para todas as classes do cenário, mantendo ID, pavimento e classe de
+  origem (`fonte_classe`, mostrada na ficha). Nas etapas 3/3,5 e 4/4,5 os painéis
+  pendentes de **todas** as classes são ordenados por área, do maior para o menor
+  — não há ordem de classes — e cada um pega a menor sobra que serve. Retalho de
+  painel montado (`-R`, leva sarrafo) e sobra de barra ficam na própria classe.
 - **Cache:** a medição de cada item fica em disco (`$TMP/consulta_reaproveitamento`),
   chaveada pelos DXFs medidos + mtime (o `publish_batch` NÃO entra: o auto-publish
   o troca a cada ~20 s). Primeira chamada do pavimento ≈ 30 s por classe; depois < 1,5 s.
 
-**Resultado 13_PAV → 14_PAV (Obra_TREINO_1), painéis por etapa:**
+**Resultado TERREO → 13_PAV → 14_PAV (Obra_TREINO_1), painéis por etapa (D-74..D-78):**
 
-| Classe | 1 | 1,5 | 2 | 2,5 | 3 | 3,5 | novo |
-|---|---|---|---|---|---|---|---|
-| Pilares Para (326) | 127 | 60 | 7 | 16 | 35 | 58 | 23 |
-| Pilares Passa (326) | 310 | 5 | – | 5 | – | 5 | 1 |
-| Lateral Para | 92 | 1 | 68 | 8 | 1 | 32 | 33 |
-| Lateral Passa | 95 | 12 | 64 | 14 | 3 | 19 | 28 |
-| Fundos (435) | 214 | 34 | 21 | 48 | – | 105 | 13 |
-| Lajes (147) | 13 | 65 | 26 | 36 | – | 1 | 6 |
+| Cenário · classe | 1 | 1,5 | 2 | 2,5 | 3 | 3,5 | 4 | novo |
+|---|---|---|---|---|---|---|---|---|
+| Para · pilares | 127 | 60 | 7 | 16 | 14 | 96 | 5 | 1 |
+| Para · laterais | 92 | 1 | 68 | 8 | 8 | 58 | – | – |
+| Passa · pilares | 310 | 5 | – | 5 | – | 5 | 1 | – |
+| Passa · laterais | 95 | 12 | 64 | 14 | 8 | 42 | – | – |
+| fundos (os dois) | 215 | 35 | 25 | 54 | 16 | 77 | – | 13 |
+| lajes (as duas) | 13 | 65 | 26 | 36 | – | 1 | – | 6 |
 
-Conferidos no portal: V409 lateral (4/4 do V309, pontas iguais), P10 (10/10
-reaproveitados; só meio pontalete novo; 21 sarrafos de sobra de barra).
+Antes do D-75/D-77 (cada classe só com as próprias sobras) eram 40 painéis novos
+nos pilares Para e 33/28 nas laterais: o estoque limpo dos pavimentos de baixo
+(1.230 sobras no cenário Para) cobre quase tudo. Invariantes conferidos na VPS:
+nenhuma fonte usada duas vezes, toda peça cabe na sobra, só chapa de compensado
+cruza classes. Conferidos no portal: P10 (10/10 reaproveitados; P04 de sobra de
+laje L309, P05 de sobra de lateral V328; 21 sarrafos de sobra de barra); fundo
+V410 e laje L401 sem citar cenário; lateral V410 Passa com sobra de laje.

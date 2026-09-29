@@ -66,5 +66,7 @@ def obter_reaproveitamento_endpoint(
     reap = obter_reaproveitamento(conn, row, settings.dados_obras_root)
     if reap is None:
         return _nao_encontrado()
+    if reap.get("calculando"):  # cenário sendo medido em segundo plano
+        return JSONResponse(status_code=202, content=reap, headers={"Cache-Control": "private, no-store"})
 
     return reap
