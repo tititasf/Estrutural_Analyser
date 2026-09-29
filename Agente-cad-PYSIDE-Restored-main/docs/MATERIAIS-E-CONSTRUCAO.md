@@ -253,3 +253,82 @@ maior retângulo útil em `util`). No empacotamento, o maior retângulo útil do
 recorte vira espaço livre na hora: peça menor que vem depois pode ser cortada
 ali (`em_sobra`, tag "na sobra"). 13_PAV: 108 peças de pilar cortadas em
 recortes; 638 sobras de recorte rastreadas; 578 chapas (antes 580).
+
+## 12. Reaproveitamento entre pavimentos (dono, 29/09 — D-70..D-73)
+
+Conhecimento de campo do dono: **não perder**. Fonte: chat 2026-09-29.
+
+### 12.1 Ideia
+
+Quando um pavimento é desformado, seus painéis **montados** (chapa + sarrafos
+pregados) e as **sobras** (chapa e barra, com ID — §10, D-68/D-69) sobem para o
+pavimento seguinte. O pavimento novo consome primeiro o que já existe e só
+compra o que falta. Tudo é rastreável pelos IDs (`{OBRA}-{PAV}-{CLS}-{ITEM}-P{nn}`,
+`…-CH{nn}-S{k}`, `…-{MAT}-B{nn}`).
+
+### 12.2 Ordem de alocação (D-70)
+
+Cada etapa roda para **todos os itens da classe** antes da próxima ("todos
+usam o máximo de si mesmos primeiro"):
+
+| Etapa | De onde vem | Medida |
+|---|---|---|
+| 1 | Painéis montados **do próprio item** no pavimento anterior | só **idêntica** |
+| 1.5 | Painéis montados do próprio item | **outra medida**, cortando conforme a regra da classe (§12.3) |
+| — | O que os donos não usaram vira a lista **temporária** "sobra de painéis montados" (existe só para as etapas 2/2.5) | |
+| 2 | Painéis montados **de outros itens** da mesma classe (lista temporária), item por item | só idêntica |
+| 2.5 | Idem | outra medida, regra da classe |
+| 3 | **Sobras de chapa** (inclusive recortes) do pavimento anterior → monta o painel com o sarrafo necessário | pedaço já na medida |
+| 3.5 | Sobras de chapa | cortando a sobra em outra medida |
+| 4 | **Estoque acumulado** dos pavimentos mais antigos (o que sobrou e não foi usado) — só depois de tudo acima | mesmas sub-etapas |
+| Novo | **Fornecimento de material novo**: plano de corte igual ao "Material de compra", só para o que faltou | — |
+
+"Próprio item" = mesmo item no pavimento anterior. Pilar mantém o nome (P10 ↔
+P10); viga e laje trocam o dígito do pavimento (V301 ↔ V401, L301 ↔ L401) — é o
+padrão, mas **não precisa casar** (o item pode mudar de lugar): o par é só por
+nome/número.
+
+### 12.3 Regras de corte por classe (D-71)
+
+O **sarrafo é cortado junto** com o painel (o painel montado não se desmonta);
+por isso cada classe só aceita cortar na direção que não estraga a montagem.
+
+| Classe | Condição para reaproveitar | Corte permitido |
+|---|---|---|
+| **LV** (lateral de viga) — a mais restrita | **Tipo idêntico**: painel **gradeado** só em gradeado, **sarrafeado** só em sarrafeado | Só a **altura** varia: corta-se a **parte de baixo** do reaproveitado. **Comprimento nunca menor** (em nenhum caso) |
+| **PIL** (pilar) | Mesma **largura** (comprimento): largura diferente **não** reutiliza | Só a **altura** (recorta peça já feita) |
+| **FV** (fundo de viga) | — | Corta em **largura e comprimento**; em altura **não** |
+| **LAJ** (laje) | **Tira de escoramento nunca** reaproveita (D-66); painel comum sim | Painel comum corta em **qualquer direção** |
+
+**Nunca entre classes diferentes** (painel de pilar não vai para lateral/laje/fundo).
+
+A confirmar com o dono (interpretação do agente, não é regra ainda):
+- LV: comprimento "nunca menor" — tratado como **igual** (±1 cm), já que só a
+  altura pode ser cortada.
+- PIL: de que lado sai o corte da altura (tratado como embaixo, igual à LV).
+- FV: "altura" do fundo — tratado como não se aplica ao painel plano (b × vão).
+
+### 12.4 Estoque acumula e se gasta (D-72)
+
+O estoque **acumula** ao subir a obra e **se gasta** conforme é usado. Depois do
+pavimento N, estão disponíveis: painéis montados do N (desformados) + o que
+sobrou do estoque anterior sem uso + sobras novas do N (plano de corte, recortes
+D-69 e os pedaços cortados nas etapas 1.5/2.5/3.5 — nada é descarte, D-68). A
+tira de escoramento da laje não entra. O reaproveitamento do estoque antigo é a
+**etapa 4** (depois das etapas do pavimento imediatamente anterior).
+
+### 12.5 Portal (D-73)
+
+Sub-aba "Material de compra" vira **"Material necessário, preparação e
+reaproveitamento"**, com 3 sub-abas:
+1. **Preparação com Materiais Novos** — o plano de corte atual (tudo novo).
+2. **Preparação com Materiais Reaproveitados e Novos** — resultado da alocação
+   §12.2: cada painel com a etapa e o ID de origem; material novo só do que falta.
+3. **Materiais Disponíveis dos Pavimentos Anteriores** — sobras **todas juntas,
+   sem proveniência**; painéis montados (com sarrafos) **separados por item** da
+   mesma classe (ex.: 14_PAV/pilares lista os pilares do 13_PAV e seus painéis).
+
+Teste de referência: Obra_TREINO_1, **13_PAV → 14_PAV** (SA + N3 do 14 rodados no
+portal em 29/09). Casamento só por medida idêntica (±1 cm), antes das regras de
+corte: pilares 219/326 painéis no próprio item; laterais 94/235; fundos
+230/435; lajes 17/147 (lajes e laterais ganham mais nas etapas 2/2.5).

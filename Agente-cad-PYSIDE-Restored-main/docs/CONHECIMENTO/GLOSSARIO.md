@@ -52,6 +52,11 @@ Uma linha por termo, com a fonte onde a definição completa mora (caminhos rela
 | **FV** | fundo de viga; o ponto crítico é a **segmentação** (viga contínua = N segmentos) | `docs/SA-ANALISE/CLASSES/FV.md` |
 | **LAJ** | laje; **hachura de apoio** nos apoios e **HLAZ** (faixa de união) | `docs/SA-ANALISE/CLASSES/LAJ.md` |
 | **Contaminação** | elemento de outro item capturado no recorte (vizinho), não defeito do item | `scripts/arete/g2v_harness.py` (prompt) |
+| **Painel montado** | chapa já cortada com os sarrafos pregados; sobe inteiro para o pavimento seguinte e é cortado junto com os sarrafos (D-71) | `docs/MATERIAIS-E-CONSTRUCAO.md` §12 |
+| **Sobra (chapa/barra)** | pedaço que sobra do plano de corte ou do recorte de painel; tem ID rastreável e nunca é descarte (D-68/D-69) | `docs/MATERIAIS-E-CONSTRUCAO.md` §10–11 |
+| **Tira de escoramento** | faixa hachurada da laje (união); nunca é reaproveitada | `docs/MATERIAIS-E-CONSTRUCAO.md` §5, D-66 |
+| **Etapas de reaproveitamento** | 1 / 1.5 próprio item (idêntico / cortando) → 2 / 2.5 outros itens → 3 / 3.5 sobras → 4 estoque antigo → material novo (D-70) | `docs/MATERIAIS-E-CONSTRUCAO.md` §12.2 |
+| **Gradeado / Sarrafeado** | tipo do painel de LV; no reaproveitamento só troca com o mesmo tipo (D-71) | `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md`, `docs/MATERIAIS-E-CONSTRUCAO.md` §12.3 |
 
 ## Qualidade
 
