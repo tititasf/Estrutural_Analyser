@@ -539,7 +539,7 @@ def obter_materiais(row, dados_obras_root: Path) -> Optional[dict]:
         for p in g.get("paineis") or []:
             p.pop("tira", None)
     return {"tipo": tipo, "fonte": "medido no DXF N3 desenhado", "prefixo_id": prefixo,
-            "grupos": grupos, "compra": compra_de_grupos(grupos)}
+            "grupos": grupos, "compra": compra_de_grupos(grupos, prefixo)}
 
 
 _CLASSE_ID = {"pilar": "PIL", "viga_lateral": "LV", "viga_fundo": "FV", "laje": "LAJ"}

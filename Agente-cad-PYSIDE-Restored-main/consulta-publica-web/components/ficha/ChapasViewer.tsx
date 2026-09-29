@@ -106,7 +106,7 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
             const menor = Math.min(s.largura_cm, s.altura_cm);
             return (
               <g key={s.rotulo}>
-                <title>{`Sobra ${s.rotulo} · ${fmt(s.largura_cm)} × ${fmt(s.altura_cm)} cm`}</title>
+                <title>{`Sobra ${s.id ?? s.rotulo} · ${fmt(s.largura_cm)} × ${fmt(s.altura_cm)} cm`}</title>
                 <rect x={s.x} y={s.y} width={s.largura_cm} height={s.altura_cm} fill="url(#sobra)" />
                 {menor >= 4 && (
                   <text
@@ -162,7 +162,7 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
       <div className={styles.tabelaWrap}>
         <table className={`${styles.tabela} tabular-nums`}>
           <thead>
-            <tr><th>Nº</th><th className={styles.esq}>ID Painel</th><th className={styles.esq}>Painel de</th><th>Corte (cm)</th></tr>
+            <tr><th>Nº</th><th className={styles.esq}>ID</th><th className={styles.esq}>Painel de</th><th>Corte (cm)</th></tr>
           </thead>
           <tbody>
             {[...chapa.pecas]
@@ -184,7 +184,7 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
             {chapa.sobras.map((s) => (
               <tr key={s.rotulo} className={styles.linhaSobra}>
                 <td>{s.rotulo}</td>
-                <td className={styles.esq}>—</td>
+                <td className={`${styles.esq} ${styles.idPainel}`}>{s.id ?? "—"}</td>
                 <td className={styles.esq}>Sobra</td>
                 <td>{fmt(s.largura_cm)} × {fmt(s.altura_cm)}</td>
               </tr>

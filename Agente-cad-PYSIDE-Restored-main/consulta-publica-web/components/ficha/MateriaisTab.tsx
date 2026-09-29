@@ -208,6 +208,32 @@ function Compra({ compra }: { compra: NonNullable<MateriaisData["compra"]> }) {
       {compra.chapas?.layout && compra.chapas.layout.length > 0 && (
         <ChapasViewer layout={compra.chapas.layout} />
       )}
+      {(compra.sobras?.length ?? 0) > 0 && (
+        <div className={styles.avulsos}>
+          <p className={`${styles.resumo} tabular-nums`}>Sobras para reaproveitamento: {compra.sobras!.length}</p>
+          <div className={styles.tabelaWrap}>
+            <table className={`${styles.tabela} tabular-nums`}>
+              <thead>
+                <tr><th className={styles.esq}>ID Sobra</th><th className={styles.esq}>Material</th><th className={styles.esq}>De</th><th>Medida (cm)</th></tr>
+              </thead>
+              <tbody>
+                {compra.sobras!.map((s) => (
+                  <tr key={s.id}>
+                    <td className={`${styles.esq} ${styles.idPainel}`}>{s.id}</td>
+                    <td className={styles.esq}>{s.material}</td>
+                    <td className={styles.esq}>{s.origem}</td>
+                    <td>
+                      {s.tipo === "chapa"
+                        ? `${fmt(s.largura_cm ?? 0)} × ${fmt(s.altura_cm ?? 0)}`
+                        : fmt(s.comprimento_cm ?? 0)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

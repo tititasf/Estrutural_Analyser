@@ -21,6 +21,7 @@ Peça maior que a chapa/barra vira emenda (faixas `4a`, `4b`...). Sem % de quebr
 from __future__ import annotations
 
 import math
+import re
 
 CHAPA_W, CHAPA_H = 244.0, 122.0
 PERDA_CORTE = 1.0  # cm consumidos por corte (chapa e barra)
@@ -45,7 +46,9 @@ def _barras(itens: list[float], barra: float, best_fit: bool) -> list[float]:
     return livres
 
 
-def barras_necessarias(pecas_cm: list[float], barra: float = BARRA_CM) -> dict:
+def barras_necessarias(pecas_cm: list[float], barra: float = BARRA_CM, prefixo_id: str = "") -> dict:
+    """`prefixo_id` (ex. `…-V309A.PARA-S7`) numera a sobra de cada barra:
+    `{prefixo}-B01` — rastreável p/ reaproveitamento."""
     emendas = 0
     itens: list[float] = []
     for p in pecas_cm:
@@ -60,6 +63,9 @@ def barras_necessarias(pecas_cm: list[float], barra: float = BARRA_CM) -> dict:
     n = len(livres)
     return {
         "barras": n,
+        "sobras": [{"id": f"{prefixo_id}-B{i + 1:02d}" if prefixo_id else f"B{i + 1}",
+                    "barra": i + 1, "comprimento_cm": round(L, 1)}
+                   for i, L in enumerate(livres) if L > 0.5],
         "comprimento_barra_cm": barra,
         "perda_corte_cm": PERDA_CORTE,
         "aproveitamento": round(sum(itens) / (n * barra), 3) if n else 0.0,
@@ -137,7 +143,7 @@ def _nota(livres) -> tuple:
     return (len(livres), -sum((r[2] * r[3]) ** 2 for rects in livres for r in rects))
 
 
-def chapas_necessarias(pecas: list[tuple]) -> dict:
+def chapas_necessarias(pecas: list[tuple], prefixo_id: str = "") -> dict:
     """pecas = [(largura, altura[, rotulo, origem]), ...] em cm.
 
     Devolve também o `layout`: por chapa, onde cada peça é cortada (x, y a
@@ -200,6 +206,9 @@ def chapas_necessarias(pecas: list[tuple]) -> dict:
     layout.sort(key=lambda c: -c["aproveitamento"])
     for i, c in enumerate(layout):
         c["chapa"] = i + 1
+        # Sobra rastreável p/ reaproveitamento: {prefixo}-CH02-S1.
+        for s in c["sobras"]:
+            s["id"] = f"{prefixo_id}-CH{i + 1:02d}-{s['rotulo']}" if prefixo_id else f"CH{i + 1}-{s['rotulo']}"
     return {
         "chapas": n,
         "chapa_cm": [CHAPA_W, CHAPA_H],
@@ -220,7 +229,15 @@ def material_da_bitola(bitola: str) -> str:
     return bitola.replace(".", ",") + " (barra 3 m)"
 
 
-def compra_de_grupos(grupos: list[dict]) -> dict:
+def _token_material(mat: str) -> str:
+    """Barra de compra → token do ID da sobra: MP (meio pontalete), S7, S10..."""
+    if "pontalete" in mat.lower():
+        return "MP"
+    m = re.search(r"x\s*(\d+)", mat)
+    return f"S{m.group(1)}" if m else "BAR"
+
+
+def compra_de_grupos(grupos: list[dict], prefixo_id: str = "") -> dict:
     """Material de compra de 1 item: as peças de todos os grupos saem do
     mesmo estoque (sobra de um lado corta peça do outro). Painel já
     identificado (`numero`, `id`, 1 por linha — `materiais_service`) mantém o
@@ -241,10 +258,17 @@ def compra_de_grupos(grupos: list[dict]) -> dict:
             mat = material_da_bitola(s["bitola"])
             for c in s["cortes"]:
                 por_material.setdefault(mat, []).extend([c["comprimento_cm"]] * int(c["quantidade"]))
-    out: dict = {"chapas": None, "barras": []}
+    out: dict = {"chapas": None, "barras": [], "sobras": []}
     if paineis:
-        out["chapas"] = {"material": "Chapa compensado 244 x 122 cm", **chapas_necessarias(paineis)}
+        mat = "Chapa compensado 244 x 122 cm"
+        out["chapas"] = {"material": mat, **chapas_necessarias(paineis, prefixo_id)}
+        for c in out["chapas"]["layout"]:
+            out["sobras"] += [{"id": s["id"], "tipo": "chapa", "material": mat, "origem": f"Chapa {c['chapa']}",
+                               "largura_cm": s["largura_cm"], "altura_cm": s["altura_cm"]} for s in c["sobras"]]
     for mat, pecas in sorted(por_material.items()):
-        out["barras"].append({"material": mat, "pecas": len(pecas),
-                              "total_m": round(sum(pecas) / 100, 2), **barras_necessarias(pecas)})
+        pref = f"{prefixo_id}-{_token_material(mat)}" if prefixo_id else _token_material(mat)
+        b = barras_necessarias(pecas, prefixo_id=pref)
+        out["barras"].append({"material": mat, "pecas": len(pecas), "total_m": round(sum(pecas) / 100, 2), **b})
+        out["sobras"] += [{"id": s["id"], "tipo": "barra", "material": mat, "origem": f"Barra {s['barra']}",
+                           "comprimento_cm": s["comprimento_cm"]} for s in b["sobras"]]
     return out

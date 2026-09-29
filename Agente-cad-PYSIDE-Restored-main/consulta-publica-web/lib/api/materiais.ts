@@ -90,7 +90,7 @@ export interface ChapaLayout {
   chapa: number;
   aproveitamento: number;
   pecas: PecaNaChapa[];
-  sobras: { rotulo: string; x: number; y: number; largura_cm: number; altura_cm: number }[];
+  sobras: { rotulo: string; id?: string; x: number; y: number; largura_cm: number; altura_cm: number }[];
 }
 
 export interface CompraChapas {
@@ -99,6 +99,18 @@ export interface CompraChapas {
   aproveitamento: number;
   emendas: number;
   layout?: ChapaLayout[];
+}
+
+/** Sobra do plano de corte com ID rastreável ({OBRA}-{PAV}-{CLS}-{ITEM}-CH02-S1
+ * ou …-S7-B03) — estoque para reaproveitamento no próximo pavimento. */
+export interface SobraRastreavel {
+  id: string;
+  tipo: "chapa" | "barra";
+  material: string;
+  origem: string;
+  largura_cm?: number;
+  altura_cm?: number;
+  comprimento_cm?: number;
 }
 
 export interface CompraBarras {
@@ -116,7 +128,7 @@ export interface MateriaisData {
   prefixo_id?: string;
   grupos: GrupoMateriais[];
   /** Material de compra: plano de corte das peças (chapa 244x122, barra 3 m). */
-  compra?: { chapas: CompraChapas | null; barras: CompraBarras[] };
+  compra?: { chapas: CompraChapas | null; barras: CompraBarras[]; sobras?: SobraRastreavel[] };
 }
 
 export type MateriaisResult =

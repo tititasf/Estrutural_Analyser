@@ -214,3 +214,14 @@ viga) continua 1 peça, com 7 cm centrados.
 | Aba no portal | `consulta-publica-web/components/ficha/MateriaisTab.tsx` |
 | Viewer de chapas | `consulta-publica-web/components/ficha/ChapasViewer.tsx` |
 | Testes | `consulta-publica-api/tests/test_materiais_service.py` |
+
+## 10. Sobras rastreáveis (28/09)
+
+Toda sobra do plano de corte tem ID no formato do painel, para o registro de
+reaproveitamento (Q8): chapa `{OBRA}-{PAV}-{CLS}-{ITEM}-CH{nn}-S{k}` (S1 = maior
+sobra daquela chapa) e barra `{OBRA}-{PAV}-{CLS}-{ITEM}-{MAT}-B{nn}` (MAT = S7,
+S10, S5 ou MP = meio pontalete; o que resta da barra nn depois dos cortes, já
+descontado 1 cm por corte). A API devolve a lista em `compra.sobras`; o portal
+mostra "Sobras para reaproveitamento" no Material de compra. Ainda sem filtro
+de tamanho mínimo útil — **Q9:** abaixo de que medida a sobra é descarte
+(ex. 26 × 2 de chapa, 4,4 cm de barra)?

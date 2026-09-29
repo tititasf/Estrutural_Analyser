@@ -221,3 +221,19 @@ def test_barras_paralelas_com_montantes_nao_viram_uma_peca(tmp_path):
     s = medir_dxf(path)["sarrafos"][0]
     assert s["pecas"] == 6
     assert {c["comprimento_cm"] for c in s["cortes"]} == {237.0, 210.0, 19.0}
+
+
+def test_sobras_de_chapa_e_barra_tem_id_rastreavel():
+    """Sobra = estoque para o próximo pavimento: ID no formato do painel."""
+    from services.plano_de_corte import compra_de_grupos
+
+    g = {"disponivel": True, "titulo": "Lado A",
+         "paineis": [{"numero": 1, "id": "X-P01", "largura_cm": 200.0, "altura_cm": 100.0}],
+         "sarrafos": [{"bitola": "Sarrafo 2.2 x 7 cm", "cortes": [{"comprimento_cm": 250.0, "quantidade": 1}]},
+                      {"bitola": "Sarrafo 3.5 x 7 cm", "cortes": [{"comprimento_cm": 100.0, "quantidade": 1}]}]}
+    c = compra_de_grupos([g], "TREINO_1-13PAV-LV-V1.PARA")
+    ids = {s["id"]: s for s in c["sobras"]}
+    assert all(i.startswith("TREINO_1-13PAV-LV-V1.PARA-CH01-S") for i, s in ids.items() if s["tipo"] == "chapa")
+    assert ids["TREINO_1-13PAV-LV-V1.PARA-S7-B01"]["comprimento_cm"] == 49.0  # 300 - 250 - 1 de corte
+    assert ids["TREINO_1-13PAV-LV-V1.PARA-MP-B01"]["comprimento_cm"] == 199.0
+    assert len(ids) == len(c["sobras"])
