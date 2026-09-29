@@ -222,6 +222,17 @@ reaproveitamento (Q8): chapa `{OBRA}-{PAV}-{CLS}-{ITEM}-CH{nn}-S{k}` (S1 = maior
 sobra daquela chapa) e barra `{OBRA}-{PAV}-{CLS}-{ITEM}-{MAT}-B{nn}` (MAT = S7,
 S10, S5 ou MP = meio pontalete; o que resta da barra nn depois dos cortes, já
 descontado 1 cm por corte). A API devolve a lista em `compra.sobras`; o portal
-mostra "Sobras para reaproveitamento" no Material de compra. Ainda sem filtro
-de tamanho mínimo útil — **Q9:** abaixo de que medida a sobra é descarte
-(ex. 26 × 2 de chapa, 4,4 cm de barra)?
+mostra "Sobras para reaproveitamento" no Material de compra. **Q9 respondida
+(D-68): por enquanto nada é descarte** — toda sobra entra na lista, sem filtro
+de tamanho mínimo.
+
+## 11. Painéis recortados (aberturas) — 28/09
+
+Painel cuja célula não é retangular (entalhe de viga/pilar, borda diagonal)
+leva na API `contorno` (+ `furos`) em cm locais (origem no canto inferior
+esquerdo do retângulo envolvente, y para cima). O plano de corte continua
+cortando o retângulo; no Material de compra a área de recorte (retângulo −
+contorno) aparece hachurada em vermelho na chapa, e a linha leva a tag
+"recortado". Na Montagem painéis a chapa é a extrusão do contorno (abertura
+vazada). No 13_PAV: L319 P06 (entalhe 81,4 × 65) e P09 (diagonal), L326 P01/P03.
+Limite: faixa de emenda (ex. P09a/b, painel > 122) leva só a tag, sem a forma.

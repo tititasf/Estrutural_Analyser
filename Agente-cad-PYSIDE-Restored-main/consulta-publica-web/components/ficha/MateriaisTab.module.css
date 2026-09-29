@@ -194,3 +194,19 @@
   padding-top: 10px;
   opacity: 0.8;
 }
+
+/* Recorte de abertura no plano de corte: sai da chapa mas não é painel. */
+.hachuraRecorte {
+  stroke: #dc2626;
+  stroke-width: 0.7;
+}
+
+.recorte {
+  stroke: #dc2626;
+  stroke-width: 0.5;
+  stroke-dasharray: 2 1.2;
+}
+
+.pecaRecortada {
+  fill-opacity: 0.35;
+}

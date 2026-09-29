@@ -156,13 +156,21 @@ def medir_dxf(path: Path) -> dict:
             # (`_add_narrow_panel_hatches`, layer Hachura/REAPROVEITAMENTO).
             tira = any(a - 0.5 <= c.x <= b + 0.5 and d - 0.5 <= c.y <= e + 0.5
                        for a, d, b, e in hachuras)
+            # Recortado: contorno real (cm, origem no canto inferior esquerdo do
+            # retângulo envolvente) — plano de corte e 3D desenham a abertura.
+            forma = None
+            if not retangulo:
+                p = pol.simplify(0.05)
+                local = lambda cs: [[round(x - x0, 1), round(y - y0, 1)] for x, y in list(cs)[:-1]]
+                forma = {"contorno": local(p.exterior.coords), "furos": [local(i.coords) for i in p.interiors]}
             celulas.append((-round(y1), round(x0), round(w, _TOL), round(h, _TOL), not retangulo, tira,
-                            (x0, y0, x1, y1)))
-    celulas.sort()
+                            (x0, y0, x1, y1), forma))
+    celulas.sort(key=lambda c: c[:2])
     return {
         "paineis": [
-            {"largura_cm": w, "altura_cm": h, "quantidade": 1, "recortado": rec, "tira": tira, "_bbox": bb}
-            for _, _, w, h, rec, tira, bb in celulas
+            {"largura_cm": w, "altura_cm": h, "quantidade": 1, "recortado": rec, "tira": tira, "_bbox": bb,
+             **(forma or {})}
+            for _, _, w, h, rec, tira, bb, forma in celulas
         ],
         "paineis_total": len(celulas),
         "paineis_recortados": recortados,

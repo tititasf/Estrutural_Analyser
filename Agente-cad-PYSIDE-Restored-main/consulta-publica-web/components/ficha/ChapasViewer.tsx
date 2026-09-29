@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type PointerEvent } from "react";
-import type { ChapaLayout } from "@/lib/api/materiais";
+import type { ChapaLayout, PainelMedido } from "@/lib/api/materiais";
 import styles from "./MateriaisTab.module.css";
 
 const CHAPA_W = 244;
@@ -17,7 +17,17 @@ const fmt = (n: number) => n.toLocaleString("pt-BR", { maximumFractionDigits: 1 
  * cada peça desenhada na posição de corte com o número do painel da lista. */
 const VB0 = { x: -MARGEM, y: -MARGEM, w: CHAPA_W + 2 * MARGEM, h: CHAPA_H + 2 * MARGEM };
 
-export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
+/** Contorno do painel recortado na posição de corte da chapa (y p/ baixo).
+ * Painel local: y p/ cima. Girado = rotação de 90° (largura ↔ altura). */
+function pontosNaChapa(p: { x: number; y: number; girado: boolean }, painel: PainelMedido, anel: [number, number][]) {
+  const h = painel.altura_cm;
+  return anel
+    .map(([lx, ly]) => (p.girado ? [p.x + ly, p.y + lx] : [p.x + lx, p.y + (h - ly)]))
+    .map(([x, y]) => `${x},${y}`)
+    .join(" ");
+}
+
+export function ChapasViewer({ layout, paineis = {} }: { layout: ChapaLayout[]; paineis?: Record<string, PainelMedido> }) {
   const [ativa, setAtiva] = useState(0);
   // Pan/zoom só por viewBox (PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md): roda = zoom
   // no cursor, arrastar = mover, duplo clique = enquadrar a chapa.
@@ -100,6 +110,9 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
             <pattern id="sobra" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
               <line x1="0" y1="0" x2="0" y2="4" className={styles.hachura} />
             </pattern>
+            <pattern id="recorte" width="2.5" height="2.5" patternUnits="userSpaceOnUse" patternTransform="rotate(-45)">
+              <line x1="0" y1="0" x2="0" y2="2.5" className={styles.hachuraRecorte} />
+            </pattern>
           </defs>
           <rect x={0} y={0} width={CHAPA_W} height={CHAPA_H} className={styles.chapaFundo} />
           {chapa.sobras.map((s) => {
@@ -128,19 +141,43 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
             const cy = p.y + p.altura_cm / 2;
             const menor = Math.min(p.largura_cm, p.altura_cm);
             const fs = Math.max(3, Math.min(14, menor * 0.35));
+            const painel = p.id ? paineis[p.id] : undefined;
+            const forma = painel?.contorno;
             return (
               <g key={p.rotulo}>
-                <title>{`Painel ${p.rotulo}${p.id ? ` · ${p.id}` : ""} · ${p.origem} · ${fmt(p.largura_cm)} × ${fmt(p.altura_cm)} cm${p.girado ? " (girado)" : ""}`}</title>
-                <rect
-                  x={p.x}
-                  y={p.y}
-                  width={p.largura_cm}
-                  height={p.altura_cm}
-                  fill={cor(p.origem)}
-                  fillOpacity={0.35}
-                  stroke={cor(p.origem)}
-                  strokeWidth={0.6}
-                />
+                <title>{`Painel ${p.rotulo}${p.id ? ` · ${p.id}` : ""} · ${p.origem} · ${fmt(p.largura_cm)} × ${fmt(p.altura_cm)} cm${p.girado ? " (girado)" : ""}${forma ? " · recortado" : ""}`}</title>
+                {forma ? (
+                  <>
+                    {/* Área de recorte (abertura) = retângulo cortado − contorno do painel. */}
+                    <path
+                      d={`M${p.x},${p.y}h${p.largura_cm}v${p.altura_cm}h${-p.largura_cm}Z M${pontosNaChapa(p, painel, forma)}Z`}
+                      fillRule="evenodd"
+                      fill="url(#recorte)"
+                      className={styles.recorte}
+                    />
+                    <polygon
+                      points={pontosNaChapa(p, painel, forma)}
+                      fill={cor(p.origem)}
+                      stroke={cor(p.origem)}
+                      strokeWidth={0.6}
+                      className={styles.pecaRecortada}
+                    />
+                    {(painel.furos ?? []).map((f, k) => (
+                      <polygon key={k} points={pontosNaChapa(p, painel, f)} fill="url(#recorte)" className={styles.recorte} />
+                    ))}
+                  </>
+                ) : (
+                  <rect
+                    x={p.x}
+                    y={p.y}
+                    width={p.largura_cm}
+                    height={p.altura_cm}
+                    fill={cor(p.origem)}
+                    fillOpacity={0.35}
+                    stroke={cor(p.origem)}
+                    strokeWidth={0.6}
+                  />
+                )}
                 <text x={cx} y={cy} fontSize={fs} textAnchor="middle" dominantBaseline="central" className={styles.rotuloPeca}>
                   {p.rotulo}
                 </text>
@@ -178,6 +215,9 @@ export function ChapasViewer({ layout }: { layout: ChapaLayout[] }) {
                   <td>
                     {fmt(p.largura_cm)} × {fmt(p.altura_cm)}
                     {p.girado && <span className={styles.sub}>girado 90°</span>}
+                    {p.id && paineis[p.id.replace(/(-P\d+)[a-z]$/, "$1")]?.contorno && (
+                      <span className={styles.tag} title="Retângulo cortado da chapa; a área hachurada em vermelho é o recorte da abertura">recortado</span>
+                    )}
                   </td>
                 </tr>
               ))}

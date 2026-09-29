@@ -28,6 +28,10 @@ export interface PainelMedido {
   classe?: string;
   /** Tira de escoramento não volta ao estoque; painel comum sim. */
   reaproveitavel?: boolean;
+  /** Recortado: contorno real e furos (cm, origem no canto inferior esquerdo
+   * do retângulo envolvente, y p/ cima). */
+  contorno?: [number, number][];
+  furos?: [number, number][][];
   /** Sarrafos na posição sobre o painel, na ordem de montagem (aba 3D). */
   montagem?: SarrafoMontagem[];
   /** Sarrafos que correm sobre este painel (associados pela geometria). */

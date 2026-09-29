@@ -237,3 +237,15 @@ def test_sobras_de_chapa_e_barra_tem_id_rastreavel():
     assert ids["TREINO_1-13PAV-LV-V1.PARA-S7-B01"]["comprimento_cm"] == 49.0  # 300 - 250 - 1 de corte
     assert ids["TREINO_1-13PAV-LV-V1.PARA-MP-B01"]["comprimento_cm"] == 199.0
     assert len(ids) == len(c["sobras"])
+
+
+def test_painel_recortado_leva_o_contorno_real(tmp_path):
+    """L319 P06: painel 122 x 244 com entalhe de pilar 40,6 x 65 no canto."""
+    doc = ezdxf.new()
+    pts = [(40.6, 179), (122, 179), (122, 0), (0, 0), (0, 244), (40.6, 244)]
+    doc.modelspace().add_lwpolyline([(x + 500, y + 100) for x, y in pts], close=True, dxfattribs={"layer": "Painéis"})
+    path = tmp_path / "laje.dxf"
+    doc.saveas(path)
+    p = medir_dxf(path)["paineis"][0]
+    assert p["recortado"] and (p["largura_cm"], p["altura_cm"]) == (122.0, 244.0)
+    assert sorted(map(tuple, p["contorno"])) == sorted(pts) and p["furos"] == []

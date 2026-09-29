@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GrupoMateriais, PainelMedido, SarrafoMontagem } from "@/lib/api/materiais";
-import type { Material, MeshStandardMaterial } from "three";
+import type { BufferGeometry, Material, MeshStandardMaterial } from "three";
 import styles from "./MontagemPaineis.module.css";
 
 /** Espessura da chapa de compensado (cm) — só visual. */
@@ -75,8 +75,8 @@ function Cena({ painel, velocidade, rodada, onPasso }: {
       scene.add(grade);
 
       const descartar: { dispose: () => void }[] = [renderer, controls];
-      const caixa = (w: number, h: number, e: number, cor: number) => {
-        const geo = new THREE.BoxGeometry(w, e, h);
+      const caixa = (w: number, h: number, e: number, cor: number, forma?: BufferGeometry) => {
+        const geo = forma ?? new THREE.BoxGeometry(w, e, h);
         const mat = new THREE.MeshStandardMaterial({ color: cor, roughness: 0.85, transparent: true });
         const mesh = new THREE.Mesh(geo, mat);
         const eg = new THREE.EdgesGeometry(geo);
@@ -88,8 +88,23 @@ function Cena({ painel, velocidade, rodada, onPasso }: {
       };
 
       // Desenho: x p/ direita, y p/ cima → bancada: X = x, Z = -y, Y = espessura.
-      const chapa = caixa(W, H, CHAPA_ESP, COR.painel);
-      const pChapa = new THREE.Vector3(W / 2, CHAPA_ESP / 2, -H / 2);
+      // Painel recortado: extrusão do contorno real (com furos) — a abertura
+      // aparece vazada. Shape no plano (x, y); girar -90° em X leva y → -Z e a
+      // extrusão → +Y, com a base da chapa em Y = 0.
+      let forma: BufferGeometry | undefined;
+      if (painel.contorno && painel.contorno.length >= 3) {
+        const anel = (pts: [number, number][], alvo: InstanceType<typeof THREE.Path>) => {
+          pts.forEach(([x, y], i) => (i ? alvo.lineTo(x, y) : alvo.moveTo(x, y)));
+          alvo.closePath();
+          return alvo;
+        };
+        const shape = anel(painel.contorno, new THREE.Shape()) as InstanceType<typeof THREE.Shape>;
+        (painel.furos ?? []).forEach((f) => shape.holes.push(anel(f, new THREE.Path())));
+        forma = new THREE.ExtrudeGeometry(shape, { depth: CHAPA_ESP, bevelEnabled: false });
+        forma.rotateX(-Math.PI / 2);
+      }
+      const chapa = caixa(W, H, CHAPA_ESP, COR.painel, forma);
+      const pChapa = forma ? new THREE.Vector3(0, 0, 0) : new THREE.Vector3(W / 2, CHAPA_ESP / 2, -H / 2);
       const sarr = pecas.map((s) => {
         const c = caixa(s.w, s.h, s.espessura_cm, /press/i.test(s.bitola) ? COR.pressao : COR.sarrafo);
         // Pressão vai na face de trás (linha HIDDEN): embaixo da chapa, sobe.

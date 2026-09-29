@@ -171,7 +171,8 @@ function Grupo({ grupo, laje }: { grupo: GrupoMateriais; laje: boolean }) {
 
 const pct = (a: number) => `${Math.round(a * 100)}%`;
 
-function Compra({ compra }: { compra: NonNullable<MateriaisData["compra"]> }) {
+function Compra({ compra, grupos }: { compra: NonNullable<MateriaisData["compra"]>; grupos: GrupoMateriais[] }) {
+  const paineis = Object.fromEntries(grupos.flatMap((g) => (g.paineis ?? []).filter((p) => p.id).map((p) => [p.id!, p])));
   const linhas = [
     ...(compra.chapas ? [{ ...compra.chapas, qtd: compra.chapas.chapas, un: "chapas", detalhe: "" }] : []),
     ...compra.barras.map((b) => ({
@@ -206,7 +207,7 @@ function Compra({ compra }: { compra: NonNullable<MateriaisData["compra"]> }) {
         </table>
       </div>
       {compra.chapas?.layout && compra.chapas.layout.length > 0 && (
-        <ChapasViewer layout={compra.chapas.layout} />
+        <ChapasViewer layout={compra.chapas.layout} paineis={paineis} />
       )}
       {(compra.sobras?.length ?? 0) > 0 && (
         <div className={styles.avulsos}>
@@ -300,7 +301,7 @@ export function MateriaisTab({ code, ativo }: MateriaisTabProps) {
         </>
       )}
       {sub === "compra" &&
-        (dados.compra ? <Compra compra={dados.compra} /> : <p className={styles.nota}>Sem material de compra.</p>)}
+        (dados.compra ? <Compra compra={dados.compra} grupos={dados.grupos} /> : <p className={styles.nota}>Sem material de compra.</p>)}
       {sub === "montagem" && <MontagemPaineis grupos={dados.grupos} />}
     </div>
   );
