@@ -71,20 +71,30 @@ def numero_pavimento(pav: str) -> Optional[int]:
     return int(m.group(1)) if m else None
 
 
-def cadeia(conn, obra_id: str, pav: str) -> list[str]:
-    """Pavimentos consecutivos que terminam em `pav` (de baixo para cima)."""
-    pavs = [r[0] for r in conn.execute(
-        "SELECT DISTINCT pavimento FROM public_codes WHERE obra_id = ? AND kind = 'item' AND revoked = 0",
-        (obra_id,))]
-    por_numero = {numero_pavimento(p): p for p in pavs if numero_pavimento(p) is not None}
+def ordem_pavimento(pav: str) -> tuple:
+    """Posição do pavimento na obra, de baixo para cima: subsolos (2SS abaixo
+    do 1SS), térreo, pavimentos numerados e, por fim, os nomeados (cobertura,
+    deck…). Provisório até o portal de fôrmas gravar a ordem da obra (anterior/
+    próximo por pavimento, com o tipo 2–10 como um pavimento só)."""
+    s = str(pav or "").upper()
+    m = re.search(r"(\d+)\s*_?\s*(SS|SUB)", s)
+    if m or "SUB" in s:
+        return (0, -int(m.group(1)) if m else -1, s)
     n = numero_pavimento(pav)
-    if n is None:
-        return [pav]
-    out = [pav]
-    while n - 1 in por_numero:
-        n -= 1
-        out.insert(0, por_numero[n])
-    return out
+    if n is not None:
+        return (1, n, s)
+    return (2, 0, s)
+
+
+def cadeia(conn, obra_id: str, pav: str) -> list[str]:
+    """Todos os pavimentos da obra até `pav`, na ordem da obra (de baixo para
+    cima). Pavimento que não existe no cadastro não quebra a sequência: o
+    anterior é o que vem antes na ordem (dono, 29/09)."""
+    pavs = {r[0] for r in conn.execute(
+        "SELECT DISTINCT pavimento FROM public_codes WHERE obra_id = ? AND kind = 'item' AND revoked = 0",
+        (obra_id,))} | {pav}
+    ordem = sorted(pavs, key=ordem_pavimento)
+    return ordem[: ordem.index(pav) + 1]
 
 
 def _item_do_prefixo(prefixo: str) -> str:

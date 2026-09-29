@@ -30,7 +30,7 @@ function Etapa({ etapa, rotulo }: { etapa: EtapaReaproveitamento; rotulo?: strin
 function SemAnterior({ dados }: { dados: ReaproveitamentoData }) {
   return (
     <p className={styles.nota}>
-      Nenhum pavimento abaixo do {dados.pavimento} na sequência (a cadeia só liga pavimentos consecutivos):
+      Nenhum pavimento abaixo do {dados.pavimento} na obra:
       tudo é preparado com material novo.
     </p>
   );
