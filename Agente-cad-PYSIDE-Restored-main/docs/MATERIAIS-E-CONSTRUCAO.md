@@ -371,13 +371,16 @@ classes) — e roda o pavimento inteiro (todos os itens) etapa por etapa.
 - **Compra nova** = plano de corte (§6) só dos painéis/peças que faltaram; ID com
   sufixo `-N` quando existe estoque (a "Preparação com materiais novos" guarda os
   IDs sem sufixo).
-- **Cadeia de pavimentos:** só consecutivos (TERREO = 0, `{n}_PAV` = n). Um buraco
-  na numeração interrompe a cadeia (estoque desconhecido) — **a confirmar com o
-  dono**. O pavimento imediatamente anterior alimenta as etapas 1–3.5; os de baixo
-  (sobras não usadas acumuladas) alimentam 4/4.5.
-- **Sobra de chapa por classe (v1):** a sobra de compensado de um pilar não vai
-  para laje, embora seja o mesmo material — **a confirmar com o dono** se sobra
-  (não painel montado) pode circular entre classes.
+- **Cadeia de pavimentos (D-74):** a ordem de **todos** os pavimentos da obra,
+  de baixo para cima — subsolos (2SS antes do 1SS), térreo, numerados, nomeados
+  (cobertura, deck…). Pavimento ausente não quebra a sequência; o estoque só
+  começa do zero no primeiro. O imediatamente anterior alimenta as etapas 1–3.5;
+  os de baixo (não usados, acumulados) alimentam 4/4.5. A ordem por nome é
+  provisória: o portal de fôrmas vai gravar anterior/próximo por pavimento (com o
+  tipo 2–10 como um pavimento só).
+- **Sobra limpa entre classes (D-75, a implementar):** recorte puro de chapa,
+  sem sarrafo, pode ir para outra classe, mantendo ID e proveniência. Painel
+  montado e retalho de painel montado (tem sarrafo) ficam na própria classe.
 - **Cache:** a medição de cada item fica em disco (`$TMP/consulta_reaproveitamento`),
   chaveada pelos DXFs medidos + mtime (o `publish_batch` NÃO entra: o auto-publish
   o troca a cada ~20 s). Primeira chamada do pavimento ≈ 30 s por classe; depois < 1,5 s.
