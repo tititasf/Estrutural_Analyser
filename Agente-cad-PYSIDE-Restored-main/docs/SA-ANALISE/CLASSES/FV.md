@@ -5,7 +5,15 @@
 **Objeto N1:** cada viga possui zero ou mais segmentos físicos de fundo; um segmento
 é área interna fechada, não uma parede/linha. O dono semântico é
 `FundoVigaInterpreter` em `src/core/beam_interpreters/fundo_viga.py`; a captura de
-topologia comum é `BeamTracer`. LV nunca é fallback de campo, dimensão ou apoio FV.
+topologia comum é `BeamTracer`. LV nunca é fallback de campo, dimensão ou apoio FV,
+mas é **referência não rígida da cobertura** (D-76, dono 2026-09-29 — espelho de o FV
+ser referência da LV): `fundo_viga_lateral_ref.py` usa a cena das laterais para
+(1) devolver à dona da faixa o painel que caiu na faixa de outra viga (≥ 70 % lá, < 30 %
+na própria; ex.: VF202 com rótulo diagonal levava o fundo da V306), (2) criar painel
+onde as duas faces têm parede (células Para) sem fundo — só com as duas paredes como
+linha real do DXF, fora de cota, fora de pilar sólido e de **hachura** (seção de pilar
+pelo próprio desenho) — e (3) dar à viga diagonal sem fundo o painel da faixa diagonal.
+Fundo validado por humano não muda; o gate D-60 audita o resultado depois.
 
 | Camada | Fonte/artefato | Pode decidir |
 |---|---|---|

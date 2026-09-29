@@ -1244,6 +1244,25 @@ def _run_legacy_analysis(
         FundoVigaInterpreter.repair_area_links(
             b, context_beams=runner.beams_found
         )
+    # D-76: laterais como referencia NAO rigida do fundo (painel na faixa de
+    # outra viga volta a' dona; trecho com as duas paredes reais sem fundo
+    # ganha painel). Antes do gate D-60, que audita o resultado.
+    from src.core.beam_interpreters.fundo_viga_lateral_ref import (
+        apply_lateral_reference_all, needs_area_repair as _fv_lv_repair,
+        report_summary as _fv_lv_summary,
+    )
+    _fv_lv_ref = apply_lateral_reference_all(
+        runner.beams_found, texts, all_geo,
+        runner.pavimento_pillar_report, runner.slabs_found,
+    )
+    for b in runner.beams_found:
+        if str(b.get('name')) in _fv_lv_ref and _fv_lv_repair(b):
+            FundoVigaInterpreter.repair_area_links(
+                b, context_beams=runner.beams_found
+            )
+    print(f"[SA] FV referencia LV: {_fv_lv_summary(_fv_lv_ref)}", flush=True)
+    for _nome, _mud in sorted(_fv_lv_ref.items()):
+        print(f'    {_nome}: devolvidos {_mud["removidos"]} recuperados {_mud["criados"]}', flush=True)
     # Gate FV (D-60): fundo com borda fora das linhas estruturais do DXF e'
     # alucinacao — repara no par de linhas certo ou anula, com registro por
     # contorno. Antes da LV/PIL, que consomem o fundo.
@@ -2462,6 +2481,29 @@ def run_analysis(
             FundoVigaInterpreter.repair_area_links(
                 beam, context_beams=window.beams_found
             )
+        if 'fundos_viga' in active_sections:
+            # D-76: laterais como referencia NAO rigida do fundo, antes do
+            # gate D-60 (que audita o resultado). So' em job de Fundos.
+            from src.core.beam_interpreters.fundo_viga_lateral_ref import (
+                apply_lateral_reference_all, needs_area_repair as _fv_lv_repair,
+                report_summary as _fv_lv_summary,
+            )
+            _lv_ref_dxf = getattr(window, 'dxf_data', None) or {}
+            _fv_lv_ref = apply_lateral_reference_all(
+                window.beams_found,
+                list(_lv_ref_dxf.get('texts', []) or []),
+                list(_lv_ref_dxf.get('lines', []) or []) + list(_lv_ref_dxf.get('polylines', []) or []),
+                getattr(window, 'pavimento_pillar_report', {}) or {},
+                window.slabs_found,
+            )
+            for beam in window.beams_found:
+                if str(beam.get('name')) in _fv_lv_ref and _fv_lv_repair(beam):
+                    FundoVigaInterpreter.repair_area_links(
+                        beam, context_beams=window.beams_found
+                    )
+            print(f'[SA-HUMAN] FV referencia LV: {_fv_lv_summary(_fv_lv_ref)}', flush=True)
+            for _nome, _mud in sorted(_fv_lv_ref.items()):
+                print(f'    {_nome}: devolvidos {_mud["removidos"]} recuperados {_mud["criados"]}', flush=True)
         # Gate FV (D-60) tambem no caminho MainWindow/--production-web (portal):
         # o merge pode repor contorno antigo fora da linha do estrutural.
         from src.core.beam_interpreters.fundo_viga_linhas import (
