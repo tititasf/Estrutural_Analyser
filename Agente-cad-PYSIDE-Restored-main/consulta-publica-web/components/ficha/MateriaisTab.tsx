@@ -25,11 +25,21 @@ function faixas(nums?: number[]): string {
 }
 
 type Estado = "loading" | "ok" | "ausente";
-type SubAba = "pecas" | "compra" | "montagem";
+export type MateriaisSubAba = "pecas" | "compra" | "montagem";
+type SubAba = MateriaisSubAba;
+
+export const MATERIAIS_SUB_ABAS: [MateriaisSubAba, string][] = [
+  ["pecas", "Painéis e sarrafos"],
+  ["compra", "Material de compra"],
+  ["montagem", "Montagem painéis"],
+];
 
 interface MateriaisTabProps {
   code: string;
   ativo: boolean;
+  /** Sub-aba vinda da faixa da ficha (aba única Desenho Técnico + Materiais):
+   * controlada de fora, sem as mini-abas internas. */
+  sub?: MateriaisSubAba;
 }
 
 const fmt = (n: number, casas = 1) =>
@@ -249,10 +259,11 @@ function Compra({ compra, grupos }: { compra: NonNullable<MateriaisData["compra"
  * no desenho técnico (N3) que a equipe recebe. Pilar: ABCD + Grades (Cima
  * é só perspectiva); LV: laterais por lado (Corte é só perspectiva); fundo:
  * painéis + sarrafos; laje: só painéis. Fetch só quando a aba abre. */
-export function MateriaisTab({ code, ativo }: MateriaisTabProps) {
+export function MateriaisTab({ code, ativo, sub: subExterna }: MateriaisTabProps) {
   const [estado, setEstado] = useState<Estado>("loading");
   const [dados, setDados] = useState<MateriaisData | null>(null);
-  const [sub, setSub] = useState<SubAba>("pecas");
+  const [subInterna, setSub] = useState<SubAba>("pecas");
+  const sub = subExterna ?? subInterna;
 
   useEffect(() => {
     if (!ativo || dados !== null) return;
@@ -285,8 +296,8 @@ export function MateriaisTab({ code, ativo }: MateriaisTabProps) {
   }
   return (
     <div className={styles.wrapper}>
-      <div className={styles.miniAbas} role="tablist" aria-label="Materiais">
-        {([["pecas", "Painéis e sarrafos"], ["compra", "Material de compra"], ["montagem", "Montagem painéis"]] as const).map(([v, r]) => (
+      {!subExterna && <div className={styles.miniAbas} role="tablist" aria-label="Materiais">
+        {MATERIAIS_SUB_ABAS.map(([v, r]) => (
           <button
             key={v}
             role="tab"
@@ -297,7 +308,7 @@ export function MateriaisTab({ code, ativo }: MateriaisTabProps) {
             {r}
           </button>
         ))}
-      </div>
+      </div>}
       {sub === "pecas" && (
         <>
           <p className={styles.fonte}>Quantidades medidas no desenho técnico (N3).</p>
