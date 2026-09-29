@@ -1,5 +1,16 @@
 import { API_BASE_URL } from "@/lib/config";
 
+/** cm, origem no canto inferior esquerdo do painel, y para cima. */
+export interface SarrafoMontagem {
+  bitola: string;
+  comprimento_cm: number;
+  espessura_cm: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 export interface PainelMedido {
   /** Pilar: face do ABCD (pilha de painéis do gerador). */
   face?: string;
@@ -15,6 +26,8 @@ export interface PainelMedido {
   classe?: string;
   /** Tira de escoramento não volta ao estoque; painel comum sim. */
   reaproveitavel?: boolean;
+  /** Sarrafos na posição sobre o painel, na ordem de montagem (aba 3D). */
+  montagem?: SarrafoMontagem[];
   /** Sarrafos que correm sobre este painel (associados pela geometria). */
   sarrafos?: CorteSarrafo[];
   /** Célula não retangular (recorte de viga, laje poligonal). */

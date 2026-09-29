@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { buscarMateriais, type CorteSarrafo, type GrupoMateriais, type MateriaisData } from "@/lib/api/materiais";
 import { ChapasViewer } from "./ChapasViewer";
+import { MontagemPaineis } from "./MontagemPaineis";
 import styles from "./MateriaisTab.module.css";
 
 /** [1,2,3,5] → "1–3, 5" */
@@ -24,7 +25,7 @@ function faixas(nums?: number[]): string {
 }
 
 type Estado = "loading" | "ok" | "ausente";
-type SubAba = "pecas" | "compra";
+type SubAba = "pecas" | "compra" | "montagem";
 
 interface MateriaisTabProps {
   code: string;
@@ -36,7 +37,7 @@ const fmt = (n: number, casas = 1) =>
 
 /** "Sarrafo 2.2 x 7 cm" → "2,2 x 7"; pressão fica por extenso. */
 const bitolaCurta = (b: string) =>
-  /press/i.test(b) ? "Pressão" : b.replace(/^Sarrafo\s*/i, "").replace(/\s*cm$/i, "").replace(/\./g, ",");
+  /press/i.test(b) ? "Pressão 2,2 x 7" : b.replace(/^Sarrafo\s*/i, "").replace(/\s*cm$/i, "").replace(/\./g, ",");
 
 function ListaSarrafos({ itens }: { itens?: CorteSarrafo[] }) {
   if (!itens || itens.length === 0) return <span className={styles.sub}>—</span>;
@@ -252,7 +253,7 @@ export function MateriaisTab({ code, ativo }: MateriaisTabProps) {
   return (
     <div className={styles.wrapper}>
       <div className={styles.miniAbas} role="tablist" aria-label="Materiais">
-        {([["pecas", "Painéis e sarrafos"], ["compra", "Material de compra"]] as const).map(([v, r]) => (
+        {([["pecas", "Painéis e sarrafos"], ["compra", "Material de compra"], ["montagem", "Montagem painéis"]] as const).map(([v, r]) => (
           <button
             key={v}
             role="tab"
@@ -274,6 +275,7 @@ export function MateriaisTab({ code, ativo }: MateriaisTabProps) {
       )}
       {sub === "compra" &&
         (dados.compra ? <Compra compra={dados.compra} /> : <p className={styles.nota}>Sem material de compra.</p>)}
+      {sub === "montagem" && <MontagemPaineis grupos={dados.grupos} />}
     </div>
   );
 }

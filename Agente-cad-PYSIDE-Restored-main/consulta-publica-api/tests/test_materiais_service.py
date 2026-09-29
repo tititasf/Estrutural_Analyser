@@ -40,7 +40,7 @@ def test_sarrafo_duplicado_conta_uma_vez_e_bitola_vem_da_layer(tmp_path):
     assert por_bitola["Sarrafo 2.2 x 7 cm"]["pecas"] == 2
     assert por_bitola["Sarrafo 2.2 x 7 cm"]["total_m"] == round((230 + 19) / 100, 2)
     # Peça desenhada como retângulo mede o lado maior.
-    assert por_bitola["Sarrafo de pressão"]["cortes"] == [{"comprimento_cm": 122.0, "quantidade": 1}]
+    assert por_bitola["Sarrafo de pressão 2.2 x 7 cm"]["cortes"] == [{"comprimento_cm": 122.0, "quantidade": 1}]
 
 
 def test_plano_de_corte_barras_e_chapas():
@@ -174,6 +174,13 @@ def test_cada_sarrafo_vai_para_o_painel_onde_corre():
     assert g["paineis"][0]["sarrafos"] == [{"bitola": "Sarrafo de pressão", "comprimento_cm": 122.0, "quantidade": 1}]
     assert len(g["paineis"][1]["sarrafos"]) == 2
     assert g["sarrafos_avulsos"] == [{"bitola": "Sarrafo 2.2 x 7 cm", "comprimento_cm": 30.0, "quantidade": 1}]
+    # Montagem 3D: coordenadas locais ao painel; eixo sem largura ganha 7 cm
+    # centrados; pressão entra por último.
+    m = g["paineis"][1]["montagem"]
+    assert [s["bitola"] for s in m] == ["Sarrafo 2.2 x 7 cm", "Sarrafo de pressão"]
+    assert m[0] =={"bitola": "Sarrafo 2.2 x 7 cm", "comprimento_cm": 80.0, "espessura_cm": 2.2,
+                         "x": 4.0, "y": 74.5, "w": 80.0, "h": 7.0}
+    assert (m[1]["x"], m[1]["y"], m[1]["w"], m[1]["h"]) == (3.5, 0.0, 7.0, 122.0)
 
 
 def test_barras_paralelas_com_montantes_nao_viram_uma_peca(tmp_path):

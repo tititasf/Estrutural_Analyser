@@ -1,0 +1,125 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.abas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  max-height: 7.5rem;
+  overflow-y: auto;
+}
+
+.aba {
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+}
+
+.abaAtiva {
+  background: var(--fg);
+  color: var(--surface);
+  border-color: var(--fg);
+}
+
+.cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.id {
+  display: block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.9rem;
+  color: var(--fg);
+}
+
+.sub {
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+}
+
+.controles {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.botao {
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.botaoAtivo {
+  background: var(--surface-2);
+  border-color: var(--fg-muted);
+  font-weight: 600;
+}
+
+.palco {
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.canvas {
+  width: 100%;
+  min-height: 300px;
+  cursor: grab;
+}
+
+.canvas canvas {
+  display: block;
+}
+
+.legenda {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.6rem;
+  margin: 0;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 0.85rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.passos {
+  margin: 0;
+  padding-left: 1.4rem;
+  columns: 2 16rem;
+  font-size: 0.82rem;
+  color: var(--fg-muted);
+}
+
+.passoAtual {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.passoFeito {
+  color: var(--fg);
+}
+
+.nota {
+  margin: 0;
+  color: var(--fg-muted);
+  font-size: 0.8rem;
+}

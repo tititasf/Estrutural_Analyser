@@ -175,8 +175,17 @@ e só mede o ABCD/Grades daquele modo.
   `SARR_3.5x7`) ou 3,5 × 2,2 como está no chat de 28/09?
 - **Q2** — Lateral de 124 cm: é chapa de 122 + complemento de 2 cm (sarrafo ou
   sobra), ou existe chapa maior para lateral? Hoje conta como emenda.
-- **Q3** — Sarrafo de pressão (ABCD do pilar): sai da barra 2,2 × 7 × 3 m? Hoje
-  está assumido que sim.
+- ~~Q3~~ — **Respondida (D-67, 28/09):** o sarrafo de pressão (layer "Sarrafo de
+  Pressão", linha HIDDEN, desenhado só pelo eixo) é **2,2 × 7** da barra de 3 m.
+
+## 9. Montagem painéis (3D)
+
+Sub-aba "Montagem painéis": uma aba por painel medido; three.js anima a chapa
+já cortada entrando na bancada e os sarrafos descendo um a um até a posição
+medida no N3 (`montagem` por painel na API: x, y, w, h em cm a partir do canto
+inferior esquerdo do painel). Ordem: peças mais longas primeiro, pressão por
+último. Peça desenhada só pelo eixo ganha a largura da bitola (7 cm) centrada no
+eixo. Chapa com 1,8 cm de espessura (só visual). Grades ainda não têm animação.
 - **Q4** — LV com painel < 15 cm: comprar sarrafo 2,2 × 5 (como o gerador
   posiciona) ou 2,2 × 7 (como a layer diz)?
 - **Q5** — Perda: aplicar % de quebra ou perda de serra na compra, ou manter o

@@ -216,7 +216,7 @@ def material_da_bitola(bitola: str) -> str:
     if "3.5" in b:
         return "Meio pontalete (barra 3 m)"
     if "press" in b:
-        return "Sarrafo 2,2 x 7 cm (barra 3 m)"  # a confirmar com o dono
+        return "Sarrafo 2,2 x 7 cm (barra 3 m)"  # D-67
     return bitola.replace(".", ",") + " (barra 3 m)"
 
 

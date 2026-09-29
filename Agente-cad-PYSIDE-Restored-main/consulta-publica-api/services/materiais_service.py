@@ -80,7 +80,7 @@ def _comprimento_sarrafo(e) -> float:
 def _nome_bitola(layer: str) -> str:
     low = layer.lower()
     if "press" in low:
-        return "Sarrafo de pressão"
+        return "Sarrafo de pressão 2.2 x 7 cm"  # D-67: desenhado só pelo eixo
     # FV: SARR_5cm (viga 10–14 cm) e SARR_CONTORNO_10cm (viga < 10 cm).
     m = re.search(r"(\d+)\s*cm", low)
     if m:
@@ -268,7 +268,29 @@ def associar_sarrafos(grupo: dict) -> None:
         (por_painel.setdefault(idx, []) if idx is not None else avulsos).append(peca)
     for i, p in enumerate(paineis):
         p["sarrafos"] = _cortes(por_painel.get(i, []))
+        p["montagem"] = _montagem(por_painel.get(i, []), p["_bbox"])
     grupo["sarrafos_avulsos"] = _cortes(avulsos)
+
+
+def _montagem(pecas: list[tuple], painel: tuple) -> list[dict]:
+    """Posição de cada sarrafo sobre o painel (cm, origem no canto inferior
+    esquerdo do painel, y para cima), na ordem de montagem: primeiro os do
+    contorno/longos, por posição; pressão por último. Peça desenhada só pelo
+    eixo (largura 0 — pressão, FV) ganha a largura da bitola centrada no eixo."""
+    x0, y0 = painel[0], painel[1]
+    out = []
+    for bitola, comp, (a, b, c, d) in pecas:
+        m = _BITOLA.search(bitola)
+        esp, larg = sorted(float(v.replace(",", ".")) for v in m.groups()) if m else (2.2, 7.0)
+        w, h = c - a, d - b
+        if w < 0.5:
+            a, w = a - larg / 2, larg
+        if h < 0.5:
+            b, h = b - larg / 2, larg
+        out.append({"bitola": bitola, "comprimento_cm": comp, "espessura_cm": esp,
+                    "x": round(a - x0, 1), "y": round(b - y0, 1), "w": round(w, 1), "h": round(h, 1)})
+    out.sort(key=lambda s: ("press" in s["bitola"].lower(), -max(s["w"], s["h"]), s["y"], s["x"]))
+    return out
 
 
 def _cortes(pecas: list[tuple]) -> list[dict]:
