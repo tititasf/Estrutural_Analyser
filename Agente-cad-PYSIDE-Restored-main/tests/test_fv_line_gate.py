@@ -49,8 +49,10 @@ def test_fundo_no_vazio_e_anulado_com_o_antes_guardado():
     beam, item = _beam(_rect(20, 280, 500, 519))
     report = audit_fv_lines_all([beam], [], LINES)
     assert item["fv_line_gate"]["status"] == STATUS_ANULADO and report[STATUS_ANULADO]
-    slots = beam["links"]["viga_fundo_seg_1_area_segs"]
-    assert slots["contour"] == [] and slots["anulado_d60"] == [item]
+    # o slot vazio sai da serie; o registro fica em viga_fundo_anulados_d60
+    assert "viga_fundo_seg_1_area_segs" not in beam["links"]
+    assert beam["links"]["viga_fundo_anulados_d60"]["anulado_d60"] == [item]
+    assert item["fv_line_gate"]["slot_original"] == 1
     assert item["points"] == []
     assert item["fv_line_gate"]["antes"] == _rect(20, 280, 500, 519)
     assert "ANULADO" in gate_attention(item)
@@ -90,8 +92,9 @@ def test_reparador_respeita_decisao_do_gate():
     beam, item = _beam(_rect(20, 280, 500, 519))
     audit_fv_lines_all([beam], [], LINES)
     FundoVigaInterpreter.repair_area_links(beam)
-    slots = beam["links"]["viga_fundo_seg_1_area_segs"]
-    assert slots["contour"] == [] and item["fv_line_gate"]["status"] == STATUS_ANULADO
+    # o reparador nao ressuscita o anulado: nenhum slot de fundo reaparece
+    assert not [k for k in beam["links"] if k.endswith("_area_segs")]
+    assert item["fv_line_gate"]["status"] == STATUS_ANULADO
     # contrato de area fechada nao barra o anulado (ele nao esta' em contour)
     from src.core.sa_db_persistence import fv_area_errors
     assert fv_area_errors([beam]) == []
@@ -193,3 +196,33 @@ def test_paredes_proprias_vem_da_cena_do_dxf_nao_do_vinculo_lateral():
     report = audit_fv_lines_all([beam], texts, walls)
     assert report["ok"] == 1 and "fv_line_gate" not in item
     assert sorted({p[1] for p in item["points"]}) == [0.0, 19.0]
+
+def test_anulado_no_inicio_nao_deixa_buraco_na_numeracao():
+    # Caso VF203/VF301 do 13_PAV (29/09): S1 anulado deixava a serie em S2..Sn.
+    bad = {"points": _rect(20, 280, 500, 519), "tag": "fundo"}
+    good = {"points": _rect(20, 280, 0, 19), "tag": "fundo"}
+    beam = {
+        "name": "V1",
+        "fields": {"viga_fundo_seg_1_dim": "19/55", "viga_fundo_seg_2_dim": "14/55"},
+        "viga_fundo_seg_2_exists": True,
+        "geometry": {"classified": {"merged_bottom_groups_coords": [[20, 280], [20, 280]]}},
+        "links": {"viga_fundo_seg_1_area_segs": {"contour": [bad]},
+                  "viga_fundo_seg_2_area_segs": {"contour": [good]}},
+    }
+    audit_fv_lines_all([beam], [], LINES)
+    assert beam["links"]["viga_fundo_seg_1_area_segs"]["contour"] == [good]
+    assert "viga_fundo_seg_2_area_segs" not in beam["links"]
+    assert beam["fields"] == {"viga_fundo_seg_1_dim": "14/55"}
+    assert beam["viga_fundo_seg_1_exists"] is True and "viga_fundo_seg_2_exists" not in beam
+    assert beam["geometry"]["classified"]["merged_bottom_groups_coords"] == [[20, 280]]
+    assert bad["fv_line_gate"]["slot_original"] == 1
+
+
+def test_viga_com_fundo_validado_nao_e_renumerada():
+    bad = {"points": _rect(20, 280, 500, 519), "tag": "fundo"}
+    good = {"points": _rect(20, 280, 0, 19), "tag": "fundo", "validated": True}
+    beam = {"name": "V1", "links": {"viga_fundo_seg_1_area_segs": {"contour": [bad]},
+                                    "viga_fundo_seg_2_area_segs": {"contour": [good]}}}
+    audit_fv_lines_all([beam], [], LINES)
+    assert beam["links"]["viga_fundo_seg_2_area_segs"]["contour"] == [good]
+    assert beam["links"]["viga_fundo_seg_1_area_segs"]["anulado_d60"] == [bad]

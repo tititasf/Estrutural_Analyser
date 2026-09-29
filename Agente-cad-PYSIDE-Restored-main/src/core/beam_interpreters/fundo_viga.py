@@ -2084,6 +2084,21 @@ class FundoVigaInterpreter:
             if not (min(along) - reach <= own_transverse_pos <= max(along) + reach):
                 continue
             faces.add(round(cls._line_transverse(points, is_horizontal=other_is_h), 3))
+        # Sem par no seg_bottom (V330 x VF301 do 13_PAV, 29/09: rotulo em 4527.7,
+        # paredes em 4533.4/4552.4), o contorno de fundo da propria viga que
+        # cruza da' as paredes — antes de cair no rotulo.
+        for key, slots in (other.get("links") or {}).items():
+            if not re.match(r"^viga_fundo_seg_\d+_area_segs$", str(key)) or not isinstance(slots, dict):
+                continue
+            for contour in slots.get("contour") or []:
+                points = cls._clean_polyline_points(contour.get("points")) if isinstance(contour, dict) else []
+                if len(points) < 3:
+                    continue
+                along = [point[other_axis] for point in points]
+                if not (min(along) - reach <= own_transverse_pos <= max(along) + reach):
+                    continue
+                across = [point[1 - other_axis] for point in points]
+                faces.update((round(min(across), 3), round(max(across), 3)))
         ordered = sorted(faces)
         best: tuple[float, float] | None = None
         for i, low in enumerate(ordered):
@@ -2145,6 +2160,25 @@ class FundoVigaInterpreter:
         by = float(beam_pos[1]) if beam_pos and len(beam_pos) >= 2 else 0.0
         created = 0
         target_count = len(coords)
+        # Posicao transversal dos contornos automaticos atuais: o painel partido
+        # herda as paredes do contorno que o contem (ex.: o que a referencia
+        # das laterais, D-76, ja' pos entre as paredes), nao o rotulo +- meia largura.
+        axis = 0 if is_horizontal else 1
+        current_bands: list[tuple[float, float, float, float]] = []
+        for key, slots in links.items():
+            if not re.match(r"^viga_fundo_seg_\d+_area_segs$", str(key)) or not isinstance(slots, dict):
+                continue
+            for contour in slots.get("contour") or []:
+                points = cls._clean_polyline_points(contour.get("points")) if isinstance(contour, dict) else []
+                if len(points) < 4 or contour.get("special_geometry"):
+                    continue
+                along = [point[axis] for point in points]
+                across = [point[1 - axis] for point in points]
+                # sem conferir com a largura declarada: ela pode vir errada
+                # (VF301 com o 19/66 do pilar); o gate D-60 audita depois.
+                if not 5.0 <= max(across) - min(across) <= 3.0 * max(float(width), 19.0):
+                    continue
+                current_bands.append((min(along), max(along), min(across), max(across)))
         # remove slots automáticos além do novo total
         for key in list(links.keys()):
             match = re.match(r"^viga_fundo_seg_(\d+)_area_segs$", str(key))
@@ -2161,21 +2195,30 @@ class FundoVigaInterpreter:
                 beam.pop(f"viga_fundo_seg_{idx}_exists", None)
         for index, span in enumerate(coords, start=1):
             span_min, span_max = sorted((float(span[0]), float(span[1])))
+            band = next(
+                (
+                    (t_lo, t_hi) for a_lo, a_hi, t_lo, t_hi in current_bands
+                    if a_lo - 0.5 <= span_min and span_max <= a_hi + 0.5
+                ),
+                None,
+            )
             if is_horizontal:
+                y_lo, y_hi = band or (by - half, by + half)
                 points = [
-                    [span_min, by - half],
-                    [span_max, by - half],
-                    [span_max, by + half],
-                    [span_min, by + half],
-                    [span_min, by - half],
+                    [span_min, y_lo],
+                    [span_max, y_lo],
+                    [span_max, y_hi],
+                    [span_min, y_hi],
+                    [span_min, y_lo],
                 ]
             else:
+                x_lo, x_hi = band or (bx - half, bx + half)
                 points = [
-                    [bx - half, span_min],
-                    [bx + half, span_min],
-                    [bx + half, span_max],
-                    [bx - half, span_max],
-                    [bx - half, span_min],
+                    [x_lo, span_min],
+                    [x_hi, span_min],
+                    [x_hi, span_max],
+                    [x_lo, span_max],
+                    [x_lo, span_min],
                 ]
             key = f"viga_fundo_seg_{index}_area_segs"
             length = abs(span_max - span_min)

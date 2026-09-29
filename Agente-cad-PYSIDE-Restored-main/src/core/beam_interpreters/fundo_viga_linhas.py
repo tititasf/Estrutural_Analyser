@@ -38,6 +38,8 @@ TRIM_KEEP_MIN = 0.4          # aparo mantem >= 40% do vao (V302 S9 0.49 fica; V3
 ORTHO_TOL = 0.05             # cm: contorno precisa ser retangulo alinhado aos eixos
 AREA_KEY_RE = re.compile(r"^viga_fundo_seg_(\d+)_area_segs$")
 ANULADO_SLOT = "anulado_d60"
+ANULADOS_KEY = "viga_fundo_anulados_d60"   # registro dos anulados apos compactar a numeracao
+SEG_KEY_RE = re.compile(r"^viga_fundo_seg_(\d+)_(.+)$")
 
 STATUS_REPARADO = "reparado"
 STATUS_ANULADO = "anulado"
@@ -404,7 +406,62 @@ def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) 
                 item["fv_line_gate"] = gate
                 entry.update(antes=gate["antes"], depois=item.get("points") or [])
                 report[gate["status"]].append(entry)
+        _compact_annulled_slots(beam)
     return report
+
+
+def _compact_annulled_slots(beam: dict) -> bool:
+    """Fecha o buraco que o anulado deixa na numeracao (S1 anulado -> serie S2..Sn).
+
+    O slot sem nenhum contorno sai da serie; os seguintes sobem uma posicao, levando
+    junto os campos ``viga_fundo_seg_N_*``. O registro do anulado vai para
+    ``links[ANULADOS_KEY]`` com o numero original (``fv_line_gate.slot_original``).
+    Viga com fundo validado por humano nao e' renumerada (rotulo ja' conferido).
+    """
+    links = beam.get("links")
+    if not isinstance(links, dict):
+        return False
+    slots = sorted(
+        (int(m.group(1)), key) for key in links
+        if (m := AREA_KEY_RE.match(str(key))) and isinstance(links[key], dict)
+    )
+    live = [idx for idx, key in slots if links[key].get("contour")]
+    if [idx for idx, _ in slots] == live:
+        return False
+    if any(isinstance(c, dict) and c.get("validated")
+           for _, key in slots for c in links[key].get("contour") or []):
+        return False
+    remap = {old: new for new, old in enumerate(live, start=1)}
+    record = links.setdefault(ANULADOS_KEY, {}).setdefault(ANULADO_SLOT, [])
+    moved = {}
+    for idx, key in slots:
+        slot = links.pop(key)
+        for item in slot.pop(ANULADO_SLOT, None) or []:
+            if isinstance(item, dict) and isinstance(item.get("fv_line_gate"), dict):
+                item["fv_line_gate"].setdefault("slot_original", idx)
+            record.append(item)
+        if idx in remap:
+            moved[f"viga_fundo_seg_{remap[idx]}_area_segs"] = slot
+    links.update(moved)
+    for store in (beam.get("fields"), beam):
+        if not isinstance(store, dict):
+            continue
+        keys = [(k, m) for k in list(store) if (m := SEG_KEY_RE.match(str(k)))]
+        values = {k: store.pop(k) for k, _ in keys}
+        for key, match in keys:
+            new = remap.get(int(match.group(1)))
+            if new is not None:
+                store[f"viga_fundo_seg_{new}_{match.group(2)}"] = values[key]
+    # listas paralelas aos slots (so' quando alinhadas 1:1 com eles)
+    keep = [pos for pos, (idx, _) in enumerate(slots) if idx in remap]
+    classified = (beam.get("geometry") or {}).get("classified")
+    lists = [(classified, "merged_bottom_groups_coords"), (classified, "merged_bottom_lengths"),
+             (links.get("viga_segs"), "seg_bottom")]
+    for owner, name in lists:
+        values = owner.get(name) if isinstance(owner, dict) else None
+        if isinstance(values, list) and len(values) == len(slots):
+            owner[name] = [values[pos] for pos in keep]
+    return True
 
 
 def gate_attention(item: Any) -> str:

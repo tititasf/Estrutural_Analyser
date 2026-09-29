@@ -121,3 +121,34 @@ def test_face_interrompida_nao_alarga_o_fundo_alem_do_vao():
     ys = [p[1] for p in pts]
     assert (min(xs), max(xs)) == (2377.4, 2477.4)
     assert (min(ys), max(ys)) == (2991.0, 3010.0)
+
+
+def test_sem_par_no_seg_bottom_o_contorno_de_fundo_da_viga_funda_da_as_paredes():
+    # 13_PAV (29/09): V330 (19/120) rotulada em x=4527.7, sem par no seg_bottom;
+    # o fundo dela esta' em 4533.4/4552.4. Cortar no rotulo deixava 15 cm sem
+    # fundo na VF301 (4518.2..4533.4).
+    v330 = {"name": "V330", "is_h": False, "dim": "19/120", "pos": (4527.7, 2682.9),
+            "geometry": {"classified": {"merged_bottom_groups_coords": [(2661.0, 3207.0)],
+                                        "seg_bottom": []}},
+            "links": {"viga_fundo_seg_1_area_segs": {"contour": [{"points": [
+                [4533.4, 2661.0], [4552.4, 2661.0], [4552.4, 3207.0],
+                [4533.4, 3207.0], [4533.4, 2661.0]]}]}}}
+    spans = FundoVigaInterpreter.split_bottom_spans_at_deeper_crossings(
+        [(4244.4, 4649.9)], is_horizontal=True, beam_pos=(1209.8, 3210.8),
+        own_dim_text="19/66", context_beams=[v330], own_name="VF301",
+    )
+    assert spans == [(4244.4, 4533.4), (4552.4, 4649.9)]
+
+
+def test_painel_partido_herda_as_paredes_do_contorno_que_o_contem():
+    # O split nao recentra no rotulo o painel que ja' estava entre as paredes.
+    beam = {"name": "VF301", "fields": {}, "links": {"viga_fundo_seg_1_area_segs": {"contour": [
+        {"points": [[4244.4, 3193.0], [4649.9, 3193.0], [4649.9, 3207.0],
+                    [4244.4, 3207.0], [4244.4, 3193.0]]}]}}}
+    FundoVigaInterpreter._rebuild_auto_area_slots_from_coords(
+        beam, [(4244.4, 4533.4), (4552.4, 4649.9)], is_horizontal=True,
+        beam_pos=(1209.8, 3210.8), width=19.0,  # dimensao errada (19/66 do pilar)
+    )
+    for idx in (1, 2):
+        pts = beam["links"][f"viga_fundo_seg_{idx}_area_segs"]["contour"][0]["points"]
+        assert sorted({p[1] for p in pts}) == [3193.0, 3207.0]
