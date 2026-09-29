@@ -295,18 +295,27 @@ por isso cada classe só aceita cortar na direção que não estraga a montagem.
 
 | Classe | Condição para reaproveitar | Corte permitido |
 |---|---|---|
-| **LV** (lateral de viga) — a mais restrita | **Tipo idêntico**: painel **gradeado** só em gradeado, **sarrafeado** só em sarrafeado | Só a **altura** varia: corta-se a **parte de baixo** do reaproveitado. **Comprimento nunca menor** (em nenhum caso) |
-| **PIL** (pilar) | Mesma **largura** (comprimento): largura diferente **não** reutiliza | Só a **altura** (recorta peça já feita) |
-| **FV** (fundo de viga) | — | Corta em **largura e comprimento**; em altura **não** |
+| **LV** (lateral de viga) — a mais restrita | **Tipo idêntico** (gradeado só em gradeado, sarrafeado só em sarrafeado); **comprimento igual** (nem menor nem maior); **match de sarrafos/grades das extremidades** (ver abaixo) | Só a **altura**: corta-se a **parte de baixo** do reaproveitado |
+| **PIL** (pilar) | **Largura igual**: largura diferente não reutiliza | Só a **altura**, cortando **de cima** |
+| **FV** (fundo de viga) | **Largura igual** (a espessura/montagem dos sarrafos não se corta); **match de sarrafos das extremidades** | Só o **comprimento** |
 | **LAJ** (laje) | **Tira de escoramento nunca** reaproveita (D-66); painel comum sim | Painel comum corta em **qualquer direção** |
 
 **Nunca entre classes diferentes** (painel de pilar não vai para lateral/laje/fundo).
 
-A confirmar com o dono (interpretação do agente, não é regra ainda):
-- LV: comprimento "nunca menor" — tratado como **igual** (±1 cm), já que só a
-  altura pode ser cortada.
-- PIL: de que lado sai o corte da altura (tratado como embaixo, igual à LV).
-- FV: "altura" do fundo — tratado como não se aplica ao painel plano (b × vão).
+**Match de extremidade (LV e FV).** O painel ocupa uma posição no segmento e
+isso aparece nos sarrafos das pontas. Ex.: segmento de LV com 3 painéis — o
+P1 tem o sarrafo vertical na extremidade **esquerda**, o P2 **nenhum**, o P3 na
+**direita**. Só se reaproveita painel cujo padrão de extremidade (esquerda /
+direita / nenhuma / ambas) é **o mesmo** do lugar onde vai entrar: painel com
+sarrafo de extremidade **não** vai para o meio de outro segmento, e painel de
+meio não vai para a ponta. No FV, ao cortar o comprimento, a ponta cortada fica
+sem sarrafo de extremidade — o corte só pode sair da ponta que no destino não
+precisa dele.
+
+Detalhe do corte (esclarecido pelo dono, 29/09): LV corta embaixo; PIL corta em
+cima; no FV "altura" = espessura (onde vão os sarrafos), por isso só o
+comprimento se corta — a largura do fundo também não (os sarrafos
+longitudinais correm junto às bordas).
 
 ### 12.4 Estoque acumula e se gasta (D-72)
 
