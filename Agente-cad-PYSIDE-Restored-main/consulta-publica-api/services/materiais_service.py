@@ -24,6 +24,7 @@ import logging
 import math
 import re
 import sys
+import threading
 from collections import Counter
 from pathlib import Path
 from typing import Optional
@@ -539,9 +540,14 @@ def _paineis_do_contrato_pilar(dxf: Path) -> Optional[dict]:
     }
 
 
+_fontes = threading.local()  # DXFs medidos (cache do reaproveitamento)
+
+
 def _grupo(titulo: str, dxf: Optional[Path], *, com_paineis: bool = True) -> dict:
     if dxf is None:
         return {"titulo": titulo, "disponivel": False}
+    if getattr(_fontes, "lista", None) is not None:
+        _fontes.lista.append(str(dxf))
     try:
         medido = medir_dxf(dxf)
     except Exception as exc:  # noqa: BLE001 — DXF ilegível não derruba a ficha

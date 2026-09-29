@@ -186,3 +186,88 @@ export async function buscarMateriais(code: string): Promise<MateriaisResult> {
     clearTimeout(timeout);
   }
 }
+
+/** Reaproveitamento do pavimento anterior (D-70..D-73, MATERIAIS §12). */
+export type EtapaReaproveitamento = "1" | "1.5" | "2" | "2.5" | "3" | "3.5" | "4" | "4.5" | "novo";
+
+export interface PainelAlocado {
+  id: string;
+  numero: number;
+  grupo: string;
+  largura_cm: number;
+  altura_cm: number;
+  /** Sarrafo de extremidade [esquerda, direita]. */
+  pontas: [boolean, boolean];
+  tipo: "gradeado" | "sarrafeado";
+  etapa: EtapaReaproveitamento;
+  fonte_id?: string;
+  fonte_tipo?: "montado" | "sobra";
+  fonte_item?: string;
+  fonte_pavimento?: string;
+  fonte_medida?: [number, number];
+  corte?: string | null;
+}
+
+export interface PainelDisponivel {
+  id: string;
+  largura_cm: number;
+  altura_cm: number;
+  pontas: [boolean, boolean];
+  tipo: string;
+  grupo: string;
+  usado_por?: string | null;
+}
+
+export interface SobraDisponivel {
+  id: string;
+  tipo: "chapa" | "barra";
+  material?: string;
+  largura_cm?: number;
+  altura_cm?: number;
+  comprimento_cm?: number;
+  util?: { largura_cm: number; altura_cm: number };
+  usado_por?: string | null;
+}
+
+export interface ReaproveitamentoData {
+  pavimento: string;
+  pavimento_anterior: string | null;
+  pavimentos_cadeia: string[];
+  etapas: Record<EtapaReaproveitamento, string>;
+  item: { titulo: string; chave: string };
+  paineis: PainelAlocado[];
+  resumo_item: Partial<Record<EtapaReaproveitamento, number>>;
+  resumo_pavimento: Partial<Record<EtapaReaproveitamento, number>>;
+  compra: NonNullable<MateriaisData["compra"]> & {
+    barras_de_sobra?: { sobra_id: string; bitola: string; comprimento_cm: number }[];
+  };
+  disponiveis: {
+    sobras: SobraDisponivel[];
+    itens: { pavimento: string; item: string; titulo: string; proprio: boolean; paineis: PainelDisponivel[] }[];
+  };
+}
+
+export type ReaproveitamentoResult =
+  | { status: "ok"; data: ReaproveitamentoData }
+  | { status: "not_found" }
+  | { status: "network_error" };
+
+/** Primeira chamada do pavimento mede todos os itens da classe (até ~1 min). */
+const REAPROVEITAMENTO_TIMEOUT_MS = 90000;
+
+export async function buscarReaproveitamento(code: string): Promise<ReaproveitamentoResult> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REAPROVEITAMENTO_TIMEOUT_MS);
+  try {
+    const resp = await fetch(`${API_BASE_URL}/api/v1/ficha/${encodeURIComponent(code)}/reaproveitamento`, {
+      signal: controller.signal,
+      cache: "no-store",
+    });
+    if (!resp.ok) return { status: "not_found" };
+    return { status: "ok", data: (await resp.json()) as ReaproveitamentoData };
+  } catch {
+    return { status: "network_error" };
+  } finally {
+    clearTimeout(timeout);
+  }
+}

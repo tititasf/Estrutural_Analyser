@@ -15,6 +15,7 @@ from fastapi.responses import JSONResponse
 from dbdep import get_ro_conn
 from services.resolve_service import resolver_code
 from services.materiais_service import obter_materiais
+from services.reaproveitamento_service import obter_reaproveitamento
 
 router = APIRouter(prefix="/api/v1", tags=["materiais"])
 
@@ -47,3 +48,23 @@ def obter_materiais_endpoint(
         return _nao_encontrado()
 
     return materiais
+
+
+@router.get("/ficha/{code}/reaproveitamento")
+def obter_reaproveitamento_endpoint(
+    code: str, response: Response, request: Request,
+    conn: sqlite3.Connection = Depends(get_ro_conn),
+):
+    """Reaproveitamento do pavimento anterior (etapas D-70) para o item."""
+    response.headers["Cache-Control"] = "private, no-store"
+
+    row = resolver_code(conn, code)
+    if row is None:
+        return _nao_encontrado()
+
+    settings = request.app.state.settings
+    reap = obter_reaproveitamento(conn, row, settings.dados_obras_root)
+    if reap is None:
+        return _nao_encontrado()
+
+    return reap

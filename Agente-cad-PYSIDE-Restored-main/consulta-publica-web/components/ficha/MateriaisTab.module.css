@@ -210,3 +210,49 @@
 .pecaRecortada {
   fill-opacity: 0.35;
 }
+
+/* Reaproveitamento entre pavimentos */
+.etapa {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.etapaNovo {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+  border-color: transparent;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+
+.itemDisp {
+  border-top: 1px solid var(--border);
+  padding: 6px 0;
+}
+
+.itemDisp > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.itemProprio > summary::after {
+  content: " · próprio item";
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+
+.usado {
+  color: var(--fg-muted);
+}

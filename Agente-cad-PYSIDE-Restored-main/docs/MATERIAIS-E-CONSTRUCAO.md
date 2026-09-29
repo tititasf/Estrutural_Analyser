@@ -341,3 +341,57 @@ Teste de referência: Obra_TREINO_1, **13_PAV → 14_PAV** (SA + N3 do 14 rodado
 portal em 29/09). Casamento só por medida idêntica (±1 cm), antes das regras de
 corte: pilares 219/326 painéis no próprio item; laterais 94/235; fundos
 230/435; lajes 17/147 (lajes e laterais ganham mais nas etapas 2/2.5).
+
+### 12.6 Implementação (29/09 — `services/reaproveitamento_service.py`)
+
+Rota `GET /api/v1/ficha/{code}/reaproveitamento`. O cálculo é por **(obra,
+classe publicada)** — pilares Para e Passa são estoques separados (nunca entre
+classes) — e roda o pavimento inteiro (todos os itens) etapa por etapa.
+
+**Critérios que o código aplica** (além da tabela §12.3):
+
+- **Ponta com sarrafo** = peça em pé encostada na borda esquerda/direita da
+  montagem do painel (`pontas: [esq, dir]`). **Gradeado** = painel com peça de
+  bitola grade/pontalete na montagem; senão sarrafeado.
+- **Medida idêntica** = ±1 cm. Painel recortado (D-69) só é idêntico se a forma
+  bate (diferença de área ≤ 2%); no pilar, mesma medida e destino com chegada de
+  viga que o reaproveitado não tem = etapa cortada ("recorta a chegada de viga").
+- **Escolha dentro da etapa:** menor fonte que serve (best-fit por área); nas
+  etapas cortadas os painéis maiores escolhem primeiro.
+- **Sobra de chapa** (etapas 3/3.5 e 4/4.5): usa o retângulo **útil** da sobra;
+  corte em guilhotina, pode girar; o resto do corte volta na mesma etapa.
+  Painel feito de sobra leva **sarrafo** — que sai primeiro de **sobra de barra**
+  do mesmo material (maior peça primeiro), depois de barra nova. Painel montado
+  reaproveitado já vem com os sarrafos (cortados junto, D-71).
+- **Peças fora de painel** (grades, avulsos) são sempre preparadas de novo
+  (podem sair de sobra de barra).
+- **Retalho** de um corte (ID `{fonte}-R{n}`) só entra no estoque do **próximo**
+  pavimento — não é reusado no mesmo pavimento em que nasceu, exceto o resto de
+  sobra de chapa (acima).
+- **Compra nova** = plano de corte (§6) só dos painéis/peças que faltaram; ID com
+  sufixo `-N` quando existe estoque (a "Preparação com materiais novos" guarda os
+  IDs sem sufixo).
+- **Cadeia de pavimentos:** só consecutivos (TERREO = 0, `{n}_PAV` = n). Um buraco
+  na numeração interrompe a cadeia (estoque desconhecido) — **a confirmar com o
+  dono**. O pavimento imediatamente anterior alimenta as etapas 1–3.5; os de baixo
+  (sobras não usadas acumuladas) alimentam 4/4.5.
+- **Sobra de chapa por classe (v1):** a sobra de compensado de um pilar não vai
+  para laje, embora seja o mesmo material — **a confirmar com o dono** se sobra
+  (não painel montado) pode circular entre classes.
+- **Cache:** a medição de cada item fica em disco (`$TMP/consulta_reaproveitamento`),
+  chaveada pelos DXFs medidos + mtime (o `publish_batch` NÃO entra: o auto-publish
+  o troca a cada ~20 s). Primeira chamada do pavimento ≈ 30 s por classe; depois < 1,5 s.
+
+**Resultado 13_PAV → 14_PAV (Obra_TREINO_1), painéis por etapa:**
+
+| Classe | 1 | 1,5 | 2 | 2,5 | 3 | 3,5 | novo |
+|---|---|---|---|---|---|---|---|
+| Pilares Para (326) | 127 | 60 | 7 | 16 | 35 | 58 | 23 |
+| Pilares Passa (326) | 310 | 5 | – | 5 | – | 5 | 1 |
+| Lateral Para | 92 | 1 | 68 | 8 | 1 | 32 | 33 |
+| Lateral Passa | 95 | 12 | 64 | 14 | 3 | 19 | 28 |
+| Fundos (435) | 214 | 34 | 21 | 48 | – | 105 | 13 |
+| Lajes (147) | 13 | 65 | 26 | 36 | – | 1 | 6 |
+
+Conferidos no portal: V409 lateral (4/4 do V309, pontas iguais), P10 (10/10
+reaproveitados; só meio pontalete novo; 21 sarrafos de sobra de barra).

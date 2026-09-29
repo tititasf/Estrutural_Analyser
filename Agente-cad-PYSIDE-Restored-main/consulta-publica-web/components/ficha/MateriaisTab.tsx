@@ -2,9 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { buscarMateriais, type CorteSarrafo, type GrupoMateriais, type MateriaisData } from "@/lib/api/materiais";
+import {
+  buscarMateriais,
+  buscarReaproveitamento,
+  type CorteSarrafo,
+  type GrupoMateriais,
+  type MateriaisData,
+  type ReaproveitamentoData,
+} from "@/lib/api/materiais";
 import { ChapasViewer } from "./ChapasViewer";
 import { MontagemPaineis } from "./MontagemPaineis";
+import { MateriaisDisponiveis, PreparacaoReaproveitada } from "./Reaproveitamento";
 import styles from "./MateriaisTab.module.css";
 
 /** [1,2,3,5] → "1–3, 5" */
@@ -25,12 +33,18 @@ function faixas(nums?: number[]): string {
 }
 
 type Estado = "loading" | "ok" | "ausente";
+type Preparacao = "novos" | "reaproveitados" | "disponiveis";
+const PREPARACAO: [Preparacao, string][] = [
+  ["novos", "Preparação com Materiais Novos"],
+  ["reaproveitados", "Preparação com Materiais Reaproveitados e Novos"],
+  ["disponiveis", "Materiais Disponíveis dos Pavimentos Anteriores"],
+];
 export type MateriaisSubAba = "pecas" | "compra" | "montagem";
 type SubAba = MateriaisSubAba;
 
 export const MATERIAIS_SUB_ABAS: [MateriaisSubAba, string][] = [
   ["pecas", "Painéis e sarrafos"],
-  ["compra", "Material de compra"],
+  ["compra", "Material necessário, preparação e reaproveitamento"],
   ["montagem", "Montagem painéis"],
 ];
 
@@ -181,7 +195,15 @@ function Grupo({ grupo, laje }: { grupo: GrupoMateriais; laje: boolean }) {
 
 const pct = (a: number) => `${Math.round(a * 100)}%`;
 
-function Compra({ compra, grupos }: { compra: NonNullable<MateriaisData["compra"]>; grupos: GrupoMateriais[] }) {
+function Compra({
+  compra,
+  grupos,
+  titulo = "Material de compra",
+}: {
+  compra: NonNullable<MateriaisData["compra"]>;
+  grupos: GrupoMateriais[];
+  titulo?: string;
+}) {
   const paineis = Object.fromEntries(grupos.flatMap((g) => (g.paineis ?? []).filter((p) => p.id).map((p) => [p.id!, p])));
   const linhas = [
     ...(compra.chapas ? [{ ...compra.chapas, qtd: compra.chapas.chapas, un: "chapas", detalhe: "" }] : []),
@@ -195,7 +217,7 @@ function Compra({ compra, grupos }: { compra: NonNullable<MateriaisData["compra"
   if (linhas.length === 0) return null;
   return (
     <section className={`${styles.grupo} ${styles.compra}`}>
-      <h3 className={styles.tituloGrupo}>Material de compra</h3>
+      <h3 className={styles.tituloGrupo}>{titulo}</h3>
       <div className={styles.tabelaWrap}>
         <table className={`${styles.tabela} tabular-nums`}>
           <thead>
@@ -264,6 +286,28 @@ export function MateriaisTab({ code, ativo, sub: subExterna }: MateriaisTabProps
   const [dados, setDados] = useState<MateriaisData | null>(null);
   const [subInterna, setSub] = useState<SubAba>("pecas");
   const sub = subExterna ?? subInterna;
+  const [prep, setPrep] = useState<Preparacao>("novos");
+  const [reap, setReap] = useState<ReaproveitamentoData | null>(null);
+  const [estadoReap, setEstadoReap] = useState<Estado>("loading");
+  const precisaReap = ativo && sub === "compra" && prep !== "novos";
+
+  useEffect(() => {
+    if (!precisaReap || reap !== null) return;
+    let cancelado = false;
+    setEstadoReap("loading");
+    buscarReaproveitamento(code).then((r) => {
+      if (cancelado) return;
+      if (r.status === "ok") {
+        setReap(r.data);
+        setEstadoReap("ok");
+      } else {
+        setEstadoReap("ausente");
+      }
+    });
+    return () => {
+      cancelado = true;
+    };
+  }, [precisaReap, code, reap]);
 
   useEffect(() => {
     if (!ativo || dados !== null) return;
@@ -317,8 +361,44 @@ export function MateriaisTab({ code, ativo, sub: subExterna }: MateriaisTabProps
           ))}
         </>
       )}
-      {sub === "compra" &&
-        (dados.compra ? <Compra compra={dados.compra} grupos={dados.grupos} /> : <p className={styles.nota}>Sem material de compra.</p>)}
+      {sub === "compra" && (
+        <>
+          <div className={styles.miniAbas} role="tablist" aria-label="Preparação">
+            {PREPARACAO.map(([v, r]) => (
+              <button
+                key={v}
+                role="tab"
+                aria-selected={prep === v}
+                className={`${styles.miniAba} ${prep === v ? styles.miniAbaAtiva : ""}`}
+                onClick={() => setPrep(v)}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+          {prep === "novos" &&
+            (dados.compra ? <Compra compra={dados.compra} grupos={dados.grupos} /> : <p className={styles.nota}>Sem material de compra.</p>)}
+          {prep !== "novos" && estadoReap === "loading" && (
+            <div role="status" aria-live="polite">
+              <Skeleton variant="block" rotulo="cruzando com o estoque dos pavimentos anteriores" />
+            </div>
+          )}
+          {prep !== "novos" && estadoReap === "ausente" && (
+            <p className={styles.nota}>Reaproveitamento não disponível para este item.</p>
+          )}
+          {prep === "reaproveitados" && reap && (
+            <PreparacaoReaproveitada
+              dados={reap}
+              renderCompra={(c) =>
+                c.chapas || c.barras.length > 0 ? (
+                  <Compra compra={c} grupos={dados.grupos} titulo="Material novo (só o que faltou)" />
+                ) : null
+              }
+            />
+          )}
+          {prep === "disponiveis" && reap && <MateriaisDisponiveis dados={reap} />}
+        </>
+      )}
       {sub === "montagem" && <MontagemPaineis grupos={dados.grupos} />}
     </div>
   );
