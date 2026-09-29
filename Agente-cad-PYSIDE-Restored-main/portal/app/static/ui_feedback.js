@@ -476,6 +476,14 @@
     draft.activePage=activePageIndex;
   }
 
+  function pointNav(index,total,attr) {
+    if(total<2) return '';
+    var style='style="border:1px solid #7dd3fc;background:#fff;border-radius:6px;cursor:pointer;font-size:1rem;line-height:1;padding:3px 10px;margin-left:6px"';
+    return '<span class="ui-feedback-point-nav" style="display:inline-flex;align-items:center;margin-left:8px">'+
+      '<button type="button" '+style+' '+attr+'="-1" aria-label="Ponto anterior" title="Ponto anterior"'+(index<=0?' disabled':'')+'>‹</button>'+
+      '<button type="button" '+style+' '+attr+'="1" aria-label="Próximo ponto" title="Próximo ponto"'+(index>=total-1?' disabled':'')+'>›</button></span>';
+  }
+
   function pointContext(point) {
     var context=point.pageState&&point.pageState.context;
     var parts=context?[context.item,context.layer,context.side,context.segment].filter(Boolean):[];
@@ -484,7 +492,11 @@
       var names=(sel.destaques||[]).map(function(item){return item.rotulo;}).filter(Boolean);
       if(names.length) parts.push((sel.modo==='box'?'Box: ':'Destaque: ')+names.slice(0,12).join(', ')+(names.length>12?' … +'+(names.length-12):''));
       else if(sel.modo==='box') parts.push('Box: '+(sel.elementos||[]).length+' elemento(s)');
-      if(sel.regioes_dxf&&sel.regioes_dxf.length) parts.push('Região DXF registrada');
+      if(sel.estrutural){
+        var labels=(sel.estrutural.textos||[]).map(function(item){return item.texto;}).filter(function(text){return /^(V|VF|VB|P|L|LJ)\s?-?\d/i.test(text);});
+        labels=labels.filter(function(text,index){return labels.indexOf(text)===index;});
+        parts.push('Estrutural: '+sel.estrutural.total+' entidade(s)'+(labels.length?' ('+labels.slice(0,15).join(', ')+(labels.length>15?' …':'')+')':''));
+      } else if(sel.regioes_dxf&&sel.regioes_dxf.length) parts.push('Região DXF registrada');
     }
     return parts.join(' · ');
   }
@@ -544,9 +556,10 @@
     var activePoint=page.points[activePointIndex];
     var capture='<div class="ui-feedback-capture-loading">Preparando captura…</div>';
     if(activePoint&&activePoint.screenshot) capture='<img src="'+activePoint.screenshot+'" alt="Captura marcada do ponto '+(activePointIndex+1)+' da página '+(activePageIndex+1)+'">';
-    pointsBox.innerHTML='<section class="ui-feedback-capture-stage" aria-label="Captura da página selecionada"><div class="ui-feedback-page-summary"><div><b>Página '+(activePageIndex+1)+' · ponto '+(activePointIndex+1)+' de '+page.points.length+'</b><span>'+esc(page.url)+'</span></div><a href="'+esc(page.url)+'">Abrir localização ↗</a></div><div class="ui-feedback-point-media" data-ui-feedback-zoom tabindex="0" aria-label="Captura com zoom. Use a roda do mouse para ampliar ou reduzir e arraste para mover."><div class="ui-feedback-zoom-tools"><span data-ui-feedback-zoom-level>100%</span><button type="button" data-ui-feedback-zoom-reset>Redefinir zoom</button></div>'+capture+'</div></section><section class="ui-feedback-comments-pane" aria-label="Apontamentos desta página"><div class="ui-feedback-comments-head"><div><b>Apontamentos desta página</b><span>Selecione um ponto para visualizar sua captura acima.</span></div><strong>'+page.points.length+' ponto(s)</strong></div><div class="ui-feedback-comments-scroll">'+page.points.map(function(point,index){var context=pointContext(point);return '<article class="ui-feedback-point-card'+(index===activePointIndex?' active':'')+'"><div class="ui-feedback-point-card-head"><button type="button" class="ui-feedback-point-select" data-ui-feedback-show-point="'+index+'" aria-pressed="'+(index===activePointIndex?'true':'false')+'"><span class="ui-feedback-point-number">'+(index+1)+'</span><span>Ver captura do ponto '+(index+1)+'</span></button><button type="button" class="ui-feedback-remove-point" data-ui-feedback-remove-point="'+index+'">Remover ponto</button></div><div class="ui-feedback-point-form"><div class="ui-feedback-selected-meta"><b>'+esc(point.info.tag+(point.info.role?' · '+point.info.role:''))+'</b><span>'+esc(point.info.selector)+'</span>'+(context?'<span><strong>Contexto:</strong> '+esc(context)+'</span>':'')+(point.info.text?'<span>“'+esc(point.info.text.slice(0,260))+(point.info.text.length>260?'…':'')+'”</span>':'')+'</div><label>O que deve ser ajustado neste ponto?<textarea maxlength="4000" rows="3" data-ui-feedback-point-text="'+index+'" placeholder="Descreva o comportamento esperado ou o problema observado">'+esc(point.text||'')+'</textarea></label></div></article>';}).join('')+'</div></section>';
+    pointsBox.innerHTML='<section class="ui-feedback-capture-stage" aria-label="Captura da página selecionada"><div class="ui-feedback-page-summary"><div><b>Página '+(activePageIndex+1)+' · ponto '+(activePointIndex+1)+' de '+page.points.length+pointNav(activePointIndex,page.points.length,'data-ui-feedback-step-point')+'</b><span>'+esc(page.url)+'</span></div><a href="'+esc(page.url)+'">Abrir localização ↗</a></div><div class="ui-feedback-point-media" data-ui-feedback-zoom tabindex="0" aria-label="Captura com zoom. Use a roda do mouse para ampliar ou reduzir e arraste para mover."><div class="ui-feedback-zoom-tools"><span data-ui-feedback-zoom-level>100%</span><button type="button" data-ui-feedback-zoom-reset>Redefinir zoom</button></div>'+capture+'</div></section><section class="ui-feedback-comments-pane" aria-label="Apontamentos desta página"><div class="ui-feedback-comments-head"><div><b>Apontamentos desta página</b><span>Selecione um ponto para visualizar sua captura acima.</span></div><strong>'+page.points.length+' ponto(s)</strong></div><div class="ui-feedback-comments-scroll">'+page.points.map(function(point,index){var context=pointContext(point);return '<article class="ui-feedback-point-card'+(index===activePointIndex?' active':'')+'"><div class="ui-feedback-point-card-head"><button type="button" class="ui-feedback-point-select" data-ui-feedback-show-point="'+index+'" aria-pressed="'+(index===activePointIndex?'true':'false')+'"><span class="ui-feedback-point-number">'+(index+1)+'</span><span>Ver captura do ponto '+(index+1)+'</span></button><button type="button" class="ui-feedback-remove-point" data-ui-feedback-remove-point="'+index+'">Remover ponto</button></div><div class="ui-feedback-point-form"><div class="ui-feedback-selected-meta"><b>'+esc(point.info.tag+(point.info.role?' · '+point.info.role:''))+'</b><span>'+esc(point.info.selector)+'</span>'+(context?'<span><strong>Contexto:</strong> '+esc(context)+'</span>':'')+(point.info.text?'<span>“'+esc(point.info.text.slice(0,260))+(point.info.text.length>260?'…':'')+'”</span>':'')+'</div><label>O que deve ser ajustado neste ponto?<textarea maxlength="4000" rows="3" data-ui-feedback-point-text="'+index+'" placeholder="Descreva o comportamento esperado ou o problema observado">'+esc(point.text||'')+'</textarea></label></div></article>';}).join('')+'</div></section>';
     setupImageZoom(pointsBox);
     pageTabs.querySelectorAll('[data-ui-feedback-page]').forEach(function(button){button.addEventListener('click',function(){syncDraftFromEditor();activePageIndex=Number(button.dataset.uiFeedbackPage);renderDraft();storeDraft();});});
+    pointsBox.querySelectorAll('[data-ui-feedback-step-point]').forEach(function(button){button.addEventListener('click',function(){syncDraftFromEditor();page.activePoint=Math.max(0,Math.min(page.points.length-1,activePointIndex+Number(button.dataset.uiFeedbackStepPoint)));renderDraft();storeDraft();});});
     pointsBox.querySelectorAll('[data-ui-feedback-show-point]').forEach(function(button){button.addEventListener('click',function(){syncDraftFromEditor();page.activePoint=Number(button.dataset.uiFeedbackShowPoint);renderDraft();storeDraft();});});
     pointsBox.querySelectorAll('[data-ui-feedback-remove-point]').forEach(function(button){button.addEventListener('click',function(){syncDraftFromEditor();var index=Number(button.dataset.uiFeedbackRemovePoint);page.points.splice(index,1);page.activePoint=Math.max(0,Math.min(Number(page.activePoint)||0,page.points.length-1));if(!page.points.length){draft.pages.splice(activePageIndex,1);activePageIndex=Math.max(0,activePageIndex-1);}if(!draft.pages.length){draft=null;if(dialog.open)dialog.close();}else renderDraft();storeDraft();});});
     pointsBox.querySelectorAll('[data-ui-feedback-point-text]').forEach(function(field){field.addEventListener('input',function(){syncDraftFromEditor();storeDraft();});});
@@ -726,6 +739,24 @@
       destaques:destaques, regioes_dxf:regioes, elementos:elementos};
   }
 
+  var pendingWork = [];
+  function trackPending(promise) {
+    pendingWork.push(promise);
+    promise.then(function(){pendingWork=pendingWork.filter(function(item){return item!==promise;});},function(){pendingWork=pendingWork.filter(function(item){return item!==promise;});});
+  }
+
+  function fetchStructural(selection) {
+    var region=(selection.regioes_dxf||[])[0];
+    if(!region||!cfg.obraId||!region.pavimento) return Promise.resolve(null);
+    var q='x0='+region.x0+'&y0='+region.y0+'&x1='+region.x1+'&y1='+region.y1;
+    return fetch('/obras/'+encodeURIComponent(cfg.obraId)+'/viewer/'+encodeURIComponent(region.pavimento)+'/regiao?'+q,{credentials:'same-origin'})
+      .then(function(response){return response.ok?response.json():null;})
+      .then(function(data){
+        if(!data) return null;
+        return {arquivo:data.arquivo,total:data.total,truncado:data.truncado,por_layer:data.por_layer,textos:data.textos,entidades:data.entidades};
+      }).catch(function(){return null;});
+  }
+
   function chooseTarget(event) {
     if (ignored(event.target)) return;
     event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation(); stopSelecting();
@@ -738,6 +769,7 @@
     // Ponto: tolerância de 8 px em volta do clique para achar o destaque sob o dedo.
     var selRect=box||{left:event.clientX-8,top:event.clientY-8,width:16,height:16};
     var selection=collectSelection(selRect, box?'box':'ponto');
+    var structuralRequest=box?fetchStructural(selection):null;
     if(box) info.rect={left:box.left,top:box.top,width:box.width,height:box.height};
     selected={id:captureId,element:element};
     if (!draft) draft={version:3,title:'',pages:[],activePage:0,createdAt:new Date().toISOString()};
@@ -749,6 +781,7 @@
     var point={id:'point-'+Date.now()+'-'+Math.random().toString(16).slice(2),text:'',info:info,pageState:state,selection:selection,clickX:event.clientX,clickY:event.clientY,pageX:event.pageX,pageY:event.pageY,viewportWidth:window.innerWidth,viewportHeight:window.innerHeight,screenshot:null};
     page.points.push(point); page.activePoint=page.points.length-1; draft.activePage=activePageIndex; selectionIntent='same';
     editor.setAttribute('aria-busy','true'); renderDraft(); storeDraft();
+    if(structuralRequest) trackPending(structuralRequest.then(function(result){ if(result){selection.estrutural=result; if(dialog.open)renderDraft(); storeDraft();} }));
     makeScreenshot(event.clientX,event.clientY,info.rect).then(function(dataUrl){
       if (!draft) return; point.screenshot=dataUrl; editor.setAttribute('aria-busy','false');
       if(selected&&selected.id===captureId&&selected.element)selected.element.classList.remove('ui-feedback-captured-target');
@@ -768,13 +801,25 @@
 
   function discardDraft() { if(!draft)return;if(!confirm('Descartar todas as páginas, capturas e comentários deste rascunho?'))return;draft=null;activePageIndex=0;storeDraft();if(dialog.open)dialog.close(); }
 
-  function pointPayload(point,page) { return {texto:(point.text||'').trim(),pagina_url:page.url,pagina_titulo:page.title,seletor_elemento:point.info.selector,elemento_tag:point.info.tag,elemento_role:point.info.role,elemento_texto:point.info.text,elemento:{version:3,target:point.info,pageState:point.pageState,selection:point.selection||null,capture:{mime:point.screenshot?point.screenshot.slice(5,point.screenshot.indexOf(';')):null,scale:captureScale(),width:Math.round(point.viewportWidth*captureScale()),height:Math.round(point.viewportHeight*captureScale())}},clique_x:point.clickX!=null?point.clickX:(point.info.rect?point.info.rect.left+point.info.rect.width/2:null),clique_y:point.clickY!=null?point.clickY:(point.info.rect?point.info.rect.top+point.info.rect.height/2:null),pagina_x:point.pageX,pagina_y:point.pageY,viewport_largura:point.viewportWidth,viewport_altura:point.viewportHeight,captura_data_url:point.screenshot}; }
+  // Comentário por ponto é opcional; o backend exige texto, então vai o título
+  // do apontamento ou um marcador explícito.
+  function pointText(point) { return (point.text||'').trim() || ((draft&&draft.title||'').trim() ? '(sem comentário no ponto) '+draft.title.trim() : '(sem comentário no ponto)'); }
+
+  // O servidor recusa contexto > 20 KB: corta primeiro as listas longas da seleção.
+  function fitSelection(point) {
+    var sel=point.selection; if(!sel) return null;
+    var copy=JSON.parse(JSON.stringify(sel));
+    function size(){return JSON.stringify({target:point.info,pageState:point.pageState,selection:copy}).length;}
+    var lists=[function(){return copy.estrutural&&copy.estrutural.entidades;},function(){return copy.elementos;},function(){return copy.estrutural&&copy.estrutural.textos;},function(){return copy.destaques;}];
+    for(var i=0;i<lists.length&&size()>18500;i++){var list=lists[i]();while(list&&list.length&&size()>18500){list.pop();copy.cortado=true;}}
+    return copy;
+  }
+
+  function pointPayload(point,page) { return {texto:pointText(point).slice(0,4000),pagina_url:page.url,pagina_titulo:page.title,seletor_elemento:point.info.selector,elemento_tag:point.info.tag,elemento_role:point.info.role,elemento_texto:point.info.text,elemento:{version:3,target:point.info,pageState:point.pageState,selection:fitSelection(point),capture:{mime:point.screenshot?point.screenshot.slice(5,point.screenshot.indexOf(';')):null,scale:captureScale(),width:Math.round(point.viewportWidth*captureScale()),height:Math.round(point.viewportHeight*captureScale())}},clique_x:point.clickX!=null?point.clickX:(point.info.rect?point.info.rect.left+point.info.rect.width/2:null),clique_y:point.clickY!=null?point.clickY:(point.info.rect?point.info.rect.top+point.info.rect.height/2:null),pagina_x:point.pageX,pagina_y:point.pageY,viewport_largura:point.viewportWidth,viewport_altura:point.viewportHeight,captura_data_url:point.screenshot}; }
 
   function saveSession() {
+    if(pendingWork.length){message.className='ui-feedback-message';message.textContent='Lendo o estrutural do box…';Promise.all(pendingWork).then(saveSession,saveSession);return;}
     syncDraftFromEditor();
-    var missing=null;
-    draft.pages.some(function(page,pageIndex){return page.points.some(function(point,pointIndex){if(!(point.text||'').trim()){missing={page:pageIndex,point:pointIndex};return true;}return false;});});
-    if(missing){activePageIndex=missing.page;draft.pages[missing.page].activePoint=missing.point;renderDraft();var field=pointsBox.querySelector('[data-ui-feedback-point-text="'+missing.point+'"]');message.className='ui-feedback-message error';message.textContent='Escreva o comentário do ponto '+(missing.point+1)+' da página '+(missing.page+1)+'.';if(field)field.focus();return;}
     var button=dialog.querySelector('[data-ui-feedback-save]');button.disabled=true;message.className='ui-feedback-message';message.textContent='Salvando '+draft.pages.length+' página(s)…';
     var body={obra_id:cfg.obraId||null,titulo:(draft.title||'').trim()||null,paginas:draft.pages.map(function(page){return {pagina_url:page.url,pagina_titulo:page.title,pontos:page.points.map(function(point){return pointPayload(point,page);})};})};
     api('/sessoes',{method:'POST',body:JSON.stringify(body)}).then(function(){draft=null;activePageIndex=0;return storeDraft();}).then(function(){showHistory();}).catch(function(error){message.className='ui-feedback-message error';message.textContent='Falha ao salvar: '+error.message;}).finally(function(){button.disabled=false;});
@@ -888,7 +933,8 @@
     viewerMeta.textContent=(viewedSession.autor_nome||viewedSession.autor_login)+' · '+formatDate(viewedSession.created_at)+' · '+pages.length+' página(s)';
     viewerTabs.innerHTML=pages.map(function(item,index){return '<button type="button" role="tab" aria-selected="'+(index===viewedPageIndex?'true':'false')+'" data-ui-feedback-view-page="'+index+'">Página '+(index+1)+'<small>'+esc(item.pagina_titulo||'Página do portal')+'</small><b>'+item.pontos.length+' ponto(s)</b></button>';}).join('');
     var capture=point&&point.tem_captura?'<img src="/apontamentos-ui/'+encodeURIComponent(point.id)+'/captura" alt="Captura marcada do ponto '+(viewedPointIndex+1)+' da página '+(viewedPageIndex+1)+'">':'<div class="ui-feedback-capture-loading">Este ponto não possui captura.</div>';
-    viewerPoints.innerHTML='<section class="ui-feedback-capture-stage" aria-label="Captura registrada"><div class="ui-feedback-page-summary"><div><b>Página '+(viewedPageIndex+1)+' · ponto '+(viewedPointIndex+1)+' de '+points.length+'</b><span>'+esc(page.pagina_url)+'</span></div>'+(point?'<a href="'+esc(feedbackRestoreUrl(page.pagina_url,point))+'" data-ui-feedback-view-restore="'+esc(point.id)+'">Abrir estado registrado ↗</a>':'')+'</div><div class="ui-feedback-point-media" data-ui-feedback-zoom tabindex="0" aria-label="Captura com zoom. Use a roda do mouse para ampliar ou reduzir e arraste para mover."><div class="ui-feedback-zoom-tools"><span data-ui-feedback-zoom-level>100%</span><button type="button" data-ui-feedback-zoom-reset>Redefinir zoom</button></div>'+capture+'</div></section><section class="ui-feedback-comments-pane" aria-label="Comentários registrados"><div class="ui-feedback-comments-head"><div><b>Apontamentos desta página</b><span>Selecione um ponto para visualizar sua captura acima.</span></div><strong>'+points.length+' ponto(s)</strong></div><div class="ui-feedback-comments-scroll">'+points.map(function(item,index){var state=item.elemento&&item.elemento.pageState,context=state&&state.context,contextText=context?[context.item,context.layer,context.side,context.segment].filter(Boolean).join(' · '):'';return '<article class="ui-feedback-point-card'+(index===viewedPointIndex?' active':'')+'"><div class="ui-feedback-point-card-head"><button type="button" class="ui-feedback-point-select" data-ui-feedback-view-point="'+index+'" aria-pressed="'+(index===viewedPointIndex?'true':'false')+'"><span class="ui-feedback-point-number">'+(index+1)+'</span><span>Ver captura do ponto '+(index+1)+'</span></button><a href="'+esc(feedbackRestoreUrl(page.pagina_url,item))+'" data-ui-feedback-view-restore="'+esc(item.id)+'">Abrir estado deste ponto ↗</a></div><div class="ui-feedback-selected-meta">'+(contextText?'<span><strong>Contexto:</strong> '+esc(contextText)+'</span>':'')+(item.elemento_texto?'<span>“'+esc(item.elemento_texto.slice(0,260))+(item.elemento_texto.length>260?'…':'')+'”</span>':'')+'</div><div class="ui-feedback-saved-comment"><b>Comentário</b><p>'+esc(item.texto)+'</p></div></article>';}).join('')+'</div></section>';
+    viewerPoints.innerHTML='<section class="ui-feedback-capture-stage" aria-label="Captura registrada"><div class="ui-feedback-page-summary"><div><b>Página '+(viewedPageIndex+1)+' · ponto '+(viewedPointIndex+1)+' de '+points.length+pointNav(viewedPointIndex,points.length,'data-ui-feedback-step-view-point')+'</b><span>'+esc(page.pagina_url)+'</span></div>'+(point?'<a href="'+esc(feedbackRestoreUrl(page.pagina_url,point))+'" data-ui-feedback-view-restore="'+esc(point.id)+'">Abrir estado registrado ↗</a>':'')+'</div><div class="ui-feedback-point-media" data-ui-feedback-zoom tabindex="0" aria-label="Captura com zoom. Use a roda do mouse para ampliar ou reduzir e arraste para mover."><div class="ui-feedback-zoom-tools"><span data-ui-feedback-zoom-level>100%</span><button type="button" data-ui-feedback-zoom-reset>Redefinir zoom</button></div>'+capture+'</div></section><section class="ui-feedback-comments-pane" aria-label="Comentários registrados"><div class="ui-feedback-comments-head"><div><b>Apontamentos desta página</b><span>Selecione um ponto para visualizar sua captura acima.</span></div><strong>'+points.length+' ponto(s)</strong></div><div class="ui-feedback-comments-scroll">'+points.map(function(item,index){var state=item.elemento&&item.elemento.pageState,context=state&&state.context,contextText=context?[context.item,context.layer,context.side,context.segment].filter(Boolean).join(' · '):'';return '<article class="ui-feedback-point-card'+(index===viewedPointIndex?' active':'')+'"><div class="ui-feedback-point-card-head"><button type="button" class="ui-feedback-point-select" data-ui-feedback-view-point="'+index+'" aria-pressed="'+(index===viewedPointIndex?'true':'false')+'"><span class="ui-feedback-point-number">'+(index+1)+'</span><span>Ver captura do ponto '+(index+1)+'</span></button><a href="'+esc(feedbackRestoreUrl(page.pagina_url,item))+'" data-ui-feedback-view-restore="'+esc(item.id)+'">Abrir estado deste ponto ↗</a></div><div class="ui-feedback-selected-meta">'+(contextText?'<span><strong>Contexto:</strong> '+esc(contextText)+'</span>':'')+(item.elemento_texto?'<span>“'+esc(item.elemento_texto.slice(0,260))+(item.elemento_texto.length>260?'…':'')+'”</span>':'')+'</div><div class="ui-feedback-saved-comment"><b>Comentário</b><p>'+esc(item.texto)+'</p></div></article>';}).join('')+'</div></section>';
+    viewerPoints.querySelectorAll('[data-ui-feedback-step-view-point]').forEach(function(button){button.addEventListener('click',function(){viewedPointIndex=Math.max(0,Math.min(points.length-1,viewedPointIndex+Number(button.dataset.uiFeedbackStepViewPoint)));renderSavedSession();});});
     setupImageZoom(viewerPoints);
     viewerTabs.querySelectorAll('[data-ui-feedback-view-page]').forEach(function(button){button.addEventListener('click',function(){viewedPageIndex=Number(button.dataset.uiFeedbackViewPage);viewedPointIndex=0;renderSavedSession();});});
     viewerPoints.querySelectorAll('[data-ui-feedback-view-point]').forEach(function(button){button.addEventListener('click',function(){viewedPointIndex=Number(button.dataset.uiFeedbackViewPoint);renderSavedSession();});});

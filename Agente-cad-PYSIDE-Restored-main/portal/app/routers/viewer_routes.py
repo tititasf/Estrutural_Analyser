@@ -317,6 +317,152 @@ def transform_pavimento_endpoint(
     return {"obra_id": obra_id, "pavimento": pavimento, **transform.como_dict()}
 
 
+# ---- Região do estrutural (box do apontamento) ------------------------------
+# O fundo do viewer é SVG do Matplotlib: as linhas não carregam identidade. O box
+# do apontamento manda a janela em coordenadas DXF e aqui lemos o DXF limpo para
+# dizer quais entidades (handle/tipo/layer) e textos estão dentro ou tocam nela.
+
+_REGIAO_MAX_ENTIDADES = 60
+_REGIAO_MAX_TEXTOS = 40
+_modelspace_cache: dict[str, tuple[float, list[tuple]]] = {}
+
+
+def _segmentos_da_entidade(ent) -> tuple[list[tuple[float, float]], bool]:
+    """Vértices (x, y) e se formam cadeia de segmentos; None se tipo não medido."""
+    tipo = ent.dxftype()
+    if tipo == "LINE":
+        s, e = ent.dxf.start, ent.dxf.end
+        return [(s.x, s.y), (e.x, e.y)], True
+    if tipo == "LWPOLYLINE":
+        pts = [(p[0], p[1]) for p in ent.get_points("xy")]
+        if ent.closed and pts:
+            pts.append(pts[0])
+        return pts, True
+    if tipo == "POLYLINE":
+        pts = [(v.dxf.location.x, v.dxf.location.y) for v in ent.vertices]
+        if ent.is_closed and pts:
+            pts.append(pts[0])
+        return pts, True
+    if tipo in ("CIRCLE", "ARC"):
+        c, r = ent.dxf.center, ent.dxf.radius
+        return [(c.x - r, c.y - r), (c.x + r, c.y + r)], False
+    if tipo in ("TEXT", "MTEXT", "INSERT", "POINT"):
+        p = ent.dxf.insert if tipo != "POINT" else ent.dxf.location
+        return [(p.x, p.y)], False
+    return [], False
+
+
+def _texto(ent) -> str:
+    tipo = ent.dxftype()
+    if tipo == "TEXT":
+        return (ent.dxf.text or "").strip()
+    if tipo == "MTEXT":
+        return (ent.plain_text() or "").strip()
+    return ""
+
+
+def _entidades_modelspace(caminho: Path) -> list[tuple]:
+    """(handle, tipo, layer, pontos, cadeia, texto) — cache por mtime do DXF."""
+    import ezdxf
+
+    chave = str(caminho)
+    mtime = caminho.stat().st_mtime
+    hit = _modelspace_cache.get(chave)
+    if hit and hit[0] == mtime:
+        return hit[1]
+    doc = ezdxf.readfile(str(caminho))
+    saida: list[tuple] = []
+    for ent in doc.modelspace():
+        try:
+            pts, cadeia = _segmentos_da_entidade(ent)
+        except Exception:  # noqa: BLE001 - entidade malformada não derruba a leitura
+            continue
+        if not pts:
+            continue
+        saida.append((ent.dxf.handle, ent.dxftype(), ent.dxf.layer, pts, cadeia, _texto(ent)))
+    _modelspace_cache.clear()
+    _modelspace_cache[chave] = (mtime, saida)
+    return saida
+
+
+def _segmento_cruza_caixa(a, b, x0, y0, x1, y1) -> bool:
+    """Liang–Barsky: o segmento ab tem algum trecho dentro da caixa?"""
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    t0, t1 = 0.0, 1.0
+    for p, q in ((-dx, a[0] - x0), (dx, x1 - a[0]), (-dy, a[1] - y0), (dy, y1 - a[1])):
+        if p == 0:
+            if q < 0:
+                return False
+            continue
+        t = q / p
+        if p < 0:
+            t0 = max(t0, t)
+        else:
+            t1 = min(t1, t)
+        if t0 > t1:
+            return False
+    return True
+
+
+def entidades_na_regiao(caminho: Path, x0: float, y0: float, x1: float, y1: float) -> dict:
+    x0, x1 = sorted((x0, x1))
+    y0, y1 = sorted((y0, y1))
+
+    def dentro(p):
+        return x0 <= p[0] <= x1 and y0 <= p[1] <= y1
+
+    entidades: list[dict] = []
+    textos: list[dict] = []
+    por_layer: dict[str, int] = {}
+    total = 0
+    for handle, tipo, layer, pts, cadeia, texto in _entidades_modelspace(caminho):
+        inside = [dentro(p) for p in pts]
+        if all(inside):
+            estado = "dentro"
+        elif any(inside) or (cadeia and any(
+                _segmento_cruza_caixa(pts[i], pts[i + 1], x0, y0, x1, y1)
+                for i in range(len(pts) - 1))):
+            estado = "toca"
+        elif tipo in ("CIRCLE", "ARC") and not (
+                pts[1][0] < x0 or pts[0][0] > x1 or pts[1][1] < y0 or pts[0][1] > y1):
+            estado = "toca"
+        else:
+            continue
+        total += 1
+        por_layer[layer] = por_layer.get(layer, 0) + 1
+        if texto and len(textos) < _REGIAO_MAX_TEXTOS:
+            textos.append({"texto": texto[:80], "layer": layer,
+                           "x": round(pts[0][0], 1), "y": round(pts[0][1], 1)})
+        if len(entidades) < _REGIAO_MAX_ENTIDADES:
+            entidades.append({"h": handle, "t": tipo, "l": layer, "e": estado[0]})
+    return {
+        "regiao": [round(x0, 1), round(y0, 1), round(x1, 1), round(y1, 1)],
+        "total": total, "truncado": total > len(entidades),
+        "por_layer": dict(sorted(por_layer.items(), key=lambda kv: -kv[1])[:20]),
+        "textos": textos, "entidades": entidades,
+    }
+
+
+@router.get("/{obra_id}/viewer/{pavimento}/regiao")
+def regiao_pavimento_endpoint(
+    obra_id: str, pavimento: str, request: Request,
+    x0: float, y0: float, x1: float, y1: float,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    """Entidades do estrutural limpo dentro/tocando a janela DXF (box do apontamento)."""
+    obra = _obra_do_membro(conn, obra_id, membro)
+    obra_dir = _obra_dir(request, obra)
+    fonte = encontrar_estrutural_limpo(obra_dir, obra, pavimento)
+    if fonte is None:
+        raise HTTPException(status_code=409, detail="estrutural limpo ainda nao gerado")
+    caminho = Path(fonte["path"])
+    if not caminho.is_file():
+        raise HTTPException(status_code=410, detail="DXF do estrutural limpo sumiu do disco")
+    return {"obra_id": obra_id, "pavimento": pavimento, "arquivo": caminho.name,
+            **entidades_na_regiao(caminho, x0, y0, x1, y1)}
+
+
 @router.get("/{obra_id}/viewer/{pavimento}/sugerir-nome")
 def sugerir_nome_endpoint(
     obra_id: str, pavimento: str, grupo: str, request: Request,
