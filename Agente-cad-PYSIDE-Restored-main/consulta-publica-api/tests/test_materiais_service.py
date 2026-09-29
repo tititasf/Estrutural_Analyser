@@ -171,3 +171,20 @@ def test_cada_sarrafo_vai_para_o_painel_onde_corre():
     assert g["paineis"][0]["sarrafos"] == [{"bitola": "Sarrafo de pressão", "comprimento_cm": 122.0, "quantidade": 1}]
     assert len(g["paineis"][1]["sarrafos"]) == 2
     assert g["sarrafos_avulsos"] == [{"bitola": "Sarrafo 2.2 x 7 cm", "comprimento_cm": 30.0, "quantidade": 1}]
+
+
+def test_barras_paralelas_com_montantes_nao_viram_uma_peca(tmp_path):
+    """FV V309A S1: duas barras a 5 cm, partidas na união (x=244), e os
+    montantes das pontas fecham um "retângulo" 447 x 5 — são 6 peças."""
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    for y in (-12, -7):
+        msp.add_line((7, y), (244, y), dxfattribs={"layer": "SARR_2.2x7"})
+        msp.add_line((244, y), (454, y), dxfattribs={"layer": "SARR_2.2x7"})
+    for x in (7, 454):
+        msp.add_line((x, -19), (x, 0), dxfattribs={"layer": "SARR_2.2x7"})
+    path = tmp_path / "fv.dxf"
+    doc.saveas(path)
+    s = medir_dxf(path)["sarrafos"][0]
+    assert s["pecas"] == 6
+    assert {c["comprimento_cm"] for c in s["cortes"]} == {237.0, 210.0, 19.0}

@@ -175,27 +175,54 @@ def medir_dxf(path: Path) -> dict:
 
 
 def _pecas_de_linhas(bitola: str, ents: list) -> list[tuple]:
-    """LINEs de uma layer de sarrafo: cada retângulo estreito fechado por
-    elas é 1 peça (comprimento = lado maior); LINE que não fecha retângulo
-    é uma peça desenhada pela linha de centro."""
-    from shapely.geometry import LineString
-    from shapely.ops import polygonize, unary_union
-
-    segs = [LineString(s) for e in ents for s in _segmentos_da_entidade(e) if math.dist(*s) > 0.05]
+    """LINEs de uma layer de sarrafo. As grades desenham cada peça como um
+    retângulo de 4 LINEs com cantos coincidentes: vira 1 peça (comprimento =
+    lado maior). Só vale o retângulo cujos 4 lados são LINEs inteiras — duas
+    barras paralelas próximas com os montantes das pontas também "fecham" um
+    retângulo (FV: 447 x 5), mas são 4+ peças. LINE fora de retângulo = 1 peça."""
+    r = lambda v: round(v, _TOL)
+    segs = []
+    for e in ents:
+        (x0, y0), (x1, y1) = sorted([(r(e.dxf.start.x), r(e.dxf.start.y)), (r(e.dxf.end.x), r(e.dxf.end.y))])
+        if math.dist((x0, y0), (x1, y1)) > 0.05:
+            segs.append((x0, y0, x1, y1))
+    existe = set(segs)
+    usados: set = set()
     pecas: list[tuple] = []
-    rets = []
-    for pol in polygonize(unary_union(segs)):
-        x0, y0, x1, y1 = pol.bounds
-        w, h = x1 - x0, y1 - y0
-        if min(w, h) <= 12.5 and abs(pol.area - w * h) < 0.02 * w * h:
-            rets.append(pol)
-            pecas.append((bitola, round(max(w, h), _TOL), (x0, y0, x1, y1)))
-    bordas = unary_union([r.boundary for r in rets]).buffer(0.05) if rets else None
-    for sg in segs:
-        if bordas is not None and bordas.contains(sg):
+    horiz = sorted((s for s in segs if s[1] == s[3]), key=lambda s: (s[0], s[2], s[1]))
+    for base in horiz:
+        if base in usados:
             continue
-        x0, y0, x1, y1 = sg.bounds
-        pecas.append((bitola, round(sg.length, _TOL), (x0, y0, x1, y1)))
+        x0, y0, x1, _ = base
+        # parceira: mesma extensão em x, logo acima, a ≤ 12,5 cm
+        for topo in horiz:
+            y1 = topo[1]
+            if topo is base or topo in usados or topo[0] != x0 or topo[2] != x1 or not 0 < y1 - y0 <= 12.5:
+                continue
+            esq, dir_ = (x0, y0, x0, y1), (x1, y0, x1, y1)
+            if esq in existe and dir_ in existe and esq not in usados and dir_ not in usados:
+                usados.update((base, topo, esq, dir_))
+                pecas.append((bitola, r(max(x1 - x0, y1 - y0)), (x0, y0, x1, y1)))
+                break
+    # retângulo em pé (lados verticais longos)
+    vert = sorted((s for s in segs if s[0] == s[2] and s not in usados), key=lambda s: (s[1], s[3], s[0]))
+    for esq in vert:
+        if esq in usados:
+            continue
+        x0, y0, _, y1 = esq
+        for dir_ in vert:
+            x1 = dir_[0]
+            if dir_ is esq or dir_ in usados or dir_[1] != y0 or dir_[3] != y1 or not 0 < x1 - x0 <= 12.5:
+                continue
+            base, topo = (x0, y0, x1, y0), (x0, y1, x1, y1)
+            if base in existe and topo in existe and base not in usados and topo not in usados:
+                usados.update((base, topo, esq, dir_))
+                pecas.append((bitola, r(max(x1 - x0, y1 - y0)), (x0, y0, x1, y1)))
+                break
+    for sg in segs:
+        if sg not in usados:
+            usados.add(sg)
+            pecas.append((bitola, r(math.dist(sg[:2], sg[2:])), sg))
     return pecas
 
 

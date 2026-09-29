@@ -110,7 +110,11 @@ e só mede o ABCD/Grades daquele modo.
 - **Duplicata** (entidade idêntica sobreposta) conta uma vez — ver §7 D1.
 - LV: um DXF por viga × lado; o item mostra "Lado A" e "Lado B".
 - **Grades desenham cada peça como retângulo de 4 LINEs**: o medidor reconstrói o
-  retângulo (lado menor ≤ 12,5 cm) e conta **1 peça** com o lado maior. Antes de
+  retângulo (lado menor ≤ 12,5 cm) e conta **1 peça** com o lado maior. Só vale
+  retângulo cujos 4 lados são LINEs inteiras com cantos coincidentes: no FV, as duas
+  barras a 5 cm + os montantes das pontas também fecham um "retângulo" (447 × 5 no
+  V309A S1) e eram lidos como 1 sarrafo de 447 cm — erro do medidor, não do gerador
+  (o gerador parte a barra na união quando a corrida passa de 300 cm). Antes de
   28/09 cada LINE contava como sarrafo (grades infladas ~4×).
 - **Sarrafo dentro do painel:** cada sarrafo vai para o painel sobre o qual mais
   corre (sobreposição no eixo longo da peça). No ABCD a caixa do painel vem da pilha
