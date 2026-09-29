@@ -22,6 +22,8 @@ export interface PainelMedido {
 }
 
 export interface CorteSarrafo {
+  /** Grades: "vertical" | "horizontal". */
+  sentido?: string;
   bitola: string;
   comprimento_cm: number;
   quantidade: number;

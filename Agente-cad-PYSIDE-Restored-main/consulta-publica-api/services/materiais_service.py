@@ -288,8 +288,18 @@ def separar_grades(grupo: dict) -> None:
         x0 = peca[2][0]
         esq = [r for r in rotulos if r[0] <= x0 + 1] or rotulos[:1]
         por[max(esq)[2]].append(peca)
-    grupo["grades"] = [{"rotulo": t, "face": t.rsplit(".", 1)[-1], "pecas": _cortes(ps)}
+    grupo["grades"] = [{"rotulo": t, "face": t.rsplit(".", 1)[-1], "pecas": _cortes_por_sentido(ps)}
                        for t, ps in por.items() if ps]
+
+
+def _cortes_por_sentido(pecas: list[tuple]) -> list[dict]:
+    """Peças da grade agrupadas por sentido: verticais primeiro, depois
+    horizontais; dentro de cada sentido por bitola e comprimento (maior antes)."""
+    def sentido(bb):
+        return "vertical" if (bb[3] - bb[1]) > (bb[2] - bb[0]) else "horizontal"
+    c = Counter((sentido(bb), b, comp) for b, comp, bb in pecas)
+    return [{"sentido": st, "bitola": b, "comprimento_cm": comp, "quantidade": n}
+            for (st, b, comp), n in sorted(c.items(), key=lambda kv: (kv[0][0] != "vertical", kv[0][1], -kv[0][2]))]
 
 
 _FACES = "ABCDEFGH"

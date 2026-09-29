@@ -135,13 +135,20 @@ function Grupo({ grupo, laje }: { grupo: GrupoMateriais; laje: boolean }) {
                       <tr><th className={styles.esq}>Material</th><th>Comprimento (cm)</th><th>Qtd</th></tr>
                     </thead>
                     <tbody>
-                      {g.pecas.map((c) => (
-                        <tr key={`${c.bitola}-${c.comprimento_cm}`}>
+                      {g.pecas.map((c, i) => [
+                        c.sentido && c.sentido !== g.pecas[i - 1]?.sentido && (
+                          <tr key={`h-${c.sentido}`} className={styles.linhaSentido}>
+                            <td colSpan={3} className={styles.esq}>
+                              {c.sentido === "vertical" ? "Sarrafos verticais" : "Sarrafos horizontais"}
+                            </td>
+                          </tr>
+                        ),
+                        <tr key={`${c.sentido}-${c.bitola}-${c.comprimento_cm}`}>
                           <td className={styles.esq}>{c.bitola.replace(/\./g, ",").replace(/3,5 x 7 cm/, "3,5 x 7 cm (meio pontalete)")}</td>
                           <td>{fmt(c.comprimento_cm)}</td>
                           <td>{c.quantidade}</td>
-                        </tr>
-                      ))}
+                        </tr>,
+                      ])}
                     </tbody>
                   </table>
                 </div>

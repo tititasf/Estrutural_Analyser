@@ -156,7 +156,10 @@ def test_grade_peca_desenhada_com_4_linhas_e_uma_peca_e_vai_para_a_grade_do_rotu
     assert por["Sarrafo 3.5 x 7 cm"]["cortes"] == [{"comprimento_cm": 199.0, "quantidade": 2}]
     separar_grades(g)
     assert [gr["rotulo"] for gr in g["grades"]] == ["P1.A", "P1.B"]
-    assert sum(c["quantidade"] for c in g["grades"][0]["pecas"]) == 3
+    pecas_a = g["grades"][0]["pecas"]
+    assert sum(c["quantidade"] for c in pecas_a) == 3
+    # verticais antes das horizontais
+    assert [c["sentido"] for c in pecas_a] == ["vertical", "vertical", "horizontal"]
 
 
 def test_cada_sarrafo_vai_para_o_painel_onde_corre():

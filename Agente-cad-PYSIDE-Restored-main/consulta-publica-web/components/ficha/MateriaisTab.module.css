@@ -187,3 +187,10 @@
 .grade {
   margin-top: 12px;
 }
+
+.linhaSentido td {
+  font-weight: 600;
+  font-size: 0.85em;
+  padding-top: 10px;
+  opacity: 0.8;
+}
