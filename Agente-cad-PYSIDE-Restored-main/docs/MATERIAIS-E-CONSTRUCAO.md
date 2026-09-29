@@ -348,8 +348,8 @@ Rota `GET /api/v1/ficha/{code}/reaproveitamento`. O cálculo é por **cenário
 (D-78)**: **Para** = pilares Para + laterais Para + fundos + lajes; **Passa** =
 pilares Passa + laterais Passa + fundos + lajes. Os dois cenários são estoques
 independentes (nunca se misturam). Fundo e laje entram nos dois e a ficha deles
-não cita Para/Passa — mostram o cenário Para até a obra ter o campo de
-comportamento (Para/Passa/Misto). Cada cenário roda o pavimento inteiro (todos os
+não cita Para/Passa: usam o cenário do comportamento da obra; em Misto, mostram
+Para. Cada cenário roda o pavimento inteiro (todos os
 itens de todas as classes) etapa por etapa, em segundo plano: a API responde
 **202 `{calculando: true}`** até ficar pronto (≈40 s a frio) e a ficha repete a
 consulta a cada 5 s; o resultado vale 5 min e é renovado em segundo plano.
@@ -379,13 +379,22 @@ consulta a cada 5 s; o resultado vale 5 min e é renovado em segundo plano.
 - **Compra nova** = plano de corte (§6) só dos painéis/peças que faltaram; ID com
   sufixo `-N` quando existe estoque (a "Preparação com materiais novos" guarda os
   IDs sem sufixo).
-- **Cadeia de pavimentos (D-74):** a ordem de **todos** os pavimentos da obra,
-  de baixo para cima — subsolos (2SS antes do 1SS), térreo, numerados, nomeados
-  (cobertura, deck…). Pavimento ausente não quebra a sequência; o estoque só
-  começa do zero no primeiro. O imediatamente anterior alimenta as etapas 1–3.5;
-  os de baixo (não usados, acumulados) alimentam 4/4.5. A ordem por nome é
-  provisória: o portal de fôrmas vai gravar anterior/próximo por pavimento (com o
-  tipo 2–10 como um pavimento só).
+- **Cadeia de pavimentos (D-74):** usa a ordem de **todos** os pavimentos gravada
+  no portal de fôrmas em `portal_obra_pavimentos` (`ordem`, `repete_de`,
+  `repete_ate`). Pavimento sem DXF ou item continua na cadeia. Enquanto a obra
+  não tiver essa ordem cadastrada, há fallback provisório pela ordenação do nome.
+  O estoque começa do zero no primeiro; o imediatamente anterior alimenta as
+  etapas 1–3.5 e o estoque acumulado mais antigo, as etapas 4/4.5. O pavimento
+  TIPO é **um cadastro**: uma faixa 2–10 gera nove concretagens consecutivas
+  no cálculo. A peça que sai do TIPO (2º) pode atender o TIPO (3º), e a que sai
+  do TIPO (10º) pode atender o 11º. A ficha do TIPO representa a última
+  concretagem da faixa. Cada repetição recebe IDs de estoque próprios, sem
+  duplicar o cadastro nem confundir peças de concretagens diferentes.
+- **Comportamento da obra (D-78):** `portal_obras.comportamento` aceita `para`,
+  `passa` e `misto` (padrão das obras existentes). A publicação e a API pública
+  ocultam os pilares/laterais do outro modo. Os estoques Para e Passa continuam
+  independentes; fundo/laje usam Passa na obra Passa e Para na obra Para ou
+  Misto. Alterar ordem, faixa TIPO ou comportamento não apaga materiais.
 - **Sobra limpa entre classes (D-75) e maiores primeiro (D-77):** sobra de chapa
   do plano de corte (e o resto dela depois de cortada) é **limpa** e forma um
   estoque só para todas as classes do cenário, mantendo ID, pavimento e classe de

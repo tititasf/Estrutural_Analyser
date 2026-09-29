@@ -20,8 +20,7 @@ Regras de corte (o sarrafo é cortado junto com o painel, D-71):
     FV  largura igual; só o comprimento, e a ponta cortada fica sem sarrafo
     LAJ tira de escoramento nunca volta; painel comum corta em qualquer direção
 Nunca entre classes: a cadeia é por classe publicada (pilares Para ≠ Passa).
-Estoque acumula e se gasta (D-72); a cadeia liga só pavimentos consecutivos
-(buraco na numeração = estoque desconhecido, recomeça do zero).
+Estoque acumula e se gasta (D-72) na ordem cadastrada pelo dono (D-74).
 """
 from __future__ import annotations
 
@@ -43,6 +42,7 @@ from typing import Optional
 from services import materiais_service as ms
 from services.plano_de_corte import PERDA_CORTE, compra_de_grupos, material_da_bitola
 from services.resolve_service import resolver_code
+from services.obra_context import comportamento_obra, pavimentos_ordenados
 
 log = logging.getLogger(__name__)
 
@@ -93,11 +93,37 @@ def cadeia(conn, obra_id: str, pav: str) -> list[str]:
     """Todos os pavimentos da obra até `pav`, na ordem da obra (de baixo para
     cima). Pavimento que não existe no cadastro não quebra a sequência: o
     anterior é o que vem antes na ordem (dono, 29/09)."""
+    ordem_dono = [r["pavimento"] for r in pavimentos_ordenados(obra_id)]
+    if ordem_dono:
+        if pav not in ordem_dono:
+            return [pav]
+        return ordem_dono[:ordem_dono.index(pav) + 1]
     pavs = {r[0] for r in conn.execute(
         "SELECT DISTINCT pavimento FROM public_codes WHERE obra_id = ? AND kind = 'item' AND revoked = 0",
         (obra_id,))} | {pav}
     ordem = sorted(pavs, key=ordem_pavimento)
     return ordem[: ordem.index(pav) + 1]
+
+
+def ocorrencias_pavimentos(conn, obra_id: str, pav: str) -> list[tuple[str, str, str | None]]:
+    """Expande somente no cálculo o TIPO cadastrado uma vez no portal.
+
+    Cada repetição consome o estoque da anterior. O terceiro campo identifica
+    as peças que saem da repetição, evitando confundir dois painéis com o mesmo
+    ID físico no estoque acumulado. A ficha do TIPO representa a última
+    repetição da faixa, já com o reaproveitamento das anteriores.
+    """
+    cadastro = {r["pavimento"]: r for r in pavimentos_ordenados(obra_id)}
+    resultado = []
+    for nome in cadeia(conn, obra_id, pav):
+        tipo = (cadastro.get(nome) or {}).get("tipo")
+        if tipo and isinstance(tipo.get("de"), int) and isinstance(tipo.get("ate"), int) \
+                and 1 <= tipo["de"] <= tipo["ate"]:
+            resultado.extend((nome, f"{nome} ({n}º)", f"{nome}@{n}")
+                             for n in range(tipo["de"], tipo["ate"] + 1))
+        else:
+            resultado.append((nome, nome, None))
+    return resultado
 
 
 def _item_do_prefixo(prefixo: str) -> str:
@@ -539,7 +565,8 @@ def vazio(classes) -> dict:
             "da_classe": {c: [] for c in classes}, "barras": {c: [] for c in classes}}
 
 
-def _estoque_do_pavimento(classes: dict[str, list[dict]], pav: str, r: dict) -> dict:
+def _estoque_do_pavimento(classes: dict[str, list[dict]], pav: str, r: dict,
+                         repeticao: str | None = None) -> dict:
     """O que o pavimento deixa ao ser desformado: painéis montados
     reaproveitáveis, sobras do que foi comprado (chapa = limpa, circula entre
     classes) e retalhos de montados (ficam na classe)."""
@@ -554,14 +581,26 @@ def _estoque_do_pavimento(classes: dict[str, list[dict]], pav: str, r: dict) -> 
                 else:
                     est["barras"][cls].append({**s, "pavimento": pav})
         est["da_classe"][cls] = [{**x, "pavimento": pav} for x in r["retalhos"].get(cls, [])]
+    if repeticao:
+        # Um TIPO é um único cadastro, mas cada concretagem produz peças
+        # distintas. Sem IDs por ocorrência, a etapa 4 poderia reutilizar a
+        # mesma peça de repetições diferentes como se fosse uma só.
+        for grupo in ("montados", "da_classe", "barras"):
+            for pecas in est[grupo].values():
+                for peca in pecas:
+                    peca["id"] = f"{repeticao}|{peca['id']}"
+        for peca in est["limpas"]:
+            peca["id"] = f"{repeticao}|{peca['id']}"
     return est
 
 
 def calcular_cenario(conn, obra_id: str, pav: str, cenario: str, root: Path) -> Optional[dict]:
-    pavs = cadeia(conn, obra_id, pav)
+    ocorrencias = ocorrencias_pavimentos(conn, obra_id, pav)
+    pavs = [nome for nome, _, _ in ocorrencias]
     classes = classes_do_cenario(conn, obra_id, cenario)
-    invs = {p: {c: inventario(conn, obra_id, p, c, root) for c in classes} for p in pavs}
-    chave = hashlib.sha1(json.dumps(["cenario-1", obra_id, cenario, pavs, [
+    invs = {p: {c: inventario(conn, obra_id, p, c, root) for c in classes}
+            for p in dict.fromkeys(pavs)}
+    chave = hashlib.sha1(json.dumps(["cenario-2", obra_id, cenario, ocorrencias, [
         [c, i["code"], [q["id"] + str(q["largura_cm"]) + str(q["altura_cm"]) for q in i["paineis"]]]
         for p in pavs for c in classes for i in invs[p][c]]], sort_keys=True).encode()).hexdigest()
     with _lock:
@@ -569,11 +608,12 @@ def calcular_cenario(conn, obra_id: str, pav: str, cenario: str, root: Path) -> 
             return _memoria[chave]
     anterior, antigo = vazio(classes), vazio(classes)
     res = None
-    for k, p in enumerate(pavs):
+    for k, (p, rotulo, repeticao) in enumerate(ocorrencias):
         disponivel = {"anterior": copy.deepcopy(anterior), "antigo": copy.deepcopy(antigo)}
         r = alocar_pavimento(invs[p], anterior, antigo)
-        if k == len(pavs) - 1:
-            res = {"pavimento": p, "pavimentos": pavs, "cenario": cenario, "classes": invs[p],
+        if k == len(ocorrencias) - 1:
+            res = {"pavimento": p, "pavimentos": [rot for _, rot, _ in ocorrencias],
+                   "cenario": cenario, "classes": invs[p],
                    "disponivel": disponivel, **r}
             break
         u = r["usados"]
@@ -586,7 +626,7 @@ def calcular_cenario(conn, obra_id: str, pav: str, cenario: str, root: Path) -> 
                           for c in classes},
             "barras": r["barras_restantes"],
         }
-        anterior = _estoque_do_pavimento(invs[p], p, r)
+        anterior = _estoque_do_pavimento(invs[p], rotulo, r, repeticao)
     with _lock:
         _memoria[chave] = res
         while len(_memoria) > 4:  # o estoque de um cenário é grande
@@ -619,7 +659,7 @@ def _disparar(chave: tuple, db: str, root: Path) -> None:
             c = sqlite3.connect(f"file:{db}?mode=ro", uri=True, check_same_thread=False)
             c.row_factory = sqlite3.Row
             try:
-                res = calcular_cenario(c, *chave, root)
+                res = calcular_cenario(c, *chave[:3], root)
             finally:
                 c.close()
             with _lock:
@@ -636,7 +676,9 @@ def _disparar(chave: tuple, db: str, root: Path) -> None:
 def resultado_cenario(conn, obra_id: str, pav: str, cenario: str, root: Path) -> tuple[bool, Optional[dict]]:
     """(pronto, resultado). Um resultado com mais de FRESCO_S continua servido
     enquanto é recalculado em segundo plano."""
-    chave = (obra_id, pav, cenario)
+    # Uma edição da ordem ou da faixa TIPO invalida o resultado imediatamente,
+    # sem esperar o TTL de cinco minutos do cálculo anterior.
+    chave = (obra_id, pav, cenario, tuple(ocorrencias_pavimentos(conn, obra_id, pav)))
     with _lock:
         pronto = _resultados.get(chave)
     if pronto is None or time.time() - pronto[0] > FRESCO_S:
@@ -712,9 +754,10 @@ def montar_resposta(res: dict, row) -> Optional[dict]:
 
 def obter_reaproveitamento(conn, row, root: Path) -> Optional[dict]:
     """Resposta da ficha, ou {"calculando": True} enquanto o cenário é medido.
-    Fundo/laje (sem modo) usam o cenário Para até a obra ter o campo de
-    comportamento (D-78)."""
-    cenario = cenarios_da_classe(row["classe"])[0]
+    Fundo/laje usam o modo da obra; Misto mantém o cenário Para padrão."""
+    cenarios = cenarios_da_classe(row["classe"])
+    modo = comportamento_obra(conn, row["obra_id"])
+    cenario = ("passa" if modo == "passa" and "passa" in cenarios else cenarios[0])
     pronto, res = resultado_cenario(conn, row["obra_id"], row["pavimento"], cenario, root)
     if not pronto:
         return {"calculando": True}

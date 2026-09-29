@@ -1,4 +1,7 @@
 """Regras de reaproveitamento entre pavimentos (D-70..D-73, MATERIAIS §12)."""
+from pathlib import Path
+
+from services import reaproveitamento_service as reap
 from services.reaproveitamento_service import (alocar_pavimento, cenarios_da_classe, chave_item, encaixe,
                                                 numero_pavimento, vazio)
 
@@ -89,3 +92,37 @@ def test_cenarios_fundo_e_laje_nos_dois():
     assert cenarios_da_classe("pilares_n3_para") == ["para"]
     assert cenarios_da_classe("lateral_a_passa") == ["passa"]
     assert cenarios_da_classe("fundo") == cenarios_da_classe("lajes") == ["para", "passa"]
+
+
+def test_tipo_repetido_alimenta_a_si_mesmo_e_o_proximo(monkeypatch):
+    """O cadastro é único; cada concretagem usa o estoque da anterior."""
+    pavimentos = [
+        {"pavimento": "1_PAV", "tipo": None},
+        {"pavimento": "TIPO", "tipo": {"de": 2, "ate": 4}},
+        {"pavimento": "5_PAV", "tipo": None},
+    ]
+    monkeypatch.setattr(reap, "pavimentos_ordenados", lambda _obra: pavimentos)
+    monkeypatch.setattr(reap, "classes_do_cenario", lambda *_: ["fundo"])
+    chamadas = []
+
+    def inventario(_conn, _obra, pav, _classe, _root):
+        chamadas.append(pav)
+        if pav == "1_PAV":
+            return []
+        return [_item(pav, "V301", "viga_fundo", 100, 19)]
+
+    monkeypatch.setattr(reap, "inventario", inventario)
+    tipo = reap.calcular_cenario(None, "obra-tipo-repetido", "TIPO", "para", Path("."))
+    assert tipo["pavimentos"] == ["1_PAV", "TIPO (2º)", "TIPO (3º)", "TIPO (4º)"]
+    assert tipo["alocacao"]["V301-P01"]["etapa"] == "1"
+    assert tipo["alocacao"]["V301-P01"]["fonte_pavimento"] == "TIPO (3º)"
+
+    seguinte = reap.calcular_cenario(None, "obra-tipo-repetido", "5_PAV", "para", Path("."))
+    assert seguinte["alocacao"]["V301-P01"]["etapa"] == "1"
+    assert seguinte["alocacao"]["V301-P01"]["fonte_pavimento"] == "TIPO (4º)"
+    assert chamadas.count("TIPO") == 2  # um inventário por cadastro, não por repetição
+    estoque = seguinte["disponivel"]
+    ids_montados = [p["id"] for e in estoque.values()
+                    for pecas in e["montados"].values() for p in pecas]
+    assert len(ids_montados) == len(set(ids_montados))
+    assert all("TIPO@" in pid for pid in ids_montados)
