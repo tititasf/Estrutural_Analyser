@@ -222,11 +222,17 @@ function Compra({ compra, grupos }: { compra: NonNullable<MateriaisData["compra"
                   <tr key={s.id}>
                     <td className={`${styles.esq} ${styles.idPainel}`}>{s.id}</td>
                     <td className={styles.esq}>{s.material}</td>
-                    <td className={styles.esq}>{s.origem}</td>
+                    <td className={styles.esq}>
+                      {s.origem}
+                      {s.recorte_de && (
+                        <span className={styles.sub}>recorte de {s.recorte_de.map((i) => i.split("-").pop()).join(", ")}</span>
+                      )}
+                    </td>
                     <td>
                       {s.tipo === "chapa"
                         ? `${fmt(s.largura_cm ?? 0)} × ${fmt(s.altura_cm ?? 0)}`
                         : fmt(s.comprimento_cm ?? 0)}
+                      {s.util && <span className={styles.sub}>útil {fmt(s.util.largura_cm)} × {fmt(s.util.altura_cm)}</span>}
                     </td>
                   </tr>
                 ))}

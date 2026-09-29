@@ -240,7 +240,7 @@ def test_sobras_de_chapa_e_barra_tem_id_rastreavel():
 
 
 def test_painel_recortado_leva_o_contorno_real(tmp_path):
-    """L319 P06: painel 122 x 244 com entalhe de pilar 40,6 x 65 no canto."""
+    """L319 P06: painel 122 x 244 com entalhe de pilar 81,4 x 65 no canto."""
     doc = ezdxf.new()
     pts = [(40.6, 179), (122, 179), (122, 0), (0, 0), (0, 244), (40.6, 244)]
     doc.modelspace().add_lwpolyline([(x + 500, y + 100) for x, y in pts], close=True, dxfattribs={"layer": "Painéis"})
@@ -248,4 +248,66 @@ def test_painel_recortado_leva_o_contorno_real(tmp_path):
     doc.saveas(path)
     p = medir_dxf(path)["paineis"][0]
     assert p["recortado"] and (p["largura_cm"], p["altura_cm"]) == (122.0, 244.0)
-    assert sorted(map(tuple, p["contorno"])) == sorted(pts) and p["furos"] == []
+    parte, = p["partes"]
+    assert sorted(map(tuple, parte["contorno"])) == sorted(pts) and parte["furos"] == []
+
+
+def test_pilar_viga_chegando_recorta_o_painel(tmp_path):
+    """ABCD: HATCH = viga que chega na face. Painel = pilha − viga; viga que
+    cruza a face inteira parte o painel em 2 peças (P1 Para, face C)."""
+    import json
+
+    from services.materiais_service import _paineis_do_contrato_pilar
+
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    for y in (0, 244, 278):
+        msp.add_line((0, y), (19, y), dxfattribs={"layer": "Painéis"})
+    h = msp.add_hatch()
+    h.paths.add_polyline_path([(-8, 138), (19, 138), (19, 208), (-8, 208)], is_closed=True)
+    dxf = tmp_path / "PL_ABCD_preview_P1.dxf"
+    doc.saveas(dxf)
+    (tmp_path / "P1.json").write_text(json.dumps({"paineis_intervals_A": [244, 34], "larg1_A": 19}))
+    baixo, cima = _paineis_do_contrato_pilar(dxf)["paineis"]
+    assert baixo["recortado"] and not cima["recortado"]
+    partes = sorted(tuple(sorted(map(tuple, p["contorno"]))) for p in baixo["partes"])
+    assert partes == [((0, 0), (0, 138), (19, 0), (19, 138)), ((0, 208), (0, 244), (19, 208), (19, 244))]
+
+
+def test_recorte_vira_sobra_e_recebe_peca_de_outra_chapa():
+    """Nada é descarte (D-68): o entalhe do painel é sobra com ID; uma peça que
+    cabe nele sai de lá em vez de abrir outra chapa."""
+    from services.plano_de_corte import chapas_necessarias
+
+    entalhe = [{"contorno": [[40.6, 179], [122, 179], [122, 0], [0, 0], [0, 244], [40.6, 244]], "furos": []}]
+    so = chapas_necessarias([(122, 244, 1, "Painéis", "X-P01", entalhe)], "X")
+    (s,) = so["layout"][0]["sobras"]
+    assert s["recorte_de"] == ["X-P01"] and s["id"] == "X-CH01-S1"
+    assert sorted((s["largura_cm"], s["altura_cm"])) == [64.0, 80.4]  # 81,4 x 65 menos 1 cm de serra
+    com = chapas_necessarias([(122, 244, 1, "Painéis", "X-P01", entalhe), (60, 50, 2, "Painéis", "X-P02")], "X")
+    assert com["chapas"] == 1
+    p2 = next(p for p in com["layout"][0]["pecas"] if p["id"] == "X-P02")
+    assert p2["em_sobra"]
+    (resto,) = com["layout"][0]["sobras"]
+    assert resto["recorte_de"] == ["X-P01"] and "contorno" in resto and resto["util"]["largura_cm"] > 0
+
+
+def test_pilar_viga_na_largura_toda_estreita_o_painel(tmp_path):
+    """Face A 88 com viga de 11 descendo 64 no canto: o painel de cima (34)
+    é 77 x 34 inteiro (não recortado de 88); o de baixo leva o entalhe 11 x 30."""
+    import json
+
+    from services.materiais_service import _paineis_do_contrato_pilar
+
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    for y in (0, 244, 278):
+        msp.add_line((0, y), (88, y), dxfattribs={"layer": "Painéis"})
+    h = msp.add_hatch()
+    h.paths.add_polyline_path([(77, 214), (88, 214), (88, 278), (77, 278)], is_closed=True)
+    dxf = tmp_path / "PL_ABCD_preview_P1.dxf"
+    doc.saveas(dxf)
+    (tmp_path / "P1.json").write_text(json.dumps({"paineis_intervals_A": [244, 34], "larg1_A": 88}))
+    baixo, cima = _paineis_do_contrato_pilar(dxf)["paineis"]
+    assert (cima["largura_cm"], cima["altura_cm"], cima["recortado"]) == (77.0, 34.0, False)
+    assert (baixo["largura_cm"], baixo["altura_cm"], baixo["recortado"]) == (88.0, 244.0, True)

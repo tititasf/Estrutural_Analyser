@@ -28,16 +28,37 @@ export interface PainelMedido {
   classe?: string;
   /** Tira de escoramento não volta ao estoque; painel comum sim. */
   reaproveitavel?: boolean;
-  /** Recortado: contorno real e furos (cm, origem no canto inferior esquerdo
-   * do retângulo envolvente, y p/ cima). */
-  contorno?: [number, number][];
-  furos?: [number, number][][];
+  /** Recortado: peças reais (contorno + furos, cm, origem no canto inferior
+   * esquerdo do retângulo cortado, y p/ cima). Pilar com viga cruzando a
+   * face = 2 partes. */
+  partes?: ParteRecortada[];
   /** Sarrafos na posição sobre o painel, na ordem de montagem (aba 3D). */
   montagem?: SarrafoMontagem[];
   /** Sarrafos que correm sobre este painel (associados pela geometria). */
   sarrafos?: CorteSarrafo[];
   /** Célula não retangular (recorte de viga, laje poligonal). */
   recortado: boolean;
+}
+
+export interface ParteRecortada {
+  contorno: [number, number][];
+  furos?: [number, number][][];
+}
+
+/** Sobra de chapa: retângulo, ou polígono (recorte de painel, sozinho ou
+ * somado à sobra vizinha) com o maior retângulo útil dentro dele. */
+export interface SobraChapa {
+  rotulo: string;
+  id?: string;
+  x: number;
+  y: number;
+  largura_cm: number;
+  altura_cm: number;
+  contorno?: [number, number][];
+  area_cm2?: number;
+  util?: { x: number; y: number; largura_cm: number; altura_cm: number };
+  /** IDs dos painéis de cujo recorte a sobra veio. */
+  recorte_de?: string[];
 }
 
 export interface CorteSarrafo {
@@ -88,13 +109,15 @@ export interface PecaNaChapa {
   largura_cm: number;
   altura_cm: number;
   girado: boolean;
+  /** Cortada numa sobra (recorte) de outra chapa, sem abrir chapa nova. */
+  em_sobra?: boolean;
 }
 
 export interface ChapaLayout {
   chapa: number;
   aproveitamento: number;
   pecas: PecaNaChapa[];
-  sobras: { rotulo: string; id?: string; x: number; y: number; largura_cm: number; altura_cm: number }[];
+  sobras: SobraChapa[];
 }
 
 export interface CompraChapas {
@@ -115,6 +138,10 @@ export interface SobraRastreavel {
   largura_cm?: number;
   altura_cm?: number;
   comprimento_cm?: number;
+  contorno?: [number, number][];
+  area_cm2?: number;
+  util?: { largura_cm: number; altura_cm: number };
+  recorte_de?: string[];
 }
 
 export interface CompraBarras {

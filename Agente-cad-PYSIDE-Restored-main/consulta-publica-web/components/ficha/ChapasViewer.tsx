@@ -116,15 +116,24 @@ export function ChapasViewer({ layout, paineis = {} }: { layout: ChapaLayout[]; 
           </defs>
           <rect x={0} y={0} width={CHAPA_W} height={CHAPA_H} className={styles.chapaFundo} />
           {chapa.sobras.map((s) => {
-            const menor = Math.min(s.largura_cm, s.altura_cm);
+            // Rótulo no maior retângulo útil (sobra em L/diagonal).
+            const r = s.util ?? s;
+            const menor = Math.min(r.largura_cm, r.altura_cm);
+            // Recorte de painel (sozinho ou somado à sobra vizinha): vermelho.
+            const cls = s.recorte_de ? styles.recorte : undefined;
+            const fill = s.recorte_de ? "url(#recorte)" : "url(#sobra)";
             return (
               <g key={s.rotulo}>
-                <title>{`Sobra ${s.id ?? s.rotulo} · ${fmt(s.largura_cm)} × ${fmt(s.altura_cm)} cm`}</title>
-                <rect x={s.x} y={s.y} width={s.largura_cm} height={s.altura_cm} fill="url(#sobra)" />
+                <title>{`Sobra ${s.id ?? s.rotulo} · ${fmt(s.largura_cm)} × ${fmt(s.altura_cm)} cm${s.util ? ` · útil ${fmt(s.util.largura_cm)} × ${fmt(s.util.altura_cm)}` : ""}${s.recorte_de ? ` · recorte de ${s.recorte_de.join(", ")}` : ""}`}</title>
+                {s.contorno ? (
+                  <polygon points={s.contorno.map(([x, y]) => `${x},${y}`).join(" ")} fill={fill} className={cls} />
+                ) : (
+                  <rect x={s.x} y={s.y} width={s.largura_cm} height={s.altura_cm} fill={fill} className={cls} />
+                )}
                 {menor >= 4 && (
                   <text
-                    x={s.x + s.largura_cm / 2}
-                    y={s.y + s.altura_cm / 2}
+                    x={r.x + r.largura_cm / 2}
+                    y={r.y + r.altura_cm / 2}
                     fontSize={Math.max(2.5, Math.min(9, menor * 0.3))}
                     textAnchor="middle"
                     dominantBaseline="central"
@@ -142,30 +151,24 @@ export function ChapasViewer({ layout, paineis = {} }: { layout: ChapaLayout[]; 
             const menor = Math.min(p.largura_cm, p.altura_cm);
             const fs = Math.max(3, Math.min(14, menor * 0.35));
             const painel = p.id ? paineis[p.id] : undefined;
-            const forma = painel?.contorno;
+            const partes = painel?.partes;
             return (
               <g key={p.rotulo}>
-                <title>{`Painel ${p.rotulo}${p.id ? ` · ${p.id}` : ""} · ${p.origem} · ${fmt(p.largura_cm)} × ${fmt(p.altura_cm)} cm${p.girado ? " (girado)" : ""}${forma ? " · recortado" : ""}`}</title>
-                {forma ? (
-                  <>
-                    {/* Área de recorte (abertura) = retângulo cortado − contorno do painel. */}
+                <title>{`Painel ${p.rotulo}${p.id ? ` · ${p.id}` : ""} · ${p.origem} · ${fmt(p.largura_cm)} × ${fmt(p.altura_cm)} cm${p.girado ? " (girado)" : ""}${partes ? " · recortado" : ""}${p.em_sobra ? " · cortado na sobra" : ""}`}</title>
+                {partes && painel ? (
+                  // Peças reais; o que sobra do retângulo (recorte) é desenhado
+                  // como sobra, em vermelho, logo acima.
+                  partes.map((pt, k) => (
                     <path
-                      d={`M${p.x},${p.y}h${p.largura_cm}v${p.altura_cm}h${-p.largura_cm}Z M${pontosNaChapa(p, painel, forma)}Z`}
+                      key={k}
+                      d={[pt.contorno, ...(pt.furos ?? [])].map((a) => `M${pontosNaChapa(p, painel, a)}Z`).join(" ")}
                       fillRule="evenodd"
-                      fill="url(#recorte)"
-                      className={styles.recorte}
-                    />
-                    <polygon
-                      points={pontosNaChapa(p, painel, forma)}
                       fill={cor(p.origem)}
                       stroke={cor(p.origem)}
                       strokeWidth={0.6}
                       className={styles.pecaRecortada}
                     />
-                    {(painel.furos ?? []).map((f, k) => (
-                      <polygon key={k} points={pontosNaChapa(p, painel, f)} fill="url(#recorte)" className={styles.recorte} />
-                    ))}
-                  </>
+                  ))
                 ) : (
                   <rect
                     x={p.x}
@@ -215,8 +218,11 @@ export function ChapasViewer({ layout, paineis = {} }: { layout: ChapaLayout[]; 
                   <td>
                     {fmt(p.largura_cm)} × {fmt(p.altura_cm)}
                     {p.girado && <span className={styles.sub}>girado 90°</span>}
-                    {p.id && paineis[p.id.replace(/(-P\d+)[a-z]$/, "$1")]?.contorno && (
-                      <span className={styles.tag} title="Retângulo cortado da chapa; a área hachurada em vermelho é o recorte da abertura">recortado</span>
+                    {p.id && paineis[p.id.replace(/(-P\d+)[a-z]$/, "$1")]?.partes && (
+                      <span className={styles.tag} title="Corta-se o retângulo; o recorte (vermelho) vira sobra com ID">recortado</span>
+                    )}
+                    {p.em_sobra && (
+                      <span className={styles.tag} title="Cortado na sobra de outra chapa (recorte), sem abrir chapa nova">na sobra</span>
                     )}
                   </td>
                 </tr>
@@ -225,8 +231,13 @@ export function ChapasViewer({ layout, paineis = {} }: { layout: ChapaLayout[]; 
               <tr key={s.rotulo} className={styles.linhaSobra}>
                 <td>{s.rotulo}</td>
                 <td className={`${styles.esq} ${styles.idPainel}`}>{s.id ?? "—"}</td>
-                <td className={styles.esq}>Sobra</td>
-                <td>{fmt(s.largura_cm)} × {fmt(s.altura_cm)}</td>
+                <td className={styles.esq}>
+                  {s.recorte_de ? `Sobra · recorte de ${s.recorte_de.map((i) => i.split("-").pop()).join(", ")}` : "Sobra"}
+                </td>
+                <td>
+                  {fmt(s.largura_cm)} × {fmt(s.altura_cm)}
+                  {s.util && <span className={styles.sub}>útil {fmt(s.util.largura_cm)} × {fmt(s.util.altura_cm)}</span>}
+                </td>
               </tr>
             ))}
           </tbody>

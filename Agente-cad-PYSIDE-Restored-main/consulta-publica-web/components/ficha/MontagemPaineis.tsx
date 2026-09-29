@@ -92,15 +92,20 @@ function Cena({ painel, velocidade, rodada, onPasso }: {
       // aparece vazada. Shape no plano (x, y); girar -90° em X leva y → -Z e a
       // extrusão → +Y, com a base da chapa em Y = 0.
       let forma: BufferGeometry | undefined;
-      if (painel.contorno && painel.contorno.length >= 3) {
+      const partes = (painel.partes ?? []).filter((p) => p.contorno.length >= 3);
+      if (partes.length) {
         const anel = (pts: [number, number][], alvo: InstanceType<typeof THREE.Path>) => {
           pts.forEach(([x, y], i) => (i ? alvo.lineTo(x, y) : alvo.moveTo(x, y)));
           alvo.closePath();
           return alvo;
         };
-        const shape = anel(painel.contorno, new THREE.Shape()) as InstanceType<typeof THREE.Shape>;
-        (painel.furos ?? []).forEach((f) => shape.holes.push(anel(f, new THREE.Path())));
-        forma = new THREE.ExtrudeGeometry(shape, { depth: CHAPA_ESP, bevelEnabled: false });
+        // 1 Shape por parte (viga cruzando a face = 2 peças), mesma extrusão.
+        const shapes = partes.map((pt) => {
+          const shape = anel(pt.contorno, new THREE.Shape()) as InstanceType<typeof THREE.Shape>;
+          (pt.furos ?? []).forEach((f) => shape.holes.push(anel(f, new THREE.Path())));
+          return shape;
+        });
+        forma = new THREE.ExtrudeGeometry(shapes, { depth: CHAPA_ESP, bevelEnabled: false });
         forma.rotateX(-Math.PI / 2);
       }
       const chapa = caixa(W, H, CHAPA_ESP, COR.painel, forma);

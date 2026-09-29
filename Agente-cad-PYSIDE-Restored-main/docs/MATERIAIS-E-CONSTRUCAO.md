@@ -236,3 +236,20 @@ contorno) aparece hachurada em vermelho na chapa, e a linha leva a tag
 "recortado". Na Montagem painéis a chapa é a extrusão do contorno (abertura
 vazada). No 13_PAV: L319 P06 (entalhe 81,4 × 65) e P09 (diagonal), L326 P01/P03.
 Limite: faixa de emenda (ex. P09a/b, painel > 122) leva só a tag, sem a forma.
+
+**Pilar (ABCD):** a HATCH do ABCD é o concreto da viga/laje que chega na face
+(sem layer — só o tipo HATCH). Painel = retângulo da pilha − hachura:
+entalhe (ex. P1 face A, 11 × 30 no painel de 244); viga que cruza a face inteira
+parte o painel em **2 peças** (`partes`, ex. P1 face C 138 + 36); viga tomando a
+largura toda de um lado apenas estreita o painel (P1 face A topo = 77 × 34, não
+88). Linha de sarrafo junto do entalhe pareia com a aresta do recorte (antes
+ficava solta). LV e FV (132 + 34 DXFs do 13_PAV) não têm hachura nem célula não
+retangular: sem recorte, retângulo correto.
+
+**Recorte vira sobra (D-69):** o que sai do retângulo cortado (retângulo −
+peças, menos 1 cm de serra) é sobra com ID (`recorte_de` = painel de origem).
+Encostado numa sobra do plano, os dois viram uma sobra só (polígono, com o
+maior retângulo útil em `util`). No empacotamento, o maior retângulo útil do
+recorte vira espaço livre na hora: peça menor que vem depois pode ser cortada
+ali (`em_sobra`, tag "na sobra"). 13_PAV: 108 peças de pilar cortadas em
+recortes; 638 sobras de recorte rastreadas; 578 chapas (antes 580).

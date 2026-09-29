@@ -158,11 +158,7 @@ def medir_dxf(path: Path) -> dict:
                        for a, d, b, e in hachuras)
             # Recortado: contorno real (cm, origem no canto inferior esquerdo do
             # retângulo envolvente) — plano de corte e 3D desenham a abertura.
-            forma = None
-            if not retangulo:
-                p = pol.simplify(0.05)
-                local = lambda cs: [[round(x - x0, 1), round(y - y0, 1)] for x, y in list(cs)[:-1]]
-                forma = {"contorno": local(p.exterior.coords), "furos": [local(i.coords) for i in p.interiors]}
+            forma = None if retangulo else {"partes": _partes_locais([pol], x0, y0)}
             celulas.append((-round(y1), round(x0), round(w, _TOL), round(h, _TOL), not retangulo, tira,
                             (x0, y0, x1, y1), forma))
     celulas.sort(key=lambda c: c[:2])
@@ -180,6 +176,34 @@ def medir_dxf(path: Path) -> dict:
         "_textos": textos,
         "sarrafos_duplicados_ignorados": duplicados,
     }
+
+
+def _partes_locais(pols: list, x0: float, y0: float) -> list[dict]:
+    """Peças reais de um painel recortado: contorno + furos em cm locais
+    (origem no canto inferior esquerdo do retângulo cortado da chapa, y p/ cima)."""
+    local = lambda cs: [[round(x - x0, 1), round(y - y0, 1)] for x, y in list(cs)[:-1]]
+    out = []
+    for pol in pols:
+        p = pol.simplify(0.05)
+        out.append({"contorno": local(p.exterior.coords), "furos": [local(i.coords) for i in p.interiors]})
+    return out
+
+
+def _hachuras_poligonos(msp) -> list:
+    """Área de cada HATCH como polígono (sem olhar layer): no ABCD do pilar é o
+    concreto da viga/laje que chega na face — ali não há painel."""
+    from ezdxf import path as dxfpath
+    from shapely.geometry import Polygon
+
+    pols = []
+    for h in msp.query("HATCH"):
+        for pa in dxfpath.from_hatch(h):
+            vs = [(v.x, v.y) for v in pa.flattening(0.5)]
+            if len(vs) >= 3:
+                pol = Polygon(vs).buffer(0)
+                if pol.area > 1:
+                    pols.append(pol)
+    return pols
 
 
 def _pecas_de_linhas(bitola: str, ents: list) -> list[tuple]:
@@ -276,7 +300,7 @@ def associar_sarrafos(grupo: dict) -> None:
         (por_painel.setdefault(idx, []) if idx is not None else avulsos).append(peca)
     todas: list[tuple] = list(avulsos)
     for i, p in enumerate(paineis):
-        pecas = _parear_linhas(por_painel.get(i, []), p["_bbox"])
+        pecas = _parear_linhas(por_painel.get(i, []), p["_bbox"], _bordas_do_recorte(p))
         todas += pecas
         p["sarrafos"] = _cortes(pecas)
         p["montagem"] = _montagem(pecas, p["_bbox"])
@@ -290,7 +314,23 @@ def _secao(bitola: str) -> tuple[float, float]:
     return tuple(sorted(float(v.replace(",", ".")) for v in m.groups())) if m else (2.2, 7.0)
 
 
-def _parear_linhas(pecas: list[tuple], painel: tuple) -> list[tuple]:
+def _bordas_do_recorte(painel: dict) -> list[tuple]:
+    """Arestas retas das partes de um painel recortado, em coordenadas do
+    desenho: ("h"|"v", coord, ini, fim). A linha de sarrafo junto do entalhe
+    faz par com essa aresta, como faria com a borda do painel."""
+    x0, y0 = painel["_bbox"][:2]
+    out = []
+    for parte in painel.get("partes") or []:
+        for anel in [parte["contorno"], *parte.get("furos", [])]:
+            for (ax, ay), (bx, by) in zip(anel, anel[1:] + anel[:1]):
+                if abs(ay - by) < 0.1:
+                    out.append(("h", y0 + ay, x0 + min(ax, bx), x0 + max(ax, bx)))
+                elif abs(ax - bx) < 0.1:
+                    out.append(("v", x0 + ax, y0 + min(ay, by), y0 + max(ay, by)))
+    return out
+
+
+def _parear_linhas(pecas: list[tuple], painel: tuple, bordas: list[tuple] = ()) -> list[tuple]:
     """No painel (LV, FV, ABCD) o sarrafo é desenhado pelas duas BORDAS: duas
     linhas paralelas = 1 sarrafo; a linha sozinha junto da borda do painel faz
     par com a própria borda. O par escolhido é o de distância mais próxima da
@@ -310,7 +350,10 @@ def _parear_linhas(pecas: list[tuple], painel: tuple) -> list[tuple]:
     cands = []
     for i, (pa, oa, ca, ia, fa) in enumerate(linhas):
         larg = _secao(pa[0])[1]
-        for parede in ((py0, py1) if oa == "h" else (px0, px1)):
+        # bordas do painel + arestas do recorte que correm ao lado da linha
+        paredes = list((py0, py1) if oa == "h" else (px0, px1)) + [c for o, c, a, b in bordas
+                                   if o == oa and min(fa, b) - max(ia, a) >= 0.8 * (fa - ia)]
+        for parede in paredes:
             dist = abs(ca - parede)
             if abs(dist - larg) <= TOL:
                 cands.append((abs(dist - larg), i, None, parede))
@@ -443,9 +486,15 @@ def _paineis_do_contrato_pilar(dxf: Path) -> Optional[dict]:
              and sum(float(pj.get(f"larg{k}_{f}") or 0) for k in (1, 2, 3)) > 0]
     if not faces:
         return None
+    import ezdxf
+    from shapely.geometry import MultiPolygon, box
+    from shapely.ops import unary_union
+
     colunas = _colunas_das_faces(dxf)
     casou = len(colunas) == len(faces)
+    hachura = unary_union(_hachuras_poligonos(ezdxf.readfile(str(dxf)).modelspace())) if casou else None
     paineis: list[dict] = []
+    recortados = 0
     area = 0.0
     for i, f in enumerate(faces):
         largura = round(colunas[i][1] - colunas[i][0], _TOL) if casou else round(sum(
@@ -455,14 +504,36 @@ def _paineis_do_contrato_pilar(dxf: Path) -> Optional[dict]:
             h = round(float(h or 0), _TOL)
             if h >= 3:
                 bb = (colunas[i][0], y, colunas[i][1], y + h) if casou else None
-                paineis.append({"face": f, "largura_cm": largura, "altura_cm": h,
-                                "quantidade": 1, "recortado": False, "_bbox": bb})
-                area += largura * h
+                painel = {"face": f, "largura_cm": largura, "altura_cm": h,
+                          "quantidade": 1, "recortado": False, "_bbox": bb}
+                real = largura * h
+                # Viga chegando (HATCH) sobre a pilha: o painel é o retângulo
+                # menos a viga — entalhe, ou 2 peças quando a viga cruza a face.
+                if hachura is not None and not hachura.is_empty:
+                    ret = box(*bb)
+                    resto = ret.difference(hachura)
+                    if ret.area - resto.area > 1:
+                        pols = [q for q in (resto.geoms if isinstance(resto, MultiPolygon) else [resto])
+                                if q.area >= 20 and min(q.bounds[2] - q.bounds[0], q.bounds[3] - q.bounds[1]) >= 1]
+                        if not pols:  # face toda tomada pela viga: sem painel
+                            y += h
+                            continue
+                        # Corta-se o retângulo que envolve as peças reais (viga
+                        # tomando a largura toda de um lado = painel mais estreito).
+                        bb = unary_union(pols).bounds
+                        real = sum(q.area for q in pols)
+                        painel.update(largura_cm=round(bb[2] - bb[0], _TOL), altura_cm=round(bb[3] - bb[1], _TOL),
+                                      _bbox=bb)
+                        if len(pols) > 1 or real < (bb[2] - bb[0]) * (bb[3] - bb[1]) - 1:
+                            painel.update(recortado=True, partes=_partes_locais(pols, bb[0], bb[1]))
+                            recortados += 1
+                paineis.append(painel)
+                area += real
                 y += h
     return {
         "paineis": paineis,
         "paineis_total": len(paineis),
-        "paineis_recortados": 0,
+        "paineis_recortados": recortados,
         "paineis_area_m2": round(area / 1e4, 2),
         "largura_da_face": "desenhada" if casou else "ficha (desenho não separou as faces)",
     }
