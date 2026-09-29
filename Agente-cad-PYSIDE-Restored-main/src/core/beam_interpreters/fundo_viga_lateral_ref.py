@@ -357,7 +357,11 @@ def apply_lateral_reference_all(
             continue
         items.sort(key=lambda item: item[0])
         _rewrite_slots(beam, [(idx, link) for _, _, idx, link in items], fv_is_h)
-        FundoVigaInterpreter.assign_segment_dimensions_from_texts(beam)
+        # Cota por segmento (d94ce7be7) pode faltar numa instalacao atrasada:
+        # sem ela os slots novos ficam com a dimensao da viga.
+        assign_dims = getattr(FundoVigaInterpreter, "assign_segment_dimensions_from_texts", None)
+        if assign_dims is not None:
+            assign_dims(beam)
         entry(beam)["criados"].extend(created)
         claimed.extend(
             (_polygon(link.get("points")), name) for _, _, _, link in items
