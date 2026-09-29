@@ -69,7 +69,7 @@ function Cena({ painel, velocidade, rodada, onPasso }: {
       sol.position.set(W * 0.2 - maior, maior * 2, maior);
       scene.add(sol);
       const grade = new THREE.GridHelper(maior * 2.4, 24, 0x999999, 0xcccccc);
-      grade.position.set(W / 2, -0.05, -H / 2);
+      grade.position.set(W / 2, -6, -H / 2);
       (grade.material as Material).transparent = true;
       (grade.material as Material).opacity = 0.35;
       scene.add(grade);
@@ -92,8 +92,11 @@ function Cena({ painel, velocidade, rodada, onPasso }: {
       const pChapa = new THREE.Vector3(W / 2, CHAPA_ESP / 2, -H / 2);
       const sarr = pecas.map((s) => {
         const c = caixa(s.w, s.h, s.espessura_cm, /press/i.test(s.bitola) ? COR.pressao : COR.sarrafo);
-        const destino = new THREE.Vector3(s.x + s.w / 2, CHAPA_ESP + s.espessura_cm / 2, -(s.y + s.h / 2));
-        return { ...c, destino };
+        // Pressão vai na face de trás (linha HIDDEN): embaixo da chapa, sobe.
+        const tras = s.face === "tras";
+        const y = tras ? -s.espessura_cm / 2 : CHAPA_ESP + s.espessura_cm / 2;
+        const destino = new THREE.Vector3(s.x + s.w / 2, y, -(s.y + s.h / 2));
+        return { ...c, destino, dir: tras ? -1 : 1 };
       });
 
       let t = 0;
@@ -105,19 +108,21 @@ function Cena({ painel, velocidade, rodada, onPasso }: {
         ultimo = agora;
         const kc = ease(t / T_PAINEL);
         chapa.mesh.position.copy(pChapa).setY(pChapa.y + (1 - kc) * 25);
-        chapa.mats.forEach((m) => (m.opacity = kc));
         let atual = t < T_PAINEL ? -1 : pecas.length;
+        let tras = false;
         sarr.forEach((s, i) => {
           const t0 = T_PAINEL + i * T_PECA;
           const k = ease((t - t0) / (T_PECA * 0.8));
           s.mesh.visible = t >= t0;
-          s.mesh.position.copy(s.destino).setY(s.destino.y + (1 - k) * QUEDA_CM);
+          s.mesh.position.copy(s.destino).setY(s.destino.y + s.dir * (1 - k) * QUEDA_CM);
           s.mats.forEach((m) => (m.opacity = Math.min(1, k * 1.5)));
           const emCena = t >= t0 && t < t0 + T_PECA;
           (s.mats[0] as MeshStandardMaterial).emissive.setHex(emCena ? COR.destaque : 0);
           (s.mats[0] as MeshStandardMaterial).emissiveIntensity = emCena ? 0.35 : 0;
           if (emCena) atual = i;
+          if (emCena && s.dir < 0) tras = true;
         });
+        chapa.mats.forEach((m) => (m.opacity = kc * (tras ? 0.45 : 1)));
         if (atual !== passoAtual) {
           passoAtual = atual;
           passo.current(atual);
@@ -180,7 +185,7 @@ export function MontagemPaineis({ grupos }: { grupos: GrupoMateriais[] }) {
       ? "Chapa cortada entrando na bancada"
       : passo >= pecas.length
         ? pecas.length ? "Painel montado" : "Painel sem sarrafos no desenho"
-        : `Sarrafo ${passo + 1} de ${pecas.length}: ${nomePeca(pecas[passo])} · ${fmt(pecas[passo].comprimento_cm)} cm`;
+        : `Sarrafo ${passo + 1} de ${pecas.length}: ${nomePeca(pecas[passo])} · ${fmt(pecas[passo].comprimento_cm)} cm${pecas[passo].face === "tras" ? " · face de trás" : ""}`;
 
   return (
     <div className={styles.wrap}>
@@ -235,15 +240,15 @@ export function MontagemPaineis({ grupos }: { grupos: GrupoMateriais[] }) {
         <ol className={styles.passos}>
           {pecas.map((s, i) => (
             <li key={i} className={i === passo ? styles.passoAtual : i < passo ? styles.passoFeito : ""}>
-              {nomePeca(s)} · {fmt(s.comprimento_cm)} cm
+              {nomePeca(s)} · {fmt(s.comprimento_cm)} cm{s.face === "tras" ? " · face de trás" : ""}
               <span className={styles.sub}> em x {fmt(s.x)} · y {fmt(s.y)}</span>
             </li>
           ))}
         </ol>
       )}
       <p className={styles.nota}>
-        Posições medidas no desenho técnico (N3). Arraste para girar, role para aproximar. Sarrafo desenhado só pelo eixo
-        (pressão) aparece com 7 cm de largura centrados no eixo.
+        Posições medidas no desenho técnico (N3). Arraste para girar, role para aproximar. Cada sarrafo é o par de linhas
+        do desenho (ou a linha e a borda do painel); o de pressão (linha tracejada) vai na face de trás.
       </p>
     </div>
   );

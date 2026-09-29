@@ -5,6 +5,8 @@ export interface SarrafoMontagem {
   bitola: string;
   comprimento_cm: number;
   espessura_cm: number;
+  /** "tras" = pregado na face oposta (sarrafo de pressão, linha HIDDEN). */
+  face?: "frente" | "tras";
   x: number;
   y: number;
   w: number;

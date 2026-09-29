@@ -184,8 +184,16 @@ Sub-aba "Montagem painéis": uma aba por painel medido; three.js anima a chapa
 já cortada entrando na bancada e os sarrafos descendo um a um até a posição
 medida no N3 (`montagem` por painel na API: x, y, w, h em cm a partir do canto
 inferior esquerdo do painel). Ordem: peças mais longas primeiro, pressão por
-último. Peça desenhada só pelo eixo ganha a largura da bitola (7 cm) centrada no
-eixo. Chapa com 1,8 cm de espessura (só visual). Grades ainda não têm animação.
+último, pregado na **face de trás** (linha HIDDEN; dono, 28/09). Chapa com 1,8 cm
+de espessura (só visual). Grades ainda não têm animação.
+
+**Sarrafo de painel = par de linhas (dono, 28/09).** No painel (LV, FV, ABCD) o
+sarrafo é desenhado pelas duas bordas: duas linhas paralelas = 1 sarrafo; linha
+sozinha faz par com a borda do painel. `_parear_linhas` escolhe o par cuja
+distância bate com a largura da bitola (±1,5 cm) — FV 19 cm com linhas em 7 e 12
+= 2 sarrafos de 7 contra as bordas. Antes cada linha contava 1 peça (LV V309A:
+9 → 6 por painel; a compra caiu junto). Linha sem par (recortes do ABCD junto à
+viga) continua 1 peça, com 7 cm centrados.
 - **Q4** — LV com painel < 15 cm: comprar sarrafo 2,2 × 5 (como o gerador
   posiciona) ou 2,2 × 7 (como a layer diz)?
 - **Q5** — Perda: aplicar % de quebra ou perda de serra na compra, ou manter o

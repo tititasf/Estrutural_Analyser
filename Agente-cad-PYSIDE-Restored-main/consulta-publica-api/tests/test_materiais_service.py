@@ -178,9 +178,32 @@ def test_cada_sarrafo_vai_para_o_painel_onde_corre():
     # centrados; pressão entra por último.
     m = g["paineis"][1]["montagem"]
     assert [s["bitola"] for s in m] == ["Sarrafo 2.2 x 7 cm", "Sarrafo de pressão"]
-    assert m[0] =={"bitola": "Sarrafo 2.2 x 7 cm", "comprimento_cm": 80.0, "espessura_cm": 2.2,
-                         "x": 4.0, "y": 74.5, "w": 80.0, "h": 7.0}
-    assert (m[1]["x"], m[1]["y"], m[1]["w"], m[1]["h"]) == (3.5, 0.0, 7.0, 122.0)
+    assert m[0] == {"bitola": "Sarrafo 2.2 x 7 cm", "comprimento_cm": 80.0, "espessura_cm": 2.2,
+                    "face": "frente", "x": 4.0, "y": 74.5, "w": 80.0, "h": 7.0}
+    # Pressão (HIDDEN em x=7) faz par com a borda x=0 e vai na face de trás.
+    assert (m[1]["face"], m[1]["x"], m[1]["y"], m[1]["w"], m[1]["h"]) == ("tras", 0.0, 0.0, 7.0, 122.0)
+
+
+def test_sarrafo_do_painel_e_o_par_de_linhas_ou_linha_e_borda():
+    """LV V309A P01 (244 x 124): linhas em 7 · 27,5/34,5 · 58,5/65,5 ·
+    89,5/96,5 · 117 + vertical em x=7 = 6 sarrafos, não 9. FV (244 x 19):
+    linhas em 7 e 12 fazem par com as bordas (2 de 7 cm), não entre si (5 cm)."""
+    from services.materiais_service import associar_sarrafos
+
+    b = "Sarrafo 2.2 x 7 cm"
+    lv = {"paineis": [{"_bbox": (0, 0, 244, 124)}],
+          "_pecas_sarrafo": [(b, 236.2, (7, y, 243.2, y)) for y in (7, 27.5, 34.5, 58.5, 65.5, 89.5, 96.5, 117)]
+          + [(b, 124.0, (7, 0, 7, 124))]}
+    associar_sarrafos(lv)
+    m = lv["paineis"][0]["montagem"]
+    assert len(m) == 6 and all(min(s["w"], s["h"]) == 7.0 for s in m)
+    assert sorted(s["y"] for s in m if s["h"] == 7.0) == [0.0, 27.5, 58.5, 89.5, 117.0]
+    assert lv["sarrafos"][0]["pecas"] == 6
+
+    fv = {"paineis": [{"_bbox": (0, 0, 244, 19)}],
+          "_pecas_sarrafo": [(b, 237.0, (7, 7, 244, 7)), (b, 237.0, (7, 12, 244, 12)), (b, 19.0, (7, 0, 7, 19))]}
+    associar_sarrafos(fv)
+    assert sorted((s["y"], s["h"]) for s in fv["paineis"][0]["montagem"] if s["w"] > 7) == [(0.0, 7.0), (12.0, 7.0)]
 
 
 def test_barras_paralelas_com_montantes_nao_viram_uma_peca(tmp_path):

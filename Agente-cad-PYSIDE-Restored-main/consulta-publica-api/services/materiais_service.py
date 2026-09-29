@@ -266,30 +266,92 @@ def associar_sarrafos(grupo: dict) -> None:
             if s > melhor:
                 melhor, idx = s, i
         (por_painel.setdefault(idx, []) if idx is not None else avulsos).append(peca)
+    todas: list[tuple] = list(avulsos)
     for i, p in enumerate(paineis):
-        p["sarrafos"] = _cortes(por_painel.get(i, []))
-        p["montagem"] = _montagem(por_painel.get(i, []), p["_bbox"])
+        pecas = _parear_linhas(por_painel.get(i, []), p["_bbox"])
+        todas += pecas
+        p["sarrafos"] = _cortes(pecas)
+        p["montagem"] = _montagem(pecas, p["_bbox"])
     grupo["sarrafos_avulsos"] = _cortes(avulsos)
+    grupo["sarrafos"] = _resumo_sarrafos(todas)
+
+
+def _secao(bitola: str) -> tuple[float, float]:
+    """(espessura, largura) da bitola; sem número na layer → 2,2 x 7."""
+    m = _BITOLA.search(bitola)
+    return tuple(sorted(float(v.replace(",", ".")) for v in m.groups())) if m else (2.2, 7.0)
+
+
+def _parear_linhas(pecas: list[tuple], painel: tuple) -> list[tuple]:
+    """No painel (LV, FV, ABCD) o sarrafo é desenhado pelas duas BORDAS: duas
+    linhas paralelas = 1 sarrafo; a linha sozinha junto da borda do painel faz
+    par com a própria borda. O par escolhido é o de distância mais próxima da
+    largura da bitola (FV: linhas em 7 e 12 num painel de 19 são 2 sarrafos de
+    7 contra as bordas, não 1 de 5). Linha sem par fica como está (1 peça)."""
+    TOL = 1.5
+    linhas, outras = [], []
+    for pc in pecas:
+        a, b, c, d = pc[2]
+        if d - b < 0.5:
+            linhas.append((pc, "h", b, a, c))
+        elif c - a < 0.5:
+            linhas.append((pc, "v", a, b, d))
+        else:
+            outras.append(pc)
+    px0, py0, px1, py1 = painel
+    cands = []
+    for i, (pa, oa, ca, ia, fa) in enumerate(linhas):
+        larg = _secao(pa[0])[1]
+        for parede in ((py0, py1) if oa == "h" else (px0, px1)):
+            dist = abs(ca - parede)
+            if abs(dist - larg) <= TOL:
+                cands.append((abs(dist - larg), i, None, parede))
+        for j in range(i + 1, len(linhas)):
+            pb, ob, cb, ib, fb = linhas[j]
+            if ob != oa or ("press" in pa[0].lower()) != ("press" in pb[0].lower()):
+                continue
+            sobre = min(fa, fb) - max(ia, ib)
+            if sobre < 0.8 * min(fa - ia, fb - ib):
+                continue
+            dist = abs(ca - cb)
+            if dist > 0.5 and abs(dist - larg) <= TOL:
+                cands.append((abs(dist - larg), i, j, cb))
+    usadas: set = set()
+    out = list(outras)
+    for _, i, j, outro in sorted(cands, key=lambda k: (k[0], k[2] is not None)):
+        if i in usadas or (j is not None and j in usadas):
+            continue
+        usadas.add(i)
+        pa, o, ca, ia, fa = linhas[i]
+        if j is not None:
+            usadas.add(j)
+            ia, fa = min(ia, linhas[j][3]), max(fa, linhas[j][4])
+        c0, c1 = sorted((ca, outro))
+        bb = (ia, c0, fa, c1) if o == "h" else (c0, ia, c1, fa)
+        out.append((pa[0], round(fa - ia, _TOL), bb))
+    out += [linhas[i][0] for i in range(len(linhas)) if i not in usadas]
+    return out
 
 
 def _montagem(pecas: list[tuple], painel: tuple) -> list[dict]:
-    """Posição de cada sarrafo sobre o painel (cm, origem no canto inferior
-    esquerdo do painel, y para cima), na ordem de montagem: primeiro os do
-    contorno/longos, por posição; pressão por último. Peça desenhada só pelo
-    eixo (largura 0 — pressão, FV) ganha a largura da bitola centrada no eixo."""
+    """Posição de cada sarrafo no painel (cm, origem no canto inferior
+    esquerdo do painel, y para cima), na ordem de montagem: primeiro os
+    longos, por posição; pressão por último — ele é pregado na face de TRÁS
+    do painel (linha HIDDEN no desenho). Linha que ficou sem par ganha a
+    largura da bitola centrada nela."""
     x0, y0 = painel[0], painel[1]
     out = []
     for bitola, comp, (a, b, c, d) in pecas:
-        m = _BITOLA.search(bitola)
-        esp, larg = sorted(float(v.replace(",", ".")) for v in m.groups()) if m else (2.2, 7.0)
+        esp, larg = _secao(bitola)
         w, h = c - a, d - b
         if w < 0.5:
             a, w = a - larg / 2, larg
         if h < 0.5:
             b, h = b - larg / 2, larg
         out.append({"bitola": bitola, "comprimento_cm": comp, "espessura_cm": esp,
+                    "face": "tras" if "press" in bitola.lower() else "frente",
                     "x": round(a - x0, 1), "y": round(b - y0, 1), "w": round(w, 1), "h": round(h, 1)})
-    out.sort(key=lambda s: ("press" in s["bitola"].lower(), -max(s["w"], s["h"]), s["y"], s["x"]))
+    out.sort(key=lambda s: (s["face"] == "tras", -max(s["w"], s["h"]), s["y"], s["x"]))
     return out
 
 
