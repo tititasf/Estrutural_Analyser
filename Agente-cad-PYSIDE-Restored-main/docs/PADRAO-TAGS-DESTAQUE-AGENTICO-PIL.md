@@ -93,11 +93,9 @@ validados sem uma regressão comprovada.
   antes de a camada ser exibida. Toda referência `<use href="#…">` deve resolver
   dentro do próprio SVG; colisão entre SA/L1/L2/L3 é falha fechada, pois troca letras
   e produz nomes aparentemente aleatórios mesmo quando o texto-fonte está correto.  
-- Fonte compacta e legível em path; **não** usar CSS scale no viewer.  
-- Fonte interna e caixa das tags usam escala canônica `2.20`: exatamente `2×`
-  o tamanho visual anterior (`1.10`). Espaçamento, caixa e cálculo de colisão
-  crescem na mesma proporção; o roteador reserva ainda `2×` a caixa estimada
-  para impedir contato visual entre chips densos.  
+- Fonte compacta (~1.7–2.5 pt path); **não** voltar a pills enormes.  
+- Fonte interna das tags usa escala canônica `1.10` (aumento de 10% sobre o
+  tamanho anterior); espaçamento de linhas e caixa crescem na mesma proporção.  
 - Anti-overlap: stack + gap; tags **fora** da parede do pilar.  
 - Roteamento `non_crossing_v1`: a posição final só é aceita quando o chip não
   sobrepõe outro chip e o segmento seta→ponto não cruza conectores existentes.
@@ -164,7 +162,7 @@ L301
 | Tipo | Onde fica o pontinho |
 |------|----------------------|
 | **V.passa** | **Vértice físico exato** compartilhado pelas duas faces da marca. `AC=CA`, `AD=DA`, `BC=CB`, `BD=DB`; em especial vale o mesmo para todo par adjacente A–F. |
-| **V.chega** | **Centro transversal da viga que chega**. Em retangular: meio do span na face com deslocamento externo de `0,9 × largura do contato`. Em pilar especial A–F: partir do canto indicado (`AC/BC/ED/...`) e avançar **meia largura nominal da viga** para dentro da face física; assim o ponto fica entre as duas paredes vistas no DXF. As linhas do DXF são a verdade de terra. É proibido ancorar em `viga_fundo_seg_*`, pois esse contorno pode estar deslocado uma largura inteira (caso real V304: DB `2422..2441`, DXF `2441..2460`). O `bbox` geral é apenas fallback. |
+| **V.chega** | **Centro transversal da viga que chega**. Em retangular: meio do span na face com deslocamento externo de `0,9 × largura do contato`. Em pilar especial A–F: centro do contorno estrutural efetivo `viga_fundo_seg_*` mais próximo no eixo transversal, **exatamente sobre a linha de contato com a face**, sem deslocamento normal; o `bbox` geral da entidade é apenas fallback quando não houver contorno efetivo. Nunca usar a esquina só porque a marca é `AC/BC/...`. |
 | **V.interior** | **Centro da parede** da face |
 | **laje** | **Centro do contato** laje–parede (meio do span na face) |
 
@@ -289,8 +287,7 @@ py -3.12 scripts/arete/pil_agentic_highlight_draw.py \
 - [ ] Especial em L usa seis segmentos A–F, sem guias da caixa envolvente  
 - [ ] Linhas de face coincidem com o contorno CAD (offset zero)  
 - [ ] Todas as bolinhas usam 2× o tamanho da revisão anterior (`1.4` / `r=0.8`)  
-- [ ] Fonte e caixa das tags em `2.20×` (`2×` o visual anterior), incluindo
-      line-height e cálculo de colisão  
+- [ ] Fonte das tags em `1.10×`, incluindo line-height e caixa  
 - [ ] `routing_policy=non_crossing_v1`; zero cruzamentos seta–seta  
 - [ ] Chips separados e inteiros dentro do viewBox  
 - [ ] Chip não cria contorno geométrico falso; path/namespace SVG íntegros  

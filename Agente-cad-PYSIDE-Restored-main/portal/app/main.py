@@ -142,7 +142,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(recortes_routes.router)
     app.include_router(viewer_routes.router)
     app.include_router(comentarios_routes.router)
-    app.include_router(comentarios_routes.ui_router)
     app.include_router(paginas_routes.router)
     app.include_router(qa_routes.router)
     app.include_router(admin_publish_routes.router)

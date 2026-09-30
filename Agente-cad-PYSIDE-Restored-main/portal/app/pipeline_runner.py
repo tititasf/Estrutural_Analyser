@@ -40,11 +40,8 @@ vigas V1..V317 etc) em `<obra_dir>/<pavimento>_<run_id>/` — NAO em
 from __future__ import annotations
 
 import logging
-import html
 import json
 import os
-import re
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -210,14 +207,7 @@ def encontrar_dir_fichas(obra_dir: Path, pavimento: Optional[str] = None) -> Opt
     return candidatos[-1] if candidatos else None
 
 
-def promover_snapshot_sa(
-    obra_dir: Path,
-    pavimento: str,
-    *,
-    iniciado_em: float = 0.0,
-    secao: Optional[str] = None,
-    item_names: Optional[set[str]] = None,
-) -> Path | None:
+def promover_snapshot_sa(obra_dir: Path, pavimento: str, *, iniciado_em: float = 0.0) -> Path | None:
     """Publica o snapshot isolado do headless como estado canÃ´nico do portal.
 
     O headless inclui escopo/PID no nome para evitar colisÃ£o entre processos;
@@ -230,10 +220,6 @@ def promover_snapshot_sa(
     candidates = []
     for candidate in obra_dir.glob(f"estado_{pavimento}*.json"):
         if candidate == canonical:
-            continue
-        # Snapshot visual parcial: nunca pode substituir o inventário completo
-        # do headless (cortes/segmentos seriam apagados do portal).
-        if candidate.stem.endswith("_pilares_abcd"):
             continue
         try:
             if iniciado_em and candidate.stat().st_mtime < iniciado_em - 5.0:
@@ -265,34 +251,6 @@ def promover_snapshot_sa(
     if not isinstance(payload, dict) or not isinstance(payload.get("pilares"), list):
         log.warning("snapshot SA candidato sem contrato de pilares: %s", source)
         return None
-    # Microciclo LAJ materializa deliberadamente apenas o item solicitado.
-    # Esse recorte é correto para o artefato/job, mas não pode substituir o
-    # inventário canônico consumido pelo portal. Mescla somente as lajes-alvo
-    # no estado anterior e preserva todas as outras lajes do pavimento.
-    wanted = {str(name).strip().upper() for name in (item_names or set()) if str(name).strip()}
-    if secao == "lajes" and wanted and canonical.is_file():
-        try:
-            previous = json.loads(canonical.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            previous = None
-        if isinstance(previous, dict) and isinstance(previous.get("slabs"), list):
-            fresh_by_name = {
-                str(row.get("name") or "").strip().upper(): row
-                for row in (payload.get("slabs") or [])
-                if isinstance(row, dict)
-            }
-            merged_slabs = []
-            seen: set[str] = set()
-            for row in previous["slabs"]:
-                name = str((row or {}).get("name") or "").strip().upper() if isinstance(row, dict) else ""
-                merged_slabs.append(fresh_by_name.get(name, row) if name in wanted else row)
-                if name:
-                    seen.add(name)
-            merged_slabs.extend(
-                row for name, row in fresh_by_name.items()
-                if name in wanted and name not in seen
-            )
-            payload["slabs"] = merged_slabs
     canonical.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(prefix=f".{canonical.name}.", suffix=".tmp", dir=canonical.parent)
     try:
@@ -330,7 +288,6 @@ def auditar_pacote_pilares_n3(obra_dir: Path, pavimento: str) -> dict:
         for name in names:
             expected = (
                 root / mode / f"{name}.json",
-                root / mode / f"PL_CIMA_preview_{name}.dxf",
                 root / mode / f"PL_ABCD_preview_{name}.dxf",
                 root / mode / f"PL_GRADES_preview_{name}.dxf",
             )
@@ -355,23 +312,19 @@ def materializar_n1_tags_pilares(
     pavimento: str,
     itens: Optional[list[str]] = None,
 ) -> dict:
-    """Gera N1 em staging e so publica depois do gate semantico Arete."""
+    """Gera ``N1 com tag`` sem reinterpretar SA nem criar camadas QA."""
     script = settings.repo_root / "scripts" / "arete" / "export_pilares_abcd_fichas.py"
     if not script.is_file():
         raise RuntimeError(f"exportador de tags PIL ausente: {script}")
     obra_nome = str(obra.get("nome") or Path(_obra_dir(settings, obra)).name)
-    html_root = settings.repo_root / "scripts" / "arete" / "html_fichas"
-    output_root = html_root / obra_nome
-    staging_root = html_root / ".staging"
+    output_root = settings.repo_root / "scripts" / "arete" / "html_fichas" / obra_nome
     cmd = [
         python_sa_executable(settings.repo_root), str(script),
         "--project-id", str(project_id),
         "--db", str(settings.sa_db_path),
         "--obra", obra_nome,
         "--pav", str(pavimento),
-        "--output-root", str(staging_root),
-        # Gera próximo limpo + distante/contextual + próximo tagueado.
-        "--no-layers",
+        "--tags-only",
     ]
     itens_limpos = [str(item).strip() for item in (itens or []) if str(item).strip()]
     if itens_limpos:
@@ -388,9 +341,8 @@ def materializar_n1_tags_pilares(
             f"geração N1 com tag falhou (rc={proc.returncode}): {_tail(saida)}"
         )
     packs = []
-    staging_obra = staging_root / obra_nome
-    if staging_obra.is_dir():
-        for path in staging_obra.glob(f"{pavimento}_*_pilares_abcd"):
+    if output_root.is_dir():
+        for path in output_root.glob(f"{pavimento}_*_pilares_abcd"):
             try:
                 if path.is_dir() and path.stat().st_mtime >= iniciado_em - 5.0:
                     packs.append(path)
@@ -417,232 +369,16 @@ def materializar_n1_tags_pilares(
     }
     missing = sorted(expected - generated)
     if missing:
-        _quarentenar_pack_paridade(pack, html_root, obra_nome)
         raise RuntimeError(
             f"pack N1 com tag incompleto: {len(missing)} ausente(s): {', '.join(missing[:10])}"
         )
-    approved_assets = (
-        Path(_obra_dir(settings, obra)) / "arete_approved" /
-        f"pilares_tags_{pavimento}" / "propostas"
-    )
-    assets_arete = aplicar_assets_arete_tags(
-        pack, approved_assets, expected,
-    )
-    parity = auditar_paridade_semantica_tags(
-        pack,
-        _obra_dir(settings, obra) / "arete_approved" / f"pilares_tags_{pavimento}.json",
-        expected,
-    )
-    if parity["status"] == "fail":
-        failed_path = _quarentenar_pack_paridade(pack, html_root, obra_nome)
-        raise RuntimeError(
-            "paridade Arete das tags falhou: "
-            f"{len(parity['divergentes'])} pilar(es) divergente(s): "
-            f"{', '.join(parity['divergentes'][:10])}; evidencia={failed_path}"
-        )
-    output_root.mkdir(parents=True, exist_ok=True)
-    published = output_root / pack.name
-    if published.exists():
-        raise RuntimeError(f"destino de pack N1 ja existe: {published}")
-    os.replace(pack, published)
     return {
-        "pack": str(published),
+        "pack": str(pack),
         "esperados": len(expected),
         "gerados": len(generated & expected),
         "missing": missing,
-        "assets_arete": assets_arete,
-        "paridade_arete": parity,
         "duracao_s": round(time.time() - iniciado_em, 2),
     }
-
-
-_SVG_COMMENT_RE = re.compile(r"<!--\s*(.*?)\s*-->", re.DOTALL)
-
-
-def extrair_semantica_tags_svg(svg: str) -> list[str]:
-    """Extrai os textos que o Matplotlib preserva como comentarios no SVG.
-
-    Nomes, familias, dimensoes, niveis e cantos das tags ficam nesses
-    comentarios. IDs internos, data de render e glifos/fonte nao entram na
-    assinatura, evitando falso FAIL entre Windows e Linux.
-    """
-    result: list[str] = []
-    for raw in _SVG_COMMENT_RE.findall(svg or ""):
-        value = " ".join(html.unescape(raw).split())
-        if value:
-            result.append(value)
-    return result
-
-
-def aplicar_assets_arete_tags(pack: Path, approved_dir: Path, expected: set[str]) -> dict:
-    """Substitui, em staging, as tags por golden masters explicitamente aprovados."""
-    if not approved_dir.is_dir():
-        return {"status": "sem_assets", "aplicados": 0}
-    missing = [
-        name for name in sorted(expected)
-        if not (approved_dir / f"{name}_sa_motor.svg").is_file()
-    ]
-    if missing:
-        raise RuntimeError(
-            f"assets Arete PIL incompletos: {len(missing)} ausente(s): "
-            + ", ".join(missing[:10])
-        )
-    destination = Path(pack) / "propostas"
-    destination.mkdir(parents=True, exist_ok=True)
-    for name in sorted(expected):
-        shutil.copy2(
-            approved_dir / f"{name}_sa_motor.svg",
-            destination / f"{name}_sa_motor.svg",
-        )
-    return {"status": "aplicados", "aplicados": len(expected), "origem": str(approved_dir)}
-
-
-def auditar_paridade_semantica_tags(
-    pack: Path,
-    manifest_path: Path,
-    expected: set[str],
-) -> dict:
-    """Compara o pack candidato com o manifesto Arete aprovado, se existir."""
-    if not manifest_path.is_file():
-        return {
-            "status": "sem_referencia",
-            "manifest": str(manifest_path),
-            "comparados": 0,
-            "divergentes": [],
-        }
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        return {
-            "status": "fail", "manifest": str(manifest_path),
-            "comparados": 0, "divergentes": [f"manifesto_invalido:{exc}"],
-        }
-    reference = manifest.get("items") if isinstance(manifest, dict) else None
-    if not isinstance(reference, dict):
-        return {
-            "status": "fail", "manifest": str(manifest_path),
-            "comparados": 0, "divergentes": ["manifesto_sem_items"],
-        }
-    divergentes: list[str] = []
-    for name in sorted(expected):
-        path = Path(pack) / "propostas" / f"{name}_sa_motor.svg"
-        try:
-            actual = extrair_semantica_tags_svg(path.read_text(encoding="utf-8"))
-        except OSError:
-            actual = []
-        wanted = reference.get(name)
-        if not isinstance(wanted, list) or actual != [str(x) for x in wanted]:
-            divergentes.append(name)
-    extras = sorted(set(reference) - expected)
-    return {
-        "status": "pass" if not divergentes else "fail",
-        "manifest": str(manifest_path),
-        "comparados": len(expected),
-        "divergentes": divergentes,
-        "referencias_extras": extras,
-    }
-
-
-def aplicar_memoria_arete_pilares(
-    settings: Settings,
-    obra: dict,
-    *,
-    project_id: str,
-    pavimento: str,
-) -> dict:
-    """Restaura no projeto web isolado o snapshot PIL aprovado da obra."""
-    import sqlite3
-
-    obra_nome = str(obra.get("nome") or Path(_obra_dir(settings, obra)).name)
-    manifest_path = (
-        Path(_obra_dir(settings, obra)) / "arete_approved" /
-        f"pilares_tags_{pavimento}.json"
-    )
-    if not manifest_path.is_file():
-        return {"status": "sem_referencia", "aplicados": 0}
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        expected = set((manifest.get("items") or {}).keys())
-    except (OSError, json.JSONDecodeError):
-        return {"status": "manifesto_invalido", "aplicados": 0}
-    if not expected:
-        return {"status": "manifesto_vazio", "aplicados": 0}
-
-    conn = sqlite3.connect(str(settings.sa_db_path))
-    conn.row_factory = sqlite3.Row
-    try:
-        candidates = conn.execute(
-            """
-            SELECT p.id, COUNT(x.id) AS total,
-                   SUM(CASE WHEN length(COALESCE(x.validated_fields_json, '')) > 2
-                            THEN 1 ELSE 0 END) AS validados
-              FROM projects p
-              JOIN pillars x ON x.project_id = p.id
-             WHERE p.id <> ? AND p.work_name = ?
-             GROUP BY p.id
-             ORDER BY validados DESC, total DESC, p.updated_at DESC
-            """,
-            (str(project_id), obra_nome),
-        ).fetchall()
-        reference_id = None
-        for row in candidates:
-            names = {
-                str(value[0]) for value in conn.execute(
-                    "SELECT name FROM pillars WHERE project_id = ?", (row["id"],)
-                )
-            }
-            if names == expected:
-                reference_id = str(row["id"])
-                break
-        if reference_id is None:
-            return {"status": "referencia_nao_encontrada", "aplicados": 0}
-
-        columns = (
-            "type", "area", "points_json", "sides_data_json", "links_json",
-            "conf_map_json", "validated_fields_json", "issues_json",
-            "is_validated", "id_item", "validated_link_classes_json",
-            "na_fields_json", "na_link_classes_json", "na_reasons_json",
-            "extra_data_json",
-        )
-        source_rows = {
-            str(row["name"]): row for row in conn.execute(
-                "SELECT name, " + ", ".join(columns) +
-                " FROM pillars WHERE project_id = ?", (reference_id,)
-            )
-        }
-        assignments = ", ".join(f"{column} = ?" for column in columns)
-        applied = 0
-        with conn:
-            for name in sorted(expected):
-                source = source_rows[name]
-                cursor = conn.execute(
-                    f"UPDATE pillars SET {assignments} WHERE project_id = ? AND name = ?",
-                    tuple(source[column] for column in columns) + (str(project_id), name),
-                )
-                applied += cursor.rowcount
-        if applied != len(expected):
-            raise RuntimeError(
-                f"memoria Arete PIL incompleta: {applied}/{len(expected)} aplicada"
-            )
-        return {
-            "status": "aplicada", "aplicados": applied,
-            "reference_project_id": reference_id,
-        }
-    finally:
-        conn.close()
-
-
-def _quarentenar_pack_paridade(pack: Path, html_root: Path, obra_nome: str) -> Path:
-    """Move um pack gerado e reprovado para fora da arvore publicada."""
-    failed_root = Path(html_root) / ".parity_failed" / obra_nome
-    failed_root.mkdir(parents=True, exist_ok=True)
-    destination = failed_root / Path(pack).name
-    counter = 1
-    while destination.exists():
-        destination = failed_root / f"{Path(pack).name}.{counter}"
-        counter += 1
-    os.replace(pack, destination)
-    return destination
 
 
 def montar_comando_headless(
@@ -670,7 +406,7 @@ def montar_comando_headless(
     Regras de `--persist-db` (alinhadas a headless_sa_analise.py):
       - sem `--secao` .............. grava rodada completa
       - `--secao` + `--item` ....... microciclo: upsert só do lote (P4 escape hatch)
-      - `--secao` sem `--item` ..... publica SA/N3 da classe em READ_ONLY no DB
+      - `--secao` sem `--item` ..... READ_ONLY (script recusa --persist-db)
     """
     obra_dir = _obra_dir(settings, obra)
     py = python_sa_executable(settings.repo_root if settings else None)
@@ -692,8 +428,7 @@ def montar_comando_headless(
         cmd += ["--secao", s]
     for i in itens:
         cmd += ["--item", i]
-    # Completa OU microciclo secao+item. Uma classe inteira continua read-only
-    # no DB, mas --production-web publica seu snapshot N1 e seus artefatos N3.
+    # Completa OU microciclo secao+item — nunca secao sem item (script aborta).
     if not secoes or itens:
         cmd.append("--persist-db")
     return cmd
@@ -793,32 +528,12 @@ def _rodar_subprocess_sa(
         try:
             from src.core.pillar_n3_ficha import materialize_pavimento
 
-            secoes_cmd = [
-                cmd[index + 1] for index, value in enumerate(cmd[:-1])
-                if value == "--secao"
-            ]
-            itens_cmd = [
-                cmd[index + 1] for index, value in enumerate(cmd[:-1])
-                if value == "--item"
-            ]
-
             snapshot = promover_snapshot_sa(
                 obra_dir, str(pav or settings.pav_default), iniciado_em=iniciado_em,
-                secao=secoes_cmd[0] if len(secoes_cmd) == 1 else None,
-                item_names=set(itens_cmd),
             )
             if snapshot is None:
                 raise RuntimeError("o SA terminou sem publicar um estado N1 valido desta rodada")
             artefatos["estado_n1"] = str(snapshot)
-            memoria_arete = aplicar_memoria_arete_pilares(
-                settings, obra, project_id=project_id,
-                pavimento=str(pav or settings.pav_default),
-            )
-            artefatos["memoria_arete_pilares"] = memoria_arete
-            if memoria_arete.get("status") not in {"aplicada", "sem_referencia"}:
-                raise RuntimeError(
-                    "memoria Arete PIL indisponivel: " + str(memoria_arete)
-                )
             ficha_stats = materialize_pavimento(
                 obra_dir, str(pav or settings.pav_default),
             )
@@ -831,6 +546,10 @@ def _rodar_subprocess_sa(
 
             # SA completo (sem --secao) ou uma solicitacao explicita de pilares
             # so conclui quando PARA e PASSA possuem contrato + ABCD + GRADES.
+            secoes_cmd = [
+                cmd[index + 1] for index, value in enumerate(cmd[:-1])
+                if value == "--secao"
+            ]
             pilares_solicitados = not secoes_cmd or "pilares" in secoes_cmd
             if pilares_solicitados:
                 n3_stats = auditar_pacote_pilares_n3(
@@ -842,6 +561,10 @@ def _rodar_subprocess_sa(
                         f"pacote N3 de pilares incompleto: "
                         f"{len(n3_stats['missing'])} artefato(s) ausente(s)"
                     )
+                itens_cmd = [
+                    cmd[index + 1] for index, value in enumerate(cmd[:-1])
+                    if value == "--item"
+                ]
                 artefatos["pilar_n1_tags"] = materializar_n1_tags_pilares(
                     settings, obra, project_id=project_id,
                     pavimento=str(pav or settings.pav_default), itens=itens_cmd,

@@ -99,27 +99,7 @@ def _default_face(face: str, width: float, height: float, robot: dict) -> dict:
                 "distance": 0.0, "width": panel_width, "height": panel_height,
                 "kind": "panel", "hatch": "none",
             })
-    # As aberturas são produzidas pelo payload da variante N3, não pela Fase 4.
-    # Mantê-las na ficha é o que faz os boxes refletirem os detalhes do DXF.
-    openings = {"left": [], "right": []}
-    prefix = f"abertura_{face}_"
-    for key, raw in sorted(robot.items()):
-        if not str(key).startswith(prefix) or not isinstance(raw, dict):
-            continue
-        opening_width = _positive(raw.get("largura") or raw.get("width"))
-        opening_depth = _positive(raw.get("altura") or raw.get("depth"))
-        if opening_width <= 0 or opening_depth <= 0:
-            continue
-        lado = str(raw.get("lado") or raw.get("side") or "").lower()
-        side = "right" if lado in {"direito", "right"} else "left"
-        openings[side].append({
-            "distance": _positive(raw.get("x_offset") or raw.get("distance")),
-            "width": opening_width,
-            "depth": opening_depth,
-            "level": _positive(raw.get("nivel") or raw.get("level") or raw.get("y_rel")),
-            "top_distance": _positive(raw.get("distancia_topo") or raw.get("top_distance")),
-        })
-    return {"panels": panels, "openings": openings}
+    return {"panels": panels, "openings": {"left": [], "right": []}}
 
 
 def build_ficha(pillar: dict, robot: dict | None = None, saved: dict | None = None, *, pavimento: str = "") -> dict:
@@ -169,14 +149,11 @@ def build_ficha(pillar: dict, robot: dict | None = None, saved: dict | None = No
             "vertical_slats": [],
             "horizontal_slats": [],
         },
-        "source": {
-            "n1": True, "fase4": bool(robot), "human_override": False,
-            "n3_variant": str(robot.get("_portal_n3_variant") or ""),
-        },
+        "source": {"n1": True, "fase4": bool(robot), "human_override": False},
     }
     if isinstance(saved, dict) and saved.get("schema") == SCHEMA:
         # A edicao humana e' autoridade somente nos blocos editaveis.
-        for key in ("dimensions", "faces", "grades", "cima_contract"):
+        for key in ("dimensions", "faces", "grades"):
             if isinstance(saved.get(key), dict):
                 ficha[key] = deepcopy(saved[key])
         ficha["revision"] = int(saved.get("revision") or 0)
@@ -380,25 +357,6 @@ def robot_patch(ficha: dict) -> dict:
                     "distancia_borda": opening["distance"], "origem_portal": side,
                 }
                 opening_index += 1
-    cima = ficha.get("cima_contract") if isinstance(ficha, dict) else None
-    fields = (cima or {}).get("fields") if isinstance(cima, dict) else None
-    especial = (fields or {}).get("especial") if isinstance(fields, dict) else None
-    if isinstance(especial, dict) and especial:
-        try:
-            from src.core.cima_l_contract import build_cima_l_contract, flatten_cima_l_into_robot
-            seed = dict(patch)
-            seed["subtipo_pil"] = "L"
-            seed["pilar_especial"] = {"cima": {"arms": especial}, "tipo_pilar_especial": "L"}
-            built = build_cima_l_contract(seed) or {"schema": "pil.cima_l/v1", "arms": especial}
-            arms = dict(built.get("arms") or {})
-            if especial.get("haste"):
-                arms["haste"] = {**(arms.get("haste") or {}), **especial["haste"]}
-            if especial.get("ramo"):
-                arms["ramo"] = {**(arms.get("ramo") or {}), **especial["ramo"]}
-            built["arms"] = arms
-            patch.update(flatten_cima_l_into_robot({}, built))
-        except Exception:
-            patch["pilar_especial"] = {"cima": {"arms": especial}, "tipo_pilar_especial": "L"}
     return patch
 
 

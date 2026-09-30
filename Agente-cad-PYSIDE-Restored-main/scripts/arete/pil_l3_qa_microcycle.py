@@ -32,9 +32,8 @@ from scripts.arete.pil_agentic_highlight_draw import (
 )
 from scripts.arete.pil_l2_evidence_check import _beam_contours
 from src.core.niveis_extractor import get_pavimento_niveis_abs
-from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar, format_abcd_tables_html
-from src.core.pillar_face_beams import beam_bbox_from_entity, beam_section_width
-from src.core.pillar_special_faces import classify_pillar_geometry
+from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar
+from src.core.pillar_face_beams import beam_bbox_from_entity
 
 
 ROLES = ("passa", "chega", "interior")
@@ -493,24 +492,10 @@ def apply_special_l_attention(tables, beams, points, note, nivel):
     if only_b:
         reset_face("B", slab=True)
         add_corner("B", "chega", only_b.group(1).upper(), parallel=False)
-    only_f = re.search(
-        r"\bf\b[^.;]{0,45}?so\s+(?:viga\s+passa\w*\s+([a-f]{2})|([a-f]{2})\s+passa\w*)",
-        normalized,
-    )
+    only_f = re.search(r"\bf\b[^.;]{0,45}?so\s+viga\s+passa\w*\s+([a-f]{2})", normalized)
     if only_f:
-        corner = (only_f.group(1) or only_f.group(2)).upper()
-        existing = next((
-            row for row in _real(tables["faces"]["F"].get("passa"))
-            if str(row.get("canto") or "").upper() == corner
-        ), None)
         reset_face("F", slab=True)
-        if existing:
-            tables["faces"]["F"]["passa"] = [existing]
-            actions.append(
-                f"atenção especial: F.passa {existing.get('nome')}@{corner} preservado; face exclusiva"
-            )
-        else:
-            add_corner("F", "passa", corner, parallel=True)
+        add_corner("F", "passa", only_f.group(1).upper(), parallel=True)
 
     # C permanece como aceito; só removemos a duplicata e acrescentamos CC.
     if "duplicado o cb" in normalized:
@@ -644,35 +629,30 @@ def _strip_legacy_rectangular_face_guides(svg):
     return strip_group("text", strip_group("line2d", svg))
 
 
-def _special_arrival_from_corner(edge, contact, width):
-    """Avança meia largura da viga do canto indicado para dentro da face.
+def _nearest_beam_contour_center(contours, contact, *, horizontal):
+    """Centro da faixa estrutural efetiva mais próxima do ponto de contato.
 
-    Em pilares especiais o canto AC/BC/ED/... identifica qual extremidade da
-    face contém a chegada. O centro correto é metade da largura nominal a
-    partir desse canto. Não usar ``viga_fundo_seg_*`` aqui: há casos reais
-    (V304) em que esse contorno está deslocado uma largura inteira no DB.
+    O bbox geral da entidade também inclui extensões/linhas auxiliares e pode
+    pôr o marcador sobre a borda da viga. Para pilares especiais usamos o
+    contorno ``viga_fundo_seg_*`` que realmente chega àquela face.
     """
-    try:
-        width = float(width)
-    except (TypeError, ValueError):
+    if not contours:
         return None
-    if width <= 0:
-        return None
-    endpoints = (edge["p0"], edge["p1"])
-    target = max(
-        endpoints,
-        key=lambda point: (point[0] - contact[0]) ** 2 + (point[1] - contact[1]) ** 2,
-    )
-    dx, dy = target[0] - contact[0], target[1] - contact[1]
-    length = (dx * dx + dy * dy) ** 0.5
-    if length <= 1e-9:
-        return None
-    offset = min(width, length) / 2
-    return contact[0] + dx / length * offset, contact[1] + dy / length * offset
+
+    def axis_gap(seg):
+        value = contact[0] if horizontal else contact[1]
+        lo = seg["x0"] if horizontal else seg["y0"]
+        hi = seg["x1"] if horizontal else seg["y1"]
+        return max(lo - value, value - hi, 0.0)
+
+    nearest = min(contours, key=axis_gap)
+    if horizontal:
+        return contact[0], (nearest["y0"] + nearest["y1"]) / 2
+    return (nearest["x0"] + nearest["x1"]) / 2, contact[1]
 
 
 def _special_arrival_tip(edge, corner, segments, beam):
-    """Centro da chegada sobre a face física do pilar especial."""
+    """Centro da faixa efetiva da viga no contato com a face especial."""
     if not beam:
         return None
     bbox = beam_bbox_from_entity(beam)
@@ -685,13 +665,12 @@ def _special_arrival_tip(edge, corner, segments, beam):
             (edge["p0"][0] + edge["p1"][0]) / 2,
             (edge["p0"][1] + edge["p1"][1]) / 2,
         )
-    width = beam_section_width(
-        beam.get("dim") or (beam.get("fields") or {}).get("dimensao")
-    )
-    centered = _special_arrival_from_corner(edge, contact, width)
-    if centered is not None:
-        return centered
     horizontal = _beam_is_h(beam)
+    effective = _nearest_beam_contour_center(
+        _beam_contours(beam), contact, horizontal=horizontal
+    )
+    if effective is not None:
+        return effective
     if horizontal:
         return contact[0], (bbox[1] + bbox[3]) / 2
     return (bbox[0] + bbox[2]) / 2, contact[1]
@@ -901,7 +880,7 @@ def _special_connector_crossings(svg):
     ]
 
 
-def publish_special_l_status(html_path, name, tables, *, output_path=None):
+def publish_special_l_status(html_path, name, tables):
     """Publica na ficha o reconhecimento A–F sem alterar nenhum veredito."""
     if not html_path.is_file() or tables.get("geometry_type") != "L_special_6_faces":
         return
@@ -922,14 +901,11 @@ def publish_special_l_status(html_path, name, tables, *, output_path=None):
         cards.append(
             f'<div class="pil-special-face-card"><b>Face {fid}</b><br>{body}</div>'
         )
-    interpretation = format_abcd_tables_html(tables, compact=True)
     content = (
         "<b>✅ Pilar especial em L reconhecido — motor de 6 faces ativo.</b><br>"
         "A/B/E/F são faces longas; C/D são tampas. A Camada 3 usa a mesma "
         "semântica laje/passa/chega/interior independentemente em A–F."
         f'<div class="pil-special-face-grid">{"".join(cards)}</div>'
-        '<div class="pil-special-interpretation"><b>Interpretação A–F — Camada 3</b>'
-        f'{interpretation}</div>'
         "<small>Revisão humana continua obrigatória antes da consolidação.</small>"
     )
     block = f'''<style id="pil-special-shape-gate-{name}-style">
@@ -938,32 +914,14 @@ background:#062b24;color:#b8ffe9;border-radius:8px;font:14px/1.45 system-ui,sans
 .pil-special-shape-gate b{{color:#e8fff8}}
 .pil-special-face-grid{{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}}
 .pil-special-face-card{{padding:7px;border:1px solid #168f76;border-radius:6px;background:#081d1a;font-size:12px}}
-.pil-special-interpretation{{margin-top:14px;padding-top:12px;border-top:1px solid #168f76}}
-.pil-special-interpretation .abcd-grid{{grid-template-columns:repeat(2,minmax(320px,1fr))}}
-.pil-special-superseded{{display:none!important}}
 </style>
 <script id="pil-special-shape-gate-{name}">
 window.addEventListener('DOMContentLoaded', () => {{
-  document.querySelectorAll('.sec').forEach((section) => {{
-    const title = section.querySelector('.sec-title');
-    if (title && /^Interpretação ABCD(?:\\s|—)/.test(title.textContent.trim())) {{
-      section.classList.add('pil-special-superseded');
-      section.setAttribute('aria-hidden', 'true');
-    }}
-  }});
   const box = document.createElement('section');
   box.className = 'pil-special-shape-gate';
   box.innerHTML = {json.dumps(content, ensure_ascii=False)};
-  const viewerTitle = Array.from(document.querySelectorAll('.sec-title')).find(
-    (title) => title.textContent.trim() === 'Viewer — N1 + N3 partes'
-  );
-  const viewerSection = viewerTitle ? viewerTitle.closest('.sec') : null;
-  if (viewerSection) {{
-    viewerSection.insertAdjacentElement('afterend', box);
-  }} else {{
-    const anchor = document.querySelector('.pil-agent-box, .sec, main, body');
-    anchor.parentNode.insertBefore(box, anchor);
-  }}
+  const anchor = document.querySelector('.pil-agent-box, .sec, main, body');
+  anchor.parentNode.insertBefore(box, anchor);
   document.body.classList.remove('pil-special-shape-pending');
   document.body.classList.add('pil-special-shape-ready');
 }});
@@ -974,14 +932,10 @@ window.addEventListener('DOMContentLoaded', () => {{
         rf'<script id="pil-special-shape-gate-{re.escape(name)}">[\s\S]*?</script>'
     )
     if pattern.search(page):
-        # Função de substituição mantém ``\\n``/aspas do JSON literais. Uma
-        # replacement string faria o ``re`` reinterpretar escapes e quebraria
-        # o JavaScript quando a interpretação A–F contém HTML multilinha.
-        page = pattern.sub(lambda _match: block, page, count=1)
+        page = pattern.sub(block, page, count=1)
     else:
         page = page.replace("</body>", block + "\n</body>", 1)
-    destination = Path(output_path) if output_path else html_path
-    destination.write_text(page, encoding="utf-8")
+    html_path.write_text(page, encoding="utf-8")
 
 
 def _box(pillar):
@@ -1292,14 +1246,6 @@ def main():
     parser.add_argument("--project-id", default="dd238e47-1dc6-4f63-a760-4e7ce19a7386")
     parser.add_argument("--obra", default="Obra_TREINO_1")
     parser.add_argument("--pav", default="13_PAV")
-    parser.add_argument(
-        "--attention-text", default="",
-        help="atenção explícita aplicada aos itens desta execução",
-    )
-    parser.add_argument(
-        "--staging-dir", default="",
-        help="grava SVG/sidecars fora do pack para publicação atômica posterior",
-    )
     args = parser.parse_args()
 
     pack = Path(args.pack)
@@ -1312,8 +1258,6 @@ def main():
     niveis = get_pavimento_niveis_abs(args.obra, args.pav) or {"chegada_abs": 852.19}
     nivel = f"{niveis.get('chegada_abs')}cm"
     out_dir = pack / "propostas"
-    write_dir = Path(args.staging_dir) if args.staging_dir else out_dir
-    write_dir.mkdir(parents=True, exist_ok=True)
     special_meta = _load_special_sides(Path(args.db), args.project_id, args.items)
     results = []
 
@@ -1324,19 +1268,11 @@ def main():
             slab_points_map=slab_pts, beams=beams, nivel_viga_default=nivel,
         )
         item_notes = (note_items.get(name) or {})
-        note = str(args.attention_text or item_notes.get("text") or "")
+        note = str(item_notes.get("text") or "")
         if not note:
-            for layer in ("L3", "L2", "L1"):
-                sidecar = out_dir / f"{name}_qa_{layer}_tables.json"
-                if not sidecar.is_file():
-                    continue
-                saved = json.loads(sidecar.read_text(encoding="utf-8"))
-                note = str(
-                    saved.get("human_note_used_as_acceptance")
-                    or saved.get("human_note") or ""
-                )
-                if note:
-                    break
+            sidecar = out_dir / f"{name}_qa_L1_tables.json"
+            if sidecar.is_file():
+                note = str(json.loads(sidecar.read_text(encoding="utf-8")).get("human_note") or "")
 
         tables = _load_base_tables(out_dir, name, note, motor_tables)
         actions = enrich_special_l_faces(
@@ -1373,12 +1309,11 @@ def main():
             issues.append(
                 f"conectores de tags cruzados: {len(connector_crossings)} par(es)"
             )
-        (write_dir / f"{name}_qa_L3.svg").write_text(svg, encoding="utf-8")
-        (write_dir / f"{name}_qa_L3_tables.json").write_text(
+        (out_dir / f"{name}_qa_L3.svg").write_text(svg, encoding="utf-8")
+        (out_dir / f"{name}_qa_L3_tables.json").write_text(
             json.dumps({
                 "item": name, "orientation": tables.get("orientation"),
-                "geometry_type": tables.get("geometry_type")
-                or classify_pillar_geometry(pillar["points"]),
+                "geometry_type": tables.get("geometry_type", "rectangular"),
                 "face_ids": tables.get("face_ids", list("ABCD")),
                 "face_geometry": tables.get("face_geometry", {}),
                 "base_layer": tables.get("base_layer", "SA"),
@@ -1389,12 +1324,11 @@ def main():
                 "human_note_used_as_acceptance": note,
             }, ensure_ascii=False, indent=2), encoding="utf-8",
         )
-        if not args.staging_dir:
-            publish_special_l_status(pack / "pilares" / f"{name}.html", name, tables)
+        publish_special_l_status(pack / "pilares" / f"{name}.html", name, tables)
         results.append({"item": name, "qa_status": "pass" if not issues else "fail", "issues": issues, "actions": actions})
         print(f"{name}: {'PASS' if not issues else 'FAIL'} actions={len(actions)} issues={len(issues)}")
 
-    report_path = write_dir / "qa_l3_report.json"
+    report_path = out_dir / "qa_l3_report.json"
     if report_path.is_file():
         previous = json.loads(report_path.read_text(encoding="utf-8"))
         merged = {item["item"]: item for item in previous.get("items") or []}
@@ -1406,8 +1340,6 @@ def main():
         "human_validation": "pending",
     }
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    if args.staging_dir:
-        return 0
     index_names = [item["item"] for item in results]
     links = "\n".join(
         f'<li><strong>{name}</strong> — '

@@ -21,7 +21,6 @@ import importlib
 import hashlib
 import pickle
 import subprocess
-import shutil
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -53,32 +52,11 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _REPO_ROOT   = _SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
-
-def _dados_obras_root() -> Path:
-    """Resolve a raiz de obras nas disposições local e de produção.
-
-    No workspace de desenvolvimento os dados ficam ao lado do repositório;
-    na VPS eles residem dentro de ``/opt/cad-analyzer``.  Preferir a primeira
-    raiz existente preserva o layout local e impede que uma rodada de produção
-    tente criar ``/opt/DADOS-OBRAS``.
-    """
-    configured = os.environ.get('CAD_DADOS_OBRAS_ROOT', '').strip()
-    candidates = (
-        Path(configured) if configured else None,
-        _REPO_ROOT.parent / 'DADOS-OBRAS',
-        _REPO_ROOT / 'DADOS-OBRAS',
-    )
-    for candidate in candidates:
-        if candidate is not None and candidate.is_dir():
-            return candidate
-    return next(candidate for candidate in candidates if candidate is not None)
-
 # A cache is only a performance artifact.  It must be invalidated by the
 # *contents* of the source and of each N1 owner, never only by mtimes (which
 # are particularly unreliable when a workspace is restored/copied).
 _FAST_CONTEXT_CACHE_SCHEMA = 2
 _FAST_CONTEXT_ENGINE_FILES = (
-    'scripts/arete/headless_sa_analise.py',
     'main.py',
     'scripts/analise_geral_headless.py',
     'src/core/dxf_loader.py',
@@ -95,83 +73,7 @@ _FAST_CONTEXT_ENGINE_FILES = (
     'src/core/fv_generation_contract.py',
     'src/core/pillar_face_beams.py',
     'src/core/pillar_geometry_recovery.py',
-    'src/core/beam_corridor_recovery.py',
 )
-
-
-def _link_bare_slab_levels_from_floor_band(
-    slabs: list[dict], texts: list[dict], *, level_exit: float, level_arrival: float,
-) -> int:
-    """Liga cotas absolutas sem sinal à laje que geometricamente as contém.
-
-    Plantas deste tipo imprimem ``852.12`` sem ``+`` ou prefixo. Aceitar todo
-    número decimal confundiria cotas de comprimento com nível. A faixa do
-    projeto (saída/chegada) limita os candidatos e o ponto precisa estar
-    dentro do polígono da laje; lajes sem rótulo próprio continuam sendo
-    resolvidas pelo consenso de vizinhas já existente no motor.
-    """
-    low = min(float(level_exit), float(level_arrival)) - 5.0
-    high = max(float(level_exit), float(level_arrival)) + 5.0
-    level_pattern = re.compile(r"^[+-]?\d{3}(?:[.,]\d+)$")
-
-    def _contains(points: list, x: float, y: float) -> bool:
-        try:
-            poly = [(float(p[0]), float(p[1])) for p in points]
-        except (TypeError, ValueError, IndexError):
-            return False
-        if len(poly) < 3:
-            return False
-        inside = False
-        previous = poly[-1]
-        for current in poly:
-            x0, y0 = previous
-            x1, y1 = current
-            if ((y0 > y) != (y1 > y)):
-                cross_x = (x1 - x0) * (y - y0) / ((y1 - y0) or 1e-12) + x0
-                if x < cross_x:
-                    inside = not inside
-            previous = current
-        return inside
-
-    candidates: list[tuple[dict, float, float, float]] = []
-    for text_item in texts or []:
-        raw = str(text_item.get("text") or "").strip()
-        if not level_pattern.fullmatch(raw):
-            continue
-        try:
-            value = float(raw.replace(",", "."))
-            x, y = map(float, (text_item.get("pos") or [])[:2])
-        except (TypeError, ValueError):
-            continue
-        if low <= value <= high:
-            candidates.append((text_item, value, x, y))
-
-    linked = 0
-    for slab in slabs or []:
-        fields = slab.setdefault("fields", {})
-        if fields.get("laje_nivel") or slab.get("laje_nivel"):
-            continue
-        contained = [row for row in candidates if _contains(slab.get("points") or [], row[2], row[3])]
-        if not contained:
-            continue
-        cx, cy = slab.get("pos") or (0.0, 0.0)
-        text_item, value, _, _ = min(
-            contained,
-            key=lambda row: (row[2] - float(cx)) ** 2 + (row[3] - float(cy)) ** 2,
-        )
-        normalized = f"{value:.2f}"
-        fields["laje_nivel"] = normalized
-        slab["laje_nivel"] = normalized
-        links = slab.setdefault("links", {}).setdefault("laje_nivel", {"label": []})
-        links.setdefault("label", []).append({
-            **copy.deepcopy(text_item),
-            "text": normalized,
-            "role": "Nivel absoluto dentro da laje",
-            "source": "floor_band_polygon_containment",
-            "is_inferred": True,
-        })
-        linked += 1
-    return linked
 
 
 def _fast_context_cache_path(dxf_path: str) -> Path:
@@ -443,169 +345,6 @@ def _fresh_laj_geometry_for_readonly_preview(
         slab["n1_geometry_preview_source"] = "fresh_dxf_readonly"
         refreshed += 1
     return refreshed
-
-
-def _refresh_recovered_pillar_geometry(
-    merged_pillars: list[dict], pillar_report: dict[str, dict],
-) -> int:
-    """Materializa no snapshot a recuperacao geometrica derivada do DXF.
-
-    O fast path calcula ``pavimento_pillar_report`` do DXF, mas inicia a
-    colecao PIL pelo snapshot persistido para conservar decisoes granulares.
-    Isso fazia a recuperacao de um trecho truncado existir apenas no relatorio
-    temporario e desaparecer no commit. A geometria nova vence somente quando
-    ``pilar_segs`` nao possui validacao humana; selo exclusivo do agente QA
-    continua revisavel e nao congela geometria comprovadamente invalida.
-    """
-    from src.core.validation_model import (
-        ORIGEM_HUMANO_APP,
-        ORIGEM_HUMANO_PORTAL,
-        origens_do_campo,
-    )
-
-    human_origins = {ORIGEM_HUMANO_APP, ORIGEM_HUMANO_PORTAL}
-    report_by_name = {
-        str(value.get('name') or key or '').strip().upper(): value
-        for key, value in (pillar_report or {}).items()
-        if isinstance(value, dict)
-    }
-    refreshed = 0
-    for pillar in merged_pillars or []:
-        name = _item_name(pillar)
-        fresh = report_by_name.get(name)
-        fresh_points = (fresh or {}).get('points') or []
-        if not fresh_points:
-            continue
-        origins = origens_do_campo(pillar.get('validated_fields'), 'pilar_segs')
-        if origins & human_origins:
-            continue
-        try:
-            old_signature = [
-                (round(float(point[0]), 4), round(float(point[1]), 4))
-                for point in (pillar.get('points') or [])
-            ]
-            fresh_signature = [
-                (round(float(point[0]), 4), round(float(point[1]), 4))
-                for point in fresh_points
-            ]
-        except (TypeError, ValueError, IndexError):
-            old_signature, fresh_signature = [], []
-        if old_signature == fresh_signature:
-            continue
-        # O cache contextual já guarda o relatório depois da recuperação e
-        # pode não conservar o marcador transitório ``_geometry_repaired``.
-        # A geometria do relatório continua sendo a leitura canônica do DXF;
-        # ela vence o snapshot stale somente sem selo humano de pilar_segs.
-        repair = (fresh or {}).get('_geometry_repaired') or {
-            'method': 'fresh_context_geometry_diff',
-            'reason': 'snapshot persistido diverge do contorno N1 canônico',
-        }
-        materialized_points = copy.deepcopy(fresh_points)
-        # Pilar que nasce pode aparecer no DXF como um pequeno trecho sólido
-        # mais uma projeção não sólida. Um retângulo homônimo completo fornece
-        # as dimensões, mas sua posição pertence a outra representação do
-        # pavimento. Nesse caso transferimos somente largura/altura e mantemos
-        # o centro do trecho associado ao nome original.
-        try:
-            old_x = [float(point[0]) for point in (pillar.get('points') or [])]
-            old_y = [float(point[1]) for point in (pillar.get('points') or [])]
-            new_x = [float(point[0]) for point in fresh_points]
-            new_y = [float(point[1]) for point in fresh_points]
-            old_w, old_h = max(old_x) - min(old_x), max(old_y) - min(old_y)
-            new_w, new_h = max(new_x) - min(new_x), max(new_y) - min(new_y)
-            old_short, old_long = sorted((old_w, old_h))
-            new_short, new_long = sorted((new_w, new_h))
-            transfer_dimensions = (
-                old_long < 45.0
-                and new_long >= max(45.0, old_long * 1.8)
-                and abs(new_short - old_short) <= max(2.0, old_short * 0.12)
-            )
-            if transfer_dimensions:
-                center_x = (min(old_x) + max(old_x)) / 2.0
-                center_y = (min(old_y) + max(old_y)) / 2.0
-                width, height = (new_w, new_h)
-                x0, x1 = center_x - width / 2.0, center_x + width / 2.0
-                y0, y1 = center_y - height / 2.0, center_y + height / 2.0
-                materialized_points = [
-                    [x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0],
-                ]
-                repair = {
-                    **repair,
-                    'method': 'same_name_dimensions_at_original_centroid',
-                    'source_bbox': [min(new_x), min(new_y), max(new_x), max(new_y)],
-                    'centroid_authority': 'original_name_linked_fragment',
-                }
-        except (ValueError, TypeError, IndexError):
-            pass
-        pillar['points'] = materialized_points
-        if materialized_points:
-            xs = [float(point[0]) for point in materialized_points]
-            ys = [float(point[1]) for point in materialized_points]
-            pillar['bbox'] = [min(xs), min(ys), max(xs), max(ys)]
-        for key in ('bbox', 'pos', 'area', 'area_val', 'orientation'):
-            if key in fresh:
-                pillar[key] = copy.deepcopy(fresh[key])
-        pillar['_geometry_repaired'] = copy.deepcopy(repair)
-        pillar['n1_geometry_source'] = 'fresh_dxf_named_candidate'
-        refreshed += 1
-    return refreshed
-
-
-def _pillar_entities_from_report(
-    pillar_report: dict[str, dict], project_id: str,
-) -> list[dict]:
-    """Converte o N1 geométrico em entidades PIL persistíveis de um DB virgem.
-
-    O fast path historicamente começava pela coleção já existente no banco.
-    Isso preserva memória humana, porém deixava uma obra nova com zero pilares.
-    A fonte inicial passa a ser o próprio relatório canônico obtido do DXF;
-    merges posteriores continuam protegendo validações granulares normalmente.
-    """
-    entities: list[dict] = []
-
-    def _area(points: list) -> float:
-        try:
-            vertices = [(float(p[0]), float(p[1])) for p in points]
-        except (TypeError, ValueError, IndexError):
-            return 0.0
-        if len(vertices) < 3:
-            return 0.0
-        if vertices[0] != vertices[-1]:
-            vertices.append(vertices[0])
-        return abs(sum(
-            x0 * y1 - x1 * y0
-            for (x0, y0), (x1, y1) in zip(vertices, vertices[1:])
-        )) / 2.0
-
-    ordered = sorted(
-        ((str(key), value) for key, value in (pillar_report or {}).items()
-         if isinstance(value, dict)),
-        key=lambda pair: _nat_key({"name": pair[1].get("name") or pair[0]}),
-    )
-    for index, (key, entry) in enumerate(ordered, start=1):
-        name = str(entry.get("name") or key).strip().upper()
-        points = copy.deepcopy(entry.get("points") or [])
-        if not name or not points:
-            continue
-        entity = copy.deepcopy(entry)
-        entity.update({
-            "id": f"headless_p_{index}",
-            "id_item": f"{index:02}",
-            "project_id": project_id,
-            "name": name,
-            "type": "Pilar",
-            "points": points,
-            "area": float(entry.get("area") or _area(points)),
-            "links": copy.deepcopy(entry.get("links") or {}),
-            "sides_data": copy.deepcopy(entry.get("sides_data") or {}),
-            "conf_map": copy.deepcopy(entry.get("conf_map") or {}),
-            "validated_fields": {},
-            "validated_link_classes": {},
-            "issues": copy.deepcopy(entry.get("issues") or []),
-            "is_validated": False,
-        })
-        entities.append(entity)
-    return entities
 
 
 def _beam_topology_coverage(beam: dict) -> tuple[int, float]:
@@ -1037,11 +776,6 @@ def _run_legacy_analysis(
     cache_path = _fast_context_cache_path(dxf_path)
     if cache_path and _restore_fast_context_cache(runner, cache_path):
         print(f'[SA] Cache N1 contextual: HIT {cache_path.name[:12]}', flush=True)
-        # O `pavimento_pillar_report` restaurado já reflete a recuperação de
-        # corredor (ela roda dentro de `_enrich_pillar_report_with_beams`,
-        # que gerou o snapshot cacheado). `current_dxf_path` mesmo assim é
-        # setado para qualquer enriquecimento adicional que rode depois.
-        runner.current_dxf_path = dxf_path
         return {
             'runner': runner,
             'texts': list(runner.dxf_data.get('texts', [])),
@@ -1056,11 +790,6 @@ def _run_legacy_analysis(
     runner.dxf_data = DXFLoader.load_dxf(dxf_path)
     if not runner.dxf_data:
         raise RuntimeError(f'DXFLoader retornou None para: {dxf_path}')
-    # Caminho bruto do arquivo — usado por `_recover_beam_corridors_for_report`
-    # (mesma recuperação de corredor que o comparador de QA calibrou contra o
-    # corpus humano), que precisa reabrir o DXF original, não só o `dxf_data`
-    # já abstraído em linhas/textos.
-    runner.current_dxf_path = dxf_path
 
     texts    = runner.dxf_data.get('texts', [])
     lines    = runner.dxf_data.get('lines', [])
@@ -1111,35 +840,6 @@ def _run_legacy_analysis(
         s['type']       = 'Laje'
         s['laje_name']  = s['name']
         runner._process_slab_intelligent(s)
-
-    # Alguns projetos usam cota absoluta nua (ex. 852.12). O fluxo legado só
-    # aceitava número com sinal ou uma camada previamente treinada, deixando
-    # justamente uma obra nova sem níveis. O intervalo do próprio projeto e
-    # a contenção no polígono fornecem a evidência sem depender de memória DB.
-    try:
-        import sqlite3
-
-        connection = sqlite3.connect(str(db_path))
-        level_row = connection.execute(
-            "SELECT level_exit, level_arrival FROM projects WHERE id=?",
-            (project_id,),
-        ).fetchone()
-        connection.close()
-        if level_row and level_row[0] not in (None, "") and level_row[1] not in (None, ""):
-            linked_levels = _link_bare_slab_levels_from_floor_band(
-                runner.slabs_found,
-                texts,
-                level_exit=float(str(level_row[0]).replace(",", ".")),
-                level_arrival=float(str(level_row[1]).replace(",", ".")),
-            )
-            if linked_levels:
-                print(
-                    f"[SA] Níveis absolutos ligados por faixa/polígono: {linked_levels}",
-                    flush=True,
-                )
-    except (OSError, ValueError, TypeError, sqlite3.Error):
-        # Sem banda confiável, mantém a política conservadora anterior.
-        pass
 
     # 6. Inferir niveis de laje e montar relatorio de pilares
     print('[SA] Montando relatorio de pilares...', flush=True)
@@ -1340,7 +1040,7 @@ def _build_fast_pre_validation_dialog(
     from src.ui.widgets.pre_validation_dialog import PreValidationDialog
 
     convention_file = (
-        _dados_obras_root() / obra / 'convencao_pilares.json'
+        _REPO_ROOT.parent / 'DADOS-OBRAS' / obra / 'convencao_pilares.json'
     )
     beam_texts = [
         {
@@ -1810,14 +1510,9 @@ def _generate_fv_n3_nova_previews(
     fv_results: list[dict],
     output_dir: Path,
     max_workers: int = 1,
-    state_path: Path | None = None,
 ) -> tuple[list[str], list[str]]:
     """Gera N3 NOVA com o resultado do fluxo humano, em diretórios isolados."""
-    from src.core.fv_generation_contract import (
-        build_fv_generation_contract,
-        merge_fv_source_results,
-        overlay_fv_state_measurements,
-    )
+    from src.core.fv_generation_contract import build_fv_generation_contract
 
     script = _REPO_ROOT / 'scripts' / 'gerar_fv_dxf_stog.py'
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1826,29 +1521,12 @@ def _generate_fv_n3_nova_previews(
     generated: list[str] = []
     failed: list[str] = []
     contracts: dict[str, dict] = {}
-    merged_results = merge_fv_source_results(fv_results)
-    if state_path and state_path.is_file():
-        try:
-            state_payload = json.loads(state_path.read_text(encoding='utf-8'))
-            state_rows = ((state_payload.get('segmentos') or {}).get('fundo') or [])
-            merged_results = overlay_fv_state_measurements(merged_results, state_rows)
-        except (OSError, json.JSONDecodeError) as exc:
-            print(f'[SA-HUMAN] AVISO snapshot FV estruturado ilegível: {exc}', flush=True)
-    for fv_data in merged_results:
+    for fv_data in fv_results:
         if not isinstance(fv_data, dict):
             continue
         raw_name = str(fv_data.get('viga_nome') or '')
         contract = build_fv_generation_contract(raw_name, fv_data)
         beam_name = str(contract.get('name') or '')
-        if beam_name and state_path:
-            # Edições web entram no adaptador N3, sem alterar o schema SA.
-            try:
-                from portal.app import fv_operations
-                pavimento = state_path.stem.removeprefix('estado_')
-                override = fv_operations.load_override(state_path.parent, pavimento, beam_name)
-                contract = fv_operations.apply_n3_overrides(contract, override)
-            except (OSError, ValueError) as exc:
-                print(f'[SA-HUMAN] AVISO override N3 FV ignorado para {beam_name}: {exc}', flush=True)
         if beam_name and contract.get('segments_rich'):
             contracts[beam_name] = contract
 
@@ -2041,46 +1719,6 @@ def _generate_pl_n3_nova_previews(
     return list(generated or []), list(failed or [])
 
 
-def _publish_pl_n3_artifacts(
-    obra_dir: Path, generated: list[str], production_dir: Path,
-) -> list[dict[str, str | int]]:
-    """Copia variantes PIL para dentro do run operacional e fixa seus hashes.
-
-    O materializador desktop grava no diretório compartilhado ``n3_variants``.
-    Um manifesto de produção, porém, deve ser autocontido: uma execução futura
-    não pode mudar quando outro run sobrescrever o preview compartilhado.
-    """
-    published: list[dict[str, str | int]] = []
-    source_root = Path(obra_dir) / 'Fase-6_Execucao_CAD' / 'n3_variants'
-    for label in generated or []:
-        try:
-            item, mode = str(label).rsplit('_', 1)
-        except ValueError:
-            continue
-        if mode not in {'para', 'passa'}:
-            continue
-        source_dir = source_root / mode
-        target_dir = Path(production_dir) / 'n3' / 'pil' / mode
-        target_dir.mkdir(parents=True, exist_ok=True)
-        for filename in (
-            f'{item}.json', f'PL_CIMA_preview_{item}.dxf',
-            f'PL_ABCD_preview_{item}.dxf',
-            f'PL_GRADES_preview_{item}.dxf',
-        ):
-            source = source_dir / filename
-            if not source.is_file():
-                continue
-            target = target_dir / filename
-            shutil.copy2(source, target)
-            relative = str(target.relative_to(production_dir)).replace('\\', '/')
-            published.append({
-                'path': relative,
-                'sha256': hashlib.sha256(target.read_bytes()).hexdigest(),
-                'bytes': target.stat().st_size,
-            })
-    return sorted(published, key=lambda row: str(row['path']))
-
-
 def _generate_lv_n3_nova_previews(
     obra_dir: Path,
     beams: list[dict],
@@ -2148,7 +1786,6 @@ def _generate_lj_n3_nova_previews(
     obra_dir: Path,
     window,
     output_dir: Path,
-    pavimento: str,
     max_workers: int = 1,
 ) -> tuple[list[str], list[str]]:
     """Gera N3 isolado das lajes (LJ) — reaproveita a MESMA materialização
@@ -2174,20 +1811,6 @@ def _generate_lj_n3_nova_previews(
         try:
             ficha = window._slab_to_n1_robot_ficha(slab)
             n3_ficha = window._merge_lj_n3_teacher(ficha, {})
-            # Correções feitas na ficha web são uma camada explícita, fora dos
-            # artefatos históricos da Fase 4/produção. Só o microciclo pedido
-            # pelo usuário as promove ao novo contrato/DXF.
-            override_path = (
-                obra_dir / '.portal_overrides' / 'lajes' / pavimento
-                / f'{nome}.json'
-            )
-            if override_path.is_file():
-                override = json.loads(override_path.read_text(encoding='utf-8'))
-                override_n3 = override.get('n3') if isinstance(override, dict) else None
-                if isinstance(override_n3, dict):
-                    for key in ('linhas_verticais', 'linhas_horizontais'):
-                        if isinstance(override_n3.get(key), list):
-                            n3_ficha[key] = override_n3[key]
             (json_dir / f'{ficha.get("nome") or nome}.json').write_text(
                 json.dumps(n3_ficha, indent=2, ensure_ascii=False),
                 encoding='utf-8',
@@ -2310,10 +1933,7 @@ def run_analysis(
             'beams': db.load_beams(project_id),
         }
         fresh_snapshot = {
-            'pillars': _pillar_entities_from_report(
-                getattr(window, 'pavimento_pillar_report', {}) or {},
-                project_id,
-            ),
+            'pillars': copy.deepcopy(old_snapshot['pillars']),
             'slabs': copy.deepcopy(window.slabs_found),
             'beams': copy.deepcopy(window.beams_found),
         }
@@ -2381,16 +2001,6 @@ def run_analysis(
         window.pillars_found = merged['pillars']
         window.slabs_found = merged['slabs']
         window.beams_found = merged['beams']
-        recovered_geometry_count = _refresh_recovered_pillar_geometry(
-            merged['pillars'],
-            getattr(window, 'pavimento_pillar_report', {}) or {},
-        )
-        if recovered_geometry_count:
-            print(
-                '[SA-HUMAN] Geometrias PIL recuperadas do DXF materializadas: '
-                f'{recovered_geometry_count}',
-                flush=True,
-            )
         # Um artefato headless read-only é evidência do motor que acabou de
         # executar.  Não pode renderizar o contorno antigo de um item azul por
         # causa da proteção de persistência humana do merge.  O commit continua
@@ -2559,7 +2169,7 @@ def run_analysis(
                         raise RuntimeError(
                             f'snapshot N1 de producao nao foi publicado: {state_path}'
                         )
-                    obra_dir_prod = _dados_obras_root() / obra
+                    obra_dir_prod = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
                     run_stamp = time.strftime('%Y%m%d_%H%M%S')
                     production_dir = (
                         obra_dir_prod / 'Fase-6_Execucao_CAD' / 'production_sa'
@@ -2702,7 +2312,7 @@ def run_analysis(
         active_n3_sections = active_sections
         manifest_path = ''
         try:
-            obra_dir = _dados_obras_root() / obra
+            obra_dir = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
             if 'fundos_viga' in active_n3_sections:
                 _populate_last_fv_results(
                     window,
@@ -2728,10 +2338,6 @@ def run_analysis(
                         generated, failed = _generate_fv_n3_nova_previews(
                             obra_dir, fv_results, Path(n3_temp) / 'dxf',
                             max_workers=3 if production_web else 1,
-                            state_path=(
-                                Path(dialog._analysis_state_path())
-                                if production_web and dialog is not None else None
-                            ),
                         )
                         print(
                             f'[SA-HUMAN] N3 NOVA isolado: {len(generated)} gerado(s), '
@@ -2756,7 +2362,7 @@ def run_analysis(
                 if 'lajes' in active_n3_sections:
                     try:
                         lj_generated, lj_failed = _generate_lj_n3_nova_previews(
-                            obra_dir, window, Path(n3_temp) / 'dxf', pavimento,
+                            obra_dir, window, Path(n3_temp) / 'dxf',
                             max_workers=3 if production_web else 1,
                         )
                         print(
@@ -2812,64 +2418,6 @@ def run_analysis(
                             (partial_collections or merged).get('pillars', []),
                             getattr(dialog, '_pl_n3_cache', None),
                         )
-                    # O portal consome este SVG com a tag agêntica na aba
-                    # "N1 com tag". Em produção web, porém, o wrapper do portal
-                    # é o único publicador: ele gera em staging, compara com o
-                    # manifesto Arete aprovado e só então faz a troca atômica.
-                    # Evita que esta CLI exponha um pack ainda não auditado.
-                    n1_tag_pack = ''
-                    if 'pilares' in active_n3_sections and not production_web:
-                        exporter = _SCRIPT_DIR / 'export_pilares_abcd_fichas.py'
-                        tag_cmd = [
-                            sys.executable, str(exporter),
-                            '--project-id', str(project_id), '--db', str(db_path),
-                            '--obra', str(obra), '--pav', str(pavimento), '--no-layers',
-                        ]
-                        if item_names:
-                            tag_cmd += ['--item', *sorted(item_names)]
-                        tag_proc = subprocess.run(
-                            tag_cmd, cwd=str(_REPO_ROOT), capture_output=True,
-                            text=True, encoding='utf-8', errors='replace', timeout=None,
-                        )
-                        tag_output = (tag_proc.stdout or '') + '\n' + (tag_proc.stderr or '')
-                        if tag_proc.returncode != 0:
-                            raise RuntimeError(
-                                f'N1 com tag falhou (rc={tag_proc.returncode}): {tag_output[-1200:]}'
-                            )
-                        tag_root = _SCRIPT_DIR / 'html_fichas' / str(obra)
-                        tag_packs = [
-                            path for path in tag_root.glob(f'{pavimento}_*_pilares_abcd')
-                            if path.is_dir()
-                        ]
-                        if not tag_packs:
-                            raise RuntimeError('N1 com tag terminou sem publicar pack de pilares')
-                        tag_pack = max(tag_packs, key=lambda path: path.stat().st_mtime)
-                        expected_tags = {
-                            str(row.get('name') or row.get('nome') or '').strip()
-                            for row in (partial_collections or merged).get('pillars', [])
-                            if isinstance(row, dict)
-                        }
-                        expected_tags.discard('')
-                        if item_names:
-                            expected_tags &= set(item_names)
-                        generated_tags = {
-                            path.name.removesuffix('_sa_motor.svg')
-                            for path in (tag_pack / 'propostas').glob('*_sa_motor.svg')
-                        }
-                        missing_tags = sorted(expected_tags - generated_tags)
-                        if missing_tags:
-                            raise RuntimeError(
-                                f'N1 com tag incompleto: {len(missing_tags)} ausente(s): '
-                                + ', '.join(missing_tags[:10])
-                            )
-                        n1_tag_pack = str(tag_pack)
-                        print(
-                            f'[SA-PROD] N1 com tag: {len(expected_tags)}/{len(expected_tags)} '
-                            f'em {tag_pack}', flush=True,
-                        )
-                    pl_artifact_index = _publish_pl_n3_artifacts(
-                        obra_dir, list(pl_generated), production_dir,
-                    ) if 'pilares' in active_n3_sections else []
                     n3_root = Path(n3_temp)
                     artifacts = sorted(
                         str(path.relative_to(production_dir)).replace('\\', '/')
@@ -2897,9 +2445,7 @@ def run_analysis(
                             'pl_generated': list(pl_generated),
                             'pl_failed': list(pl_failed),
                         },
-                        'n1_tags_pack': n1_tag_pack,
                         'artifacts': artifacts,
-                        'artifact_index': pl_artifact_index,
                     }
                     manifest_file = production_dir / 'production_manifest.json'
                     manifest_file.write_text(
@@ -2913,8 +2459,6 @@ def run_analysis(
                     report_stage('previews N3 e reexportacao')
         except Exception as exc:
             print(f'[SA-HUMAN] AVISO bloco N3 best-effort: {exc}', flush=True)
-            if production_web and 'pilares' in active_n3_sections:
-                raise
 
         try:
             if html_dir and not production_web:
@@ -3035,9 +2579,8 @@ def main() -> None:
     ap.add_argument(
         '--production-web', action='store_true',
         help=(
-            'Caminho operacional do portal: N1 estruturado + N3 permanente. '
-            'A rodada completa ou um microciclo com item também persistem no DB; '
-            'uma classe inteira sem item publica artefatos sem apagar outras classes.'
+            'Caminho operacional do portal: N1 estruturado + persistencia + '
+            'N3 permanente. Nao gera N2/N4, diagnosticos Arete nem HTMLs de treino.'
         ),
     )
     ap.add_argument('--wait', action='store_true',
@@ -3058,12 +2601,7 @@ def main() -> None:
     if args.persist_db and args.skip_diagnostico_fv and not args.production_web:
         ap.error('--persist-db exige os quatro diagnósticos; remova --skip-diagnostico-fv')
     if args.production_web and not args.persist_db:
-        class_read_only = sections is not None and len(sections) == 1 and not item_names
-        if not class_read_only:
-            ap.error(
-                '--production-web sem --persist-db exige exatamente uma --secao '
-                'e nenhum --item'
-            )
+        ap.error('--production-web exige --persist-db')
 
     # Microciclos de uma classe+itens têm filas isoladas, inclusive quando o
     # commit é parcial. Rodadas sem recorte verificável reservam global + todas

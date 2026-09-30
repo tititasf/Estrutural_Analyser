@@ -289,15 +289,6 @@ def main() -> int:
     ap.add_argument("--db", default=str(ROOT.parent / "project_data.vision"))
     ap.add_argument("--obra", default="Obra_TREINO_1")
     ap.add_argument("--pav", default="13_PAV")
-    ap.add_argument(
-        "--output-root",
-        type=Path,
-        default=OUT_BASE,
-        help=(
-            "Raiz onde o pack sera criado. O portal usa uma raiz de staging "
-            "e so promove o pacote depois dos gates de paridade."
-        ),
-    )
     ap.add_argument("--open", action="store_true")
     ap.add_argument("--skip-n1", action="store_true", help="Não renderiza SVGs N1 (mais rápido)")
     ap.add_argument("--item", nargs="*", help="Só estes pilares (ex: P2 P1)")
@@ -404,7 +395,7 @@ def main() -> int:
             print(f"[ERR] nenhum pilar em --item {args.item}", flush=True)
             return 2
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
-    out_dir = args.output_root / args.obra / f"{args.pav}_{ts}_pilares_abcd"
+    out_dir = OUT_BASE / args.obra / f"{args.pav}_{ts}_pilares_abcd"
     pil_dir = out_dir / "pilares"
     pil_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "propostas").mkdir(parents=True, exist_ok=True)

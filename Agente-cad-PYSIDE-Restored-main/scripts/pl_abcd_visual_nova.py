@@ -468,7 +468,7 @@ def enrich_payload_for_abcd_nova(
             # embora a própria abertura tivesse origem AC/BC/CC e altura da
             # viga. Alinhar pela face torna a regra independente do item:
             # y_rel = PD - h1 - altura da abertura.
-            if semantic_mode == "PASSA" and ab.get("_origem") and ab.get("_nivel_origem") is None:
+            if semantic_mode == "PASSA" and ab.get("_origem"):
                 try:
                     _oh_top = float(ab.get("altura") or ab.get("height") or 0.0)
                 except (TypeError, ValueError):

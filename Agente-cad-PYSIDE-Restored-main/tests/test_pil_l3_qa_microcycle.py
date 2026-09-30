@@ -6,6 +6,7 @@ from scripts.arete.pil_l3_qa_microcycle import (
     _normalize_beam_dimensions,
     _rendered_pillar_bbox,
     _special_arrival_tip,
+    _nearest_beam_contour_center,
     _special_connector_crossings,
     _special_pass_tip,
     _requested_corners,
@@ -14,7 +15,6 @@ from scripts.arete.pil_l3_qa_microcycle import (
     apply_special_l_attention,
     enrich_special_l_faces,
     overlay_special_l_faces,
-    publish_special_l_status,
     validate_tables,
 )
 from scripts.arete.pil_agentic_highlight_draw import _segments_cross
@@ -36,30 +36,6 @@ def _tables():
         },
         "orientation": "vertical",
     }
-
-
-def test_special_publish_hides_superseded_abcd_sections(tmp_path):
-    html_path = tmp_path / "P26.html"
-    html_path.write_text(
-        '<html><body><div class="sec"><div class="sec-title">'
-        'Interpretação ABCD — SA (atual motor)</div></div></body></html>',
-        encoding="utf-8",
-    )
-    tables = _tables()
-    tables["geometry_type"] = "L_special_6_faces"
-    tables["face_ids"] = list("ABCDEF")
-    tables["faces"].update({
-        face: {"lajes": [], "passa": [], "chega": [], "interior": []}
-        for face in "EF"
-    })
-
-    publish_special_l_status(html_path, "P26", tables)
-
-    published = html_path.read_text(encoding="utf-8")
-    assert ".pil-special-superseded{display:none!important}" in published
-    assert "querySelectorAll('.sec')" in published
-    assert "viewerSection.insertAdjacentElement('afterend', box)" in published
-    assert "Interpretação A–F — Camada 3" in published
 
 
 def test_attention_parser_ignores_portuguese_words_that_look_like_corners():
@@ -161,27 +137,29 @@ def test_special_arrival_point_is_centered_in_incoming_beam_width():
               [3955, 2460], [3936, 2460], [3936, 2242]]
     segments = _special_l_segments(points)
     horizontal = {
-        "name": "V304", "is_h": True, "dim": "19/50",
+        "name": "V304", "is_h": True,
         "points": [[3807, 2429], [4601, 2429], [4601, 2453], [3807, 2453]],
     }
     vertical = {
-        "name": "V323", "is_h": False, "dim": "25/50",
-        "points": [[3936, 1963], [3961, 1963], [3961, 2242], [3936, 2242]],
+        "name": "V323", "is_h": False,
+        "points": [[3909, 1963], [3934, 1963], [3934, 2242], [3909, 2242]],
     }
-    assert _special_arrival_tip(segments["A"], "AC", segments, horizontal) == (3936.0, 2450.5)
-    assert _special_arrival_tip(segments["E"], "EA", segments, vertical) == (3948.5, 2242.0)
+    assert _special_arrival_tip(segments["A"], "AC", segments, horizontal) == (3936.0, 2441.0)
+    assert _special_arrival_tip(segments["E"], "EA", segments, vertical) == (3921.5, 2242.0)
 
 
-def test_special_arrival_a_and_b_use_half_width_from_corner_c():
-    points = [[4552, 2242], [4552, 2460], [4533, 2460], [4533, 2261],
-              [4387, 2261], [4387, 2242], [4552, 2242]]
-    segments = _special_l_segments(points)
-    beam = {
-        "name": "V304", "is_h": True, "dim": "19/50",
-        "points": [[3807, 2429], [4601, 2429], [4601, 2453], [3807, 2453]],
-    }
-    assert _special_arrival_tip(segments["A"], "AC", segments, beam) == (4533.0, 2450.5)
-    assert _special_arrival_tip(segments["B"], "BC", segments, beam) == (4552.0, 2450.5)
+def test_special_arrival_uses_effective_segment_center_for_a_and_b():
+    contours = [
+        {"x0": 3807.3825, "x1": 3936.3825, "y0": 2422.038, "y1": 2441.038},
+        {"x0": 4552.3825, "x1": 4601.3825, "y0": 2422.038, "y1": 2441.038},
+    ]
+    expected_y = 2431.538
+    assert _nearest_beam_contour_center(
+        contours, (4533.3825, 2441.038), horizontal=True
+    ) == (4533.3825, expected_y)
+    assert _nearest_beam_contour_center(
+        contours, (4552.3825, 2441.038), horizontal=True
+    ) == (4552.3825, expected_y)
 
 
 def test_special_pass_point_is_exactly_on_shared_corner():
@@ -319,7 +297,7 @@ def test_special_l_attention_rebuilds_only_declared_faces_from_geometry():
     note = (
         "para lado A a viga que chega AC; para lado E tem viga que chega EA, "
         "e nao tem laje, e tem viga passa ED. os atuais do E ta confuso e errado. "
-        "D e somente viga interior. lado F e so FD passa, nada mais; B so viga chega BC"
+        "D e somente viga interior. F nesse caso so viga passa FD, B so viga chega BC"
     )
     apply_special_l_attention(tables, beams, points, note, "852.19cm")
     assert {(r["nome"], r["canto"]) for r in tables["faces"]["B"]["chega"]} == {("V304", "BC")}
@@ -330,25 +308,4 @@ def test_special_l_attention_rebuilds_only_declared_faces_from_geometry():
     assert {(r["nome"], r["canto"]) for r in tables["faces"]["E"]["passa"]} == {("V305", "ED")}
     assert tables["faces"]["E"]["lajes"] == []
     assert {(r["nome"], r["canto"]) for r in tables["faces"]["F"]["passa"]} == {("V305", "FD")}
-    assert tables["faces"]["F"]["lajes"] == []
-
-
-def test_special_f_only_fd_preserves_existing_beam_identity():
-    points = [[4552, 2242], [4552, 2460], [4533, 2460], [4533, 2261],
-              [4387, 2261], [4387, 2242], [4552, 2242]]
-    tables = _tables()
-    tables["geometry_type"] = "L_special_6_faces"
-    tables["face_ids"] = list("ABCDEF")
-    for face in "EF":
-        tables["faces"][face] = {"lajes": [], "passa": [], "chega": [], "interior": []}
-    tables["faces"]["F"]["lajes"] = [{"nome": "L317", "canto": "FF"}]
-    tables["faces"]["F"]["passa"] = [
-        _row("V329", "FA", "passa"), _row("V329", "FD", "passa")
-    ]
-    apply_special_l_attention(
-        tables, [], points, "lado F e so FD passa, nada mais", "852.19cm"
-    )
-    assert {(r["nome"], r["canto"]) for r in tables["faces"]["F"]["passa"]} == {
-        ("V329", "FD")
-    }
     assert tables["faces"]["F"]["lajes"] == []

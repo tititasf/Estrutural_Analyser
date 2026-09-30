@@ -1515,50 +1515,6 @@ class DatabaseManager:
             conn.close()
 
 
-    @staticmethod
-    def _merge_validated_field_tracking(old_value: Any, new_value: Any) -> Any:
-        """Une duas marcações de "campo validado", em qualquer um dos dois
-        formatos que já existem em produção: a lista simples de nomes
-        (``["dim", "name"]``) e o dicionário de proveniência mais recente
-        (``{"dim": [{"origem": "qa_agente", "quando": "..."}]}``, escrito por
-        `qa_agente`/`humano_app`).
-
-        `dict + dict` (e `dict + list`) explode com `TypeError` no Python —
-        e no 13_PAV real **100% dos pilares** já estão no formato de
-        proveniência, então a proteção de dados validados (o motivo de
-        existir esse merge) falhava silenciosamente para todos eles: o save
-        levantava exceção, o `except` de `save_pillar` só logava, e a chamada
-        parecia ter funcionado.
-
-        Quando qualquer um dos dois lados é um dicionário, o resultado é um
-        dicionário — a proveniência nunca é descartada, só união. Quando os
-        dois são listas (ou vazios), o comportamento é o de sempre.
-        """
-        if isinstance(old_value, dict) or isinstance(new_value, dict):
-            merged: dict[str, Any] = {}
-            for source in (old_value, new_value):
-                if isinstance(source, dict):
-                    for field, provenance in source.items():
-                        incoming = provenance if isinstance(provenance, list) else [provenance]
-                        existing = merged.setdefault(field, [])
-                        for entry in incoming:
-                            if entry not in existing:
-                                existing.append(entry)
-                elif isinstance(source, (list, tuple, set)):
-                    for field in source:
-                        merged.setdefault(str(field), [])
-            return merged
-        return list(set((old_value or []) + (new_value or [])))
-
-    @staticmethod
-    def _validated_field_names(value: Any) -> set:
-        """Nomes de campo validados, lendo qualquer um dos dois formatos."""
-        if isinstance(value, dict):
-            return set(value.keys())
-        if isinstance(value, (list, tuple, set)):
-            return set(value)
-        return set()
-
     # Keys handled by dedicated columns — excluded from extra_data_json
     _PILLAR_FIXED_KEYS = frozenset({
         'id', 'project_id', 'name', 'type', 'area_val', 'area',
@@ -1590,18 +1546,14 @@ class DatabaseManager:
                 old_extra = json.loads(row[0]) if row[0] else {}
                 val_fields = json.loads(row[1]) if row[1] else []
                 if val_fields:
-                    p['validated_fields'] = self._merge_validated_field_tracking(
-                        p.get('validated_fields'), val_fields,
-                    )
-                    for vf in self._validated_field_names(val_fields):
+                    p['validated_fields'] = list(set(p.get('validated_fields', []) + val_fields))
+                    for vf in val_fields:
                         if vf in old_extra:
                             p[vf] = old_extra[vf]
 
                 na_fields = json.loads(row[2]) if row[2] else []
                 if na_fields:
-                    p['na_fields'] = self._merge_validated_field_tracking(
-                        p.get('na_fields'), na_fields,
-                    )
+                    p['na_fields'] = list(set(p.get('na_fields', []) + na_fields))
 
                 if row[3]:
                     p['is_validated'] = True
@@ -1768,18 +1720,14 @@ class DatabaseManager:
                 old_extra = json.loads(row[0]) if row[0] else {}
                 val_fields = json.loads(row[1]) if row[1] else []
                 if val_fields:
-                    s['validated_fields'] = self._merge_validated_field_tracking(
-                        s.get('validated_fields'), val_fields,
-                    )
-                    for vf in self._validated_field_names(val_fields):
+                    s['validated_fields'] = list(set(s.get('validated_fields', []) + val_fields))
+                    for vf in val_fields:
                         if vf in old_extra:
                             s[vf] = old_extra[vf]
 
                 na_fields = json.loads(row[2]) if row[2] else []
                 if na_fields:
-                    s['na_fields'] = self._merge_validated_field_tracking(
-                        s.get('na_fields'), na_fields,
-                    )
+                    s['na_fields'] = list(set(s.get('na_fields', []) + na_fields))
 
                 old_val_links = json.loads(row[4]) if len(row) > 4 and row[4] else {}
                 if isinstance(old_val_links, dict) and old_val_links:
@@ -1920,8 +1868,7 @@ class DatabaseManager:
                 # preservando os campos auxiliares, mas não a área nem seu
                 # status de validação.
                 stale_fv_area_topology = False
-                nomes_val_fields = self._validated_field_names(val_fields)
-                if any(re.match(r'^viga_fundo_seg_\d+_area_segs$', str(f)) for f in nomes_val_fields):
+                if any(re.match(r'^viga_fundo_seg_\d+_area_segs$', str(f)) for f in val_fields):
                     try:
                         from src.core.preficha_segments import fundo_topology_is_locked
                         stale_fv_area_topology = not fundo_topology_is_locked(old_b)
@@ -1930,32 +1877,23 @@ class DatabaseManager:
                         # existente em vez de descartar uma validação humana.
                         stale_fv_area_topology = False
                 if stale_fv_area_topology:
-                    if isinstance(val_fields, dict):
-                        val_fields = {
-                            k: v for k, v in val_fields.items()
-                            if not re.match(r'^viga_fundo_seg_\d+_area_segs$', str(k))
-                        }
-                    else:
-                        val_fields = [
-                            field for field in val_fields
-                            if not re.match(r'^viga_fundo_seg_\d+_area_segs$', str(field))
-                        ]
-
+                    val_fields = [
+                        field for field in val_fields
+                        if not re.match(r'^viga_fundo_seg_\d+_area_segs$', str(field))
+                    ]
+                
                 if val_fields:
-                    b['validated_fields'] = self._merge_validated_field_tracking(
-                        b.get('validated_fields'), val_fields,
-                    )
-                    nomes_val_fields = self._validated_field_names(val_fields)
-
+                    b['validated_fields'] = list(set(b.get('validated_fields', []) + val_fields))
+                    
                     # 1. Mapear prefixos de segmentos que possuem algo validado
                     val_prefixes = set()
-                    for vf in nomes_val_fields:
+                    for vf in val_fields:
                         m = re.match(r'(.*_seg_\d+)', vf)
                         if m:
                             val_prefixes.add(m.group(1))
-
+                            
                     # 2. Restaurar campos do nível raiz E do dicionário 'fields'
-                    for vf in nomes_val_fields:
+                    for vf in val_fields:
                         if vf in old_b:
                             b[vf] = old_b[vf]
                         if 'fields' in old_b and vf in old_b['fields']:
@@ -1988,7 +1926,7 @@ class DatabaseManager:
                                 and re.match(r'^viga_fundo_seg_\d+_area_segs$', str(link_key))
                             ):
                                 continue
-                            if any(link_key.startswith(p) for p in val_prefixes) or link_key in nomes_val_fields:
+                            if any(link_key.startswith(p) for p in val_prefixes) or link_key in val_fields:
                                 # Previne que vínculos vazios antigos (oriundos de bugs) sobrescrevam novos gerados
                                 if isinstance(link_val, dict) and 'contour' in link_val:
                                     if not link_val['contour'] and link_key in b['links'] and b['links'][link_key].get('contour'):
@@ -1998,9 +1936,7 @@ class DatabaseManager:
                 # Preserva NA fields
                 na_fields = old_b.get('na_fields', [])
                 if na_fields:
-                    b['na_fields'] = self._merge_validated_field_tracking(
-                        b.get('na_fields'), na_fields,
-                    )
+                    b['na_fields'] = list(set(b.get('na_fields', []) + na_fields))
 
                 old_val_links = old_b.get('validated_link_classes', {})
                 if isinstance(old_val_links, dict) and old_val_links:
