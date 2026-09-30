@@ -260,22 +260,6 @@ class RecorteMotor:
                     max(fx0, shifted_low), fy0,
                     min(fx1, high + right_pad), fy1,
                 )
-                # A margem fixa nao sabe onde o desenho termina: em LV
-                # particionado as entidades que cruzam a borda sao FATIADAS,
-                # entao um painel que passa do limite vira um painel menor no
-                # recorte — e a ficha herda a largura errada. Na V13 o painel
-                # de 415 (cota escrita 244+63+108) virava 391.8 com o ultimo
-                # trecho em 84.8, porque o corte caiu em x=5035.6 e o painel
-                # ia ate' 5058.8 (achado 2026-09-11, apontado pelo dono).
-                #
-                # Em vez de chutar a margem de novo (ja' foi 65 -> 125), a
-                # borda cresce ate' NAO FATIAR o que e' desta particao, com
-                # dois limites duros: o frame e o rotulo do vizinho.
-                partition = self._lv_crescer_ate_nao_fatiar(
-                    partition,
-                    limite_esq=fx0 if not idx else ordered[idx - 1][1],
-                    limite_dir=fx1 if idx + 1 >= len(ordered) else ordered[idx + 1][1],
-                )
                 self._lv_partitioned_bboxes.add(partition)
                 return partition
             # Em seções empilhadas não há "extremidade direita" a ampliar;
@@ -1387,57 +1371,6 @@ class RecorteMotor:
     # ──────────────────────────────────────────────────────────────────────
     # Coleta de entidades por bbox
     # ──────────────────────────────────────────────────────────────────────
-    def _lv_crescer_ate_nao_fatiar(self, bbox: tuple, *, limite_esq: float,
-                                   limite_dir: float, folga: float = 8.0,
-                                   margem_vizinho: float = 60.0,
-                                   passos: int = 3) -> tuple:
-        """Cresce a borda DIREITA da particao ate' nao fatiar o desenho dela.
-
-        Pertence a esta particao a entidade cujo MEIO cai dentro dela — assim
-        o desenho do vizinho (que tem o meio do outro lado) nunca e' puxado.
-
-        So' a direita cresce: e' ali que a cadeia de cotas transborda (o
-        comentario de `_lv_partition_frame` ja' registrava "65 cortava o ultimo
-        valor"). A esquerda fica com o `own_content_guard` original — crescer
-        para la' fez o recorte de V6-VF2 avancar 693 unidades e engolir o
-        rotulo do V5 (medido 2026-09-11 antes de aplicar).
-
-        Limite duro: `margem_vizinho` antes do rotulo do vizinho da direita.
-        """
-        x0, y0, x1, y1 = bbox
-        teto_dir = max(x1, limite_dir - margem_vizinho)
-        piso_esq = x0
-
-        def extremos(pontos):
-            xs = [p[0] for p in pontos]
-            ys = [p[1] for p in pontos]
-            return min(xs), max(xs), (min(xs) + max(xs)) / 2.0, (min(ys) + max(ys)) / 2.0
-
-        candidatos = []
-        for ln in (self._pkl.get('lines') or []):
-            s, e = ln.get('start'), ln.get('end')
-            if s and e:
-                candidatos.append(extremos([s, e]))
-        for pl in (self._pkl.get('polylines') or []):
-            pts = pl.get('points') or []
-            if pts:
-                candidatos.append(extremos(pts))
-
-        for _ in range(passos):
-            novo_x0, novo_x1 = x0, x1
-            for xmin, xmax, cx, cy in candidatos:
-                if not (y0 <= cy <= y1):
-                    continue
-                if not (x0 <= cx <= x1):
-                    continue          # o meio esta' fora: e' do vizinho
-                if xmax > novo_x1:
-                    novo_x1 = min(teto_dir, xmax + folga)
-                _ = xmin, piso_esq  # esquerda intencionalmente intocada
-            if abs(novo_x0 - x0) < 0.05 and abs(novo_x1 - x1) < 0.05:
-                break
-            x0, x1 = novo_x0, novo_x1
-        return (x0, y0, x1, y1)
-
     def _collect_in_bboxes(self, bboxes: list) -> list:
         """Coleta entidades do pkl dentro de qualquer bbox.
 

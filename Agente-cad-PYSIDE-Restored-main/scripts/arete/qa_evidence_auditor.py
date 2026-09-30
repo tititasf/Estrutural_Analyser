@@ -2432,49 +2432,6 @@ def load_rag_consultations(
     )
 
 
-def load_session_index_b1_context(
-    index_dir: Path, classes: Iterable[str], *,
-    family: str | None = None, field: str | None = None,
-    tiers: Iterable[str] | None = None, obra: str | None = None,
-    pav: str | None = None, limit: int = 8,
-) -> tuple[dict[str, list[dict]], dict]:
-    """Consulta B1 (qa_session_index, MASTERPLAN-MINIRAG-QA-N1.md fase D3) como
-    camada extra, opcional e best-effort — nunca substitui nem bloqueia B2.
-
-    Qualquer falha (índice ausente, stale, corrompido, dependência de
-    embedding indisponível) devolve contexto vazio + status no manifesto; o
-    caminho ``load_partitioned_rag`` (B2) segue 100% intocado. Por isso B1
-    NUNCA participa do check de ``--rag-evidence required`` — required
-    continua medindo só a partição exata de ``semantic_rag_kb``, como sempre
-    mediu; mudar essa semântica quebraria o invariante do contrato QA↔RAG.
-    """
-    classes = list(classes)
-    empty = {classe: [] for classe in classes}
-    status: dict = {"path": str(index_dir), "available": False, "error": None}
-    try:
-        from scripts.arete.qa_session_index import SessionIndex
-        idx = SessionIndex(index_dir)
-    except Exception as exc:  # índice ausente/stale/corrompido: degrada, não bloqueia
-        status["error"] = str(exc)
-        return empty, status
-    try:
-        result: dict[str, list[dict]] = {}
-        for classe in classes:
-            hits = idx.b1_query(
-                classe=classe, familia=family, field=field,
-                tier=list(tiers) if tiers else None, obra=obra, pav=pav,
-                top_k=limit,
-            )
-            for hit in hits:
-                hit["kind"] = "rag_semantic_context_b1"
-            result[classe] = hits
-        status["available"] = True
-        status["b1_manifest"] = idx.manifest.get("b1", {})
-        return result, status
-    finally:
-        idx.close()
-
-
 def _payload_geometry(payload: dict) -> list:
     return _context_points(payload)
 
@@ -2821,17 +2778,6 @@ def cmd_review(args: argparse.Namespace) -> int:
             ]
             if degraded:
                 raise SystemExit("schema RAG não suporta partição requerida para: " + ", ".join(degraded))
-        session_b1_context: dict[str, list[dict]] = {classe: [] for classe in requested}
-        session_index_status: dict = {"path": None, "available": False, "error": None}
-        if args.session_index and args.rag_evidence != "off":
-            session_b1_context, session_index_status = load_session_index_b1_context(
-                Path(args.session_index), requested,
-                family=args.rag_family, field=args.rag_field, tiers=args.rag_tier,
-                obra=args.rag_obra, pav=args.rag_pav, limit=args.rag_limit,
-            )
-            if session_index_status.get("error"):
-                print(f"[review] B1 (session-index) indisponível, seguindo só com B2: "
-                     f"{session_index_status['error']}", file=sys.stderr)
         for classe in requested:
             if classe == "LAJ":
                 slabs = load_slabs(con, project_id)
@@ -2892,8 +2838,8 @@ def cmd_review(args: argparse.Namespace) -> int:
                 decisions.extend(class_decisions); findings.extend(class_findings)
                 questions.extend(class_questions); records.extend(class_records)
             # A mesma citação é anexada como contexto, não como evidência suficiente.
-            # Limitamos a oito entradas por camada para o dossiê permanecer legível.
-            citations = rag_context.get(classe, [])[:8] + session_b1_context.get(classe, [])[:8]
+            # Limitamos a oito entradas para o dossiê permanecer legível.
+            citations = rag_context.get(classe, [])[:8]
             if citations:
                 for decision in class_decisions:
                     decision.evidence.extend(citations)
@@ -2916,24 +2862,10 @@ def cmd_review(args: argparse.Namespace) -> int:
                 "limit": args.rag_limit,
             },
             "policy": "consultative_only; RAG never proves a field or authorizes apply",
-            "session_index_b1": {
-                **session_index_status,
-                "consultations": {classe: len(entries) for classe, entries in session_b1_context.items()},
-                "policy": ("consultative_only, best_effort; never participates in "
-                          "--rag-evidence required; same_origin never counts as "
-                          "confirmatory reinforcement (docs/MASTERPLAN-MINIRAG-QA-N1.md)"),
-            },
         },
     }
     write_reports(out_dir, manifest, decisions, findings, questions)
-    write_jsonl(
-        out_dir / "rag_consultas.jsonl",
-        (entry for entries in rag_context.values() for entry in entries),
-    )
-    write_jsonl(
-        out_dir / "session_index_b1_consultas.jsonl",
-        (entry for entries in session_b1_context.values() for entry in entries),
-    )
+    write_jsonl(out_dir / "rag_consultas.jsonl", (entry for entries in rag_context.values() for entry in entries))
     print(json.dumps({"run_id": run_id, "out_dir": str(out_dir), "decisions": len(decisions), "questions": len(questions), "classes": requested}, ensure_ascii=False))
     return 0
 
@@ -3227,12 +3159,6 @@ def build_parser() -> argparse.ArgumentParser:
     review.add_argument("--rag-obra", help="obra_contexto exata para consulta RAG")
     review.add_argument("--rag-pav", help="pavimento exato quando o schema RAG suportar")
     review.add_argument("--rag-limit", type=int, default=50)
-    review.add_argument(
-        "--session-index",
-        help="pasta do índice de sessão (qa_session_index.py build --out ...) "
-             "para consultar B1 (docs/MASTERPLAN-MINIRAG-QA-N1.md fase D3); "
-             "opcional, degrada em silêncio se ausente/stale",
-    )
     review.add_argument("--run-id")
     review.add_argument("--out-dir")
     review.set_defaults(func=cmd_review)

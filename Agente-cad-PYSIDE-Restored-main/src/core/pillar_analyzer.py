@@ -180,12 +180,7 @@ class PillarAnalyzer:
         # 1. Dimensão
         # Regra: Texto (ex: 20x40) Próximo. Regex simples dimensions
         dim_regex = r"\d+([xX]\d+)?"
-        # A regex não tem âncoras: "V301"/"P35" também casam pelo dígito.
-        # Quando a pré-ficha já forçou o vínculo real (main.py, bloco
-        # "FORÇAR VÍNCULOS REAIS DA PRÉ-FICHA"), não deixar essa busca ingênua
-        # substituir a dimensão correta por um rótulo de viga/pilar vizinho.
-        if not p_data.get('dim_locked'):
-            self._analyze_field(p_data, 'dim', 'label', {'prompt': f"regex: {dim_regex}", 'radius': 400})
+        self._analyze_field(p_data, 'dim', 'label', {'prompt': f"regex: {dim_regex}", 'radius': 400})
 
         # 2. Topo/Nível
         # (Opcional, depende do projeto)

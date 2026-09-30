@@ -39,9 +39,7 @@ def test_global_discovery_keeps_beam_families_separate_and_is_read_only(tmp_path
     assert resolve_project_scope(con, project_id=None, obra="OBRA", pav="PAV") == "p"
     fv = discover_class_inventory(con, project_id="p", classe="FV", selected=None, include_sealed=True)
     lv = discover_class_inventory(con, project_id="p", classe="LV", selected=None, include_sealed=True)
-    # FV foi promovido de diagnostic_only para validation_ready em 2026-07-16
-    # (FvEvidenceAuditor com prova geométrica local — ver CLASS_REGISTRY).
-    assert fv["validation_mode"] == "validation_ready"
+    assert fv["validation_mode"] == "diagnostic_only"
     assert set(fv["field_frequency"]) == {"viga_fundo_seg_1_exists", "fv_detail"}
     assert set(lv["field_frequency"]) == {"viga_a_seg_1_dim", "lv_detail"}
     assert con.execute("SELECT is_validated FROM beams WHERE id='b'").fetchone()[0] == 0

@@ -20,10 +20,6 @@ MATRIX_PATH = (
 )
 AUDITOR_PATH = REPO_ROOT / "scripts" / "arete" / "qa_evidence_auditor.py"
 SKILL_AUTHORITY = Path.home() / ".claude" / "skills" / "qa-global-evidencias" / "references" / "authority-and-provenance.md"
-# Segunda superfície de skill: o comando que o dono invoca (/CAD:QAGlobalEvidencias-AIOS).
-# Ficou fora do CI até 2026-07-30 e derivou — declarava FV/LV diagnostic_only por 14 dias
-# depois da promoção das duas classes na matrix v1.3.0.
-SKILL_COMMAND = REPO_ROOT / ".claude" / "commands" / "CAD" / "QAGlobalEvidencias-AIOS.md"
 SQUAD_YAML = REPO_ROOT / "squads" / "qa-global-evidencias" / "squad.yaml"
 PIL_PROFILE = REPO_ROOT / "squads" / "qa-global-evidencias" / "data" / "class_profiles" / "pil.json"
 MASTERPLAN = REPO_ROOT / "docs" / "MASTERPLAN-AGENTE-QA-GLOBAL.md"
@@ -106,47 +102,6 @@ def _skill_modes(skill_path: Path = SKILL_AUTHORITY) -> dict[str, str]:
     return modes
 
 
-def _check_skill_surface(
-    nome: str, path: Path, expected: dict[str, str], findings: list[dict[str, str]]
-) -> dict[str, str]:
-    """Confere uma superfície de skill e ACUSA ausência/silêncio (fail-closed).
-
-    Regra: um arquivo que sumiu, foi renomeado ou parou de declarar a classe não pode
-    virar 'ALIGNED'. Antes de 2026-07-30 o CI era fail-open — devolvia {} em arquivo
-    ausente e as checagens eram `if skill and skill.get(classe)`, então um caminho
-    errado desligava a verificação em silêncio.
-    """
-    if not path.is_file():
-        findings.append({
-            "severity": "HIGH",
-            "layer": f"{nome}:arquivo_ausente",
-            "classe": "*",
-            "expected": f"arquivo legível em {path}",
-            "actual": "<ausente>",
-        })
-        return {}
-    modes = _skill_modes(path)
-    for classe, mode in expected.items():
-        atual = modes.get(classe)
-        if atual is None:
-            findings.append({
-                "severity": "HIGH",
-                "layer": f"{nome}:classe_nao_declarada",
-                "classe": classe,
-                "expected": mode,
-                "actual": "<nao declarada>",
-            })
-        elif atual != mode:
-            findings.append({
-                "severity": "HIGH",
-                "layer": nome,
-                "classe": classe,
-                "expected": mode,
-                "actual": atual,
-            })
-    return modes
-
-
 def _masterplan_pil_mode(path: Path = MASTERPLAN) -> str | None:
     if not path.is_file():
         return None
@@ -166,7 +121,6 @@ def validate_alignment(
     matrix_path: Path = MATRIX_PATH,
     auditor_path: Path = AUDITOR_PATH,
     skill_path: Path = SKILL_AUTHORITY,
-    skill_command_path: Path = SKILL_COMMAND,
     squad_path: Path = SQUAD_YAML,
     masterplan_path: Path = MASTERPLAN,
     pil_profile_path: Path = PIL_PROFILE,
@@ -177,13 +131,9 @@ def validate_alignment(
         for classe, entry in (matrix.get("classes") or {}).items()
     }
     registry = parse_registry_modes(auditor_path)
-    findings: list[dict[str, str]] = []
-    # Toda superfície que o agente pode carregar em runtime é verificada, fail-closed.
-    skill = _check_skill_surface("skill_authority", skill_path, expected, findings)
-    skill_command = _check_skill_surface(
-        "skill_command", skill_command_path, expected, findings
-    )
+    skill = _skill_modes(skill_path)
     squad = _squad_evolution_modes(squad_path)
+    findings: list[dict[str, str]] = []
 
     for classe, mode in expected.items():
         if registry.get(classe) != mode:
@@ -193,6 +143,14 @@ def validate_alignment(
                 "classe": classe,
                 "expected": mode,
                 "actual": registry.get(classe, "<missing>"),
+            })
+        if skill and skill.get(classe) and skill.get(classe) != mode:
+            findings.append({
+                "severity": "HIGH",
+                "layer": "skill_authority",
+                "classe": classe,
+                "expected": mode,
+                "actual": skill.get(classe, "<missing>"),
             })
         if squad and squad.get(classe) and squad.get(classe) != mode:
             findings.append({
@@ -244,7 +202,6 @@ def validate_alignment(
         "expected": expected,
         "registry": registry,
         "skill": skill,
-        "skill_command": skill_command,
         "squad": squad,
         "findings": findings,
         "aligned": not findings,

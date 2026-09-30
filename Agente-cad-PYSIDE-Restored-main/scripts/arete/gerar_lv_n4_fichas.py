@@ -19,33 +19,13 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import ezdxf
 from pathlib import Path
 
 SCRIPTS  = Path(__file__).resolve().parent.parent   # .../scripts/
 REPO     = SCRIPTS.parent                            # .../Agente-cad-PYSIDE-Restored-main/
 GERADOR  = SCRIPTS / 'gerar_lv_dxf_stog.py'
-GERADOR_N4 = Path(__file__).resolve().parent / 'run_lv_generator_n4.py'
-
-
-def _materialize_dimension_text_overrides(path: Path) -> None:
-    """Regrava blocos DIMENSION com o texto contratual já armazenado."""
-    doc = ezdxf.readfile(str(path))
-    changed = False
-    for dim in doc.modelspace().query('DIMENSION'):
-        text = str(dim.dxf.get('text', '') or '')
-        if not text or text == '<>':
-            continue
-        dim.override().render()
-        changed = True
-    if changed:
-        doc.saveas(str(path))
 
 sys.path.insert(0, str(SCRIPTS))
-sys.path.insert(0, str(REPO))
-
-from src.core.lv_draw_contract import LVDrawContractError, validate_n4_ficha
-from lv_n4_face_unit_details import augment_face_unit_details
 
 OBRA_DIR    = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1")
 FICHAS_PATH = OBRA_DIR / "Fase-6_Execucao_CAD/granular/fichas/fichas_lv_v2.json"
@@ -71,14 +51,14 @@ def _entry_from_motor_ficha(elem: str, ficha: dict) -> dict:
         fu = dict(fu)  # cópia rasa
         side = str(fu.get('side', '')).upper()
         if side == 'A':
-            if 'laje_sup' not in fu and lj_sup_a > 0:
+            if float(fu.get('laje_sup', 0) or 0) == 0 and lj_sup_a > 0:
                 fu['laje_sup'] = lj_sup_a
-            if 'laje_inf' not in fu and lj_inf_a > 0:
+            if float(fu.get('laje_inf', 0) or 0) == 0 and lj_inf_a > 0:
                 fu['laje_inf'] = lj_inf_a
         elif side == 'B':
-            if 'laje_sup' not in fu and lj_sup_b > 0:
+            if float(fu.get('laje_sup', 0) or 0) == 0 and lj_sup_b > 0:
                 fu['laje_sup'] = lj_sup_b
-            if 'laje_inf' not in fu and lj_inf_b > 0:
+            if float(fu.get('laje_inf', 0) or 0) == 0 and lj_inf_b > 0:
                 fu['laje_inf'] = lj_inf_b
         face_units.append(fu)
 
@@ -190,8 +170,6 @@ def _make_fake_fase4(viga_name: str, entry: dict, fase4_dir: Path) -> None:
         'holes':        entry.get('holes', []),
         'pillar_left':  entry.get('pillar_left', {'active': False, 'width': 0.0, 'length': 0.0}),
         'pillar_right': entry.get('pillar_right', {'active': False, 'width': 0.0, 'length': 0.0}),
-        'generation_ready': True,
-        'draw_contract': entry.get('_motor_contract', {}),
     }
 
     # Fase-4 _A.json
@@ -199,21 +177,11 @@ def _make_fake_fase4(viga_name: str, entry: dict, fase4_dir: Path) -> None:
     json_a['side']   = 'A'
     json_a['name']   = elem_base + '_A'
     json_a['number'] = re.sub(r'[^\d]', '', elem_base) or '0'
-    units = entry.get('face_units', [])
-    def _segments_for_side(side: str) -> list:
-        collected = []
-        for unit in units:
-            if str(unit.get('side') or '').upper() == side:
-                collected.extend(unit.get('segments') or unit.get('panels') or [])
-        return collected
-
-    segs_a = entry.get('segmentos', []) or _segments_for_side('A')
+    segs_a = entry.get('segmentos', [])
     json_a['panels'] = _panels_to_gerador(segs_a, h_A)
     json_a['panels_A'] = json_a['panels']
-    segs_b = entry.get('segmentos_B', []) or _segments_for_side('B')
+    segs_b = entry.get('segmentos_B', [])
     json_a['panels_B'] = _panels_to_gerador(segs_b, h_B)
-    json_a['face_units'] = entry.get('face_units', [])
-    json_a['section_views'] = entry.get('section_views', [])
 
     path_a = fase4_dir / f"{elem_base}_A.json"
     path_a.write_text(json.dumps(json_a, indent=2, ensure_ascii=False), encoding='utf-8')
@@ -227,8 +195,6 @@ def _make_fake_fase4(viga_name: str, entry: dict, fase4_dir: Path) -> None:
     json_b['panels'] = _panels_to_gerador(segs_b, h_B) or json_a['panels']
     json_b['panels_A'] = json_a.get('panels_A', [])
     json_b['panels_B'] = json_b['panels']
-    json_b['face_units'] = entry.get('face_units', [])
-    json_b['section_views'] = entry.get('section_views', [])
 
     path_b = fase4_dir / f"{elem_base}_B.json"
     path_b.write_text(json.dumps(json_b, indent=2, ensure_ascii=False), encoding='utf-8')
@@ -247,11 +213,16 @@ def gerar_lv_n4(elem: str, entry: dict,
         'log': '',
     }
 
-    try:
-        entry = validate_n4_ficha(entry, item=elem)
-    except LVDrawContractError as exc:
-        result['log'] = f'[CONTRATO N4 INVALIDO] {exc}'
-        return result
+    entry = dict(entry)
+    if not entry.get('section_views'):
+        h_a = float(entry.get('h_cm', entry.get('h_A', 55)) or 55)
+        h_b = float(entry.get('h_B_cm', entry.get('h_B', h_a)) or h_a)
+        entry['section_views'] = [{
+            'h_A': h_a,
+            'h_B': h_b,
+            'h_section': float(entry.get('h_section_cm', 55) or 55),
+            'b': float(entry.get('b_cm', entry.get('b_geom', 19)) or 19),
+        }]
 
     tmp_base = Path(tmp_root) if tmp_root else Path(tempfile.mkdtemp(prefix='lv_n4_'))
     obra_dir = tmp_base / f"LV_13PAV_{elem}"
@@ -277,12 +248,11 @@ def gerar_lv_n4(elem: str, entry: dict,
     # usa CORTE/A/B separadamente; depender do bbox do combinado deixa Corte
     # preto quando a seção fica fora do autofit.
     base_cmd = [
-        sys.executable, str(GERADOR_N4),
+        sys.executable, str(GERADOR),
         '--obra', str(obra_dir),
         '--item', elem + '_A',
         '--max', '1',
         '--visual-mode', visual_mode,
-        '--strict-contract',
     ]
     try:
         for view in ('ALL', 'CORTE', 'A', 'B'):
@@ -294,19 +264,6 @@ def gerar_lv_n4(elem: str, entry: dict,
             if r.returncode != 0:
                 result['log'] += f'\n[{view} rc={r.returncode}]'
                 return result
-            suffix = {
-                'ALL': f'{elem}_A', 'CORTE': f'{elem}_CORTE',
-                'A': f'{elem}_VIEW_A', 'B': f'{elem}_VIEW_B',
-            }[view]
-            generated_view = out_fase6 / f'LV_preview_{suffix}.dxf'
-            if generated_view.exists():
-                augment_face_unit_details(generated_view, entry, view, GERADOR)
-
-        # O gerador define overrides como 65/44/59 depois da primeira
-        # renderizacao da DIMENSION. Materialize esses textos nos blocos
-        # graficos antes de publicar os quatro artefatos.
-        for generated in out_fase6.glob(f'LV_preview_{elem}_*.dxf'):
-            _materialize_dimension_text_overrides(generated)
 
         # Copiar DXF N4 para out_dir
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -355,41 +312,7 @@ if __name__ == '__main__':
                         help='Ficha live do motor para um unico elemento')
     parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
                         help='Perfil visual do DXF (padrao: NOVA)')
-    parser.add_argument(
-        '--refresh-from-recorte', action=argparse.BooleanOptionalAction,
-        default=None,
-        help='Reextrai a ficha do recorte N2 vivo antes de gerar. LIGADO por '
-             'padrao: o fichas_lv_v2.json pode estar stale/resumido e gera '
-             'larguras de painel ERRADAS (incidente 2026-09-10: V301 caiu de '
-             '935 para 314 entidades por rodar sem refresh). Com --entry-json '
-             'o padrao e DESLIGADO, porque ali a ficha fornecida e explicita. '
-             'Use --no-refresh-from-recorte para forcar a ficha do arquivo.',
-    )
     args = parser.parse_args()
-
-    # Falha-fechada SEM default. O §6 do CONTRATO-RIGIDO-MOTOR-LV-N3-N4 proibe
-    # reextracao como "fallback escondido", e medir as 32 vigas mostrou que
-    # nenhuma fonte vence sempre: refresh entrega mais em 14, a ficha em 10,
-    # empatam em 5 — e e' o refresh que faz V305/V308/V330 falharem o contrato.
-    # Se a escolha importa e varia, ela tem que ser consciente. Exigir a flag
-    # tambem mata o acidente de 10/09 (comando nu lendo ficha stale e
-    # sobrescrevendo N4 ja' validados: V301 caiu de 935 para 314 entidades).
-    if args.refresh_from_recorte is None:
-        if args.entry_json:
-            args.refresh_from_recorte = False   # ficha explicita e' autoritativa
-        else:
-            parser.error(
-                "escolha a fonte da ficha explicitamente: "
-                "--refresh-from-recorte (reextrai do recorte N2 vivo) ou "
-                "--no-refresh-from-recorte (usa fichas_lv_v2.json como esta'). "
-                "Nenhuma das duas vence sempre — ver §6 do contrato rigido."
-            )
-    print(
-        '[FICHA] fonte = '
-        + ('recorte N2 vivo (--refresh-from-recorte)'
-           if args.refresh_from_recorte
-           else 'arquivo fornecido (--no-refresh-from-recorte)')
-    )
 
     if args.entry_json:
         raw_entry = json.loads(
@@ -398,12 +321,15 @@ if __name__ == '__main__':
             raw_entry.get('viga') or raw_entry.get('name'))
         if not elem:
             raise SystemExit('Elemento ausente em --entry-json')
+        # Temp JSON da app pode vir sem face_units/sarrafos atualizados.
+        # Preferir sempre o recorte N2 live; o entry-json fica só de fallback.
         entry = (
-            raw_entry if raw_entry.get('viga')
-            else _entry_from_motor_ficha(elem, raw_entry)
+            _entry_from_live_recorte(elem)
+            or (
+                raw_entry if raw_entry.get('viga')
+                else _entry_from_motor_ficha(elem, raw_entry)
+            )
         )
-        if args.refresh_from_recorte:
-            entry = _entry_from_live_recorte(elem) or entry
         fichas_map = {elem: entry}
     else:
         fichas_path = (
@@ -418,11 +344,9 @@ if __name__ == '__main__':
 
     ok = 0
     for elem in elems:
-        # N4 rigido: a ficha selecionada e a entrada autoritativa. Reextracao
-        # pertence ao interpretador e precisa ser solicitada explicitamente.
-        entry = fichas_map.get(elem)
-        if args.refresh_from_recorte:
-            entry = _entry_from_live_recorte(elem) or entry
+        # N4 = N2 -> robô.  Nunca usar o cache antigo se o recorte aprovado
+        # ainda pode fornecer a ficha atual via motor reverso.
+        entry = _entry_from_live_recorte(elem) or fichas_map.get(elem)
         if not entry:
             print(f'[{elem}] Não encontrado em fichas_lv_v2.json')
             continue

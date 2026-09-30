@@ -38,13 +38,6 @@ def _env_int(name: str, default: int) -> int:
         return default
 
 
-def _env_csv_set(name: str) -> frozenset[str]:
-    """Lê uma lista CSV de IDs, descartando entradas vazias."""
-    return frozenset(
-        item.strip() for item in os.environ.get(name, "").split(",") if item.strip()
-    )
-
-
 @dataclass
 class Settings:
     """Configuracao imutavel do processo (montada uma vez em create_app)."""
@@ -92,11 +85,6 @@ class Settings:
     )
     poll_interval_s: int = field(default_factory=lambda: _env_int("PORTAL_POLL_INTERVAL_S", 120))
     poll_enabled: bool = field(default_factory=lambda: _env_bool("PORTAL_POLL_ENABLED", False))
-    # Exclusão reversível por ID do Drive. Útil para arquivos históricos que não
-    # devem voltar à fila sem precisar apagar a fonte do Drive.
-    drive_ignored_file_ids: frozenset[str] = field(
-        default_factory=lambda: _env_csv_set("PORTAL_DRIVE_IGNORED_FILE_IDS")
-    )
 
     # --- Auto-publicação para a App de Consulta Pública [2026-07-12, pedido
     # explícito do dono] --- toda obra com estado='pronta' é publicada/
@@ -149,8 +137,6 @@ class Settings:
     subprocess_timeout_s: int = field(
         default_factory=lambda: _env_int("PORTAL_SUBPROCESS_TIMEOUT_S", 3600)
     )
-    # Habilita execução real de subprocess do headless SA (default True em produção, False nos testes).
-    headless_enabled: bool = field(default_factory=lambda: _env_bool("PORTAL_HEADLESS_ENABLED", True))
     # Pavimento default passado ao headless quando o cliente nao informa.
     pav_default: str = field(default_factory=lambda: os.environ.get("PORTAL_PAV_DEFAULT", "13_PAV"))
 

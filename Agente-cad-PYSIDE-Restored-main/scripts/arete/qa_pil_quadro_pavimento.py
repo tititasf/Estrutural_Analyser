@@ -651,16 +651,12 @@ def build_report(project_id: str, obra: str, pavimento: str, db_path: Path, repo
         ).fetchall()
         n4_policy_rows = connection.execute(
             "SELECT item_id, validation_origin FROM artifact_validation_policies "
-            # O Comparison Engine persiste a classe de pilares como PL,
-            # enquanto as fichas N2 e este quadro usam PIL. Ambas são a mesma
-            # classe canônica; ler as duas evita esconder selo humano já
-            # gravado pela UI, sem materializar uma cópia de política.
-            "WHERE obra_name=? AND pavimento=? AND classe IN ('PIL', 'PL') AND scope='N4' AND locked=1",
+            "WHERE obra_name=? AND pavimento=? AND classe='PIL' AND scope='N4' AND locked=1",
             (obra, pavimento_tecnico),
         ).fetchall()
         n3_policy_rows = connection.execute(
             "SELECT item_id, validation_origin FROM artifact_validation_policies "
-            "WHERE obra_name=? AND pavimento=? AND classe IN ('PIL', 'PL') AND scope='N3' AND locked=1",
+            "WHERE obra_name=? AND pavimento=? AND classe='PIL' AND scope='N3' AND locked=1",
             (obra, pavimento_tecnico),
         ).fetchall()
     finally:
@@ -797,14 +793,7 @@ def build_report(project_id: str, obra: str, pavimento: str, db_path: Path, repo
         "g2_source": g2_source,
         "limits": [
             "N2/N4 nunca alimentam N1/N3; leitura apenas comparativa.",
-            (
-                f"artifact_validation_policies registra {len(n4_policy_rows)} política(s) N4 "
-                f"e {len(n3_policy_rows)} política(s) N3 para PIL/PL neste escopo; "
-                "os selos do quadro são leitura direta dessas políticas."
-                if n4_policy_rows or n3_policy_rows
-                else "artifact_validation_policies não tem política N4/N3 para PIL/PL neste escopo; "
-                "os selos aparecem honestamente como 0, não como erro."
-            ),
+            f"artifact_validation_policies não tem nenhuma linha classe=PIL locked=1 para este escopo (n4_policy_rows={len(n4_policy_rows)}; n3_policy_rows={len(n3_policy_rows)}) — N4 e Selos N3 aparecem com 0 selo honestamente, não como erro.",
             "G2-V (n2xn4) PIL ainda usa captura PNG (html_ficha)/dxf_render nos relatórios canônicos existentes — não há relatório com fonte_imagem=='html_svg_vetorial' para este par ainda. G5-V (n3xn4) e S7-N3N2 (n3xn2) já usam o pipeline SVG-vetorial real (evidence-card construído em 2026-07-16, 35/35 itens lidos pelo agente CLI cada) — ver colunas N3×N4 PASSA e N3×N2 PARA/PASSA. N1-V (n1xn2) foi descontinuado como gate para PIL: os cards N1 são geometria bruta do SA, não ficha comparável a N2 (docs/ARETE-LOOP-PROCEDIMENTO-GERAL.md:224-226) — coluna N1 Visual CLI fica honestamente pendente até um novo desenho de N1-V.",
             "Nível e convenção NASCE/MORRE/SEGUE são exibidos como persistidos, mas não têm adaptador _audit_* dedicado ainda — não geram CONFIRMAR/PENDENTE.",
             "Continuidade entre pavimentos está fora de escopo deste quadro (mono-pavimento 13_PAV); nunca inferida por proximidade de nome/posição.",

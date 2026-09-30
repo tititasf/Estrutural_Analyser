@@ -4,13 +4,6 @@ Data: 2026-06-23
 Escopo: laterais de vigas (`LV`) em engenharia reversa, ficha N2 e reproducao N4.  
 Fonte empirica atual: `Obra_TREINO_1`, pavimento `13 PAV`, 30 vigas LV.
 
-> **Limite arquitetural (2026-07-21):** este documento descreve a leitura N2
-> e seus aprendizados empiricos. Ele nao define heuristicas para o gerador.
-> O contrato autoritativo do motor esta em
-> `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md`. A ficha e a unica entrada do N4;
-> ausencia de elemento e falha de interpretacao, enquanto desenho incorreto de
-> campo presente e falha do motor.
-
 Este documento registra os aprendizados do loop N2 -> ficha -> N4 -> validacao visual.
 Ele deve servir como base viva para uma futura harmonizacao/RAG por classe estrutural.
 
@@ -57,13 +50,12 @@ Padroes observados:
 - O roundtrip atual fechou 33/33 pares de visao-corte.
 - O N4 precisa manter a coluna A/B afastada da coluna de corte para o viewer isolar a
   visao-corte sem contaminar o crop com laterais.
-- Primitivas visuais podem permanecer como evidencia do interpretador e do QA,
-  mas nao substituem os campos executivos do contrato rigido.
+- As primitivas visuais do N2 sao mais fieis que redesenhar a secao por template rigido.
 
 Padrao de geracao:
 
-- Desenhar o corte a partir dos campos executivos validados da ficha.
-- Nao reler nem copiar primitivas do recorte durante a geracao estrita.
+- Preferir `visual_primitives` quando disponiveis.
+- Usar template `draw_section_detail` apenas como fallback.
 - Render/crop deve isolar a zona de corte e evitar puxar lateral A/B para dentro do quadro.
 
 #### Correspondencia obrigatoria Corte <-> A/B
@@ -126,34 +118,6 @@ Padroes observados:
 - Cota proxima tambem nao basta para declarar laje. V310 mostrou que cotas `16`, `13` e `5`
   podem estar proximas da face sem existir faixa/hachura de laje na elevacao. A promocao
   de laje deve exigir geometria compativel, como hachura/faixa na regiao de topo/base.
-
-#### 3.4.1 Degrau de laje (2026-09-11)
-
-A laje pode ter **altura diferente por trecho** da mesma face, com o topo
-PLANO. Onde ha' painel de fechamento no topo, a laje e' mais baixa e o painel
-completa a altura; fora dele a laje vai inteira ate' o mesmo topo.
-
-Evidencia V13 face A (medida no recorte):
-
-| trecho | laje | painel | topo |
-|---|---|---|---|
-| direito (215) | 15 | — | y=3285.3 |
-| esquerdo (200) | 12 | 3 | y=3285.3 |
-
-O `3` que aparece cotado e' o **degrau** (15 − 12), nao um painel empilhado
-acima da laje.
-
-**Divergencia doc x codigo (aberta).** Esta secao manda "desenhar laje por
-painel quando `laje_sup_local` estiver presente", mas hoje esse campo carrega
-a **espessura do painel de fechamento** (V13: `laje_sup_local = 3.0`), nao a
-altura da laje daquele trecho. Alem disso o limite do degrau (x=200) nao cai
-em fronteira de painel (244/63/108), entao "por painel" nao chega a expressar
-o degrau — falta altura de laje **por trecho**.
-
-Estado do motor: a ficha entrega `laje_sup` = 12.3 para a face inteira (o
-valor de baixo do painel aplicado em todo lugar) e o N4 desenha 12.3 nos 415,
-deixando o lado do painel 3 mais alto que o outro. Pela regra §8 do contrato
-rigido, o conserto comeca no interpretador/contrato, nao no motor.
 
 Regra operacional atual:
 
@@ -412,38 +376,6 @@ Exemplos de entradas RAG candidatas:
     `h_total` quando passam filtros de largura, faixa local e altura minima.
 16. `LV/AB/slab_center_draw_guard`: `slab_center` extraido de cota local so vira desenho no
     N4 para segmentos altos; em segmentos baixos, e apenas campo de auditoria.
-17. `LV/AB/horizontal_dimension_levels`: a cadeia individual ocupa o nivel interno;
-    painel principal largo (>=150 cm) e o complemento dos demais paineis ocupam o
-    nivel externo. Vale para degrau inicial e espelhado (`244 | 63+111=174` e
-    `52.5+22.5=75 | 244`).
-18. `LV/AB/raised_panel_witness`: as patas de uma cota horizontal devem terminar no
-    fundo real do intervalo cotado. Se o intervalo pertence ao painel elevado, as
-    duas patas terminam no ombro; uma borda exata nao pode cair no vazio por engano.
-19. `LV/AB/coplanar_step_divider`: a divisao entre paineis elevados coplanares existe
-    somente entre ombro e topo. Nunca prolongar esse divisor pelo vazio ate a base.
-20. `LV/AB/top_panel_after_slab`: retangulo fechado de `Paineis`, com 4--12 cm de
-    altura, imediatamente acima da laje, e campo separado da ficha
-    (`painel_sup_alt/width/x_offset`). O N4 desenha retangulo e cota proprios; a
-    altura total soma corpo + laje + painel superior.
-21. `LV/AB/dimension_side_by_wall`: em degrau espelhado, altura de corpo/total fica
-    na parede alta esquerda e alturas do painel curto ficam na parede direita. Cada
-    cota vertical pertence a parede que materializa aquele nivel.
-22. `LV/AB/material_body_over_bbox`: se o bbox vertical inclui cotas externas e os
-    paineis formam uma altura material coerente entre 80 e 125 cm, `h_body` vem da
-    maior altura dos paineis; laje e painel superior permanecem campos separados.
-23. `LV/AB/explicit_zero_beats_global`: `laje_inf=0` explicito na unidade nao pode
-    ser substituido pelo fallback global. O fallback so preenche campo ausente.
-24. `LV/AB/dimension_chain_can_split`: a cadeia horizontal cotada pode revelar mais
-    paineis que as V-lines brutas (`174 = 111+63`). A reconciliacao pode aumentar a
-    quantidade de segmentos quando a soma recompõe exatamente a largura util.
-25. `LV/AB/slab_dimension_outer_anchors`: as cotas de laje 14/15 pertencem às duas
-    extremidades do contorno superior, nunca à parede interna do degrau.
-26. `LV/N4/layout_order_is_drawing_order`: detalhes por ocorrencia devem repetir a
-    ordenacao espacial final do desenhador; ordenar CONT/sem-rotulo de forma distinta
-    desloca painel superior e cotas para a unidade vizinha.
-27. `LV/AB/trailing_locator_pair`: dois paineis finais menores que 28 cm, cuja soma
-    fica abaixo de 55 cm depois de um painel principal, sao marcos de localizacao e
-    nao entram na cadeia util; o prefixo anterior pode formar cota externa 161,5.
 
 ## 8. Inventario Minimo Nas Fichas De Interpretacao / Validacao Visual
 

@@ -25,7 +25,7 @@ def _seg(width, height1=109, reuse=False, regions=None):
     }
 
 
-def test_select_canonical_keeps_each_distinct_segment_geometry():
+def test_select_canonical_drops_unlabeled_and_picks_reuse_variant():
     units = [
         {
             "side": "A",
@@ -75,8 +75,10 @@ def test_select_canonical_keeps_each_distinct_segment_geometry():
     canon = lv.select_canonical_face_units(units, viga_nome="V301")
     labels = [u["label"] for u in canon]
 
-    assert labels == ["V301.A", "", "CONT. V301.A", "CONT. V301.A"]
-    assert any(u["panels"][0].get("reuse") for u in canon)
+    assert labels == ["V301.A", "CONT. V301.A"]
+    cont = next(u for u in canon if u["label"] == "CONT. V301.A")
+    assert cont["panels"][0].get("reuse") is True
+    assert cont["panels"][0].get("reuse_regions")
 
 
 def test_layout_primary_unit_starts_at_origin_for_view_a():
@@ -102,7 +104,7 @@ def test_layout_primary_unit_starts_at_origin_for_view_a():
     assert layouts[1]["bbox"][0] > layouts[0]["bbox"][2]
 
 
-def test_draw_names_unlabeled_distinct_segment_instead_of_dropping_it(monkeypatch):
+def test_draw_uses_only_canonical_labels(monkeypatch):
     calls = []
 
     def record_face(_msp, x0, _y0, panels, _height, label, **_kwargs):
@@ -126,4 +128,4 @@ def test_draw_names_unlabeled_distinct_segment_instead_of_dropping_it(monkeypatc
         },
     ]
     lv.draw_viga_lateral_face_units(None, 0, 0, "V1", units, view="A")
-    assert [c[2] for c in calls] == ["V1.A", "V1.A#2"]
+    assert [c[2] for c in calls] == ["V1.A"]
