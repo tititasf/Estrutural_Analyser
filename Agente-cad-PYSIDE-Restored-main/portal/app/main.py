@@ -29,7 +29,6 @@ from .routers import (
     n1_routes,
     obras_routes,
     paginas_routes,
-    qa_routes,
     recortes_routes,
     viewer_routes,
 )
@@ -142,9 +141,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(recortes_routes.router)
     app.include_router(viewer_routes.router)
     app.include_router(comentarios_routes.router)
-    app.include_router(comentarios_routes.ui_router)
     app.include_router(paginas_routes.router)
-    app.include_router(qa_routes.router)
     app.include_router(admin_publish_routes.router)
 
     @app.get("/health", tags=["infra"])

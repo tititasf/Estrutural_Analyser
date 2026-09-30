@@ -160,33 +160,6 @@ def test_face_c_top_multi_segment_ca_cb_same_beam_diff_dims():
     )
 
 
-def test_face_c_top_multi_segment_rejects_nearby_beam_without_contact():
-    report = {
-        "PX": {
-            "name": "PX",
-            "points": [(100, 0), (119, 0), (119, 66), (100, 66)],
-            "lajes": [],
-        }
-    }
-    beams = [{
-        "name": "V_NEAR",
-        "dim": "19/55",
-        "is_h": True,
-        "geometry": {
-            "texts": [{"text": "V_NEAR", "pos": [80, 71]}],
-            "dimension_texts": [{"text": "19/55", "pos": [90, 71]}],
-            "classified": {"seg_bottom": [
-                [[0, 71], [100, 71]],
-                [[119, 71], [220, 71]],
-            ]},
-        },
-    }]
-    enrich_pillar_report_with_beams(report, beams)
-    face_c = report["PX"]["face_beams"]["C"]
-    assert (face_c.get("passa_esq") or {}).get("source") != "face_c_top_multi_segment"
-    assert (face_c.get("passa_dir") or {}).get("source") != "face_c_top_multi_segment"
-
-
 def test_face_beams_passante_fills_slot():
     """Viga passante horizontal preenche algum slot passa_*."""
     report = {
@@ -231,43 +204,6 @@ def test_face_beams_passante_fills_slot():
         dire = (slots.get("passa_dir") or {}).get("name")
         if esq and dire:
             assert esq != dire, f"face {fid} duplicou {esq}"
-
-
-def test_segmented_beam_bridging_short_face_uses_both_corners_and_reciprocal_arrivals():
-    """Dois trechos nos lados do pilar representam uma unica viga interrompida
-    pelo apoio: a face curta recebe os dois cantos e A/B recebem as chegadas
-    reciprocas. Regra geometrica generica, sem nomes reais da obra.
-    """
-    report = {
-        "PX": {
-            "name": "PX",
-            "points": [(100, 0), (119, 0), (119, 98), (100, 98)],
-            "lajes": [],
-        }
-    }
-    beams = [{
-        "name": "VX",
-        "dim": "19/55",
-        "is_h": True,
-        "geometry": {
-            "classified": {
-                "seg_bottom": [
-                    [[0.0, 0.0], [100.0, 0.0]],
-                    [[119.0, 0.0], [220.0, 0.0]],
-                ]
-            }
-        },
-    }]
-
-    enrich_pillar_report_with_beams(report, beams)
-
-    faces = report["PX"]["face_beams"]
-    assert faces["D"]["passa_esq"]["name"] == "VX"
-    assert faces["D"]["passa_esq"]["corner"] == "DA"
-    assert faces["D"]["passa_dir"]["name"] == "VX"
-    assert faces["D"]["passa_dir"]["corner"] == "DB"
-    assert {(item["name"], item["corner"]) for item in faces["A"]["para"]} == {("VX", "AD")}
-    assert {(item["name"], item["corner"]) for item in faces["B"]["para"]} == {("VX", "BD")}
 
 
 def test_face_beams_para_goes_to_chegada_not_passa():
@@ -325,7 +261,7 @@ def test_beam_stopping_on_short_face_materializes_corner_openings_on_long_faces(
     assert faces["A"]["passa_esq"] == {
         "name": "V308", "dim": "19/55", "corner": "AC", "behavior": "para",
     }
-    assert faces["B"]["passa_esq"] == {
+    assert faces["B"]["passa_dir"] == {
         "name": "V308", "dim": "19/55", "corner": "BC", "behavior": "para",
     }
     # V308 corre paralela a A/B e termina no canto C — já vinculada acima.
@@ -338,73 +274,6 @@ def test_beam_stopping_on_short_face_materializes_corner_openings_on_long_faces(
     # corpo de V308 (Caso 4), não é chegada nem face livre (achado do dono,
     # confirmado num caso real: P35/V308 19/55 termina no canto C).
     assert faces["C"]["interior"] == [{"name": "V308", "dim": "19/55"}]
-
-
-def test_vertical_axial_beam_on_both_sides_materializes_all_long_face_corners():
-    report = {
-        "PX": {
-            "name": "PX",
-            "points": [(100, 100), (119, 100), (119, 200), (100, 200)],
-            "lajes": [],
-        }
-    }
-    beams = [{
-        "name": "VX",
-        "dim": "19/120",
-        "geometry": {"classified": {"seg_bottom": [
-            {"points": [(100, 0), (119, 0), (119, 100), (100, 100)]},
-            {"points": [(100, 200), (119, 200), (119, 300), (100, 300)]},
-        ]}},
-        "is_h": False,
-    }]
-
-    enrich_pillar_report_with_beams(report, beams)
-
-    faces = report["PX"]["face_beams"]
-    assert {
-        faces["A"]["passa_esq"]["corner"],
-        faces["A"]["passa_dir"]["corner"],
-    } == {"AC", "AD"}
-    assert {
-        faces["B"]["passa_esq"]["corner"],
-        faces["B"]["passa_dir"]["corner"],
-    } == {"BC", "BD"}
-    assert all(
-        (faces[face][slot] or {}).get("source") == "axial_bilateral_runs"
-        for face in ("A", "B")
-        for slot in ("passa_esq", "passa_dir")
-    )
-
-
-def test_horizontal_axial_beam_on_both_sides_materializes_all_long_face_corners():
-    report = {
-        "PX": {
-            "name": "PX",
-            "points": [(100, 100), (220, 100), (220, 119), (100, 119)],
-            "lajes": [],
-        }
-    }
-    beams = [{
-        "name": "VX",
-        "dim": "19/55",
-        "geometry": {"classified": {"seg_bottom": [
-            {"points": [(0, 100), (100, 100), (100, 119), (0, 119)]},
-            {"points": [(220, 100), (300, 100), (300, 119), (220, 119)]},
-        ]}},
-        "is_h": True,
-    }]
-
-    enrich_pillar_report_with_beams(report, beams)
-
-    faces = report["PX"]["face_beams"]
-    assert {
-        faces["A"]["passa_esq"]["corner"],
-        faces["A"]["passa_dir"]["corner"],
-    } == {"AC", "AD"}
-    assert {
-        faces["B"]["passa_esq"]["corner"],
-        faces["B"]["passa_dir"]["corner"],
-    } == {"BC", "BD"}
 
 
 def test_beam_narrower_than_pillar_thickness_does_not_get_interior():
@@ -487,11 +356,11 @@ def test_multi_run_beam_is_arrival_not_fake_passante():
         for s in ("passa_esq", "passa_dir")
     } - {None}
     assert "V328" not in passa_names_ab
-    # D ganha V328 em passa_dir (canto DB) por alinhamento de PAREDE
-    # (x=4552.4 == parede D do pilar) — não por o eixo atravessar a faixa do
-    # pilar. O slot deriva da posição geométrica, não de um lado fixo.
-    assert fb["D"]["passa_dir"]["name"] == "V328"
-    assert fb["D"]["passa_dir"]["behavior"] == "passa"
+    # D ganha V328 em passa_esq por alinhamento de PAREDE (x=4552.4 == parede
+    # D do pilar) — nao por o eixo atravessar a faixa do pilar. Behavior
+    # explicito 'passa' distingue esse caso do termino-de-canto (para).
+    assert fb["D"]["passa_esq"]["name"] == "V328"
+    assert fb["D"]["passa_esq"]["behavior"] == "passa"
     arrivals_b = fb["B"]["para"]
     assert [p["name"] for p in arrivals_b] == ["V328"]
     # canto geométrico: o trecho cobre a extremidade D da face B
@@ -741,106 +610,3 @@ def test_detail_card_has_passa_esquina_not_contorno():
     assert "Viga de Contorno Direita" not in src
     assert "Viga de Chegada 1" in src
     assert "Viga de Chegada 3" in src
-
-
-def _seg(x0, y0, x1, y1):
-    return {"points": [(x0, y0), (x1, y1)]}
-
-
-def test_corredor_inflado_e_refeito_pelo_par_de_paredes_paralelas():
-    """V329 (vertical, 19) carregava dois trechos horizontais da V304.
-
-    O agrupamento por proximidade colapsava tudo num bbox de 68 cm. Parede de
-    viga é paralela ao eixo dela; o resto é tampa ou vizinha.
-    """
-    from src.core.pillar_face_beams import beam_runs_from_entity
-
-    v329 = {
-        "name": "V329", "dim": "19/60",
-        "geometry": {"classified": {"seg_bottom": [
-            _seg(4533.4, 2460.0, 4533.4, 2601.0),   # parede oeste
-            _seg(4552.4, 2460.0, 4552.4, 2601.0),   # parede leste
-            _seg(4552.4, 2441.0, 4601.4, 2441.0),   # trecho da V304
-            _seg(4552.4, 2460.0, 4587.4, 2460.0),   # trecho da V304
-        ]}},
-    }
-
-    runs = beam_runs_from_entity(v329)
-
-    assert len(runs) == 1
-    x0, y0, x1, y1 = runs[0]
-    assert (round(x0, 1), round(y0, 1), round(x1, 1), round(y1, 1)) == (
-        4533.4, 2460.0, 4552.4, 2601.0
-    )
-
-
-def test_corredor_com_espessura_certa_nao_e_refeito():
-    """A regra só entra onde o traçado está inflado — não fragmenta o resto."""
-    from src.core.pillar_face_beams import beam_runs_from_entity
-
-    ok = {
-        "name": "V313", "dim": "19/55",
-        "geometry": {"classified": {"seg_bottom": [
-            _seg(2040.4, 2067.0, 2040.4, 2423.0),
-            _seg(2059.4, 2067.0, 2059.4, 2423.0),
-        ]}},
-    }
-
-    runs = beam_runs_from_entity(ok)
-
-    assert len(runs) == 1
-    assert round(runs[0][2] - runs[0][0], 1) == 19.0
-
-
-def test_tampa_espuria_abaixo_do_gatilho_de_espessura_e_vetada_pela_medicao():
-    """V331 (13_PAV): reprodução do caso real P18×V331.
-
-    O agrupamento por proximidade cola uma tampa de outro elemento (49 cm,
-    a y=2441, tocando exatamente a face do P18 vizinho) na parede real do
-    V331. `_run_thickness_matches_section` deixa passar (49 <= 2×19+15=53),
-    então `runs_from_parallel_walls` — o reparo que resolve o caso análogo
-    de V329 acima — nunca é acionado: a fusão espúria fica pequena demais
-    pra disparar o próprio gatilho que a corrigiria.
-
-    Sem medição independente do corredor (par de paredes do DXF via
-    `beam_corridor_recovery`), o motor não tem como saber que a tampa é
-    estranha — o corredor sai errado e ainda cabe. É esperado (documenta o
-    limite, não é regressão a perseguir aqui).
-
-    Com a medição (`_measured_corridor`, sempre calculada pelo motor de
-    produção antes de chamar `enrich_pillar_report_with_beams` — ver
-    `main.py._recover_beam_corridors_for_report`), a tampa que fica
-    inteiramente fora do corredor medido é vetada antes da fusão, sem
-    depender do gatilho de espessura."""
-    from src.core.pillar_face_beams import beam_runs_from_entity
-
-    v331 = {
-        "name": "V331", "dim": "19/55",
-        "geometry": {"classified": {"seg_bottom": [
-            _seg(4601.3825, 2441.038, 4601.3825, 2661.038),  # parede real
-            _seg(4552.3825, 2441.038, 4601.3825, 2441.038),  # tampa espúria (V329?)
-            _seg(4601.3825, 2460.038, 4587.3825, 2460.038),  # tampa real do corredor
-        ]}},
-    }
-
-    runs_sem_medicao = beam_runs_from_entity(v331)
-    assert len(runs_sem_medicao) == 1
-    assert round(runs_sem_medicao[0][0], 1) == 4552.4  # ainda inflado, limite conhecido
-
-    v331["_measured_corridor"] = (4587.4, 2460.038, 4601.4, 2661.038)
-    runs_com_medicao = beam_runs_from_entity(v331)
-    assert len(runs_com_medicao) == 1
-    x0, y0, x1, y1 = runs_com_medicao[0]
-    assert (round(x0, 1), round(y0, 1), round(x1, 1), round(y1, 1)) == (
-        4587.4, 2441.0, 4601.4, 2661.0
-    )
-
-
-def test_par_de_paredes_exige_duas_paredes_desenhadas():
-    """Inferir a segunda parede pela tampa foi medido e revertido: numa viga
-    rente a uma fileira de pilares a "tampa" é a aresta lateral do pilar."""
-    from src.core.pillar_face_beams import runs_from_parallel_walls
-
-    so_uma = [[1349.3, 2048.0, 1603.4, 2048.0], [2040.4, 2029.0, 2040.4, 2048.0]]
-
-    assert runs_from_parallel_walls(so_uma, horizontal=True, width=19.0) == []

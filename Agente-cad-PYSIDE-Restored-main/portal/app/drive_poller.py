@@ -401,9 +401,6 @@ def varrer_uma_vez(
         ultimo: Optional[DriveFile] = None
         for arq in arquivos:
             ultimo = arq
-            if arq.file_id in settings.drive_ignored_file_ids:
-                log.info("arquivo %s ignorado por configuracao (file_id=%s)", arq.name, arq.file_id)
-                continue
             if Path(arq.name).suffix.lower() not in _EXT_VALIDAS:
                 continue
             if arq.size_bytes is not None and arq.size_bytes > limite_bytes:

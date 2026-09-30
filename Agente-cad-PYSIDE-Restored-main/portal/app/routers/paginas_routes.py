@@ -249,9 +249,7 @@ def pagina_obra_detalhe(
         )
         jobs = [dict(j) for j in repo.listar_jobs_por_obra(conn, obra_id)]
         for j in jobs:
-            j["meta"] = request.app.state.job_meta.get(j["id"]) or repo.obter_job_meta(conn, j["id"])
-            if j["status"] == "cancelado" and j.get("erro_msg") == repo.PAUSA_OPERADOR:
-                j["status"] = "pausado"
+            j["meta"] = request.app.state.job_meta.get(j["id"], {})
         n5_releases = repo.listar_n5_releases_por_obra(conn, obra_id)
         comentarios = repo.listar_comentarios_por_obra(conn, obra_id)
         documentos = repo.listar_documentos_por_obra(conn, obra_id)
@@ -272,8 +270,7 @@ def pagina_obra_detalhe(
         fichas: list[dict] = []
         lp = obra.get("local_path")
         obra_dir = (Path(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra"))
-        pavimento_fichas = request.query_params.get("pavimento") or settings.pav_default
-        base = _pipeline_runner.encontrar_dir_fichas(obra_dir, pavimento_fichas)
+        base = _pipeline_runner.encontrar_dir_fichas(obra_dir)
         if base is not None:
             for p in sorted(base.rglob("*.html")):
                 fichas.append({
@@ -314,7 +311,7 @@ def pagina_obra_detalhe(
             # tambem tem job proprio rodando em qualquer etapa (1/2/3).
             "job_ativo": _job_ativo(jobs),
             "validacao_concluida": validacao_concluida,
-            "pavimento": pavimento_fichas,
+            "pavimento": settings.pav_default,
             # Pavimentos com estrutural limpo — um link de viewer por pavimento.
             "pavimentos_viewer": viewer_pavimentos.listar_pavimentos_com_torre(
                 obra_dir, obra

@@ -904,8 +904,8 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         seg["dim_height"] = round(float(seg_height or 0), 1)
         if chosen_dim.get("source"):
             seg["dim_source"] = chosen_dim.get("source")
-        seg["apoio_inicial"] = (start_link or {}).get("text") or ""
-        seg["apoio_final"] = (end_link or {}).get("text") or ""
+        seg["apoio_inicial"] = (start_link or {}).get("text") or apoio_inicial
+        seg["apoio_final"] = (end_link or {}).get("text") or apoio_final
         if start_link:
             seg["apoio_inicial_link"] = start_link
         if end_link:
@@ -925,13 +925,6 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
             "abertura_fundo_dir": "N/A",
         }
         seg["ficha"].update(chamfers)
-
-    from src.core.fv_generation_contract import chain_linear_segment_apoios
-    chain_linear_segment_apoios(
-        segmentos_fundo,
-        start_key="apoio_inicial",
-        end_key="apoio_final",
-    )
 
     comprimento = sum(float(seg.get("length") or 0.0) for seg in segmentos_fundo)
 

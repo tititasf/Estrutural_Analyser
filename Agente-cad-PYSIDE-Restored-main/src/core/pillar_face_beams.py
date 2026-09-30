@@ -440,109 +440,6 @@ _RUN_MIN_THICK = 5.0
 _RUN_PAD = 12.0
 
 
-def _traced_runs(beam: dict) -> list[tuple[float, float, float, float]]:
-    """Corredores do traçador, ignorando o reparo pelo par de paredes."""
-    sem_reparo = {k: v for k, v in beam.items() if k != "_recovered_corridor"}
-    return beam_runs_from_entity(sem_reparo)
-
-
-#: Folga (cm) para casar a separação de duas paredes com a seção declarada.
-_WALL_PAIR_TOL = 3.0
-
-
-def _merge_spans(
-    spans: list[tuple[float, float]], gap: float = 1.0,
-) -> list[tuple[float, float]]:
-    ordenados = sorted(spans)
-    saida: list[list[float]] = []
-    for lo, hi in ordenados:
-        if saida and lo <= saida[-1][1] + gap:
-            saida[-1][1] = max(saida[-1][1], hi)
-        else:
-            saida.append([lo, hi])
-    return [(lo, hi) for lo, hi in saida]
-
-
-def runs_from_parallel_walls(
-    seg_boxes: list[list[float]],
-    *,
-    horizontal: bool,
-    width: float | None,
-    tol: float = _WALL_PAIR_TOL,
-) -> list[tuple[float, float, float, float]]:
-    """Corredores formados pelas duas paredes **paralelas ao eixo** da viga.
-
-    O agrupamento por proximidade colapsa num bbox único tudo que estiver
-    perto, inclusive segmento de outra viga que encosta na ponta: `V329`
-    (vertical, 19 cm) carregava dois trechos horizontais da `V304` e saía com
-    68 cm de espessura. Parede de viga é paralela ao eixo dela; o resto é
-    tampa ou vizinha.
-
-    Quando só uma parede foi traçada, a **tampa** perpendicular do tamanho da
-    seção diz onde está a outra.
-    """
-    if not seg_boxes or not width or width <= 0:
-        return []
-    paredes: dict[float, list[tuple[float, float]]] = {}
-    tampas: list[tuple[float, float]] = []
-    for x0, y0, x1, y1 in seg_boxes:
-        largura_x, largura_y = x1 - x0, y1 - y0
-        paralelo = largura_x >= largura_y if horizontal else largura_y >= largura_x
-        if paralelo:
-            coord = (y0 + y1) / 2.0 if horizontal else (x0 + x1) / 2.0
-            span = (x0, x1) if horizontal else (y0, y1)
-            chave = next(
-                (k for k in paredes if abs(k - coord) <= tol), round(coord, 3),
-            )
-            paredes.setdefault(chave, []).append(span)
-            continue
-        transversal = (y0, y1) if horizontal else (x0, x1)
-        if abs((transversal[1] - transversal[0]) - width) <= tol:
-            tampas.append(transversal)
-
-    # Duas paredes **desenhadas**. Inferir a segunda pela tampa foi medido e
-    # revertido: numa viga que corre rente a uma fileira de pilares, o que
-    # parece tampa é a aresta lateral do pilar, e o corredor sai deslocado
-    # meia seção (`VF202` no 13_PAV: −21 células).
-    coords = sorted(paredes)
-    corredores: list[tuple[float, float, float, float]] = []
-    for i, lo in enumerate(coords):
-        for hi in coords[i + 1:]:
-            if abs((hi - lo) - width) > tol:
-                continue
-            spans_lo = _merge_spans(paredes.get(lo) or [])
-            spans_hi = _merge_spans(paredes.get(hi) or [])
-            for a0, a1 in spans_lo or spans_hi:
-                for b0, b1 in spans_hi or spans_lo:
-                    i0, i1 = max(a0, b0), min(a1, b1)
-                    if i1 - i0 <= tol:
-                        continue
-                    corredores.append(
-                        (i0, lo, i1, hi) if horizontal else (lo, i0, hi, i1)
-                    )
-    return _merge_spans_boxes(corredores)
-
-
-def _merge_spans_boxes(
-    boxes: list[tuple[float, float, float, float]],
-) -> list[tuple[float, float, float, float]]:
-    saida: list[list[float]] = []
-    for x0, y0, x1, y1 in sorted(boxes):
-        for outro in saida:
-            if (
-                x0 <= outro[2] + 1.0 and x1 >= outro[0] - 1.0
-                and y0 <= outro[3] + 1.0 and y1 >= outro[1] - 1.0
-            ):
-                outro[0] = min(outro[0], x0)
-                outro[1] = min(outro[1], y0)
-                outro[2] = max(outro[2], x1)
-                outro[3] = max(outro[3], y1)
-                break
-        else:
-            saida.append([x0, y0, x1, y1])
-    return [tuple(b) for b in saida]
-
-
 def beam_runs_from_entity(beam: dict) -> list[tuple[float, float, float, float]]:
     """Corredores contíguos (um bbox por trecho físico) da viga.
 
@@ -553,14 +450,6 @@ def beam_runs_from_entity(beam: dict) -> list[tuple[float, float, float, float]]
     próximos vira um corredor independente; passa/para e wall-hits devem
     ser avaliados corredor a corredor.
     """
-    # Corredor recuperado do par de paredes do DXF vence o traçado: ele é a
-    # medição direta do desenho, e o traçado pode vir truncado ou deslocado.
-    recovered = beam.get("_recovered_corridor")
-    if isinstance(recovered, (list, tuple)) and len(recovered) == 4:
-        try:
-            return [tuple(float(value) for value in recovered)]
-        except (TypeError, ValueError):
-            pass
     geo = beam.get("geometry") if isinstance(beam.get("geometry"), dict) else {}
     classified = geo.get("classified") if isinstance(geo, dict) else None
     seg_boxes: list[list[float]] = []
@@ -589,42 +478,6 @@ def beam_runs_from_entity(beam: dict) -> list[tuple[float, float, float, float]]
     if not seg_boxes:
         bbox = beam_bbox_from_entity(beam)
         return [tuple(bbox)] if bbox else []
-
-    # Uma tampa (segmento degenerado, sem espessura no eixo perpendicular ao
-    # eixo dominante da viga) que fique inteiramente fora do corredor medido
-    # no par de paredes do DXF não é parede desta viga: é o traçado colando
-    # em elemento vizinho no ponto de contato (V331×P18 no 13_PAV — tampa a
-    # y=2441 ligando a parede real do V331 até a face do pilar ao lado, fora
-    # do corredor medido em y:[2460,2661]). Ao longo do eixo dominante a
-    # viga pode legitimamente passar do trecho medido (o par de paredes só
-    # amostra onde achou evidência); só a tampa perpendicular é vetada, e só
-    # quando há medição independente pra contestá-la — sem isso o filtro não
-    # se aplica (ex.: VF202, cuja geometria não forma par de paredes nenhum).
-    measured_corridor = beam.get("_measured_corridor")
-    if isinstance(measured_corridor, (list, tuple)) and len(measured_corridor) == 4:
-        try:
-            mx0, my0, mx1, my1 = (float(v) for v in measured_corridor)
-        except (TypeError, ValueError):
-            mx0 = my0 = mx1 = my1 = None
-        if mx0 is not None:
-            beam_is_h = beam_axis_is_horizontal(beam, fallback_bbox=beam_bbox_from_entity(beam))
-            tol = 1.0
-            kept_boxes = []
-            for box in seg_boxes:
-                w, h = box[2] - box[0], box[3] - box[1]
-                is_cap = (w <= 1e-6) if beam_is_h else (h <= 1e-6)
-                if is_cap:
-                    disjoint = (
-                        box[2] < mx0 - tol or box[0] > mx1 + tol
-                        or box[3] < my0 - tol or box[1] > my1 + tol
-                    )
-                    if disjoint:
-                        continue
-                kept_boxes.append(box)
-            if kept_boxes:
-                seg_boxes = kept_boxes
-
-    seg_originais = [list(box) for box in seg_boxes]
 
     merged = True
     while merged:
@@ -659,29 +512,6 @@ def beam_runs_from_entity(beam: dict) -> list[tuple[float, float, float, float]]
             mid = (y0 + y1) / 2.0
             y0, y1 = mid - _RUN_PAD, mid + _RUN_PAD
         runs.append((x0, y0, x1, y1))
-
-    # Corredor inflado: o agrupamento por proximidade engoliu segmento de
-    # outra viga que encosta na ponta. `V329` (vertical, 19) carregava dois
-    # trechos horizontais da `V304` e saía com 68 cm. Aí o par de paredes
-    # **paralelas ao eixo** manda — só nesse caso, para não fragmentar os
-    # corredores que já estão certos.
-    section = beam_section_dim(beam)
-    largura = beam_section_width(section)
-    if largura and any(
-        not _run_thickness_matches_section(
-            min(abs(r[2] - r[0]), abs(r[3] - r[1])), section
-        )
-        for r in runs
-    ):
-        por_paredes = runs_from_parallel_walls(
-            seg_originais,
-            horizontal=beam_axis_is_horizontal(
-                beam, fallback_bbox=beam_bbox_from_entity(beam)
-            ),
-            width=largura,
-        )
-        if por_paredes:
-            return por_paredes
     return runs
 
 
@@ -800,259 +630,6 @@ def _collect_top_band_facts(beams: list) -> tuple[list[dict], list[dict]]:
     return dims, names
 
 
-#: Folga (cm) somada ao limite de espessura do corredor, para o padding do
-#: traçador (V312: seção 19, corredor 24).
-RUN_THICKNESS_SLACK_CM = 15.0
-
-
-def _bound_on_adjacent_faces(
-    face_beams: dict, face_corners: dict, fid: str, name: str,
-) -> bool:
-    """A viga já ocupa alguma face vizinha desta?
-
-    Faces vizinhas são as que compartilham canto com ``fid`` — para a curta C,
-    as longas A e B.
-    """
-    neighbours = [
-        other for other, corners in face_corners.items()
-        if other != fid and any(str(corner)[-1:] == fid for corner in corners)
-    ]
-    for other in neighbours:
-        bucket = face_beams.get(other) or {}
-        for slot in ("passa_esq", "passa_dir"):
-            if str((bucket.get(slot) or {}).get("name") or "") == name:
-                return True
-        for role in ("para", "interior"):
-            if any(str(row.get("name") or "") == name for row in bucket.get(role) or []):
-                return True
-    return False
-
-
-def _run_reaches_face(
-    low: float, high: float, fixed: float, tol: float, outward: int,
-    bridge: float = 0.0,
-) -> bool:
-    """O trecho atravessa a face, termina nela ou para a um vão dela?
-
-    Atravessar e terminar são as duas formas diretas. A terceira é o vão:
-    entre o fim da viga e a face pode não haver nada desenhado, porque ali
-    passa outra viga e o trecho não é repetido — mas o vão é a continuação da
-    viga, e ela chega na face do mesmo jeito (V313 × P29, com V306 no meio).
-    ``bridge`` é o quanto desse vão pode ser fechado.
-    """
-    if low < fixed - tol and high > fixed + tol:
-        return True
-    if not outward:
-        return False
-    reach = max(tol, bridge)
-    if outward > 0:
-        return low >= fixed - tol and (low - fixed) <= reach and high > fixed + tol
-    return high <= fixed + tol and (fixed - high) <= reach and low < fixed - tol
-
-
-def _bridgeable_gap(
-    beam_info: list, name: str, axis: str, fixed: float, outward: int,
-    face_lo: float, face_hi: float, own_thickness: float, gap: float,
-) -> float:
-    """Quanto do vão até a face é ocupado por outras vigas, mais a própria seção.
-
-    O vão só é continuação da viga enquanto o que está nele for viga. Somar a
-    própria seção cobre o trecho de apoio que o desenho não repete.
-    """
-    occupied = 0.0
-    for other in beam_info:
-        if str(other.get("name") or "") == name:
-            continue
-        # O corredor medido no desenho responde melhor "o que há no vão" que o
-        # trecho traçado, que pode parar num pilar bem antes (V306 é traçada
-        # até x 1603 e medida até 3788, e é ela que ocupa o vão em P29).
-        # Isto não muda a atribuição de viga nenhuma: só informa a ponte.
-        corridors = other.get("measured_corridors") or other["runs"]
-        for run in corridors:
-            rx0, ry0, rx1, ry1 = run
-            if axis == "H":
-                across_lo, across_hi = rx0, rx1
-                near_lo, near_hi = ry0, ry1
-            else:
-                across_lo, across_hi = ry0, ry1
-                near_lo, near_hi = rx0, rx1
-            if min(across_hi, face_hi) - max(across_lo, face_lo) <= 0:
-                continue
-            lo, hi = (
-                (fixed, fixed + gap) if outward > 0 else (fixed - gap, fixed)
-            )
-            overlap = min(near_hi, hi) - max(near_lo, lo)
-            if overlap > 0:
-                occupied += overlap
-    return occupied + own_thickness
-
-
-def _run_thickness_matches_section(thickness: float, dim: Any) -> bool:
-    """O corredor pode ser o trecho físico desta viga?
-
-    O limite é **duas** larguras de seção mais folga, não uma: o contorno de
-    fundo pode vir deslocado uma largura inteira (caso V304 documentado no
-    CLAUDE.md), e nesse estado o corredor mede o dobro sem deixar de ser real.
-    Acima disso não é mais deslocamento: é bbox de viga diagonal ou de trechos
-    disjuntos colapsados, que atravessa pilares que trecho nenhum toca.
-
-    Sem seção declarada não há como julgar, e a checagem não bloqueia.
-    """
-    width = beam_section_width(dim)
-    if not width:
-        return True
-    return thickness <= 2.0 * width + RUN_THICKNESS_SLACK_CM
-
-
-def beam_corridor_widths(beams: list) -> dict[str, float]:
-    """Espessura medida do corredor de cada viga, por nome.
-
-    É a evidência independente da seção declarada: se o corredor que toca a
-    face mede 14 cm, nenhuma viga de 19 cm passa ali. O gate usa isso para
-    separar erro de motor de célula de corpus que o desenho contradiz.
-    """
-    widths: dict[str, float] = {}
-    for beam in beams or []:
-        if not isinstance(beam, dict):
-            continue
-        name = str(beam.get("name") or "").strip()
-        bbox = beam_bbox_from_entity(beam)
-        if not name or not bbox:
-            continue
-        is_h = beam_axis_is_horizontal(beam, fallback_bbox=bbox)
-        runs = beam_runs_from_entity(beam) or [bbox]
-        measured = [
-            (run[3] - run[1]) if is_h else (run[2] - run[0]) for run in runs
-        ]
-        if measured:
-            widths[name] = round(min(measured), 1)
-    return widths
-
-
-def apply_transversal_crossing_arrivals(
-    face_beams: dict,
-    *,
-    beam_info: list,
-    face_coords: dict,
-    face_corners: dict,
-    corner_side,
-    tol: float,
-    min_overlap: float,
-    pillar_bbox: tuple[float, float, float, float] | None = None,
-    end_tolerance: float = 1.0,
-) -> int:
-    """Registra como chegada a viga que cruza a face de through.
-
-    O teste de contato por parede só reconhece viga **paralela** à face, cuja
-    parede coincide com ela. Uma viga perpendicular que atravessa a face não
-    alinha parede nenhuma e, quando também não cobre o pilar inteiro, não
-    gerava contato algum — a face ficava sem a viga que nela chega (V312 em
-    P42, V316 em P44, V320 em P46, V325 em P48).
-
-    O canto sai da posição do cruzamento ao longo da face: encostado num
-    extremo usa o canto daquele extremo; no meio usa o canto próprio da face,
-    que é a marcação de "chega no meio" e implica duas lajes na face.
-    """
-    def outward_sign(axis: str, fixed: float) -> int:
-        """+1 se o lado de fora da face é o das coordenadas maiores."""
-        if not pillar_bbox:
-            return 0
-        px0, py0, px1, py1 = pillar_bbox
-        center = (py0 + py1) / 2.0 if axis == "H" else (px0 + px1) / 2.0
-        return 1 if fixed >= center else -1
-
-    added = 0
-    for fid, (axis, fixed, r0, r1) in face_coords.items():
-        bucket = face_beams.get(fid)
-        if bucket is None:
-            continue
-        c_esq, c_dir = face_corners[fid]
-        mid_corner = f"{fid}{fid}"
-        occupied = {
-            str((bucket.get(slot) or {}).get("name") or "")
-            for slot in ("passa_esq", "passa_dir")
-        }
-        occupied |= {str(row.get("name") or "") for row in bucket.get("para") or []}
-        for bi in beam_info:
-            name = str(bi.get("name") or "")
-            if not name or name in occupied:
-                continue
-            for run in bi["runs"]:
-                rx0, ry0, rx1, ry1 = run
-                view = {**bi, "x0": rx0, "y0": ry0, "x1": rx1, "y1": ry1}
-                lo_face, hi_face = min(r0, r1), max(r0, r1)
-                if axis == "H":
-                    if bi["is_h"]:
-                        continue
-                    near, far = ry0, ry1
-                    thickness = rx1 - rx0
-                    lo, hi = max(lo_face, rx0), min(hi_face, rx1)
-                else:
-                    if not bi["is_h"]:
-                        continue
-                    near, far = rx0, rx1
-                    thickness = ry1 - ry0
-                    lo, hi = max(lo_face, ry0), min(hi_face, ry1)
-                crossing = near < fixed - tol and far > fixed + tol
-                outward = outward_sign(axis, fixed)
-                # R1 do dono: o vão entre o fim da viga e a face é continuação
-                # da viga. `_bridgeable_gap` só o fecha enquanto o que estiver
-                # nele for viga — medido no desenho, não no traçado.
-                # R1 do dono: o vão entre o fim da viga e a face é continuação
-                # da viga. `_bridgeable_gap` só o fecha enquanto o que estiver
-                # dentro dele for viga — medido no desenho, não no traçado,
-                # porque o traçado pode parar num pilar bem antes (V306 vai
-                # traçada até x 1603 e medida até 3788, e é ela que ocupa o
-                # vão em P29). Ver docs/INTERPRETACAO-VIGA-CHEGA-VAO-E-FACE.md.
-                gap = (near - fixed) if outward > 0 else (fixed - far)
-                bridge = 0.0
-                if not crossing and outward and gap > tol:
-                    bridge = _bridgeable_gap(
-                        beam_info, name, axis, fixed, outward,
-                        lo_face, hi_face, thickness, gap,
-                    )
-                if not _run_reaches_face(near, far, fixed, tol, outward, bridge):
-                    continue
-                if not crossing and _bound_on_adjacent_faces(
-                    face_beams, face_corners, fid, name,
-                ):
-                    # Viga que corre paralela às faces vizinhas e morre neste
-                    # canto já está vinculada nelas: aqui ela é interior, não
-                    # uma chegada nova (P35/V308).
-                    continue
-                if not _run_thickness_matches_section(thickness, bi.get("dim")):
-                    # Corredor mais grosso que a própria seção não é corredor:
-                    # é o bbox de uma viga diagonal ou de trechos disjuntos, e
-                    # atravessa pilares que nenhum trecho toca (VF202 no 13_PAV,
-                    # 75 cm de "corredor" para uma seção de 14).
-                    continue
-                if hi - lo <= min_overlap:
-                    continue
-                # O lado esq/dir sai do mapeamento canônico da face; refazê-lo
-                # aqui inverteria os cantos das faces longas verticais.
-                if lo - lo_face > end_tolerance and hi_face - hi > end_tolerance:
-                    corner = mid_corner
-                else:
-                    corner = (
-                        c_esq
-                        if corner_side(fid, axis, fixed, r0, r1, view) == "esq"
-                        else c_dir
-                    )
-                bucket.setdefault("para", []).append({
-                    "name": name,
-                    "dim": bi["dim"],
-                    "corner": corner,
-                    "behavior": "para",
-                    "source": "transversal_face_crossing",
-                    **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
-                       if bi.get("evidence_segments") else {}),
-                })
-                occupied.add(name)
-                added += 1
-                break
-    return added
-
-
 def apply_face_c_top_multi_segment(
     face_beams: dict,
     *,
@@ -1133,15 +710,9 @@ def apply_face_c_top_multi_segment(
             continue
         for run in bi.get("runs") or []:
             rx0, ry0, rx1, ry1 = run
-            # A cota pode estar próxima da face sem que a viga a toque.
-            # Materializar CA/CB exige contato do contorno, não apenas
-            # pertencimento a uma faixa gráfica.
-            contact_tol = min(tol, 3.0)
-            wall_c = (
-                abs(ry0 - face_c_y) <= contact_tol
-                or abs(ry1 - face_c_y) <= contact_tol
-            )
-            if not wall_c:
+            in_y_band = min(ry0, ry1) - band <= face_c_y <= max(ry0, ry1) + band
+            wall_c = abs(ry0 - face_c_y) < tol or abs(ry1 - face_c_y) < tol
+            if not (in_y_band or wall_c):
                 continue
             # Oeste: corpo do trecho predominantemente a oeste de A, tocando A
             west_body = rx1 <= px0 + tol and rx0 < px0 - 1.0
@@ -1174,14 +745,7 @@ def apply_face_c_top_multi_segment(
 
     def _pick_name(side: str, dim_hit: dict | None) -> str:
         tx = px0 if side == "west" else px1
-        # 1) identidade do próprio trecho que provou o contato. Um rótulo
-        # próximo pode pertencer a outra viga e não vence a geometria.
-        pool = west_hits if side == "west" else east_hits
-        geometric_names = [str(hit.get("name") or "").strip() for hit in pool]
-        geometric_names = [item for item in geometric_names if item]
-        if geometric_names:
-            return geometric_names[0]
-        # 2) rótulo V/VF na faixa do topo
+        # 1) rótulo V/VF na faixa do topo (mais confiável que owner de cota compartilhada)
         near_names = [
             n
             for n in name_texts
@@ -1197,6 +761,10 @@ def apply_face_c_top_multi_segment(
                 key=lambda n: abs(n["y"] - face_c_y) * 10 + abs(n["x"] - cx) * 0.02,
             )
             return best["name"]
+        # 2) hit geométrico H no topo
+        pool = west_hits if side == "west" else east_hits
+        if pool:
+            return str(pool[0].get("name") or "").strip()
         # 3) owner da cota só se a viga for realmente H na faixa deste pilar
         if dim_hit and dim_hit.get("owner") and _beam_near_top(str(dim_hit["owner"])):
             return str(dim_hit["owner"]).strip()
@@ -1232,11 +800,10 @@ def apply_face_c_top_multi_segment(
     dim_w = _pick_dim("west", name_w) if name_w else ""
     dim_e = _pick_dim("east", name_e) if name_e else ""
 
-    # Multi-segmento exige evidência geométrica nos DOIS lados. Cotas explicam
-    # dimensão, mas não provam contato.
+    # Multi-segmento exige evidência nos DOIS lados (cota e/ou trecho).
     # Um único lado = chega simples (já coberta pelo fluxo para[]) — não forçar C.
-    side_w = bool(west_hits)
-    side_e = bool(east_hits)
+    side_w = bool(dim_ca or west_hits)
+    side_e = bool(dim_cb or east_hits)
     if not (side_w and side_e):
         return
     if not name_w and not name_e:
@@ -1288,27 +855,6 @@ def apply_face_c_top_multi_segment(
             dim_w or pd.get("dim") or "",
             "CA",
         )
-
-    # Uma viga não muda de seção na largura de um pilar: quando o mesmo nome
-    # ocupa os dois cantos de C, a dimensão local escolhida por proximidade
-    # pode ter capturado a cota da viga vizinha. A seção canônica da própria
-    # viga desempata (V301 em P43/P45/P47: 19/55 local x 19/120 real).
-    unify_esq, unify_dir = slots_c.get("passa_esq"), slots_c.get("passa_dir")
-    if (
-        isinstance(unify_esq, dict) and isinstance(unify_dir, dict)
-        and unify_esq.get("name")
-        and unify_esq.get("name") == unify_dir.get("name")
-        and unify_esq.get("dim") != unify_dir.get("dim")
-    ):
-        beam_entity = next(
-            (b for b in beams or []
-             if isinstance(b, dict) and str(b.get("name") or "") == unify_esq["name"]),
-            None,
-        )
-        canonical = canonical_fundo_section_dim(beam_entity) if beam_entity else ""
-        if canonical:
-            unify_esq["dim"] = canonical
-            unify_dir["dim"] = canonical
 
     # Dualidade leve em A/B: chega AC/BC se ainda vazio de chega para esse nome
     # (slots para[] nas longas; passa_esq/dir de A/B da viga de baixo ficam intactos)
@@ -1453,57 +999,17 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
         x0, y0, x1, y1 = bbox
         bw, bh = x1 - x0, y1 - y0
         is_h = beam_axis_is_horizontal(beam, fallback_bbox=(x0, y0, x1, y1))
-        section = beam_section_dim(beam)
         runs = beam_runs_from_entity(beam) or [(x0, y0, x1, y1)]
-        # Um corredor mais grosso que a própria seção não é corredor físico:
-        # é o bbox de uma viga diagonal ou de trechos disjuntos colapsados, e
-        # cria vínculo com pilares que trecho nenhum toca (VF202 no 13_PAV:
-        # 75 cm de "corredor" para uma seção de 14).
-        physical_runs = [
-            run for run in runs
-            if _run_thickness_matches_section(
-                (run[3] - run[1]) if is_h else (run[2] - run[0]), section,
-            )
-        ]
-        if not physical_runs:
-            # Sem corredor com a espessura da viga não há trecho físico com que
-            # julgar contato, e opinar produz vínculo com pilar que trecho
-            # nenhum toca. Cair no bbox foi medido e rejeitado: devolve os
-            # contatos fantasmas de VF202 em P18/P28–P32 (bbox de 2458 cm para
-            # uma diagonal de ~110 cm) sem ganho em nenhum outro item.
-            continue
-        runs = physical_runs
-        corridor_widths = [
-            (run[3] - run[1]) if is_h else (run[2] - run[0]) for run in runs
-        ]
         beam_info.append(
             {
                 "name": str(beam.get("name") or "").strip(),
-                "dim": section,
-                # Espessura medida do corredor: prova independente da seção
-                # declarada, que o gate usa para separar erro de motor de
-                # corpus contradito pelo desenho.
-                "corridor_width": round(min(corridor_widths), 1) if corridor_widths else None,
+                "dim": beam_section_dim(beam),
                 "x0": x0,
                 "x1": x1,
                 "y0": y0,
                 "y1": y1,
                 "is_h": is_h,
                 "runs": runs,
-                # Trecho como o traçador entregou, sem reparo. O reparo pelo
-                # par de paredes conserta posição transversal, mas pode
-                # alongar a viga: `V332` sai traçada até 3103 (a face sul do
-                # `P9`) e recuperada até 3323. Provar travessia exige o
-                # traçado — o reparo não é prova de comprimento.
-                "traced_runs": _traced_runs(beam),
-                # Corredor medido no desenho, quando a recuperação o conhece.
-                # Serve só para responder o que ocupa um vão; nunca atribui a
-                # viga a uma face.
-                "measured_corridors": (
-                    [tuple(float(v) for v in beam["_measured_corridor"])]
-                    if isinstance(beam.get("_measured_corridor"), (list, tuple))
-                    and len(beam["_measured_corridor"]) == 4 else None
-                ),
                 "evidence_segments": _beam_evidence_segments(beam),
             }
         )
@@ -1735,12 +1241,6 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                 and abs(beam_width - short_dim) < TOL_ALIGN
             )
             if is_interior:
-                # Só a face onde a viga encosta. Marcar também a oposta foi
-                # medido e é catastrófico (97 → 165 células, PASS 23 → 12),
-                # embora acerte P23 e P24. Ali a face oposta é interior porque
-                # `V319` **atravessa** o pilar — o corredor dela vai até 2490 —
-                # e não por simetria. Depende de estender corredor, o bloqueio
-                # conhecido em docs/INTERPRETACAO-VIGA-CHEGA-VAO-E-FACE.md.
                 face_beams[terminal_face]["interior"].append({
                     "name": br["name"],
                     "dim": br["dim"],
@@ -1773,110 +1273,6 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
             # Passante sem hit de parede nesta face: não força (outra face cuida)
 
         # Chegadas (para): vigas com hit em qualquer face onde ainda não estejam vinculadas (passa/interior/para)
-        # Viga axial bilateral: quando a mesma viga, com largura compatível com
-        # a espessura transversal do pilar, alcança as DUAS tampas curtas, ela
-        # ocupa os dois cantos de cada face longa. O caso aparece tanto como
-        # dois corredores separados pelo próprio pilar quanto como um corredor
-        # contínuo. A deduplicação geral por nome não pode apagar AC+AD ou
-        # BC+BD, pois os cantos representam contatos geométricos distintos.
-        # A regra é geométrica e não depende de item, obra ou pavimento.
-        short_dim = ph if horizontal else pw
-        for bi in beam_info:
-            if not bi.get("name") or bool(bi.get("is_h")) != bool(horizontal):
-                continue
-            beam_width = beam_section_width(bi.get("dim"))
-            if beam_width is None or abs(beam_width - short_dim) >= TOL_ALIGN:
-                continue
-
-            aligned_runs = []
-            # Travessia axial se prova no traçado, não no reparo: o reparo
-            # pelo par de paredes conserta a posição transversal e pode
-            # alongar a viga por cima do pilar onde ela morre.
-            for run in bi.get("traced_runs") or bi.get("runs") or []:
-                rx0, ry0, rx1, ry1 = run
-                walls_align = (
-                    abs(ry0 - py0) < TOL_ALIGN
-                    and abs(ry1 - py1) < TOL_ALIGN
-                    if horizontal
-                    else abs(rx0 - px0) < TOL_ALIGN
-                    and abs(rx1 - px1) < TOL_ALIGN
-                )
-                if walls_align:
-                    aligned_runs.append(run)
-
-            if horizontal:
-                reaches_c = any(
-                    run[0] < px0 - MIN_OV and run[2] >= px0 - TOL_ALIGN
-                    for run in aligned_runs
-                )
-                reaches_d = any(
-                    run[2] > px1 + MIN_OV and run[0] <= px1 + TOL_ALIGN
-                    for run in aligned_runs
-                )
-            else:
-                reaches_d = any(
-                    run[1] < py0 - MIN_OV and run[3] >= py0 - TOL_ALIGN
-                    for run in aligned_runs
-                )
-                reaches_c = any(
-                    run[3] > py1 + MIN_OV and run[1] <= py1 + TOL_ALIGN
-                    for run in aligned_runs
-                )
-            if not (reaches_c and reaches_d):
-                continue
-
-            payload = {
-                "name": bi["name"],
-                "dim": bi["dim"],
-                "behavior": "passa",
-                "source": "axial_bilateral_runs",
-                **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
-                   if bi.get("evidence_segments") else {}),
-            }
-            for long_face in ("A", "B"):
-                corner_esq, corner_dir = FACE_CORNERS[long_face]
-                for slot, corner in (
-                    ("passa_esq", corner_esq),
-                    ("passa_dir", corner_dir),
-                ):
-                    current = face_beams[long_face].get(slot)
-                    if current and current.get("name") != bi["name"]:
-                        continue
-                    face_beams[long_face][slot] = {**payload, "corner": corner}
-
-                # A viga axial já foi provada nos dois extremos. Remover a
-                # chegada residual do mesmo nome evita o conflito passa+chega
-                # criado por uma leitura parcial de parede antes desta prova.
-                face_beams[long_face]["para"] = [
-                    arrival
-                    for arrival in face_beams[long_face]["para"]
-                    if arrival.get("name") != bi["name"]
-                ]
-
-            # Nas tampas curtas a mesma viga é interior, não passa/chega.
-            # Limpar os slots parciais antes de materializar o fato axial.
-            for short_face in ("C", "D"):
-                slots = face_beams[short_face]
-                for slot in ("passa_esq", "passa_dir"):
-                    if (slots.get(slot) or {}).get("name") == bi["name"]:
-                        slots[slot] = None
-                slots["para"] = [
-                    arrival
-                    for arrival in slots["para"]
-                    if arrival.get("name") != bi["name"]
-                ]
-                if not any(
-                    interior.get("name") == bi["name"]
-                    for interior in slots["interior"]
-                ):
-                    slots["interior"].append({
-                        "name": bi["name"],
-                        "dim": bi["dim"],
-                        "source": "axial_bilateral_runs",
-                        **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
-                           if bi.get("evidence_segments") else {}),
-                    })
-
         for br in beam_relations:
             if not br.get("name"):
                 continue
@@ -1921,7 +1317,7 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
         # persistia nada em D, só a ficha sabia via segmentos frageis).
         for fid in ("C", "D"):
             slots = face_beams[fid]
-            if slots["para"] or slots["interior"]:
+            if slots["passa_esq"] or slots["passa_dir"] or slots["para"] or slots["interior"]:
                 continue
             axis, fixed, r0, r1 = face_coords[fid]
             for bi in beam_info:
@@ -1938,126 +1334,15 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                 )
                 adjacent = span_hi >= r0 - TOL_ALIGN and span_lo <= r1 + TOL_ALIGN
                 if touches_wall and adjacent and bi.get("name"):
-                    occupied_names = {
-                        (slots.get("passa_esq") or {}).get("name"),
-                        (slots.get("passa_dir") or {}).get("name"),
-                    } - {None}
-                    if occupied_names and bi["name"] not in occupied_names:
-                        continue
-                    payload = {
+                    slots["passa_esq"] = {
                         "name": bi["name"],
                         "dim": bi["dim"],
+                        "corner": slots["corner_esq"],
                         "behavior": "passa",
                         **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
                            if bi.get("evidence_segments") else {}),
                     }
-
-                    # Uma viga pode vir materializada em dois trechos, um de
-                    # cada lado do pilar (o vazio entre eles e o proprio
-                    # pilar). Nesse caso ela realmente ocupa os DOIS cantos
-                    # da face curta. A deduplicacao geral por nome nao se
-                    # aplica: DA e DB (ou CA e CB) sao evidencias distintas.
-                    # Exigimos dois trechos independentes para nao transformar
-                    # um unico retangulo continuo em dois vinculos artificiais.
-                    def run_touches_wall(run):
-                        rx0, ry0, rx1, ry1 = run
-                        if axis == "H":
-                            return ry0 - TOL_ALIGN <= fixed <= ry1 + TOL_ALIGN
-                        return rx0 - TOL_ALIGN <= fixed <= rx1 + TOL_ALIGN
-
-                    # Preserve os trechos observacionais antes da agregacao de
-                    # corredores: uma tolerancia de merge pode unir justamente
-                    # o vao de 19 cm ocupado pelo pilar e apagar a bilateralidade.
-                    evidence_runs = []
-                    for evidence in bi.get("evidence_segments") or []:
-                        evidence_points = evidence.get("points") or []
-                        if len(evidence_points) < 2:
-                            continue
-                        exs = [float(point[0]) for point in evidence_points]
-                        eys = [float(point[1]) for point in evidence_points]
-                        evidence_runs.append((min(exs), min(eys), max(exs), max(eys)))
-                    source_runs = evidence_runs if len(evidence_runs) >= 2 else (bi.get("runs") or [])
-                    wall_runs = [run for run in source_runs if run_touches_wall(run)]
-                    if axis == "H":
-                        low_side = any(
-                            run[0] < r0 - MIN_OV and abs(run[2] - r0) < TOL_ALIGN
-                            for run in wall_runs
-                        )
-                        high_side = any(
-                            run[2] > r1 + MIN_OV and abs(run[0] - r1) < TOL_ALIGN
-                            for run in wall_runs
-                        )
-                    else:
-                        low_side = any(
-                            run[1] < r0 - MIN_OV and abs(run[3] - r0) < TOL_ALIGN
-                            for run in wall_runs
-                        )
-                        high_side = any(
-                            run[3] > r1 + MIN_OV and abs(run[1] - r1) < TOL_ALIGN
-                            for run in wall_runs
-                        )
-                    bridges_both_corners = low_side and high_side
-
-                    def along_center(run):
-                        if axis == "H":
-                            return (run[0] + run[2]) / 2.0
-                        return (run[1] + run[3]) / 2.0
-
-                    preferred_slot = "passa_esq"
-                    if wall_runs:
-                        best_run = min(
-                            wall_runs,
-                            key=lambda run: min(
-                                abs(along_center(run) - r0),
-                                abs(along_center(run) - r1),
-                            ),
-                        )
-                        preferred_slot = (
-                            "passa_esq"
-                            if abs(along_center(best_run) - r0)
-                            <= abs(along_center(best_run) - r1)
-                            else "passa_dir"
-                        )
-
-                    if slots[preferred_slot] is None:
-                        corner_key = "corner_esq" if preferred_slot == "passa_esq" else "corner_dir"
-                        slots[preferred_slot] = {**payload, "corner": slots[corner_key]}
-                    if bridges_both_corners:
-                        slots["passa_esq"] = {**payload, "corner": slots["corner_esq"]}
-                        slots["passa_dir"] = {**payload, "corner": slots["corner_dir"]}
-
-                        # Dualidade dirigida: se a viga cobre DA+DB, as faces
-                        # longas enxergam chegadas AD+BD. Para C, AC+BC.
-                        # Sao chegadas (para[]), nao slots de viga passante.
-                        for long_face in ("A", "B"):
-                            reciprocal_corner = f"{long_face}{fid}"
-                            arrivals = face_beams[long_face]["para"]
-                            if not any(
-                                arrival.get("name") == bi["name"]
-                                and arrival.get("corner") == reciprocal_corner
-                                for arrival in arrivals
-                            ):
-                                arrivals.append({
-                                    "name": bi["name"],
-                                    "dim": bi["dim"],
-                                    "corner": reciprocal_corner,
-                                    **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
-                                       if bi.get("evidence_segments") else {}),
-                                })
                     break
-
-        # Viga perpendicular que atravessa a face: chegada que o teste de
-        # parede paralela não enxerga.
-        apply_transversal_crossing_arrivals(
-            face_beams,
-            beam_info=beam_info,
-            face_coords=face_coords,
-            face_corners=FACE_CORNERS,
-            corner_side=_corner_side,
-            tol=TOL_ALIGN,
-            min_overlap=MIN_OV,
-            pillar_bbox=pillar_bbox,
-        )
 
         # Face C multi-segmento (topo E–W): CA/CB com dims locais + dualidade AC/BC
         apply_face_c_top_multi_segment(
@@ -2111,183 +1396,3 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
             )
 
         entry["lajes"] = laje_entries
-
-    _propagate_collinear_short_face_bands(report, beams=beams)
-
-
-def _propagate_collinear_short_face_bands(report: dict, *, beams: list | None = None) -> int:
-    """Propaga a identidade de uma faixa contínua ao longo de uma fila PIL.
-
-    Em plantas estruturais o nome da viga/faixa é escrito uma única vez. O
-    tracer pode guardar o pequeno retângulo junto ao texto, enquanto a mesma
-    linha física cruza vários pilares colineares. Se uma fila de pelo menos
-    três pilares compartilha exatamente o plano da face C e apenas o pilar da
-    extremidade conhece a faixa, a identidade é propagada para os pilares
-    seguintes. Não substitui nenhum contato já calculado e não usa nome de
-    item, obra ou pavimento.
-    """
-    groups: dict[tuple[str, float], list[dict]] = {}
-    for entry in (report or {}).values():
-        if not isinstance(entry, dict):
-            continue
-        points = entry.get("points") or []
-        try:
-            xs = [float(point[0]) for point in points]
-            ys = [float(point[1]) for point in points]
-        except (TypeError, ValueError, IndexError):
-            continue
-        if not xs or not ys:
-            continue
-        width, height = max(xs) - min(xs), max(ys) - min(ys)
-        orientation = "H" if width >= height else "V"
-        fixed = max(xs) if orientation == "H" else max(ys)
-        center = (min(xs) + max(xs)) / 2.0 if orientation == "V" else (min(ys) + max(ys)) / 2.0
-        groups.setdefault((orientation, round(fixed, 2)), []).append({
-            "entry": entry, "center": center,
-            "axis_min": min(xs) if orientation == "V" else min(ys),
-            "axis_max": max(xs) if orientation == "V" else max(ys),
-            "face_fixed": fixed,
-            "orientation": orientation,
-        })
-
-    dimension_facts, _ = _collect_top_band_facts(beams or [])
-
-    def _local_dims(record: dict, moving_positive: bool, fallback: str) -> tuple[str, str]:
-        """Dimensões de entrada/saída junto à face C do pilar.
-
-        O nome de uma faixa pode ser escrito uma vez, mas a seção pode mudar
-        junto a um apoio. A cota no lado de onde a faixa vem vale para o canto
-        de entrada; a do lado oposto passa a ser a seção carregada adiante.
-        """
-        orientation = record["orientation"]
-        center = record["center"]
-        # Uma cota B/H do próprio pilar costuma ficar exatamente junto à
-        # face C e tem a mesma gramática de uma seção de viga. Ela não é
-        # evidência de mudança da faixa. Derivamos a seção do contorno alvo
-        # (sem nome de obra/item) e a excluímos das candidatas locais.
-        pillar_short = abs(float(record["face_fixed"]) - float(
-            min(
-                point[1] if orientation == "V" else point[0]
-                for point in record["entry"].get("points") or []
-            )
-        ))
-        pillar_long = float(record["axis_max"]) - float(record["axis_min"])
-
-        def _numbers(dim: str) -> tuple[float, ...]:
-            values = re.findall(r"\d+(?:[.,]\d+)?", str(dim or ""))
-            return tuple(sorted(round(float(value.replace(",", ".")), 2) for value in values))
-
-        pillar_section = tuple(sorted((round(pillar_short, 2), round(pillar_long, 2))))
-        candidates = []
-        for fact in dimension_facts:
-            axis = fact["x"] if orientation == "V" else fact["y"]
-            face = fact["y"] if orientation == "V" else fact["x"]
-            if abs(face - record["face_fixed"]) > 80.0:
-                continue
-            if axis < record["axis_min"] - 180.0 or axis > record["axis_max"] + 180.0:
-                continue
-            dim = str(fact.get("dim") or "")
-            if _numbers(dim) == pillar_section:
-                continue
-            candidates.append((axis, dim))
-
-        lower = [row for row in candidates if row[0] <= center]
-        upper = [row for row in candidates if row[0] >= center]
-        lower_dim = min(lower, key=lambda row: abs(row[0] - center))[1] if lower else ""
-        upper_dim = min(upper, key=lambda row: abs(row[0] - center))[1] if upper else ""
-        # Uma única cota próxima pode pertencer a outra entidade do detalhe.
-        # Mudança de seção ao apoio exige as duas margens (entrada e saída);
-        # sem o par, conserva a seção já comprovada e carregada pela faixa.
-        if not (lower_dim and upper_dim):
-            return fallback, fallback
-        if moving_positive:
-            inbound, outbound = lower_dim, upper_dim
-        else:
-            inbound, outbound = upper_dim, lower_dim
-        inbound = clean_beam_section_dim(inbound) or inbound or fallback
-        outbound = clean_beam_section_dim(outbound) or outbound or inbound
-        return inbound, outbound
-
-    propagated = 0
-    for records in groups.values():
-        records.sort(key=lambda record: record["center"])
-        if len(records) < 3:
-            continue
-        donors: list[tuple[int, dict]] = []
-        for index, record in enumerate(records):
-            face_beams = record["entry"].get("face_beams") or {}
-            c_face = face_beams.get("C") or {}
-            slots = [c_face.get("passa_esq"), c_face.get("passa_dir")]
-            named = [slot for slot in slots if isinstance(slot, dict) and slot.get("name")]
-            names = {str(slot.get("name")) for slot in named}
-            if len(names) == 1:
-                donors.append((index, named[0]))
-        if len(donors) != 1:
-            continue
-        donor_index, donor = donors[0]
-        if donor_index not in (0, len(records) - 1):
-            continue
-        targets = (
-            records[donor_index + 1:]
-            if donor_index == 0
-            else list(reversed(records[:donor_index]))
-        )
-        moving_positive = donor_index == 0
-        carried_dim = donor.get("dim") or ""
-        for target_index, record in enumerate(targets):
-            face_beams = record["entry"].get("face_beams") or {}
-            if not all(face in face_beams for face in "ABC"):
-                continue
-            c_face = face_beams["C"]
-            if (
-                c_face.get("passa_esq") or c_face.get("passa_dir")
-                or c_face.get("para") or c_face.get("interior")
-            ):
-                break
-            inbound_dim, outbound_dim = _local_dims(record, moving_positive, carried_dim)
-            carried_dim = outbound_dim
-            payload = {
-                "name": donor["name"], "dim": inbound_dim,
-                "behavior": "passa", "source": "collinear_short_face_band",
-                **({"evidence_segments": copy.deepcopy(donor["evidence_segments"])}
-                   if donor.get("evidence_segments") else {}),
-            }
-            # Pilares internos recebem os dois contatos. No último pilar da
-            # fila, a faixa termina: materializa apenas o contato voltado para
-            # o interior. Isso evita inventar uma continuação além da
-            # extremidade (ex.: CA/AC no extremo direito; CB/BC no esquerdo).
-            is_row_endpoint = target_index == len(targets) - 1
-            if not is_row_endpoint or donor_index > 0:
-                c_face["passa_dir"] = {
-                    **payload,
-                    "dim": outbound_dim if moving_positive else inbound_dim,
-                    "corner": "CB",
-                }
-            if not is_row_endpoint or donor_index == 0:
-                c_face["passa_esq"] = {
-                    **payload,
-                    "dim": inbound_dim if moving_positive else outbound_dim,
-                    "corner": "CA",
-                }
-            arrivals_to_add = (("A", "AC"), ("B", "BC"))
-            if is_row_endpoint:
-                arrivals_to_add = (
-                    (("A", "AC"),) if donor_index == 0 else (("B", "BC"),)
-                )
-            for face, corner in arrivals_to_add:
-                arrivals = face_beams[face].setdefault("para", [])
-                if not any(
-                    item.get("name") == donor["name"] and item.get("corner") == corner
-                    for item in arrivals
-                ):
-                    arrivals.append({
-                        "name": donor["name"],
-                        "dim": (
-                            inbound_dim if face == ("A" if moving_positive else "B")
-                            else outbound_dim
-                        ),
-                        "corner": corner, "behavior": "para",
-                        "source": "collinear_short_face_band",
-                    })
-            propagated += 1
-    return propagated

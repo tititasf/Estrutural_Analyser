@@ -122,7 +122,7 @@ def afinar_tracos_svg(svg: bytes, fator: float = _STROKE_THIN_FACTOR) -> bytes:
     px = f"{_STROKE_SCREEN_PX:g}"
     estilo = (
         "<style type=\"text/css\" id=\"cad-thin-strokes\"><![CDATA["
-        "svg[data-cad-thin-strokes=\"1\"] :is(path,line,polyline,polygon){"
+        "path,line,polyline,polygon{"
         "vector-effect:non-scaling-stroke!important;"
         f"stroke-width:{px}px!important;"
         "stroke-linecap:butt!important;"
@@ -138,8 +138,6 @@ def afinar_tracos_svg(svg: bytes, fator: float = _STROKE_THIN_FACTOR) -> bytes:
         count=1,
         flags=re.IGNORECASE | re.DOTALL,
     )
-    texto = re.sub(r'\sdata-cad-thin-strokes="1"', "", texto, count=1, flags=re.IGNORECASE)
-    texto = re.sub(r"<svg\b", '<svg data-cad-thin-strokes="1"', texto, count=1, flags=re.IGNORECASE)
     if 'id="cad-thin-strokes"' not in texto:
         texto = re.sub(
             r"(<svg\b[^>]*>)",

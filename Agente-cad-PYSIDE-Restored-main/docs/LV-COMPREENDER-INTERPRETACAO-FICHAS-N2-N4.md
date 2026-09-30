@@ -127,34 +127,6 @@ Padroes observados:
   podem estar proximas da face sem existir faixa/hachura de laje na elevacao. A promocao
   de laje deve exigir geometria compativel, como hachura/faixa na regiao de topo/base.
 
-#### 3.4.1 Degrau de laje (2026-09-11)
-
-A laje pode ter **altura diferente por trecho** da mesma face, com o topo
-PLANO. Onde ha' painel de fechamento no topo, a laje e' mais baixa e o painel
-completa a altura; fora dele a laje vai inteira ate' o mesmo topo.
-
-Evidencia V13 face A (medida no recorte):
-
-| trecho | laje | painel | topo |
-|---|---|---|---|
-| direito (215) | 15 | — | y=3285.3 |
-| esquerdo (200) | 12 | 3 | y=3285.3 |
-
-O `3` que aparece cotado e' o **degrau** (15 − 12), nao um painel empilhado
-acima da laje.
-
-**Divergencia doc x codigo (aberta).** Esta secao manda "desenhar laje por
-painel quando `laje_sup_local` estiver presente", mas hoje esse campo carrega
-a **espessura do painel de fechamento** (V13: `laje_sup_local = 3.0`), nao a
-altura da laje daquele trecho. Alem disso o limite do degrau (x=200) nao cai
-em fronteira de painel (244/63/108), entao "por painel" nao chega a expressar
-o degrau — falta altura de laje **por trecho**.
-
-Estado do motor: a ficha entrega `laje_sup` = 12.3 para a face inteira (o
-valor de baixo do painel aplicado em todo lugar) e o N4 desenha 12.3 nos 415,
-deixando o lado do painel 3 mais alto que o outro. Pela regra §8 do contrato
-rigido, o conserto comeca no interpretador/contrato, nao no motor.
-
 Regra operacional atual:
 
 - Aceitar laje local plausivel ate 35 cm.

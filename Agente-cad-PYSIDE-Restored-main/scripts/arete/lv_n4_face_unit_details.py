@@ -55,13 +55,8 @@ def augment_face_unit_details(
         h = float(unit.get("h_body", unit.get("h_total", 0)) or 0)
         li = float(unit.get("laje_inf", 0) or 0)
         ls = float(unit.get("laje_sup", 0) or 0)
-        # bbox[1] (y_bot do layout) inclui o painel de fechamento no vao de
-        # baixo quando ele existe — sem somar de volta, y0 saia 7cm abaixo
-        # do real (achado ponto-a-ponto em V301.B, 2026-08-29: a cota do
-        # painel de fechamento saia duplicada 7cm mais baixo que a certa).
-        _top_h_for_y0 = float(unit.get("painel_sup_alt", 0) or 0)
         x0 = float(crop[0]) + 25.0
-        y0 = float(crop[1]) + li + motor.DIM_TOTAL_BELOW + 25.0 + _top_h_for_y0
+        y0 = float(crop[1]) + li + motor.DIM_TOTAL_BELOW + 25.0
         panels = unit.get("panels") or unit.get("segments") or []
         widths = [float(p.get("width", p.get("largura_cm", 0)) or 0)
                   for p in panels]
@@ -168,22 +163,9 @@ def augment_face_unit_details(
         tx0 = x0 + top_off
         ty0 = y0 + h + ls
         tx1 = tx0 + top_w
-        # O motor principal (draw_lv_face, bloco `d7`) ja desenha essa mesma
-        # cota de 7cm do painel de fechamento nos dois lados, na mesma
-        # ancora (vx, ty0). Sem este guard duplicava (achado ponto-a-ponto
-        # em V301.B, 2026-08-29 — "cota de 7 duplicada"), igual ao guard
-        # `has_total_already` logo abaixo para a cota total.
-        top_h_text = motor._fmt_dim_cm(top_h)
+        # O motor principal desenha o retangulo usando a mesma ocorrencia da
+        # ficha. Aqui entram somente as cotas complementares de 7 cm e total.
         for vx, direction in ((tx0, -1.0), (tx1, 1.0)):
-            has_top_h_already = any(
-                ent.dxftype() == "DIMENSION" and ent.dxf.layer == "COTA"
-                and str(ent.dxf.get("text", "")) == top_h_text
-                and abs(ent.dxf.defpoint2.x - vx) < 0.5
-                and abs(ent.dxf.defpoint2.y - ty0) < 0.5
-                for ent in msp
-            )
-            if has_top_h_already:
-                continue
             base_x = vx + direction * motor.DIM_H_RIGHT
             dim = msp.add_linear_dim(
                 base=(base_x, ty0), p1=(vx, ty0), p2=(vx, ty0 + top_h),
@@ -191,10 +173,9 @@ def augment_face_unit_details(
             )
             dim.render()
             motor._apply_dim_text(
-                dim, top_h_text,
+                dim, motor._fmt_dim_cm(top_h),
                 (base_x + direction * 4.0, ty0 + top_h / 2.0),
             )
-            changed = True
 
         anchor = x0 if trailing_step else right
         direction = -1.0 if trailing_step else 1.0

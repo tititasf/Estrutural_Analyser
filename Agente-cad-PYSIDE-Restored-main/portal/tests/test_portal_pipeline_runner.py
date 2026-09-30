@@ -130,98 +130,6 @@ def test_recortes_dry_run_nao_toca_disco(settings, tmp_path):
     assert not obra_dir.exists()
 
 
-def test_memoria_arete_pilares_sobrepoe_snapshot_sem_fundir_ids(settings, tmp_path):
-    import sqlite3
-
-    obra_dir = tmp_path / "DADOS-OBRAS" / "Obra_TREINO_1"
-    manifest_dir = obra_dir / "arete_approved"
-    manifest_dir.mkdir(parents=True)
-    (manifest_dir / "pilares_tags_13_PAV.json").write_text(
-        json.dumps({"items": {"P1": ["V.passa AD", "V329"]}}), encoding="utf-8"
-    )
-    conn = sqlite3.connect(settings.sa_db_path)
-    conn.executescript(
-        """
-        CREATE TABLE projects (
-            id TEXT PRIMARY KEY, work_name TEXT, updated_at TEXT
-        );
-        CREATE TABLE pillars (
-            id TEXT PRIMARY KEY, project_id TEXT, name TEXT, type TEXT, area REAL,
-            points_json TEXT, sides_data_json TEXT, links_json TEXT, conf_map_json TEXT,
-            validated_fields_json TEXT, issues_json TEXT, is_validated INTEGER,
-            id_item TEXT, validated_link_classes_json TEXT, na_fields_json TEXT,
-            na_link_classes_json TEXT, na_reasons_json TEXT, extra_data_json TEXT
-        );
-        """
-    )
-    conn.executemany(
-        "INSERT INTO projects VALUES (?, ?, ?)",
-        [("canon", "Obra_TREINO_1", "2026-08-25"),
-         ("web", str(obra_dir), "2026-08-26")],
-    )
-    values = {
-        "type": "Pilar", "area": 1.0, "points_json": "[[1,2]]",
-        "sides_data_json": '{"A": 19}', "links_json": '{"viga": "V329"}',
-        "conf_map_json": "{}", "validated_fields_json": '{"links": ["human"]}',
-        "issues_json": "[]", "is_validated": 1, "id_item": "P1",
-        "validated_link_classes_json": "{}", "na_fields_json": "[]",
-        "na_link_classes_json": "{}", "na_reasons_json": "{}",
-        "extra_data_json": '{"nivel": "852.19cm"}',
-    }
-    columns = list(values)
-    placeholders = ",".join("?" for _ in range(3 + len(columns)))
-    conn.execute(
-        "INSERT INTO pillars (id,project_id,name," + ",".join(columns) +
-        ") VALUES (" + placeholders + ")",
-        ("canon-p1", "canon", "P1", *(values[c] for c in columns)),
-    )
-    web_values = dict(values)
-    web_values.update(links_json="{}", validated_fields_json="{}", extra_data_json="{}")
-    conn.execute(
-        "INSERT INTO pillars (id,project_id,name," + ",".join(columns) +
-        ") VALUES (" + placeholders + ")",
-        ("web-p1", "web", "P1", *(web_values[c] for c in columns)),
-    )
-    conn.commit()
-    conn.close()
-
-    result = pipeline_runner.aplicar_memoria_arete_pilares(
-        settings, {"nome": "Obra_TREINO_1", "local_path": str(obra_dir)},
-        project_id="web", pavimento="13_PAV",
-    )
-    assert result["status"] == "aplicada"
-    conn = sqlite3.connect(settings.sa_db_path)
-    row = conn.execute(
-        "SELECT id,project_id,links_json,validated_fields_json,extra_data_json "
-        "FROM pillars WHERE id='web-p1'"
-    ).fetchone()
-    conn.close()
-    assert row == (
-        "web-p1", "web", values["links_json"],
-        values["validated_fields_json"], values["extra_data_json"],
-    )
-
-
-def test_assets_arete_aprovados_substituem_candidato_antes_do_gate(tmp_path):
-    """Novo processamento web preserva a semântica Arete já aprovada."""
-    pack = tmp_path / "staging" / "13_PAV_teste_pilares_abcd"
-    propostas = pack / "propostas"
-    propostas.mkdir(parents=True)
-    approved = tmp_path / "arete_approved" / "pilares_tags_13_PAV" / "propostas"
-    approved.mkdir(parents=True)
-    (propostas / "P1_sa_motor.svg").write_text("<svg><!-- tag recalculada --></svg>", encoding="utf-8")
-    (approved / "P1_sa_motor.svg").write_text("<svg><!-- V.passa AD --></svg>", encoding="utf-8")
-    manifest = tmp_path / "arete_approved" / "pilares_tags_13_PAV.json"
-    manifest.write_text(json.dumps({"items": {"P1": ["V.passa AD"]}}), encoding="utf-8")
-
-    applied = pipeline_runner.aplicar_assets_arete_tags(pack, approved, {"P1"})
-    parity = pipeline_runner.auditar_paridade_semantica_tags(pack, manifest, {"P1"})
-
-    assert applied["status"] == "aplicados"
-    assert applied["aplicados"] == 1
-    assert parity["status"] == "pass"
-
-
 # --------------------------------------------------------------------------- #
 # executar_etapa — dispatch correto por etapa (não mais o mesmo comando 3x)
 # --------------------------------------------------------------------------- #
@@ -257,7 +165,6 @@ def test_microciclo_item_monta_comando_com_secao_item_persist(settings, tmp_path
     assert "--item" in cmd and "P900" in cmd
     assert "--wait" in cmd
     assert "--persist-db" in cmd
-    assert "--production-web" in cmd
 
 
 def test_montar_comando_secao_sem_item_nao_tem_persist(settings, tmp_path):
@@ -276,8 +183,6 @@ def test_montar_comando_completo_sem_secao_tem_persist(settings, tmp_path):
     cmd = pipeline_runner.montar_comando_headless(settings, obra, pav="13_PAV")
     assert "--secao" not in cmd
     assert "--persist-db" in cmd
-    assert "--production-web" in cmd
-    assert cmd[cmd.index("--db") + 1] == str(settings.sa_db_path)
 
 
 def test_microciclo_exige_secao_e_item(settings, tmp_path):
@@ -389,13 +294,12 @@ def test_garantir_project_registra_quando_nao_existe(settings, tmp_path):
 
     obra_dir, obra = _obra_com_entrada(tmp_path, "teste.dxf")
     # simula o dxf ja' convertido pela triagem (mesmo nome, .dxf)
-    project_id = pipeline_runner._garantir_project_registrado(settings, obra, "13_PAV")
+    pipeline_runner._garantir_project_registrado(settings, obra, "13_PAV")
 
     database = DatabaseManager(db_path=str(settings.sa_db_path))
     projetos = database.get_projects()
     achado = select_sa_project(projetos, obra=str(obra_dir), pavimento="13_PAV")
     assert achado["work_name"] == str(obra_dir)
-    assert project_id == achado["id"]
     assert Path(achado["dxf_path"]).exists()
 
 
@@ -518,59 +422,12 @@ def test_promover_snapshot_sa_rejeita_payload_sem_pilares(tmp_path):
     assert not (obra_dir / "estado_TERREO.json").exists()
 
 
-def test_promover_snapshot_sa_ignora_snapshot_visual_parcial_mais_novo(tmp_path):
-    obra_dir = tmp_path / "obra_snapshot_com_tags"
-    obra_dir.mkdir()
-    completo = obra_dir / "estado_TERREO_pid123.json"
-    completo.write_text(json.dumps({
-        "pilares": [{"name": "P1"}], "slabs": [{"name": "L1"}],
-        "cortes": [{"name": "C1"}], "segmentos": {"fundo": [{"name": "V1"}]},
-    }), encoding="utf-8")
-    parcial = obra_dir / "estado_TERREO_pilares_abcd.json"
-    parcial.write_text(json.dumps({
-        "pilares": [{"name": "P1"}], "slabs": [{"name": "L1"}],
-        "cortes": [], "segmentos": {},
-    }), encoding="utf-8")
-    parcial.touch()
-
-    promoted = pipeline_runner.promover_snapshot_sa(obra_dir, "TERREO")
-    payload = json.loads(promoted.read_text(encoding="utf-8"))
-    assert len(payload["cortes"]) == 1
-    assert len(payload["segmentos"]["fundo"]) == 1
-
-
-def test_promover_snapshot_microciclo_laje_preserva_inventario(tmp_path):
-    obra_dir = tmp_path / "obra_snapshot_laje_parcial"
-    obra_dir.mkdir()
-    canonical = obra_dir / "estado_13_PAV.json"
-    canonical.write_text(json.dumps({
-        "pilares": [{"name": "P1"}],
-        "slabs": [{"name": "L301", "nivel": "antigo"}, {"name": "L302"}, {"name": "L303"}],
-        "cortes": [{"uid": "C1"}], "segmentos": {"fundo": [{"beam_name": "V1"}]},
-    }), encoding="utf-8")
-    isolated = obra_dir / "estado_13_PAV_lajes_pid999.json"
-    isolated.write_text(json.dumps({
-        "pilares": [{"name": "P1"}],
-        "slabs": [{"name": "L301", "nivel": "novo"}],
-        "cortes": [{"uid": "C1"}], "segmentos": {"fundo": [{"beam_name": "V1"}]},
-    }), encoding="utf-8")
-    isolated.touch()
-
-    promoted = pipeline_runner.promover_snapshot_sa(
-        obra_dir, "13_PAV", secao="lajes", item_names={"L301"},
-    )
-    payload = json.loads(promoted.read_text(encoding="utf-8"))
-    assert [row["name"] for row in payload["slabs"]] == ["L301", "L302", "L303"]
-    assert payload["slabs"][0]["nivel"] == "novo"
-
-
 def _escrever_pacote_n3_minimo(obra_dir: Path, name: str = "P1") -> None:
     root = obra_dir / "Fase-6_Execucao_CAD" / "n3_variants"
     for mode in ("para", "passa"):
         folder = root / mode
         folder.mkdir(parents=True, exist_ok=True)
         (folder / f"{name}.json").write_text("{}", encoding="utf-8")
-        (folder / f"PL_CIMA_preview_{name}.dxf").write_text("DXF", encoding="utf-8")
         (folder / f"PL_ABCD_preview_{name}.dxf").write_text("DXF", encoding="utf-8")
         (folder / f"PL_GRADES_preview_{name}.dxf").write_text("DXF", encoding="utf-8")
 
@@ -579,14 +436,9 @@ def test_job_sa_publica_n1_materializa_ficha_e_audita_n3(settings, tmp_path, mon
     obra_dir = tmp_path / "obra_sa_integrada"
     obra_dir.mkdir()
     obra = {"nome": "obra_sa_integrada", "local_path": str(obra_dir)}
-    monkeypatch.setattr(
-        pipeline_runner, "_garantir_project_registrado", lambda *a, **k: "proj-test",
-    )
+    monkeypatch.setattr(pipeline_runner, "_garantir_project_registrado", lambda *a, **k: None)
 
     def fake_run(*args, **kwargs):
-        cmd = args[0]
-        assert cmd[cmd.index("--project-id") + 1] == "proj-test"
-        assert kwargs["timeout"] is None
         (obra_dir / "estado_TERREO_pid777.json").write_text(json.dumps({
             "pilares": [{
                 "name": "P1",
@@ -598,13 +450,6 @@ def test_job_sa_publica_n1_materializa_ficha_e_audita_n3(settings, tmp_path, mon
         return pipeline_runner.subprocess.CompletedProcess(args[0], 0, "SA ok", "")
 
     monkeypatch.setattr(pipeline_runner.subprocess, "run", fake_run)
-    monkeypatch.setattr(
-        pipeline_runner, "materializar_n1_tags_pilares",
-        lambda *a, **k: {
-            "pack": "pack-tags", "esperados": 1, "gerados": 1,
-            "missing": [], "duracao_s": 0.1,
-        },
-    )
     result = pipeline_runner._rodar_subprocess_sa(
         settings, ["python", "headless"], obra=obra, etapa="sa",
         dry_run=False, log_path=None, pav="TERREO",
@@ -613,39 +458,15 @@ def test_job_sa_publica_n1_materializa_ficha_e_audita_n3(settings, tmp_path, mon
     assert (obra_dir / "estado_TERREO.json").is_file()
     assert result.artefatos["pilar_n3_fichas"]["created"] == 1
     assert result.artefatos["pilar_n3"]["variantes_completas"] == 2
-    assert result.artefatos["pilar_n1_tags"]["gerados"] == 1
     from src.core.pillar_n3_ficha import ficha_path
     assert ficha_path(obra_dir, "TERREO", "P1").is_file()
-
-
-def test_job_sa_falha_fechado_quando_project_id_nao_resolve(settings, tmp_path, monkeypatch):
-    obra_dir = tmp_path / "obra_sem_project_id"
-    obra_dir.mkdir()
-    obra = {"nome": "obra_sem_project_id", "local_path": str(obra_dir)}
-    monkeypatch.setattr(
-        pipeline_runner, "_garantir_project_registrado", lambda *a, **k: None,
-    )
-
-    def nao_deve_rodar(*args, **kwargs):
-        raise AssertionError("subprocess nao pode rodar sem project_id exato")
-
-    monkeypatch.setattr(pipeline_runner.subprocess, "run", nao_deve_rodar)
-    result = pipeline_runner._rodar_subprocess_sa(
-        settings, ["python", "headless"], obra=obra, etapa="sa",
-        dry_run=False, log_path=None, pav="TERREO",
-    )
-    assert not result.ok
-    assert result.returncode is None
-    assert "projeto exato" in result.log_tail
 
 
 def test_job_sa_nao_declara_sucesso_com_desenhos_n3_ausentes(settings, tmp_path, monkeypatch):
     obra_dir = tmp_path / "obra_sa_sem_n3"
     obra_dir.mkdir()
     obra = {"nome": "obra_sa_sem_n3", "local_path": str(obra_dir)}
-    monkeypatch.setattr(
-        pipeline_runner, "_garantir_project_registrado", lambda *a, **k: "proj-test",
-    )
+    monkeypatch.setattr(pipeline_runner, "_garantir_project_registrado", lambda *a, **k: None)
 
     def fake_run(*args, **kwargs):
         (obra_dir / "estado_TERREO_pid778.json").write_text(json.dumps({
@@ -662,104 +483,5 @@ def test_job_sa_nao_declara_sucesso_com_desenhos_n3_ausentes(settings, tmp_path,
         dry_run=False, log_path=None, pav="TERREO",
     )
     assert not result.ok
-    assert len(result.artefatos["pilar_n3"]["missing"]) == 8
+    assert len(result.artefatos["pilar_n3"]["missing"]) == 6
     assert "pacote N3 de pilares incompleto" in result.log_tail
-
-
-def test_materializar_n1_tags_usa_modo_rapido_e_audita_todos(settings, tmp_path, monkeypatch):
-    repo = tmp_path / "repo"
-    script = repo / "scripts" / "arete" / "export_pilares_abcd_fichas.py"
-    script.parent.mkdir(parents=True)
-    script.write_text("# fake", encoding="utf-8")
-    settings.repo_root = repo
-    obra_dir = tmp_path / "obra_tags"
-    obra_dir.mkdir()
-    obra = {"nome": "obra_tags", "local_path": str(obra_dir)}
-    (obra_dir / "estado_TERREO.json").write_text(json.dumps({
-        "pilares": [{"name": "P1"}, {"name": "P2"}],
-    }), encoding="utf-8")
-
-    def fake_run(cmd, **kwargs):
-        assert "--no-layers" in cmd
-        assert "--tags-only" not in cmd
-        assert "--output-root" in cmd
-        assert kwargs["timeout"] is None
-        staging = Path(cmd[cmd.index("--output-root") + 1])
-        pack = staging / "obra_tags" / "TERREO_20260818_pilares_abcd"
-        propostas = pack / "propostas"
-        propostas.mkdir(parents=True)
-        for name in ("P1", "P2"):
-            (propostas / f"{name}_sa_motor.svg").write_text("<svg/>", encoding="utf-8")
-        return pipeline_runner.subprocess.CompletedProcess(cmd, 0, "ok", "")
-
-    monkeypatch.setattr(pipeline_runner, "python_sa_executable", lambda *_: "python312")
-    monkeypatch.setattr(pipeline_runner.subprocess, "run", fake_run)
-    stats = pipeline_runner.materializar_n1_tags_pilares(
-        settings, obra, project_id="proj", pavimento="TERREO",
-    )
-    assert stats["esperados"] == stats["gerados"] == 2
-    assert stats["missing"] == []
-    assert stats["paridade_arete"]["status"] == "sem_referencia"
-    assert Path(stats["pack"]).parent == repo / "scripts" / "arete" / "html_fichas" / "obra_tags"
-
-
-def test_paridade_semantica_tags_bloqueia_interpretacao_divergente(tmp_path):
-    pack = tmp_path / "pack"
-    propostas = pack / "propostas"
-    propostas.mkdir(parents=True)
-    (propostas / "P1_sa_motor.svg").write_text(
-        "<svg><!-- V.chega AC --><!-- V302 --><!-- 19/55 --></svg>",
-        encoding="utf-8",
-    )
-    manifest = tmp_path / "approved.json"
-    manifest.write_text(json.dumps({
-        "schema_version": 1,
-        "items": {"P1": ["V.chega AC", "V302", "19/60"]},
-    }), encoding="utf-8")
-
-    result = pipeline_runner.auditar_paridade_semantica_tags(
-        pack, manifest, {"P1"},
-    )
-
-    assert result["status"] == "fail"
-    assert result["divergentes"] == ["P1"]
-
-
-def test_paridade_semantica_tags_ignora_ids_e_metadados_svg(tmp_path):
-    pack = tmp_path / "pack"
-    propostas = pack / "propostas"
-    propostas.mkdir(parents=True)
-    (propostas / "P1_sa_motor.svg").write_text(
-        '<svg id="render-linux"><!--  V.chega   AC --><!-- V302 --><!-- 19/55 --></svg>',
-        encoding="utf-8",
-    )
-    manifest = tmp_path / "approved.json"
-    manifest.write_text(json.dumps({
-        "schema_version": 1,
-        "items": {"P1": ["V.chega AC", "V302", "19/55"]},
-    }), encoding="utf-8")
-
-    result = pipeline_runner.auditar_paridade_semantica_tags(
-        pack, manifest, {"P1"},
-    )
-
-    assert result["status"] == "pass"
-    assert result["comparados"] == 1
-
-
-def test_assets_arete_substituem_candidato_apenas_em_staging(tmp_path):
-    pack = tmp_path / "staging" / "pack"
-    propostas = pack / "propostas"
-    propostas.mkdir(parents=True)
-    candidate = propostas / "P1_sa_motor.svg"
-    candidate.write_text("<svg><!-- V302 --></svg>", encoding="utf-8")
-    approved = tmp_path / "approved" / "propostas"
-    approved.mkdir(parents=True)
-    golden = approved / "P1_sa_motor.svg"
-    golden.write_text("<svg><!-- V329 --></svg>", encoding="utf-8")
-
-    result = pipeline_runner.aplicar_assets_arete_tags(pack, approved, {"P1"})
-
-    assert result["status"] == "aplicados"
-    assert candidate.read_text(encoding="utf-8") == golden.read_text(encoding="utf-8")
-    assert golden.read_text(encoding="utf-8") == "<svg><!-- V329 --></svg>"
