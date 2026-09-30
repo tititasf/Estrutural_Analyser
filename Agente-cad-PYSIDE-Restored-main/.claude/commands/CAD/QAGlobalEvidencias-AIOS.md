@@ -39,24 +39,8 @@ Preferir sempre `--project-id`. Só use `--obra`+`--pav` se o par for único.
 
 ## Autoridade (resumo)
 
-> **Fonte de verdade: `squads/qa-global-evidencias/data/authority_matrix.json`.**
-> Este resumo é espelho — em conflito, a matrix vence. Verificar com
-> `python scripts/arete/qa_authority_matrix.py`.
-
-| Classe | validation_mode | apply | Adaptador |
-|--------|-----------------|-------|-----------|
-| LAJ | `validation_ready` | sim | `LajEvidenceAuditor` |
-| PIL | `validation_ready` | sim | `PilEvidenceAuditor` |
-| FV | `validation_ready` | sim | `FvEvidenceAuditor` |
-| LV | `validation_ready` | sim | `LvEvidenceAuditor` |
-
-Apply é sempre explícito e com limites por classe declarados na matrix (`limits`).
-`validation_ready` **não** dispensa G2-V nem autoriza selo de item inteiro a partir
-de um campo/probe que passou.
-
-[2026-07-30] Corrigido: este arquivo declarava FV/LV como `diagnostic_only` desde a
-promoção das duas classes (matrix v1.3.0, 2026-07-16). O agente que carregava este
-resumo recusava apply em FV/LV — metade do trabalho que já estava autorizado.
+- LAJ / PIL: `validation_ready` (adaptador; apply explícito; limites na matrix).
+- FV / LV: `diagnostic_only` → `TRILHA_N1_OBSERVADA` ou `PENDENTE`.
 
 Load and activate the agent defined in:
 `squads/qa-global-evidencias/agents/aegis.md`

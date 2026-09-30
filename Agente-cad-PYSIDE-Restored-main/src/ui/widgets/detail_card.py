@@ -101,37 +101,11 @@ class DetailCard(QWidget):
         self.embedded_managers = {}
         self._tipo_comp_buttons = {}  # Armazena referências aos round buttons de tipo comprimento
         self._link_conf_badges  = {}  # field_id -> QLabel do badge XX% de confiança vínculos
-
-        # PERFORMANCE: data_changed era emitido a cada TECLA (textChanged em
-        # todo QLineEdit via _on_field_changed) — o handler em main.py
-        # (on_detail_data_changed) faz save_pillar/save_beam/save_slab (DB) +
-        # vários redraws de canvas inteiro por chamada. Digitar qualquer coisa
-        # travava a UI. Debounce: só emite 400ms depois que o usuário para de
-        # digitar. flush_pending_changes() garante que nada se perde ao trocar
-        # de item (chamado por main.py antes de destruir o card atual).
-        from PySide6.QtCore import QTimer
-        self._data_changed_timer = QTimer(self)
-        self._data_changed_timer.setSingleShot(True)
-        self._data_changed_timer.setInterval(400)
-        self._data_changed_timer.timeout.connect(
-            lambda: self.data_changed.emit(self.item_data)
-        )
-
         self.init_ui()
-
+        
         # Conectar sinal interno para auto-atualização do cabeçalho
         self.data_changed.connect(self._update_header_counts)
         self.validation_changed.connect(self._update_header_counts)
-
-    def flush_pending_changes(self):
-        """Emite data_changed imediatamente se houver debounce pendente.
-
-        Chamar antes de destruir/trocar o card (ex: show_detail) para não
-        perder a última edição feita a menos de 400ms da troca de item.
-        """
-        if self._data_changed_timer.isActive():
-            self._data_changed_timer.stop()
-            self.data_changed.emit(self.item_data)
 
     def _scan_local_segments(self):
         """Conta segmentos locais (A, B, C) para exibicao no cabecalho"""
@@ -1296,12 +1270,10 @@ class DetailCard(QWidget):
         return f
 
     def _on_field_changed(self, key, value):
-        """Atualiza item_data imediatamente ao digitar; data_changed (caro:
-        DB save + redraw de canvas nos listeners) sai debounced — ver
-        _data_changed_timer no __init__."""
+        """Atualiza item_data imediatamente ao digitar"""
         self.item_data[key] = value
-        self._data_changed_timer.start()
-
+        self.data_changed.emit(self.item_data)
+        
         # Sincronização especial para Marco DXF
         if key.startswith('ext_viga_') and 'vigas_individuais' in self.item_data:
             v_id = key.replace('ext_viga_', '')
@@ -2790,15 +2762,10 @@ class DetailCard(QWidget):
                                  return f"{length:.0f}"
                  
                  # Lógica padrão para outros campos
-                 # Nem todo valor em `slots` é uma lista de vínculos: o payload
-                 # do motor de faces (pillar_face_beams._face_beam_link_payload)
-                 # grava metadados irmãos de "label" no mesmo dict (`geometry`,
-                 # `evidence_source` — string), então filtra pra pegar só listas
-                 # de dict reais.
                  for s_list in slots.values():
-                     if s_list and isinstance(s_list, list) and isinstance(s_list[0], dict):
+                     if s_list and len(s_list) > 0:
                          txt = str(s_list[0].get('text', ''))
-                         if txt.strip():
+                         if txt.strip(): 
                              # Somente extrair número se NÃO for campo de nome ou dimensão
                              is_dim_or_name = "dim" in field_id or "name" in field_id or "local" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
                              if not is_dim_or_name:
@@ -2807,7 +2774,7 @@ class DetailCard(QWidget):
                                  if nums:
                                      return nums[0].replace(',', '.')
                              return txt
-            elif isinstance(slots, list) and len(slots) > 0 and isinstance(slots[0], dict):
+            elif isinstance(slots, list) and len(slots) > 0:
                  # Lógica especial para campos de comprimento (polyline)
                  if 'comp_total_passa' in field_id or '_comprimento_total' in field_id:
                      link_obj = slots[0]
@@ -2816,9 +2783,9 @@ class DetailCard(QWidget):
                          length = sum(((pts[i][0]-pts[i+1][0])**2 + (pts[i][1]-pts[i+1][1])**2)**0.5 for i in range(len(pts)-1))
                          self.item_data[field_id] = f"{length:.0f}"
                          return f"{length:.0f}"
-
+                 
                  txt = str(slots[0].get('text', ''))
-                 if txt.strip():
+                 if txt.strip(): 
                      is_dim_or_name = "dim" in field_id or "name" in field_id or "local" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
                      if not is_dim_or_name:
                          import re

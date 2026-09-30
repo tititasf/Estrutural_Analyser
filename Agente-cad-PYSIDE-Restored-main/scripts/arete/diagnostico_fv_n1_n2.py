@@ -69,13 +69,6 @@ def _segment_json_repeat(segment: dict) -> int:
         count = _repeat_count(segment.get(key))
         if count:
             return count
-    if isinstance(segment.get("panels"), list):
-        for panel in segment["panels"]:
-            if isinstance(panel, dict):
-                for key in ("_multiplier", "multiplier", "multiplicador", "repeat", "count"):
-                    count = _repeat_count(panel.get(key))
-                    if count:
-                        return count
     return 1
 
 
@@ -178,10 +171,6 @@ def _n2_segment_lengths(data: dict) -> tuple[list[float], list[dict]]:
         multiplier = _segment_json_repeat(segment)
         if multiplier == 1:
             multiplier = dxf_multipliers.get(round(float(length), 3), 1)
-            if multiplier == 1 and len(segments) == 1:
-                top_m = _repeat_count(data.get("_multiplier") or data.get("multiplicador") or data.get("multiplier"))
-                if top_m:
-                    multiplier = top_m
         physical_lengths.extend([length] * multiplier)
         details.append({
             "index": index,

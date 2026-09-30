@@ -3807,22 +3807,18 @@
               "area_cm2": 28790.5,
               "linhas_verticais": [
                 {
-                  "is_union": false,
-                  "value": 230.32
+                  "value": 230.32,
+                  "is_union": false
                 },
                 {
-                  "is_union": false,
-                  "value": 402.86
+                  "value": 402.86,
+                  "is_union": false
                 }
               ],
               "linhas_horizontais": [
                 {
-                  "is_union": false,
-                  "value": 35.5
-                },
-                {
-                  "is_union": false,
-                  "value": 35.5
+                  "value": 35.5,
+                  "is_union": false
                 }
               ],
               "obstaculos": [],

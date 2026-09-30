@@ -292,29 +292,8 @@ def _reviewed_fundo_topology(beam: dict) -> tuple[bool, list[str]]:
 
     ``preficha_segmentos``/``preficha_reviewed`` são somente triagem anterior à
     análise e não congelam geometria. A autoridade vem do selo do item, de campo,
-    de slot ou do próprio link validado no card. Selo ``qa_agente`` sozinho
-    NÃO trava a topologia (decisão do dono, 2026-07-18): o agente ainda é
-    ``diagnostic_only`` para FV (`docs/CONVENCAO-SELOS-VALIDACAO.md`) e uma
-    auto-validação campo a campo não compara segmentos vizinhos entre si —
-    travar por ela protegeu geometria com bug (achado real: V301). Campo sem
-    nenhum rastro em ``validated_fields`` (link marcado ``validated`` direto,
-    fluxo anterior a 2026-07-13) continua travando — comportamento anterior
-    preservado para quem nunca passou pelo agente.
+    de slot ou do próprio link validado no card.
     """
-    from src.core.validation_model import (
-        ORIGEM_QA_AGENTE,
-        migrar_validated_fields_legado,
-        origens_do_campo,
-    )
-
-    validated_fields = migrar_validated_fields_legado(beam.get("validated_fields"))
-
-    def _field_has_human_origin(field_id: str) -> bool:
-        origins = origens_do_campo(validated_fields, field_id)
-        if not origins:
-            return True
-        return bool(origins - {ORIGEM_QA_AGENTE})
-
     validated = False
     source_keys: set[str] = set()
     links = beam.get("links") or {}
@@ -393,8 +372,6 @@ def _reviewed_fundo_topology(beam: dict) -> tuple[bool, list[str]]:
         source_key = str(key)
         if not _FUNDO_RE.match(source_key) or not isinstance(slots, dict):
             continue
-        if not _field_has_human_origin(source_key):
-            continue
         for link in slots.get("contour") or []:
             if not isinstance(link, dict):
                 continue
@@ -402,9 +379,8 @@ def _reviewed_fundo_topology(beam: dict) -> tuple[bool, list[str]]:
                 validated = True
                 source_keys.add(source_key)
 
-    for field_name in validated_fields:
-        if not _field_has_human_origin(field_name):
-            continue
+    for field in beam.get("validated_fields") or []:
+        field_name = str(field)
         match = re.match(r"^viga_fundo_seg_(\d+)_", field_name)
         if match:
             area_key = f"viga_fundo_seg_{match.group(1)}_area_segs"
@@ -568,41 +544,6 @@ def lock_fundo_topology(beam: dict) -> None:
     beam["preficha_fundo_locked_source_keys"] = source_keys
 
 
-def _drop_duplicate_locked_contours(
-    validated_links: dict, source_keys: set[str]
-) -> set[str]:
-    """Remove índices travados cujo contorno é idêntico a um já mantido.
-
-    Achado real V331 (2026-07-21): dados legados sem rastro de proveniência
-    (travados pela regra de segurança de `fundo_topology_is_locked` para
-    nunca perder possível dado humano) às vezes têm dois índices apontando
-    pra EXATAMENTE a mesma geometria (mesmos pontos, mesmo comprimento) —
-    um artefato de persistência antiga, não dois segmentos reais distintos
-    (geometria idêntica nunca pode representar duas revisões humanas
-    diferentes). Mantém sempre o índice de menor número; os demais
-    duplicados exatos são descartados do conjunto restaurado. Índices com
-    geometria genuinamente diferente (o caso comum) nunca são afetados.
-    """
-    if len(source_keys) < 2:
-        return source_keys
-    seen_signatures: dict[tuple, str] = {}
-    kept = set()
-    for key in sorted(source_keys):
-        contour = (validated_links.get(key) or {}).get("contour") or []
-        signature = tuple(
-            (
-                tuple(tuple(round(float(v), 3) for v in pt) for pt in (c.get("points") or [])),
-                round(float(c.get("len") or 0.0), 3),
-            )
-            for c in contour
-        )
-        if signature in seen_signatures:
-            continue
-        seen_signatures[signature] = key
-        kept.add(key)
-    return kept
-
-
 def restore_locked_fundo_topology(target: dict, validated: dict) -> bool:
     """Substitui qualquer FV recém-inferido pelo conjunto humano preservado."""
     if not fundo_topology_is_locked(validated):
@@ -619,7 +560,6 @@ def restore_locked_fundo_topology(target: dict, validated: dict) -> bool:
     else:
         _, reviewed_source_keys = _reviewed_fundo_topology(validated)
         source_keys = set(reviewed_source_keys)
-    source_keys = _drop_duplicate_locked_contours(validated_links, source_keys)
 
     target_classified = (target.get("geometry") or {}).get("classified") or {}
     target_expected = max(
@@ -1093,27 +1033,6 @@ def collect_preficha_segments(
                 prefix = f"viga_{side_key}_seg_{segment_index}" if kind != "fundo" else ""
                 height = ""
                 details: dict[str, Any] = {}
-                level = ""
-                level_source = "unresolved"
-                level_slabs: list[str] = []
-                if kind == "fundo":
-                    from src.core.fundo_segment_levels import derive_fundo_segment_level
-                    level_result = derive_fundo_segment_level(
-                        points,
-                        slabs,
-                        explicit_levels=(
-                            fields.get(f"viga_fundo_seg_{segment_index}_nivel_viga"),
-                            fields.get(f"viga_a_seg_{segment_index}_nivel_viga"),
-                            fields.get(f"viga_b_seg_{segment_index}_nivel_viga"),
-                            fields.get("nivel_lado_a"),
-                            fields.get("nivel_lado_b"),
-                            fields.get("nivel_viga"),
-                        ),
-                    )
-                    if level_result["value"] is not None:
-                        level = f'{float(level_result["value"]):g}'
-                    level_source = str(level_result["source"])
-                    level_slabs = list(level_result["slabs"])
                 if kind != "fundo":
                     dimension_raw = _first_value(
                         beam,
@@ -1169,9 +1088,6 @@ def collect_preficha_segments(
                     "length": round(length, 2),
                     "height": str(height),
                     "width": str(width),
-                    "level": level,
-                    "level_source": level_source,
-                    "level_slabs": level_slabs,
                     "points": points,
                     "measure_source": str(link.get("fv_measure_source") or ""),
                     "tag": str(link.get("tag") or spec["side"]),

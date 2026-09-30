@@ -25,7 +25,6 @@ Estratégia de detecção de faces:
 from __future__ import annotations
 from pathlib import Path
 from collections import defaultdict, Counter
-from itertools import combinations, permutations
 import json, re, unicodedata
 
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
@@ -81,87 +80,6 @@ def _lookup_fase4_lv(elem_id: str, obra_root: Path) -> dict | None:
             with open(p, encoding='utf-8') as f:
                 return json.load(f)
     return None
-
-
-def _costurar_aneis(segmentos: list, tol: float = 0.6,
-                    min_pontos: int = 3) -> list:
-    """Costura segmentos soltos em aneis fechados.
-
-    Recebe [((x1,y1),(x2,y2)), ...] e devolve [[(x,y), ...], ...] com um anel
-    por ciclo fechado encontrado. Serve para o contorno da visao de corte
-    quando o desenhista usou segmentos em vez de polilinha fechada (achado
-    2026-09-11 na V13: 8 polilinhas de 2 pontos na layer CONCRETO, que
-    deixavam `concrete_profiles` vazio).
-
-    Regras (deliberadamente conservadoras — e' melhor nao devolver anel do que
-    devolver um anel inventado):
-      * extremidades sao unidas por proximidade (`tol`), nunca por extrapolacao;
-      * um vertice com mais de 2 vizinhos e' ambiguo: o anel e' descartado;
-      * so' volta anel realmente FECHADO, com pelo menos `min_pontos` vertices
-        distintos e area nao degenerada.
-    """
-    if not segmentos:
-        return []
-
-    def chave(p):
-        return (round(p[0] / tol), round(p[1] / tol))
-
-    # no -> (representante, vizinhos)
-    rep: dict = {}
-    viz: dict = {}
-    arestas = []
-    for p1, p2 in segmentos:
-        a, b = chave(p1), chave(p2)
-        if a == b:
-            continue  # segmento degenerado
-        rep.setdefault(a, (float(p1[0]), float(p1[1])))
-        rep.setdefault(b, (float(p2[0]), float(p2[1])))
-        if b in viz.get(a, ()) :
-            continue  # aresta repetida
-        viz.setdefault(a, []).append(b)
-        viz.setdefault(b, []).append(a)
-        arestas.append((a, b))
-
-    # Vertice com grau != 2 nao pertence a um anel simples.
-    if any(len(v) != 2 for v in viz.values()):
-        graus_ok = {k for k, v in viz.items() if len(v) == 2}
-    else:
-        graus_ok = set(viz)
-
-    aneis = []
-    visitados = set()
-    for inicio in viz:
-        if inicio in visitados or inicio not in graus_ok:
-            continue
-        ciclo = [inicio]
-        visitados.add(inicio)
-        anterior, atual = None, inicio
-        while True:
-            proximos = [n for n in viz[atual] if n != anterior]
-            if not proximos:
-                ciclo = []
-                break
-            seguinte = proximos[0]
-            if seguinte == inicio:
-                break                      # fechou
-            if seguinte in visitados or seguinte not in graus_ok:
-                ciclo = []
-                break                      # nao e' anel simples
-            ciclo.append(seguinte)
-            visitados.add(seguinte)
-            anterior, atual = atual, seguinte
-        if len(ciclo) < min_pontos:
-            continue
-        pontos = [rep[k] for k in ciclo]
-        # area (shoelace) para descartar anel degenerado
-        area = abs(sum(
-            pontos[i][0] * pontos[(i + 1) % len(pontos)][1]
-            - pontos[(i + 1) % len(pontos)][0] * pontos[i][1]
-            for i in range(len(pontos))
-        )) / 2.0
-        if area > 1.0:
-            aneis.append(pontos)
-    return aneis
 
 
 def _collect_seg_line(layer: str, x1: float, y1: float, x2: float, y2: float,
@@ -245,7 +163,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         sarr_lines:   list = []   # (layer, xl, yb, xr, yt) linhas SARR reais
         madeira_v:    list = []   # (x, y_bot, y_top)
         holes_lwpoly: list = []   # (xl, yl, xr, yr) LWPOLYLINE DASHED = aberturas
-        panel_boxes:  list = []   # (xl, yl, xr, yr) caixas fechadas de Paineis
         reap_boxes:   list = []   # (xl, yl, xr, yr) HATCH REAPROVEITAMENTO
         laje_boxes:   list = []   # (xl, yl, xr, yr) HATCH Hachura de laje/faixas
         cota_txts:    list = []   # (x, y, val)
@@ -257,7 +174,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
         concrete_profiles: list = []
         concrete_lines: list = []
-        painel_lines: list = []   # segmentos soltos da layer Painéis
 
         for e in msp:
             layer = e.dxf.layer
@@ -290,22 +206,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         (x1, y1), (x2, y2) = pts[0], pts[1]
                         _collect_seg_line(layer, x1, y1, x2, y2,
                                           paineis_h, paineis_v, sarr_v, madeira_v, sarr3_v)
-                        # Mesmo tratamento que LINE: ha' recortes em que o
-                        # contorno do corte foi desenhado como polilinhas de
-                        # 2 pontos (V13), nao como polígono fechado.
-                        if layer == 'CONCRETO':
-                            concrete_lines.append((
-                                (float(x1), float(y1)), (float(x2), float(y2)),
-                            ))
-                        elif layer == 'Painéis':
-                            # Mesma historia do CONCRETO: ha' recorte em que o
-                            # painel de fechamento e' desenhado como 4 segmentos
-                            # soltos em vez de retangulo fechado, e por isso nao
-                            # entra em `panel_boxes` (V13: painel 3x200 acima da
-                            # face, handles F3..F6).
-                            painel_lines.append((
-                                (float(x1), float(y1)), (float(x2), float(y2)),
-                            ))
                     elif n >= 3:
                         closed = bool(e.closed)
                         limit = n if closed else n - 1
@@ -323,13 +223,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                                 holes_lwpoly.append((
                                     min(xs_p), min(ys_p),
                                     max(xs_p), max(ys_p)
-                                ))
-                            elif closed:
-                                xs_p = [float(p[0]) for p in pts]
-                                ys_p = [float(p[1]) for p in pts]
-                                panel_boxes.append((
-                                    min(xs_p), min(ys_p),
-                                    max(xs_p), max(ys_p),
                                 ))
                         if layer == 'CONCRETO':
                             concrete_profiles.append([
@@ -403,37 +296,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                                 laje_boxes.append(box)
                 except Exception:
                     pass
-
-        # ── 0b. Costurar contorno de concreto desenhado como segmentos ─────────
-        # Alguns recortes N2 tem o contorno da visao de corte desenhado como
-        # segmentos soltos em vez de um poligono fechado (V13: 8 polilinhas de
-        # 2 pontos na layer CONCRETO). Sem isso `concrete_profiles` fica vazio,
-        # a secao nao gera `visual_primitives` e o N4 cai no template generico.
-        #
-        # FALLBACK ESTRITO: so' roda quando NENHUM poligono fechado foi achado.
-        # Assim as vigas que ja' extraiam (V301 etc.) saem byte a byte iguais —
-        # a costura nunca compete com o contorno real, so' cobre o vazio.
-        if not concrete_profiles and concrete_lines:
-            concrete_profiles.extend(
-                _costurar_aneis(concrete_lines)
-            )
-
-        # Mesma costura para `Painéis`: retangulos desenhados como segmentos
-        # soltos nao entravam em `panel_boxes` (so' alimentado por poligono
-        # fechado), e o painel de fechamento acima da face ficava invisivel
-        # para o detector (V13: 3x200, handles F3..F6). Aditivo — um anel so'
-        # entra se ainda nao houver caixa equivalente.
-        if painel_lines:
-            for anel in _costurar_aneis(painel_lines):
-                xs = [p[0] for p in anel]
-                ys = [p[1] for p in anel]
-                caixa = (min(xs), min(ys), max(xs), max(ys))
-                if not any(
-                    abs(caixa[0] - b[0]) <= 1.0 and abs(caixa[1] - b[1]) <= 1.0
-                    and abs(caixa[2] - b[2]) <= 1.0 and abs(caixa[3] - b[3]) <= 1.0
-                    for b in panel_boxes
-                ):
-                    panel_boxes.append(caixa)
 
         # ── 1. Catalogar H-lines largas (candidatos a bordas de faces) ──────────
         # Filtrar H-lines com largura > _MIN_FACE_W (excluir detalhes VC e pequenos)
@@ -1015,38 +877,25 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
         def _reuse_regions_seg(xl: float, xr: float,
                                y_bot: float, y_top: float) -> list:
-            """Retorna faixas de reaproveitamento recortadas no corpo do segmento.
-
-            A hachura REAPROVEITAMENTO pode viver ACIMA do y_top refinado do
-            segmento (na faixa do marco/laje, nao no corpo) — exigir
-            sobreposicao vertical com [y_bot, y_top] zerava reuse_regions
-            inteiro pra ocorrencias assim (achado 2026-08-31, V301.B nominal
-            5-segmentos: 3 hachuras REAPROVEITAMENTO reais no N2, reuse=False
-            nos 5 segmentos porque y_top do segmento nao alcancava a faixa).
-            Decide por overlap em X (largura); a altura/y_offset gravados
-            sao os da PROPRIA hachura, nunca recortados pelo y_top — quem
-            usa (reuse_regions no gerador) ja sabe lidar com y_offset fora
-            de [0, h_face] (ver _panel_y_base em gerar_lv_dxf_stog.py). Um
-            teto de folga (60cm acima de y_top) evita pegar hachura de uma
-            ocorrencia vizinha bem distante verticalmente.
-            """
-            seg_w = max(xr - xl, 1.0)
+            """Retorna faixas de reaproveitamento recortadas no corpo do segmento."""
+            seg_area = max((xr - xl) * (y_top - y_bot), 1.0)
             regions = []
             for hxl, hyl, hxr, hyr in reap_boxes:
-                if hyl < y_bot - 5.0 or hyl > y_top + 60.0:
-                    continue
                 ix1, ix2 = max(xl, hxl), min(xr, hxr)
+                iy1, iy2 = max(y_bot, hyl), min(y_top, hyr)
                 ox = ix2 - ix1
-                if ox <= 0.5:
+                oy = iy2 - iy1
+                if ox <= 0.5 or oy <= 0.5:
                     continue
-                width_ratio = ox / seg_w
-                if width_ratio < 0.60 and ox < 30.0:
+                overlap_ratio = (ox * oy) / seg_area
+                width_ratio = ox / max(xr - xl, 1.0)
+                if overlap_ratio < 0.05 and width_ratio < 0.60:
                     continue
                 regions.append({
                     'x_offset': round(ix1 - xl, 1),
-                    'y_offset': round(hyl - y_bot, 1),
+                    'y_offset': round(iy1 - y_bot, 1),
                     'width': round(ox, 1),
-                    'height': round(hyr - hyl, 1),
+                    'height': round(oy, 1),
                 })
             return regions
 
@@ -1251,13 +1100,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             'CONCRETO', 'Painéis', 'Madeira', 'Hachura',
                             'SARR_3.5x7', 'COTA', 'Cota Seção (2x)',
                             'detalhes',
-                            # Furniture de seção transversal (fixadores/tirante)
-                            # presente no molde real da obra (dxf_discovery.json,
-                            # confirmado em 14PAV/1PAV/2PAV/TÉRREO/COBERTURA) mas
-                            # ausente aqui — causa raiz de G2 FAIL com ref>0/n4=0
-                            # em barrote/presilha/TENSOR/SCO-___-LAJ (MR LV 14_PAV,
-                            # 2026-07-20).
-                            'barrote', 'presilha', 'TENSOR', 'SCO-___-LAJ',
                         }
                         core_x_min = min(point[0] for point in all_points)
                         core_x_max = max(point[0] for point in all_points)
@@ -1646,17 +1488,10 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             x_left, x_right = fg['x_left'], fg['x_right']
             h_body = fg['h_body']
             exclude = all_panel_ws | {b_round}
-            # Em folhas STOG explodidas, cotas da lateral podem permanecer
-            # na layer Painéis; a janela geométrica abaixo separa cota de ID.
-            height_txts = cota_txts + panel_num_txts
-            # Em folhas STOG explodidas, as cotas da lateral frequentemente
-            # permanecem na layer Painéis. ``panel_num_txts`` já contém apenas
-            # textos numéricos; a posição geométrica abaixo separa cota de ID.
-            height_txts = cota_txts + panel_num_txts
 
             # ── Passo 1: margem direita (STOG clássico: DIM_H_RIGHT) ──────────
             nearby_r = [
-                v for cx, cy, v in height_txts
+                v for cx, cy, v in cota_txts
                 if (x_right - 10 <= cx <= x_right + 160)
                 and (y_bot - 100 <= cy <= y_top + 70)
                 and v > 0
@@ -1694,13 +1529,13 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             # Janela conservadora: excluir valores que podem ser larguras de segmento.
             # x_left - 80: alguns COTAs de laje ficam ligeiramente à esquerda da face.
             sup_nearby = [
-                v for cx, cy, v in height_txts
+                v for cx, cy, v in cota_txts
                 if (x_left - 20 <= cx <= x_right + 80)
                 and (y_bot - 20 <= cy <= y_top + 80)
                 and 2 < v <= 35 and round(v) not in exclude
             ]
             inf_nearby = [
-                v for cx, cy, v in height_txts
+                v for cx, cy, v in cota_txts
                 if (x_left - 20 <= cx <= x_right + 80)
                 and (y_bot - 80 <= cy <= y_bot + 40)
                 and 2 < v <= 35 and round(v) not in exclude
@@ -1716,7 +1551,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
 
             if _has_marco_top_paineis(x_left, x_right, y_top):
                 near_top = [
-                    v for cx, cy, v in height_txts
+                    v for cx, cy, v in cota_txts
                     if (x_left - 10 <= cx <= x_right + 120)
                     and (y_top - 10 <= cy <= y_top + 75)
                     and 2 < v <= 35 and round(v) not in exclude
@@ -1748,29 +1583,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             y_top = fg['y_top']
             y_bot = fg['y_bot']
             excl = all_panel_ws | {b_round}
-            # Moda das alturas "altas" (>=80) desta unidade — referencia
-            # confiavel do corpo real, pois fg['h_body'] aqui ainda pode
-            # estar cru (inclui marco). Painel com height1 == essa moda
-            # e' candidato a vazio-na-base; height1 MENOR e' degrau
-            # genuino (ja tratado por _seg_actual_height, nao redetectar).
-            _tall_h1s = [
-                float(s.get('height1', 0) or 0) for s in segs
-                if float(s.get('height1', 0) or 0) >= 80.0
-            ]
-            _body_h1_mode = max(set(_tall_h1s), key=_tall_h1s.count) if _tall_h1s else 0.0
-            # Base real do CORPO, nao fg['y_bot'] bruto: em unidades com
-            # marco/faixa extra mesclada ao retangulo do corpo pelo
-            # pareamento, fg['y_bot'] fica mais baixo que a base real, e o
-            # detector de vazio_base_local (abaixo) redetecta essa fronteira
-            # de mesclagem como se fosse um vazio genuino (achado 2026-09-09,
-            # UNIT.B#8/B#11: vazio_base_local=33.4/32.7 fantasma, gerando
-            # linha Painéis extra no meio do painel alto). _body_h1_mode ja
-            # e' a altura real do corpo (moda das H altas), refinada ANTES
-            # de fg['h_body'] (que so fica correto depois, em top_panel/
-            # panel_body_heights — tarde demais para esta funcao). Sem
-            # moda confiavel (_body_h1_mode==0), mantem fg['y_bot'] cru.
-            if _body_h1_mode > 0:
-                y_bot = y_top - _body_h1_mode
 
             for seg in segs:
                 xl = seg.get('_xl', 0.0)
@@ -1805,35 +1617,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 seg['laje_inf_local'] = li_seg
                 seg['slab_top']       = ls_seg
                 seg['slab_bottom']    = li_seg
-
-                # Vazio na base do painel: distinto de laje_inf (que pendura
-                # UMA caixa ABAIXO de y0). Aqui o proprio painel (Painéis,
-                # nao Laje) comeca mais acima — ha um vao vazio ENTRE y0 e a
-                # base real do painel, fechado por paredes Painéis nos 3
-                # lados (esquerda/direita/topo do vao). So detecta quando o
-                # painel e' "alto" (height1>=80, nao e' degrau) e ha uma
-                # H-line Painéis cheia (>=85% do X do segmento) na metade
-                # inferior — sem cota de texto pra isso (achado 2026-08-29/30,
-                # UNIT.B#7: painel 111 largo, vazio real 0->33.4, layer
-                # Painéis nos 2 lados, nunca rotulado por cota no papel).
-                seg_h1 = float(seg.get('height1', 0) or 0)
-                if seg_h1 >= 80.0 and abs(seg_h1 - _body_h1_mode) <= 1.0:
-                    seg_w = xr - xl
-                    half_h = seg_h1 * 0.5
-                    vazio_candidates = []
-                    for y, xl_h, xr_h in paineis_h:
-                        if not (y_bot + 8.0 < y < y_bot + half_h):
-                            continue
-                        overlap = min(xr_h, xr) - max(xl_h, xl)
-                        if overlap < seg_w * 0.85:
-                            continue
-                        vazio_candidates.append(y)
-                    seg['vazio_base_local'] = (
-                        round(max(vazio_candidates) - y_bot, 1)
-                        if vazio_candidates else 0.0
-                    )
-                else:
-                    seg['vazio_base_local'] = 0.0
 
                 # slab_center: COTA na faixa central da face (indicador de laje embutida)
                 mid_y = (y_top + y_bot) / 2
@@ -2024,10 +1807,7 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     round(v, 1) for cx, cy, v in (cota_txts + panel_num_txts)
                     if xl - 25.0 <= cx <= xr + 90.0
                     and yb - 85.0 <= cy <= yt + 95.0
-                    # Total vertical local = corpo + laje/marco/painel superior.
-                    # Valores mais de 40 cm acima do corpo são, neste bloco,
-                    # cotas horizontais ou de uma ocorrência vizinha.
-                    and h_body - 1.0 <= v <= h_body + 40.0
+                    and h_body - 1.0 <= v <= h_body + 60.0
                     and round(v) not in (all_panel_ws | {b_round})
                     and not any(abs(round(v, 1) - gw) <= 0.15 for gw in grouped_widths)
                 ]
@@ -2060,61 +1840,12 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         })
                 return result
 
-            def _top_panel_face(pair: dict) -> dict:
-                """Painel estreito fechado imediatamente acima da laje superior.
-
-                O N2 pode ter a sequencia corpo -> laje -> painel de fechamento
-                (tipicamente 7 cm). Esse ultimo retangulo pertence a ``Paineis``
-                e nao pode ser absorvido na altura da laje/marco.
-                """
-                xl = float(pair.get('x_left', 0.0))
-                xr = float(pair.get('x_right', 0.0))
-                yt = float(pair.get('y_top', 0.0))
-                candidates = []
-                for bxl, byl, bxr, byr in panel_boxes:
-                    width = float(bxr - bxl)
-                    height = float(byr - byl)
-                    gap = float(byl - yt)
-                    # Piso 4.0 rejeitava painel de fechamento fino: o da V13
-                    # tem 3.0 de altura por 200 de largura (achado 2026-09-11,
-                    # apontado pelo dono). A largura minima de 50 e a janela de
-                    # `gap` continuam sendo o que separa painel de ruido.
-                    if not (2.5 <= height <= 12.0 and width >= 50.0):
-                        continue
-                    if not (4.0 <= gap <= 35.0):
-                        continue
-                    if bxl < xl - 4.0 or bxr > xr + 4.0:
-                        continue
-                    candidates.append((gap, -width, bxl, byl, bxr, byr))
-                if not candidates:
-                    return {}
-                gap, _neg_width, bxl, byl, bxr, byr = min(candidates)
-                return {
-                    'height': round(byr - byl, 1),
-                    'width': round(bxr - bxl, 1),
-                    'x_offset': round(bxl - xl, 1),
-                    'slab_height': round(gap, 1),
-                }
-
             def _sarrafos_verticais_face(pair: dict) -> tuple[bool, bool, list]:
                 """Extrai sarrafos 2.2x7 verticais da face para reprodução fiel no N4."""
                 xl = float(pair.get('x_left', 0.0))
                 xr = float(pair.get('x_right', 0.0))
+                yb = float(pair.get('y_bot', 0.0))
                 yt = float(pair.get('y_top', 0.0))
-                # yb = base real do CORPO, nao pair['y_bot'] bruto: em unidades
-                # com marco/faixa extra abaixo do corpo (pairing mescla o
-                # retangulo do corpo com o retangulo do marco vizinho), y_bot
-                # do par fica mais baixo que a base real, e todo sarrafo
-                # vertical do corpo saia deslocado pra cima na ficha (achado
-                # 2026-09-09, V301.B#1/B#2: sarrafo real vai de y0 a y0+109 no
-                # DXF fonte, mas a ficha registrava y_bot=33.4 por usar o
-                # y_bot do par mesclado em vez de y_top-h_body). h_body ja e'
-                # refinado antes desta chamada (linha ~2082) e sempre reflete
-                # a altura real do corpo — derivar a base dali e' equivalente
-                # a pair['y_bot'] quando nao ha mesclagem (unidades normais:
-                # y_top-y_bot ja bate com h_body).
-                h_body_ref = float(pair.get('h_body') or (yt - float(pair.get('y_bot', 0.0))))
-                yb = yt - h_body_ref
                 specs: list = []
                 seen: set = set()
                 for x, syb, syt in sarr_v:
@@ -2150,11 +1881,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 """Extrai sarrafos 2.2x7 horizontais do N2 (faixa superior/inferior)."""
                 xl = float(pair.get('x_left', 0.0))
                 xr = float(pair.get('x_right', 0.0))
+                yb = float(pair.get('y_bot', 0.0))
                 yt = float(pair.get('y_top', 0.0))
-                # Mesma correcao de base que _sarrafos_verticais_face: base do
-                # CORPO, nao pair['y_bot'] bruto (achado 2026-09-09).
-                h_body_ref = float(pair.get('h_body') or (yt - float(pair.get('y_bot', 0.0))))
-                yb = yt - h_body_ref
                 # Inclui faixa de marco acima do corpo (V301.B SARR @ y≈120.9)
                 yt_sarr = yt + max(float(pair.get('_marco_extra_cm') or 0), 25.0)
                 specs: list = []
@@ -2251,132 +1979,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             float(h_total or 0),
                             float(pair.get('h_body') or 0) + ls_u,
                         )
-                    segs_raw = _panel_segments(pair)
-                    _hd_xl = float(pair.get('x_left', 0.0))
-                    _hd_xr = float(pair.get('x_right', 0.0))
-                    _hd_yb = float(pair.get('y_bot', 0.0))
-                    _hd_yt = float(pair.get('y_top', _hd_yb))
-                    horizontal_dims = [
-                        float(v)
-                        for cx, cy, v in (cota_txts + panel_num_txts)
-                        if _hd_xl - 8.0 <= cx <= _hd_xr + 8.0
-                        and _hd_yb - 70.0 <= cy <= _hd_yb + 15.0
-                    ]
-                    # Busca extra, so' pra valores GRANDES (>=100): a cota da
-                    # largura do 1o painel pode ficar perto do cabecalho da
-                    # viga, ACIMA do corpo (fora da janela padrao so'-abaixo),
-                    # mas so' aceitar isso pra numeros de escala "painel
-                    # principal" — abrir a janela pra qualquer tamanho
-                    # trouxe ruido de cotas pequenas genericas tipo "7"
-                    # sendo usadas como pecas de reconstrucao falsas em
-                    # OUTRAS unidades (tentativa revertida 2026-09-10).
-                    # Exige tambem que o X da cota caia dentro do proprio
-                    # corpo (nao so' na faixa lateral +-8), reduzindo ainda
-                    # mais o risco de pegar numero de rotulo vizinho.
-                    horizontal_dims += [
-                        float(v)
-                        for cx, cy, v in (cota_txts + panel_num_txts)
-                        if _hd_xl <= cx <= _hd_xr
-                        and _hd_yt + 15.0 < cy <= _hd_yt + 95.0
-                        and float(v) >= 100.0
-                    ]
-                    segs_raw = reconcile_panel_segments_with_horizontal_dims(
-                        segs_raw,
-                        horizontal_dims,
-                        float(pair.get('h_body', 0.0) or 0.0),
-                        float(pair.get('x_left', 0.0) or 0.0),
-                    )
-                    segs_u = _propagate_laje(segs_raw, ls_u, li_u, pair)
-                    top_panel = _top_panel_face(pair)
-                    if top_panel:
-                        old_body_h = float(pair.get('h_body', 0) or 0)
-                        body_labels = [
-                            float(v) for cx, cy, v in panel_num_txts
-                            if abs(float(v) - old_body_h) <= 3.0
-                            and float(pair.get('x_left', 0)) - 35.0 <= cx
-                            <= float(pair.get('x_right', 0)) + 35.0
-                            and float(pair.get('y_bot', 0)) - 20.0 <= cy
-                            <= float(pair.get('y_top', 0)) + 35.0
-                        ]
-                        pair_span = (
-                            float(pair.get('x_right', 0) or 0)
-                            - float(pair.get('x_left', 0) or 0)
-                        )
-                        if (
-                            body_labels
-                            and float(top_panel.get('width', 0) or 0)
-                            < pair_span - 15.0
-                        ):
-                            body_h = min(
-                                body_labels,
-                                key=lambda value: abs(value - old_body_h),
-                            )
-                            pair['h_body'] = round(body_h, 1)
-                            _body_h_delta = old_body_h - body_h
-                            _seen_seg_ids: set = set()
-                            _segs_to_fix = [
-                                seg for seg in list(segs_raw) + list(segs_u)
-                                if id(seg) not in _seen_seg_ids
-                                and not _seen_seg_ids.add(id(seg))
-                            ]
-                            for seg in _segs_to_fix:
-                                h1 = float(seg.get('height1', 0) or 0)
-                                if abs(h1 - old_body_h) <= 3.0:
-                                    seg['height1'] = round(body_h, 1)
-                                elif (
-                                    abs(_body_h_delta) > 0.05
-                                    and 0 < h1 < old_body_h - 5.0
-                                ):
-                                    # Painel de degrau: height1 aqui e' a
-                                    # faixa acima do ombro (h_body_antigo -
-                                    # y_ombro), nao o h_body em si — ajustar
-                                    # pela mesma diferenca do snap preserva a
-                                    # posicao real do ombro (achado 2026-08-29,
-                                    # V301.B: 103.4->102.0 sem isso deixava o
-                                    # ombro 1.4cm baixo, sarrafo/parede
-                                    # deslocados na comparacao com N2).
-                                    seg['height1'] = round(h1 - _body_h_delta, 1)
-                        # A faixa entre o corpo e o painel superior e a laje;
-                        # a altura do painel fica em campo proprio da ficha.
-                        slab_h = float(top_panel.get('slab_height', 0) or 0)
-                        slab_labels = [
-                            float(v) for cx, cy, v in panel_num_txts
-                            if 10.0 <= float(v) <= 35.0
-                            and float(pair.get('x_left', 0)) - 35.0 <= cx
-                            <= float(pair.get('x_right', 0)) + 35.0
-                            and float(pair.get('y_top', 0)) <= cy
-                            <= float(pair.get('y_top', 0)) + slab_h + 8.0
-                        ]
-                        if slab_labels:
-                            slab_h = min(
-                                slab_labels,
-                                key=lambda value: abs(value - slab_h),
-                            )
-                        ls_u = round(slab_h, 1)
-                        h_total = round(
-                            float(pair.get('h_body', 0) or 0)
-                            + ls_u
-                            + float(top_panel.get('height', 0) or 0),
-                            1,
-                        )
-                    # O bbox vertical pode incluir cotas/chamadas externas. A
-                    # altura material do corpo ja esta nos paineis extraidos.
-                    panel_body_heights = [
-                        float(seg.get('height1', 0) or 0)
-                        for seg in segs_u
-                        if 80.0 <= float(seg.get('height1', 0) or 0) <= 125.0
-                    ]
-                    if panel_body_heights:
-                        panel_body_h = max(panel_body_heights)
-                        bbox_body_h = float(pair.get('h_body', 0) or 0)
-                        if bbox_body_h >= panel_body_h + 20.0:
-                            pair['h_body'] = round(panel_body_h, 1)
-                            h_total = round(
-                                panel_body_h
-                                + float(ls_u or 0)
-                                + float(top_panel.get('height', 0) or 0),
-                                1,
-                            )
+                    segs_u = _propagate_laje(
+                        _panel_segments(pair), ls_u, li_u, pair)
                     h_total = _local_total_height(pair, segs_u, h_total)
                     sarrafo_left, sarrafo_right, sarrafos_specs = (
                         _sarrafos_verticais_face(pair)
@@ -2399,36 +2003,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     if panel_w >= 2 * inset:
                         sarrafo_left = sarrafo_left or _edge_near(inset)
                         sarrafo_right = sarrafo_right or _edge_near(right_x)
-
-                    def _resolve_top_panel_offset(
-                        raw_offset: float, top_width: float, segs: list,
-                    ) -> float:
-                        """Distingue marco real de residuo de bbox espelhado.
-
-                        Em unidades espelhadas, um offset residual de 35-50 cm
-                        pode vir dos marcos estreitos usados so para localizar
-                        o bbox, nao do painel superior de fato (nesse caso o
-                        fechamento comeca na borda material, offset=0). Mas
-                        quando a unidade TEM marco estreito real no inicio
-                        (paineis < 28cm cuja soma bate com o offset), o offset
-                        e legitimo e nao pode ser zerado (V301.B real:
-                        21.2+19.0=40.2, dentro da faixa 35-50 — zerar aqui
-                        desalinhava o painel de fechamento do N2).
-                        """
-                        if not (35.0 <= raw_offset <= 50.0 and top_width >= 300.0):
-                            return raw_offset
-                        acc = 0.0
-                        for seg in segs or []:
-                            w = float(seg.get('largura_cm', seg.get('width', 0)) or 0)
-                            if w <= 0:
-                                continue
-                            if w >= 28.0:
-                                break
-                            acc += w
-                            if abs(acc - raw_offset) <= 3.0:
-                                return raw_offset
-                        return 0.0
-
                     unit = {
                         'label': txt.strip() if is_named_anchor else '',
                         'side': side,
@@ -2463,29 +2037,9 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                                 float(pair.get('y_top', 0.0)),
                             )
                         ),
-                        'painel_sup_alt': float(top_panel.get('height', 0) or 0),
-                        'painel_sup_width': float(top_panel.get('width', 0) or 0),
-                        'painel_sup_x_offset': _resolve_top_panel_offset(
-                            float(top_panel.get('x_offset', 0) or 0),
-                            float(top_panel.get('width', 0) or 0),
-                            segs_u,
-                        ),
                         'segments_count': len(segs_u),
                         'panels': segs_u,
                         'raw_holes': _raw_holes_face(pair),
-                        # Textos numericos achados na propria janela de base
-                        # desta ocorrencia (mesma janela usada para
-                        # reconciliar largura de paineis, x_left-8..x_right+8
-                        # / y_bot-70..y_bot+15). O gerador usa isso para so
-                        # desenhar uma cota de soma de grupos (ex. 111+63=174)
-                        # quando o N2 realmente mostra esse valor NESTA
-                        # ocorrencia — repeticoes identicas do mesmo painel
-                        # nem sempre repetem esse label auxiliar (achado
-                        # real: V301.B#5 tem "174" no papel, o vizinho
-                        # V301.B#7 na mesma fileira nao tem, mesma geometria).
-                        'edge_span_candidates': [
-                            round(float(v), 1) for v in horizontal_dims
-                        ],
                     }
                     units_by_bbox[key] = unit
                     units.append(unit)
@@ -2532,29 +2086,6 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         result.get('laje_inf_A' if side == 'A' else 'laje_inf_B', 0)
                         or 0
                     )
-                h_body_u = float(unit.get('h_body', 0) or 0)
-                laje_sup_u = float(unit.get('laje_sup', 0) or 0)
-                laje_inf_u = float(unit.get('laje_inf', 0) or 0)
-                top_panel_u = float(unit.get('painel_sup_alt', 0) or 0)
-                total_u = float(unit.get('h_total', 0) or 0)
-                # Se a cota total fecha exatamente corpo + laje superior +
-                # painel superior, não existe laje inferior nesta unidade.
-                # O valor residual vinha de uma linha de cota abaixo do bloco
-                # e gerava totais N4 130/131 no lugar de 124.
-                if (
-                    laje_inf_u > 0.5
-                    and total_u > 0
-                    and abs(total_u - (h_body_u + laje_sup_u + top_panel_u)) <= 1.0
-                ):
-                    unit['laje_inf'] = 0.0
-                    laje_inf_u = 0.0
-                if (
-                    float(unit.get('h_total', 0) or 0) <= h_body_u + 0.5
-                    and laje_sup_u + laje_inf_u > 0.5
-                ):
-                    unit['h_total'] = round(h_body_u + laje_sup_u + laje_inf_u, 1)
-                if laje_sup_u >= 12.0:
-                    unit['marco_laje_sup'] = True
             return units
 
         result['face_units'] = _build_face_units()
@@ -2850,100 +2381,3 @@ if __name__ == '__main__':
     obra  = sys.argv[3] if len(sys.argv) > 3 else None
     r = extrair_ficha_lateral_viga(path, elem, obra)
     print(json.dumps(r, indent=2, ensure_ascii=False, default=str))
-def reconcile_panel_segments_with_horizontal_dims(
-    segments: list[dict], dimension_values: list[float], h_body: float,
-    x_left: float,
-) -> list[dict]:
-    """Reconcilia V-lines contaminadas com a cadeia horizontal cotada do N2.
-
-    O desenho explodido pode trazer testemunhos de cota na layer Paineis e o
-    extrator os interpreta como divisores (244.7 em vez de 244; 21.8+41.2 em
-    vez de 63). Quando uma combinacao das cotas locais recompõe exatamente a
-    largura util, ela tem autoridade sobre essas subdivisoes geometricas.
-    """
-    segs = [dict(item) for item in (segments or [])]
-    if not segs:
-        return segs
-    h_ref = float(h_body or 0)
-    body_n = len(segs)
-    while body_n > 1:
-        item = segs[body_n - 1]
-        width = float(item.get("width", item.get("largura_cm", 0)) or 0)
-        height = float(item.get("height1", 0) or 0)
-        if width < 28.0 and height >= 0.80 * h_ref:
-            body_n -= 1
-            continue
-        break
-    body = segs[:body_n]
-    trailing = segs[body_n:]
-    target = round(sum(float(s.get("width", 0) or 0) for s in body), 1)
-    if target <= 0 or len(body) < 2:
-        return segs
-    values = sorted({
-        round(float(v), 1) for v in (dimension_values or [])
-        if 5.0 <= float(v) <= target + 0.8
-    })
-    raw_bounds = []
-    acc = 0.0
-    for item in body[:-1]:
-        acc += float(item.get("width", 0) or 0)
-        raw_bounds.append(acc)
-    candidates = []
-    # A cadeia de cotas pode revelar mais paineis do que as V-lines brutas
-    # (174 geometrico = 63 + 111 cotados). Limitar a len(body) impedia
-    # justamente a reconstrucao das unidades incompletas.
-    for count in range(2, min(6, len(values)) + 1):
-        for combo in combinations(values, count):
-            if abs(sum(combo) - target) <= 0.8:
-                candidates.append(combo)
-    if not candidates:
-        return segs
-    max_count = max(len(combo) for combo in candidates)
-    candidates = [combo for combo in candidates if len(combo) == max_count]
-
-    def order_score(order):
-        pos = 0.0
-        score = 0.0
-        for width in order[:-1]:
-            pos += width
-            score += min((abs(pos - b) for b in raw_bounds), default=0.0)
-        return score
-
-    ordered = min(
-        (order for combo in candidates for order in permutations(combo)),
-        key=order_score,
-    )
-    if (
-        len(ordered) == len(body)
-        and all(
-            abs(float(item.get("width", 0) or 0) - width) <= 0.15
-            for item, width in zip(body, ordered)
-        )
-    ):
-        return segs
-
-    raw_ranges = []
-    cursor = 0.0
-    for item in body:
-        width = float(item.get("width", 0) or 0)
-        raw_ranges.append((cursor, cursor + width, item))
-        cursor += width
-    rebuilt = []
-    cursor = 0.0
-    for width in ordered:
-        end = cursor + width
-        source = max(
-            raw_ranges,
-            key=lambda row: max(0.0, min(end, row[1]) - max(cursor, row[0])),
-        )[2]
-        item = dict(source)
-        item["width"] = item["largura_cm"] = round(width, 1)
-        item["_xl"] = round(float(x_left) + cursor, 1)
-        item["_xr"] = round(float(x_left) + end, 1)
-        rebuilt.append(item)
-        cursor = end
-    rebuilt.extend(trailing)
-    for idx, item in enumerate(rebuilt):
-        item["is_first"] = idx == 0
-        item["is_last"] = idx == len(rebuilt) - 1
-    return rebuilt

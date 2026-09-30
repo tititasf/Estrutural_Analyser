@@ -41,83 +41,6 @@ python scripts/arete/arete_runner.py --classe {PIL|LV|FV|LAJ} --pav {PAV} [--reg
 ```
 Compara N4 (gerado da ficha N2) contra o recorte humano; sela golden em PASS.
 
-#### Painel dinâmico de depuração humana N2×N4 (companheiro do Eixo A, 24/07)
-
-Passo **obrigatório** ao abrir/retomar o trabalho de geração (Eixo A) de uma classe num
-pavimento novo: gerar o painel HTML de comparação N2×N4 com pan/zoom real, ANTES de
-qualquer sessão de refinamento do gerador. É o caminho do dono para apontar erro visual
-item a item e do agente corrigir a causa geral no motor — mais rápido que abrir
-`g2v_harness.py` a cada iteração (esse continua obrigatório só para o veredito de
-selagem/certificação, não para iteração).
-
-```bash
-python scripts/arete/revisao_laj_n2_n4_html.py --pav {PAV} --serve --port {PORTA}   # LAJ, sobe servidor + abre navegador
-python scripts/arete/revisao_pil_n2_n4_html.py --pav {PAV}   # PIL (ainda so localStorage/export, ver pendencia abaixo)
-python scripts/arete/rodada_lv_13pav.py --serve --port {PORTA}   # LV (2026-09-11), indice + uma pagina granular por viga
-```
-
-**LV (2026-09-11) — granularidade por SEGMENTO.** O painel de LV nao e' um card
-por item: e' um indice de vigas (`INDEX_VIGAS.html`) e, por viga, uma pagina com
-um cartao por **segmento** N2xN4 (cada painel da face, recortado dos dois lados)
-mais um cartao por **visao de corte**. Marcacao de ponto com coordenada DXF real,
-nota e checkbox por cartao. Gerado por `rodada_lv_13pav.py`, que chama
-`run_geometry_gate_lv.py --no-regen` + `_build_segments_html_v301.py <VIGA>`
-(este ultimo aceita a viga como argumento posicional desde 11/09).
-
-> **Servir SEMPRE por `servidor_revisao_pil.py`** (e' o que `--serve` faz).
-> Subir a pasta com `python -m http.server` **perde validacao**: nao existe
-> `/api/state`, o `sync()` do painel falha em silencio e so' o cookie do
-> navegador sobrevive. Foi assim que a rodada LV de 10-11/09 quase perdeu as
-> marcacoes do dono. O estado real mora em `revisoes_humanas.json` **na pasta
-> de cada viga**; o servidor roteia o POST pelo `Referer` da pagina.
-
-```bash
-# so' para lembrar do que NAO fazer:
-# python -m http.server {PORTA}   # <- NAO: painel sem persistencia
-```
-
-Gera `scripts/arete/relatorios/revisao_{classe}_n2_n4_{timestamp}/index_panzoom.html`,
-um por item. Cada card tem checkbox "Validado" + campo de nota "Atenção". **LAJ (27/07):
-persistência real em arquivo**, não mais localStorage/export manual — `--serve` sobe
-`servidor_revisao_pil.py` (script genérico, serve qualquer pasta de revisão) apontado
-para a pasta gerada; o JS do painel faz `fetch('/api/state', POST)` a cada mudança
-(debounce 400ms) e `fetch('revisoes_humanas.json', GET)` ao carregar — grava direto em
-`revisoes_humanas.json` dentro da pasta do relatório, sobrevive a fechar o navegador,
-sem passo manual de exportar/importar. **Escolher uma porta livre** (já há sessões
-concorrentes ocupando 8765-8768 nesta máquina; checar com
-`Get-NetTCPConnection -State Listen` no PowerShell antes de fixar uma). Sem `--serve`
-(ou para PIL ainda não migrado), cai no modo antigo localStorage — não altera o banco,
-não sela gate, é só apresentação/triagem humana (mesma ressalva de sempre: HTML/checkbox
-não é prova Arete).
-
-- **LAJ** (`revisao_laj_n2_n4_html.py`, 24/07): **3 imagens lado a lado** — N2 puro
-  (recorte humano), N2 com a área demarcada em laranja translúcido (o MESMO
-  marco/contorno que o Comparison Engine desenha, via
-  `src/core/n2_marco_highlight.py::motor_poly_from_recorte` — não é um cálculo novo, é
-  o motor dinâmico real) e N4 (gerado da ficha, motor mais atual).
-- **PIL** (`revisao_pil_n2_n4_html.py`, script original 21/07): 2 imagens (N2, N4),
-  ainda sem o marco laranja, sem a 3ª imagem, e sem `--serve`/persistência em arquivo
-  (só localStorage/export) — pendência se o dono pedir paridade com LAJ (extensão
-  direta: mesmo padrão de `motor_poly_from_recorte` equivalente de PIL se existir +
-  `highlight_polys` no render + o mesmo bloco `--serve`/`fetch('/api/state')` do LAJ).
-
-**Fluxo de trabalho esperado:** dono abre o `index_panzoom.html`, navega pelos itens
-(scroll do mouse = zoom, arraste = pan), escreve no campo "Atenção" o que está errado
-item a item → agente lê as notas, identifica a causa geral no gerador (nunca hardcode
-por item), corrige, regenera o N4 (`arete_runner.py --classe {C} --pav {PAV} --item
-...` ou sem `--item` pra classe toda), roda o script de revisão de novo (mesmo comando,
-timestamp novo) e volta pro dono conferir. Isso repete até o dono não ter mais
-"atenção" nenhuma pra marcar — só então parte para o veredito formal de selagem
-(`g2v_harness.py --backend cli`, agente lê PNG, ver §1.5).
-
-Script fonte: `scripts/arete/revisao_laj_n2_n4_html.py` (adaptado de
-`scripts/arete/revisao_pil_n2_n4_html.py`, mesmo padrão, ainda não generalizado num
-único script parametrizado por classe — pendência futura, não bloqueia uso).
-Marco laranja implementado como parâmetro opcional `highlight_polys` em
-`scripts/arete/dxf_to_svg_casos.py::render()` (patch matplotlib sobre o mesmo `ax` do
-DXF, mesma cor `Semantic.WARNING #ff9800` do Comparison Engine) — reutilizável por
-qualquer ficha/painel futuro que precise do mesmo marco.
-
 ### Eixo B — Qualidade de INTERPRETAÇÃO (N1, diagnóstico duplo + triagem)
 ```bash
 # 1. Gerar fichas (ÚNICO headless de fichas; --wait obrigatório em automação)
@@ -371,7 +294,6 @@ Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N
 | `arete_runner.py` (+ `roundtrip_ficha`, `paridade_visual`, `ficha_adapter`, `gerar_n4_item`) | Gates N2→N4 + golden |
 | `diagnostico_{pil,fv,lv,laj}_n1_n2.py` + `diagnostico_common.py` | Diagnóstico NUMÉRICO N1×N2 (já rodam DENTRO do headless; CLI avulso só p/ debug) — **cego, exige N1-V** |
 | `g2v_harness.py` | **VEREDITO VISUAL obrigatório** de todo gate visual: `--par n2xn4`(G2-V) / `n1xn2`(N1-V) / `n3xn4`(G5-V), `--backend cli` (agente lê a imagem). Ver §1.5 e `VISION-VALIDACAO-CAMINHOS.md` |
-| `revisao_{laj,pil}_n2_n4_html.py` (+ `dxf_to_svg_casos.render(..., highlight_polys=)`) + `servidor_revisao_pil.py --serve` | Painel dinâmico N2×N4 com pan/zoom pra depuração humana do Eixo A, persistência real em `revisoes_humanas.json` via servidor local (LAJ, 27/07) — companheiro do `arete_runner.py`, não substitui `g2v_harness.py` na selagem — ver §"Painel dinâmico" logo acima |
 | `qa_error_review.py` | Triagem humana (abrir/ler checkboxes) |
 | `playwright_loop.py` | Legado de captura raster; não usar para gates. O veredito QA usa SVGs-fonte exportados por `g2v_harness.py --backend cli`. |
 | `triagem_concordancia.py` | Rollup de concordância auto×humano |

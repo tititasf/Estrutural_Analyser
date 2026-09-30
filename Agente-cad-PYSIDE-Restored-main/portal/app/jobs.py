@@ -24,7 +24,7 @@ from typing import Optional
 
 from ..db import connection as db_conn
 from ..db import repository as repo
-from . import n5_release, pipeline_runner
+from . import pipeline_runner
 from .config import Settings
 
 log = logging.getLogger("portal.jobs")
@@ -45,11 +45,7 @@ def _metadados_job(app_state, job_id: str) -> dict:
     da etapa num mapa em memoria (app_state.job_meta). Se ausente (ex.: reconciliacao
     pos-crash sem meta), assume etapa 'sa' completa (regenera tudo, idempotente).
     """
-    memory = app_state.job_meta.get(job_id)
-    if memory:
-        return memory
-    persisted = repo.obter_job_meta(app_state.db, job_id)
-    return persisted or {"etapa": "sa"}
+    return app_state.job_meta.get(job_id, {"etapa": "sa"})
 
 
 def reconciliar_jobs(conn) -> int:
@@ -87,56 +83,6 @@ def processar_um_job(app_state, job: dict) -> None:
 
     log_path = Path(settings.logs_dir) / f"job_{job['id']}.log"
     try:
-        if etapa == "qa_agentico":
-            from . import qa_jobs
-
-            round_id = meta.get("round_id")
-            if not round_id:
-                repo.finalizar_job(conn, job["id"], "falhou", erro_msg="round_id QA ausente")
-                return
-            status = qa_jobs.executar_qa_round(
-                settings=settings,
-                conn=conn,
-                round_id=round_id,
-                log_path=log_path,
-            )
-            if status == "completed":
-                repo.finalizar_job(conn, job["id"], "concluido", log_path=str(log_path))
-            elif status in {"paused", "cancelled"}:
-                # O endpoint já persistiu a decisão. Não sobrescreve a pausa ou
-                # o cancelamento ao alcançar a fronteira entre itens QA.
-                log.info("job QA %s interrompido pelo operador: %s", job["id"], status)
-            else:
-                repo.finalizar_job(
-                    conn, job["id"], "falhou",
-                    erro_msg=f"rodada QA terminou como {status}", log_path=str(log_path),
-                )
-            return
-
-        if etapa == "sa_item":
-            # P4 do escape hatch web (item criado pelo laço do viewer):
-            # microciclo de UM item (--secao --item --persist-db --wait),
-            # enfileirado em vez de rodado dentro do handler HTTP que criou o
-            # item — subprocess_timeout_s default é 3600s, e bloquear a
-            # requisição de criar item por até 1h travaria a aba do operador
-            # sem feedback nenhum. Ramo isolado, ANTES do "etapa_efetiva"
-            # abaixo: "sa_item" não é uma etapa formal do pipeline (não está em
-            # ETAPAS_SUBPROCESS) e NÃO pode tocar etapa_concluida/estado da
-            # obra — é um item avulso, não uma etapa inteira. Mesma razão do
-            # branch "sa": o subprocess já tem --wait, o worker não precisa de
-            # wait_for_lock aqui.
-            resultado = pipeline_runner.executar_microciclo_item(
-                settings, obra, secao=meta.get("secao"), item=meta.get("item"),
-                pav=meta.get("pav"), dry_run=False, log_path=log_path,
-            )
-            if resultado.ok:
-                repo.finalizar_job(conn, job["id"], "concluido", log_path=str(log_path))
-            else:
-                erro_tail = resultado.log_tail[-500:] or "microciclo do item falhou"
-                repo.finalizar_job(conn, job["id"], "falhou",
-                                   erro_msg=erro_tail, log_path=str(log_path))
-            return
-
         etapa_efetiva = etapa if etapa in pipeline_runner.ETAPAS_SUBPROCESS else "sa"
 
         if etapa == "n5":
@@ -228,20 +174,6 @@ def processar_um_job(app_state, job: dict) -> None:
                 release_lock(lock)
 
         if resultado.ok:
-            if meta.get("cascade_n5"):
-                # O headless SA materializa o N3 da mesma rodada. Depois disso,
-                # unifica apenas classes que já passaram pelo gate humano.
-                for class_code in ("PL", "LV", "FV", "LAJ"):
-                    validation = repo.obter_validacao_classe(conn, obra["id"], class_code)
-                    if not validation.get("validado"):
-                        continue
-                    n5_release.liberar_n5(
-                        conn, settings, obra=obra, classe=class_code,
-                        pavimento=meta.get("pav") or "GERAL",
-                        membro_id=meta.get("membro_id") or obra.get("membro_id") or "system",
-                        job_id=job["id"],
-                        engine_version=job.get("engine_version"), dry_run=False,
-                    )
             repo.finalizar_job(conn, job["id"], "concluido", log_path=str(log_path))
             if etapa == "converter_dwg":
                 # [novo] conversao avulsa NAO e' etapa formal do pipeline —
@@ -286,15 +218,8 @@ def processar_um_job(app_state, job: dict) -> None:
             repo.atualizar_estado_obra(conn, obra["id"], "erro", erro_msg=erro_tail)
     except Exception as exc:  # noqa: BLE001 - quarentena (R6): job com erro nao para a fila
         log.exception("job %s falhou", job["id"])
-        if etapa == "qa_agentico" and meta.get("round_id"):
-            itens = repo.listar_qa_items(conn, meta["round_id"])
-            concluidos = sum(item["status"] == "completed" for item in itens)
-            repo.finalizar_qa_round(
-                conn, meta["round_id"], "partial_failed" if concluidos else "failed"
-            )
         repo.finalizar_job(conn, job["id"], "falhou", erro_msg=str(exc)[:500])
-        if etapa != "qa_agentico":
-            repo.atualizar_estado_obra(conn, obra["id"], "erro", erro_msg=str(exc)[:500])
+        repo.atualizar_estado_obra(conn, obra["id"], "erro", erro_msg=str(exc)[:500])
     finally:
         app_state.job_meta.pop(job["id"], None)
 

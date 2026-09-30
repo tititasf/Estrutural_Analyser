@@ -59,18 +59,6 @@ def test_collects_all_five_segment_tabs_from_sa_contract():
     assert collected["lateral_b_passa"][0]["source_slot"] == "seg_side_b"
 
 
-def test_fundo_segment_persists_level_and_its_geometric_provenance():
-    slabs = [{
-        "name": "L301", "nivel": "852.12",
-        "points": [(0, 20), (100, 20), (100, 80), (0, 80)],
-    }]
-    segment = collect_preficha_segments([_beam()], slabs=slabs)["fundo"][0]
-
-    assert segment["level"] == "852.12"
-    assert segment["level_source"] == "highest_touching_slab"
-    assert segment["level_slabs"] == ["L301"]
-
-
 def test_lateral_link_dimension_does_not_reuse_fv_segment_ficha():
     beam = _beam()
     link = beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]
@@ -257,55 +245,6 @@ def test_locked_fundo_restoration_discards_newly_inferred_segments():
     assert "viga_fundo_seg_2_area_segs" not in target["links"]
     assert target["links"]["viga_fundo_seg_1_area_segs"] == (
         validated["links"]["viga_fundo_seg_1_area_segs"]
-    )
-
-
-def test_locked_fundo_restoration_drops_exact_duplicate_index():
-    """Regressão real V331 (2026-07-21, coordenadas reais do 13_PAV).
-
-    Dados legados sem rastro de proveniência (travados pela regra de nunca
-    perder possível dado humano) tinham 2 índices apontando pra EXATAMENTE
-    a mesma geometria (mesmos pontos, mesmo comprimento 201cm) — artefato
-    de persistência antiga, não dois segmentos reais. A restauração deve
-    manter só 1 índice (o de menor número); geometria idêntica nunca pode
-    virar 2 segmentos duplicados na ficha final.
-    """
-    validated = _beam()
-    validated["id"] = "project_v331"
-    contour_points = [
-        (4601.3825, 2460.038), (4620.3825, 2460.038),
-        (4620.3825, 2661.038), (4601.3825, 2661.038),
-    ]
-    validated["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["points"] = (
-        contour_points
-    )
-    validated["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["len"] = 201.0
-    validated["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["validated"] = (
-        True
-    )
-    validated["links"]["viga_fundo_seg_2_area_segs"] = {
-        "contour": [{
-            "points": list(contour_points),
-            "len": 201.0,
-        }]
-    }
-
-    target = _beam()
-    target["id"] = "project_v331"
-    target["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["points"] = (
-        contour_points
-    )
-    target["links"]["viga_fundo_seg_2_area_segs"] = {
-        "contour": [{"points": list(contour_points), "len": 201.0}]
-    }
-    target["geometry"] = {"classified": {
-        "merged_bottom_groups_coords": [(2460.038, 2661.038)],
-    }}
-
-    assert restore_locked_fundo_topology(target, validated) is True
-    assert "viga_fundo_seg_2_area_segs" not in target["links"]
-    assert target["links"]["viga_fundo_seg_1_area_segs"]["contour"][0]["len"] == (
-        201.0
     )
 
 

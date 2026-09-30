@@ -56,15 +56,3 @@ registram lado A/B, PARA/PASSA, apoios, laje/visão-corte e N3 por variante.
   só V301; (c) rodar regressão nas outras 31 vigas LV do 13_PAV antes de selar;
   (d) regenerar inventário + G2-V após o fix.
 - Não-regressão: pendente — fix do motor ainda não aplicado nesta sessão.
-
-## 2026-07-20 — mini-RAG (B1) estendido a LV: usar `--session-index` no `review`
-
-MR-3 (`scripts/arete/relatorios/20260718_minirag_d0d1/MR3-RELATORIO.md`) mediu
-que `qa_evidence_auditor.py review --classe LV --session-index <índice>` traz
-**+4 entradas reais de `human_event_logs`** (status `CAPTURED`) que o `review`
-sem `--session-index` não alcança. Regressão zero: 394/394 decisões idênticas
-com/sem o índice no 13_PAV. Ganho menor que FV/LAJ em volume absoluto (só 4
-linhas `CAPTURED` existem hoje para LV na base inteira), mas real. **Recomendação
-para próximas sessões LV:** passar `--session-index
-scripts/arete/relatorios/qa_session_index/<obra>_<pav>` nas revisões reais, mesmo
-protocolo de FV/LAJ.

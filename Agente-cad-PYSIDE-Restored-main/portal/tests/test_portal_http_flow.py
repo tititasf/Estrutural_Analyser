@@ -106,92 +106,6 @@ async def test_fluxo_login_listar_enfileirar_consultar(settings):
         assert job["job_id"] == job_id
         assert job["obra_id"] == obra_id
         assert job["estado"] in ("queued", "running", "done", "error")
-        assert "progresso" in job
-        assert job["progresso"]["percentual_estimado"] in (0, 2, 100, None) or (
-            2 <= job["progresso"]["percentual_estimado"] <= 95
-        )
-
-
-@pytest.mark.asyncio
-async def test_controles_http_pausar_continuar_cancelar(settings):
-    async with _app_cliente(settings) as (app, client):
-        # O teste controla o estado deterministamente; nenhum worker deve consumir
-        # o job entre uma requisição e outra.
-        app.state.worker.stop()
-        obra_id = _obra_da_ana(settings, arquivo_hash="hash-controles-http")
-        c = connection.init_db(settings.db_path)
-        job_id = repo.enfileirar_job(c, obra_id=obra_id)
-        repo.salvar_job_meta(c, job_id, {"etapa": "qa_agentico"})
-        c.close()
-        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
-
-        response = await client.post(f"/jobs/{job_id}/pausar")
-        assert response.status_code == 200
-        assert response.json()["estado"] == "pausado"
-        listed = await client.get(f"/obras/{obra_id}/jobs")
-        assert listed.json()["jobs"][0]["status"] == "pausado"
-        detail = await client.get(f"/jobs/{job_id}")
-        assert detail.json()["estado"] == "paused"
-
-        response = await client.post(f"/jobs/{job_id}/continuar")
-        assert response.status_code == 200
-        assert response.json()["estado"] == "na_fila"
-
-        response = await client.post(f"/jobs/{job_id}/cancelar")
-        assert response.status_code == 200
-        assert response.json()["estado"] == "cancelado"
-        assert (await client.post(f"/jobs/{job_id}/continuar")).status_code == 409
-
-
-@pytest.mark.asyncio
-async def test_login_persistente_so_expira_no_logout(settings):
-    async with _app_cliente(settings) as (_app, client):
-        response = await client.post("/login", json={
-            "login": "ana", "senha": "segredo123", "manter_conectado": True,
-        })
-        assert response.status_code == 200
-        set_cookie = response.headers["set-cookie"].lower()
-        assert "max-age=315360000" in set_cookie
-        assert "httponly" in set_cookie and "samesite=lax" in set_cookie
-        assert (await client.get("/me")).status_code == 200
-
-        logout = await client.post("/logout")
-        assert logout.status_code == 200
-        assert "max-age=0" in logout.headers["set-cookie"].lower()
-
-
-@pytest.mark.asyncio
-async def test_login_temporario_continua_cookie_de_sessao(settings):
-    async with _app_cliente(settings) as (_app, client):
-        response = await client.post("/login", json={
-            "login": "ana", "senha": "segredo123", "manter_conectado": False,
-        })
-        assert response.status_code == 200
-        assert "max-age=" not in response.headers["set-cookie"].lower()
-
-
-@pytest.mark.asyncio
-async def test_sa_todos_enfileira_um_job_por_pavimento_em_lote(settings, monkeypatch):
-    from portal.app.routers import jobs_routes
-
-    async with _app_cliente(settings) as (app, client):
-        obra_id = _obra_da_ana(settings, arquivo_hash="hash-lote-pavimentos")
-        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
-        monkeypatch.setattr(
-            jobs_routes, "_pavimentos_processaveis",
-            lambda request, obra: ["TERREO", "1_PAV", "2_PAV"],
-        )
-
-        response = await client.post(
-            f"/obras/{obra_id}/sa-todos", json={"secao": []},
-        )
-        assert response.status_code == 200
-        data = response.json()
-        assert data["total"] == 3
-        assert [job["pav"] for job in data["jobs"]] == ["TERREO", "1_PAV", "2_PAV"]
-        assert len({job["meta"]["batch_id"] for job in data["jobs"]}) == 1
-        assert all(job["meta"]["escopo"] == "global" for job in data["jobs"])
-        assert all(job["job_id"] in app.state.job_meta for job in data["jobs"])
 
 
 # --------------------------------------------------------------------------- #
@@ -605,11 +519,8 @@ async def test_n5_foto_renderiza_dxf_real(settings, tmp_path):
 
         r = await client.get(f"/obras/{obra_id}/n5/FV/foto")
         assert r.status_code == 200
-        # [2026-07-30] Era PNG; a rota migrou para SVG e o teste ficou para tras.
-        # Portal web entrega SVG por politica canonica (agente le PNG, portal le
-        # SVG) — `docs/QA-VISAO-EVIDENCIA-CANONICA.md`.
-        assert r.headers["content-type"] == "image/svg+xml"
-        assert b"<svg" in r.content[:2000]
+        assert r.headers["content-type"] == "image/png"
+        assert r.content[:8] == b"\x89PNG\r\n\x1a\n"
 
 
 @pytest.mark.asyncio

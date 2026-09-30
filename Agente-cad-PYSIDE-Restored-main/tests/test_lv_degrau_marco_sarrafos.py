@@ -64,18 +64,9 @@ def test_degrau_draws_step_shoulder_verticals():
     assert (0.0, -259.0, -194.0) not in verts
     assert (244.0, -194.0, -150.0) in verts
     assert (244.0, -259.0, -194.0) not in verts
-    assert (272.7, -259.0, -194.0) not in verts
+    assert (272.7, -259.0, -194.0) in verts
     assert (294.5, -259.0, -194.0) in verts
     assert (405.5, -259.0, -150.0) in verts
-    assert any(
-        ent.dxftype() == "DIMENSION"
-        and ent.dxf.layer == "COTA"
-        and ent.dxf.text == "65"
-        for ent in msp
-    )
-    # O retangulo da laje/vazio superior fecha na parede direita em COTA,
-    # sem transformar essa parede em divisor da camada Painéis.
-    assert (405.5, -150.0, -135.0) in _verticals(msp, "COTA")
     sarr = _verticals(msp, "SARR_2.2x7")
     assert (6.9, -193.0, -150.0) in sarr
     assert (301.5, -259.0, -194.0) in sarr
@@ -103,64 +94,6 @@ def test_merge_extremity_sarrafos_only_when_requested():
         item['side'] == 'right' and abs(item['x_offset'] - right_x) < 0.2
         for item in with_right
     )
-
-
-def test_n2_dimension_chain_repairs_ficha_widths_and_merged_divider():
-    motor_path = Path(__file__).resolve().parents[1] / "scripts" / "motor_reverso_lv.py"
-    spec = importlib.util.spec_from_file_location("motor_reverso_lv_dims", motor_path)
-    motor = importlib.util.module_from_spec(spec)
-    assert spec and spec.loader
-    spec.loader.exec_module(motor)
-
-    def panel(width, height):
-        return {"width": width, "largura_cm": width, "height1": height}
-
-    repaired = motor.reconcile_panel_segments_with_horizontal_dims(
-        [panel(52.5, 109), panel(21.8, 44.3), panel(244.7, 44.3)],
-        [52.5, 22.5, 75.0, 244.0],
-        109.0,
-        1000.0,
-    )
-    assert [p["width"] for p in repaired] == [52.5, 22.5, 244.0]
-
-    merged = motor.reconcile_panel_segments_with_horizontal_dims(
-        [panel(111.0, 109), panel(21.8, 44), panel(41.2, 44), panel(244.0, 44)],
-        [111.0, 63.0, 174.0, 244.0],
-        109.0,
-        2000.0,
-    )
-    assert [p["width"] for p in merged] == [111.0, 63.0, 244.0]
-
-
-def test_trailing_degrau_draws_void_without_internal_panel_walls_and_all_levels():
-    doc = lv.setup_doc()
-    msp = doc.modelspace()
-    def panel(width, height):
-        return {"width": width, "height1": height, "height2": 0.0,
-                "grade_h1": 0.0, "grade_h2": 0.0,
-                "panel_type": "Sarrafeado"}
-    lv.draw_lv_face(
-        msp, 0.0, 0.0,
-        [panel(52.5, 109.0), panel(22.5, 44.0), panel(244.0, 44.0)],
-        109.0, "UNIT.A", laje_sup=15.0, marco_laje_sup=True,
-    )
-    verts = _verticals(msp, "Painéis", x_max=330.0)
-    # Zoom direto no N2 real de V301.A#2/UNIT.A#1 (mesmo padrao alto-degrau-
-    # degrau desta fixture): a borda direita do painel alto (52.5) vai do
-    # chao ao topo (0->109), nao so ate o ombro (0->65) — o painel alto tem
-    # material na largura toda, a parede que separa ele do vazio do painel
-    # baixo e visivel a altura inteira (ver RELATORIO 20260724, screenshot
-    # comparando V301.A#2 e V301.B#2). O valor antigo (0->65) media so a
-    # junta abaixo do ombro e cortava a parede acima dele.
-    assert (52.5, 0.0, 109.0) in verts
-    assert (75.0, 0.0, 65.0) not in verts
-    assert (319.0, 65.0, 109.0) in verts
-    assert (319.0, 0.0, 109.0) not in verts
-    dim_texts = {
-        ent.dxf.text for ent in msp
-        if ent.dxftype() == "DIMENSION" and ent.dxf.layer == "COTA"
-    }
-    assert {"44", "59", "65", "52,5", "22,5", "244"} <= dim_texts
 
 
 def test_motor_detects_sarrafos_and_marco_for_v301():

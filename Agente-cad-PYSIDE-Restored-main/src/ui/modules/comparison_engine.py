@@ -426,16 +426,13 @@ class DXFVectorView(QWidget):
 
 from src.ui.theme import Colors, Fonts, Radius, Semantic, Contextual, Text, Surface, Border, Accent
 from src.core.item_attention_store import (
-    has_attention, load_attention, load_attention_bulk, save_attention,
-    save_human_validation, is_human_validated,
+    has_attention, load_attention, save_attention, save_human_validation, is_human_validated,
     save_para_passa, load_para_passa,
 )
 from src.core.artifact_governance import (
     discover_level_artifacts,
     guarded_promote,
     is_qa_agente_validated,
-    is_qa_agente_validated_bulk,
-    load_validation_policies_bulk,
     restore_validation_artifacts,
 )
 
@@ -4346,13 +4343,8 @@ class LevelColumn(QFrame):
                 self._zone_tables[zone] = tbl
                 splitter.addWidget(panel)
 
-            # Inserir splitter PIL após o header (index 1) — ou após o painel
-            # N2 (index 2) se "Comparar N2" já estiver ativo. restore_single_view()
-            # remove o splitter anterior ao trocar de item mas preserva _n2_above;
-            # sem checar isso aqui, a nova montagem sempre voltava pro index 1 e
-            # empurrava o N2 pra baixo do N4 (deveria ficar acima, sempre).
-            insert_idx = 2 if getattr(self, '_n2_above', None) is not None else 1
-            lay.insertWidget(insert_idx, splitter)
+            # Inserir splitter PIL após o header (index 1)
+            lay.insertWidget(1, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
 
@@ -4479,11 +4471,7 @@ class LevelColumn(QFrame):
 
             # Corte compacto; A e B recebem a mesma largura para comparação.
             splitter.setSizes([220, 390, 390])
-            # Mesmo ajuste de switch_to_pil_zones: index 2 (após o painel N2)
-            # quando "Comparar N2" já está ativo, senão o N2 acaba abaixo do N4
-            # depois de restore_single_view() + nova montagem ao navegar.
-            insert_idx = 2 if getattr(self, '_n2_above', None) is not None else 1
-            lay.insertWidget(insert_idx, splitter)
+            lay.insertWidget(1, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
 
@@ -5893,40 +5881,14 @@ class NavSidebar(QFrame):
             }
         return out
 
-    def _refresh_attn_bulk_cache(self) -> None:
-        """Recarrega o cache de notas/validações para (obra, pav) atual.
-
-        PERFORMANCE: _populate_aligned_items() chama _row_has_attention/
-        _row_human_validated por ITEM (até centenas por pavimento) — cada uma
-        batia o SQLite individualmente (era a causa confirmada via
-        freeze_dump.log dos travamentos de vários segundos ao trocar de
-        obra/pavimento). Uma consulta em lote substitui N round-trips por 1.
-        Recarregado a cada chamada de _populate_aligned_items (nunca reusado
-        entre chamadas) para nunca mostrar selo desatualizado depois de uma
-        validação/anotação recém-salva.
-        """
-        obra = self._current_obra_dir.name if self._current_obra_dir is not None else ""
-        pav = self._current_pav or ""
-        try:
-            self._attn_bulk_cache = load_attention_bulk(obra, pav) if obra and pav else {}
-        except Exception:
-            self._attn_bulk_cache = {}
-        try:
-            self._policy_bulk_cache = load_validation_policies_bulk(obra) if obra else ({}, {})
-        except Exception:
-            self._policy_bulk_cache = ({}, {})
-
     def _row_has_attention(self, cls: str, row_data: dict | None) -> bool:
         if not row_data:
             return False
         try:
+            obra = self._current_obra_dir.name if self._current_obra_dir is not None else ""
+            pav = self._current_pav or ""
             scope = "N4" if row_data.get("source") == "reverso" else "N3"
-            entry = getattr(self, "_attn_bulk_cache", {}).get(
-                (str(cls).upper(), str(row_data.get("id", "")), scope)
-            )
-            if entry is None:
-                return False
-            return bool(entry.get("attention") or str(entry.get("note") or "").strip())
+            return has_attention(obra, pav, cls, row_data.get("id", ""), scope)
         except Exception:
             return False
 
@@ -5934,11 +5896,10 @@ class NavSidebar(QFrame):
         if not row_data:
             return False
         try:
+            obra = self._current_obra_dir.name if self._current_obra_dir is not None else ""
+            pav = self._current_pav or ""
             scope = "N4" if row_data.get("source") == "reverso" else "N3"
-            entry = getattr(self, "_attn_bulk_cache", {}).get(
-                (str(cls).upper(), str(row_data.get("id", "")), scope)
-            )
-            return bool(entry and entry.get("human_validated"))
+            return is_human_validated(obra, pav, cls, row_data.get("id", ""), scope)
         except Exception:
             return False
 
@@ -5946,10 +5907,10 @@ class NavSidebar(QFrame):
         if not row_data or row_data.get("source") != "reverso":
             return False
         try:
+            obra = self._current_obra_dir.name if self._current_obra_dir is not None else ""
             pav = self._current_pav or ""
-            by_pav, by_obra = getattr(self, "_policy_bulk_cache", ({}, {}))
-            return is_qa_agente_validated_bulk(
-                by_pav, by_obra, pav, cls, row_data.get("id", ""), "N4"
+            return is_qa_agente_validated(
+                obra, pav, cls, row_data.get("id", ""), "N4"
             )
         except Exception:
             return False
@@ -5984,7 +5945,6 @@ class NavSidebar(QFrame):
     def _populate_aligned_items(self, cls: str):
         prev_item = self._selected_item
         prev_source = self._selected_source
-        self._refresh_attn_bulk_cache()
         self.tbl_items.blockSignals(True)
         try:
             self.tbl_items.clearSelection()
@@ -6989,10 +6949,7 @@ class TriLevelArea(QWidget):
             if not hasattr(self, '_retiring_scan_workers'):
                 self._retiring_scan_workers = []
             self._retiring_scan_workers.append(old_sw)
-            # DXFScanWorker.finished = Signal(str): mesmo bug do _retire_aw
-            # (ver comentário lá) — "*_ignored" absorve o arg do sinal pra
-            # w/lst nao serem sobrescritos pelos defaults.
-            def _retire_sw(*_ignored, w=old_sw, lst=self._retiring_scan_workers):
+            def _retire_sw(w=old_sw, lst=self._retiring_scan_workers):
                 try:
                     lst.remove(w)
                 except ValueError:
@@ -7607,29 +7564,18 @@ class TriLevelArea(QWidget):
         return (min(all_xs)-pad, min(all_ys)-pad,
                 max(all_xs)+pad, min(cy+180, max(all_ys)+pad))
 
-    def _resolve_lj_recorte_path(self, item_id: str) -> Path | None:
-        """Path canônico do recorte N2 LAJ (âncora Reverse Hub → disco)."""
+    def _get_lj_content_points_for(self, item_id: str):
+        """Polígono exato da área interna LAJ, derivado do recorte N2 âncora.
+
+        Preferência: reverse_eng_recortes aprovado no Reverse Hub (pav atual).
+        Fallback: ficha DB / último sel|motor no disco (legado).
+        """
         try:
             import re as _re
+            import sys as _sys
             from src.core.n2_anchor import resolve_n2_anchor
 
-            selected = getattr(self, "_selected_recorte_path", None)
-            if not selected:
-                parent = self
-                for _ in range(8):
-                    parent = getattr(parent, "parent", lambda: None)()
-                    if parent is None:
-                        break
-                    if hasattr(parent, "nav_sidebar"):
-                        selected = getattr(
-                            parent.nav_sidebar, "_selected_recorte_path", ""
-                        )
-                        break
-            if selected and Path(str(selected)).exists():
-                name = Path(str(selected)).name.upper()
-                if item_id.upper() in name.replace(".", "") or "LAJ_" in name:
-                    return Path(str(selected))
-
+            dxf_path = None
             anchor = resolve_n2_anchor(
                 self._current_obra or "",
                 "LAJ",
@@ -7639,358 +7585,76 @@ class TriLevelArea(QWidget):
             if anchor and anchor.get("recorte_path"):
                 cand = Path(anchor["recorte_path"])
                 if cand.exists():
-                    return cand
+                    dxf_path = cand
 
-            recortes_dir = (
-                DADOS_OBRAS_ROOT / self._current_obra
-                / "Fase-2_Triagem" / "recortes_reversos"
-            )
-            if not recortes_dir.exists():
-                return None
-            pat_sel = _re.compile(
-                rf"^LAJ_{_re.escape(item_id)}_sel_\d+\.dxf$", _re.I
-            )
-            pat_motor = _re.compile(
-                rf"^LAJ_{_re.escape(item_id)}_motor_\d+\.dxf$", _re.I
-            )
-            sel_candidates: list[Path] = []
-            motor_candidates: list[Path] = []
+            if dxf_path is None:
+                recortes_dir = (
+                    DADOS_OBRAS_ROOT / self._current_obra
+                    / "Fase-2_Triagem" / "recortes_reversos"
+                )
+                if not recortes_dir.exists():
+                    return []
 
-            def _suffix_rank(path: Path) -> tuple[int, float]:
-                m = _re.search(r"_(?:motor|sel)_(\d+)$", path.stem, _re.I)
-                num = int(m.group(1)) if m else 0
-                try:
-                    mtime = path.stat().st_mtime
-                except OSError:
-                    mtime = 0.0
-                return (num, mtime)
+                pat_sel = _re.compile(
+                    rf"^LAJ_{_re.escape(item_id)}_sel_\d+\.dxf$", _re.I
+                )
+                pat_motor = _re.compile(
+                    rf"^LAJ_{_re.escape(item_id)}_motor_\d+\.dxf$", _re.I
+                )
+                sel_candidates: list[Path] = []
+                motor_candidates: list[Path] = []
 
-            for dxf in recortes_dir.rglob("*.dxf"):
-                name = dxf.name
-                if pat_sel.match(name):
-                    sel_candidates.append(dxf)
-                elif pat_motor.match(name):
-                    motor_candidates.append(dxf)
-            if sel_candidates:
-                return max(sel_candidates, key=_suffix_rank)
-            if motor_candidates:
-                return max(motor_candidates, key=_suffix_rank)
-        except Exception:
-            return None
-        return None
+                def _suffix_rank(path: Path) -> tuple[int, float]:
+                    m = _re.search(r"_(?:motor|sel)_(\d+)$", path.stem, _re.I)
+                    num = int(m.group(1)) if m else 0
+                    try:
+                        mtime = path.stat().st_mtime
+                    except OSError:
+                        mtime = 0.0
+                    return (num, mtime)
 
-    @staticmethod
-    def _lj_points_from_ficha_extract(
-        dxf_path: Path | str, item_id: str, obra: str
-    ) -> list:
-        """Polígono da laje no recorte — motor + pose (mesma base do N4)."""
-        try:
-            import sys as _sys
+                for dxf in recortes_dir.rglob("*.dxf"):
+                    name = dxf.name
+                    if pat_sel.match(name):
+                        sel_candidates.append(dxf)
+                    elif pat_motor.match(name):
+                        motor_candidates.append(dxf)
+                dxf_path = (
+                    max(sel_candidates, key=_suffix_rank) if sel_candidates else
+                    max(motor_candidates, key=_suffix_rank) if motor_candidates else
+                    None
+                )
+            if not dxf_path:
+                return []
 
             scripts_dir = str(SCRIPTS_DIR)
             if scripts_dir not in _sys.path:
                 _sys.path.insert(0, scripts_dir)
             from motor_reverso_laj import extrair_ficha_laje
 
-            ficha = extrair_ficha_laje(str(dxf_path), item_id, obra)
+            ficha = extrair_ficha_laje(str(dxf_path), item_id, self._current_obra)
             coords = ficha.get("coordenadas") or []
             if len(coords) < 3:
                 return []
+
             xs = [float(c[0]) for c in coords]
             ys = [float(c[1]) for c in coords]
             raw_x0, raw_y0 = min(xs), min(ys)
             pose = ficha.get("_stog_pose") or {}
-            if pose and abs(raw_x0) <= 0.5 and abs(raw_y0) <= 0.5:
-                off_x = float(pose.get("x", 0.0) or 0.0)
-                off_y = float(pose.get("y", 0.0) or 0.0)
-            else:
-                off_x = off_y = 0.0
-            return [(x + off_x, y + off_y) for x, y in zip(xs, ys)]
+            off_x = float(pose.get("x", 0.0)) if pose and abs(raw_x0) <= 0.5 else 0.0
+            off_y = float(pose.get("y", 0.0)) if pose and abs(raw_y0) <= 0.5 else 0.0
+            abs_xs = [x + off_x for x in xs]
+            abs_ys = [y + off_y for y in ys]
+            return list(zip(abs_xs, abs_ys))
         except Exception:
-            return []
-
-    @staticmethod
-    def _lj_points_from_paineis_extent(dxf_path: Path | str) -> list:
-        """Retângulo do extent da layer Painéis (superfície de fôrma no recorte)."""
-        try:
-            import ezdxf
-        except Exception:
-            return []
-        path = Path(dxf_path)
-        if not path.exists():
-            return []
-        try:
-            doc = ezdxf.readfile(str(path))
-            msp = doc.modelspace()
-        except Exception:
-            return []
-        xs: list[float] = []
-        ys: list[float] = []
-        for ent in msp:
-            try:
-                ly = str(getattr(ent.dxf, "layer", "") or "").upper()
-                if "PAIN" not in ly:
-                    continue
-                t = ent.dxftype()
-                if t == "LWPOLYLINE":
-                    for x, y, *_ in ent.get_points("xy"):
-                        xs.append(float(x))
-                        ys.append(float(y))
-                elif t == "LINE":
-                    xs.extend([float(ent.dxf.start.x), float(ent.dxf.end.x)])
-                    ys.extend([float(ent.dxf.start.y), float(ent.dxf.end.y)])
-            except Exception:
-                continue
-        if len(xs) < 4:
-            return []
-        x0, y0, x1, y1 = min(xs), min(ys), max(xs), max(ys)
-        if (x1 - x0) < 20.0 or (y1 - y0) < 10.0:
-            return []
-        return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
-
-    @staticmethod
-    def _outline_points_from_recorte_dxf(dxf_path: Path | str) -> list:
-        """Fallback: maior LWPOLYLINE fechada estrutural (sem bbox expandido)."""
-        try:
-            import ezdxf
-        except Exception:
-            return []
-        path = Path(dxf_path)
-        if not path.exists():
-            return []
-        try:
-            doc = ezdxf.readfile(str(path))
-            msp = doc.modelspace()
-        except Exception:
-            return []
-
-        skip = {
-            "COTA", "DEFPOINTS", "FOLHAS", "CARIMBO", "AUX00",
-            "NOMENCLATURA", "TEXTO_GERAL", "REAPROVEITAMENTO", "HACHURA", "7",
-        }
-        best = None
-        for ent in msp:
-            try:
-                ly = str(getattr(ent.dxf, "layer", "") or "").upper()
-                if ly in skip or ly.startswith("COTA"):
-                    continue
-                if ent.dxftype() != "LWPOLYLINE":
-                    continue
-                pts = [(float(x), float(y)) for x, y, *_ in ent.get_points("xy")]
-                if len(pts) < 3:
-                    continue
-                closed = bool(ent.closed) or pts[0] == pts[-1]
-                if not closed:
-                    continue
-                ring = pts if pts[0] == pts[-1] else pts + [pts[0]]
-                area = abs(
-                    sum(
-                        ring[i][0] * ring[i + 1][1]
-                        - ring[i + 1][0] * ring[i][1]
-                        for i in range(len(ring) - 1)
-                    )
-                ) / 2.0
-                poly = pts[:-1] if pts[0] == pts[-1] else pts
-                if best is None or area > best[0]:
-                    best = (area, poly)
-            except Exception:
-                continue
-        if best and best[0] >= 50.0 and len(best[1]) >= 3:
-            return best[1]
-        return []
-
-    @staticmethod
-    def _bb_size(points: list) -> tuple[float, float]:
-        xs = [float(p[0]) for p in points]
-        ys = [float(p[1]) for p in points]
-        return (max(xs) - min(xs), max(ys) - min(ys))
-
-    def _lj_attention_note(self, item_id: str) -> str:
-        """Lê nota humana N4/N2 do item — dinâmica em qualquer obra/pavimento.
-
-        Notas no CE usam frequentemente o pavement_name técnico do projeto
-        (TMC-EST-…), não só 14_PAV — faz fallback SQL por obra+item.
-        """
-        try:
-            import sqlite3
-            from src.core.item_attention_store import load_attention, DB_PATH
-            from src.core.n2_anchor import pav_key_to_db_pav
-
-            obra = self._current_obra or ""
-            pav = self._current_pav or ""
-            if not obra or not item_id:
-                return ""
-            candidates = [pav]
-            try:
-                p2 = pav_key_to_db_pav(pav)
-                if p2 and p2 not in candidates:
-                    candidates.append(p2)
-            except Exception:
-                pass
-            # se o combo já trouxe o nome CAD longo, também entra
-            if pav and pav not in candidates:
-                candidates.append(pav)
-            for p in candidates:
-                for cls in ("LJ", "LAJ"):
-                    for scope in ("N4", "N2"):
-                        data = load_attention(obra, p, cls, item_id, scope)
-                        note = (data.get("note") or "").strip()
-                        if note:
-                            return note
-            # Fallback: qualquer pavimento da obra para esse item (nota mais recente)
-            with sqlite3.connect(str(DB_PATH)) as conn:
-                row = conn.execute(
-                    """
-                    SELECT note FROM item_attention_notes
-                    WHERE obra_name=? AND UPPER(item_id)=?
-                      AND UPPER(classe) IN ('LJ','LAJ')
-                      AND UPPER(scope) IN ('N4','N2')
-                      AND TRIM(COALESCE(note,'')) != ''
-                    ORDER BY updated_at DESC LIMIT 1
-                    """,
-                    (obra, str(item_id).upper()),
-                ).fetchone()
-            if row and row[0]:
-                return str(row[0]).strip()
-        except Exception:
-            return ""
-        return ""
-
-    def _pick_lj_highlight_points(
-        self, motor_pts: list, paineis_pts: list, note: str = ""
-    ) -> list:
-        """Escolhe contorno do marco. Nota de atenção enviesa a escolha (universal)."""
-        note_l = (note or "").lower()
-        invade = any(
-            k in note_l for k in ("invad", "viga", "pilar", "pilares", "vigas")
-        )
-        faltou = any(
-            k in note_l for k in ("faltou", "falta", "topo", "pedaco", "pedaço")
-        )
-
-        if not motor_pts and not paineis_pts:
-            return []
-        if motor_pts and not paineis_pts:
-            return motor_pts
-        if paineis_pts and not motor_pts:
-            return paineis_pts
-
-        mw, mh = self._bb_size(motor_pts)
-        pw, ph = self._bb_size(paineis_pts)
-        if mw < 1 or mh < 1:
-            return paineis_pts
-        if pw < 1 or ph < 1:
-            return motor_pts
-
-        # Nota "faltou área/topo" primeiro — mesmo em forma complexa (L410).
-        if faltou:
-            if (pw > mw * 1.03 or ph > mh * 1.03) and pw < mw * 1.35 and ph < mh * 1.35:
-                return paineis_pts
-            return motor_pts
-
-        # L/degrau: path do motor (nunca AABB). Se nota invade e motor >> paineis, aperta.
-        if len(motor_pts) >= 6:
-            if invade and (mw > pw * 1.05 or mh > ph * 1.05):
-                return paineis_pts
-            return motor_pts
-
-        if invade:
-            if mw > pw * 1.02 or mh > ph * 1.02:
-                return paineis_pts
-            if pw > mw * 1.2 or ph > mh * 1.2:
-                return motor_pts
-            return motor_pts if (mw * mh) <= (pw * ph) else paineis_pts
-
-        if mw > pw * 1.08 or mh > ph * 1.08:
-            return paineis_pts
-        if pw > mw * 1.25 or ph > mh * 1.25:
-            return motor_pts
-        if pw > mw * 1.05 or ph > mh * 1.05:
-            return paineis_pts
-        return motor_pts
-
-    def _get_lj_content_points_for(
-        self, item_id: str, recorte_path: Path | str | None = None
-    ):
-        """Polígono do marco vermelho LAJ ≡ contorno N4 (motor dinâmico).
-
-        Ordem (igual ao 13_PAV estável):
-        1) Motor live no recorte N2 do pavimento atual
-        2) Ficha DB filtrada por obra+pav
-        3) Sem heurística de “atenção” que encolha diferente do gerador
-        """
-        try:
-            from src.core.n2_marco_highlight import (
-                extract_ficha_live,
-                load_ficha_db,
-                n4_outline_world_from_ficha,
-                open_ring,
-            )
-
-            obra = str(getattr(self, "_current_obra", "") or "").strip()
-            pav = str(getattr(self, "_current_pav", "") or "").strip()
-            if not obra:
-                try:
-                    parent = self
-                    for _ in range(6):
-                        parent = getattr(parent, "parent", lambda: None)()
-                        if parent is None:
-                            break
-                        if hasattr(parent, "fase8_panel"):
-                            obra = str(
-                                parent.fase8_panel.cmb_obra.currentData()
-                                or parent.fase8_panel.cmb_obra.currentText()
-                                or ""
-                            ).strip()
-                            pav = str(
-                                getattr(parent.fase8_panel, "current_pav_key", "")
-                                or pav
-                            )
-                            break
-                except Exception:
-                    pass
-
-            dxf_path = Path(recorte_path) if recorte_path else None
-            if dxf_path is None or not dxf_path.exists():
-                dxf_path = self._resolve_lj_recorte_path(item_id)
-
-            # 1) LIVE no recorte (dinâmico — como 13_PAV)
-            if dxf_path and dxf_path.exists():
-                ficha = extract_ficha_live(dxf_path, item_id, obra)
-                poly = n4_outline_world_from_ficha(ficha)
-                if len(poly) >= 3:
-                    pts = open_ring(poly)
-                    _ce_log(
-                        f"N2 marco LIVE {item_id} pav={pav!r} "
-                        f"{ficha.get('comprimento')}x{ficha.get('largura')} n={len(pts)}"
-                    )
-                    return pts
-
-            # 2) Ficha DB do pavimento (sem cruzar 13/14)
-            ficha = load_ficha_db(obra, item_id, pavimento=pav)
-            if ficha:
-                poly = n4_outline_world_from_ficha(ficha)
-                if len(poly) >= 3:
-                    pts = open_ring(poly)
-                    _ce_log(
-                        f"N2 marco DB {item_id} pav={pav!r} "
-                        f"{ficha.get('comprimento')}x{ficha.get('largura')} n={len(pts)}"
-                    )
-                    return pts
-
-            _ce_log(f"N2 marco vazio {item_id} obra={obra!r} pav={pav!r}")
-            return []
-        except Exception as exc:
-            _ce_log(f"N2 marco ERROR {item_id}: {exc}")
             return []
 
     def _get_lj_content_bbox_for(self, item_id: str, pad: float = 0.0):
-        """BBox justo do polígono da laje (só para zoom; highlight usa o path)."""
+        """BBox justo do polígono interno LAJ; sem contexto de lajes vizinhas."""
         points = self._get_lj_content_points_for(item_id)
         if not points:
             return None
-        return self._points_bbox(points, pad=pad if pad else 5.0)
-
+        return self._points_bbox(points, pad=pad)
 
     def _ficha_generic(self, classe: str, item_id: str) -> list:
         """Lê JSON de Fase-4_Sincronizacao para qualquer classe."""
@@ -9542,13 +9206,10 @@ class ComparisonEngineModule(QWidget):
         item_id = item_id or getattr(self.nav_sidebar, "_selected_item", "")
         if bbox is None and item_id and cull_to_bbox:
             bbox = self.tri_level._get_n2_bbox_for(item_id, classe)
-        # Marco vermelho = contorno da LAJE no recorte (motor+pose = mesma fonte N4),
-        # não o bbox expandido de todo o conteúdo do crop (apoios/vizinhos).
-        highlight_points = None
-        if str(classe).upper() == "LJ" and item_id:
-            highlight_points = self.tri_level._get_lj_content_points_for(
-                item_id, recorte_path=path
-            )
+        highlight_points = (
+            self.tri_level._get_lj_content_points_for(item_id)
+            if str(classe).upper() == "LJ" and item_id else None
+        )
         self.tri_level._columns[3].show_n2_above(
             path,
             title=f"DXF N2 - {item_id}" if item_id else "DXF N2",
@@ -9558,39 +9219,26 @@ class ComparisonEngineModule(QWidget):
         )
         return True
 
-    def _load_recorte_full_with_optional_zoom(
-        self, col, dxf_path, bbox=None, highlight_points=None
-    ):
-        """Carrega recorte inteiro; destaque = polígono da laje (não retângulo AABB)."""
-        points = list(highlight_points) if highlight_points else None
-        zoom_bb = bbox
-        if points and len(points) >= 3 and zoom_bb is None:
-            zoom_bb = self.tri_level._points_bbox(points, pad=5.0)
-
-        def _apply_highlight():
-            try:
-                if points and len(points) >= 3 and hasattr(col.img_widget, "set_highlight_geometry"):
-                    col.img_widget.set_highlight_geometry(points)
-                elif zoom_bb and hasattr(col.img_widget, "set_highlight_bbox"):
-                    col.img_widget.set_highlight_bbox(zoom_bb)
-                if zoom_bb:
-                    col.img_widget.zoom_to_bbox(zoom_bb)
-            except Exception:
-                pass
-
-        if points or zoom_bb:
+    def _load_recorte_full_with_optional_zoom(self, col, dxf_path, bbox=None):
+        """Carrega recorte individual inteiro; bbox serve apenas para destacar/zoomar."""
+        if bbox:
             def _after_ready():
                 try:
                     col.img_widget.ready.disconnect(_after_ready)
                 except (RuntimeError, TypeError):
                     pass
-                _apply_highlight()
+                try:
+                    col.img_widget.set_highlight_bbox(bbox)
+                    col.img_widget.zoom_to_bbox(bbox)
+                except Exception:
+                    pass
             try:
                 col.img_widget.ready.connect(_after_ready)
             except (RuntimeError, TypeError):
                 pass
         col.load_content(str(dxf_path), None)
-        _apply_highlight()
+        if bbox and hasattr(col.img_widget, "set_highlight_bbox"):
+            col.img_widget.set_highlight_bbox(bbox)
 
     def _on_comparar_er_humana_toggled(self, checked: bool):
         """Toggle: mostra/esconde DXF Eng. Reversa Humana (obra_triagem) acima do viewer N5."""
@@ -10006,12 +9654,7 @@ class ComparisonEngineModule(QWidget):
                 pass
             # Retirement: mesma estratégia do DXFLoadWorker
             self._retiring_analise_workers.append(old_aw)
-            # AnaliseGeralWorker.finished = Signal(str, str, bool, str): o Qt
-            # passa esses 4 args pro slot conectado. Sem o "*_ignored" antes
-            # de w/lst, o PySide sobrescreve os defaults com os args do sinal
-            # (w virava o 1º str emitido) e w.deleteLater() quebrava com
-            # AttributeError: 'str' object has no attribute 'deleteLater'.
-            def _retire_aw(*_ignored, w=old_aw, lst=self._retiring_analise_workers):
+            def _retire_aw(w=old_aw, lst=self._retiring_analise_workers):
                 try:
                     if isinstance(lst, list):
                         lst.remove(w)
@@ -10606,33 +10249,22 @@ class ComparisonEngineModule(QWidget):
 
             # Step 1: recorte N2
             col.pipeline.set_step(0, 'running', 'Localizando...')
-            highlight_pts = None
             if is_er_flow:
                 # Sempre re-consulta o DB para garantir o recorte mais recente (pós-edição)
                 # Passa pav para filtrar recorte pelo pavimento correto (evita cruzar COBERTURA/TIPO)
                 n2_dxf = self._get_recorte_dxf_for_er(obra, classe, item_id, pav=pav)
                 n2_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
-                if classe == "LJ" and item_id and n2_dxf:
-                    highlight_pts = self.tri_level._get_lj_content_points_for(
-                        item_id, recorte_path=n2_dxf
-                    )
                 _ce_log(f"N2 recorte_path={n2_dxf}")
             else:
                 n2_dxf  = self.tri_level._find_n2_dxf(obra, pav, classe)
                 n2_bbox = self.tri_level._get_n2_bbox_for(item_id, classe)
-                if classe == "LJ" and item_id:
-                    highlight_pts = self.tri_level._get_lj_content_points_for(item_id)
 
             if n2_dxf and n2_dxf.exists():
                 _ce_log(f"N2 loading DXF size={n2_dxf.stat().st_size//1024}KB")
                 if is_er_flow:
-                    self._load_recorte_full_with_optional_zoom(
-                        col, n2_dxf, n2_bbox, highlight_points=highlight_pts
-                    )
+                    self._load_recorte_full_with_optional_zoom(col, n2_dxf, n2_bbox)
                 else:
                     col.load_content(str(n2_dxf), n2_bbox)
-                    if highlight_pts and hasattr(col.img_widget, "set_highlight_geometry"):
-                        col.img_widget.set_highlight_geometry(highlight_pts)
                 self._refresh_n4_compare_if_active(
                     n2_dxf, classe, item_id, n2_bbox, cull_to_bbox=not is_er_flow
                 )
