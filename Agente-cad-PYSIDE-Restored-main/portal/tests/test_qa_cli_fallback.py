@@ -28,7 +28,6 @@ def payload(item: str, verdict: str = "validou"):
         "item": item,
         "layer": "L1",
         "verdict": verdict,
-        "confidence_percent": 91,
         "note": "evidencia suficiente",
         "suggestion": {
             "action": "manter" if verdict == "validou" else "corrigir",

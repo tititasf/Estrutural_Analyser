@@ -954,12 +954,12 @@ def dim_panel(msp, x0, x1, y_base):
         pass
 
 
-def dim_viga_b(msp, x_right, y0, b, offset=None):
-    """Vertical dim for viga b -- right side (x_right + offset)."""
+def dim_viga_b(msp, x_right, y0, b):
+    """Vertical dim for viga b -- right side (x_right + DIM_B_RIGHT)."""
     if b <= 0:
         return
     try:
-        x_base = x_right + (DIM_B_RIGHT if offset is None else float(offset))
+        x_base = x_right + DIM_B_RIGHT
         d = msp.add_linear_dim(
             base=(x_base, y0),
             p1=(x_right, y0),
@@ -1134,48 +1134,9 @@ def _sanitize_segments_after_multipliers(panels_json):
     return cleaned
 
 
-def _apoio_ok(text) -> bool:
-    t = str(text or "").strip()
-    if not t:
-        return False
-    return t.lower() not in ("none", "null", "nan", "n/a", "-", "—")
-
-
-def _apoio_text_width(text, height=LABEL_H) -> float:
-    return max(12.0, float(height) * 0.72 * max(len(str(text or "")), 1))
-
-
-def draw_gap_apoio_texts(msp, x_end, gap_w, right_text, next_left, y):
-    """One label if the junction apoios match; two labels, not overlapping, if not."""
-    a = str(right_text or "").strip()
-    b = str(next_left or "").strip()
-    if not _apoio_ok(a):
-        a = ""
-    if not _apoio_ok(b):
-        b = ""
-    if not a and not b:
-        return
-    gap_w = max(float(gap_w or 0.0), 0.0)
-    mid = x_end + gap_w / 2.0
-    if a and b and a.lower() == b.lower():
-        add_text(msp, mid, y, a, LABEL_H, "5", halign=1, rotation=0)
-        return
-    if a and not b:
-        add_text(msp, mid, y, a, LABEL_H, "5", halign=1, rotation=0)
-        return
-    if b and not a:
-        add_text(msp, mid, y, b, LABEL_H, "5", halign=1, rotation=0)
-        return
-    pad = 6.0
-    add_text(msp, x_end + pad, y, a, LABEL_H, "5", halign=0, rotation=0)
-    add_text(msp, x_end + gap_w - pad, y, b, LABEL_H, "5", halign=2, rotation=0)
-
-
 def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
               pillar_left=None, pillar_right=None, holes=None, obs='',
-              label_left='L Esq', label_right='L Dir',
-              inter_segment_gap=0.0, dim_b_every_segment=False,
-              dim_b_offset=None, coalesce_junction_labels=False):
+              label_left='L Esq', label_right='L Dir'):
     """
     Draw a fundo de viga (FV) starting at x0, y0 (lower-left corner).
 
@@ -1309,8 +1270,6 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         seg_b_next = get_seg_b(segments[i + 1], b)
         if abs(seg_b_current - seg_b_next) > 0.1:
             gap_w = max(gap_w, 40.0)
-        if inter_segment_gap:
-            gap_w = max(gap_w, float(inter_segment_gap))
 
         gaps.append((gap_w, gap_label))
         current_pos += gap_w
@@ -1561,52 +1520,38 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         suppress_mult_left_text = is_mult_member and mult_index > 0
         suppress_mult_right_text = is_mult_member and mult_index < (mult_count - 1)
 
-        text_left = str(seg_label_left).strip()
-        text_right = str(seg_label_right).strip()
-        next_left = "" if is_last_seg else _seg_text(segments[seg_idx + 1], "left")
-
-        if coalesce_junction_labels:
-            if (
-                is_first_seg
-                and not suppress_mult_left_text
-                and _apoio_ok(text_left)
-            ):
-                add_text(msp, seg_x0 - 10, label_y_ends, text_left, LABEL_H, '5',
-                         halign=2, rotation=0)
-            if not is_last_seg:
-                gap_w = gaps[seg_idx][0] if seg_idx < len(gaps) else 0.0
-                draw_gap_apoio_texts(
-                    msp, seg_x_end, gap_w, text_right, next_left, label_y_ends,
-                )
-            elif not suppress_mult_right_text and _apoio_ok(text_right):
-                add_text(msp, seg_x_end + 10, label_y_ends, text_right, LABEL_H, '5',
-                         halign=0, rotation=0)
-            last_drawn_text = text_right if _apoio_ok(text_right) else next_left
-        elif (
+        if (
             not suppress_mult_left_text
-            and _apoio_ok(text_left)
+            and str(seg_label_left).strip()
+            and str(seg_label_left).strip().lower() not in ('none', 'null', 'nan')
         ):
+            text_left = str(seg_label_left).strip()
             # Verifica contra o texto direito do anterior E contra o gap_label anterior
             if not last_drawn_text or text_left.lower() != last_drawn_text.lower():
                 if is_first_seg:
+                    # Texto inicial: 5cm mais abaixo, posição X normal
                     add_text(msp, seg_x0 - 10, label_y_ends, text_left, LABEL_H, '5',
                              halign=2, rotation=0)
                 else:
+                    # Texto entre segmentos: 15cm para a esquerda e 5cm abaixo
                     add_text(msp, seg_x0 - 25, label_y_ends, text_left, LABEL_H, '5',
                              halign=2, rotation=0)
 
-        if not coalesce_junction_labels:
-            last_drawn_text = None
+        # Limpa o texto anterior, pois agora estamos processando o texto direito e o gap DESSA iteração
+        last_drawn_text = None
 
         if (
-            not coalesce_junction_labels
-            and not suppress_mult_right_text
-            and _apoio_ok(text_right)
+            not suppress_mult_right_text
+            and str(seg_label_right).strip()
+            and str(seg_label_right).strip().lower() not in ('none', 'null', 'nan')
         ):
+            text_right = str(seg_label_right).strip()
             if is_last_seg:
+                # Texto final: 5cm mais abaixo, posição X normal
                 add_text(msp, seg_x_end + 10, label_y_ends, text_right, LABEL_H, '5',
                          halign=0, rotation=0)
             else:
+                # Texto entre segmentos: 15cm para a esquerda e 5cm abaixo
                 add_text(msp, seg_x_end - 5, label_y_ends, text_right, LABEL_H, '5',
                          halign=0, rotation=0)
             last_drawn_text = text_right
@@ -1708,9 +1653,9 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
         )
         if right_l_panel:
             l_height = _panel_height(right_l_panel, b)
-            dim_viga_b(msp, seg_x_end, y0 + b - l_height, l_height, offset=dim_b_offset)
-        elif is_last_seg or has_b_change or dim_b_every_segment:
-            dim_viga_b(msp, seg_x_end, y0, seg_b, offset=dim_b_offset)
+            dim_viga_b(msp, seg_x_end, y0 + b - l_height, l_height)
+        elif is_last_seg or has_b_change:
+            dim_viga_b(msp, seg_x_end, y0, seg_b)
 
         # Advance cursor past this segment + gap to next segment
         x_cursor = seg_x_end

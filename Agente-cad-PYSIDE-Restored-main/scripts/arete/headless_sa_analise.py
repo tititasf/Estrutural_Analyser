@@ -53,26 +53,6 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 _REPO_ROOT   = _SCRIPT_DIR.parent.parent
 sys.path.insert(0, str(_REPO_ROOT))
 
-
-def _dados_obras_root() -> Path:
-    """Resolve a raiz de obras nas disposições local e de produção.
-
-    No workspace de desenvolvimento os dados ficam ao lado do repositório;
-    na VPS eles residem dentro de ``/opt/cad-analyzer``.  Preferir a primeira
-    raiz existente preserva o layout local e impede que uma rodada de produção
-    tente criar ``/opt/DADOS-OBRAS``.
-    """
-    configured = os.environ.get('CAD_DADOS_OBRAS_ROOT', '').strip()
-    candidates = (
-        Path(configured) if configured else None,
-        _REPO_ROOT.parent / 'DADOS-OBRAS',
-        _REPO_ROOT / 'DADOS-OBRAS',
-    )
-    for candidate in candidates:
-        if candidate is not None and candidate.is_dir():
-            return candidate
-    return next(candidate for candidate in candidates if candidate is not None)
-
 # A cache is only a performance artifact.  It must be invalidated by the
 # *contents* of the source and of each N1 owner, never only by mtimes (which
 # are particularly unreliable when a workspace is restored/copied).
@@ -1340,7 +1320,7 @@ def _build_fast_pre_validation_dialog(
     from src.ui.widgets.pre_validation_dialog import PreValidationDialog
 
     convention_file = (
-        _dados_obras_root() / obra / 'convencao_pilares.json'
+        _REPO_ROOT.parent / 'DADOS-OBRAS' / obra / 'convencao_pilares.json'
     )
     beam_texts = [
         {
@@ -1810,14 +1790,9 @@ def _generate_fv_n3_nova_previews(
     fv_results: list[dict],
     output_dir: Path,
     max_workers: int = 1,
-    state_path: Path | None = None,
 ) -> tuple[list[str], list[str]]:
     """Gera N3 NOVA com o resultado do fluxo humano, em diretórios isolados."""
-    from src.core.fv_generation_contract import (
-        build_fv_generation_contract,
-        merge_fv_source_results,
-        overlay_fv_state_measurements,
-    )
+    from src.core.fv_generation_contract import build_fv_generation_contract
 
     script = _REPO_ROOT / 'scripts' / 'gerar_fv_dxf_stog.py'
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1826,29 +1801,12 @@ def _generate_fv_n3_nova_previews(
     generated: list[str] = []
     failed: list[str] = []
     contracts: dict[str, dict] = {}
-    merged_results = merge_fv_source_results(fv_results)
-    if state_path and state_path.is_file():
-        try:
-            state_payload = json.loads(state_path.read_text(encoding='utf-8'))
-            state_rows = ((state_payload.get('segmentos') or {}).get('fundo') or [])
-            merged_results = overlay_fv_state_measurements(merged_results, state_rows)
-        except (OSError, json.JSONDecodeError) as exc:
-            print(f'[SA-HUMAN] AVISO snapshot FV estruturado ilegível: {exc}', flush=True)
-    for fv_data in merged_results:
+    for fv_data in fv_results:
         if not isinstance(fv_data, dict):
             continue
         raw_name = str(fv_data.get('viga_nome') or '')
         contract = build_fv_generation_contract(raw_name, fv_data)
         beam_name = str(contract.get('name') or '')
-        if beam_name and state_path:
-            # Edições web entram no adaptador N3, sem alterar o schema SA.
-            try:
-                from portal.app import fv_operations
-                pavimento = state_path.stem.removeprefix('estado_')
-                override = fv_operations.load_override(state_path.parent, pavimento, beam_name)
-                contract = fv_operations.apply_n3_overrides(contract, override)
-            except (OSError, ValueError) as exc:
-                print(f'[SA-HUMAN] AVISO override N3 FV ignorado para {beam_name}: {exc}', flush=True)
         if beam_name and contract.get('segments_rich'):
             contracts[beam_name] = contract
 
@@ -2063,8 +2021,7 @@ def _publish_pl_n3_artifacts(
         target_dir = Path(production_dir) / 'n3' / 'pil' / mode
         target_dir.mkdir(parents=True, exist_ok=True)
         for filename in (
-            f'{item}.json', f'PL_CIMA_preview_{item}.dxf',
-            f'PL_ABCD_preview_{item}.dxf',
+            f'{item}.json', f'PL_ABCD_preview_{item}.dxf',
             f'PL_GRADES_preview_{item}.dxf',
         ):
             source = source_dir / filename
@@ -2148,7 +2105,6 @@ def _generate_lj_n3_nova_previews(
     obra_dir: Path,
     window,
     output_dir: Path,
-    pavimento: str,
     max_workers: int = 1,
 ) -> tuple[list[str], list[str]]:
     """Gera N3 isolado das lajes (LJ) — reaproveita a MESMA materialização
@@ -2174,20 +2130,6 @@ def _generate_lj_n3_nova_previews(
         try:
             ficha = window._slab_to_n1_robot_ficha(slab)
             n3_ficha = window._merge_lj_n3_teacher(ficha, {})
-            # Correções feitas na ficha web são uma camada explícita, fora dos
-            # artefatos históricos da Fase 4/produção. Só o microciclo pedido
-            # pelo usuário as promove ao novo contrato/DXF.
-            override_path = (
-                obra_dir / '.portal_overrides' / 'lajes' / pavimento
-                / f'{nome}.json'
-            )
-            if override_path.is_file():
-                override = json.loads(override_path.read_text(encoding='utf-8'))
-                override_n3 = override.get('n3') if isinstance(override, dict) else None
-                if isinstance(override_n3, dict):
-                    for key in ('linhas_verticais', 'linhas_horizontais'):
-                        if isinstance(override_n3.get(key), list):
-                            n3_ficha[key] = override_n3[key]
             (json_dir / f'{ficha.get("nome") or nome}.json').write_text(
                 json.dumps(n3_ficha, indent=2, ensure_ascii=False),
                 encoding='utf-8',
@@ -2559,7 +2501,7 @@ def run_analysis(
                         raise RuntimeError(
                             f'snapshot N1 de producao nao foi publicado: {state_path}'
                         )
-                    obra_dir_prod = _dados_obras_root() / obra
+                    obra_dir_prod = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
                     run_stamp = time.strftime('%Y%m%d_%H%M%S')
                     production_dir = (
                         obra_dir_prod / 'Fase-6_Execucao_CAD' / 'production_sa'
@@ -2702,7 +2644,7 @@ def run_analysis(
         active_n3_sections = active_sections
         manifest_path = ''
         try:
-            obra_dir = _dados_obras_root() / obra
+            obra_dir = _REPO_ROOT.parent / 'DADOS-OBRAS' / obra
             if 'fundos_viga' in active_n3_sections:
                 _populate_last_fv_results(
                     window,
@@ -2728,10 +2670,6 @@ def run_analysis(
                         generated, failed = _generate_fv_n3_nova_previews(
                             obra_dir, fv_results, Path(n3_temp) / 'dxf',
                             max_workers=3 if production_web else 1,
-                            state_path=(
-                                Path(dialog._analysis_state_path())
-                                if production_web and dialog is not None else None
-                            ),
                         )
                         print(
                             f'[SA-HUMAN] N3 NOVA isolado: {len(generated)} gerado(s), '
@@ -2756,7 +2694,7 @@ def run_analysis(
                 if 'lajes' in active_n3_sections:
                     try:
                         lj_generated, lj_failed = _generate_lj_n3_nova_previews(
-                            obra_dir, window, Path(n3_temp) / 'dxf', pavimento,
+                            obra_dir, window, Path(n3_temp) / 'dxf',
                             max_workers=3 if production_web else 1,
                         )
                         print(
@@ -2812,61 +2750,6 @@ def run_analysis(
                             (partial_collections or merged).get('pillars', []),
                             getattr(dialog, '_pl_n3_cache', None),
                         )
-                    # O portal consome este SVG com a tag agêntica na aba
-                    # "N1 com tag". Em produção web, porém, o wrapper do portal
-                    # é o único publicador: ele gera em staging, compara com o
-                    # manifesto Arete aprovado e só então faz a troca atômica.
-                    # Evita que esta CLI exponha um pack ainda não auditado.
-                    n1_tag_pack = ''
-                    if 'pilares' in active_n3_sections and not production_web:
-                        exporter = _SCRIPT_DIR / 'export_pilares_abcd_fichas.py'
-                        tag_cmd = [
-                            sys.executable, str(exporter),
-                            '--project-id', str(project_id), '--db', str(db_path),
-                            '--obra', str(obra), '--pav', str(pavimento), '--no-layers',
-                        ]
-                        if item_names:
-                            tag_cmd += ['--item', *sorted(item_names)]
-                        tag_proc = subprocess.run(
-                            tag_cmd, cwd=str(_REPO_ROOT), capture_output=True,
-                            text=True, encoding='utf-8', errors='replace', timeout=None,
-                        )
-                        tag_output = (tag_proc.stdout or '') + '\n' + (tag_proc.stderr or '')
-                        if tag_proc.returncode != 0:
-                            raise RuntimeError(
-                                f'N1 com tag falhou (rc={tag_proc.returncode}): {tag_output[-1200:]}'
-                            )
-                        tag_root = _SCRIPT_DIR / 'html_fichas' / str(obra)
-                        tag_packs = [
-                            path for path in tag_root.glob(f'{pavimento}_*_pilares_abcd')
-                            if path.is_dir()
-                        ]
-                        if not tag_packs:
-                            raise RuntimeError('N1 com tag terminou sem publicar pack de pilares')
-                        tag_pack = max(tag_packs, key=lambda path: path.stat().st_mtime)
-                        expected_tags = {
-                            str(row.get('name') or row.get('nome') or '').strip()
-                            for row in (partial_collections or merged).get('pillars', [])
-                            if isinstance(row, dict)
-                        }
-                        expected_tags.discard('')
-                        if item_names:
-                            expected_tags &= set(item_names)
-                        generated_tags = {
-                            path.name.removesuffix('_sa_motor.svg')
-                            for path in (tag_pack / 'propostas').glob('*_sa_motor.svg')
-                        }
-                        missing_tags = sorted(expected_tags - generated_tags)
-                        if missing_tags:
-                            raise RuntimeError(
-                                f'N1 com tag incompleto: {len(missing_tags)} ausente(s): '
-                                + ', '.join(missing_tags[:10])
-                            )
-                        n1_tag_pack = str(tag_pack)
-                        print(
-                            f'[SA-PROD] N1 com tag: {len(expected_tags)}/{len(expected_tags)} '
-                            f'em {tag_pack}', flush=True,
-                        )
                     pl_artifact_index = _publish_pl_n3_artifacts(
                         obra_dir, list(pl_generated), production_dir,
                     ) if 'pilares' in active_n3_sections else []
@@ -2897,7 +2780,6 @@ def run_analysis(
                             'pl_generated': list(pl_generated),
                             'pl_failed': list(pl_failed),
                         },
-                        'n1_tags_pack': n1_tag_pack,
                         'artifacts': artifacts,
                         'artifact_index': pl_artifact_index,
                     }
@@ -2913,8 +2795,6 @@ def run_analysis(
                     report_stage('previews N3 e reexportacao')
         except Exception as exc:
             print(f'[SA-HUMAN] AVISO bloco N3 best-effort: {exc}', flush=True)
-            if production_web and 'pilares' in active_n3_sections:
-                raise
 
         try:
             if html_dir and not production_web:
@@ -3035,9 +2915,8 @@ def main() -> None:
     ap.add_argument(
         '--production-web', action='store_true',
         help=(
-            'Caminho operacional do portal: N1 estruturado + N3 permanente. '
-            'A rodada completa ou um microciclo com item também persistem no DB; '
-            'uma classe inteira sem item publica artefatos sem apagar outras classes.'
+            'Caminho operacional do portal: N1 estruturado + persistencia + '
+            'N3 permanente. Nao gera N2/N4, diagnosticos Arete nem HTMLs de treino.'
         ),
     )
     ap.add_argument('--wait', action='store_true',
@@ -3058,12 +2937,7 @@ def main() -> None:
     if args.persist_db and args.skip_diagnostico_fv and not args.production_web:
         ap.error('--persist-db exige os quatro diagnósticos; remova --skip-diagnostico-fv')
     if args.production_web and not args.persist_db:
-        class_read_only = sections is not None and len(sections) == 1 and not item_names
-        if not class_read_only:
-            ap.error(
-                '--production-web sem --persist-db exige exatamente uma --secao '
-                'e nenhum --item'
-            )
+        ap.error('--production-web exige --persist-db')
 
     # Microciclos de uma classe+itens têm filas isoladas, inclusive quando o
     # commit é parcial. Rodadas sem recorte verificável reservam global + todas

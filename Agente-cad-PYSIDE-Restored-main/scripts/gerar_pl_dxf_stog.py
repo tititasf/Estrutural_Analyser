@@ -45,7 +45,6 @@ _MOTOR_ID = "ROBOT_PL_N3_N4"
 _MOTOR_SOURCES = [
     Path(__file__),
     Path(__file__).with_name("pl_grade_visual_config.py"),
-    Path(__file__).with_name("pl_cima_especial.py"),
     PL_GRADE_VISUAL_CONFIG_PATH,
 ]
 
@@ -612,36 +611,56 @@ def _grade_divisions(pj, total_width, ng, grade_width, gaps):
 # ═════════════════════════════════════════════════════════════════════════════
 
 def _secao_l_da_ficha(pj: dict):
-    """Lê a seção em L da ficha N2 ou deriva do contorno N1."""
-    try:
-        from pl_cima_especial import secao_l_do_payload
-        secao = secao_l_do_payload(pj)
-    except Exception:
-        secao = None
-    if not secao:
+    """Lê a seção em L declarada pela ficha N2, sem conhecer o item."""
+    special = pj.get("pilar_especial") if isinstance(pj, dict) else None
+    section = special.get("secao_l") if isinstance(special, dict) else None
+    if not isinstance(section, dict):
         return None
-    return (
-        secao["externa_x"], secao["interna_x"],
-        secao["externa_y"], secao["interna_y"],
-    )
+    try:
+        ex = float(section.get("externa_x") or 0.0)
+        ix = float(section.get("interna_x") or 0.0)
+        ey = float(section.get("externa_y") or 0.0)
+        iy = float(section.get("interna_y") or 0.0)
+    except (TypeError, ValueError):
+        return None
+    if min(ex, ix, ey, iy) <= 0.0 or ix >= ex or iy >= ey:
+        return None
+    return ex, ix, ey, iy
 
 
 def draw_cima_l(msp, ox, oy, nome, pj: dict):
-    """CIMA em L — motor DXF convertido do SCR de pilar especial."""
-    try:
-        from pl_cima_especial import draw_cima_l as _draw
-        return int(_draw(msp, ox, oy, nome, pj) or 0)
-    except Exception as exc:
-        print(f"[PL-CIMA-L] falhou, segue retangular: {exc}", flush=True)
+    """CIMA combinada de pilar L; guiada somente pela seção declarada em N2."""
+    dims = _secao_l_da_ficha(pj)
+    if not dims:
         return 0
+    ex, ix, ey, iy = dims
+    x0, y0 = ox - ex / 2.0, oy - ey / 2.0
+    outline = [(x0, y0), (x0 + ex, y0), (x0 + ex, y0 + ey - iy),
+               (x0 + ix, y0 + ey - iy), (x0 + ix, y0 + ey), (x0, y0 + ey)]
+    msp.add_lwpolyline(outline, close=True, dxfattribs={"layer": "Painéis"})
+    for layer, offset in (("CHAPA", 2.0), ("SARRAFO", 4.0)):
+        ring = [(x0 - offset, y0 - offset), (x0 + ex + offset, y0 - offset),
+                (x0 + ex + offset, y0 + ey - iy), (x0 + ix, y0 + ey - iy),
+                (x0 + ix, y0 + ey + offset), (x0 - offset, y0 + ey + offset)]
+        msp.add_lwpolyline(ring, close=True, dxfattribs={"layer": layer})
+    for p1, p2, base, angle in (
+        ((x0, y0), (x0 + ex, y0), (ox, y0 - 32.0), 0),
+        ((x0, y0 + ey), (x0 + ix, y0 + ey), (x0 + ix / 2.0, y0 + ey + 26.0), 0),
+        ((x0, y0), (x0, y0 + ey), (x0 - 32.0, oy), 90),
+        ((x0 + ex, y0), (x0 + ex, y0 + ey - iy), (x0 + ex + 28.0, y0 + (ey - iy) / 2.0), 90),
+    ):
+        try:
+            dim = msp.add_linear_dim(base=base, p1=p1, p2=p2, angle=angle,
+                                     dimstyle="PAINEL-NOVA", dxfattribs={"layer": "COTA"})
+            dim.render()
+        except Exception:
+            pass
+    msp.add_text(f"{nome} · CIMA L", dxfattribs={"layer": "NOMENCLATURA", "insert": (x0, y0 + ey + 48.0), "height": 12})
+    return 8
 
 
 def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
-    try:
-        from src.core.cima_l_contract import is_cima_l as _is_cima_l
-    except Exception:
-        _is_cima_l = lambda _pj: str((_pj or {}).get("subtipo_pil") or "").upper() in {"L", "U", "T"}
-    if _is_cima_l(pj) or _secao_l_da_ficha(pj):
+    if str(pj.get("subtipo_pil") or "").upper() == "L":
         special_count = draw_cima_l(msp, ox, oy, nome, pj)
         if special_count:
             return special_count
@@ -1108,22 +1127,6 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
         ('C', x_c, larg_c, larg_c),   # C: concrete_dim=larg_c (panel width, not larg)
         ('D', x_d, larg_d, larg_c),   # D: same
     ]
-    try:
-        from src.core.cima_l_contract import is_cima_l, n3_faces_l
-        if is_cima_l(pj) or n3_faces_l(pj):
-            l_faces = n3_faces_l(pj)
-            if len(l_faces) >= 6:
-                x_cur = base_x + X_OFFSET
-                face_info = []
-                for i, face in enumerate(l_faces):
-                    gap = GAP_AB if i == 0 else GAP_BC
-                    if i:
-                        x_cur += gap
-                    face_info.append((face["id"], x_cur, float(face["panel"]), float(face["inner"])))
-                    x_cur += float(face["panel"])
-                x_a = face_info[0][1]
-    except Exception:
-        pass
 
     entity_count = 0
 
@@ -1141,7 +1144,7 @@ def draw_abcd(msp, base_x, base_y, comp, larg, altura, nome, pj):
     # ── 1. Nível lines: 2 horizontal PLINEs spanning all faces ───────────────
     # SCR: (-7000,-100) to (-6000,-100) and (-7000,-380) to (-6000,-380)
     x_span_l = base_x           # -7000
-    x_span_r = max(base_x + 1000, face_info[-1][1] + face_info[-1][2] + 80)
+    x_span_r = base_x + 1000   # -6000
     msp.add_lwpolyline([(x_span_l, y_top), (x_span_r, y_top)],
                        close=False, dxfattribs={'layer': 'Nível', 'linetype': 'DASHED'})
     msp.add_lwpolyline([(x_span_l, y_bot), (x_span_r, y_bot)],
@@ -2455,41 +2458,19 @@ def draw_grades(
 
     cursor_x = base_x
     drawn = []
-    l_faces = []
-    try:
-        from src.core.cima_l_contract import is_cima_l, n3_faces_l, split_panel_grades
-        if is_cima_l(pj) or n3_faces_l(pj):
-            l_faces = n3_faces_l(pj)
-    except Exception:
-        l_faces = []
-    if l_faces:
-        for face in l_faces:
-            panel = float(face["panel"])
-            if panel <= 0:
-                continue
-            widths, gaps_f = split_panel_grades(panel)
-            ng_f = max(1, len(widths))
-            gw_f = float(widths[0]) if widths else panel
-            gaps_f = list(gaps_f)
-            if ng_f > 1 and len(gaps_f) < ng_f - 1:
-                gaps_f.extend([0.0] * (ng_f - 1 - len(gaps_f)))
-            info = draw_face_group(face["id"], cursor_x, panel, ng_f, gw_f, gaps_f)
-            drawn.append(info)
-            cursor_x = info['x_right'] + GROUP_GAP
-    else:
-        panel_ab = comp + 22.0
-        for face in ('A', 'B'):
-            info = draw_face_group(face, cursor_x, panel_ab, ng_ab, gw_ab, gaps_ab)
-            drawn.append(info)
-            cursor_x = info['x_right'] + GROUP_GAP
+    panel_ab = comp + 22.0
+    for face in ('A', 'B'):
+        info = draw_face_group(face, cursor_x, panel_ab, ng_ab, gw_ab, gaps_ab)
+        drawn.append(info)
+        cursor_x = info['x_right'] + GROUP_GAP
 
-        # Faces curtas só recebem grade a partir de 50 cm, conforme decisão do dono.
-        if larg >= 50.0:
-            ng_cd, gw_cd, gaps_cd = _grade_layout_for_panel_width(larg)
-            for face in ('C', 'D'):
-                info = draw_face_group(face, cursor_x, larg, ng_cd, gw_cd, gaps_cd)
-                drawn.append(info)
-                cursor_x = info['x_right'] + GROUP_GAP
+    # Faces curtas só recebem grade a partir de 50 cm, conforme decisão do dono.
+    if larg >= 50.0:
+        ng_cd, gw_cd, gaps_cd = _grade_layout_for_panel_width(larg)
+        for face in ('C', 'D'):
+            info = draw_face_group(face, cursor_x, larg, ng_cd, gw_cd, gaps_cd)
+            drawn.append(info)
+            cursor_x = info['x_right'] + GROUP_GAP
 
     # Cadeia das travessas no lado direito do último grupo desenhado.
     last = drawn[-1]
@@ -2768,14 +2749,6 @@ def generate_pilar_zone(
     pj = _prepare_pj_for_visual(pj, visual_mode)
     nome    = pj.get('nome', f"P{pj.get('numero', '?')}")
     comp, larg = _dimensoes_canonicas_pilar(pj)
-    try:
-        from src.core.cima_l_contract import secao_l_do_payload
-        secao = secao_l_do_payload(pj)
-        if secao:
-            comp = float(secao["externa_y"])
-            larg = float(secao["externa_x"])
-    except Exception:
-        pass
     altura  = float(pj.get('altura', 280))
     grade_1 = float(pj.get('grade_1', 0))
     grade_2 = float(pj.get('grade_2', 0))

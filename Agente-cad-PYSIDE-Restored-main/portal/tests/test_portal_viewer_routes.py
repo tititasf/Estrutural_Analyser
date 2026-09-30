@@ -63,9 +63,11 @@ def test_sao_os_botoes_de_destaque_pedidos():
     ]
 
 
-def test_pilares_unificados_incluem_retangulares_e_especiais():
-    """A classe pública única contém os 46, inclusive P26/P27 em L."""
-    itens = viewer_routes._geometria_dos_itens(_estado(), "pilares", _transform())
+def test_pilares_somam_retangulares_e_especiais():
+    """46 = 44 retangulares + 2 em L. Agrupar impede que os especiais sumam."""
+    itens = []
+    for classe in ("pilares", "pilares_especiais"):
+        itens += viewer_routes._geometria_dos_itens(_estado(), classe, _transform())
     ids = {i["item_id"] for i in itens}
     assert len(itens) == 46
     assert {"P1", "P26", "P27"} <= ids

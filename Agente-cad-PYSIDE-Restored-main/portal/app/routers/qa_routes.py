@@ -43,15 +43,14 @@ def criar_qa_round(
     classe = body.classe.upper().strip()
     layer = body.layer.upper().strip()
     items = list(dict.fromkeys(item.upper().strip() for item in body.items if item.strip()))
-    if classe not in {"PIL", "FV"}:
-        raise HTTPException(status_code=422, detail="QA agentico funcional somente para PIL e FV")
+    if classe != "PIL":
+        raise HTTPException(status_code=422, detail="primeiro E2E QA suporta somente PIL")
     if layer not in {"L1", "L2", "L3"}:
         raise HTTPException(status_code=422, detail="layer deve ser L1, L2 ou L3")
-    if not items or len(items) > 100:
-        raise HTTPException(status_code=422, detail="informe entre 1 e 100 itens por rodada")
-    item_pattern = r"P\d+" if classe == "PIL" else r"(?:V|VF)\d+[A-Z]?"
-    if any(not re.fullmatch(item_pattern, item) for item in items):
-        raise HTTPException(status_code=422, detail=f"item invalido para a classe {classe}")
+    if not items or len(items) > 10:
+        raise HTTPException(status_code=422, detail="informe entre 1 e 10 itens por rodada")
+    if any(not re.fullmatch(r"P\d+", item) for item in items):
+        raise HTTPException(status_code=422, detail="itens PIL devem usar o formato P<n>")
 
     round_id, job_id = repo.enfileirar_qa_round(
         conn,
@@ -88,10 +87,4 @@ def obter_qa_round(
         raise HTTPException(status_code=404, detail="rodada QA nao encontrada")
     obra = _obra_do_membro(conn, detail["obra_id"], membro)
     _ = obra
-    job = conn.execute(
-        "SELECT status, erro_msg FROM portal_jobs WHERE id=?",
-        (detail["job_id"],),
-    ).fetchone()
-    detail["job_status"] = job["status"] if job else None
-    detail["job_error"] = job["erro_msg"] if job else None
     return detail

@@ -33,7 +33,7 @@ DEFAULT_LOC_W, DEFAULT_LOC_H = 1200, 1200
 DEFAULT_DPI = 160
 
 OUTER_CTX = (
-    "position:relative;width:100%;max-width:100%;height:560px;"
+    "position:relative;width:100%;max-width:100%;height:448px;"
     "box-sizing:border-box;background:#0a0a0a;overflow:hidden;cursor:grab;"
     "border:1px solid #2a2a2a;border-radius:4px;touch-action:none;user-select:none;"
 )
@@ -45,16 +45,6 @@ OUTER_LOC = (
 INNER_STYLE = (
     "position:absolute;inset:0;width:100%;height:100%;"
     "box-sizing:border-box;margin:0;padding:0;"
-)
-SA_GHOST_BTN_HTML = (
-    '<button type="button" class="fv-sa-ghost-btn" data-sa-ghost="0" '
-    'title="Destaque translúcido: contorno suave, sem fundo sólido (somente SA)" '
-    'onclick="toggleSaGhost(this)">Destaque suave</button>'
-)
-PT_BTN_HTML = (
-    '<button type="button" class="fv-pt-btn" data-pt="0" '
-    'title="Ponto de atenção: clique num elemento do desenho para anotar (igual N2×N4)" '
-    'onclick="toggleFvPointMode(this)">Ponto</button>'
 )
 SVG_STYLE = (
     "display:block;width:100%;height:100%;"
@@ -110,9 +100,6 @@ function collectNotes(){
     var key=el.dataset.atkey; if(!key) return;
     notes[key]=el.checked?'1':'0';
   });
-  try{
-    notes[_pointsKey()] = JSON.stringify((window._fvPagePoints||[]).filter(function(p){ return !p._removed; }));
-  }catch(e){}
   // error marker checkbox if present
   var chk=document.getElementById('erro_check');
   var nota=document.getElementById('erro_nota');
@@ -159,7 +146,6 @@ function applyNotes(notes){
   }
   refreshAgentVerdictUI();
   if(typeof refreshTabSeals==='function') refreshTabSeals();
-  if(typeof loadFvPointsFromNotes==='function') loadFvPointsFromNotes(notes);
 }
 /** Placeholder + hint + borda conforme veredito agêntico. */
 function refreshAgentVerdictUI(root){
@@ -320,9 +306,6 @@ function persistAllNotes(quiet){
     // radios always win when present in extra
     if(k.indexOf('aten_fv_ctx_agent_verdict_')===0) notes[k]=extra[k];
   });
-  try{
-    notes[_pointsKey()] = JSON.stringify((window._fvPagePoints||[]).filter(function(p){ return !p._removed; }));
-  }catch(e){}
   // also persist radio keys to localStorage
   document.querySelectorAll('input[type="radio"][data-atkey]:checked').forEach(function(el){
     try{ localStorage.setItem(el.dataset.atkey, el.value); }catch(e){}
@@ -388,7 +371,6 @@ function loadAllAtenTA(){
     if(!(merged[ta.dataset.atkey]||'') && embedded[leg]) merged[ta.dataset.atkey]=embedded[leg];
   });
   applyNotes(merged);
-  if(typeof loadFvPointsFromNotes==='function') loadFvPointsFromNotes(merged);
   _writeStore({version:1, updated_at:new Date().toISOString(), page:_pageStem(), notes:merged});
 
   // 1) API disco (preferido)
@@ -537,18 +519,15 @@ function _activeSvg(outer){
   return outer.querySelector('svg');
 }
 function _allSyncSvgs(outer){
-  // SA + agent HI-FI (fv-sync-vb). N3 tem viewBox próprio — nunca sincronizar.
+  // SA + agent HI-FI (fv-sync-vb). Agent CAD-only (sem fv-sync-vb) fica de fora.
   var list=[].slice.call(outer.querySelectorAll('.fv-layer-sa svg, svg.fv-sync-vb, .fv-layer-agent svg.fv-sync-vb'));
   return list.filter(function(s,i,a){
-    if(s.closest && s.closest('.fv-layer-n3')) return false;
-    if(s.classList.contains('fv-n3-svg')) return false;
     if(s.closest && s.closest('.fv-layer-agent') && !s.classList.contains('fv-sync-vb')) return false;
     return a.indexOf(s)===i;
   });
 }
 function _prepAgentSvg(s){
   if(!s) return;
-  if(s.closest && s.closest('.fv-layer-n3')){ _prepN3Svg(s); return; }
   if(!s.getAttribute('viewBox')) s.setAttribute('viewBox','0 0 1152 288');
   var vb=s.getAttribute('viewBox')||'';
   // HI-FI matplotlib (0 0 W H) = mesmo espaco do SA -> sync pan/zoom
@@ -562,35 +541,6 @@ function _prepAgentSvg(s){
   s.style.width='100%'; s.style.height='100%';
   s.style.maxWidth='100%'; s.style.maxHeight='100%';
   s.style.display='block'; s.style.background='#0a0a0a';
-}
-function _prepN3Svg(s){
-  if(!s) return;
-  s.classList.remove('fv-sync-vb');
-  s.classList.add('img-fv-hifi','fv-n3-svg');
-  s.setAttribute('preserveAspectRatio','xMidYMid meet');
-  s.querySelectorAll('[clip-path]').forEach(function(el){ el.removeAttribute('clip-path'); });
-  if(!s.getAttribute('viewBox')) s.setAttribute('viewBox','0 0 1200 200');
-  if(!s.dataset.homeVb) s.dataset.homeVb=s.getAttribute('viewBox')||'';
-  s.removeAttribute('width'); s.removeAttribute('height');
-  s.style.width='100%'; s.style.height='100%';
-  s.style.maxWidth='100%'; s.style.maxHeight='100%';
-  s.style.display='block'; s.style.background='#0a0a0a';
-}
-function _readVb(svg){
-  if(!svg) return {x:0,y:0,w:100,h:100};
-  var raw=svg.dataset.homeVb||svg.getAttribute('viewBox')||'0 0 100 100';
-  var p=String(raw).replace(/,/g,' ').trim().split(/ +/).map(parseFloat);
-  if(p.length<4||p.some(function(n){return !isFinite(n);})) return {x:0,y:0,w:100,h:100};
-  return {x:p[0],y:p[1],w:p[2],h:p[3]};
-}
-function _zoomState(home, z0){
-  z0=(typeof z0==='number')?z0:0.5;
-  return {
-    x:home.x+home.w*(1-z0)/2,
-    y:home.y+home.h*(1-z0)/2,
-    w:home.w*z0,
-    h:home.h*z0
-  };
 }
 function initPanZoom(cid){
   var outer=document.getElementById(cid);
@@ -609,13 +559,17 @@ function initPanZoom(cid){
   _allSyncSvgs(outer).forEach(prep);
   outer.querySelectorAll('.fv-layer-agent svg').forEach(_prepAgentSvg);
 
-  var home=_readVb(svg);
-  if(!svg.dataset.homeVb) svg.dataset.homeVb=home.x+' '+home.y+' '+home.w+' '+home.h;
+  var base=svg.viewBox.baseVal;
+  var home={x:base.x,y:base.y,w:base.width,h:base.height};
   // Zoom inicial 2× mais próximo (metade do viewBox, centrado no home)
-  var state=_zoomState(home, 0.5);
-  outer.dataset.pzLayer='sa';
+  var z0=0.5;
+  var state={
+    x:home.x+home.w*(1-z0)/2,
+    y:home.y+home.h*(1-z0)/2,
+    w:home.w*z0,
+    h:home.h*z0
+  };
   var drag=false,lx=0,ly=0;
-  outer._dragMoved=0;
 
   function applyAgentRelative(){
     var zx=state.w/home.w, zy=state.h/home.h;
@@ -635,53 +589,13 @@ function initPanZoom(cid){
   }
   function apply(){
     var vb=state.x+' '+state.y+' '+state.w+' '+state.h;
-    if(outer.dataset.pzLayer==='n3'){
-      var n3=outer.querySelector('.fv-layer-n3 svg');
-      if(n3) n3.setAttribute('viewBox', vb);
-      if(typeof renderFvDots==='function') renderFvDots(outer);
-      return;
-    }
     _allSyncSvgs(outer).forEach(function(s){ s.setAttribute('viewBox', vb); });
     applyAgentRelative();
-    if(typeof renderFvDots==='function') renderFvDots(outer);
   }
   function reset(){ state={x:home.x,y:home.y,w:home.w,h:home.h}; apply(); }
   outer._pzReset=reset;
   outer._pzApply=apply;
   outer._prepAgentSvg=_prepAgentSvg;
-  outer._pzSwitchLayer=function(mode){
-    var next=(mode==='n3')?'n3':'sa';
-    outer.dataset.pzLayer=next;
-    if(next==='n3'){
-      var n3=outer.querySelector('.fv-layer-n3 svg');
-      if(!n3) return;
-      _prepN3Svg(n3);
-      home=_readVb(n3);
-      outer.style.height='320px';
-      // N3 é faixa de painéis: mostrar todos lado a lado
-      state={x:home.x,y:home.y,w:home.w,h:home.h};
-      apply();
-      return;
-    }
-    outer.style.height='560px';
-    var sa=outer.querySelector('.fv-layer-sa svg')||svg;
-    home=_readVb(sa);
-    state=_zoomState(home, 0.5);
-    apply();
-  };
-  outer._pzFocusBox=function(box){
-    if(!box||!isFinite(box.w)||box.w<=0) return;
-    var pad=Math.max(box.w, box.h)*0.12;
-    var x=box.x-pad, y=box.y-pad, w=box.w+2*pad, h=box.h+2*pad;
-    if(outer.dataset.pzLayer==='n3'){
-      state={x:x,y:y,w:Math.max(w,1),h:Math.max(h,1)};
-    } else {
-      var side=Math.max(w,h);
-      x=x-(side-w)/2; y=y-(side-h)/2;
-      state={x:x,y:y,w:side,h:side};
-    }
-    apply();
-  };
 
   function clientToSvg(cx,cy){
     var act=_activeSvg(outer)||svg;
@@ -707,8 +621,8 @@ function initPanZoom(cid){
 
   outer.addEventListener('mousedown',function(e){
     if(e.button!==0) return;
-    if(e.target&&e.target.closest&&e.target.closest('button,textarea,a,input,.fv-layer-toggle,.fv-seg-subtabs')) return;
-    drag=true; lx=e.clientX; ly=e.clientY; outer._dragMoved=0;
+    if(e.target&&e.target.closest&&e.target.closest('button,textarea,a,input,.fv-layer-toggle')) return;
+    drag=true; lx=e.clientX; ly=e.clientY;
     outer.style.cursor='grabbing'; e.preventDefault();
   });
   window.addEventListener('mousemove',function(e){
@@ -720,7 +634,6 @@ function initPanZoom(cid){
     var p1=act.createSVGPoint(); p1.x=e.clientX; p1.y=e.clientY;
     var a=p0.matrixTransform(inv), b=p1.matrixTransform(inv);
     state.x-=(b.x-a.x); state.y-=(b.y-a.y);
-    outer._dragMoved+=(Math.abs(e.clientX-lx)+Math.abs(e.clientY-ly));
     lx=e.clientX; ly=e.clientY; apply();
   });
   window.addEventListener('mouseup',function(){
@@ -730,684 +643,15 @@ function initPanZoom(cid){
     if(e.target&&e.target.closest&&e.target.closest('button,textarea')) return;
     reset();
   });
-  outer.addEventListener('click',function(e){
-    if(typeof onFvPointClick==='function') onFvPointClick(outer, e);
-  });
   apply();
 }
 function resetZoom(cid){
   var outer=document.getElementById(cid);
   if(outer&&typeof outer._pzReset==='function'){ outer._pzReset(); }
 }
-function _syncSaGhostChrome(root, mode){
-  root=root||document;
-  var outer=(root.querySelector&&root.querySelector('#fvctx-main [data-panzoom]'))
-    ||(root.querySelector&&root.querySelector('[data-panzoom]'));
-  if(!outer) return;
-  var btn=outer.querySelector('.fv-sa-ghost-btn');
-  if(!btn) return;
-  btn.style.display=(mode==='sa'||!mode)?'':'none';
-}
-function _normCssColor(v){
-  v=(v||'').toString().trim().toLowerCase();
-  if(!v || v==='none' || v==='transparent') return '';
-  var m=v.match(/^rgba?\\(\\s*(\\d+)\\s*,\\s*(\\d+)\\s*,\\s*(\\d+)/);
-  if(m){
-    return '#'+[m[1],m[2],m[3]].map(function(x){
-      var h=Number(x).toString(16);
-      return h.length<2?'0'+h:h;
-    }).join('');
-  }
-  if(v.charAt(0)==='#' && v.length===4)
-    return '#'+v.charAt(1)+v.charAt(1)+v.charAt(2)+v.charAt(2)+v.charAt(3)+v.charAt(3);
-  if(v.charAt(0)==='#' && v.length>=7) return v.slice(0,7);
-  return v;
-}
-function _markSaHl(svg){
-  if(!svg || svg.getAttribute('data-fv-hl-marked')==='1') return;
-  svg.setAttribute('data-fv-hl-marked','1');
-  var FACE={'#e53935':1,'#ec407a':1};
-  var EDGE={'#ff1744':1,'#f8bbd0':1};
-  var TAG={'#b71c1c':1,'#ad1457':1};
-  [].slice.call(svg.querySelectorAll('path,polygon,rect')).forEach(function(p){
-    if(p.getAttribute('data-fv-hl')) return;
-    var st=((p.getAttribute('style')||'')+' '+(p.getAttribute('fill')||'')+' '+(p.getAttribute('stroke')||'')).toLowerCase();
-    var fill='', stroke='', sw=0, op=1, hasOp=false;
-    var mf=st.match(/fill:\s*([^;]+)/);
-    var ms=st.match(/stroke:\s*([^;]+)/);
-    var mw=st.match(/stroke-width:\s*([^;]+)/);
-    var mo=st.match(/(?:^|;|\s)opacity:\s*([^;]+)/);
-    if(mf) fill=_normCssColor(mf[1]);
-    if(ms) stroke=_normCssColor(ms[1]);
-    if(mw) sw=parseFloat(mw[1])||0;
-    if(mo){ op=parseFloat(mo[1]); hasOp=true; }
-    if(!fill){
-      try{
-        var cs=window.getComputedStyle(p);
-        fill=_normCssColor(cs.fill);
-        if(!stroke) stroke=_normCssColor(cs.stroke);
-        if(!sw) sw=parseFloat(String(cs.strokeWidth))||0;
-        if(!hasOp) op=parseFloat(cs.opacity);
-      }catch(e){}
-    }
-    if(TAG[fill]){ p.setAttribute('data-fv-hl','tag'); return; }
-    if(FACE[fill] && (op<0.9 || st.indexOf('opacity: 0.38')>=0)){
-      p.setAttribute('data-fv-hl','face'); return;
-    }
-    var fillNone=!fill || /fill:\s*none/.test(st);
-    if(fillNone && EDGE[stroke] && sw>=0.35 && sw<=0.62){
-      p.setAttribute('data-fv-hl','edge');
-    }
-  });
-}
-function _applySaGhostVisual(layer, on){
-  var svg=layer && layer.querySelector('svg');
-  if(!svg) return;
-  _markSaHl(svg);
-  [].slice.call(svg.querySelectorAll('[data-fv-hl="face"]')).forEach(function(p){
-    if(on){
-      if(p.getAttribute('data-fv-prev-style')==null)
-        p.setAttribute('data-fv-prev-style', p.getAttribute('style')||'');
-      p.style.setProperty('fill','none','important');
-      p.style.setProperty('fill-opacity','0','important');
-      p.style.setProperty('opacity','0','important');
-    } else {
-      var prev=p.getAttribute('data-fv-prev-style');
-      if(prev!=null) p.setAttribute('style', prev);
-    }
-  });
-  [].slice.call(svg.querySelectorAll('[data-fv-hl="edge"]')).forEach(function(p){
-    if(on){
-      if(p.getAttribute('data-fv-prev-style')==null)
-        p.setAttribute('data-fv-prev-style', p.getAttribute('style')||'');
-      p.style.setProperty('stroke-opacity','0.38','important');
-      p.style.setProperty('opacity','0.45','important');
-    } else {
-      var prev=p.getAttribute('data-fv-prev-style');
-      if(prev!=null) p.setAttribute('style', prev);
-    }
-  });
-}
-function toggleSaGhost(btn){
-  btn=btn||document.querySelector('.fv-sa-ghost-btn');
-  var outer=btn&&btn.closest('[data-panzoom]');
-  var layer=outer&&outer.querySelector('.fv-layer-sa');
-  if(!layer) return;
-  var on=layer.classList.toggle('fv-sa-ghost');
-  _applySaGhostVisual(layer, on);
-  if(btn){
-    btn.setAttribute('data-sa-ghost', on?'1':'0');
-    btn.classList.toggle('active', on);
-  }
-  try{ localStorage.setItem('fv_sa_ghost_'+_pageStem(), on?'1':'0'); }catch(e){}
-}
-var pointColors=['#f87171','#60a5fa','#4ade80','#fbbf24','#c084fc','#f472b6','#2dd4bf','#fb923c'];
-window._fvPagePoints=window._fvPagePoints||[];
-function _pointsKey(){ return 'aten_fv_points_'+_pageStem(); }
-function _cssEsc(s){
-  if(window.CSS && CSS.escape) return CSS.escape(String(s));
-  return String(s);
-}
-function _fvPtSide(outer){
-  if(!outer) return 'sa';
-  if(outer.querySelector && outer.querySelector('[data-ctx-layers]')){
-    var root=outer.closest('#fvctx-main')||document;
-    var b=root.querySelector('.fv-hl-btn.active');
-    return (b && b.getAttribute('data-hl')) || 'sa';
-  }
-  var id=outer.id||'local';
-  var m=id.match(/_s([^_]+)$/i);
-  if(m) return 'S'+m[1];
-  return id.replace(/^fvlocal_[^_]+_/,'')||'local';
-}
-function _isBgPatch(el){
-  var st=((el.getAttribute('style')||'')+' '+(el.getAttribute('fill')||'')).toLowerCase();
-  if(st.indexOf('#0a0a0a')>=0 && st.indexOf('stroke')<0) return true;
-  if(st.indexOf('#212830')>=0 && st.indexOf('stroke')<0) return true;
-  return false;
-}
-function _ensurePtEls(svg){
-  if(!svg || svg.getAttribute('data-pt-els')==='1') return;
-  svg.setAttribute('data-pt-els','1');
-  var i=0;
-  var nodes=[].slice.call(svg.querySelectorAll('path,line,polygon,polyline,circle,ellipse,text,rect'));
-  nodes.forEach(function(el){
-    if(el.closest && el.closest('defs')) return;
-    if(el.classList.contains('fv-pt-hit')) return;
-    if(_isBgPatch(el)) return;
-    i+=1;
-    if(!el.id){
-      var svgId=svg.getAttribute('id')||'svg';
-      el.setAttribute('id', svgId+'-pt-'+i);
-    }
-    el.classList.add('fv-pt-el');
-    var tag=el.tagName.toLowerCase();
-    if(!el.getAttribute('data-type')){
-      var hl=el.getAttribute('data-fv-hl')||'';
-      var typ=tag==='text'?'TEXT':(hl==='face'?'HL-FACE':(hl==='edge'?'HL-EDGE':(hl==='tag'?'TAG':tag.toUpperCase())));
-      el.setAttribute('data-type', typ);
-    }
-    if(!el.getAttribute('data-layer')){
-      el.setAttribute('data-layer', el.getAttribute('data-fv-hl')||el.getAttribute('data-n3-seg')||'CAD');
-    }
-    if(tag==='text' && !el.getAttribute('data-text')){
-      el.setAttribute('data-text', (el.textContent||'').trim().slice(0,80));
-    }
-    var st=(el.getAttribute('style')||'').toLowerCase();
-    if((tag==='path'||tag==='line'||tag==='polyline') && /fill:\\s*none/.test(st)){
-      try{
-        var hit=el.cloneNode(true);
-        hit.removeAttribute('id');
-        hit.classList.remove('fv-pt-el');
-        hit.classList.add('fv-pt-hit');
-        hit.style.stroke='transparent';
-        hit.style.fill='none';
-        hit.style.strokeWidth='12';
-        hit.style.pointerEvents='stroke';
-        hit.setAttribute('data-pt-for', el.id);
-        if(el.parentNode) el.parentNode.insertBefore(hit, el);
-      }catch(err){}
-    }
-  });
-}
-function _visibleSvg(outer){
-  if(!outer) return null;
-  var layer=outer.querySelector('.fv-layer:not(.fv-layer-hidden)');
-  if(layer){
-    var s=layer.querySelector('svg');
-    if(s) return s;
-  }
-  return outer.querySelector('svg');
-}
-function markPicked(target){
-  if(!target||target.classList.contains('fv-pt-picked')||target.classList.contains('dxf-picked')) return;
-  target.classList.add('fv-pt-picked');
-  target.classList.add('dxf-picked');
-  if(target.parentNode) target.parentNode.prepend(target);
-}
-function unmarkPicked(outer, elementId){
-  if(!elementId||!outer) return;
-  outer.querySelectorAll('svg').forEach(function(svg){
-    var el=null;
-    try{ el=svg.querySelector('#'+_cssEsc(elementId)); }catch(e){}
-    if(el){
-      el.classList.remove('fv-pt-picked');
-      el.classList.remove('dxf-picked');
-    }
-  });
-}
-function renderFvDots(outer){
-  if(!outer) return;
-  outer.querySelectorAll('.click-dot,.click-label').forEach(function(el){ el.remove(); });
-  var side=_fvPtSide(outer);
-  var wRect=outer.getBoundingClientRect();
-  var vi=-1;
-  (window._fvPagePoints||[]).forEach(function(p){
-    if(p._removed) return;
-    vi+=1;
-    if(p.viewer && outer.id && p.viewer!==outer.id) return;
-    if(p.side && p.side!==side) return;
-    var c=pointColors[vi%pointColors.length];
-    var x=p.x, y=p.y;
-    var el=null;
-    if(p.element && p.element.id){
-      try{ el=outer.querySelector('#'+_cssEsc(p.element.id)); }catch(e){}
-    }
-    if(el) markPicked(el);
-    if(el && wRect.width>0 && wRect.height>0){
-      var r=el.getBoundingClientRect();
-      x=(r.left+r.width/2-wRect.left)/wRect.width;
-      y=(r.top+r.height/2-wRect.top)/wRect.height;
-    }
-    if(x<-0.05||x>1.05||y<-0.05||y>1.05) return;
-    var dot=document.createElement('div');
-    dot.className='click-dot';
-    dot.style.left=(x*100)+'%'; dot.style.top=(y*100)+'%'; dot.style.background=c;
-    outer.appendChild(dot);
-    var lb=document.createElement('div');
-    lb.className='click-label';
-    lb.style.left=(x*100)+'%'; lb.style.top=(y*100)+'%'; lb.style.color=c;
-    lb.textContent=String(vi+1);
-    outer.appendChild(lb);
-  });
-}
-function pointRefText(p, i){
-  var parts=[_pageStem(), 'P'+(i+1)+' '+(p.side||'')];
-  if(p.element){
-    var el=p.element;
-    var s=(el.type||'?')+'·'+(el.layer||'CAD');
-    if(el.pattern) s+=' pattern='+el.pattern;
-    if(el.handle) s+=' handle='+el.handle;
-    if(el.text) s+=' texto="'+el.text+'"';
-    if(el.length_cm) s+=' '+el.length_cm+'cm';
-    parts.push(s);
-  }
-  if(p.note) parts.push('nota: "'+p.note+'"');
-  return parts.join(' | ');
-}
-function _copyText(text, btn, idle){
-  var done=function(){ if(!btn) return; btn.textContent='✓'; setTimeout(function(){ btn.textContent=idle; }, 1200); };
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(done).catch(done);
-  } else {
-    var ta=document.createElement('textarea');
-    ta.value=text; ta.style.position='fixed'; ta.style.opacity='0';
-    document.body.appendChild(ta); ta.select();
-    try{ document.execCommand('copy'); }catch(e){}
-    document.body.removeChild(ta); done();
-  }
-}
-function renderFvPointsList(){
-  var list=document.querySelector('.fv-points-list');
-  if(!list) return;
-  list.innerHTML='';
-  var copyAllBtn=document.querySelector('.copy-all-points');
-  var active=(window._fvPagePoints||[]).filter(function(p){ return !p._removed; });
-  if(copyAllBtn) copyAllBtn.hidden=!active.length;
-  var vi=-1;
-  (window._fvPagePoints||[]).forEach(function(p, i){
-    if(p._removed){
-      var row=document.createElement('div');
-      row.className='point-row point-row-removed';
-      var lbl=document.createElement('span');
-      lbl.style.cssText='flex:1;color:#94a3b8;font-style:italic;font-size:11px;';
-      lbl.textContent='ponto removido';
-      var undo=document.createElement('button');
-      undo.type='button'; undo.textContent='↺ desfazer';
-      undo.addEventListener('click', function(){
-        delete p._removed;
-        document.querySelectorAll('[data-panzoom]').forEach(function(w){
-          if(p.element&&p.element.id){
-            var el=null;
-            try{ el=w.querySelector('#'+_cssEsc(p.element.id)); }catch(e){}
-            if(el) markPicked(el);
-          }
-          renderFvDots(w);
-        });
-        renderFvPointsList(); saveFvPoints();
-      });
-      row.appendChild(lbl); row.appendChild(undo);
-      list.appendChild(row);
-      return;
-    }
-    vi+=1;
-    var c=pointColors[vi%pointColors.length];
-    var row=document.createElement('div');
-    row.className='point-row';
-    var lbl=document.createElement('span');
-    lbl.style.cssText='min-width:70px;color:'+c+';font-family:monospace;';
-    lbl.textContent='P'+(vi+1)+' '+String(p.side||'').toUpperCase();
-    var inp=document.createElement('input');
-    inp.type='text'; inp.placeholder='nota sobre este ponto'; inp.value=p.note||'';
-    inp.addEventListener('input', function(){ p.note=inp.value; saveFvPoints(); });
-    var cp=document.createElement('button');
-    cp.type='button'; cp.textContent='📋'; cp.title='copiar referência deste ponto';
-    (function(pt, idx){
-      cp.addEventListener('click', function(){ _copyText(pointRefText(pt, idx), cp, '📋'); });
-    })(p, vi);
-    var rm=document.createElement('button');
-    rm.type='button'; rm.textContent='×';
-    rm.addEventListener('click', function(){
-      document.querySelectorAll('[data-panzoom]').forEach(function(w){
-        unmarkPicked(w, p.element && p.element.id);
-        renderFvDots(w);
-      });
-      p._removed=true; renderFvPointsList(); saveFvPoints();
-    });
-    row.appendChild(lbl);
-    if(p.element){
-      var tag=document.createElement('span');
-      tag.className='elem-tag';
-      tag.title='handle='+(p.element.handle||'')+(p.element.pattern?' pattern='+p.element.pattern:'')+(p.element.text?' texto="'+p.element.text+'"':'')+(p.element.length_cm?' '+p.element.length_cm+'cm':'');
-      tag.textContent=(p.element.type||'?')+'·'+(p.element.layer||'CAD');
-      row.appendChild(tag);
-    }
-    row.appendChild(inp); row.appendChild(cp); row.appendChild(rm);
-    list.appendChild(row);
-  });
-}
-function saveFvPoints(){
-  var json=JSON.stringify((window._fvPagePoints||[]).filter(function(p){ return !p._removed; }));
-  try{ localStorage.setItem(_pointsKey(), json); }catch(e){}
-  if(typeof persistAllNotes==='function') persistAllNotes(true);
-}
-function loadFvPointsFromNotes(notes){
-  var raw=notes && notes[_pointsKey()];
-  if(raw==null || raw===''){
-    try{ raw=localStorage.getItem(_pointsKey()); }catch(e){}
-  }
-  if(raw==null || raw===''){
-    if(!Array.isArray(window._fvPagePoints)) window._fvPagePoints=[];
-  } else {
-    try{ window._fvPagePoints = JSON.parse(raw); }
-    catch(e){ window._fvPagePoints=[]; }
-    if(!Array.isArray(window._fvPagePoints)) window._fvPagePoints=[];
-  }
-  document.querySelectorAll('[data-panzoom]').forEach(function(w){ renderFvDots(w); });
-  renderFvPointsList();
-}
-function toggleFvPointMode(btn){
-  btn=btn||document.querySelector('.fv-pt-btn');
-  var outer=btn && btn.closest('[data-panzoom]');
-  if(!outer) return;
-  var on=btn.classList.toggle('active');
-  btn.setAttribute('data-pt', on?'1':'0');
-  outer.classList.toggle('fv-pt-mode', on);
-  if(on){
-    var svg=_visibleSvg(outer);
-    if(svg) _ensurePtEls(svg);
-  }
-}
-function onFvPointClick(outer, e){
-  if(!outer || !outer.classList.contains('fv-pt-mode')) return;
-  if(e.target && e.target.closest && e.target.closest('button,textarea,a,input')) return;
-  if((outer._dragMoved||0)>4) return;
-  var target=e.target.closest && e.target.closest('.fv-pt-el, .dxf-el');
-  if(!target){
-    var hit=e.target.closest && e.target.closest('.fv-pt-hit');
-    if(hit && hit.getAttribute('data-pt-for')){
-      try{ target=outer.querySelector('#'+_cssEsc(hit.getAttribute('data-pt-for'))); }catch(err){ target=null; }
-    }
-  }
-  if(!target) return;
-  if(target.classList.contains('fv-pt-picked')||target.classList.contains('dxf-picked')) return;
-  var rect=outer.getBoundingClientRect();
-  var tr=target.getBoundingClientRect();
-  var x=(tr.left+tr.width/2-rect.left)/rect.width;
-  var y=(tr.top+tr.height/2-rect.top)/rect.height;
-  markPicked(target);
-  window._fvPagePoints=window._fvPagePoints||[];
-  window._fvPagePoints.push({
-    viewer: outer.id||'',
-    side: _fvPtSide(outer),
-    x:x, y:y, note:'',
-    element:{
-      id: target.id||'',
-      layer: target.getAttribute('data-layer')||'',
-      type: target.getAttribute('data-type')||target.tagName,
-      handle: target.getAttribute('data-handle')||'',
-      text: target.getAttribute('data-text')||((target.tagName.toLowerCase()==='text'?(target.textContent||'').trim():'')),
-      length_cm: target.getAttribute('data-length-cm')||'',
-      pattern: target.getAttribute('data-pattern')||''
-    }
-  });
-  renderFvDots(outer);
-  renderFvPointsList();
-  saveFvPoints();
-  var tab=document.querySelector('.fv-human-tab-btn[data-htab="points"]');
-  if(tab && !tab.classList.contains('active') && typeof setHumanTab==='function') setHumanTab('points');
-}
-function setHumanTab(name, root){
-  root=root||document.querySelector('.fv-human-box')||document;
-  name=name||'layers';
-  root.querySelectorAll('.fv-human-tab-btn').forEach(function(b){
-    b.classList.toggle('active', b.getAttribute('data-htab')===String(name));
-  });
-  var box=root.classList && root.classList.contains('fv-human-box') ? root : (root.querySelector && root.querySelector('.fv-human-box')) || document;
-  box.querySelectorAll('.fv-human-tab-panel').forEach(function(p){
-    p.classList.toggle('active', p.getAttribute('data-htab-panel')===String(name));
-  });
-}
-function bindHumanTabs(){
-  document.querySelectorAll('.fv-human-tabs').forEach(function(bar){
-    if(bar.dataset.bound==='1') return;
-    bar.dataset.bound='1';
-    bar.querySelectorAll('.fv-human-tab-btn').forEach(function(btn){
-      btn.addEventListener('click', function(e){
-        e.preventDefault();
-        setHumanTab(btn.getAttribute('data-htab'), bar.closest('.fv-human-box')||document);
-      });
-    });
-  });
-  var copyAll=document.querySelector('.copy-all-points');
-  if(copyAll && copyAll.dataset.bound!=='1'){
-    copyAll.dataset.bound='1';
-    copyAll.addEventListener('click', function(){
-      var text=(window._fvPagePoints||[]).filter(function(p){ return !p._removed; }).map(function(p,i){ return pointRefText(p,i); }).join('\\n');
-      _copyText(text, copyAll, '📋 copiar todos os pontos');
-    });
-  }
-}
-window.toggleFvPointMode=toggleFvPointMode;
-window.renderFvDots=renderFvDots;
-window.renderFvPointsList=renderFvPointsList;
-window.onFvPointClick=onFvPointClick;
-window.setHumanTab=setHumanTab;
-window.bindHumanTabs=bindHumanTabs;
-window.loadFvPointsFromNotes=loadFvPointsFromNotes;
 /** Toggle SA / C1 / C2 / C3 / N3 layers inside contextual viewer.
     Uma camada visível por vez (sem modo "ambos"). */
 var CTX_LAYER_MODES=['sa','c1','c2','c3','n3'];
-function _syncSegSubtabs(root, mode){
-  var bar=root.querySelector('.fv-seg-subtabs');
-  if(!bar) return;
-  var show=(mode==='sa'||mode==='n3');
-  bar.style.display=show?'flex':'none';
-  if(!show) return;
-  var cur=bar.querySelector('.fv-seg-btn.active');
-  var seg=(cur && cur.getAttribute('data-seg'))||'todos';
-  setCtxSegFocus(seg, root);
-}
-function _saTagLabel(t){
-  var s=(t.textContent||'').trim();
-  var m=s.match(/^S(\\d+[A-Z]?)$/i);
-  return m?m[1]:'';
-}
-function _dimSaSegs(svg, keep){
-  if(!svg) return;
-  var texts=[].slice.call(svg.querySelectorAll('text'));
-  var tags=texts.map(function(t){ return {_el:t, lab:_saTagLabel(t)}; }).filter(function(x){ return x.lab; });
-  tags.forEach(function(x){
-    var g=x._el.closest('g')||x._el;
-    g.style.opacity=(keep==='todos'||String(keep)===String(x.lab))?'1':'0.16';
-  });
-  var fillRe=/#e53935|#ec407a|#ff1744|#f8bbd0|#b71c1c|#ad1457|#ff8a80|#f48fb1/i;
-  var paths=[].slice.call(svg.querySelectorAll('path,polygon'));
-  paths.forEach(function(p){
-    var hl=p.getAttribute('data-fv-hl')||'';
-    if(hl==='tag') return;
-    var st=(p.getAttribute('style')||'')+' '+(p.getAttribute('fill')||'')+' '+(p.getAttribute('stroke')||'');
-    if(hl!=='face' && hl!=='edge' && !fillRe.test(st)) return;
-    if(keep==='todos'){ p.style.opacity='1'; return; }
-    try{
-      var b=p.getBBox();
-      var cx=b.x+b.width/2, cy=b.y+b.height/2;
-      var best=null, bestD=1e15;
-      tags.forEach(function(x){
-        var tb=x._el.getBBox();
-        var dx=tb.x+tb.width/2-cx, dy=tb.y+tb.height/2-cy;
-        var d=dx*dx+dy*dy;
-        if(d<bestD){ bestD=d; best=x.lab; }
-      });
-      p.style.opacity=(best && String(best)===String(keep))?'1':'0.12';
-    }catch(e){}
-  });
-}
-function _focusSA(root, outer, seg){
-  var svg=(outer&&outer.querySelector('.fv-layer-sa svg'))||null;
-  if(!svg) return;
-  _dimSaSegs(svg, seg);
-  if(seg==='todos'){
-    if(outer&&outer._pzSwitchLayer) outer._pzSwitchLayer('sa');
-    return;
-  }
-  var texts=[].slice.call(svg.querySelectorAll('text'));
-  var tag=null;
-  texts.forEach(function(t){ if(_saTagLabel(t)===String(seg)) tag=t; });
-  if(!tag) return;
-  var box=null;
-  try{
-    var tb=tag.getBBox();
-    var cx=tb.x+tb.width/2, cy=tb.y+tb.height/2;
-    var fillRe=/#e53935|#ec407a|#ff1744|#f8bbd0/i;
-    var best=null, bestD=1e15;
-    [].slice.call(svg.querySelectorAll('path,polygon')).forEach(function(p){
-      var hl=p.getAttribute('data-fv-hl')||'';
-      var st=(p.getAttribute('style')||'')+' '+(p.getAttribute('fill')||'');
-      if(hl!=='face' && hl!=='edge' && !fillRe.test(st)) return;
-      var b=p.getBBox();
-      var dx=b.x+b.width/2-cx, dy=b.y+b.height/2-cy;
-      var d=dx*dx+dy*dy;
-      if(d<bestD){ bestD=d; best=b; }
-    });
-    box=best||tb;
-  }catch(e){ return; }
-  if(outer&&outer._pzFocusBox) outer._pzFocusBox(box);
-}
-function _dimN3Segs(svg, keep){
-  if(!svg) return;
-  svg.querySelectorAll('.fv-n3-seg').forEach(function(g){
-    var lab=g.getAttribute('data-n3-seg')||g.getAttribute('data-seg')||'';
-    var on=(keep==='todos'||String(keep)===String(lab));
-    g.style.opacity=on?'1':'0.18';
-  });
-}
-function _focusN3(root, outer, seg){
-  var svg=(outer&&outer.querySelector('.fv-layer-n3 svg'))||null;
-  if(!svg) return;
-  _dimN3Segs(svg, seg);
-  if(outer&&outer._pzSwitchLayer) outer._pzSwitchLayer('n3');
-  if(seg==='todos') return;
-  var g=svg.querySelector('.fv-n3-seg[data-n3-seg="'+String(seg)+'"]')
-    || svg.querySelector('.fv-n3-seg[data-seg="'+String(seg)+'"]');
-  if(g){
-    try{
-      var b=g.getBBox();
-      var pad=Math.max(10, Math.max(b.width,b.height)*0.08);
-      if(outer&&outer._pzFocusBox){
-        outer._pzFocusBox({x:b.x-pad,y:b.y-pad,w:b.width+2*pad,h:b.height+2*pad});
-      }
-      return;
-    }catch(e){}
-  }
-  var texts=[].slice.call(svg.querySelectorAll('text.fv-n3-tag,text'));
-  var tag=null;
-  var want='S'+String(seg);
-  texts.forEach(function(t){
-    var s=(t.textContent||'').trim();
-    if(s===want || s===String(seg) || _saTagLabel(t)===String(seg)) tag=t;
-  });
-  if(!tag) return;
-  try{
-    var tb=tag.getBBox();
-    var pad=Math.max(12, tb.width);
-    if(outer&&outer._pzFocusBox){
-      outer._pzFocusBox({x:tb.x-pad,y:tb.y-pad,w:tb.width+2*pad,h:tb.height+80});
-    }
-  }catch(e){}
-}
-function _syncSegAccordion(seg, root){
-  var list=(root&&root.querySelector('#fv-seg-list'))||document.getElementById('fv-seg-list');
-  if(!list) return;
-  var target=null;
-  var solo=String(seg)!=='todos';
-  list.dataset.syncing='1';
-  list.classList.toggle('fv-seg-solo', solo);
-  list.querySelectorAll('.fv-seg-item').forEach(function(item){
-    var match=solo && item.getAttribute('data-seg')===String(seg);
-    item.classList.toggle('open', !!match);
-    item.setAttribute('aria-expanded', match?'true':'false');
-    if(item.tagName==='DETAILS') item.open=!!match;
-    if(solo && !match) item.setAttribute('hidden','hidden');
-    else item.removeAttribute('hidden');
-    if(match) target=item;
-  });
-  list.querySelectorAll('.fv-seg-detail').forEach(function(detail){
-    var match=solo && detail.getAttribute('data-seg')===String(seg);
-    if(match) detail.removeAttribute('hidden');
-    else detail.setAttribute('hidden','hidden');
-  });
-  list.dataset.syncing='';
-  if(target && target.scrollIntoView && !solo){
-    try{ target.scrollIntoView({block:'nearest', behavior:'smooth'}); }catch(e){}
-  }
-}
-function setCtxSegFocus(seg, root){
-  root=root||document.getElementById('fvctx-main')||document;
-  seg=seg||'todos';
-  var bar=root.querySelector('.fv-seg-subtabs');
-  if(bar){
-    bar.querySelectorAll('.fv-seg-btn').forEach(function(b){
-      b.classList.toggle('active', b.getAttribute('data-seg')===String(seg));
-    });
-  }
-  _syncSegAccordion(seg, root);
-  var modeBtn=root.querySelector('.fv-hl-btn.active');
-  var mode=(modeBtn && modeBtn.getAttribute('data-hl'))||'sa';
-  var outer=root.querySelector('[data-panzoom]');
-  if(mode==='n3') _focusN3(root, outer, seg);
-  else _focusSA(root, outer, seg);
-}
-function bindCtxSegSubtabs(){
-  document.querySelectorAll('.fv-seg-subtabs').forEach(function(bar){
-    if(bar.dataset.bound==='1') return;
-    bar.dataset.bound='1';
-    bar.addEventListener('click', function(e){
-      var btn=e.target.closest('.fv-seg-btn');
-      if(!btn) return;
-      e.preventDefault(); e.stopPropagation();
-      var root=bar.closest('#fvctx-main')||bar.parentElement;
-      setCtxSegFocus(btn.getAttribute('data-seg')||'todos', root);
-    });
-  });
-  document.querySelectorAll('#fv-seg-list').forEach(function(list){
-    if(list.dataset.accBound==='1') return;
-    list.dataset.accBound='1';
-    list.addEventListener('toggle', function(e){
-      var item=e.target;
-      if(list.dataset.syncing==='1') return;
-      if(!item || !item.classList || !item.classList.contains('fv-seg-item') || !item.open) return;
-      var root=list.closest('#fvctx-main')||document;
-      setCtxSegFocus(item.getAttribute('data-seg')||'todos', root);
-    }, true);
-    list.addEventListener('click', function(e){
-      if(list.dataset.syncing==='1') return;
-      if(e.target.closest && e.target.closest('.fv-seg-detail')) return;
-      var item=e.target.closest && e.target.closest('.fv-seg-item');
-      if(!item || item.tagName==='DETAILS') return;
-      e.preventDefault();
-      var root=list.closest('#fvctx-main')||document;
-      var seg=item.getAttribute('data-seg')||'todos';
-      setCtxSegFocus(item.classList.contains('open')?'todos':seg, root);
-    });
-    list.addEventListener('keydown', function(e){
-      if(e.key!=='Enter' && e.key!==' ') return;
-      var item=e.target.closest && e.target.closest('.fv-seg-item');
-      if(!item || item.tagName==='DETAILS') return;
-      e.preventDefault();
-      var root=list.closest('#fvctx-main')||document;
-      var seg=item.getAttribute('data-seg')||'todos';
-      setCtxSegFocus(item.classList.contains('open')?'todos':seg, root);
-    });
-  });
-}
-function _mountN3Layer(n3, done){
-  function finish(){
-    var s=n3.querySelector('svg');
-    if(s) _prepN3Svg(s);
-    if(typeof done==='function') done();
-  }
-  if(!n3){ if(typeof done==='function') done(); return; }
-  if(n3.querySelector('svg')){ finish(); return; }
-  var src=n3.getAttribute('data-n3-src')||n3.dataset.n3Src;
-  if(!src){ finish(); return; }
-  if(n3.dataset.loaded==='1'){ finish(); return; }
-  n3.dataset.loaded='1';
-  fetch(src,{cache:'no-store'}).then(function(r){
-    if(!r.ok) throw new Error('n3 '+r.status);
-    return r.text();
-  }).then(function(txt){
-    var i=(txt||'').indexOf('<svg');
-    if(i<0) throw new Error('n3 empty');
-    n3.innerHTML=txt.slice(i);
-    finish();
-  }).catch(function(){
-    n3.dataset.loaded='0';
-    n3.innerHTML='<div class="fv-agent-status">N3 indisponível ainda.<br>'
-      +'<span style="font-size:11px;opacity:.75">'+ (src||'') +'</span></div>';
-    if(typeof done==='function') done();
-  });
-}
 function setCtxHighlightMode(mode, root){
   root=root||document.getElementById('fvctx-main')||document;
   var wrap=root.querySelector('[data-ctx-layers]')||root;
@@ -1428,21 +672,30 @@ function setCtxHighlightMode(mode, root){
     b.classList.toggle('active', b.getAttribute('data-hl')===mode);
   });
   try{ localStorage.setItem('fv_ctx_hl_mode_'+_pageStem(), mode); }catch(e){}
-  _syncSaGhostChrome(root, mode);
-  var outer=root.querySelector('[data-panzoom]')||wrap.closest('[data-panzoom]');
-  function afterLayer(){
-    if(outer && outer._pzSwitchLayer) outer._pzSwitchLayer(mode);
-    _syncSegSubtabs(root, mode);
-    if(outer && outer.classList.contains('fv-pt-mode')){
-      var svg=_visibleSvg(outer);
-      if(svg) _ensurePtEls(svg);
-    }
-    if(outer && typeof renderFvDots==='function') renderFvDots(outer);
-  }
+  // N3: carregar sob demanda se ainda for placeholder
   if(mode==='n3'){
-    _mountN3Layer(wrap.querySelector('.fv-layer-n3'), afterLayer);
-  } else {
-    afterLayer();
+    var n3=wrap.querySelector('.fv-layer-n3');
+    if(n3 && !n3.querySelector('svg') && n3.dataset.n3Src && n3.dataset.loaded!=='1'){
+      n3.dataset.loaded='1';
+      fetch(n3.dataset.n3Src,{cache:'no-store'}).then(function(r){
+        if(!r.ok) throw new Error('n3 '+r.status);
+        return r.text();
+      }).then(function(txt){
+        if(!txt||txt.indexOf('<svg')<0) throw new Error('n3 empty');
+        n3.innerHTML=txt;
+        var s=n3.querySelector('svg');
+        if(s){
+          if(typeof _prepAgentSvg==='function') _prepAgentSvg(s);
+          s.classList.add('fv-sync-vb');
+        }
+        var outer=n3.closest('[data-panzoom]');
+        if(outer&&outer._pzApply) outer._pzApply();
+      }).catch(function(){
+        n3.dataset.loaded='0';
+        n3.innerHTML='<div class="fv-agent-status">N3 indisponível ainda.<br>'
+          +'<span style="font-size:11px;opacity:.75">'+ (n3.dataset.n3Src||'') +'</span></div>';
+      });
+    }
   }
 }
 /** Mini-abas Camada 1/2/3 da anotação agêntica (uma caixa visível por vez) */
@@ -1486,25 +739,16 @@ function bindCtxHighlightToggles(){
       });
     });
   });
-  document.querySelectorAll('.fv-layer-sa svg').forEach(_markSaHl);
   // restore
   try{
     var m=localStorage.getItem('fv_ctx_hl_mode_'+_pageStem());
     if(m) setCtxHighlightMode(m);
   }catch(e){}
-  try{
-    if(localStorage.getItem('fv_sa_ghost_'+_pageStem())==='1'){
-      var gb=document.querySelector('.fv-sa-ghost-btn');
-      var layer=document.querySelector('.fv-layer-sa');
-      if(gb&&layer&&!layer.classList.contains('fv-sa-ghost')) toggleSaGhost(gb);
-    }
-  }catch(e){}
   // carrega SVG de proposta (coords CAD independentes do SA) — uma por camada
-  document.querySelectorAll('.fv-layer-c1[data-proposal-src],.fv-layer-c2[data-proposal-src],.fv-layer-c3[data-proposal-src]').forEach(function(layer){
+  document.querySelectorAll('.fv-layer-c1[data-proposal-src],.fv-layer-c2[data-proposal-src],.fv-layer-c3[data-proposal-src],.fv-layer-n3[data-n3-src]').forEach(function(layer){
     function mount(svgText){
       if(!svgText||svgText.indexOf('<svg')<0) throw new Error('empty svg');
-      var i=svgText.indexOf('<svg');
-      layer.innerHTML=svgText.slice(i);
+      layer.innerHTML=svgText;
       var s=layer.querySelector('svg');
       if(s){
         if(typeof _prepAgentSvg==='function') _prepAgentSvg(s);
@@ -1526,56 +770,41 @@ function bindCtxHighlightToggles(){
       if(outer0&&outer0._pzApply) outer0._pzApply();
       return;
     }
-    var src=layer.getAttribute('data-proposal-src');
+    var src=layer.getAttribute('data-proposal-src')||layer.getAttribute('data-n3-src')||layer.dataset.n3Src;
     if(!src) return;
     fetch(src,{cache:'no-store'}).then(function(r){
       if(!r.ok) throw new Error('HTTP '+r.status);
       return r.text();
     }).then(mount).catch(function(err){
-      console.warn('[fv] proposta', src, err);
+      console.warn('[fv] proposta/n3', src, err);
       if(!layer.querySelector('svg') && !layer.querySelector('.fv-agent-status')){
         layer.innerHTML='<div class="fv-agent-status">Sem artefato ainda.<br><span style="font-size:11px;opacity:.75">'+src+'</span></div>';
       }
     });
   });
-  document.querySelectorAll('.fv-layer-n3').forEach(function(layer){
-    var existing=layer.querySelector('svg');
-    if(existing){ _prepN3Svg(existing); return; }
-    if(layer.getAttribute('data-n3-src')||layer.dataset.n3Src){
-      _mountN3Layer(layer);
-    }
-  });
 }
 window._prepAgentSvg=_prepAgentSvg;
-window._prepN3Svg=_prepN3Svg;
 window.resetZoom=resetZoom;
-window.toggleSaGhost=toggleSaGhost;
 window.initPanZoom=initPanZoom;
 window.setCtxHighlightMode=setCtxHighlightMode;
-window.setCtxSegFocus=setCtxSegFocus;
 window.bindCtxHighlightToggles=bindCtxHighlightToggles;
-window.bindCtxSegSubtabs=bindCtxSegSubtabs;
 
 document.addEventListener('DOMContentLoaded',function(){
   loadAllAtenTA();
   bindAutosaveFields();
-  bindCtxSegSubtabs();
+  bindCtxHighlightToggles(); if(typeof refreshTabSeals==='function') refreshTabSeals();
+  bindAgentTabs();
   document.querySelectorAll('[data-panzoom]').forEach(function(el){
     if(el.id) initPanZoom(el.id);
   });
-  bindCtxHighlightToggles(); if(typeof refreshTabSeals==='function') refreshTabSeals();
-  bindAgentTabs();
-  bindHumanTabs();
-  if(typeof loadFvPointsFromNotes==='function') loadFvPointsFromNotes(_readStore().notes||{});
 });
 // if script injects after DOMContentLoaded
 if(document.readyState!=='loading'){
   try{
-    loadAllAtenTA(); bindAutosaveFields(); bindCtxSegSubtabs();
+    loadAllAtenTA(); bindAutosaveFields(); bindCtxHighlightToggles(); bindAgentTabs();
     document.querySelectorAll('[data-panzoom]').forEach(function(el){
       if(el.id && el.dataset.pzInit!=='1') initPanZoom(el.id);
     });
-    bindCtxHighlightToggles(); bindAgentTabs(); bindHumanTabs();
   }catch(e){}
 }
 })();
@@ -1760,132 +989,6 @@ HIFI_CSS = (
     ".fv-human-hl-card-title{display:none}"
     ".fv-human-hl-card.has-validou .fv-human-hl-row-label,"
     ".fv-human-hl-row.has-validou .fv-human-hl-row-label{opacity:1}"
-    "/* ficha + tabela + subabas do viewer unificado */"
-    ".fv-ficha-summary{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 14px}"
-    ".fv-sum-item{background:#10151f;border:1px solid #2a3344;border-radius:10px;"
-    "padding:10px 14px;min-width:140px}"
-    ".fv-sum-item span{display:block;color:#8b95a8;font-size:11px;margin-bottom:4px;"
-    "letter-spacing:.02em}"
-    ".fv-sum-item b{color:#f2f6ff;font-size:16px;font-weight:750}"
-    ".fv-seg-table-wrap{margin:0 0 16px;border:1px solid #2a3344;border-radius:12px;"
-    "overflow:auto;background:#0f1520}"
-    ".fv-seg-table-title{padding:10px 14px;font-size:13px;font-weight:700;color:#7dffa8;"
-    "background:#171e2b;border-bottom:1px solid #243044}"
-    ".fv-seg-table{width:100%;border-collapse:collapse;font-size:12px}"
-    ".fv-seg-table th{text-align:left;padding:8px 10px;color:#9ec9ff;background:#121820;"
-    "border-bottom:1px solid #2a3344;white-space:nowrap;font-weight:700}"
-    ".fv-seg-table td{padding:7px 10px;border-bottom:1px solid #1d2533;color:#d5deea;"
-    "white-space:nowrap;vertical-align:middle}"
-    ".fv-seg-table tr[hidden]{display:none!important}"
-    ".fv-seg-table tr.fv-seg-item:hover td{background:#151c28}"
-    ".fv-seg-table tr.fv-seg-item.open td{background:#152033}"
-    ".fv-seg-table tr.fv-seg-detail:hover td{background:#0c1118}"
-    ".fv-seg-table td.fv-muted{color:#8b95a8}"
-    ".fv-seg-table th,.fv-seg-table td{text-align:left}"
-    ".fv-seg-table th.fv-col-num,.fv-seg-table td.fv-col-num{"
-    "font-variant-numeric:tabular-nums}"
-    ".fv-seg-table th.fv-col-chev,.fv-seg-table td.fv-col-chev{"
-    "width:22px;padding-left:12px;padding-right:4px}"
-    ".fv-seg-item{cursor:pointer}"
-    ".fv-seg-chev{display:inline-block;width:8px;height:8px;"
-    "border-right:2px solid #5eb0ff;border-bottom:2px solid #5eb0ff;"
-    "transform:rotate(-45deg);transition:transform .15s ease}"
-    ".fv-seg-item.open .fv-seg-chev,.fv-seg-item[open] .fv-seg-chev{"
-    "transform:rotate(45deg)}"
-    ".fv-seg-id{display:inline-flex;min-width:28px;height:22px;align-items:center;"
-    "justify-content:center;border-radius:7px;background:#1a2a3a;color:#bbdefb;"
-    "font-weight:800}"
-    ".fv-seg-item.open .fv-seg-id,.fv-seg-item[open] .fv-seg-id{"
-    "background:#3d8bfd;color:#fff}"
-    ".fv-seg-detail td{padding:0;white-space:normal;background:#0c1118;"
-    "border-bottom:1px solid #243044}"
-    ".fv-seg-body{padding:12px 14px 16px;display:flex;flex-direction:column;gap:12px;"
-    "background:#0c1118}"
-    ".fv-mini-block{background:#10151f;border:1px solid #2a3344;border-radius:10px;"
-    "padding:10px}"
-    ".fv-mini-title{color:#9ec9ff;font-size:12px;font-weight:700;margin:0 0 8px}"
-    ".fv-panel-table{width:100%;border-collapse:collapse;font-size:12px}"
-    ".fv-panel-table th{text-align:left;padding:6px 8px;color:#7dffa8;"
-    "border-bottom:1px solid #2a3344}"
-    ".fv-panel-table td{padding:6px 8px;border-bottom:1px solid #1d2533;color:#d5deea}"
-    ".fv-mini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));"
-    "gap:8px}"
-    ".fv-mini-field{background:#0f1520;border:1px solid #243044;border-radius:8px;"
-    "padding:8px 10px}"
-    ".fv-mini-field span{display:block;color:#8b95a8;font-size:10px;margin-bottom:3px}"
-    ".fv-mini-field b{color:#f2f6ff;font-size:13px}"
-    ".fv-seg-subtabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;"
-    "margin:0 0 10px;padding:8px;background:#0f1520;border:1px solid #2a3344;"
-    "border-radius:12px}"
-    ".fv-seg-btn{min-height:32px;padding:6px 12px;border-radius:8px;cursor:pointer;"
-    "font-weight:700;font-size:12px;border:1px solid #33506e;background:#121a28;"
-    "color:#9ec9ff;font-family:Segoe UI,system-ui,sans-serif}"
-    ".fv-seg-btn:hover{border-color:#3d8bfd}"
-    ".fv-seg-btn.active{background:#1a2a3a;border-color:#64b5f6;color:#bbdefb}"
-    ".fv-ctx-notes{margin:16px 0 0!important}"
-    ".fv-pt-btn{position:absolute;top:6px;right:88px;background:#2a2a2a;"
-    "color:#bbb;border:1px solid #444;padding:2px 10px;cursor:pointer;font-size:10px;"
-    "border-radius:3px;z-index:20;font-family:Segoe UI,system-ui,sans-serif}"
-    ".fv-pt-btn:hover{border-color:#4ade80;color:#bbf7d0}"
-    ".fv-pt-btn.active{background:#052e1a;border-color:#4ade80;color:#bbf7d0}"
-    ".fv-sa-ghost-btn{position:absolute;top:6px;right:170px;background:#2a2a2a;"
-    "color:#bbb;border:1px solid #444;padding:2px 10px;cursor:pointer;font-size:10px;"
-    "border-radius:3px;z-index:20;font-family:Segoe UI,system-ui,sans-serif}"
-    ".fv-sa-ghost-btn:hover{border-color:#ff8a80;color:#ffe0e0}"
-    ".fv-sa-ghost-btn.active{background:#3b1515;border-color:#ff8a80;color:#ffcdd2}"
-    "[data-panzoom].fv-pt-mode{cursor:crosshair}"
-    "[data-panzoom].fv-pt-mode .fv-pt-el{cursor:pointer}"
-    "[data-panzoom].fv-pt-mode .fv-pt-el:hover line,"
-    "[data-panzoom].fv-pt-mode .fv-pt-el:hover path,"
-    "[data-panzoom].fv-pt-mode .fv-pt-el:hover text,"
-    "[data-panzoom].fv-pt-mode .fv-pt-el:hover{filter:drop-shadow(0 0 0.6px #0ea5e9) drop-shadow(0 0 1.5px #0ea5e9)}"
-    ".fv-pt-el.fv-pt-picked line,.fv-pt-el.fv-pt-picked path,.dxf-el.dxf-picked line,.dxf-el.dxf-picked path{"
-    "stroke:#0ea5e9!important;stroke-width:1.6!important}"
-    ".fv-pt-el.fv-pt-picked text,.dxf-el.dxf-picked text{fill:#0ea5e9!important}"
-    ".fv-pt-el.fv-pt-picked,.dxf-el.dxf-picked{cursor:default}"
-    ".fv-pt-el.fv-pt-picked,.fv-pt-el.fv-pt-picked *,"
-    ".dxf-el.dxf-picked *{pointer-events:none!important}"
-    ".click-dot{position:absolute;width:14px;height:14px;margin-left:-7px;margin-top:-7px;"
-    "border-radius:50%;border:2px solid #fff;box-shadow:0 0 2px #000;pointer-events:none;z-index:18}"
-    ".click-label{position:absolute;margin-left:9px;margin-top:-16px;font-size:11px;font-weight:700;"
-    "color:#fff;text-shadow:0 0 3px #000,0 0 3px #000;pointer-events:none;font-family:monospace;z-index:18}"
-    ".fv-points-help{color:#886;font-size:11px;margin:0 0 8px;line-height:1.35}"
-    ".copy-all-points{background:#1f2937;color:#e5e7eb;border:1px solid #475569;border-radius:6px;"
-    "padding:4px 10px;font-size:12px;cursor:pointer;font-family:Segoe UI,system-ui,sans-serif}"
-    ".copy-all-points:hover{background:#334155}"
-    ".copy-all-points[hidden]{display:none}"
-    ".fv-points-list,.points-list{margin-top:8px;display:flex;flex-direction:column;gap:6px}"
-    ".point-row{display:flex;gap:6px;align-items:center;font-size:12px}"
-    ".point-row input{flex:1;background:#0b1220;color:#e5e7eb;border:1px solid #475569;"
-    "border-radius:6px;padding:4px 6px;font:inherit}"
-    ".point-row button{width:24px;background:#1f2937;color:#e5e7eb;border:1px solid #475569;"
-    "border-radius:6px;cursor:pointer}"
-    ".point-row .elem-tag{font-family:monospace;font-size:10px;color:#93c5fd;background:#1e293b;"
-    "border-radius:4px;padding:1px 5px;white-space:nowrap}"
-    ".point-row-removed{opacity:.75}"
-    ".point-row-removed button{width:auto;padding:3px 8px;font-size:11px}"
-    ".fv-human-tabs{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}"
-    ".fv-human-tab-btn{min-height:32px;padding:6px 12px;border-radius:8px;cursor:pointer;"
-    "font-weight:700;font-size:12px;border:1px solid #554400;background:#1a1a0a;color:#c9a050;"
-    "font-family:Segoe UI,system-ui,sans-serif}"
-    ".fv-human-tab-btn:hover{border-color:#f0b840}"
-    ".fv-human-tab-btn.active{background:#3a2b00;border-color:#f0b840;color:#ffe0b2}"
-    ".fv-human-tab-panel{display:none}"
-    ".fv-human-tab-panel.active{display:block}"
-    ".fv-layer-sa.fv-sa-ghost [data-fv-hl='face']{"
-    "fill:none!important;fill-opacity:0!important;opacity:0!important}"
-    ".fv-layer-sa.fv-sa-ghost [data-fv-hl='edge']{"
-    "stroke-opacity:.38!important;opacity:.45!important}"
-    ".fv-layer-sa.fv-sa-ghost path[style*='fill: #e53935'],"
-    ".fv-layer-sa.fv-sa-ghost path[style*='fill: #ec407a']{"
-    "fill:none!important;opacity:0!important}"
-    ".fv-layer-sa.fv-sa-ghost path[style*='stroke: #ff1744'][style*='stroke-width: 0.5'],"
-    ".fv-layer-sa.fv-sa-ghost path[style*='stroke: #f8bbd0'][style*='stroke-width: 0.5']{"
-    "stroke-opacity:.38!important;opacity:.45!important}"
-    ".fv-layer-n3 svg.fv-n3-svg{background:#0a0a0a}"
-    ".fv-layer-n3 svg.fv-n3-svg:not([data-n3-composed]) path{"
-    "vector-effect:non-scaling-stroke!important;stroke-width:1.4px!important}"
-    ".fv-n3-tag,.fv-n3-dim{pointer-events:none}"
     "</style>"
 )
 
@@ -2145,14 +1248,7 @@ def human_annotation_box_html(
         '<div class="fv-human-box" style="background:#14120a;border:1px solid #554400;'
         'border-radius:10px;padding:12px">'
         '<div style="color:#f0b840;font-size:13px;font-weight:700;'
-        f'margin-bottom:8px">✏️ Anotação humana — contexto {safe_beam}</div>'
-        '<div class="fv-human-tabs" role="tablist">'
-        '<button type="button" class="fv-human-tab-btn active" data-htab="layers">'
-        "SA / Camadas</button>"
-        '<button type="button" class="fv-human-tab-btn" data-htab="points">'
-        "Anotações Pontos</button>"
-        "</div>"
-        '<div class="fv-human-tab-panel active" data-htab-panel="layers">'
+        f'margin-bottom:4px">✏️ Anotação humana — contexto {safe_beam}</div>'
         '<div style="color:#886;font-size:11px;margin-bottom:6px">'
         "Revisor: validar destaques + dúvidas, erros e pedidos de fix."
         "</div>"
@@ -2160,150 +1256,8 @@ def human_annotation_box_html(
         f'<textarea data-atkey="{safe_key}" data-atrole="human"{leg_attr} '
         f'onblur="saveAtenTA(this)" '
         f'placeholder="Atenção / notas humanas sobre o contextual de {safe_beam}..." '
-        f'style="{css}"></textarea>'
-        "</div>"
-        '<div class="fv-human-tab-panel" data-htab-panel="points">'
-        '<div class="fv-points-help">'
-        "Ative <b>Ponto</b> no viewer (ao lado de Reset zoom) e clique num "
-        "elemento do desenho. O ponto segue o elemento no pan/zoom; a nota "
-        "descreve exatamente aquele ponto."
-        "</div>"
-        '<div class="points-list-head">'
-        '<button type="button" class="copy-all-points" hidden '
-        'title="copiar referência de todos os pontos">📋 copiar todos os pontos</button>'
-        "</div>"
-        '<div class="fv-points-list points-list"></div>'
-        "</div></div>"
+        f'style="{css}"></textarea></div>'
     )
-
-
-_SA_HL_FACE_RE = re.compile(
-    r"(<(?:path|polygon)\b)(?![^>]*\bdata-fv-hl=)([^>]*?)"
-    r'(style="fill: #(?:e53935|ec407a); opacity: 0\.38")',
-    re.I,
-)
-_SA_HL_EDGE_RE = re.compile(
-    r"(<(?:path|polygon)\b)(?![^>]*\bdata-fv-hl=)([^>]*?)"
-    r'(style="fill: none; stroke: #(?:ff1744|f8bbd0); stroke-width: 0\.5;)',
-    re.I,
-)
-_SA_HL_TAG_RE = re.compile(
-    r"(<(?:path|polygon)\b)(?![^>]*\bdata-fv-hl=)([^>]*?)"
-    r'(style="fill: #(?:b71c1c|ad1457); opacity: 0\.95;)',
-    re.I,
-)
-
-
-def stamp_sa_highlight_attrs(markup: str) -> str:
-    """Mark SA face / contour / tag paths so ghost CSS+JS can target them.
-
-    Matplotlib inlines hex in ``style="..."``. Live DOM often canonicalizes
-    that to ``rgb()``, so attribute selectors on the authored hex miss.
-    """
-    if not markup or "<path" not in markup:
-        return markup
-
-    def _insert(kind: str):
-        def _sub(m: re.Match[str]) -> str:
-            return f'{m.group(1)} data-fv-hl="{kind}"{m.group(2)}{m.group(3)}'
-
-        return _sub
-
-    markup = _SA_HL_FACE_RE.sub(_insert("face"), markup)
-    markup = _SA_HL_EDGE_RE.sub(_insert("edge"), markup)
-    markup = _SA_HL_TAG_RE.sub(_insert("tag"), markup)
-    return markup
-
-
-def sanitize_inline_svg(markup: str) -> str:
-    """Strip XML decl / DOCTYPE so the SVG can live inside HTML.
-
-    Also drop matplotlib ``clip-path`` when the matching ``clipPath`` rect
-    lost ``width``/``height`` (a past sanitizer stripped those globally and
-    the empty clip hides every CAD stroke — only the grey axes fill remains).
-    """
-    if not markup:
-        return ""
-    s = re.sub(r"<\?xml[^>]*\?>", "", markup, flags=re.I)
-    s = re.sub(r"<!DOCTYPE[^>]*>", "", s, flags=re.I | re.S)
-    i = s.find("<svg")
-    if i < 0:
-        return ""
-    s = s[i:].strip()
-    s = re.sub(r'(<svg\b[^>]*?)\s(width|height)="[^"]*"', r"\1", s, count=4)
-    if _svg_has_broken_clip(s):
-        s = re.sub(r'\sclip-path="[^"]*"', "", s)
-    return s
-
-
-def _svg_has_broken_clip(markup: str) -> bool:
-    for m in re.finditer(
-        r"<clipPath\b[^>]*>(.*?)</clipPath>", markup, flags=re.I | re.S
-    ):
-        inner = m.group(1)
-        if "<rect" not in inner.lower():
-            continue
-        low = inner.lower()
-        if "width=" not in low or "height=" not in low:
-            return True
-    return False
-
-
-def _path_xy(d: str) -> tuple[list[float], list[float]]:
-    vals = [
-        float(tok)
-        for tok in re.findall(r"[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?", d)
-    ]
-    return vals[0::2], vals[1::2]
-
-
-def repair_n3_inline_svg(markup: str) -> str:
-    """Unclip broken matplotlib N3 SVGs and crop viewBox to the CAD strokes."""
-    s = sanitize_inline_svg(markup)
-    if "<svg" not in s:
-        return s
-    if 'data-n3-composed="1"' in s:
-        return s
-    xs: list[float] = []
-    ys: list[float] = []
-    for d in re.findall(r'<path\b[^>]*\bd="([^"]+)"', s, flags=re.I):
-        px, py = _path_xy(d)
-        if not px or not py:
-            continue
-        span_x = max(px) - min(px)
-        span_y = max(py) - min(py)
-        if span_x > 800 and span_y > 80:
-            continue
-        xs.extend(px)
-        ys.extend(py)
-    for m in re.finditer(
-        r"<text\b[^>]*\bx=['\"]([^'\"]+)['\"][^>]*\by=['\"]([^'\"]+)['\"]",
-        s,
-        flags=re.I,
-    ):
-        try:
-            xs.append(float(m.group(1)))
-            ys.append(float(m.group(2)))
-        except ValueError:
-            continue
-    if len(xs) < 4 or len(ys) < 4:
-        return s
-    min_x, max_x = min(xs), max(xs)
-    min_y, max_y = min(ys), max(ys)
-    span_x = max(max_x - min_x, 1.0)
-    span_y = max(max_y - min_y, 1.0)
-    pad_x = max(6.0, span_x * 0.02)
-    pad_y = max(8.0, span_y * 0.25)
-    vb = (
-        f"{min_x - pad_x:.3f} {min_y - pad_y:.3f} "
-        f"{span_x + 2 * pad_x:.3f} {span_y + 2 * pad_y:.3f}"
-    )
-    if re.search(r'viewBox="[^"]*"', s):
-        s = re.sub(r'viewBox="[^"]*"', f'viewBox="{vb}"', s, count=1)
-    else:
-        s = re.sub(r"<svg\b", f'<svg viewBox="{vb}"', s, count=1)
-    s = re.sub(r"fill:\s*#212830\b", "fill:#0a0a0a", s)
-    return s
 
 
 def wrap_panzoom_viewer(
@@ -2316,10 +1270,8 @@ def wrap_panzoom_viewer(
     proposal_src: str = "",
     n3_svg: str = "",
     n3_src: str = "",
-    seg_labels: Sequence[str] | None = None,
 ) -> str:
     """Wrap SVG in pan/zoom chrome. Contextual mode adds SA/agent/N3 toggle."""
-    svg_markup = stamp_sa_highlight_attrs(svg_markup or "")
     if not svg_markup and mode != "contextual":
         return (
             '<div style="height:120px;display:flex;align-items:center;'
@@ -2335,13 +1287,11 @@ def wrap_panzoom_viewer(
         f'border:1px solid #444;padding:2px 10px;cursor:pointer;font-size:10px;'
         f'border-radius:3px;z-index:20">Reset zoom</button>'
     )
-    ghost_btn = SA_GHOST_BTN_HTML if mode == "contextual" else ""
-    pt_btn = PT_BTN_HTML
     if mode != "contextual":
         return (
             f'<div id="{safe_cid}" data-panzoom="1" style="{outer}">'
             f'<div id="{safe_cid}-inner" style="{INNER_STYLE}">{svg_markup or ""}</div>'
-            f"{pt_btn}{btn}</div>"
+            f"{btn}</div>"
         )
 
     # Contextual: SA + 3 camadas agênticas (looping cego) + N3 robô + toggle
@@ -2360,13 +1310,15 @@ def wrap_panzoom_viewer(
         )
 
     n3_path = n3_src or f"n3/{beam_guess}_n3.svg"
-    n3_inner = repair_n3_inline_svg(n3_svg)
-    n3_attrs = f' data-n3-src="{html_lib.escape(n3_path, quote=True)}"'
-    if "<svg" not in n3_inner:
+    if n3_svg and "<svg" in n3_svg:
+        n3_inner = n3_svg
+        n3_attrs = ""
+    else:
         n3_inner = (
             f'<div class="fv-agent-status">N3 (robô SA) ainda não materializado.<br>'
             f'<span style="font-size:11px;opacity:.75">Arquivo: {html_lib.escape(n3_path)}</span></div>'
         )
+        n3_attrs = f' data-n3-src="{html_lib.escape(n3_path, quote=True)}"'
 
     toggle = (
         '<div class="fv-layer-toggle" id="fv-layer-toggle" role="toolbar" aria-label="Alternar destaques">'
@@ -2382,20 +1334,6 @@ def wrap_panzoom_viewer(
         '🟦 N3</button>'
         '<span class="fv-hl-legend"><b class="sa">SA</b> vermelho/rosa · '
         '<b class="ag">QA</b> ciano/verde · <b class="n3">N3</b> robô</span></div>'
-    )
-    _labs = [str(x) for x in (seg_labels or []) if str(x).strip()]
-    _seg_btns = [
-        '<button type="button" class="fv-seg-btn active" data-seg="todos">Todos</button>'
-    ]
-    for lab in _labs:
-        safe_lab = html_lib.escape(lab, quote=True)
-        _seg_btns.append(
-            f'<button type="button" class="fv-seg-btn" data-seg="{safe_lab}">'
-            f"{html_lib.escape(lab)}</button>"
-        )
-    subtabs = (
-        f'<div class="fv-seg-subtabs" data-for-layers="sa,n3" data-seg-count="{len(_labs)}">'
-        f"{''.join(_seg_btns)}</div>"
     )
     layer_divs = "".join(
         f'<div class="fv-layer fv-layer-c{layer} fv-layer-hidden" data-visible="0" '
@@ -2414,10 +1352,10 @@ def wrap_panzoom_viewer(
         f"</div>"
     )
     return (
-        f"{toggle}{subtabs}"
+        f"{toggle}"
         f'<div id="{safe_cid}" data-panzoom="1" style="{outer}">'
         f'<div id="{safe_cid}-inner" style="{INNER_STYLE}">{layers}</div>'
-        f"{ghost_btn}{pt_btn}{btn}</div>"
+        f"{btn}</div>"
     )
 
 
@@ -2950,7 +1888,7 @@ def render_fv_hifi_n1_svg(
         return tag
 
     svg = re.sub(r"<svg\b[^>]*>", _root, svg, count=1)
-    return stamp_sa_highlight_attrs(svg.strip())
+    return svg.strip()
 
 
 

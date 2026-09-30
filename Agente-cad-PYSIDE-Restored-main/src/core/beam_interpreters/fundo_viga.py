@@ -1490,7 +1490,6 @@ class FundoVigaInterpreter:
             )
             slots["contour"] = [link]
             sync_bottom_segment(index, link)
-        cls.assign_segment_dimensions_from_texts(beam)
         return repaired
 
     @staticmethod
@@ -1634,145 +1633,6 @@ class FundoVigaInterpreter:
         except ValueError:
             return None
         return (min(first, second), max(first, second))
-
-    _DIM_TEXT_RE = re.compile(r"(\d+(?:[.,]\d+)?)\s*/\s*(\d+(?:[.,]\d+)?)")
-    # Textos sobre a faixa do fundo (~eixo + meia largura + tag).
-    # Cotas de viga cruzada mais afastadas (~70 cm) ficam de fora.
-    _DIM_TRANSVERSE_PAD = 50.0
-    _DIM_AXIS_END_PAD = 25.0
-
-    @classmethod
-    def _iter_dimension_texts(cls, beam: dict) -> list[dict]:
-        geometry = beam.get("geometry") if isinstance(beam, dict) else {}
-        if not isinstance(geometry, dict):
-            return []
-        raw = list(geometry.get("dimension_texts") or [])
-        raw.extend(geometry.get("texts") or [])
-        out: list[dict] = []
-        seen: set[tuple] = set()
-        for item in raw:
-            if not isinstance(item, dict):
-                continue
-            text = str(item.get("text") or "").strip()
-            pair = cls._parse_height_pair(text)
-            pos = item.get("pos")
-            if not pair or not isinstance(pos, (list, tuple)) or len(pos) < 2:
-                continue
-            try:
-                xy = (float(pos[0]), float(pos[1]))
-            except (TypeError, ValueError):
-                continue
-            key = (round(xy[0], 1), round(xy[1], 1), text)
-            if key in seen:
-                continue
-            seen.add(key)
-            out.append({"text": text, "pos": xy, "width": pair[0], "height": pair[1]})
-        return out
-
-    @classmethod
-    def _segment_axis_span(
-        cls,
-        points: Iterable[tuple[float, float]],
-        *,
-        is_horizontal: bool,
-    ) -> tuple[float, float, float] | None:
-        clean = [(float(p[0]), float(p[1])) for p in points or [] if len(p) >= 2]
-        if len(clean) < 2:
-            return None
-        xs = [p[0] for p in clean]
-        ys = [p[1] for p in clean]
-        if is_horizontal:
-            return (min(xs), max(xs), sum(ys) / len(ys))
-        return (min(ys), max(ys), sum(xs) / len(xs))
-
-    @classmethod
-    def assign_segment_dimensions_from_texts(cls, beam: dict) -> int:
-        """Associa cada painel FV à cota W/H mais próxima no próprio vão.
-
-        Não copia ``fields.dimensao`` (cota global da ocorrência) para todos
-        os segmentos. Cada texto W/H alimenta no máximo um painel.
-        Contorno ``validated`` congela só a geometria; a cota W/H ainda
-        pode ser corrigida, salvo o campo estar em ``validated_fields``.
-        """
-        if not isinstance(beam, dict):
-            return 0
-        texts = cls._iter_dimension_texts(beam)
-        if not texts:
-            return 0
-        links = beam.setdefault("links", {})
-        fields = beam.setdefault("fields", {})
-        is_horizontal = bool(beam.get("fv_is_h", beam.get("is_h", True)))
-        axis = 0 if is_horizontal else 1
-        trans_axis = 1 - axis
-        candidates: list[tuple[float, int, int, dict]] = []
-        segments: list[tuple[int, dict, bool]] = []
-        for key, slots in list(links.items()):
-            match = re.match(r"^viga_fundo_seg_(\d+)_area_segs$", str(key))
-            if not match or not isinstance(slots, dict):
-                continue
-            idx = int(match.group(1))
-            contour = (slots.get("contour") or [{}])[0]
-            if not isinstance(contour, dict):
-                continue
-            span = cls._segment_axis_span(
-                contour.get("points") or [], is_horizontal=is_horizontal
-            )
-            if span is None:
-                continue
-            validated = bool(contour.get("validated"))
-            segments.append((idx, contour, validated))
-            span_min, span_max, axis_pos = span
-            for t_i, text in enumerate(texts):
-                along = float(text["pos"][axis])
-                trans = abs(float(text["pos"][trans_axis]) - axis_pos)
-                if trans > cls._DIM_TRANSVERSE_PAD:
-                    continue
-                if along < span_min - cls._DIM_AXIS_END_PAD:
-                    continue
-                if along > span_max + cls._DIM_AXIS_END_PAD:
-                    continue
-                outside = 0.0
-                if along < span_min:
-                    outside = span_min - along
-                elif along > span_max:
-                    outside = along - span_max
-                score = trans + 3.0 * outside
-                candidates.append((score, idx, t_i, text))
-        candidates.sort(key=lambda item: (item[0], item[1], item[2]))
-        taken_seg: set[int] = set()
-        taken_text: set[int] = set()
-        chosen: dict[int, dict] = {}
-        for score, idx, t_i, text in candidates:
-            if idx in taken_seg or t_i in taken_text:
-                continue
-            taken_seg.add(idx)
-            taken_text.add(t_i)
-            chosen[idx] = text
-        frozen = {
-            str(item)
-            for item in (beam.get("validated_fields") or [])
-            if item
-        }
-        assigned = 0
-        for idx, contour, validated in segments:
-            text = chosen.get(idx)
-            if text is None:
-                continue
-            dim_key = f"viga_fundo_seg_{idx}_dim"
-            if dim_key in frozen:
-                continue
-            dim = str(text["text"])
-            if fields.get(dim_key) == dim:
-                continue
-            fields[dim_key] = dim
-            ficha = contour.setdefault("ficha", {})
-            if not isinstance(ficha, dict):
-                ficha = {}
-                contour["ficha"] = ficha
-            ficha["largura_total_fundo"] = cls._format_measure(float(text["width"]))
-            ficha["altura_total"] = cls._format_measure(float(text["height"]))
-            assigned += 1
-        return assigned
 
     @classmethod
     def split_bottom_spans_at_deeper_crossings(
@@ -1992,6 +1852,7 @@ class FundoVigaInterpreter:
                     continue
             links[key] = {"contour": [link]}
             beam[f"viga_fundo_seg_{index}_exists"] = True
+            fields[f"viga_fundo_seg_{index}_dim"] = fields.get("dimensao") or beam.get("dim")
             created += 1
         # espelho legado seg_bottom
         bottom = links.setdefault("viga_segs", {}).setdefault("seg_bottom", [])
@@ -2062,7 +1923,6 @@ class FundoVigaInterpreter:
             beam_pos=beam_pos,
             width=width,
         )
-        cls.assign_segment_dimensions_from_texts(beam)
         return True
 
     @classmethod
@@ -2242,24 +2102,6 @@ class FundoVigaInterpreter:
                         "source_slot": "seg_bottom",
                     })
                     links[f"{field_prefix}_local_fim"] = {"label": [local_fim]}
-
-        from src.core.fv_generation_contract import chain_linear_segment_apoios
-        fields = beam.setdefault("fields", {})
-        chain_rows = []
-        for idx in sorted(touched_indices):
-            chain_rows.append({
-                "i": idx,
-                "ponto_inicial": str(fields.get(f"viga_fundo_seg_{idx}_local_ini") or ""),
-                "ponto_final": str(fields.get(f"viga_fundo_seg_{idx}_local_fim") or ""),
-            })
-        chain_linear_segment_apoios(chain_rows)
-        validated = set(beam.get("validated_fields") or [])
-        for item in chain_rows:
-            key = f"viga_fundo_seg_{item['i']}_local_fim"
-            if key in validated:
-                continue
-            if item.get("ponto_final"):
-                fields[key] = item["ponto_final"]
 
         # Quando a contagem de segmentos frescos diminui em relação ao que
         # já está persistido (achado real V331, 2026-07-20: o fix do

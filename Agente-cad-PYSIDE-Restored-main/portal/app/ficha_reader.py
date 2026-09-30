@@ -106,7 +106,7 @@ CLASSES_N1 = (
 TITULOS_CLASSE = {
     "convencao_pilares": "Convenção de Pilares",
     "convencao_niveis_lajes": "Convenção de Níveis",
-    "pilares": "Pilares",
+    "pilares": "Pilares Normais",
     "pilares_especiais": "Pilares Especiais",
     "lajes": "Lajes",
     "cortes": "Visão de Cortes",
@@ -378,7 +378,6 @@ def _normalizar_segmento(s: dict, classe: Optional[str] = None) -> dict:
         "Comportamento": s.get("behavior"),
         "Comprimento": s.get("length"),
         "Largura": s.get("width") or None,
-        "Nível": s.get("level") or None,
         "Status": s.get("status"),
     }
     mapa = _FIELD_ID_SEGMENTO_SUFIXO.get(classe or "", {})
@@ -390,9 +389,6 @@ def _normalizar_segmento(s: dict, classe: Optional[str] = None) -> dict:
         "atencao": s.get("atencao") or "",
         "points": s.get("points") or [],
         "beam_name": s.get("beam_name"),
-        "level_source": s.get("level_source") or "unresolved",
-        "level_slabs": s.get("level_slabs") or [],
-        "level_distance_cm": s.get("level_distance_cm"),
     }
 
 
@@ -471,9 +467,7 @@ def listar_itens_n1(estado: dict, classe: str) -> list[dict]:
     if classe in ("pilares", "pilares_especiais") or classe in _PILARES_N3_VARIANTE:
         lajes_por_nome = {s.get("name"): s for s in estado.get("slabs", []) if s.get("name")}
         if classe == "pilares":
-            # A web trabalha com uma identidade única de pilares. O formato
-            # continua disponível dentro da ficha, mas não fragmenta a lista.
-            return [_normalizar_pilar(p, lajes_por_nome) for p in estado.get("pilares", [])]
+            return [_normalizar_pilar(p, lajes_por_nome) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) == 'Retangular']
         if classe == "pilares_especiais":
             return [_normalizar_pilar(p, lajes_por_nome) for p in estado.get("pilares", []) if _pilar_formato(p.get("points", [])) != 'Retangular']
         variante = _PILARES_N3_VARIANTE[classe]
@@ -559,144 +553,6 @@ def _parse_html_cache(caminho_str: str, mtime: float) -> list[dict]:
             "aria": svg.get("aria-label") or "", "svg": str(svg),
         })
     return cartas
-
-
-_SVG_BLOCK_RE = re.compile(r"<svg\b(?P<attrs>[^>]*)>.*?</svg>", re.IGNORECASE | re.DOTALL)
-_HTML_ATTR_RE = re.compile(
-    r"(?P<name>[\w:-]+)\s*=\s*(?P<quote>['\"])(?P<value>.*?)(?P=quote)",
-    re.DOTALL,
-)
-
-
-@lru_cache(maxsize=256)
-def _extrair_svg_lateral_seletivo_cache(
-    caminho_str: str,
-    mtime: float,
-    nivel_alvo: str,
-    lado_alvo: str,
-    segmento_alvo: Optional[str],
-) -> Optional[str]:
-    """Extrai uma única evidência LV sem montar a árvore HTML inteira.
-
-    As fichas laterais canônicas podem ultrapassar 25 MB porque reúnem todos
-    os segmentos dos lados A/B e as três vistas N3. O parser DOM anterior
-    materializava o documento completo mesmo quando o portal precisava de um
-    único SVG. Aqui percorremos os blocos SVG em ordem e paramos assim que a
-    camada solicitada aparece. O retorno é o SVG original, sem re-renderização
-    ou simplificação, portanto preserva a fidelidade e o ``viewBox`` canônicos.
-    """
-    texto = Path(caminho_str).read_text(encoding="utf-8", errors="replace")
-    nivel_alvo = nivel_alvo.upper()
-    lado_alvo = lado_alvo.upper()
-    for match in _SVG_BLOCK_RE.finditer(texto):
-        atributos = {
-            attr.group("name").lower(): attr.group("value")
-            for attr in _HTML_ATTR_RE.finditer(match.group("attrs"))
-        }
-        classes = set(atributos.get("class", "").split())
-        aria = atributos.get("aria-label", "")
-        aria_upper = aria.upper()
-        if (
-            "img-geo" in classes
-            or "img-fv-hifi" in classes
-            or aria_upper.startswith("N1")
-        ):
-            nivel = "N1"
-        elif "N3" in aria_upper or "img-n3" in classes:
-            nivel = "N3"
-        else:
-            continue
-        if nivel != nivel_alvo:
-            continue
-
-        inicio_contexto = texto.rfind(
-            '<div class="evidence-card"', max(0, match.start() - 8192), match.start(),
-        )
-        if inicio_contexto < 0:
-            inicio_contexto = max(0, match.start() - 2048)
-        contexto = f"{aria} {texto[inicio_contexto:match.start()]}"
-        contexto_baixo = contexto.lower()
-        if (
-            "lado a" in contexto_baixo
-            or "lateral a" in contexto_baixo
-            or "seg_side_a" in contexto_baixo
-            or "viga_a_seg_" in contexto_baixo
-            or re.search(r"\.a\s*/", contexto_baixo)
-        ):
-            lado = "A"
-        elif (
-            "lado b" in contexto_baixo
-            or "lateral b" in contexto_baixo
-            or "seg_side_b" in contexto_baixo
-            or "viga_b_seg_" in contexto_baixo
-            or re.search(r"\.b\s*/", contexto_baixo)
-        ):
-            lado = "B"
-        else:
-            lado = None
-        if lado != lado_alvo:
-            continue
-
-        if nivel == "N1" and segmento_alvo is not None:
-            segmento_match = re.search(
-                r"(?:^|[^a-z0-9])(?:segmento|seg)[\s_-]*([0-9]+)(?![0-9])", contexto,
-                flags=re.IGNORECASE,
-            )
-            if segmento_match is None or segmento_match.group(1) != segmento_alvo:
-                continue
-        return match.group(0)
-    return None
-
-
-def _extrair_foto_lateral_seletiva(
-    dir_fichas: Optional[Path], classe: str, item: dict, nivel: str,
-) -> Optional[str]:
-    """Resolve somente N1 ou N3 de um segmento lateral canônico."""
-    if dir_fichas is None or classe not in _SEGMENTO_LADO_SUFIXO:
-        return None
-    beam_name = str(item.get("beam_name") or "").strip()
-    if not beam_name:
-        return None
-    lado_alvo, side_suffix = _SEGMENTO_LADO_SUFIXO[classe]
-    caminho = _localizar_ficha_html(dir_fichas, classe, beam_name, side_suffix)
-    if caminho is None:
-        return None
-    segmento_bruto = str((item.get("campos") or {}).get("Segmento") or "")
-    segmento_match = re.search(r"[0-9]+", segmento_bruto)
-    segmento_alvo = segmento_match.group(0) if segmento_match else None
-    try:
-        mtime = caminho.stat().st_mtime
-    except OSError:
-        return None
-    return _extrair_svg_lateral_seletivo_cache(
-        str(caminho), mtime, nivel.upper(), lado_alvo, segmento_alvo,
-    )
-
-
-@lru_cache(maxsize=128)
-def _parse_pilar_n1_views_cache(caminho_str: str, mtime: float) -> dict[str, Optional[str]]:
-    """Extrai as duas vistas pelo contrato real dos painéis do HTML PIL.
-
-    Os SVGs Matplotlib do exportador não carregam necessariamente ``img-geo``;
-    os painéis ``data-n1panel=near|far`` e a camada ``sa_plain`` são a
-    identidade estável e evitam confundir o desenho tagueado com o próximo
-    limpo.
-    """
-    from bs4 import BeautifulSoup
-
-    texto = Path(caminho_str).read_text(encoding="utf-8", errors="replace")
-    soup = BeautifulSoup(texto, "html.parser")
-    near_panel = soup.select_one('[data-n1panel="near"]')
-    far_panel = soup.select_one('[data-n1panel="far"]')
-    near_svg = None
-    if near_panel is not None:
-        near_svg = near_panel.select_one('[data-layer="sa_plain"] svg')
-        near_svg = near_svg or near_panel.select_one("svg")
-    far_svg = far_panel.select_one("svg") if far_panel is not None else None
-    return {
-        "proximo": str(near_svg) if near_svg is not None else None,
-        "distante": str(far_svg) if far_svg is not None else None,
-    }
 
 
 def _localizar_ficha_html(dir_fichas: Path, classe: str, beam_name: str, side_suffix: str = "") -> Optional[Path]:
@@ -828,31 +684,6 @@ def resolver_fotos_portal(
     return resultado
 
 
-def resolver_foto_portal(
-    obra_dir: Path,
-    pavimento: str,
-    classe: str,
-    item: dict,
-    nivel: str,
-) -> dict[str, Optional[str]]:
-    """Resolve uma única camada e evita calcular as camadas ocultas."""
-    nivel = nivel.lower()
-    if nivel not in {"n1", "n3"}:
-        raise ValueError("nível deve ser n1 ou n3")
-    dir_fichas = _encontrar_dir_ficha_item(obra_dir, pavimento, classe, item)
-    if classe in _SEGMENTO_LADO_SUFIXO:
-        canonica = _extrair_foto_lateral_seletiva(dir_fichas, classe, item, nivel)
-    else:
-        canonica = extrair_fotos_ficha(dir_fichas, classe, item).get(nivel)
-    if canonica is not None:
-        return {"svg": canonica, "origem": "ficha_html_canonica"}
-    producao = extrair_fotos_producao(obra_dir, pavimento, classe, item).get(nivel)
-    return {
-        "svg": producao,
-        "origem": "artefato_producao" if producao is not None else None,
-    }
-
-
 def resolver_camadas_qa_pilar(
     obra_dir: Path,
     pavimento: str,
@@ -926,11 +757,6 @@ def resolver_visualizacoes_n1_pilar(
         html_path = _localizar_ficha_html(pack, classe, item_name)
         if html_path is not None:
             try:
-                views_html = _parse_pilar_n1_views_cache(
-                    str(html_path), html_path.stat().st_mtime,
-                )
-                resultado["proximo"] = views_html.get("proximo") or resultado["proximo"]
-                resultado["distante"] = views_html.get("distante") or resultado["distante"]
                 cartas = _parse_html_cache(str(html_path), html_path.stat().st_mtime)
             except OSError:
                 cartas = []
@@ -1025,90 +851,22 @@ def _n3_dxf_producao(
         )
         return candidate if candidate.is_file() else None
 
-    root = Path(obra_dir) / "Fase-6_Execucao_CAD" / "production_sa" / pavimento
-    runs = sorted(
-        (path.parent for path in root.glob("*/production_manifest.json") if path.is_file()),
-        reverse=True,
-    )
-    if not runs:
+    run = _latest_production_run(obra_dir, pavimento)
+    if run is None:
         return None
+    dxf_dir = run / "n3" / "dxf"
     if classe == "lajes":
-        filename = f"LJ_preview_{beam}.dxf"
+        candidate = dxf_dir / f"LJ_preview_{beam}.dxf"
     elif classe == "fundo":
-        filename = f"FV_preview_{beam}.dxf"
+        candidate = dxf_dir / f"FV_preview_{beam}.dxf"
     elif classe == "cortes":
-        filename = f"LV_preview_{beam}_Para_CORTE.dxf"
+        candidate = dxf_dir / f"LV_preview_{beam}_Para_CORTE.dxf"
     elif classe in _SEGMENTO_LADO_SUFIXO:
         side, behavior = _SEGMENTO_LADO_SUFIXO[classe]
-        filename = f"LV_preview_{beam}_{behavior}_VIEW_{side}.dxf"
+        candidate = dxf_dir / f"LV_preview_{beam}_{behavior}_VIEW_{side}.dxf"
     else:
         return None
-    # Rodadas parciais publicam somente a classe solicitada. Procura a rodada
-    # mais recente que realmente contenha o artefato deste item, em vez de
-    # assumir que a última rodada global foi da mesma classe.
-    return next(
-        (run / "n3" / "dxf" / filename for run in runs
-         if (run / "n3" / "dxf" / filename).is_file()),
-        None,
-    )
-
-
-_PILAR_N3_VISTAS = {
-    "cima", "abcd-para", "abcd-passa", "grades-para", "grades-passa",
-}
-
-
-def _pilar_n3_dxf(
-    obra_dir: Path, item: dict, vista: str,
-) -> Optional[Path]:
-    """Localiza o DXF exato de cada aba N3 do pilar.
-
-    O formulário editável é o contrato de conversão; a evidência visual da
-    aba precisa ser o DXF realmente desenhado pelo robô, não uma aproximação
-    HTML feita a partir dos campos.
-    """
-    if vista not in _PILAR_N3_VISTAS:
-        return None
-    name = str(item.get("beam_name") or item.get("name") or "").strip()
-    if not name:
-        return None
-    fase6 = Path(obra_dir) / "Fase-6_Execucao_CAD"
-    if vista == "cima":
-        candidates = [
-            fase6 / "n3_variants" / "para" / f"PL_CIMA_preview_{name}.dxf",
-            fase6 / "n3_variants" / "passa" / f"PL_CIMA_preview_{name}.dxf",
-            fase6 / f"PL_CIMA_preview_{name}.dxf",
-        ]
-    else:
-        part, mode = vista.split("-", 1)
-        candidates = [
-            fase6 / "n3_variants" / mode
-            / f"PL_{part.upper()}_preview_{name}.dxf"
-        ]
-    return next((path for path in candidates if path.is_file()), None)
-
-
-def resolver_visualizacao_n3_pilar(
-    obra_dir: Path, item: dict, vista: str,
-) -> Optional[str]:
-    """Renderiza sob demanda a vista N3 solicitada, preservando viewBox."""
-    dxf = _pilar_n3_dxf(Path(obra_dir), item, vista)
-    if dxf is None:
-        return None
-    try:
-        from .dxf_preview import renderizar_dxf_svg_cacheado
-
-        svg = renderizar_dxf_svg_cacheado(
-            dxf,
-            Path(obra_dir) / ".previews" / "pilar_n3",
-            largura_px=1400,
-            altura_px=900,
-            margem_pct=0.03,
-        )
-        return svg.decode("utf-8", errors="replace")
-    except Exception as exc:
-        log.warning("preview N3 pilar falhou em %s: %s", dxf, exc)
-        return None
+    return candidate if candidate.is_file() else None
 
 
 def extrair_fotos_producao(

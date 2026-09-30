@@ -56,9 +56,7 @@ FACE_LABELS = {
 FACE_WALL_OFFSET = 0.0
 CONTACT_MARKER_SIZE = 1.4
 CONTACT_MARKER_EDGE_WIDTH = 0.3
-TAG_SIZE_MULTIPLIER = 2.0
-TAG_FONT_SCALE = 1.10 * TAG_SIZE_MULTIPLIER
-TAG_COLLISION_SCALE = 2.0
+TAG_FONT_SCALE = 1.10
 
 
 def _natural_key(s: str):
@@ -640,12 +638,9 @@ def _estimate_tag_half(
     lines = [ln for ln in str(label).split("\n") if ln]
     n_lines = max(1, len(lines))
     max_chars = max((len(ln) for ln in lines), default=4)
-    base_fs = fs / TAG_SIZE_MULTIPLIER
-    char_w = scale * 0.010 + base_fs * 0.28
-    half_w = max(scale * 0.04, max_chars * char_w * 0.32) * TAG_SIZE_MULTIPLIER
-    half_h = max(scale * 0.035, n_lines * base_fs * 0.52) * TAG_SIZE_MULTIPLIER
-    half_w *= TAG_COLLISION_SCALE
-    half_h *= TAG_COLLISION_SCALE
+    char_w = scale * 0.010 + fs * 0.28
+    half_w = max(scale * 0.04, max_chars * char_w * 0.32)
+    half_h = max(scale * 0.035, n_lines * fs * 0.52)
     return half_w, half_h
 
 

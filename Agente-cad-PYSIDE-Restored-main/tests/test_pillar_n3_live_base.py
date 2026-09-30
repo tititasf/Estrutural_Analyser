@@ -47,20 +47,6 @@ def test_live_base_uses_physical_face_geometry_for_special_faces():
     assert payload["larg1_F"] == 20.0
 
 
-def test_live_base_derives_special_face_geometry_when_contract_omits_it():
-    contract = _contract(faces={fid: {} for fid in "ABCDEF"})
-    payload = build_pillar_n3_base_from_n1(
-        "P26",
-        [(0, 0), (165, 0), (165, 19), (19, 19), (19, 218), (0, 218)],
-        contract,
-        "13_PAV",
-    )
-
-    assert payload["subtipo_pil"] == "L"
-    assert payload["larg1_E"] == 165.0
-    assert payload["larg1_F"] == 146.0
-
-
 def test_live_base_refuses_missing_geometry_or_height():
     assert build_pillar_n3_base_from_n1("P1", [], _contract(), "13_PAV") == {}
     assert build_pillar_n3_base_from_n1(

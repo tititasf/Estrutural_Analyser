@@ -17,7 +17,6 @@ import json
 import os
 import hashlib
 from datetime import datetime
-from pathlib import Path
 from typing import Any
 
 from PySide6.QtWidgets import (
@@ -60,83 +59,6 @@ def _dbg(msg: str) -> None:
             _f.flush()
     except Exception:
         pass
-
-
-def _parse_n3_beam_detail(detail: str) -> dict:
-    """Parseia a evidência humana N1 preservando identidade, seção e nível."""
-    detail_text = str(detail or '')
-    match = re.search(
-        r'^Viga:\s*([^·]+?)(?:\s*·\s*dim:\s*'
-        r'([0-9]+(?:[.,][0-9]+)?)\s*/\s*([0-9]+(?:[.,][0-9]+)?))?(?=\s*·|$)',
-        detail_text,
-    )
-    if not match:
-        return {
-            'nome': 'SEM_NOME', 'largura': None, 'profundidade': None,
-            'nivel': None, 'evidencia': detail_text,
-        }
-    try:
-        width = float(match.group(2).replace(',', '.')) if match.group(2) else None
-        depth = float(match.group(3).replace(',', '.')) if match.group(3) else None
-    except (AttributeError, ValueError):
-        width = depth = None
-    level_match = re.search(
-        r'(?:^|[·;])\s*N\s*:\s*(-?[0-9]+(?:[.,][0-9]+)?)',
-        detail_text,
-        flags=re.IGNORECASE,
-    )
-    try:
-        level = float(level_match.group(1).replace(',', '.')) if level_match else None
-    except (AttributeError, ValueError):
-        level = None
-    return {
-        'nome': match.group(1).strip(),
-        'largura': width,
-        'profundidade': depth,
-        'nivel': level,
-        'evidencia': detail_text,
-    }
-
-
-def _n3_opening_y_rel(
-    *,
-    level: object,
-    base_level: object,
-    opening_height: float,
-    panel_height: float,
-    h1: float,
-    fallback: float,
-) -> float:
-    """Converte uma cota N1 absoluta no ``y_rel`` local consumido pelo DXF."""
-    if level is None or base_level is None:
-        return max(0.0, fallback)
-    try:
-        level_value = float(level)
-        base_value = float(base_level)
-        scale = 100.0 if abs(level_value) > 20.0 and abs(base_value) > 20.0 else 1.0
-        top_local = (level_value - base_value) * scale
-        max_y = max(0.0, panel_height - h1 - opening_height)
-        return max(0.0, min(max_y, top_local - opening_height - h1))
-    except (TypeError, ValueError):
-        return max(0.0, fallback)
-
-
-def _n3_variant_web_override(saved: object, mode: str) -> dict | None:
-    """Retorna somente o override humano da variante N3 solicitada.
-
-    A ficha web usa um envelope ``variants.{para,passa}``. Aplicar o envelope
-    raiz inteiro ao payload do robô fazia a última variante editada vazar para
-    a outra durante uma nova rodada SA (por exemplo, aberturas PARA entrando no
-    desenho PASSA). O endpoint do portal já respeita essa separação; o pipeline
-    headless precisa usar a mesma fronteira.
-    """
-    if not isinstance(saved, dict):
-        return None
-    variants = saved.get('variants')
-    if not isinstance(variants, dict):
-        return None
-    selected = variants.get(str(mode or '').lower())
-    return selected if isinstance(selected, dict) else None
 
 # ── Constantes de terminologia ─────────────────────────────────────────────────
 
@@ -258,30 +180,8 @@ def build_pillar_n3_base_from_n1(
         'distancia_1': max(0.0, round((long_dim + 22.0 - 60.0) / 2.0, 4)),
         'distancia_2': 0.0,
     }
-    if subtype == 'L':
-        try:
-            from src.core.pillar_special_faces import secao_l_from_points
-            _secao_live = secao_l_from_points(clean)
-        except Exception:
-            _secao_live = None
-        if _secao_live:
-            payload['pilar_especial'] = {
-                'ativar_pilar_especial': True,
-                'tipo_pilar_especial': 'L',
-                'secao_l': _secao_live,
-            }
 
     face_geometry = contract.get('face_geometry') or {}
-    # O enriquecedor de faces especiais já conhece a associação física
-    # A–F, mas snapshots antigos nem sempre persistem ``face_geometry`` no
-    # pilar. Derive-a diretamente do mesmo contorno N1 para que faces E/F
-    # nunca nasçam com largura zero.
-    if not face_geometry and subtype == 'L':
-        try:
-            from src.core.pillar_special_faces import special_l_face_segments
-            face_geometry = special_l_face_segments(clean)
-        except Exception:
-            face_geometry = {}
     for index, fid in enumerate('ABCDEFGH'):
         face = (contract.get('faces') or {}).get(fid) or {}
         geom = face_geometry.get(fid) or face.get('geometry') or {}
@@ -5202,10 +5102,6 @@ class PreValidationDialog(QDialog):
                         'behavior':      seg['behavior'],
                         'length':        seg['length'],
                         'width':         seg.get('width', ''),
-                        'level':         seg.get('level', ''),
-                        'level_source':  seg.get('level_source', 'unresolved'),
-                        'level_slabs':   seg.get('level_slabs', []),
-                        'level_distance_cm': seg.get('level_distance_cm'),
                         'status':        cb.currentText() if cb else seg.get('status', 'valid'),
                         'atencao':       self._segment_attention.get(seg['uid'], seg.get('attention', '')),
                         'points':        seg.get('points') or [],
@@ -5524,56 +5420,6 @@ class PreValidationDialog(QDialog):
             )
         except Exception as exc:
             return f'<span style="color:#555">erro: {_hl.escape(str(exc))}</span>'
-
-    def _n2_pilar_views_html(self, item_name: str) -> str:
-        """CIMA e ABCDEF do recorte N2 original (sel/ficha), recortados por zona."""
-        import html
-        try:
-            from src.core.n2_pilar_views import n2_view_svgs
-            pack = n2_view_svgs(
-                self._obra, self._pavimento or '', item_name,
-                db_path=self._db_path or 'D:/Agente-cad-PYSIDE/project_data.vision',
-            )
-        except Exception as exc:
-            print(f'[HTML] n2 views {item_name} falhou: {exc}', flush=True)
-            return ''
-        svgs = pack.get('svgs') or {}
-        recorte = pack.get('recorte')
-        blocks = []
-        order = (
-            ('cima', 'CIMA — N2 original (planta)'),
-            ('abcdef', 'ABCDEF — N2 original'),
-            ('abcd', 'ABCD — N2 original'),
-            ('ef', 'EF — N2 original (faces especiais)'),
-        )
-        for key, title in order:
-            svg = svgs.get(key) or ''
-            if not svg:
-                continue
-            blocks.append(
-                f'<div class="view-block">'
-                f'<div class="mode-title cima">{html.escape(title)}</div>'
-                f'{_embed_visual(svg, "svg", "img-n3", key.upper())}'
-                f'</div>'
-            )
-        if not blocks:
-            n2b64 = self._render_n2_recorte_b64(item_name, width=1400, height=1000, fmt='svg')
-            if not n2b64:
-                return ''
-            blocks.append(
-                f'<div class="img-wrap">{_embed_visual(n2b64, "svg", "img-n2", "N2")}</div>'
-            )
-        note = ''
-        if recorte:
-            note = (
-                f'<div class="mode-note">recorte: '
-                f'{html.escape(Path(recorte).name)}</div>'
-            )
-        return (
-            '<div class="sec"><div class="sec-title">Foto N2 — Recorte STOG</div>'
-            f'<div class="sec-body">{note}<div class="views-row">'
-            f'{"".join(blocks)}</div></div></div>'
-        )
 
     def _render_n2_recorte_b64(self, item_name: str, width: int = 700, height: int = 500,
                                 fmt: str = 'png') -> str:
@@ -7953,30 +7799,40 @@ class PreValidationDialog(QDialog):
                     return {}
                 try:
                     import json as _json
-                    # No desktop, DADOS-OBRAS fica ao lado do repositório; na
-                    # VPS, ele fica dentro de /opt/cad-analyzer. Evite o
-                    # caminho Windows fixo para que o mesmo N3 possa ser
-                    # materializado nos dois ambientes.
-                    configured_root = os.environ.get('CAD_DADOS_OBRAS_ROOT', '').strip()
-                    roots = [
-                        Path(configured_root) if configured_root else None,
-                        Path(__file__).resolve().parents[4] / 'DADOS-OBRAS',
-                        Path(__file__).resolve().parents[3] / 'DADOS-OBRAS',
-                    ]
-                    for root in roots:
-                        if root is None:
-                            continue
-                        json_path = root / str(self._obra) / 'Fase-4_Sincronizacao' / 'JSON_Pilares' / f'{item_name}.json'
-                        if json_path.is_file():
-                            with open(json_path, encoding='utf-8') as f:
-                                return _json.load(f) or {}
+                    json_path = os.path.join(
+                        'D:/Agente-cad-PYSIDE/DADOS-OBRAS', self._obra,
+                        'Fase-4_Sincronizacao', 'JSON_Pilares', f'{item_name}.json'
+                    )
+                    if os.path.exists(json_path):
+                        with open(json_path, encoding='utf-8') as f:
+                            return _json.load(f) or {}
                 except Exception:
                     pass
                 return {}
 
             def _mode_beam_parts(detail: str) -> dict:
                 """Converte uma resposta humana da ficha N1 em dado rastreavel."""
-                return _parse_n3_beam_detail(detail)
+                match = re.search(
+                    r'^Viga:\s*([^·]+)(?:\s*·\s*dim:\s*'
+                    r'([0-9]+(?:[.,][0-9]+)?)\s*/\s*([0-9]+(?:[.,][0-9]+)?))?',
+                    str(detail or ''),
+                )
+                if not match:
+                    return {'nome': 'SEM_NOME', 'largura': None, 'profundidade': None,
+                            'evidencia': str(detail or '')}
+                try:
+                    width = float(match.group(2).replace(',', '.')) if match.group(2) else None
+                    depth = float(match.group(3).replace(',', '.')) if match.group(3) else None
+                except (AttributeError, ValueError):
+                    width = depth = None
+                return {
+                    # Preserve the exact segment identity.  A suffix is not a
+                    # cosmetic variant when two physical beams share a base name.
+                    'nome': match.group(1).strip(),
+                    'largura': width,
+                    'profundidade': depth,
+                    'evidencia': str(detail or ''),
+                }
 
             def _mode_slot(row: dict, pillar: dict, fid: str, beam_name: str,
                            arrival: bool) -> str | None:
@@ -8161,17 +8017,7 @@ class PreValidationDialog(QDialog):
                 # Convenção de Níveis (Elevação Típica da Obra)
                 try:
                     from src.core.niveis_extractor import get_pavimento_niveis_abs as _gpna
-                    # Na VPS, passar apenas o nome fazia niveis_extractor usar
-                    # seu fallback Windows (D:/Agente-cad-PYSIDE/...), logo a
-                    # convenção não era encontrada e a altura caía em 280 cm.
-                    # ``self._obra`` já é o diretório real da obra em ambos os
-                    # ambientes e mantém local/web na mesma referência.
-                    _obra = str(
-                        getattr(self, '_obra', '')
-                        or getattr(self, '_obra_name', '')
-                        or row.get('obra')
-                        or 'Obra_TREINO_1'
-                    )
+                    _obra = str(getattr(self, '_obra_name', '') or row.get('obra') or 'Obra_TREINO_1')
                     _pav = str(row.get('pavimento') or '13_PAV')
                     _nabs = _gpna(_obra, _pav)
                     if _nabs:
@@ -8237,29 +8083,15 @@ class PreValidationDialog(QDialog):
                                 'regra': 'Ini=7,5; Nova=11; profundidade=viga+4',
                             })
 
-                    # PASSA precisa materializar a viga informada pela ficha
-                    # N1. O vazio de topo sozinho perde identidade e nível e
-                    # fazia 100% das faces passantes sumirem da variante.
+                    # Guia protegido (interpretacao_abcd.html, tabela "Viga
+                    # passante"): coluna PASSA e explicita — "nao cria
+                    # abertura de parada; a mais profunda e a referencia da
+                    # face". Ini=7,5/Nova=11 e a formula da coluna PARA
+                    # (viga que termina no canto), nunca da passante. A
+                    # viga que passa so contribui pra vazio_topo/reference;
+                    # nao publica abertura de canto propria (achado do
+                    # dono: PASSA estava saindo visualmente igual a PARA).
                     pass_openings: list = []
-                    if mode == 'passa':
-                        seen_pass = set()
-                        for beam in passes:
-                            beam_name = str(beam.get('nome') or '').strip()
-                            if not beam_name or beam_name in seen_pass:
-                                continue
-                            seen_pass.add(beam_name)
-                            pass_openings.append({
-                                **beam,
-                                'slot': f'{fid}{fid}',
-                                'lado': 'meio',
-                                'estado': 'ativa',
-                                # A largura total depende da geometria-base e
-                                # é resolvida apenas em _variant_payload.
-                                'largura_ini': None,
-                                'largura_nova': None,
-                                'altura': ((beam.get('profundidade') or 0.0) + 4.0),
-                                'regra': 'largura total da face; profundidade=viga+4; y por nivel N1',
-                            })
 
                     arrival_openings = []
                     for beam in arrivals:
@@ -8406,41 +8238,6 @@ class PreValidationDialog(QDialog):
                 ))
                 if not base:
                     return {}
-                # A Fase 4 legada contém 0 nas faces extras dos pilares em L.
-                # O contrato vivo N1 é a autoridade geométrica apenas para
-                # completar essas medidas ausentes; dimensões A–D já válidas
-                # continuam intocadas.
-                live_base = contract.get('n1_base') or {}
-                for _fid_live in (contract.get('faces') or {}):
-                    _width_key = f'larg1_{_fid_live}'
-                    try:
-                        _legacy_width = float(base.get(_width_key) or 0.0)
-                        _live_width = float(live_base.get(_width_key) or 0.0)
-                    except (TypeError, ValueError):
-                        continue
-                    if _legacy_width <= 0.0 and _live_width > 0.0:
-                        base[_width_key] = _live_width
-                        _h1_key = f'h1_{_fid_live}'
-                        if float(base.get(_h1_key) or 0.0) <= 0.0:
-                            base[_h1_key] = float(live_base.get(_h1_key) or 2.0)
-                # CIMA especial lê subtipo + contorno N1. A Fase-4 retangular
-                # não pode apagar isso: senão o DXF cai no motor comum 50x19.
-                if live_base.get('subtipo_pil') in {'L', 'U', 'T'}:
-                    base['subtipo_pil'] = live_base['subtipo_pil']
-                if live_base.get('geometry_points'):
-                    base['geometry_points'] = live_base['geometry_points']
-                if live_base.get('subtipo_pil') == 'L' and live_base.get('geometry_points'):
-                    try:
-                        from src.core.pillar_special_faces import secao_l_from_points
-                        _secao = secao_l_from_points(live_base['geometry_points'])
-                    except Exception:
-                        _secao = None
-                    if _secao:
-                        special = dict(base.get('pilar_especial') or {})
-                        special['ativar_pilar_especial'] = True
-                        special['tipo_pilar_especial'] = 'L'
-                        special['secao_l'] = _secao
-                        base['pilar_especial'] = special
                 # PD é metadado do pavimento, não a altura individual do
                 # pilar. O N3 não pode consultar N2/N4; usa a configuração
                 # canônica já aprovada para o pavimento, preservando
@@ -8469,9 +8266,6 @@ class PreValidationDialog(QDialog):
                     base.get('pd_pavimento_cm')
                     or base.get('altura')
                     or 280.0
-                )
-                _pillar_base_level_abs = (
-                    (contract.get('altura_pilar') or {}).get('nivel_saida_abs')
                 )
                 for fid, face in (contract.get('faces') or {}).items():
                     # Limpa somente campos derivados; o payload canonico permanece intacto.
@@ -8505,16 +8299,6 @@ class PreValidationDialog(QDialog):
                         base[f'nivel_laje_{fid}'] = face.get('nivel_laje')
                     # Conteúdo útil do painel sob o rebaixo (rebaixo é faixa sólida no topo)
                     content_cap = max(h1, panel_height - rebaixo)
-                    def _opening_y_rel(opening: dict, opening_height: float, fallback: float) -> float:
-                        """Converte o nível absoluto N1 no y_rel consumido pelo DXF."""
-                        return _n3_opening_y_rel(
-                            level=opening.get('nivel'),
-                            base_level=_pillar_base_level_abs,
-                            opening_height=opening_height,
-                            panel_height=height,
-                            h1=h1,
-                            fallback=fallback,
-                        )
                     openings = []
                     if mode in ('para', 'passa'):
                         edge_openings = (
@@ -8530,20 +8314,13 @@ class PreValidationDialog(QDialog):
                                     (fid == 'B' and pos == 'D') else 'direito')
                             width = (opening.get('largura_ini') if visual_mode == 'INI'
                                      else opening.get('largura_nova'))
-                            if width is None and str(opening.get('lado') or '') == 'meio':
-                                width = float(base.get(f'larg1_{fid}') or 0.0)
-                                if fid in ('A', 'B'):
-                                    width += 22.0
                             oh = float(opening['altura'])
-                            fallback_y = max(0.0, content_cap - h1 - oh)
-                            y_rel = _opening_y_rel(opening, oh, fallback_y)
-                            side = str(opening.get('lado') or side)
+                            # y_rel preliminar; enrich dual+vazio cola no topo se preciso
+                            y_rel = max(0.0, content_cap - h1 - oh)
                             openings.append({
                                 'lado': side, 'largura': width,
                                 'altura': oh,
                                 'y_rel': y_rel,
-                                'x_offset': 0.0 if side == 'meio' else None,
-                                '_nivel_origem': opening.get('nivel'),
                                 '_origem': opening.get('slot'), '_viga': opening.get('nome'),
                             })
                     for opening in face.get('aberturas_vigas_que_chegam') or []:
@@ -8558,12 +8335,10 @@ class PreValidationDialog(QDialog):
                                     (fid == 'B' and pos == 'D') else 'direito')
                         oh = float(opening['altura'])
                         _cap = max(h1, float(panel_height) - rebaixo)
-                        fallback_y = max(0.0, _cap - h1 - oh)
                         entry = {
                             'lado': side, 'largura': opening.get('largura_abertura') or 0.0,
                             'altura': oh,
-                            'y_rel': _opening_y_rel(opening, oh, fallback_y),
-                            '_nivel_origem': opening.get('nivel'),
+                            'y_rel': max(0.0, _cap - h1 - oh),
                             '_origem': slot, '_viga': opening.get('nome'),
                         }
                         if side == 'meio':
@@ -8635,10 +8410,9 @@ class PreValidationDialog(QDialog):
                     _obra_ref = _Path(str(self._obra))
                     if not _obra_ref.is_absolute():
                         _obra_ref = _Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / _obra_ref
-                    _saved_root = _load_web_ficha(
+                    _saved_web = _load_web_ficha(
                         _obra_ref, str(self._pavimento), str(contract.get('item') or ''),
                     )
-                    _saved_web = _n3_variant_web_override(_saved_root, mode)
                     if _saved_web:
                         base = _apply_web_ficha(base, _saved_web)
                         base['_sa_mode_contract'] = contract
@@ -8681,7 +8455,7 @@ class PreValidationDialog(QDialog):
                     visual_mode = normalize_visual_mode(
                         contract.get('modo_visual') or 'NOVA'
                     )
-                    for zone in ('cima', 'abcd', 'grades'):
+                    for zone in ('abcd', 'grades'):
                         # Cópia: generate_pilar_zone muta o pj in-place
                         zone_pj = json.loads(json.dumps(payload))
                         doc = setup_doc()
@@ -8716,7 +8490,7 @@ class PreValidationDialog(QDialog):
                     os.makedirs(stable_dir, exist_ok=True)
                     shutil.copy2(json_path, os.path.join(stable_dir, f'{item}.json'))
                     for zone, path in (result.get('paths') or {}).items():
-                        if zone in ('cima', 'abcd', 'grades') and path and os.path.exists(path):
+                        if zone in ('abcd', 'grades') and path and os.path.exists(path):
                             shutil.copy2(path, os.path.join(stable_dir, os.path.basename(path)))
                 except Exception as exc:
                     print(f'[HTML] publicação CE N3 {item}/{mode_slug} falhou: {exc}', flush=True)
@@ -8885,29 +8659,6 @@ class PreValidationDialog(QDialog):
 
             def _cima_info_card(row: dict, base_key: str) -> str:
                 pj = _load_n3_pilar_json(row.get('_nome') or '')
-                try:
-                    from src.core.cima_l_contract import is_cima_l, portal_cima_l_contract
-                    if is_cima_l(pj) or is_cima_l(pj.get('n1_base') if isinstance(pj.get('n1_base'), dict) else pj):
-                        payload = pj.get('n1_base') if isinstance(pj.get('n1_base'), dict) and is_cima_l(pj.get('n1_base')) else pj
-                        if not is_cima_l(payload):
-                            payload = {**pj, **(pj.get('n1_base') or {})}
-                        l_card = portal_cima_l_contract(payload)
-                        rows_l = [
-                            (html.escape(str(a)), html.escape(str(b)))
-                            for a, b in (l_card.get('rows') or [])
-                        ]
-                        if rows_l:
-                            detail = _field_table(rows_l)
-                            return (
-                                '<div class="mode-card">'
-                                '<div class="mode-title cima">CIMA — parafusos + grades em planta</div>'
-                                + _mode_row(base_key, 'cima_unico', 'CIMA', 'vb-cima', detail)
-                                + '<div class="mode-note">Pilar em L: 4 faces longas (haste ext/int + ramo ext/int). '
-                                'Cada grade, quadradinho e parafuso é editável na ficha N3.</div>'
-                                '</div>'
-                            )
-                except Exception:
-                    pass
                 comp_geo, larg_geo = _pillar_dims(row.get('_points') or [])
                 comp = float(pj.get('comprimento') or comp_geo or 0)
                 larg = float(pj.get('largura') or larg_geo or 0)
@@ -9782,8 +9533,16 @@ class PreValidationDialog(QDialog):
                 n3_section = _views_sec(n4=False)
                 n4_section = _views_sec(n4=True)
 
-                # Foto N2: CIMA + ABCDEF do recorte humano, não o motor_* truncado.
-                foto_n2 = self._n2_pilar_views_html(nome)
+                # Foto N2
+                n2b64 = self._render_n2_recorte_b64(
+                    nome, width=1400, height=1000, fmt='svg'
+                )
+                foto_n2 = (
+                    '<div class="sec"><div class="sec-title">Foto N2 — Recorte STOG</div>'
+                    f'<div class="sec-body"><div class="img-wrap">'
+                    f'{_embed_visual(n2b64, "svg", "img-n2", "N2")}'
+                    f'</div></div></div>'
+                ) if n2b64 else ''
 
                 # Fichas
                 n1f = self._n1_ficha_html_pilar(nome)

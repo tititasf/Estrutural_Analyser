@@ -356,40 +356,11 @@ if __name__ == '__main__':
     parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
                         help='Perfil visual do DXF (padrao: NOVA)')
     parser.add_argument(
-        '--refresh-from-recorte', action=argparse.BooleanOptionalAction,
-        default=None,
-        help='Reextrai a ficha do recorte N2 vivo antes de gerar. LIGADO por '
-             'padrao: o fichas_lv_v2.json pode estar stale/resumido e gera '
-             'larguras de painel ERRADAS (incidente 2026-09-10: V301 caiu de '
-             '935 para 314 entidades por rodar sem refresh). Com --entry-json '
-             'o padrao e DESLIGADO, porque ali a ficha fornecida e explicita. '
-             'Use --no-refresh-from-recorte para forcar a ficha do arquivo.',
+        '--refresh-from-recorte', action='store_true',
+        help='Reextrai a ficha do recorte N2 antes de gerar. Por padrao, a '
+             'ficha fornecida e autoritativa e nao e substituida.',
     )
     args = parser.parse_args()
-
-    # Falha-fechada SEM default. O §6 do CONTRATO-RIGIDO-MOTOR-LV-N3-N4 proibe
-    # reextracao como "fallback escondido", e medir as 32 vigas mostrou que
-    # nenhuma fonte vence sempre: refresh entrega mais em 14, a ficha em 10,
-    # empatam em 5 — e e' o refresh que faz V305/V308/V330 falharem o contrato.
-    # Se a escolha importa e varia, ela tem que ser consciente. Exigir a flag
-    # tambem mata o acidente de 10/09 (comando nu lendo ficha stale e
-    # sobrescrevendo N4 ja' validados: V301 caiu de 935 para 314 entidades).
-    if args.refresh_from_recorte is None:
-        if args.entry_json:
-            args.refresh_from_recorte = False   # ficha explicita e' autoritativa
-        else:
-            parser.error(
-                "escolha a fonte da ficha explicitamente: "
-                "--refresh-from-recorte (reextrai do recorte N2 vivo) ou "
-                "--no-refresh-from-recorte (usa fichas_lv_v2.json como esta'). "
-                "Nenhuma das duas vence sempre — ver §6 do contrato rigido."
-            )
-    print(
-        '[FICHA] fonte = '
-        + ('recorte N2 vivo (--refresh-from-recorte)'
-           if args.refresh_from_recorte
-           else 'arquivo fornecido (--no-refresh-from-recorte)')
-    )
 
     if args.entry_json:
         raw_entry = json.loads(
