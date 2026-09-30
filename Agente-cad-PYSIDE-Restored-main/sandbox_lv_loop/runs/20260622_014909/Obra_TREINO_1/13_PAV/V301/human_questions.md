@@ -1,3 +1,0 @@
-# Human Questions
-
-None yet.

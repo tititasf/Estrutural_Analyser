@@ -1,3 +1,0 @@
-[ERRO] Outro pipeline_batch já está rodando (PID 11944). Abortando.
-       Lock: C:\Users\Thierry\AppData\Local\Temp\pipeline_batch.lock
-       Use --force-lock para sobrescrever o lock se o processo morreu.
