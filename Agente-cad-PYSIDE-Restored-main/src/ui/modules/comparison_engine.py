@@ -1,13 +1,11 @@
-import sys
-from src.mcp.db_bridge import save_human_edit_event
 """
 Comparison Engine — Tab 2
 Fase-8: Validação Visual (NVIDIA NIM) + Certificação de Obras.
 Layout: [DualCanvas | Painel Fase-8]
 """
 import os
+import sys
 import json
-import re
 from pathlib import Path
 from datetime import datetime
 
@@ -37,406 +35,15 @@ from PySide6.QtWidgets import (
     QScrollArea, QSplitter, QGroupBox, QTextEdit, QTabWidget,
     QTreeWidget, QTreeWidgetItem, QSizePolicy,
     QListWidget, QListWidgetItem, QApplication, QLineEdit, QDialog,
-    QRadioButton, QButtonGroup, QDoubleSpinBox, QGridLayout,
 )
-from PySide6.QtCore import Qt, QProcess, Signal, QRect, QRectF, QPointF, QThread, QObject, QTimer, QEvent, QSettings
+from PySide6.QtCore import Qt, QProcess, Signal, QRect, QRectF, QPointF, QThread, QObject, QTimer, QEvent
 from PySide6.QtGui import QColor, QFont, QPainter, QPen, QBrush, QPainterPath, QPixmap, QTransform
 
 from src.ui.components.organisms import DualCanvasManager
-
-from src.ui.theme import Colors, Semantic, Contextual, Text, Surface, Border, Accent
-from scripts.pl_grade_visual_config import (
-    CONFIG_PATH as PL_GRADE_VISUAL_CONFIG_PATH,
-    DEFAULT_PROFILES as PL_GRADE_DEFAULT_PROFILES,
-    VALID_MODES as PL_GRADE_VISUAL_MODES,
-    distances_to_positions as pl_grade_distances_to_positions,
-    load_profiles as load_pl_grade_visual_profiles,
-    positions_to_distances as pl_grade_positions_to_distances,
-    save_profiles as save_pl_grade_visual_profiles,
-)
-
-# ── Helpers LV (acesso por todas as classes do módulo) ─────────────────────
-import re as _lv_re
-
-def _lv_strip_pp(item_id: str) -> str:
-    """'V301_A_Para' → 'V301_A'"""
-    return _lv_re.sub(r'_(Para|Passa)$', '', str(item_id), flags=_lv_re.IGNORECASE)
-
-def _lv_elem_id(item_id: str) -> str:
-    """'V301_A_Para' → 'V301' (sem face, sem pp)"""
-    clean = _lv_re.sub(r'_(Para|Passa)$', '', str(item_id), flags=_lv_re.IGNORECASE)
-    return _lv_re.sub(r'[_\.][AB]$', '', clean)
-
-def _lv_pp_from_id(item_id: str) -> str:
-    """'V301_A_Para' → 'para'"""
-    m = _lv_re.search(r'_(Para|Passa)$', str(item_id), _lv_re.IGNORECASE)
-    return m.group(1).lower() if m else ""
-
-def _lv_stem_to_display(stem: str, para_passa: str = "") -> str:
-    """'V10_A' → 'LV-V10.A';  com para_passa='para' → 'LV-V10.A-Para'"""
-    m = _lv_re.match(r'^(V\d+[A-Z]?)_([AB])$', stem, _lv_re.IGNORECASE)
-    if m:
-        display = f"LV-{m.group(1).upper()}.{m.group(2).upper()}"
-    else:
-        display = f"LV-{stem}" if not stem.startswith("LV-") else stem
-    if para_passa in ("para", "passa"):
-        display = f"{display}-{para_passa.capitalize()}"
-    return display
-
-def _lv_base_from_stem(stem: str) -> str:
-    """'V10_A' → 'V10'"""
-    m = _lv_re.match(r'^(V\d+[A-Z]?)_[AB]$', stem, _lv_re.IGNORECASE)
-    return m.group(1).upper() if m else stem
-
-
-# ── Helpers PIL PARA/PASSA (contratos N3 derivados do SA) ────────────────
-def _pil_strip_pp(item_id: str) -> str:
-    """'P1_Para' → 'P1'; o sufixo é uma variante visual, não outro pilar."""
-    return _lv_re.sub(r'_(Para|Passa)$', '', str(item_id), flags=_lv_re.IGNORECASE)
-
-
-def _pil_pp_from_id(item_id: str) -> str:
-    """'P1_Passa' → 'passa'."""
-    match = _lv_re.search(r'_(Para|Passa)$', str(item_id), _lv_re.IGNORECASE)
-    return match.group(1).lower() if match else ""
-
-
-def _resolve_open_dxf_paths(
-    col_index: int,
-    obra_dir: "Path | None",
-    classe: str,
-    item_id: str,
-    last_loaded_dxf: str = "",
-    selected_recorte_path: str = "",
-) -> list[Path]:
-    """Resolve os artefatos que o botao ``Abrir DXF`` deve abrir.
-
-    PIL/N4 prioriza o DXF combinado, que contem CIMA+ABCD+GRADES lado a
-    lado. Se ele estiver ausente, abre os tres splits N4 existentes, sem
-    cair em artefatos N3 da raiz. N2 prioriza sempre o recorte selecionado.
-    """
-    if col_index == 1:
-        recorte = Path(selected_recorte_path) if selected_recorte_path else None
-        if recorte and recorte.exists():
-            return [recorte]
-
-    if col_index == 3 and str(classe).upper() == "PL" and obra_dir:
-        clean_item = re.sub(
-            r"_(?:Para|Passa)$", "", str(item_id), flags=re.IGNORECASE
-        )
-        n4_dir = Path(obra_dir) / "Fase-6_Execucao_CAD" / "n4"
-        combined = n4_dir / f"PL_preview_{clean_item}.dxf"
-        if combined.exists():
-            return [combined]
-        splits = [
-            n4_dir / f"PL_{zone}_preview_{clean_item}.dxf"
-            for zone in ("CIMA", "ABCD", "GRADES")
-        ]
-        existing = [path for path in splits if path.exists()]
-        if existing:
-            return existing
-
-    fallback = Path(last_loaded_dxf) if last_loaded_dxf else None
-    return [fallback] if fallback and fallback.exists() else []
-
-# ───────────────────────────────────────────────────────────────────────────
-
-class DXFVectorView(QWidget):
-    ready = Signal()
-    def __init__(self, bg: str = Colors.BG_DEEP, parent=None):
-        super().__init__(parent)
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0,0,0,0)
-        self.canvas = CADCanvas()
-        
-        # Oculta a toolbar padrão do CADCanvas para ficar igual ao viewer antigo
-        if hasattr(self.canvas, 'toolbar'):
-            self.canvas.toolbar.hide()
-            self.canvas.toolbar.setVisible(False)
-            
-        self.layout.addWidget(self.canvas)
-        self._dxf_bbox = None
-        self._bg = bg
-        self._highlight_bbox = None
-        self._highlight_points = None
-        self._is_loaded = False
-        
-        # Configuração de fundo
-        self.canvas.setStyleSheet(f"background: {bg}; border: none;")
-
-    def load_dxf(self, dxf_path, bbox=None):
-        if not dxf_path:
-            self.clear_image("Sem DXF")
-            self.ready.emit()
-            return
-
-        try:
-            self.canvas.add_dxf_entities({}, source_dxf_path=dxf_path, color_override=None)
-            self._is_loaded = True
-            if bbox:
-                self._cull_to_bbox(bbox)
-                # Dispara zoom no próximo ciclo — cobre o caso "widget já visível"
-                from PySide6.QtCore import QTimer
-                QTimer.singleShot(0, lambda b=bbox: self.zoom_to_bbox(b))
-        except Exception as e:
-            print(f"Error loading DXF in DXFVectorView wrapper: {e}")
-
-        self.ready.emit()
-
-    def showEvent(self, event):
-        """Re-aplica zoom quando widget fica visível — cobre o caso de load_dxf
-        chamado antes do widget ser exibido (ex: switch_to_lv_zones cria splitter)."""
-        super().showEvent(event)
-        if self._is_loaded and self._dxf_bbox:
-            from PySide6.QtCore import QTimer
-            QTimer.singleShot(0, lambda: self.zoom_to_bbox(self._dxf_bbox))
-
-    def _cull_to_bbox(self, bbox):
-        """Oculta itens da cena fora do bbox e restringe sceneRect ao bbox.
-
-        ezdxf PyQtBackend coloca entidades com scene_y = DXF_y (SEM inverter y).
-        O view CADCanvas faz o flip visual com scale(1,-1).
-        Portanto scene coords == DXF coords — usar min/max direto, sem negação.
-
-        Entidades que ABRANGEM dois painéis (ex: border 'Folhas' x=1585..3070)
-        passariam no simples intersects — filtramos também pelo CENTRO X.
-        """
-        x0, y0, x1, y1 = bbox
-        from PySide6.QtCore import QRectF
-        # scene_y == DXF_y: usar min/max direto
-        scene_clip = QRectF(min(x0, x1), min(y0, y1),
-                            abs(x1 - x0), abs(y1 - y0))
-        scene_clip = scene_clip.adjusted(-5, -5, 5, 5)
-        self._scene_clip = scene_clip   # salvo para zoom_to_bbox usar
-        cx0, cx1 = scene_clip.left(), scene_clip.right()
-        for item in self.canvas.scene.items():
-            try:
-                br = item.sceneBoundingRect()
-                cx = br.center().x()
-                if not scene_clip.intersects(br) or not (cx0 <= cx <= cx1):
-                    item.setVisible(False)
-            except Exception:
-                pass
-        self.canvas.setSceneRect(scene_clip)
-
-    def zoom_to_bbox(self, bbox):
-        if not bbox or not self._is_loaded:
-            return
-        self._dxf_bbox = bbox
-
-        from PySide6.QtCore import QRectF, Qt
-
-        clip = getattr(self, '_scene_clip', None)
-
-        # Une apenas itens visíveis, clampando cada um ao clip para que entidades
-        # largas (que sobreviveram ao intersects mas têm centre dentro do clip)
-        # não inflacionem o viewport além dos limites da zona.
-        visible_rect: "QRectF | None" = None
-        for item in self.canvas.scene.items():
-            try:
-                if not item.isVisible():
-                    continue
-                br = item.sceneBoundingRect()
-                if br.isEmpty():
-                    continue
-                if clip:
-                    br = br.intersected(clip)
-                    if br.isEmpty():
-                        continue
-                visible_rect = br if visible_rect is None else visible_rect.united(br)
-            except Exception:
-                pass
-
-        if visible_rect is None or visible_rect.isEmpty():
-            # Fallback: scene_clip já está ajustado (x1=99999 clipado pelos itens)
-            if clip and not clip.isEmpty() and clip.width() < 10000:
-                visible_rect = clip
-            else:
-                return
-
-        margin_x = visible_rect.width()  * 0.08
-        margin_y = visible_rect.height() * 0.08
-        rect = visible_rect.adjusted(-margin_x, -margin_y, margin_x, margin_y)
-        self.canvas.fitInView(rect, Qt.KeepAspectRatio)
-
-    def _fit(self):
-        """Compatibilidade dos viewers N4: enquadra toda geometria visível."""
-        if not self._is_loaded:
-            return
-        if self._dxf_bbox:
-            self.zoom_to_bbox(self._dxf_bbox)
-            return
-        visible_rect = None
-        for item in self.canvas.scene.items():
-            try:
-                if not item.isVisible():
-                    continue
-                rect = item.sceneBoundingRect()
-                if rect.isEmpty():
-                    continue
-                visible_rect = (
-                    rect if visible_rect is None else visible_rect.united(rect)
-                )
-            except Exception:
-                continue
-        if visible_rect is None or visible_rect.isEmpty():
-            return
-        margin_x = max(visible_rect.width() * 0.08, 1.0)
-        margin_y = max(visible_rect.height() * 0.08, 1.0)
-        self.canvas.fitInView(
-            visible_rect.adjusted(-margin_x, -margin_y, margin_x, margin_y),
-            Qt.KeepAspectRatio,
-        )
-
-    def fit_all(self):
-        """Restore and frame the complete DXF while keeping the item highlight."""
-        if not self._is_loaded:
-            return
-        self._dxf_bbox = None
-        self._scene_clip = None
-        for item in self.canvas.scene.items():
-            try:
-                item.setVisible(True)
-            except RuntimeError:
-                continue
-        full_rect = self.canvas.scene.itemsBoundingRect()
-        if full_rect.isEmpty():
-            return
-        self.canvas.scene.setSceneRect(full_rect)
-        self._fit()
-
-    def focus_on_bbox(self, bbox, context_factor: float = 2.2):
-        """Center a region without hiding the surrounding structural map."""
-        if not bbox or not self._is_loaded:
-            return
-        x0, y0, x1, y1 = (float(value) for value in bbox)
-        width = max(abs(x1 - x0), 1.0)
-        height = max(abs(y1 - y0), 1.0)
-        factor = max(float(context_factor), 1.0)
-        center_x = (x0 + x1) / 2.0
-        center_y = (y0 + y1) / 2.0
-        from PySide6.QtCore import QRectF
-        focus_rect = QRectF(
-            center_x - width * factor / 2.0,
-            center_y - height * factor / 2.0,
-            width * factor,
-            height * factor,
-        )
-        self.canvas.fitInView(focus_rect, Qt.KeepAspectRatio)
-
-    def set_highlight_bbox(self, bbox):
-        self._highlight_bbox = bbox
-        # Remove old highlight
-        if hasattr(self, '_h_rect'):
-            try:
-                self.canvas.scene.removeItem(self._h_rect)
-            except RuntimeError:
-                pass
-        if hasattr(self, '_h_path'):
-            try:
-                self.canvas.scene.removeItem(self._h_path)
-            except RuntimeError:
-                pass
-        if not bbox:
-            return
-            
-        x0, y0, x1, y1 = bbox
-        w = abs(x1 - x0)
-        h = abs(y1 - y0)
-        from PySide6.QtCore import QRectF
-        rect = QRectF(x0, y0, w, h)
-        
-        from PySide6.QtWidgets import QGraphicsRectItem
-        from PySide6.QtGui import QBrush, QPen, QColor
-        self._h_rect = QGraphicsRectItem(rect)
-        color = QColor(255, 70, 70, 230)
-        pen = QPen(color, 3)
-        pen.setCosmetic(True)
-        fill = QColor(color)
-        fill.setAlpha(55)
-        self._h_rect.setPen(pen)
-        self._h_rect.setBrush(QBrush(fill))
-        self._h_rect.setZValue(100000)
-        self.canvas.scene.addItem(self._h_rect)
-
-    def set_highlight_geometry(self, points):
-        self._highlight_points = points
-        # Remove old highlight
-        if hasattr(self, '_h_path'):
-            try:
-                self.canvas.scene.removeItem(self._h_path)
-            except RuntimeError:
-                pass
-        if hasattr(self, '_h_rect'):
-            try:
-                self.canvas.scene.removeItem(self._h_rect)
-            except RuntimeError:
-                pass
-        if not points:
-            return
-            
-        from PySide6.QtGui import QBrush, QPainterPath, QPen, QColor
-        from PySide6.QtCore import QPointF
-        from PySide6.QtWidgets import QGraphicsPathItem
-
-        # Aceita tanto um único polígono ([x,y], [x,y], ...) quanto uma lista
-        # de polígonos disjuntos ([[x,y],...], [[x,y],...]) — este último é
-        # usado por FV, onde cada segmento de fundo vira um subpath separado
-        # em vez de um único contorno conectando trechos sem relação.
-        first = points[0] if points else None
-        is_multi = (
-            isinstance(first, (list, tuple)) and first
-            and isinstance(first[0], (list, tuple))
-        )
-        polygons = points if is_multi else [points]
-
-        path = QPainterPath()
-        for poly in polygons:
-            if not poly:
-                continue
-            path.moveTo(poly[0][0], poly[0][1])
-            for pt in poly[1:]:
-                path.lineTo(pt[0], pt[1])
-            if len(poly) >= 3:
-                path.closeSubpath()
-
-        self._h_path = QGraphicsPathItem(path)
-        color = QColor(255, 70, 70, 230)
-        pen = QPen(color, 3)
-        pen.setCosmetic(True)
-        fill = QColor(color)
-        fill.setAlpha(55)
-        self._h_path.setPen(pen)
-        self._h_path.setBrush(QBrush(fill))
-        self._h_path.setZValue(100000)
-        self.canvas.scene.addItem(self._h_path)
-
-    @property
-    def is_loaded(self) -> bool:
-        return self._is_loaded
-
-    def clear_image(self, msg: str = "sem DXF"):
-        self.canvas.scene.clear()
-        self._is_loaded = False
-        if hasattr(self, '_h_rect'): del self._h_rect
-        if hasattr(self, '_h_path'): del self._h_path
-
-    def cancel_load(self, msg: str = "cancelado"):
-        self.clear_image(msg)
-
-from src.ui.theme import Colors, Fonts, Radius, Semantic, Contextual, Text, Surface, Border, Accent
+from src.ui.theme import Colors, Fonts, Radius
 from src.core.item_attention_store import (
-    has_attention, load_attention, load_attention_bulk, save_attention,
-    save_human_validation, is_human_validated,
+    has_attention, load_attention, save_attention, save_human_validation, is_human_validated,
     save_para_passa, load_para_passa,
-)
-from src.core.artifact_governance import (
-    discover_level_artifacts,
-    guarded_promote,
-    is_qa_agente_validated,
-    is_qa_agente_validated_bulk,
-    load_validation_policies_bulk,
-    restore_validation_artifacts,
 )
 
 try:
@@ -449,61 +56,6 @@ except ImportError:
 DADOS_OBRAS_ROOT  = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 VALIDACAO_DIR     = Path("D:/Agente-cad-PYSIDE/validacao_visual")
 SCRIPTS_DIR       = Path(__file__).parent.parent.parent.parent / "scripts"
-_LV_GEN_MOD       = None
-
-
-def _lv_generator_module():
-    """Import lazy do gerador LV (scripts/) para crops e face_units canônicos."""
-    global _LV_GEN_MOD
-    if _LV_GEN_MOD is not None:
-        return _LV_GEN_MOD
-    import importlib.util
-    import sys
-
-    script = SCRIPTS_DIR / "gerar_lv_dxf_stog.py"
-    spec = importlib.util.spec_from_file_location("gerar_lv_dxf_stog_ce", script)
-    mod = importlib.util.module_from_spec(spec)
-    assert spec and spec.loader
-    if str(SCRIPTS_DIR) not in sys.path:
-        sys.path.insert(0, str(SCRIPTS_DIR))
-    spec.loader.exec_module(mod)
-    _LV_GEN_MOD = mod
-    return mod
-
-
-def _lv_canonical_face_units(er_ficha: dict) -> list:
-    try:
-        mod = _lv_generator_module()
-        return mod.select_canonical_face_units((er_ficha or {}).get('face_units') or [])
-    except Exception:
-        return (er_ficha or {}).get('face_units') or []
-
-
-def _lv_primary_face_bbox(er_ficha: dict, side: str = 'A', *, combined_view: bool = False):
-    """BBox da unidade primária (não-CONT) para crop do viewer N4."""
-    try:
-        mod = _lv_generator_module()
-        view = 'ALL' if combined_view else str(side or 'A').upper()
-        layouts = mod.layout_lv_face_unit_bboxes(
-            (er_ficha or {}).get('face_units') or [],
-            view=view,
-        )
-    except Exception:
-        return None
-
-    side_key = str(side or 'A').upper()
-    side_layouts = [item for item in layouts if item.get('side') == side_key]
-    if not side_layouts:
-        return None
-    primary = next(
-        (
-            item for item in side_layouts
-            if 'CONT' not in str(item.get('label') or '').upper()
-        ),
-        side_layouts[0],
-    )
-    return primary.get('bbox')
-
 
 # ── 3-Level comparison paths ─────────────────────────────────────────────────
 OBRA_TREINO_16  = DADOS_OBRAS_ROOT / "Obra_TREINO_16"
@@ -520,23 +72,16 @@ _N3_SCRIPTS = {
     'LJ': 'gerar_lj_dxf_stog.py',
 }
 
-TIPOS = ["PL", "LV", "FV", "LJ"]
-
-# N-level panel identity colors (DS-compliant)
-_N1_BG, _N1_FG, _N1_HOV = Surface.RAISED,              Accent.INTERACTIVE,    Surface.BASE
-_N2_BG, _N2_FG, _N2_HOV = Semantic.SUCCESS_BG_DARK,    Semantic.SUCCESS,      "rgba(31, 94, 48, 1)"
-_N3_BG, _N3_FG, _N3_HOV = Semantic.WARNING_BG_DARK,    Semantic.WARNING,      "rgba(90, 58, 26, 1)"
-_N4_BG, _N4_FG, _N4_HOV = "rgba(160, 112, 255, 0.18)", Contextual.PURPLE,    "rgba(160, 112, 255, 0.28)"
-_N5_BG, _N5_FG, _N5_HOV = Surface.ELEVATED,            Accent.PRIMARY,        Surface.CARD
-
 NIVEL_DEFS = [
-    # (id,  titulo,                          bg_color,  accent,  descricao,                                                         mode)
-    ("N1", "Estrutura Real",                 _N1_BG,    _N1_FG,  "DXF Estrutural · Fase 1\nPosição e dimensões reais do elemento",  'dxf'),
-    ("N2", "STOG Real DXF",                  _N2_BG,    _N2_FG,  "Eng. Reversa · Fase 1\nForms, seções e sarrafos STOG",            'dxf'),
-    ("N3", "Robot via Ficha SA",             _N3_BG,    _N3_FG,  "Robot N3 · Fase 4→6\nDXF gerado via ficha do Structural Analyzer", 'dxf'),
-    ("N4", "Robot via Ficha ER",             _N4_BG,    _N4_FG,  "Robot N4 · Fase 2→6\nDXF gerado via Ficha Eng. Reversa (STOG real)", 'dxf'),
-    ("N5", "Montagem e unificacao dos N3",   _N5_BG,    _N5_FG,  "N5 - consolida previews N3\n1 DXF final por classe suportada",   'dxf'),
+    # (id,  titulo,                    bg_color,   accent,     descricao,                                                       mode)
+    ("N1", "Estrutura Real",           "#1b3a6b",  "#4a9eff",  "DXF Estrutural · Fase 1\nPosição e dimensões reais do elemento", 'dxf'),
+    ("N2", "STOG Real DXF",            "#1a4a2a",  "#4acf7a",  "Eng. Reversa · Fase 1\nForms, seções e sarrafos STOG",           'dxf'),
+    ("N3", "Robot via Ficha SA",       "#4a2a1a",  "#cf8a4a",  "Robot N3 · Fase 4→6\nDXF gerado via ficha do Structural Analyzer", 'dxf'),
+    ("N4", "Robot via Ficha ER",       "#2d1a47",  "#a855f7",  "Robot N4 · Fase 2→6\nDXF gerado via Ficha Eng. Reversa (STOG real)", 'dxf'),
+    ("N5", "Montagem e unificacao dos N3", "#263238", "#00bcd4", "N5 - consolida previews N3\n1 DXF final por classe suportada", 'dxf'),
 ]
+
+TIPOS = ["PL", "LV", "FV", "LJ"]
 
 # ── ACI Color map (AutoCAD Color Index → QColor) ─────────────────────────────
 _ACI: dict[int, str] = {
@@ -684,10 +229,10 @@ def _raw_ops_to_qt(raw_ops: list) -> list:
 
 
 # Caps conservadores — priorizamos segurança de memória sobre completude visual
-_MAX_PATH_OPS   = 999999   # paths/lines
-_MAX_FILL_OPS   = 999999    # HATCH fills — muito pesados
-_MAX_TEXT_OPS   = 999999    # textos
-_MAX_INSERT_OPS = 999999    # blocos expandidos
+_MAX_PATH_OPS   = 600   # paths/lines
+_MAX_FILL_OPS   = 20    # HATCH fills — muito pesados
+_MAX_TEXT_OPS   = 60    # textos
+_MAX_INSERT_OPS = 15    # blocos expandidos
 
 # DXFs maiores que este limite não são renderizados inline (evita OOM)
 _MAX_DXF_MB = 30.0
@@ -1182,11 +727,7 @@ class DXFLoadWorker(QThread):
                 self.failed.emit(f'Serialização temp falhou: {e}')
 
 
-
-from src.ui.canvas import CADCanvas
-
-class _OldDXFVectorView(QWidget):
-
+class DXFVectorView(QWidget):
     """
     Renderiza entidades DXF como vetores via QPainter (sem bitmap).
     Zoom e pan sem perda de qualidade — igual a um viewer DXF real.
@@ -1549,7 +1090,7 @@ class _OldDXFVectorView(QWidget):
 
         if self._highlight_bbox:
             x0, y0, x1, y1 = self._highlight_bbox
-            pen = QPen(QColor(Semantic.WARNING), 0)
+            pen = QPen(QColor("#ff9800"), 0)
             pen.setCosmetic(True)
             p.setPen(pen)
             p.setBrush(Qt.NoBrush)
@@ -1557,26 +1098,19 @@ class _OldDXFVectorView(QWidget):
         elif self._highlight_points:
             try:
                 from PySide6.QtGui import QPolygonF
-                first = self._highlight_points[0] if self._highlight_points else None
-                is_multi = (
-                    isinstance(first, (list, tuple)) and first
-                    and isinstance(first[0], (list, tuple))
-                )
-                polygons = self._highlight_points if is_multi else [self._highlight_points]
-                pen = QPen(QColor(Semantic.WARNING), 0)
-                pen.setCosmetic(True)
-                fill = QColor(Semantic.WARNING)
-                fill.setAlpha(45)
-                p.setPen(pen)
-                p.setBrush(fill)
-                for poly in polygons:
-                    pts = [
-                        QPointF(float(pt[0]), float(pt[1]))
-                        for pt in (poly or [])
-                        if isinstance(pt, (list, tuple)) and len(pt) >= 2
-                    ]
-                    if len(pts) >= 3:
-                        p.drawPolygon(QPolygonF(pts))
+                pts = [
+                    QPointF(float(pt[0]), float(pt[1]))
+                    for pt in self._highlight_points
+                    if isinstance(pt, (list, tuple)) and len(pt) >= 2
+                ]
+                if len(pts) >= 3:
+                    pen = QPen(QColor("#ff9800"), 0)
+                    pen.setCosmetic(True)
+                    fill = QColor("#ff9800")
+                    fill.setAlpha(45)
+                    p.setPen(pen)
+                    p.setBrush(fill)
+                    p.drawPolygon(QPolygonF(pts))
             except Exception:
                 pass
 
@@ -1707,10 +1241,10 @@ class ScoreSparkline(QWidget):
         self.setMinimumHeight(80)
         self._points = []   # list of (x_norm, score)  0..1 each
         self._colors = {
-            "PL": QColor(Accent.INTERACTIVE),
-            "LV": QColor(Semantic.SUCCESS),
-            "FV": QColor(Semantic.WARNING),
-            "LJ": QColor(Semantic.DANGER),
+            "PL": QColor("#7ab3e0"),  # hardcoded-ok: cor de série de gráfico, sem token equivalente
+            "LV": QColor(Colors.ACCENT_SUCCESS),
+            "FV": QColor(Colors.ACCENT_WARNING),
+            "LJ": QColor("#e91e63"),  # hardcoded-ok: cor de série de gráfico, sem token equivalente
         }
         self._series = {}   # tipo → list of (x_norm, score)
 
@@ -1853,7 +1387,8 @@ class Fase8Panel(QFrame):
         row_obra = QHBoxLayout()
         row_obra.addWidget(QLabel("Obra:"))
         self.cmb_obra = QComboBox()
-        self._compact_combo(self.cmb_obra, min_chars=12)
+        self.cmb_obra.setMinimumHeight(24)
+        self.cmb_obra.setMaximumHeight(24)
         self.cmb_obra.currentTextChanged.connect(self._on_obra_changed)
         row_obra.addWidget(self.cmb_obra, 1)
         sel_lay.addLayout(row_obra)
@@ -1861,56 +1396,10 @@ class Fase8Panel(QFrame):
         row_pav = QHBoxLayout()
         row_pav.addWidget(QLabel("Pav:"))
         self.cmb_pav = QComboBox()
-        self._compact_combo(self.cmb_pav, min_chars=14)
+        self.cmb_pav.setMinimumHeight(24)
+        self.cmb_pav.setMaximumHeight(24)
         row_pav.addWidget(self.cmb_pav, 1)
         sel_lay.addLayout(row_pav)
-
-        # Masterplan OBRAS DRIVE Fase 4/5: se esse pavimento (obra Drive) já
-        # teve SA rodado na WEB, mostra contagem + atalho de pasta, MAIS o
-        # toggle "Dados WEB / Dados Locais" que redireciona o pipeline N1-N5
-        # inteiro (TriLevelArea + nav_sidebar) pro obra_dir real da web —
-        # a lógica de wiring fica em ComparisonEngineModule (dono do
-        # tri_level/nav_sidebar), aqui só os widgets visuais.
-        self.lbl_sa_web_ref = QLabel("")
-        self.lbl_sa_web_ref.setWordWrap(True)
-        self.lbl_sa_web_ref.setStyleSheet(f"color: {Colors.ACCENT_TEAL}; font-size: 9px;")
-        self.lbl_sa_web_ref.setVisible(False)
-        sel_lay.addWidget(self.lbl_sa_web_ref)
-        self.btn_abrir_sa_web = QPushButton("📂 Abrir pasta SA da WEB")
-        self.btn_abrir_sa_web.setStyleSheet(f"""
-            QPushButton {{ padding: 3px 6px; font-size: 9px; border-radius: 3px;
-                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
-                border: 1px solid {Colors.BORDER_DEFAULT}; }}
-            QPushButton:hover {{ background: {Colors.BG_PANEL}; }}
-        """)
-        self.btn_abrir_sa_web.setVisible(False)
-        self.btn_abrir_sa_web.clicked.connect(self._abrir_pasta_sa_web)
-        sel_lay.addWidget(self.btn_abrir_sa_web)
-        self._sa_web_html_dir_atual = None
-        self._sa_web_work_name_atual = None
-
-        ce_toggle_row = QHBoxLayout()
-        ce_toggle_row.setSpacing(2)
-        self.btn_ver_web = QPushButton("🌐 Dados WEB")
-        self.btn_ver_local = QPushButton("💻 Dados Locais")
-        for _b in (self.btn_ver_web, self.btn_ver_local):
-            _b.setCheckable(True)
-            _b.setStyleSheet(f"""
-                QPushButton {{ padding: 3px 6px; font-size: 9px; border-radius: 3px;
-                    background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
-                    border: 1px solid {Colors.BORDER_DEFAULT}; }}
-                QPushButton:checked {{ background: {Colors.ACCENT_PRIMARY}; color: white; font-weight: bold; }}
-            """)
-            ce_toggle_row.addWidget(_b)
-        self.btn_ver_local.setChecked(True)
-        self._ce_grupo_ver = QButtonGroup(self)
-        self._ce_grupo_ver.setExclusive(True)
-        self._ce_grupo_ver.addButton(self.btn_ver_web)
-        self._ce_grupo_ver.addButton(self.btn_ver_local)
-        self.toggle_web_local_widget = QWidget()
-        self.toggle_web_local_widget.setLayout(ce_toggle_row)
-        self.toggle_web_local_widget.setVisible(False)
-        sel_lay.addWidget(self.toggle_web_local_widget)
 
         # _chk_tipos mantido para lógica interna (btn_validate oculto na UI)
         self._chk_tipos = {}
@@ -1938,34 +1427,44 @@ class Fase8Panel(QFrame):
         self.lbl_status.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM};")
         outer.addWidget(self.lbl_status)
 
-        # ── Status de Processamento ────
+        # ── Status de Processamento N1/N2/N3 ────
         grp_proc = QGroupBox("Status de Processamento")
         proc_lay = QVBoxLayout(grp_proc)
         proc_lay.setContentsMargins(6, 4, 6, 4)
-        proc_lay.setSpacing(4)
+        proc_lay.setSpacing(3)
 
-        status_grid = QHBoxLayout()
-        status_grid.setSpacing(3)
-        self._status_qty_labels = {}
-        self._status_pct_labels = {}
-        for t in TIPOS:
-            col = QVBoxLayout()
-            col.setSpacing(1)
-            lbl_t = QLabel(t, alignment=Qt.AlignCenter)
-            lbl_t.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_SECONDARY};")
-            col.addWidget(lbl_t)
-            lbl_qty = QLabel("0/0")
-            lbl_qty.setAlignment(Qt.AlignCenter)
-            lbl_qty.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 9px;")
-            self._status_qty_labels[t] = lbl_qty
-            col.addWidget(lbl_qty)
-            sl = ScoreLabel("—")
-            sl.setAlignment(Qt.AlignCenter)
-            sl.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 13px; font-weight: bold;")
-            self._status_pct_labels[t] = sl
-            col.addWidget(sl)
-            status_grid.addLayout(col)
-        proc_lay.addLayout(status_grid)
+        _PROC_LEVELS = [
+            ("N1", "Estrutura Real",   "DXF Fase-1"),
+            ("N2", "Fichas Fase-3",    "Interpretação"),
+            ("N3", "Robot via Ficha SA", "Fase-4"),
+        ]
+        self._proc_status_labels: dict[str, QLabel] = {}
+        for nid, ntitle, ndesc in _PROC_LEVELS:
+            row = QHBoxLayout()
+            row.setSpacing(4)
+
+            dot = QLabel("●")
+            dot.setFixedWidth(12)
+            dot.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 10px;")
+            dot.setObjectName(f"proc_dot_{nid}")
+            row.addWidget(dot)
+
+            lbl_name = QLabel(f"<b>{nid}</b> {ntitle}")
+            lbl_name.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_SECONDARY};")
+            lbl_name.setFixedWidth(105)
+            row.addWidget(lbl_name)
+
+            lbl_val = QLabel("—")
+            lbl_val.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_DIM};")
+            lbl_val.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            row.addWidget(lbl_val, 1)
+
+            self._proc_status_labels[nid] = lbl_val
+            proc_lay.addLayout(row)
+
+            # store dot ref for color update
+            setattr(self, f"_proc_dot_{nid}", dot)
+
         outer.addWidget(grp_proc)
 
         # ── Scores ──────────────────────────────
@@ -2000,7 +1499,15 @@ class Fase8Panel(QFrame):
 
         outer.addWidget(grp_scores)
 
-        
+        # ── Certificar ──────────────────────────
+        self.btn_certify = QPushButton("✅ Certificar Obra")
+        self.btn_certify.setObjectName("certify")
+        self.btn_certify.setEnabled(False)
+        self.btn_certify.clicked.connect(self._on_certify)
+        outer.addWidget(self.btn_certify)
+
+        self.lbl_cert_status = QLabel("")
+        outer.addWidget(self.lbl_cert_status)
 
         # Histórico/Tendência/Comparação — criados mas ocultos (lógica preservada)
         self.tbl_history = QTableWidget(0, 5)
@@ -2025,35 +1532,15 @@ class Fase8Panel(QFrame):
         # Preencher obras
         self._populate_obras()
 
-    @staticmethod
-    def _obra_display_label(value: str) -> str:
-        text = str(value or "").strip()
-        if not text:
-            return ""
-        if "\\" in text or "/" in text:
-            return Path(text).name or text
-        return text
-
-    @staticmethod
-    def _compact_combo(combo: QComboBox, min_chars: int = 10):
-        combo.setMinimumHeight(24)
-        combo.setMaximumHeight(24)
-        combo.setMinimumWidth(0)
-        combo.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Fixed)
-        combo.setMinimumContentsLength(min_chars)
-        try:
-            combo.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
-        except AttributeError:
-            combo.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon)
-
     # ─────────────────────────────────────────────
     # Population
     # ─────────────────────────────────────────────
 
     def _populate_obras(self):
-        """Lista todas as obras do banco (mesma lista harmoniosa do SA e dos
-        robôs) + obras do portal (Masterplan OBRAS DRIVE) — mesmo design
-        visual dos demais comboboxes de obra da app (ver `drive_obras_combo.py`)."""
+        """Lista todas as obras do banco (mesma lista harmoniosa do SA e dos robôs)."""
+        self.cmb_obra.blockSignals(True)
+        self.cmb_obra.clear()
+
         try:
             import sqlite3 as _sql
             _conn = _sql.connect("D:/Agente-cad-PYSIDE/project_data.vision")
@@ -2065,8 +1552,9 @@ class Fase8Panel(QFrame):
             _ce_log(f"[CE] _populate_obras erro ao carregar obras: {_e}")
             works = []
 
-        from src.ui.drive_obras_combo import popular_combo_obras_com_drive
-        self._drive_obras_portal = popular_combo_obras_com_drive(self.cmb_obra, self, works)
+        for o in works:
+            self.cmb_obra.addItem(f"📁 {o}", o)
+        self.cmb_obra.blockSignals(False)
 
         if works:
             # Preferir a primeira obra que tenha pavimentos reais no banco
@@ -2116,17 +1604,6 @@ class Fase8Panel(QFrame):
     def _on_obra_changed(self, obra_name: str):
         """Atualiza combo de pavimentos a partir da tabela projects (mesmos 'limpos' que o SA)."""
         obra_name = self.cmb_obra.currentData() or obra_name
-
-        try:
-            from src.core.database import DatabaseManager
-            from src.ui.drive_obras_combo import espelhar_se_necessario
-            espelhar_se_necessario(
-                DatabaseManager(db_path="D:/Agente-cad-PYSIDE/project_data.vision"),
-                obra_name, getattr(self, "_drive_obras_portal", {}),
-            )
-        except Exception as e:
-            _ce_log(f"[CE] Falha ao espelhar obra Drive: {e}")
-
         self.cmb_pav.blockSignals(True)
         self.cmb_pav.clear()
         if not obra_name:
@@ -2168,35 +1645,63 @@ class Fase8Panel(QFrame):
         self._load_scores_for_obra(obra_name)
         self._refresh_processing_status(obra_name)
 
-    def _abrir_pasta_sa_web(self):
-        """Abre no Explorer a pasta HTML real do commit SA mais recente da
-        WEB pra esse pavimento (Masterplan OBRAS DRIVE Fase 4) — atalho de
-        leitura, nunca redireciona o pipeline N1-N5 em si."""
-        if not self._sa_web_html_dir_atual:
+    def _refresh_processing_status(self, obra_name: str):
+        """Verifica existência de dados em cada nível e atualiza o painel de status."""
+        if not obra_name:
             return
-        import os
-        try:
-            os.startfile(self._sa_web_html_dir_atual)
-        except Exception as e:
-            _ce_log(f"[CE] Falha ao abrir pasta SA da web: {e}")
+        obra_dir = DADOS_OBRAS_ROOT / obra_name
 
-    def _refresh_processing_status(self, obra_name: str, pav_key: str = None, stats: dict = None):
-        """Atualiza o painel de status com as validações de N3 por classe para a obra/pavimento."""
-        if not stats:
-            for t in TIPOS:
-                if t in self._status_qty_labels:
-                    self._status_qty_labels[t].setText("0/0")
-                    self._status_pct_labels[t].set_score(None)
-            return
+        def _set(nid: str, ok: bool, partial: bool, text: str):
+            lbl = self._proc_status_labels.get(nid)
+            dot = getattr(self, f"_proc_dot_{nid}", None)
+            if lbl:
+                lbl.setText(text)
+            if dot:
+                if ok:
+                    color = "#4acf7a"   # green
+                elif partial:
+                    color = "#cfb84a"   # amber
+                else:
+                    color = "#555566"   # dim gray
+                dot.setStyleSheet(f"color: {color}; font-size: 10px;")
 
-        for t in TIPOS:
-            val = stats.get(t, {"validated": 0, "total": 0})
-            v = val["validated"]
-            tot = val["total"]
-            if t in self._status_qty_labels:
-                self._status_qty_labels[t].setText(f"{v}/{tot}")
-                pct = (v / tot * 100) if tot > 0 else None
-                self._status_pct_labels[t].set_score(pct)
+        # N1 — DXFs limpos de Fase-2_Triagem (preferencial) ou brutos de Fase-1
+        clean_dir = obra_dir / "Fase-2_Triagem" / "Estruturais_Pavimentos_Limpos"
+        bruto_dir = obra_dir / "Fase-1_Ingestao" / "Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF"
+        n1_clean = len(list(clean_dir.glob("*.dxf"))) if clean_dir.exists() else 0
+        n1_bruto = len(list(bruto_dir.glob("*.dxf"))) if bruto_dir.exists() else 0
+        n1_count = n1_clean or n1_bruto
+        n1_label = f"{n1_clean} limpos" if n1_clean > 0 else (f"{n1_bruto} brutos" if n1_bruto > 0 else "sem dados")
+        _set("N1",
+             ok=(n1_clean > 0),
+             partial=(n1_clean == 0 and n1_bruto > 0),
+             text=n1_label)
+
+        # N2 — Fichas from Fase-3_Interpretacao_Extracao
+        fase3_dir = obra_dir / "Fase-3_Interpretacao_Extracao"
+        n2_count = 0
+        if fase3_dir.exists():
+            for sub in ("Pilares", "Vigas", "Lajes"):
+                sub_dir = fase3_dir / sub
+                if sub_dir.exists():
+                    n2_count += len(list(sub_dir.glob("*.json")))
+        _set("N2",
+             ok=(n2_count > 0),
+             partial=False,
+             text=f"{n2_count} fichas" if n2_count > 0 else "sem dados")
+
+        # N3 — JSON_Pilares/Vigas from Fase-4_Sincronizacao
+        fase4_dir = obra_dir / "Fase-4_Sincronizacao"
+        n3_count = 0
+        if fase4_dir.exists():
+            for sub in ("JSON_Pilares", "JSON_Vigas_Fundo", "JSON_Vigas_Laterais", "JSON_Lajes"):
+                sub_dir = fase4_dir / sub
+                if sub_dir.exists():
+                    n3_count += len(list(sub_dir.glob("*.json")))
+        _set("N3",
+             ok=(n3_count > 0),
+             partial=False,
+             text=f"{n3_count} itens" if n3_count > 0 else "sem dados")
 
     def _load_scores_for_obra(self, obra_name: str):
         """Carrega scores do JSON consolidado se existir."""
@@ -2205,8 +1710,7 @@ class Fase8Panel(QFrame):
             for lbl in self._score_labels.values():
                 lbl.set_score(None)
             self.lbl_avg.set_score(None)
-            if hasattr(self, "btn_certify"):
-                self.btn_certify.setEnabled(False)
+            self.btn_certify.setEnabled(False)
             return
 
         try:
@@ -2227,8 +1731,7 @@ class Fase8Panel(QFrame):
             valid = [v for v in scores.values() if v is not None]
             avg = sum(valid) / len(valid) if valid else None
             self.lbl_avg.set_score(avg)
-            if hasattr(self, "btn_certify"):
-                self.btn_certify.setEnabled(avg is not None)
+            self.btn_certify.setEnabled(avg is not None)
             self._last_result = data
         except Exception as e:
             self._log(f"Erro ao carregar scores: {e}")
@@ -2592,16 +2095,16 @@ class Fase8Panel(QFrame):
         btn_load_all = QPushButton("📊 Calcular Todos")
         btn_load_all.setFixedHeight(24)
         btn_load_all.setStyleSheet(
-            f"background: rgba(0, 60, 80, 1); color: {Accent.PRIMARY};"
-            f" border: 1px solid {Accent.PRIMARY}; border-radius: 3px; font-size: 10px;"
+            f"background: rgba(0, 60, 80, 1); color: {Colors.ACCENT_TEAL};"
+            "border: 1px solid #006666; border-radius: 3px; font-size: 10px;"  # hardcoded-ok
         )
         btn_load_all.clicked.connect(self._on_comp_load_all_scores)
 
         self._btn_export_audit = QPushButton("⬇ Exportar Auditoria")
         self._btn_export_audit.setFixedHeight(24)
         self._btn_export_audit.setStyleSheet(
-            f"background: rgba(60, 40, 0, 1); color: {Semantic.WARNING};"
-            f" border: 1px solid {Semantic.WARNING}; border-radius: 3px; font-size: 10px;"
+            f"background: rgba(60, 40, 0, 1); color: {Colors.ACCENT_WARNING};"
+            "border: 1px solid #aa6600; border-radius: 3px; font-size: 10px;"  # hardcoded-ok
         )
         self._btn_export_audit.clicked.connect(self._on_export_audit)
 
@@ -2699,11 +2202,11 @@ class Fase8Panel(QFrame):
         )
 
         _STATUS_COLOR = {
-            FieldStatus.IGUAL:      (Semantic.SUCCESS_BG_DARK, Semantic.SUCCESS),
-            FieldStatus.DIFERENTE:  (Semantic.WARNING_BG_DARK, Semantic.WARNING),
-            FieldStatus.AUSENTE_GT: (Semantic.NEUTRAL_BG_DARK, Text.SECONDARY),
-            FieldStatus.AUSENTE_F4: (Semantic.NEUTRAL_BG_DARK, Text.SECONDARY),
-            FieldStatus.CONFLITO:   (Semantic.DANGER_BG_DARK,  Semantic.DANGER),
+            FieldStatus.IGUAL:      ('#1a3320', '#4caf50'),  # hardcoded-ok
+            FieldStatus.DIFERENTE:  ('#332900', '#ffc107'),  # hardcoded-ok
+            FieldStatus.AUSENTE_GT: ('#1a1a1a', '#9e9e9e'),  # hardcoded-ok
+            FieldStatus.AUSENTE_F4: ('#1a1a1a', '#9e9e9e'),  # hardcoded-ok
+            FieldStatus.CONFLITO:   ('#330d00', '#f44336'),  # hardcoded-ok
         }
         _STATUS_ICON = {
             FieldStatus.IGUAL: '✓', FieldStatus.DIFERENTE: '≠',
@@ -2715,7 +2218,7 @@ class Fase8Panel(QFrame):
         for row_idx, row in enumerate(rows):
             self._comp_table.insertRow(row_idx)
             self._comp_table.setRowHeight(row_idx, 22)
-            bg, fg = _STATUS_COLOR.get(row.status, (Semantic.NEUTRAL_BG_DARK, Text.SECONDARY))
+            bg, fg = _STATUS_COLOR.get(row.status, ('#1a1a1a', '#9e9e9e'))  # hardcoded-ok
 
             def _cell(text, tfg=Colors.TEXT_PRIMARY, tbg=None):
                 it = QTableWidgetItem(str(text) if text else '—')
@@ -3057,7 +2560,7 @@ class PipelineStepsWidget(QFrame):
 
 # ── LV ficha helpers (reutilizados em N2 e N4) ───────────────────────────────
 
-def _lv_section_widget(er_ficha: dict, accent: str = Semantic.SUCCESS) -> "QWidget":
+def _lv_section_widget(er_ficha: dict, accent: str = "#4caf50") -> "QWidget":
     """Widget de seções transversais numeradas para LV.
     Mostra cada section_view como um card; se vazia, usa campos globais."""
     from PySide6.QtWidgets import QScrollArea, QVBoxLayout, QHBoxLayout, QWidget as _QW, QLabel as _QL, QFrame as _QF
@@ -3165,7 +2668,7 @@ def _lv_section_widget(er_ficha: dict, accent: str = Semantic.SUCCESS) -> "QWidg
     return scroll
 
 
-def _lv_segs_table_legacy(er_ficha: dict, accent: str = Semantic.SUCCESS,
+def _lv_segs_table_legacy(er_ficha: dict, accent: str = "#4caf50",
                           tbl_style: str = "") -> "QTableWidget":
     """Tabela de segmentos por face (A+B) com 7 colunas: # Larg Tipo H1 L↑ L↓ ⚑."""
     COLS = ["#", "Larg", "Tipo", "H1", "L↑", "L↓", "⚑"]
@@ -3223,7 +2726,7 @@ def _lv_segs_table_legacy(er_ficha: dict, accent: str = Semantic.SUCCESS,
     _face_bg   = QColor(Colors.BG_DEEP)
     _face_fg   = QColor(accent)
     _alt_bg    = QColor(Colors.BG_PANEL)
-    _alt2_bg   = QColor(Semantic.SUCCESS_BG_DARK)
+    _alt2_bg   = QColor("#1a2a1a")
 
     _TYPE_SHORT = {'Sarrafeado': 'Sarf.', 'Grade': 'Grade', 'Misto': 'Misto',
                    'gradeada': 'Grade', 'sarrafeada': 'Sarf.', 'invertida': 'Inv.'}
@@ -3298,7 +2801,7 @@ def _lv_segs_table_legacy(er_ficha: dict, accent: str = Semantic.SUCCESS,
     return tbl
 
 
-def _lv_segs_table(er_ficha: dict, accent: str = Semantic.SUCCESS,
+def _lv_segs_table(er_ficha: dict, accent: str = "#4caf50",
                    tbl_style: str = "") -> "QWidget":
     """Cards de segmentos LV agrupados exclusivamente pelo lado A/B."""
     import re as _re
@@ -3435,22 +2938,6 @@ def _lv_segs_table(er_ficha: dict, accent: str = Semantic.SUCCESS,
             laje_inf = float(unit.get('laje_inf', 0) or 0)
             _row(cl, "Laje sup.", f"{laje_sup:.0f} cm" if laje_sup else None)
             _row(cl, "Laje inf.", f"{laje_inf:.0f} cm" if laje_inf else None)
-            if unit.get('marco_laje_sup'):
-                _row(cl, "Marco laje", "detectado")
-            sarr_specs = unit.get('sarrafos_verticais') or []
-            if sarr_specs:
-                edges = [
-                    f"{spec.get('side')}@{spec.get('x_offset')}cm"
-                    for spec in sarr_specs
-                ]
-                _row(cl, "Sarr. vert.", ", ".join(edges))
-            elif unit.get('sarrafo_vertical_esquerdo') or unit.get('sarrafo_vertical_direito'):
-                bits = []
-                if unit.get('sarrafo_vertical_esquerdo'):
-                    bits.append('E')
-                if unit.get('sarrafo_vertical_direito'):
-                    bits.append('D')
-                _row(cl, "Sarr. borda", "+".join(bits))
             _row(cl, "Reaprov.", reuse_count if reuse_count else None)
             _row(cl, "Aberturas", holes_count if holes_count else None)
             vlay.addWidget(card)
@@ -3475,210 +2962,18 @@ def _lv_segs_table(er_ficha: dict, accent: str = Semantic.SUCCESS,
     return scroll
 
 
-def _ficha_field_label(key: object) -> str:
-    text = str(key or "").strip().replace("_", " ")
-    return text[:1].upper() + text[1:] if text else "Campo"
-
-
-def _ce_plain_value(value: object):
-    """Converte numpy/scalars e sequencias exoticas para tipos Python puros."""
-    if hasattr(value, "tolist") and not isinstance(value, (str, bytes, dict)):
-        try:
-            return _ce_plain_value(value.tolist())
-        except Exception:
-            pass
-    if hasattr(value, "item") and not isinstance(value, (str, bytes, dict, list, tuple)):
-        try:
-            return value.item()
-        except Exception:
-            pass
-    if isinstance(value, dict):
-        return {str(k): _ce_plain_value(v) for k, v in value.items()}
-    if isinstance(value, tuple):
-        return [_ce_plain_value(v) for v in value]
-    if isinstance(value, list):
-        return [_ce_plain_value(v) for v in value]
-    return value
-
-
-def _ce_is_empty_value(value: object) -> bool:
-    value = _ce_plain_value(value)
-    if value is None:
-        return True
-    if isinstance(value, str):
-        return value == ""
-    if isinstance(value, (list, tuple, dict, set)):
-        return len(value) == 0
-    return False
-
-
-def _ficha_compact_value(value: object) -> str:
-    value = _ce_plain_value(value)
-    if _ce_is_empty_value(value):
-        return "—"
-    if isinstance(value, bool):
-        return "Sim" if value else "Não"
-    if isinstance(value, float):
-        return f"{value:.2f}".rstrip("0").rstrip(".")
-    if isinstance(value, dict):
-        parts = [
-            f"{_ficha_field_label(k)}={_ficha_compact_value(v)}"
-            for k, v in list(value.items())[:4]
-            if not _ce_is_empty_value(v)
-        ]
-        return "; ".join(parts) if parts else f"{len(value)} campo(s)"
-    if isinstance(value, list):
-        if not value:
-            return "0 itens"
-        if all(not isinstance(item, (dict, list)) for item in value):
-            sample = ", ".join(_ficha_compact_value(item) for item in value[:5])
-            return f"{len(value)} item(ns): {sample}"
-        return f"{len(value)} item(ns)"
-    return str(value)
-
-
-def _ficha_semantic_group(key: str) -> str:
-    norm = str(key or "").casefold()
-    if any(token in norm for token in (
-        "compr", "larg", "altura", "height", "width", "area", "espess",
-        "dim", "b_cm", "h_cm", "laje", "slab", "pd_",
-    )):
-        return "DIMENSÕES E NÍVEIS"
-    if any(token in norm for token in (
-        "coord", "bbox", "point", "vert", "position", "anchor", "origem",
-        "offset", "rotation", "angulo",
-    )):
-        return "GEOMETRIA E POSIÇÃO"
-    if any(token in norm for token in (
-        "panel", "painel", "segment", "face", "section", "hole", "abertura",
-        "grade", "sarr", "paraf", "chapa", "pontal", "barrote", "escora",
-        "pillar", "pilar", "obstac",
-    )):
-        return "COMPONENTES E DETALHAMENTO"
-    if any(token in norm for token in (
-        "valid", "confidence", "confi", "status", "source", "score",
-        "complet", "warning", "erro",
-    )):
-        return "VALIDAÇÃO E ORIGEM"
-    return "CONFIGURAÇÃO E PROPRIEDADES"
-
-
-def _structured_ficha_rows(
-    campos: dict,
-    item_id: str,
-    db_cls: str,
-    *,
-    title: str,
-    status: str = "",
-    confidence: float | None = None,
-    source: str = "",
-) -> list:
-    """Converte uma ficha de qualquer robô em seções sem perder estruturas."""
-    campos = campos if isinstance(campos, dict) else {}
-    identity_order = (
-        "nome", "name", "numero", "number", "pavimento", "floor",
-        "classe", "class", "tipo", "type", "subtipo", "side",
-    )
-    identity_keys = set(identity_order)
-    rows = [
-        ("==", title),
-        ("Elemento", item_id or campos.get("nome") or campos.get("name") or "—"),
-        ("Classe", db_cls),
-    ]
-    for key in identity_order:
-        if key in campos and not _ce_is_empty_value(campos[key]):
-            rows.append((_ficha_field_label(key), _ficha_compact_value(campos[key])))
-    if status or source or confidence is not None:
-        rows.append(("==", "VALIDAÇÃO E ORIGEM"))
-        if status:
-            rows.append(("Status", status))
-        if confidence is not None:
-            rows.append(("Confiança", f"{max(0.0, confidence) * 100:.0f}%"))
-        if source:
-            rows.append(("Origem", source))
-
-    grouped: dict[str, list[tuple[str, object]]] = {}
-    for key, value in campos.items():
-        if str(key).startswith("_") or str(key).casefold() in identity_keys:
-            continue
-        grouped.setdefault(_ficha_semantic_group(str(key)), []).append((str(key), value))
-
-    for group in (
-        "DIMENSÕES E NÍVEIS",
-        "GEOMETRIA E POSIÇÃO",
-        "COMPONENTES E DETALHAMENTO",
-        "CONFIGURAÇÃO E PROPRIEDADES",
-        "VALIDAÇÃO E ORIGEM",
-    ):
-        fields = grouped.get(group, [])
-        if not fields:
-            continue
-        rows.append(("==", group))
-        for key, value in fields:
-            label = _ficha_field_label(key)
-            rows.append((label, _ficha_compact_value(value)))
-            if isinstance(value, list) and value and isinstance(value[0], dict):
-                for index, item in enumerate(value[:4], start=1):
-                    rows.append((f"  {label} {index}", _ficha_compact_value(item)))
-            elif isinstance(value, dict):
-                for child_key, child_value in list(value.items())[:8]:
-                    rows.append((
-                        f"  {_ficha_field_label(child_key)}",
-                        _ficha_compact_value(child_value),
-                    ))
-    if len(rows) <= 3:
-        rows.append(("⚠ Ficha", "Sem propriedades disponíveis para este item"))
-    return rows
-
-
-def _n3_structured_ficha_rows(
-    campos: dict,
-    item_id: str,
-    classe: str,
-    *,
-    title_suffix: str = "",
-) -> list:
-    """N3 uses the N4 presentation contract without changing data lineage."""
-    campos = campos if isinstance(campos, dict) else {}
-    meta = campos.get("_sa_meta", {})
-    meta = meta if isinstance(meta, dict) else {}
-    completeness = meta.get("completude_pct")
-    confidence = None
-    if isinstance(completeness, (int, float)):
-        confidence = max(0.0, min(float(completeness) / 100.0, 1.0))
-    source = str(meta.get("source") or "Structural Analyzer / N1")
-    suffix = f" · {title_suffix}" if title_suffix else ""
-    return _structured_ficha_rows(
-        campos,
-        item_id,
-        classe,
-        title=f"FICHA N3 · ROBÔ VIA STRUCTURAL ANALYZER · {classe}{suffix}",
-        status="Ficha Fase-4",
-        confidence=confidence,
-        source=source,
-    )
-
-
 class LevelColumn(QFrame):
     """Coluna de nível (N1/N2/N3): badge + header, viewer, pipeline steps, ficha."""
 
-    COL_W = 540   # largura minima preferida da coluna (pixels)
-    MAIN_VIEWER_MIN_HEIGHT = 156   # 120px * 1.30
-    FICHA_VIEWER_MIN_HEIGHT = 104  # 80px * 1.30
-    SINGLE_VIEWER_SIZES = (683, 618)   # 525/475 * 1.30
-    SINGLE_VIEWER_STRETCH = (21, 19)
-    # No fluxo N2/N4, o recorte humano ocupa 25% menos altura que antes;
-    # o ganho fica com o painel N4/ficha para leitura do robô.
-    COMPARE_OUTER_STRETCH = (20, 68)
-    COMPARE_INNER_STRETCH = (27, 34)   # 21/26 * 1.30
+    COL_W = 540   # largura fixa da coluna (pixels)
 
     def __init__(self, nivel_id: str, titulo: str, bg_color: str,
                  accent: str, descricao: str, mode: str = 'png'):
         super().__init__()
         self.nivel_id = nivel_id
         self._mode    = mode   # 'dxf' ou 'png'
-        self.setMinimumWidth(self.COL_W)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setFixedWidth(self.COL_W)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         self.setStyleSheet(f"""
             QFrame {{
                 background: {Colors.BG_SECONDARY};
@@ -3691,10 +2986,10 @@ class LevelColumn(QFrame):
         lay.setSpacing(4)
 
         # ── Header compacto: [badge+título+desc+atenção] | [pipeline inline] ──
-        # Altura fixa: 50px sem atenção; com atenção usa min/max para caber todo conteúdo
+        # Altura fixa: 50px sem atenção, 100px com atenção (3 linhas nota)
         _HDR_H_NORMAL  = 50
-        _HDR_H_ATT     = 170
-        _HDR_H_ATT_PP  = 195    # +25px para linha Para/Passa
+        _HDR_H_ATT     = 100
+        _HDR_H_ATT_PP  = 120    # +20px para linha Para/Passa
         hdr = QFrame()
         hdr.setFixedHeight(_HDR_H_NORMAL)
         hdr.setStyleSheet(f"background: {bg_color}; border-radius: 4px;")
@@ -3719,7 +3014,7 @@ class LevelColumn(QFrame):
         badge.setFixedHeight(20)
         badge.setAlignment(Qt.AlignCenter)
         badge.setStyleSheet(
-            f"background: {accent}; color: {Surface.DEEP}; font-weight: bold;"
+            f"background: {accent}; color: #000; font-weight: bold;"
             "font-size: 12px; padding: 1px 4px; border-radius: 3px;"
         )
         lbl_titulo = QLabel(titulo)
@@ -3778,16 +3073,6 @@ class LevelColumn(QFrame):
         att_top.addWidget(self._attention_check, 0)
         att_inline_lay.addLayout(att_top)
 
-        # Linha 2: Botão Salvar (Event Sourcing)
-        self._btn_save_sa = QPushButton("💾 Salvar Alterações")
-        self._btn_save_sa.setToolTip("Salva as edições atuais da ficha e gera log de aprendizado")
-        self._btn_save_sa.setStyleSheet(
-            f"background-color: {Colors.ACCENT_SUCCESS}; color: white; "
-            f"border: none; border-radius: 3px; font-weight: bold; font-size: 10px; padding: 4px;"
-        )
-        self._btn_save_sa.clicked.connect(self._on_save_sa_clicked)
-        att_inline_lay.addWidget(self._btn_save_sa)
-
         # Linha 2: campo de nota compacto (3 linhas, scroll, max 3000 chars)
         self._attention_text = QTextEdit()
         self._attention_text.setFixedHeight(46)   # ~3 linhas de 9px
@@ -3802,7 +3087,7 @@ class LevelColumn(QFrame):
         )
         att_inline_lay.addWidget(self._attention_text)
 
-        # Linha 3: Para/Passa (N2 em PIL/LAJ/LV; N4 sincronizado em PIL/LV)
+        # Linha 3: Para/Passa (exibido apenas para PIL e LAJ em N2)
         self._para_passa_row = QWidget()
         self._para_passa_row.setVisible(False)
         self._para_passa_row.setStyleSheet("background: transparent;")
@@ -3820,7 +3105,7 @@ class LevelColumn(QFrame):
             _btn.setStyleSheet(
                 f"QPushButton {{ background: {Colors.BG_DEEP}; color: {Colors.TEXT_SECONDARY}; "
                 f"border: 1px solid {accent}55; border-radius: 3px; font-size: 9px; padding: 1px 6px; }}"
-                f"QPushButton:checked {{ background: {accent}; color: {Surface.DEEP}; font-weight: bold; }}"
+                f"QPushButton:checked {{ background: {accent}; color: #000; font-weight: bold; }}"
                 f"QPushButton:hover {{ background: {accent}33; }}"
             )
             _btn.clicked.connect(lambda checked, t=_tipo: self._on_para_passa_clicked(t))
@@ -3865,7 +3150,7 @@ class LevelColumn(QFrame):
             self.img_widget: DXFVectorView | ZoomableImageLabel = DXFVectorView(bg=Colors.BG_DEEP)
         else:
             self.img_widget = ZoomableImageLabel(bg=Colors.BG_DEEP)
-        self.img_widget.setMinimumHeight(self.MAIN_VIEWER_MIN_HEIGHT)
+        self.img_widget.setMinimumHeight(160)
         self.img_widget.setStyleSheet(border_style)
         splitter_vf.addWidget(self.img_widget)
 
@@ -3902,7 +3187,7 @@ class LevelColumn(QFrame):
         self._ficha_accent = accent
         ficha_scroll = QScrollArea()
         ficha_scroll.setWidgetResizable(True)
-        ficha_scroll.setMinimumHeight(self.FICHA_VIEWER_MIN_HEIGHT)
+        ficha_scroll.setMinimumHeight(80)
         ficha_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         ficha_scroll.setStyleSheet(f"""
             QScrollArea {{ background: transparent; border: none; }}
@@ -3920,9 +3205,9 @@ class LevelColumn(QFrame):
         bottom_lay.addWidget(ficha_scroll, 1)
 
         splitter_vf.addWidget(bottom_w)
-        splitter_vf.setSizes(list(self.SINGLE_VIEWER_SIZES))
-        splitter_vf.setStretchFactor(0, self.SINGLE_VIEWER_STRETCH[0])
-        splitter_vf.setStretchFactor(1, self.SINGLE_VIEWER_STRETCH[1])
+        splitter_vf.setSizes([700, 300])  # 70% viewer / 30% ficha
+        splitter_vf.setStretchFactor(0, 7)
+        splitter_vf.setStretchFactor(1, 3)
         self._splitter_vf = splitter_vf
         self._last_loaded_dxf: str = ""   # rastreia último DXF carregado na coluna
         lay.addWidget(splitter_vf, 1)
@@ -4042,18 +3327,6 @@ class LevelColumn(QFrame):
             return
         self._human_validation_callback(bool(self._human_validation_check.isChecked()))
 
-    def _on_save_sa_clicked(self):
-        if self._attention_callback:
-            self._attention_save_timer.stop()
-            self._attention_dirty = False
-            self._attention_callback(
-                bool(self._attention_check.isChecked()),
-                self._attention_text.toPlainText(),
-            )
-        self._btn_save_sa.setText("✅ Salvo!")
-        from PySide6.QtCore import QTimer
-        QTimer.singleShot(2000, lambda: self._btn_save_sa.setText("💾 Salvar Alterações"))
-
     def _flush_attention_pending(self):
         if self._attention_loading or not self._attention_callback or not self._attention_dirty:
             return
@@ -4110,8 +3383,8 @@ class LevelColumn(QFrame):
                    f"padding: 0 8px; min-width: 140px; max-width: 180px;")
         _VAL_SS = (f"color: {Colors.TEXT_PRIMARY}; font-size: 11px; "
                    f"padding: 0 6px; border: none; background: transparent;")
-        _WARN_SS = (f"color: {Contextual.GOLD}; font-size: 10px; padding: 2px 8px; "
-                    f"background: rgba(230,180,0,0.08);")
+        _WARN_SS = (f"color: #f59e0b; font-size: 10px; padding: 2px 8px; "
+                    f"background: rgba(245,158,11,0.08);")
 
         row_idx = 0
         for label, value in rows:
@@ -4163,25 +3436,14 @@ class LevelColumn(QFrame):
 
         self._ficha_vlay.addStretch()
 
-    def set_lv_ficha(self, er_ficha: dict, accent: str = Semantic.SUCCESS):
+    def set_lv_ficha(self, er_ficha: dict, accent: str = "#4caf50"):
         """Layout estruturado LV (seções + segmentos) na área de ficha (30% inferior).
         Mantém viewer DXF visível no topo (70%) — NÃO esconde _splitter_vf.
-          - Topo da ficha: painel executivo (H1/H2, modos, continuidade, sarrafos)
-            — campos que saíram do SA e vivem no N3 junto ao Modo visual
           - Esquerda: seções transversais numeradas (scroll cards)
           - Direita: segmentos por face (tabela rica 7 colunas)
         """
         self._restore_lv_ficha()   # limpa anterior se houver
         self._clear_ficha_vlay()   # limpa ficha genérica anterior
-
-        # Painel executivo LV (N3) — alturas/modos/sarrafos (não ficam mais no SA)
-        panel_cfg = LvN3PanelConfigWidget(er_ficha or {}, accent, self)
-        panel_cfg.config_changed.connect(
-            lambda payload, ficha=er_ficha if isinstance(er_ficha, dict) else {}:
-                ficha.update(payload) if isinstance(ficha, dict) else None
-        )
-        self._ficha_vlay.addWidget(panel_cfg)
-        self._lv_panel_cfg = panel_cfg
 
         splitter = QSplitter(Qt.Horizontal)
         splitter.setHandleWidth(3)
@@ -4208,58 +3470,7 @@ class LevelColumn(QFrame):
             w.setParent(None)
             w.deleteLater()
             self._lv_ficha_splitter = None
-        cfg = getattr(self, '_lv_panel_cfg', None)
-        if cfg is not None:
-            try:
-                cfg.setParent(None)
-                cfg.deleteLater()
-            except Exception:
-                pass
-            self._lv_panel_cfg = None
         self._splitter_vf.setVisible(True)  # garante visibilidade (idempotente)
-
-    def _clear_segment_checklist(self):
-        w = getattr(self, '_segment_checklist_widget', None)
-        if w is not None:
-            w.setParent(None)
-            w.deleteLater()
-            self._segment_checklist_widget = None
-
-    def append_segment_checklist(self, entries: list, on_toggle):
-        """Checklist de validação individual por segmento (FV/LV) — adicionado
-        AO FIM da ficha já renderizada (`set_ficha`/`set_lv_ficha`), sem
-        alterar a renderização existente. `entries` = [(label, prefix, idx,
-        checked)]. `on_toggle(prefix, idx, checked)` grava a mudança.
-        Masterplan OBRAS DRIVE Fase 14."""
-        self._clear_segment_checklist()
-        if not entries:
-            return
-        box = QFrame()
-        box.setStyleSheet(
-            f"QFrame {{ background: rgba(255,255,255,4); border: 1px solid "
-            f"{Colors.BORDER_DEFAULT}; border-radius: 4px; margin-top: 6px; }}"
-        )
-        vlay = QVBoxLayout(box)
-        vlay.setContentsMargins(8, 6, 8, 6)
-        vlay.setSpacing(3)
-        title = QLabel("VALIDAÇÃO POR SEGMENTO")
-        title.setStyleSheet(
-            f"color: {self._ficha_accent}; font-size: 10px; font-weight: bold; "
-            "letter-spacing: 0.5px;"
-        )
-        vlay.addWidget(title)
-        for label, prefix, idx, checked in entries:
-            chk = QCheckBox(label)
-            chk.setChecked(bool(checked))
-            chk.setStyleSheet(
-                f"color: {Colors.TEXT_PRIMARY}; font-size: 11px; padding: 2px 0;"
-            )
-            chk.toggled.connect(
-                lambda state, p=prefix, i=idx: on_toggle(p, i, state)
-            )
-            vlay.addWidget(chk)
-        self._ficha_vlay.addWidget(box)
-        self._segment_checklist_widget = box
 
     def set_processing(self, active: bool):
         self.prog.setVisible(active)
@@ -4270,7 +3481,7 @@ class LevelColumn(QFrame):
 
     def switch_to_pil_zones(self, zone_paths: dict, er_ficha: dict,
                              zone_fichas: "dict | None" = None,
-                             accent: str = Contextual.PURPLE):
+                             accent: str = "#a855f7"):
         """Replace viewer+ficha with 3-or-4-panel layout for PIL.
 
         zone_paths:  {'ABCD': Path|None, 'CIMA': Path|None, 'GRADES': Path|None[, 'EFGH': Path|None]}
@@ -4284,24 +3495,7 @@ class LevelColumn(QFrame):
         show_efgh = 'EFGH' in zone_paths
         active_zones = ['CIMA', 'ABCD', 'GRADES'] + (['EFGH'] if show_efgh else [])
 
-        if getattr(self, '_pil_mode', False) and getattr(self, '_pil_splitter', None) is not None:
-            # Já em multi-zona: reutiliza viewers (evita acumular splitters).
-            self._splitter_vf.setVisible(False)
-            self._pil_splitter.setVisible(True)
-        else:
-            # Garante limpeza se um splitter residual ficou órfão.
-            if getattr(self, '_pil_splitter', None) is not None:
-                try:
-                    lay.removeWidget(self._pil_splitter)
-                except Exception:
-                    pass
-                try:
-                    self._pil_splitter.setParent(None)
-                    self._pil_splitter.deleteLater()
-                except Exception:
-                    pass
-                self._pil_splitter = None
-
+        if not getattr(self, '_pil_mode', False):
             self._splitter_vf.setVisible(False)
 
             splitter = QSplitter(Qt.Horizontal)
@@ -4324,10 +3518,8 @@ class LevelColumn(QFrame):
                 pv.addWidget(zone_hdr)
 
                 view = DXFVectorView(bg=Colors.BG_DEEP)
-                # Corte, Face A e Face B têm leitura fina de sarrafos/cotas:
-                # dobrar o espaço vertical mínimo em relação ao layout anterior.
-                view.setMinimumHeight(270)
-                pv.addWidget(view, self.SINGLE_VIEWER_STRETCH[0])
+                view.setMinimumHeight(180)
+                pv.addWidget(view, 1)
 
                 tbl = QTableWidget(0, 2)
                 tbl.setHorizontalHeaderLabels(["Campo", "Valor"])
@@ -4337,38 +3529,29 @@ class LevelColumn(QFrame):
                     1, QHeaderView.Stretch)
                 tbl.verticalHeader().setVisible(False)
                 tbl.setEditTriggers(QTableWidget.NoEditTriggers)
-                tbl.setMinimumHeight(90)
-                tbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                tbl.setFixedHeight(120)
                 tbl.setStyleSheet(self.ficha_table.styleSheet())
-                pv.addWidget(tbl, self.SINGLE_VIEWER_STRETCH[1])
+                pv.addWidget(tbl)
 
                 self._zone_views[zone] = view
                 self._zone_tables[zone] = tbl
                 splitter.addWidget(panel)
 
-            # Inserir splitter PIL após o header (index 1) — ou após o painel
-            # N2 (index 2) se "Comparar N2" já estiver ativo. restore_single_view()
-            # remove o splitter anterior ao trocar de item mas preserva _n2_above;
-            # sem checar isso aqui, a nova montagem sempre voltava pro index 1 e
-            # empurrava o N2 pra baixo do N4 (deveria ficar acima, sempre).
-            insert_idx = 2 if getattr(self, '_n2_above', None) is not None else 1
-            lay.insertWidget(insert_idx, splitter)
+            # Inserir splitter PIL após o header (index 1)
+            lay.insertWidget(1, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
 
         # Load DXFs into viewers
         from pathlib import Path as _Path
-        for zone, view in list((self._zone_views or {}).items()):
+        for zone, view in self._zone_views.items():
             p = zone_paths.get(zone)
             if p and _Path(p).exists():
-                try:
-                    view.load_dxf(str(p), None)
-                except Exception as exc:
-                    view.clear_image(f"Erro {zone}: {exc}")
+                view.load_dxf(str(p), None)
             else:
                 view.clear_image(f"Sem ficha {zone}")
 
-        self._update_pil_zone_fichas(er_ficha or {}, zone_fichas)
+        self._update_pil_zone_fichas(er_ficha, zone_fichas)
 
     def _update_pil_zone_fichas(self, er_ficha: dict, zone_fichas: "dict | None" = None):
         """Populate each zone's mini-ficha table.
@@ -4403,38 +3586,17 @@ class LevelColumn(QFrame):
 
     def switch_to_lv_zones(self, zone_paths: dict, er_ficha: dict,
                             zone_fichas: "dict | None" = None):
-        """Exibe LV em três artefatos independentes: corte, face A e face B.
+        """Replace viewer+ficha with 2-panel layout for LV.
 
         zone_paths: {'Visão Corte': (dxf_path, bbox_or_None),
-                     'Visão A': (dxf_path, bbox_or_None),
-                     'Visão B': (dxf_path, bbox_or_None)}
+                     'Lateral A-B': (dxf_path, bbox_or_None)}
         er_ficha:   full LV ficha dict (campos: h_cm, h_B_cm, b_cm, tipo_viga,
                     segmentos, segmentos_B, laje_sup_cm, laje_inf_cm, ...)
         """
-        ACCENT = Semantic.SUCCESS
-        ZONES = ['Visão Corte', 'Visão A', 'Visão B']
+        ACCENT = "#4caf50"
+        ZONES = ['Visão Corte', 'Lateral A-B']
         lay = self.layout()
         from pathlib import Path as _Path
-
-        def _side_ficha(side: str) -> dict:
-            data = dict(er_ficha or {})
-            units = _lv_canonical_face_units(data)
-            if units:
-                data['face_units'] = [
-                    unit for unit in units
-                    if str(unit.get('side') or '').upper() == side
-                ]
-            elif side == 'A':
-                data['segmentos'] = (
-                    data.get('segmentos') or data.get('panels_A') or []
-                )
-                data['segmentos_B'] = []
-            else:
-                data['segmentos'] = []
-                data['segmentos_B'] = (
-                    data.get('segmentos_B') or data.get('panels_B') or []
-                )
-            return data
 
         if not getattr(self, '_pil_mode', False):
             self._splitter_vf.setVisible(False)
@@ -4460,55 +3622,46 @@ class LevelColumn(QFrame):
                 pv.addWidget(zone_hdr)
 
                 view = DXFVectorView(bg=Colors.BG_DEEP)
-                view.setMinimumHeight(135)  # 180px * 0.75
-                pv.addWidget(view, self.SINGLE_VIEWER_STRETCH[0])
+                view.setMinimumHeight(180)
+                pv.addWidget(view, 1)
 
                 # Ficha estruturada (substituem as antigas tabelas simples)
-                if zone == 'Visão Corte':
-                    ficha_w = _lv_section_widget(er_ficha or {}, ACCENT)
+                if zone == 'Lateral A-B':
+                    ficha_w = _lv_segs_table(er_ficha or {}, ACCENT)
+                    ficha_w.setFixedHeight(160)
                 else:
-                    side = 'A' if zone == 'Visão A' else 'B'
-                    ficha_w = _lv_segs_table(_side_ficha(side), ACCENT)
-                ficha_w.setMinimumHeight(120)
-                ficha_w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-                pv.addWidget(ficha_w, self.SINGLE_VIEWER_STRETCH[1])
+                    ficha_w = _lv_section_widget(er_ficha or {}, ACCENT)
+                    ficha_w.setFixedHeight(160)
+                pv.addWidget(ficha_w)
 
                 self._zone_views[zone]  = view
                 self._zone_fichas[zone] = ficha_w
                 splitter.addWidget(panel)
 
-            # Corte compacto; A e B recebem a mesma largura para comparação.
-            splitter.setSizes([220, 390, 390])
-            # Mesmo ajuste de switch_to_pil_zones: index 2 (após o painel N2)
-            # quando "Comparar N2" já está ativo, senão o N2 acaba abaixo do N4
-            # depois de restore_single_view() + nova montagem ao navegar.
-            insert_idx = 2 if getattr(self, '_n2_above', None) is not None else 1
-            lay.insertWidget(insert_idx, splitter)
+            # Visão Corte ~26%, Lateral A-B ~74%
+            splitter.setSizes([264, 736])
+            lay.insertWidget(1, splitter)
             self._pil_splitter = splitter
             self._pil_mode = True
 
         else:
             # Já em modo LV — atualizar fichas sem recriar o layout
+            if 'Lateral A-B' in self._zone_fichas:
+                old = self._zone_fichas['Lateral A-B']
+                new = _lv_segs_table(er_ficha or {}, ACCENT)
+                new.setFixedHeight(160)
+                old.parent().layout().replaceWidget(old, new)
+                old.setParent(None); old.deleteLater()
+                self._zone_fichas['Lateral A-B'] = new
             if 'Visão Corte' in self._zone_fichas:
                 old = self._zone_fichas['Visão Corte']
                 new = _lv_section_widget(er_ficha or {}, ACCENT)
-                new.setMinimumHeight(120)
-                new.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+                new.setFixedHeight(160)
                 old.parent().layout().replaceWidget(old, new)
                 old.setParent(None); old.deleteLater()
                 self._zone_fichas['Visão Corte'] = new
-            for zone, side in (('Visão A', 'A'), ('Visão B', 'B')):
-                if zone not in self._zone_fichas:
-                    continue
-                old = self._zone_fichas[zone]
-                new = _lv_segs_table(_side_ficha(side), ACCENT)
-                new.setMinimumHeight(120)
-                new.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-                old.parent().layout().replaceWidget(old, new)
-                old.setParent(None); old.deleteLater()
-                self._zone_fichas[zone] = new
 
-        # Cada painel recebe seu próprio DXF; bbox permanece como fallback legado.
+        # ── Carregar DXFs (mesmo arquivo, bboxes diferentes → culling por X) ──
         for zone, view in self._zone_views.items():
             entry = zone_paths.get(zone)
             if entry:
@@ -4531,13 +3684,13 @@ class LevelColumn(QFrame):
             if recorte_path and _Path(str(recorte_path)).exists():
                 if hasattr(self, '_n2_above_hdr') and title:
                     self._n2_above_hdr.setText(title)
-                self._n2_above_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
                 if highlight_points:
                     self._n2_above_view.set_highlight_geometry(highlight_points)
                 elif bbox:
                     self._n2_above_view.set_highlight_bbox(bbox)
                 else:
                     self._n2_above_view.set_highlight_geometry(None)
+                self._n2_above_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
                 self._n2_above.setVisible(True)
                 self._apply_compare_viewer_y_ratio()
             else:
@@ -4549,27 +3702,23 @@ class LevelColumn(QFrame):
         pv = QVBoxLayout(panel)
         pv.setContentsMargins(2, 2, 2, 2)
         pv.setSpacing(2)
-        hdr = QLabel(title or "DXF N2 — Recorte")
+        hdr = QLabel("DXF N2 — Recorte")
         hdr.setAlignment(Qt.AlignCenter)
         hdr.setFixedHeight(18)
         hdr.setStyleSheet(
-            f"color: {Semantic.SUCCESS}; font-weight: bold; font-size: 11px; "
+            "color: #4acf7a; font-weight: bold; font-size: 11px; "
             f"background: {Colors.BG_DEEP}; border-radius: 3px;"
         )
         pv.addWidget(hdr)
         n2_view = DXFVectorView(bg=Colors.BG_DEEP)
-        # N2 é referência contextual no topo do N4; mantém 75% da altura
-        # anterior para liberar 25% ao viewer/ficha do robô abaixo.
-        n2_view.setMinimumHeight(
-            max(1, round(self.img_widget.minimumHeight() * 0.75))
-        )
+        n2_view.setMinimumHeight(self.img_widget.minimumHeight())
         n2_view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         pv.addWidget(n2_view, 1)
-        n2_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
         if highlight_points:
             n2_view.set_highlight_geometry(highlight_points)
         elif bbox:
             n2_view.set_highlight_bbox(bbox)
+        n2_view.load_dxf(str(recorte_path), bbox if cull_to_bbox else None)
         self._n2_above = panel
         self._n2_above_hdr = hdr
         self._n2_above_view = n2_view
@@ -4577,10 +3726,7 @@ class LevelColumn(QFrame):
         self._apply_compare_viewer_y_ratio()
 
     def _apply_compare_viewer_y_ratio(self):
-        """Reduz ambos viewers em 25% e entrega o espaço liberado à ficha.
-
-        Razão anterior: 7:7:3. Razão efetiva nova: 21:21:26.
-        """
+        """Keep compare:viewer:ficha at 7:7:3, matching the column viewer Y ratio."""
         try:
             lay = self.layout()
             compare = getattr(self, '_n2_above', None)
@@ -4589,16 +3735,12 @@ class LevelColumn(QFrame):
             compare_idx = lay.indexOf(compare)
             splitter_idx = lay.indexOf(self._splitter_vf)
             if compare_idx >= 0:
-                lay.setStretch(compare_idx, self.COMPARE_OUTER_STRETCH[0])
+                lay.setStretch(compare_idx, 7)
             if splitter_idx >= 0:
-                lay.setStretch(splitter_idx, self.COMPARE_OUTER_STRETCH[1])
-            self._splitter_vf.setSizes(list(self.COMPARE_INNER_STRETCH))
-            self._splitter_vf.setStretchFactor(
-                0, self.COMPARE_INNER_STRETCH[0]
-            )
-            self._splitter_vf.setStretchFactor(
-                1, self.COMPARE_INNER_STRETCH[1]
-            )
+                lay.setStretch(splitter_idx, 10)
+            self._splitter_vf.setSizes([700, 300])
+            self._splitter_vf.setStretchFactor(0, 7)
+            self._splitter_vf.setStretchFactor(1, 3)
         except Exception:
             pass
 
@@ -4613,35 +3755,15 @@ class LevelColumn(QFrame):
                 splitter_idx = self.layout().indexOf(self._splitter_vf)
                 if splitter_idx >= 0:
                     self.layout().setStretch(splitter_idx, 1)
-                self._splitter_vf.setSizes(list(self.SINGLE_VIEWER_SIZES))
-                self._splitter_vf.setStretchFactor(
-                    0, self.SINGLE_VIEWER_STRETCH[0]
-                )
-                self._splitter_vf.setStretchFactor(
-                    1, self.SINGLE_VIEWER_STRETCH[1]
-                )
+                self._splitter_vf.setSizes([700, 300])
             except Exception:
                 pass
 
     def restore_single_view(self):
-        """Restore column to single-viewer layout (called on item/classe change).
-
-        Remove o splitter multi-zona do layout em vez de só ocultá-lo — senão
-        cada seleção PL acumula splitters e o painel N3 fica em branco.
-        """
+        """Restore N4 column to single-viewer layout (called on item/classe change)."""
         if not getattr(self, '_pil_mode', False):
             return
-        pil_sp = getattr(self, '_pil_splitter', None)
-        if pil_sp is not None:
-            try:
-                self.layout().removeWidget(pil_sp)
-            except Exception:
-                pass
-            pil_sp.setParent(None)
-            pil_sp.deleteLater()
-            self._pil_splitter = None
-        self._zone_views = {}
-        self._zone_tables = {}
+        self._pil_splitter.setVisible(False)
         self._splitter_vf.setVisible(True)
         self._pil_mode = False
 
@@ -4657,17 +3779,12 @@ class DxfVisualConfigDialog(QDialog):
     }
     _COMMON_TEMPLATE_FILE = SCRIPTS_DIR.parent / "config" / "dxf_visual_templates.json"
 
-    def __init__(
-        self, classe: str, script_path: Path, robot_widget=None, parent=None,
-        level: str = "",
-    ):
+    def __init__(self, classe: str, script_path: Path, robot_widget=None, parent=None):
         super().__init__(parent)
         self.classe = str(classe or "").upper()
-        self.level = str(level or "").upper()
         self.script_path = Path(script_path)
         self.robot_widget = robot_widget
-        level_suffix = f" {self.level}" if self.level else ""
-        self.setWindowTitle(f"Configuracao Visual DXF{level_suffix} - {self.classe}")
+        self.setWindowTitle(f"Configuracao Visual DXF - {self.classe}")
         self.resize(980, 720)
         self.setStyleSheet(f"""
             QDialog {{ background:{Colors.BG_PRIMARY}; color:{Colors.TEXT_PRIMARY}; }}
@@ -4681,9 +3798,7 @@ class DxfVisualConfigDialog(QDialog):
         main.setContentsMargins(10, 10, 10, 10)
         main.setSpacing(8)
 
-        hdr = QLabel(
-            f"{self.classe}{level_suffix} - templates do robo + template do motor DXF atual"
-        )
+        hdr = QLabel(f"{self.classe} - templates do robo + template do motor DXF atual")
         hdr.setStyleSheet(f"color:{Colors.ACCENT_BLUE}; font-weight:bold; font-size:13px;")
         main.addWidget(hdr)
 
@@ -4693,8 +3808,6 @@ class DxfVisualConfigDialog(QDialog):
         self.current_template = self._extract_current_motor_template()
         self._persist_current_template_if_supported()
         self._add_native_config_tab()
-        if self.classe == "PL":
-            self._add_pl_grade_positions_tab()
         self._add_current_template_tab()
         self._add_robot_templates_tab()
         self._add_robot_config_tab()
@@ -4943,124 +4056,6 @@ class DxfVisualConfigDialog(QDialog):
         lay.addStretch()
         self.tabs.addTab(tab, "Configs Nativas")
 
-    def _add_pl_grade_positions_tab(self):
-        """Editor dos intervalos horizontais de GRADES, separado por INI/NOVA."""
-        tab = QWidget()
-        lay = QVBoxLayout(tab)
-        lay.setContentsMargins(14, 14, 14, 14)
-        lay.setSpacing(9)
-
-        title = QLabel("GRADES — distâncias entre sarrafos horizontais")
-        title.setStyleSheet(
-            f"color:{Colors.ACCENT_BLUE}; font-weight:bold; font-size:13px;"
-        )
-        lay.addWidget(title)
-
-        info = QLabel(
-            "Configuração compartilhada pelos geradores N3 e N4. "
-            "Cada coluna pertence a um modo visual. A primeira medida vai da "
-            "base da grade ao H1; as demais vão de um horizontal ao seguinte. "
-            "Ao gerar, somente posições que cabem na altura do painel são usadas."
-        )
-        info.setWordWrap(True)
-        info.setStyleSheet(f"color:{Colors.TEXT_SECONDARY}; font-size:11px;")
-        lay.addWidget(info)
-
-        profiles = load_pl_grade_visual_profiles()
-        distances_by_mode = {
-            mode: pl_grade_positions_to_distances(
-                profiles["modos"][mode]["horizontal_positions_cm"]
-            )
-            for mode in PL_GRADE_VISUAL_MODES
-        }
-        row_count = max(len(values) for values in distances_by_mode.values())
-        table = QTableWidget(row_count, 3)
-        table.setHorizontalHeaderLabels(["Trecho", "INI (cm)", "NOVA (cm)"])
-        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        table.verticalHeader().setVisible(False)
-        table.setAlternatingRowColors(True)
-        table.setSelectionMode(QTableWidget.NoSelection)
-
-        self._pl_grade_distance_spins = {mode: [] for mode in PL_GRADE_VISUAL_MODES}
-        for row in range(row_count):
-            start = "Base" if row == 0 else f"H{row}"
-            end = f"H{row + 1}"
-            segment = QTableWidgetItem(f"{start} → {end}")
-            segment.setFlags(segment.flags() & ~Qt.ItemIsEditable)
-            table.setItem(row, 0, segment)
-            for column, mode in enumerate(PL_GRADE_VISUAL_MODES, start=1):
-                spin = QDoubleSpinBox()
-                spin.setDecimals(1)
-                spin.setRange(0.1, 2000.0)
-                spin.setSingleStep(5.0)
-                spin.setSuffix(" cm")
-                values = distances_by_mode[mode]
-                spin.setValue(values[row] if row < len(values) else 100.0)
-                spin.setToolTip(
-                    f"{mode}: distância {start} → {end}, medida entre bordas inferiores"
-                )
-                table.setCellWidget(row, column, spin)
-                self._pl_grade_distance_spins[mode].append(spin)
-        table.resizeRowsToContents()
-        lay.addWidget(table, 1)
-
-        path_label = QLabel(f"Arquivo: {PL_GRADE_VISUAL_CONFIG_PATH}")
-        path_label.setWordWrap(True)
-        path_label.setStyleSheet(f"color:{Colors.TEXT_DIM}; font-size:10px;")
-        lay.addWidget(path_label)
-
-        actions = QHBoxLayout()
-        btn_restore = QPushButton("Restaurar referência do robô")
-        btn_restore.clicked.connect(self._restore_pl_grade_reference)
-        actions.addWidget(btn_restore)
-        actions.addStretch()
-        btn_save = QPushButton("Salvar distâncias INI/NOVA")
-        btn_save.setStyleSheet(
-            f"background:{Colors.ACCENT_BLUE}; color:{Colors.TEXT_BRIGHT}; "
-            "font-weight:bold; padding:5px 12px;"
-        )
-        btn_save.clicked.connect(self._save_pl_grade_positions)
-        actions.addWidget(btn_save)
-        lay.addLayout(actions)
-
-        self.tabs.addTab(tab, "GRADES INI/NOVA")
-
-    def _restore_pl_grade_reference(self):
-        for mode in PL_GRADE_VISUAL_MODES:
-            positions = PL_GRADE_DEFAULT_PROFILES["modos"][mode][
-                "horizontal_positions_cm"
-            ]
-            distances = pl_grade_positions_to_distances(positions)
-            for spin, value in zip(self._pl_grade_distance_spins[mode], distances):
-                spin.setValue(value)
-
-    def _save_pl_grade_positions(self):
-        try:
-            profiles = load_pl_grade_visual_profiles()
-            for mode in PL_GRADE_VISUAL_MODES:
-                distances = [
-                    spin.value() for spin in self._pl_grade_distance_spins[mode]
-                ]
-                profiles["modos"][mode]["horizontal_positions_cm"] = (
-                    pl_grade_distances_to_positions(distances)
-                )
-            saved_path = save_pl_grade_visual_profiles(profiles)
-            QMessageBox.information(
-                self,
-                "Configuração Visual — GRADES",
-                "Distâncias salvas para INI e NOVA.\n\n"
-                "A nova geometria será aplicada na próxima geração N3/N4.\n"
-                f"{saved_path}",
-            )
-        except (TypeError, ValueError, OSError) as exc:
-            QMessageBox.warning(
-                self,
-                "Configuração Visual — GRADES",
-                f"Não foi possível salvar as distâncias:\n{exc}",
-            )
-
     def _load_robot_templates(self) -> dict:
         templates = {}
         cm = self._robot_config_manager()
@@ -5141,13 +4136,12 @@ class NavSidebar(QFrame):
     gerar_n4_requested  = Signal(str, str)
     gerar_n5_requested  = Signal(str, list)
     analise_requested   = Signal()
-    rag_context_requested = Signal(str, str)
     fase4_requested     = Signal()
     classe_changed      = Signal(str)        # emitido ao trocar aba de classe
 
     _CLASSES = [("PL", "Pilares"), ("LV", "L.Viga"), ("FV", "F.Viga"), ("LJ", "Lajes")]
     _CLS_COLORS = {
-        "PL": Accent.INTERACTIVE, "LV": Semantic.SUCCESS, "FV": Semantic.WARNING, "LJ": Semantic.DANGER
+        "PL": "#7ab3e0", "LV": "#4caf50", "FV": "#ff9800", "LJ": "#e91e63"
     }
     _JSON_DIRS = {
         "PL": "Fase-4_Sincronizacao/JSON_Pilares",
@@ -5173,8 +4167,6 @@ class NavSidebar(QFrame):
         self._selected_recorte_path = ""  # recorte_path do item ER selecionado (Qt.UserRole+1)
         self._tab_btns: dict  = {}
         self._lj_filter: "set[str] | None" = None  # stems LJ válidos do DXF atual
-        self._lv_subtab: str  = ""   # "Para" | "Passa" | "" (nenhuma selecionada)
-        self._pil_subtab: str = ""   # "Para" | "Passa" | "" (nenhuma selecionada)
 
         self.setStyleSheet(f"background: {Colors.BG_PANEL}; border-top: 1px solid {Colors.BORDER_DEFAULT};")
 
@@ -5196,8 +4188,8 @@ class NavSidebar(QFrame):
         flow_row.setContentsMargins(0, 0, 0, 0)
 
         _FLOW_SS_ACTIVE = (
-            f"QPushButton {{ background:{_N1_BG}; color:{Text.BRIGHT}; border-radius:3px; "
-            f"font-size:9px; font-weight:bold; border-bottom:2px solid {Accent.INTERACTIVE}; }}"
+            f"QPushButton {{ background:#1b3a6b; color:#fff; border-radius:3px; "
+            f"font-size:9px; font-weight:bold; border-bottom:2px solid {Colors.ACCENT_BLUE}; }}"
         )
         _FLOW_SS_INACTIVE = (
             f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY}; "
@@ -5241,66 +4233,6 @@ class NavSidebar(QFrame):
             tab_row.addWidget(btn)
         lay.addLayout(tab_row)
 
-        # ── Sub-abas LV: Vigas Para / Vigas Passam ────────────────────
-        self._lv_subtab_widget = QWidget()
-        _lv_sub_lay = QHBoxLayout(self._lv_subtab_widget)
-        _lv_sub_lay.setContentsMargins(0, 0, 0, 0)
-        _lv_sub_lay.setSpacing(2)
-        self._lv_ss_para_act  = (f"QPushButton{{background:{Contextual.FOREST};color:{Text.BRIGHT};border-radius:3px;"
-                                 f"font-size:10px;font-weight:bold;border-bottom:2px solid {Semantic.SUCCESS};}}")
-        self._lv_ss_para_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
-                                 f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
-                                 f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
-        self._lv_ss_pass_act  = (f"QPushButton{{background:rgba(160, 112, 255, 0.18);color:{Text.BRIGHT};border-radius:3px;"
-                                 f"font-size:10px;font-weight:bold;border-bottom:2px solid {Contextual.PURPLE};}}")
-        self._lv_ss_pass_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
-                                 f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
-                                 f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
-        self._btn_lv_para = QPushButton("Vigas Para")
-        self._btn_lv_para.setFixedHeight(20)
-        self._btn_lv_para.setCheckable(True)
-        self._btn_lv_para.setStyleSheet(self._lv_ss_para_inac)
-        self._btn_lv_para.clicked.connect(lambda: self._select_lv_subtab("Para"))
-        self._btn_lv_passa = QPushButton("Vigas Passam")
-        self._btn_lv_passa.setFixedHeight(20)
-        self._btn_lv_passa.setCheckable(True)
-        self._btn_lv_passa.setStyleSheet(self._lv_ss_pass_inac)
-        self._btn_lv_passa.clicked.connect(lambda: self._select_lv_subtab("Passa"))
-        _lv_sub_lay.addWidget(self._btn_lv_para)
-        _lv_sub_lay.addWidget(self._btn_lv_passa)
-        self._lv_subtab_widget.setVisible(False)
-        lay.addWidget(self._lv_subtab_widget)
-
-        # ── Sub-abas PIL: Vigas Param / Vigas Passam ──────────────────────
-        self._pil_subtab_widget = QWidget()
-        _pil_sub_lay = QHBoxLayout(self._pil_subtab_widget)
-        _pil_sub_lay.setContentsMargins(0, 0, 0, 0)
-        _pil_sub_lay.setSpacing(2)
-        self._pil_ss_para_act  = (f"QPushButton{{background:{Contextual.FOREST};color:{Text.BRIGHT};border-radius:3px;"
-                                   f"font-size:10px;font-weight:bold;border-bottom:2px solid {Semantic.SUCCESS};}}")
-        self._pil_ss_para_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
-                                   f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
-                                   f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
-        self._pil_ss_pass_act  = (f"QPushButton{{background:rgba(160, 112, 255, 0.18);color:{Text.BRIGHT};border-radius:3px;"
-                                   f"font-size:10px;font-weight:bold;border-bottom:2px solid {Contextual.PURPLE};}}")
-        self._pil_ss_pass_inac = (f"QPushButton{{background:{Colors.BG_CARD};color:{Colors.TEXT_SECONDARY};"
-                                   f"border-radius:3px;font-size:10px;border:1px solid {Colors.BORDER_DEFAULT};}}"
-                                   f"QPushButton:hover{{background:{Colors.BG_PANEL};}}")
-        self._btn_pil_para = QPushButton("Vigas Param")
-        self._btn_pil_para.setFixedHeight(20)
-        self._btn_pil_para.setCheckable(True)
-        self._btn_pil_para.setStyleSheet(self._pil_ss_para_inac)
-        self._btn_pil_para.clicked.connect(lambda: self._select_pil_subtab("Para"))
-        self._btn_pil_passa = QPushButton("Vigas Passam")
-        self._btn_pil_passa.setFixedHeight(20)
-        self._btn_pil_passa.setCheckable(True)
-        self._btn_pil_passa.setStyleSheet(self._pil_ss_pass_inac)
-        self._btn_pil_passa.clicked.connect(lambda: self._select_pil_subtab("Passa"))
-        _pil_sub_lay.addWidget(self._btn_pil_para)
-        _pil_sub_lay.addWidget(self._btn_pil_passa)
-        self._pil_subtab_widget.setVisible(False)
-        lay.addWidget(self._pil_subtab_widget)
-
         # ── Lista de itens (scrollável) ──────────────────────────────
         self.tbl_items = QTableWidget(0, 2)
         self.tbl_items.setHorizontalHeaderLabels(["N1/N3 Estrutural", "N2/N4 Eng. Reversa"])
@@ -5310,8 +4242,6 @@ class NavSidebar(QFrame):
         self.tbl_items.setSelectionBehavior(QTableWidget.SelectItems)
         self.tbl_items.setSelectionMode(QTableWidget.SingleSelection)
         self.tbl_items.setEditTriggers(QTableWidget.NoEditTriggers)
-        self.tbl_items.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.tbl_items.setWordWrap(False)
         self.tbl_items.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.tbl_items.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.tbl_items.setStyleSheet(f"""
@@ -5372,28 +4302,28 @@ class NavSidebar(QFrame):
         # ── Botões individuais N1 / N2 / N3 / N4 ────────────────────
         n_row1 = QHBoxLayout()
         n_row1.setSpacing(3)
-        self.btn_gerar_n1 = _mbtn("▶ N1", _N1_BG, _N1_HOV)
+        self.btn_gerar_n1 = _mbtn("▶ N1", "#1b3a6b", "#2a5ab0")
         self.btn_gerar_n1.setEnabled(False)
         self.btn_gerar_n1.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n1.setToolTip("Gerar N1+N3: estrutural + robot SA (lista 1)")
         self.btn_gerar_n1.clicked.connect(self._on_gerar_n1_clicked)
         n_row1.addWidget(self.btn_gerar_n1)
 
-        self.btn_gerar_n2 = _mbtn("▶ N2", _N2_BG, _N2_HOV)
+        self.btn_gerar_n2 = _mbtn("▶ N2", "#1a4a2a", "#2a7a4a")
         self.btn_gerar_n2.setEnabled(False)
         self.btn_gerar_n2.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n2.setToolTip("Gerar N2+N4: recorte ER + robot ER (lista 2)")
         self.btn_gerar_n2.clicked.connect(self._on_gerar_n2_clicked)
         n_row1.addWidget(self.btn_gerar_n2)
 
-        self.btn_gerar_n3 = _mbtn("▶ N3", _N3_BG, _N3_HOV)
+        self.btn_gerar_n3 = _mbtn("▶ N3", "#4a2a1a", "#8a4a2a")
         self.btn_gerar_n3.setEnabled(False)
         self.btn_gerar_n3.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n3.setToolTip("Gerar N3: robot DXF via ficha SA")
         self.btn_gerar_n3.clicked.connect(self._on_gerar_n3_clicked)
         n_row1.addWidget(self.btn_gerar_n3)
 
-        self.btn_gerar_n4 = _mbtn("▶ N4", _N4_BG, _N4_HOV)
+        self.btn_gerar_n4 = _mbtn("▶ N4", "#2d1a47", "#5a2a8a")
         self.btn_gerar_n4.setEnabled(False)
         self.btn_gerar_n4.setVisible(False)   # dinâmico — funcionalidade mantida
         self.btn_gerar_n4.setToolTip("Gerar N4: robot DXF via ficha ER (lista 2)")
@@ -5401,26 +4331,11 @@ class NavSidebar(QFrame):
         n_row1.addWidget(self.btn_gerar_n4)
         lay.addLayout(n_row1)
 
-        self.btn_gerar_n5 = _mbtn("▶ N5 Montagem", _N5_BG, _N5_HOV)
-        self.btn_gerar_n5.setToolTip("N5: montar 1 DXF consolidado dos N3 da classe atual")
+        self.btn_gerar_n5 = _mbtn("▶ N5 Montagem", "#263238", "#006978")
+        self.btn_gerar_n5.setToolTip("N5: montar 1 DXF consolidado dos N3 da classe atual (LJ/FV)")
         self.btn_gerar_n5.clicked.connect(self._on_gerar_n5_clicked)
         self.btn_gerar_n5.setVisible(False)   # N5 auto-dispara ao selecionar a aba N5
         lay.addWidget(self.btn_gerar_n5)
-
-        # Masterplan OBRAS DRIVE: validação N1+N3 (item completo) por classe
-        # — só PULL (portal → app, ver `puxar_validacoes_n1n3`). Este botão é
-        # um flag LOCAL (lembrete do dono) — nunca escreve no portal, pra não
-        # arriscar sobrescrever a validação real da equipe (etapa 5 lá, que
-        # gateia a liberação do N5) com um clique/teste feito aqui.
-        self.btn_validar_n1n3 = QPushButton("☐ Validar N1+N3 (classe)")
-        self.btn_validar_n1n3.setCheckable(True)
-        self.btn_validar_n1n3.setStyleSheet(f"""
-            QPushButton {{ text-align: left; padding: 4px 8px; border-radius: 4px;
-                background: transparent; color: {Colors.TEXT_SECONDARY}; font-size: 10px; }}
-            QPushButton:checked {{ background: {Colors.ACCENT_SUCCESS}; color: white; font-weight: bold; }}
-        """)
-        self.btn_validar_n1n3.toggled.connect(self._on_validar_n1n3_toggled)
-        lay.addWidget(self.btn_validar_n1n3)
 
         crop_row = QHBoxLayout()
         crop_row.setSpacing(3)
@@ -5430,7 +4345,7 @@ class NavSidebar(QFrame):
         self.btn_process.clicked.connect(self._on_process_clicked)
         crop_row.addWidget(self.btn_process)
 
-        self.btn_process_all = _mbtn("⚡ Gerar todos N1,2,3", _N4_BG, _N4_HOV)
+        self.btn_process_all = _mbtn("⚡ Gerar todos N1,2,3", "#4a2a7a", "#6a3a9a")
         self.btn_process_all.setToolTip("Processa N1 → N2 → N3 para o item selecionado")
         self.btn_process_all.clicked.connect(self._on_process_all_clicked)
         self.btn_process_all.setVisible(False)   # funcionalidade mantida, botão oculto
@@ -5443,37 +4358,12 @@ class NavSidebar(QFrame):
 
         self.btn_analise = _mbtn("▶ Análise Geral", Colors.ACCENT_SUCCESS, "rgba(67, 160, 71, 1)")
         self.btn_analise.setToolTip("Processa o DXF estrutural N1 e preenche a lista de itens")
-        self.btn_analise.clicked.connect(lambda: getattr(self, "analise_requested", None).emit() if hasattr(self, "analise_requested") else None)
-        self.btn_analise.setVisible(False)
+        self.btn_analise.clicked.connect(lambda: self.analise_requested.emit())
         lay.addWidget(self.btn_analise)
-
-        self.btn_certify = QPushButton("✅ Certificar Obra")
-        self.btn_certify.setObjectName("certify")
-        self.btn_certify.setEnabled(False)
-        self.btn_certify.setStyleSheet(f'''
-            QPushButton#certify {{
-                background: {Colors.ACCENT_SUCCESS};
-                color: {Colors.BG_DEEP};
-                border-radius: 4px;
-                padding: 4px;
-                font-weight: bold;
-            }}
-            QPushButton#certify:disabled {{
-                background: {Colors.BG_CARD};
-                color: {Colors.TEXT_DIM};
-            }}
-        ''')
-        lay.addWidget(self.btn_certify)
-
-        self.btn_rag_context = _mbtn("Consultar RAG", Colors.BG_CARD, Colors.BG_PANEL)
-        self.btn_rag_context.setToolTip("Consulta read-only do RAG global. Usa apenas T1/T2 e regras semanticas; nao escreve nem autocompleta.")
-        self.btn_rag_context.clicked.connect(self._on_rag_context_clicked)
-        lay.addWidget(self.btn_rag_context)
 
         self.btn_fase4 = _mbtn("⚙ Fase 4 — Sync", Colors.ACCENT_WARNING, "rgba(245, 124, 0, 1)")
         self.btn_fase4.setToolTip("Executa motor_fase4.py para o pavimento selecionado")
-        self.btn_fase4.clicked.connect(lambda: getattr(self, "fase4_requested", None).emit() if hasattr(self, "fase4_requested") else None)
-        self.btn_fase4.setVisible(False)
+        self.btn_fase4.clicked.connect(lambda: self.fase4_requested.emit())
         lay.addWidget(self.btn_fase4)
 
         self.lbl_status = QLabel("")
@@ -5489,17 +4379,16 @@ class NavSidebar(QFrame):
     # ── Classe selecionada ───────────────────────────────────────────
     def _select_class(self, cls: str):
         self._current_classe = cls
-        self.btn_gerar_n5.setEnabled(cls in ("LJ", "PL", "LV", "FV"))
-        self._refresh_validar_n1n3_estado()
+        self.btn_gerar_n5.setEnabled(cls in ("LJ", "FV"))
         color = self._CLS_COLORS.get(cls, Colors.ACCENT_BLUE)
         for c, btn in self._tab_btns.items():
             active = (c == cls)
             btn.setChecked(active)
             if active:
                 btn.setStyleSheet(f"""
-                    QPushButton {{ background:{color}; color:{Text.BRIGHT};
+                    QPushButton {{ background:{color}; color:#fff;
                         border-radius:3px; font-size:10px; font-weight:bold;
-                        border-bottom: 2px solid {Text.BRIGHT}; }}
+                        border-bottom: 2px solid white; }}
                 """)
             else:
                 btn.setStyleSheet(f"""
@@ -5507,94 +4396,11 @@ class NavSidebar(QFrame):
                         border-radius:3px; font-size:10px; border:1px solid {Colors.BORDER_DEFAULT}; }}
                     QPushButton:hover {{ background:{Colors.BG_PANEL}; }}
                 """)
-        # Sub-abas LV: mostrar apenas quando LV ativo
-        self._lv_subtab_widget.setVisible(cls == "LV")
-        # Sub-abas PIL: mostrar apenas quando PIL ativo
-        self._pil_subtab_widget.setVisible(cls == "PL")
-        if cls in ("LV", "PL"):
-            # Resetar sub-aba e mostrar placeholder — não carregar ainda
-            if cls == "LV":
-                self._lv_subtab = ""
-                self._btn_lv_para.setChecked(False)
-                self._btn_lv_passa.setChecked(False)
-                self._btn_lv_para.setStyleSheet(self._lv_ss_para_inac)
-                self._btn_lv_passa.setStyleSheet(self._lv_ss_pass_inac)
-                ph_txt = "↑ Selecione Vigas Para ou Vigas Passam"
-            else:  # PL
-                self._pil_subtab = ""
-                self._btn_pil_para.setChecked(False)
-                self._btn_pil_passa.setChecked(False)
-                self._btn_pil_para.setStyleSheet(self._pil_ss_para_inac)
-                self._btn_pil_passa.setStyleSheet(self._pil_ss_pass_inac)
-                ph_txt = "↑ Selecione Vigas Param ou Vigas Passam"
-            self.tbl_items.blockSignals(True)
-            self.tbl_items.clearSelection()
-            self.tbl_items.setRowCount(1)
-            _ph = QTableWidgetItem(ph_txt)
-            _ph.setFlags(_ph.flags() & ~Qt.ItemIsSelectable)
-            _ph.setForeground(QColor(Colors.TEXT_DIM))
-            _ph2 = QTableWidgetItem("")
-            _ph2.setFlags(_ph2.flags() & ~Qt.ItemIsSelectable)
-            self.tbl_items.setItem(0, 0, _ph)
-            self.tbl_items.setItem(0, 1, _ph2)
-            self.tbl_items.blockSignals(False)
-            self._disable_all_btns()
-            self.classe_changed.emit(cls)
-            return
         self._populate_list(cls)
         self.classe_changed.emit(cls)   # emit APÓS populate — garante ids disponíveis
 
-    # ── Masterplan OBRAS DRIVE Fase 3: validação N1+N3 por classe ────
-    def _refresh_validar_n1n3_estado(self):
-        """Reflete no botão o estado salvo localmente pra (obra, classe) atual."""
-        try:
-            from src.core.database import DatabaseManager
-            db = DatabaseManager(db_path="D:/Agente-cad-PYSIDE/project_data.vision")
-            estado = db.obter_validacao_n1n3(self._current_obra, self._current_classe)
-            validado = bool(estado["n1_ok"] and estado["n3_ok"])
-        except Exception:
-            validado = False
-        self.btn_validar_n1n3.blockSignals(True)
-        self.btn_validar_n1n3.setChecked(validado)
-        self.btn_validar_n1n3.setText("☑ Validar N1+N3 (classe)" if validado else "☐ Validar N1+N3 (classe)")
-        self.btn_validar_n1n3.blockSignals(False)
-
-    def _on_validar_n1n3_toggled(self, checked: bool):
-        self.btn_validar_n1n3.setText("☑ Validar N1+N3 (classe)" if checked else "☐ Validar N1+N3 (classe)")
-        try:
-            from src.core.database import DatabaseManager
-            db = DatabaseManager(db_path="D:/Agente-cad-PYSIDE/project_data.vision")
-            db.set_validacao_n1n3(self._current_obra, self._current_classe, checked, checked)
-        except Exception as e:
-            _ce_log(f"[CE] Falha ao salvar validação N1+N3: {e}")
-
-    # ── Sub-aba LV selecionada (Para / Passa) ────────────────────────
-    def _select_lv_subtab(self, pp: str):
-        self._lv_subtab = pp
-        is_para = (pp == "Para")
-        self._btn_lv_para.setChecked(is_para)
-        self._btn_lv_passa.setChecked(not is_para)
-        self._btn_lv_para.setStyleSheet(self._lv_ss_para_act if is_para else self._lv_ss_para_inac)
-        self._btn_lv_passa.setStyleSheet(self._lv_ss_pass_inac if is_para else self._lv_ss_pass_act)
-        self._populate_list("LV")
-
-    # ── Sub-aba PIL selecionada (Para / Passa) ────────────────────────
-    def _select_pil_subtab(self, pp: str):
-        self._pil_subtab = pp
-        is_para = (pp == "Para")
-        self._btn_pil_para.setChecked(is_para)
-        self._btn_pil_passa.setChecked(not is_para)
-        self._btn_pil_para.setStyleSheet(self._pil_ss_para_act if is_para else self._pil_ss_para_inac)
-        self._btn_pil_passa.setStyleSheet(self._pil_ss_pass_inac if is_para else self._pil_ss_pass_act)
-        self._populate_list("PL")
-
     # ── Popula lista a partir do JSON dir da obra ─────────────────────
     def _populate_list(self, cls: str):
-        # LV e PL requerem que uma sub-aba esteja selecionada antes de popular
-        if cls == "LV" and not self._lv_subtab:
-            return
-        if cls == "PL" and not self._pil_subtab:
-            return
         self._populate_aligned_items(cls)
         return
 
@@ -5699,15 +4505,42 @@ class NavSidebar(QFrame):
         for iid in item_ids:
             n3_ok = (prev_dir / f"{prefix}{iid}.dxf").exists()
             if cls == "LV":
-                base = _lv_base_from_stem(str(iid))
+                base = self._lv_base_from_stem(str(iid))
                 pp = load_para_passa(obra_name, pav_key, "LV", base)
-                display = _lv_stem_to_display(str(iid), pp)
+                display = self._lv_stem_to_display(str(iid), pp)
             else:
                 display = str(iid)
             it = QListWidgetItem(display)
             it.setData(Qt.UserRole, (cls, iid))
             it.setForeground(QColor(Colors.TEXT_PRIMARY))
             self.lst.addItem(it)
+
+    @staticmethod
+    def _lv_stem_to_display(stem: str, para_passa: str = "") -> str:
+        """Transforma stem de JSON LV em nome padronizado com traços.
+
+        "V10_A" → "LV-V10.A", "V10_A" + "para" → "LV-V10.A-Para"
+        """
+        import re as _re
+        m = _re.match(r'^(V\d+[A-Z]?)_([AB])$', stem, _re.IGNORECASE)
+        if m:
+            base, face = m.group(1).upper(), m.group(2).upper()
+            display = f"LV-{base}.{face}"
+        else:
+            display = f"LV-{stem}" if not stem.startswith("LV-") else stem
+        if para_passa in ("para", "passa"):
+            display = f"{display}-{para_passa.capitalize()}"
+        return display
+
+    @staticmethod
+    def _lv_base_from_stem(stem: str) -> str:
+        """Extrai o ID base da viga (sem face) de um stem de JSON LV.
+
+        "V10_A" → "V10", "V10_B" → "V10"
+        """
+        import re as _re
+        m = _re.match(r'^(V\d+[A-Z]?)_[AB]$', stem, _re.IGNORECASE)
+        return m.group(1).upper() if m else stem
 
     @staticmethod
     def _item_sort_key(value: str):
@@ -5739,19 +4572,14 @@ class NavSidebar(QFrame):
         add(raw)
         add(raw.replace(".C", ""))
         if cls == "LV":
-            # Strip prefixes/suffixes: "LV-V10.A-Para", "V10_A_Para" → core aliases
-            clean = _re.sub(r"^LV-", "", raw)                           # "V10.A-PARA" / "V10_A_PARA"
-            clean = _re.sub(r"-(PARA|PASSA)$", "", clean)               # strip -PARA/-PASSA
-            clean = _re.sub(r"_(PARA|PASSA)$", "", clean)               # strip _Para/_Passa
+            # Strip prefixes/suffixes: "LV-V10.A-Para" → "V10_A", "V10.A", "V10"
+            clean = _re.sub(r"^LV-", "", raw)                          # "V10.A-PARA"
+            clean = _re.sub(r"-(PARA|PASSA)$", "", clean)               # "V10.A"
             add(clean)
-            add(clean.replace(".", "_"))                                  # "V10_A"
-            add(clean.replace("_", "."))                                  # "V10.A"
-            base_no_face = _re.sub(r"[_\.][AB]$", "", clean)            # "V10"
-            add(base_no_face)
+            add(clean.replace(".", "_"))                                 # "V10_A"
+            add(clean.replace("_", "."))                                 # "V10.A"
+            add(_re.sub(r"[_\.][AB]$", "", clean))                      # "V10"
             add(_re.sub(r"_[AB]$", "", raw))
-            # Aliases Para/Passa para correspondência com recortes futuros
-            for sfx in ("-PARA", "-PASSA", "_PARA", "_PASSA"):
-                add(base_no_face + sfx)
         if cls == "FV":
             add(_re.sub(r"(?:\.C)+$", "", raw))
             add(raw if raw.endswith(".C") else f"{raw}.C")
@@ -5802,62 +4630,24 @@ class NavSidebar(QFrame):
         if not item_ids and cls == "LV":
             item_ids = VIGAS_LV_LIST
 
-        import re as _re
         obra_name = self._current_obra_dir.name if self._current_obra_dir is not None else ""
         pav_key = self._current_pav or ""
         rows: dict[str, dict] = {}
-        _lv_seen_bases: set[str] = set()
         for iid in item_ids:
-            # verifica DXF N3 existente (sem face e sem Para/Passa no nome)
-            base_stem = _re.sub(r'[_\.][AB]$', '', str(iid))
-            n3_ok = ((prev_dir / f"{prefix}{iid}.dxf").exists() or
-                     (prev_dir / f"{prefix}{base_stem}.dxf").exists())
+            n3_ok = (prev_dir / f"{prefix}{iid}.dxf").exists()
             if cls == "LV":
-                base = _re.sub(r'[_\.]([AB])', '', str(iid), flags=_re.IGNORECASE)
-                if base in _lv_seen_bases:
-                    continue
-                _lv_seen_bases.add(base)
-                n3_ok_base = (prev_dir / f"{prefix}{base}.dxf").exists()
-                for pp in ("para", "passa"):
-                    virt_id = f"{base}_{pp.capitalize()}"
-                    rows[virt_id] = {
-                        "id": virt_id,
-                        "text": f"LV-{base}",
-                        "source": "estrutural",
-                        "recorte_path": "",
-                        "ok": n3_ok_base,
-                        "base_stem": base,
-                    }
-            elif cls == "PL":
-                # Cada pilar PIL gera DUAS instâncias: Para (Vigas Param) e Passa (Vigas Passam)
-                for pp in ("para", "passa"):
-                    virt_id = f"{iid}_{pp.capitalize()}"
-                    label = "Param" if pp == "para" else "Passam"
-                    display_text = f"{iid}-Vigas {label}"
-                    # Verde só se o contrato derivado existir (não o N3 canônico).
-                    var_root = prev_dir / "n3_variants" / pp
-                    mode_ok = (
-                        (var_root / f"PL_ABCD_preview_{iid}.dxf").exists()
-                        and (var_root / f"PL_GRADES_preview_{iid}.dxf").exists()
-                        and (var_root / f"{iid}.json").exists()
-                    )
-                    rows[virt_id] = {
-                        "id": virt_id,
-                        "text": display_text,
-                        "source": "estrutural",
-                        "recorte_path": "",
-                        "ok": mode_ok,
-                        "base_stem": str(iid),
-                    }
+                base = self._lv_base_from_stem(str(iid))
+                pp = load_para_passa(obra_name, pav_key, "LV", base)
+                display_text = self._lv_stem_to_display(str(iid), pp)
             else:
                 display_text = str(iid)
-                rows[str(iid)] = {
-                    "id": str(iid),
-                    "text": display_text,
-                    "source": "estrutural",
-                    "recorte_path": "",
-                    "ok": n3_ok,
-                }
+            rows[str(iid)] = {
+                "id": str(iid),
+                "text": display_text,
+                "source": "estrutural",
+                "recorte_path": "",
+                "ok": n3_ok,
+            }
         return rows
 
     def _reverse_item_rows(self, cls: str) -> dict[str, dict]:
@@ -5871,17 +4661,8 @@ class NavSidebar(QFrame):
                 pp = load_para_passa(obra_name, pav_key, "LV", str(elem_id).upper())
                 pp_suffix = f"-{pp.capitalize()}" if pp else ""
                 disp = f"LV-{elem_id}{pp_suffix}"
-            elif cls == "PL":
-                pp = load_para_passa(obra_name, pav_key, "PIL", str(elem_id).upper())
-                if pp == "para":
-                    disp = f"{elem_id}-Vigas Param"
-                elif pp == "passa":
-                    disp = f"{elem_id}-Vigas Passam"
-                else:
-                    disp = str(elem_id)
             else:
                 disp = str(elem_id)
-                pp = ""
             out[str(elem_id)] = {
                 "id": str(elem_id),
                 "text": disp,
@@ -5889,44 +4670,17 @@ class NavSidebar(QFrame):
                 "recorte_path": recorte_path or "",
                 "status": status or "",
                 "conf": float(conf or 0.0),
-                "pp": (pp or "").lower(),  # "para" | "passa" | ""
             }
         return out
-
-    def _refresh_attn_bulk_cache(self) -> None:
-        """Recarrega o cache de notas/validações para (obra, pav) atual.
-
-        PERFORMANCE: _populate_aligned_items() chama _row_has_attention/
-        _row_human_validated por ITEM (até centenas por pavimento) — cada uma
-        batia o SQLite individualmente (era a causa confirmada via
-        freeze_dump.log dos travamentos de vários segundos ao trocar de
-        obra/pavimento). Uma consulta em lote substitui N round-trips por 1.
-        Recarregado a cada chamada de _populate_aligned_items (nunca reusado
-        entre chamadas) para nunca mostrar selo desatualizado depois de uma
-        validação/anotação recém-salva.
-        """
-        obra = self._current_obra_dir.name if self._current_obra_dir is not None else ""
-        pav = self._current_pav or ""
-        try:
-            self._attn_bulk_cache = load_attention_bulk(obra, pav) if obra and pav else {}
-        except Exception:
-            self._attn_bulk_cache = {}
-        try:
-            self._policy_bulk_cache = load_validation_policies_bulk(obra) if obra else ({}, {})
-        except Exception:
-            self._policy_bulk_cache = ({}, {})
 
     def _row_has_attention(self, cls: str, row_data: dict | None) -> bool:
         if not row_data:
             return False
         try:
+            obra = self._current_obra_dir.name if self._current_obra_dir is not None else ""
+            pav = self._current_pav or ""
             scope = "N4" if row_data.get("source") == "reverso" else "N3"
-            entry = getattr(self, "_attn_bulk_cache", {}).get(
-                (str(cls).upper(), str(row_data.get("id", "")), scope)
-            )
-            if entry is None:
-                return False
-            return bool(entry.get("attention") or str(entry.get("note") or "").strip())
+            return has_attention(obra, pav, cls, row_data.get("id", ""), scope)
         except Exception:
             return False
 
@@ -5934,23 +4688,10 @@ class NavSidebar(QFrame):
         if not row_data:
             return False
         try:
-            scope = "N4" if row_data.get("source") == "reverso" else "N3"
-            entry = getattr(self, "_attn_bulk_cache", {}).get(
-                (str(cls).upper(), str(row_data.get("id", "")), scope)
-            )
-            return bool(entry and entry.get("human_validated"))
-        except Exception:
-            return False
-
-    def _row_qa_validated(self, cls: str, row_data: dict | None) -> bool:
-        if not row_data or row_data.get("source") != "reverso":
-            return False
-        try:
+            obra = self._current_obra_dir.name if self._current_obra_dir is not None else ""
             pav = self._current_pav or ""
-            by_pav, by_obra = getattr(self, "_policy_bulk_cache", ({}, {}))
-            return is_qa_agente_validated_bulk(
-                by_pav, by_obra, pav, cls, row_data.get("id", ""), "N4"
-            )
+            scope = "N4" if row_data.get("source") == "reverso" else "N3"
+            return is_human_validated(obra, pav, cls, row_data.get("id", ""), scope)
         except Exception:
             return False
 
@@ -5963,8 +4704,6 @@ class NavSidebar(QFrame):
         text = row_data.get("text") or row_data.get("id") or ""
         if self._row_human_validated(cls, row_data) and "✓" not in text:
             text = f"{text} ✓"
-        if self._row_qa_validated(cls, row_data) and "🟠" not in text:
-            text = f"{text} 🟠"
         if self._row_has_attention(cls, row_data) and "⚠" not in text:
             text = f"{text} ⚠"
         item = QTableWidgetItem(text)
@@ -5973,10 +4712,7 @@ class NavSidebar(QFrame):
         item.setForeground(QColor(Colors.TEXT_PRIMARY))
         if row_data.get("source") == "reverso":
             status = row_data.get("status", "")
-            qa_note = "\nSelo: QA agente (laranja)" if self._row_qa_validated(cls, row_data) else ""
-            item.setToolTip(
-                f"N2/N4: {row_data.get('id')}\nStatus: {status}\nRecorte: {row_data.get('recorte_path', '')}{qa_note}"
-            )
+            item.setToolTip(f"N2/N4: {row_data.get('id')}\nStatus: {status}\nRecorte: {row_data.get('recorte_path', '')}")
         else:
             item.setToolTip(f"N1/N3: {row_data.get('id')}")
         return item
@@ -5984,7 +4720,6 @@ class NavSidebar(QFrame):
     def _populate_aligned_items(self, cls: str):
         prev_item = self._selected_item
         prev_source = self._selected_source
-        self._refresh_attn_bulk_cache()
         self.tbl_items.blockSignals(True)
         try:
             self.tbl_items.clearSelection()
@@ -5994,21 +4729,6 @@ class NavSidebar(QFrame):
 
             structural = self._structural_item_rows(cls)
             reverse = self._reverse_item_rows(cls)
-
-            # Filtrar por sub-aba Para/Passa quando LV ou PL está ativo
-            if cls == "LV" and self._lv_subtab:
-                pp_lower = self._lv_subtab.lower()
-                structural = {k: v for k, v in structural.items()
-                              if k.lower().endswith(f"_{pp_lower}")}
-                reverse = {k: v for k, v in reverse.items()
-                           if not v.get("pp") or v.get("pp") == pp_lower}
-            elif cls == "PL" and self._pil_subtab:
-                pp_lower = self._pil_subtab.lower()
-                structural = {k: v for k, v in structural.items()
-                              if k.lower().endswith(f"_{pp_lower}")}
-                reverse = {k: v for k, v in reverse.items()
-                           if not v.get("pp") or v.get("pp") == pp_lower}
-
             reverse_by_alias: dict[str, dict] = {}
             for rev_id, rev_data in reverse.items():
                 for alias in self._match_aliases(cls, rev_id):
@@ -6056,7 +4776,7 @@ class NavSidebar(QFrame):
 
             self.tbl_items.resizeRowsToContents()
             self.btn_process_all.setEnabled(True)
-            self.btn_gerar_n5.setEnabled(cls in ("LJ", "PL", "LV", "FV"))
+            self.btn_gerar_n5.setEnabled(cls in ("LJ", "FV"))
             self._restore_table_selection(prev_item, prev_source, emit=False)
         finally:
             self.tbl_items.blockSignals(False)
@@ -6093,8 +4813,7 @@ class NavSidebar(QFrame):
 
         obra_name = self._current_obra_dir.name
         row = conn.execute(
-            "SELECT id FROM projects WHERE work_name=? AND pavement_name=? "
-            "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
+            "SELECT id FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
             (obra_name, self._current_pav)
         ).fetchone()
         if row:
@@ -6104,7 +4823,7 @@ class NavSidebar(QFrame):
         if pav_digits:
             row = conn.execute(
                 "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? "
-                "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
+                "ORDER BY updated_at DESC LIMIT 1",
                 (obra_name, f"%{pav_digits}%")
             ).fetchone()
             if row:
@@ -6442,7 +5161,7 @@ class NavSidebar(QFrame):
         for btn in (self.btn_process, self.btn_gerar_n1,
                     self.btn_gerar_n2, self.btn_gerar_n3, self.btn_gerar_n4):
             btn.setEnabled(True)
-        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "PL", "LV", "FV"))
+        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "FV"))
         self.item_selected.emit(classe, item_id)
 
     def _on_process_clicked(self):
@@ -6480,17 +5199,11 @@ class NavSidebar(QFrame):
 
     def _on_gerar_n5_clicked(self):
         cls = self._current_classe
-        if cls not in ("LJ", "PL", "LV", "FV"):
-            self.set_status("Classe sem suporte N5", Colors.TEXT_DIM)
+        if cls not in ("LJ", "FV"):
+            self.set_status("N5 suporta apenas Lajes e Fundos de Viga neste ciclo", Colors.TEXT_DIM)
             return
         self._disable_all_btns()
         self.gerar_n5_requested.emit(cls, self.current_item_ids())
-
-    def _on_rag_context_clicked(self):
-        if self._selected_classe and self._selected_item:
-            self.rag_context_requested.emit(self._selected_classe, self._selected_item)
-        else:
-            self.set_status("Selecione um item antes de consultar o RAG", Colors.TEXT_DIM)
 
     def current_item_ids(self) -> list:
         ids = []
@@ -6515,7 +5228,7 @@ class NavSidebar(QFrame):
             for btn in (self.btn_process, self.btn_gerar_n1,
                         self.btn_gerar_n2, self.btn_gerar_n3, self.btn_gerar_n4):
                 btn.setEnabled(True)
-        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "PL", "LV", "FV"))
+        self.btn_gerar_n5.setEnabled(self._current_classe in ("LJ", "FV"))
         self.btn_process_all.setEnabled(True)
 
     def set_status(self, text: str, color: str = ""):
@@ -6614,7 +5327,7 @@ class TriLevelArea(QWidget):
                 min-width: 80px;
             }}
             QTabBar::tab:selected {{
-                color: {Surface.DEEP};
+                color: #000;
                 border-bottom: none;
             }}
             QTabBar::tab:hover {{
@@ -6625,18 +5338,15 @@ class TriLevelArea(QWidget):
         # Criar LevelColumns (mantém self._columns para compatibilidade total)
         self._columns = []
         _tab_colors = [
-            (_N1_FG, _N1_BG),   # N1 azul
-            (_N2_FG, _N2_BG),   # N2 verde
-            (_N3_FG, _N3_BG),   # N3 laranja
-            (_N4_FG, _N4_BG),   # N4 roxo
-            (_N5_FG, _N5_BG),   # N5 ciano
+            ("#4a9eff", "#1b3a6b"),   # N1 azul
+            ("#4acf7a", "#1a4a2a"),   # N2 verde
+            ("#cf8a4a", "#4a2a1a"),   # N3 laranja
+            ("#a855f7", "#2d1a47"),   # N4 roxo
+            ("#00bcd4", "#263238"),   # N5 ciano
         ]
         for i, (nivel_id, titulo, bg, accent, desc, mode) in enumerate(NIVEL_DEFS):
             col = LevelColumn(nivel_id, titulo, bg, accent, desc, mode)
-            # Nunca usar largura fixa "infinita": isso aumenta o minimumSizeHint
-            # do QTabWidget e cria scroll horizontal gigante no dashboard. A aba
-            # deve ocupar o viewport disponível e encolher junto com o splitter.
-            col.setMinimumWidth(0)
+            col.setFixedWidth(16777215)   # remove largura fixa — ocupa tela cheia
             col.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             self._columns.append(col)
             tab_accent, _ = _tab_colors[i]
@@ -6763,8 +5473,7 @@ class TriLevelArea(QWidget):
         try:
             conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
             row = conn.execute(
-                "SELECT id FROM projects WHERE work_name=? AND pavement_name=? "
-                "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
+                "SELECT id FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
                 (obra_name, self._current_pav)
             ).fetchone()
             if row:
@@ -6775,7 +5484,7 @@ class TriLevelArea(QWidget):
             if pav_digits:
                 row = conn.execute(
                     "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? "
-                    "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
+                    "ORDER BY updated_at DESC LIMIT 1",
                     (obra_name, f"%{pav_digits}%")
                 ).fetchone()
                 if row:
@@ -6797,10 +5506,34 @@ class TriLevelArea(QWidget):
         try:
             conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
             conn.row_factory = _sqlite3.Row
-            # N1 deve vir da interpretação bruta do Structural Analyzer.
-            # ``slab_elements.campos_json`` é saída N3 materializada e pode
-            # conter enriquecimento aprendido de N2/N4; usá-la aqui fecha um
-            # ciclo de vazamento de gabarito e invalida G4/G5.
+            rows_el = conn.execute(
+                "SELECT laje_nome, campos_json, is_validated, updated_at FROM slab_elements "
+                "WHERE project_id=? AND classe='LAJ' "
+                "ORDER BY updated_at DESC",
+                (project_id,)
+            ).fetchall()
+            lajes = {}
+            for row in rows_el:
+                try:
+                    data = _json.loads(row["campos_json"] or "{}")
+                except Exception:
+                    data = {}
+                if not isinstance(data, dict):
+                    continue
+                name = data.get("nome") or row["laje_nome"]
+                if not name:
+                    continue
+                data.setdefault("nome", name)
+                data.setdefault("name", name)
+                data["_ce_n1_source"] = "slab_elements"
+                data["_ce_n1_updated_at"] = row["updated_at"]
+                if row["is_validated"] is not None:
+                    data.setdefault("is_validated", bool(row["is_validated"]))
+                lajes[str(name)] = data
+            if lajes:
+                conn.close()
+                return lajes
+
             rows = conn.execute(
                 "SELECT * FROM slabs WHERE project_id=? ORDER BY "
                 "CAST(COALESCE(NULLIF(id_item, ''), '999999') AS INTEGER), name",
@@ -6867,13 +5600,6 @@ class TriLevelArea(QWidget):
 
     def _get_lj_n1_points(self, item_id: str) -> list:
         lj = self._get_lj_n1_data(item_id)
-        try:
-            from src.core.laje_n1_to_robot_ficha import n1_laje_outline_points
-            outline = n1_laje_outline_points(lj)
-            if outline:
-                return outline
-        except Exception:
-            pass
         points = lj.get("coordenadas") or lj.get("points") or []
         if not points:
             links = (lj.get("links") or {}).get("laje_outline_segs", {})
@@ -6884,95 +5610,6 @@ class TriLevelArea(QWidget):
                         points = pts
                         break
         return points or []
-
-    def _get_n1_highlight_points(self, item_id: str, classe: str) -> list:
-        """Geometria exata a destacar no N1.
-
-        - LJ: contorno da laje
-        - FV: um polígono por segmento de fundo
-        - PL: polígono do pilar (points do SA/DB)
-        - demais: vazio (fallback bbox via _get_n1_bbox_for)
-        """
-        classe_up = str(classe or "").upper()
-        if classe_up == "LJ":
-            return self._get_lj_n1_points(item_id)
-        if classe_up == "FV":
-            return self._get_fv_n1_segments(item_id)
-        if classe_up == "PL":
-            return self._get_pl_n1_points(item_id)
-        return []
-
-    def _get_pl_n1_points(self, item_id: str) -> list:
-        """Polígono do pilar no estrutural (coords reais da planta)."""
-        base = _pil_strip_pp(item_id)
-        # 1) Cache em memória (scan / pilares_fase3 com geometry)
-        for key in (base, item_id, str(base).upper(), str(base).lower()):
-            pd = (getattr(self, "_pilares_fase3", {}) or {}).get(key)
-            if isinstance(pd, dict):
-                pts = pd.get("points") or pd.get("poly") or []
-                if len(pts) >= 3:
-                    return list(pts)
-        # 2) DB SA — pillars.points_json
-        try:
-            import sqlite3 as _sq
-            conn = _sq.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
-            conn.row_factory = _sq.Row
-            cur = conn.cursor()
-            obra = str(getattr(self, "_current_obra", "") or "")
-            pav = str(getattr(self, "_current_pav", "") or "")
-            row = None
-            if obra:
-                # prioriza projeto da obra/pav atual
-                rows = cur.execute(
-                    """
-                    SELECT p.points_json, pr.name AS proj, pr.pavement_name
-                    FROM pillars p
-                    JOIN projects pr ON pr.id = p.project_id
-                    WHERE p.name = ?
-                      AND (pr.work_name = ? OR pr.name LIKE ?)
-                    ORDER BY p.id DESC
-                    LIMIT 20
-                    """,
-                    (base, obra, f"%{obra}%"),
-                ).fetchall()
-                for r in rows:
-                    proj = f"{r['proj'] or ''} {r['pavement_name'] or ''}".upper()
-                    if pav and (
-                        pav.upper() in proj
-                        or "13P" in proj
-                        or "13_PAV" in proj
-                        or "13" in pav.upper() and "13" in proj
-                    ):
-                        row = r
-                        break
-                if row is None and rows:
-                    row = rows[0]
-            if row is None:
-                row = cur.execute(
-                    "SELECT points_json FROM pillars WHERE name=? "
-                    "ORDER BY id DESC LIMIT 1",
-                    (base,),
-                ).fetchone()
-            conn.close()
-            if row and row["points_json"]:
-                import json as _json
-                pts = _json.loads(row["points_json"] or "[]")
-                if isinstance(pts, list) and len(pts) >= 3:
-                    return pts
-        except Exception as exc:
-            _ce_log(f"_get_pl_n1_points error: {exc}")
-        return []
-
-    def _get_lj_n1_anchor(self, item_id: str) -> "tuple[float, float] | None":
-        points = self._get_lj_n1_points(item_id)
-        valid = [
-            (float(point[0]), float(point[1]))
-            for point in points
-            if isinstance(point, (list, tuple)) and len(point) >= 2
-        ]
-        if not valid:
-            return None
-        return min(point[0] for point in valid), min(point[1] for point in valid)
 
     def _start_async_scan(self, obra_dir: Path):
         """Inicia scan do DXF estrutural em QThread background — sem bloquear UI.
@@ -6989,10 +5626,7 @@ class TriLevelArea(QWidget):
             if not hasattr(self, '_retiring_scan_workers'):
                 self._retiring_scan_workers = []
             self._retiring_scan_workers.append(old_sw)
-            # DXFScanWorker.finished = Signal(str): mesmo bug do _retire_aw
-            # (ver comentário lá) — "*_ignored" absorve o arg do sinal pra
-            # w/lst nao serem sobrescritos pelos defaults.
-            def _retire_sw(*_ignored, w=old_sw, lst=self._retiring_scan_workers):
+            def _retire_sw(w=old_sw, lst=self._retiring_scan_workers):
                 try:
                     lst.remove(w)
                 except ValueError:
@@ -7060,17 +5694,13 @@ class TriLevelArea(QWidget):
             from pathlib import Path as _P
             conn = sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
             cur = conn.execute(
-                "SELECT dxf_path FROM projects WHERE work_name=? AND pavement_name=? "
-                "ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
+                "SELECT dxf_path FROM projects WHERE work_name=? AND pavement_name=? LIMIT 1",
                 (obra_name, pav_name))
             row = cur.fetchone()
             conn.close()
             if row and row[0]:
                 p = _P(row[0])
                 if p.exists():
-                    _ce_log(
-                        f"N1 project dxf obra={obra_name} pav={pav_name}: {p.name}"
-                    )
                     return p
         except Exception as e:
             print(f"[CE] _find_n1_project_dxf error: {e}")
@@ -7206,187 +5836,30 @@ class TriLevelArea(QWidget):
                     "FV": "FV_preview_", "LJ": "LJ_preview_"}
         pfx = prefixes.get(classe, f"{classe}_preview_")
         fase6 = obra_dir / "Fase-6_Execucao_CAD"
-        # PIL possui duas projeções N3 derivadas da mesma interpretação SA.
-        # Elas não substituem o DXF canônico; a vista ABCD é o fallback
-        # primário para operações que ainda aceitam apenas um DXF.
-        if classe == "PL":
-            mode = _pil_pp_from_id(item_id)
-            if mode:
-                base = _pil_strip_pp(item_id)
-                variant = (
-                    fase6 / "n3_variants" / mode /
-                    f"PL_ABCD_preview_{base}.dxf"
-                )
-                if variant.exists():
-                    return variant
         # Tenta exatamente primeiro
         p = fase6 / f"{pfx}{item_id}.dxf"
         if p.exists():
             return p
-        # Para LV/FV: strip Para/Passa virtual suffix e depois face
+        # Para LV/FV: strip sufixo de face (_A, _B, .A, .B)
         if classe in ("LV", "FV"):
             import re
-            if classe == "LV":
-                behavior = _lv_pp_from_id(item_id)
-                clean_with_behavior = re.sub(
-                    r'[_\.]([AB])_(Para|Passa)$', r'_\2', item_id,
-                    flags=re.IGNORECASE,
-                )
-                if behavior:
-                    p_behavior = fase6 / f"{pfx}{clean_with_behavior}.dxf"
-                    if p_behavior.exists():
-                        return p_behavior
-            clean = re.sub(r'_(Para|Passa)$', '', item_id)   # "V301_A_Para" → "V301_A"
-            stem = re.sub(r'[_\.]([AB])$', '', clean)         # "V301_A" → "V301"
-            for cand in (clean, stem):
-                p2 = fase6 / f"{pfx}{cand}.dxf"
-                if p2.exists():
-                    return p2
+            stem = re.sub(r'[_\.]([AB])$', '', item_id)
+            p2 = fase6 / f"{pfx}{stem}.dxf"
+            if p2.exists():
+                return p2
         return None
 
-    def _find_n3_pil_mode_zones(
-        self, obra_dir: Path, item_id: str,
-    ) -> tuple[dict, dict]:
-        """Resolve o conjunto CIMA/ABCD/GRADES do modo PIL selecionado.
-
-        CIMA é canônico e único; ABCD/GRADES vêm do contrato derivado PARA
-        ou PASSA publicado pelo SA em Fase-6/n3_variants. Retorna vazio se a
-        variante ainda não foi materializada, para o CE não fingir que está
-        exibindo uma diferença que não existe.
-        """
-        mode = _pil_pp_from_id(item_id)
-        if mode not in ("para", "passa"):
-            return {}, {}
-        base = _pil_strip_pp(item_id)
-        fase6 = obra_dir / "Fase-6_Execucao_CAD"
-        root = fase6 / "n3_variants" / mode
-        paths = {
-            "CIMA": fase6 / f"PL_CIMA_preview_{base}.dxf",
-            "ABCD": root / f"PL_ABCD_preview_{base}.dxf",
-            "GRADES": root / f"PL_GRADES_preview_{base}.dxf",
-        }
-        if not paths["ABCD"].exists() or not paths["GRADES"].exists():
-            return {}, {}
-        payload = {}
-        contract_path = root / f"{base}.json"
-        if contract_path.exists():
-            try:
-                payload = json.loads(contract_path.read_text(encoding="utf-8"))
-            except Exception:
-                payload = {}
-        return {zone: path for zone, path in paths.items() if path.exists()}, payload
-
-    def _materialize_n3_pil_mode_zones(
-        self,
-        obra_dir: Path,
-        item_id: str,
-        visual_mode: str = "NOVA",
-    ) -> tuple[dict, dict]:
-        """Regenera ABCD/GRADES da variante PARA/PASSA com o perfil visual do CE.
-
-        O Comparison Engine carrega sempre o path canônico
-        ``n3_variants/{para|passa}/PL_*_preview_{item}.dxf``. O seletor
-        INI/NOVA não troca o nome do arquivo — reescreve o DXF com o motor
-        (geometria idêntica + ``apply_visual_mode``: MLINE no INI).
-        """
-        mode = _pil_pp_from_id(item_id)
-        if mode not in ("para", "passa"):
-            return {}, {}
-        base = _pil_strip_pp(item_id)
-        fase6 = obra_dir / "Fase-6_Execucao_CAD"
-        root = fase6 / "n3_variants" / mode
-        contract_path = root / f"{base}.json"
-        if not contract_path.exists():
-            return self._find_n3_pil_mode_zones(obra_dir, item_id)
-
-        try:
-            payload = json.loads(contract_path.read_text(encoding="utf-8"))
-        except Exception as exc:
-            _ce_log(f"N3 PIL materialize JSON fail {contract_path}: {exc}")
-            return self._find_n3_pil_mode_zones(obra_dir, item_id)
-
-        visual = str(visual_mode or "NOVA").strip().upper()
-        if visual not in ("NOVA", "INI"):
-            visual = "NOVA"
-
-        try:
-            scripts_dir = Path(SCRIPTS_DIR)
-            if scripts_dir.exists() and str(scripts_dir) not in sys.path:
-                sys.path.insert(0, str(scripts_dir))
-            # Imports irmãos do gerador (visual_modes, pl_abcd_visual_nova, …)
-            from gerar_pl_dxf_stog import setup_doc, generate_pilar_zone
-            from visual_modes import apply_visual_mode, normalize_visual_mode
-
-            visual = normalize_visual_mode(visual)
-            root.mkdir(parents=True, exist_ok=True)
-            wrote: dict[str, Path] = {}
-            for zone in ("abcd", "grades"):
-                doc = setup_doc()
-                count = generate_pilar_zone(
-                    doc.modelspace(), payload, zone, visual_mode=visual,
-                )
-                if count < 0:
-                    continue
-                apply_visual_mode(doc, visual, "PL")
-                out = root / f"PL_{zone.upper()}_preview_{base}.dxf"
-                doc.saveas(str(out))
-                wrote[zone.upper()] = out
-                _ce_log(
-                    f"N3 PIL materialize {base}/{mode}/{zone} "
-                    f"mode={visual} ents={count} → {out.name}"
-                )
-        except Exception as exc:
-            _ce_log(f"N3 PIL materialize fail {item_id}/{mode}/{visual}: {exc}")
-            return self._find_n3_pil_mode_zones(obra_dir, item_id)
-
-        # Paths finais: CIMA canônico + zonas reescritas (ou pré-existentes).
-        paths = {
-            "CIMA": fase6 / f"PL_CIMA_preview_{base}.dxf",
-            "ABCD": wrote.get("ABCD") or (root / f"PL_ABCD_preview_{base}.dxf"),
-            "GRADES": wrote.get("GRADES") or (root / f"PL_GRADES_preview_{base}.dxf"),
-        }
-        if not paths["ABCD"].exists() or not paths["GRADES"].exists():
-            return {}, payload
-        payload = dict(payload)
-        payload["_ce_visual_mode"] = visual
-        return {zone: path for zone, path in paths.items() if path.exists()}, payload
-
     def _get_n1_bbox_for(self, item_id: str, classe: str = "", R: int = 134):
-        """Retorna bbox do item no DXF estrutural.
-
-        PL usa a geometria real do pilar (points SA) com pad generoso de contexto.
-        LJ/FV usam geometria própria. Demais classes: labels escaneados (R=134).
-        """
+        """Retorna bbox do item no DXF estrutural usando labels escaneados.
+        R=134 (era 267/2) e pad=34 (era 67/2) → zoom 6x mais perto que original.
+        Normaliza sufixos de face: V301_A/V301_fundo → V301."""
         import re as _re
-        classe_up = str(classe).upper()
-        if classe_up == "LJ":
+        if str(classe).upper() == "LJ":
             lj_bbox = self._points_bbox(self._get_lj_n1_points(item_id), pad=20.0)
             if lj_bbox:
                 return lj_bbox
-        if classe_up == "PL":
-            pl_pts = self._get_pl_n1_points(item_id)
-            # pad ~6x a maior dimensão do pilar (mín. 180 cm) → contexto real de vizinhos
-            if pl_pts:
-                try:
-                    xs = [float(p[0]) for p in pl_pts]
-                    ys = [float(p[1]) for p in pl_pts]
-                    bw = max(xs) - min(xs)
-                    bh = max(ys) - min(ys)
-                    pad = max(180.0, max(bw, bh) * 6.0)
-                    return (min(xs) - pad, min(ys) - pad, max(xs) + pad, max(ys) + pad)
-                except Exception:
-                    pass
-            # fallback: label com R ampliado
-            label_id = _pil_strip_pp(item_id)
-            pos = self._est_labels.get(label_id) or self._est_labels.get(item_id)
-            if pos:
-                cx, cy = pos
-                R_pl = max(int(R), 400)
-                return (cx - R_pl, cy - R_pl, cx + R_pl, cy + R_pl)
         label_id = _re.sub(r'[_.]([A-Da-d]|fundo)$', '', item_id, flags=_re.I)
-        if classe_up == "PL":
-            label_id = _pil_strip_pp(label_id)
-        fv_bbox = self._get_n1_fv_bbox_from_db(label_id) if classe_up == "FV" else None
+        fv_bbox = self._get_n1_fv_bbox_from_db(label_id) if str(classe).upper() == "FV" else None
         if fv_bbox:
             return fv_bbox
         pos = self._est_labels.get(label_id) or self._est_labels.get(item_id)
@@ -7438,41 +5911,6 @@ class TriLevelArea(QWidget):
         pad = 35.0
         return (min(xs) - pad, min(ys) - pad, max(xs) + pad, max(ys) + pad)
 
-    def _get_fv_n1_segments(self, item_id: str) -> list:
-        """Retorna um polígono (4 cantos) por segmento de fundo, na mesma
-        geometria que o SA gravou em beam_elements — não um único bbox
-        agregando todos os segmentos, que borra vãos entre trechos."""
-        data = self._get_n1_fv_data_from_db(item_id)
-        if not data:
-            return []
-        import re as _re
-
-        name = _re.sub(r'\.C$', '', str(item_id).strip(), flags=_re.I)
-        pos = self._est_labels.get(name) or self._est_labels.get(f"{name}.C") or self._est_labels.get(item_id)
-        if not pos:
-            return []
-        dim_width = float(data.get("h_n1") or data.get("h_espessura") or 0) or 20.0
-        is_horizontal = bool(data.get("is_horizontal", True))
-        segments = []
-        for seg in data.get("segmentos_fundo", []) or []:
-            if not isinstance(seg, dict) or not seg.get("coord"):
-                continue
-            try:
-                c0 = float(seg["coord"][0])
-                c1 = float(seg["coord"][1])
-                ficha = seg.get("ficha") if isinstance(seg.get("ficha"), dict) else {}
-                w = float(ficha.get("largura_total_fundo") or seg.get("dim_width") or dim_width or 20.0)
-                half = max(w / 2.0, 4.0)
-                if is_horizontal:
-                    y0, y1 = float(pos[1]) - half, float(pos[1]) + half
-                    segments.append([(c0, y0), (c1, y0), (c1, y1), (c0, y1)])
-                else:
-                    x0, x1 = float(pos[0]) - half, float(pos[0]) + half
-                    segments.append([(x0, c0), (x1, c0), (x1, c1), (x0, c1)])
-            except Exception:
-                continue
-        return segments
-
     def _get_n1_fv_data_from_db(self, item_id: str) -> dict:
         if not self._current_obra or not self._current_pav or not item_id:
             return {}
@@ -7484,28 +5922,20 @@ class TriLevelArea(QWidget):
         name = _re.sub(r'_fundo$', '', name, flags=_re.I)
         name = _re.sub(r'\.C$', '', name, flags=_re.I)
         candidates = [name, f"{name}.C", f"{name}_fundo"]
-        pav = str(self._current_pav or "")
+        pav_digits = "".join(_re.findall(r"\d+", str(self._current_pav)))
         try:
             conn = _sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
             conn.row_factory = _sqlite3.Row
-            # Nome CAD completo do pavimento deve bater exato — concatenar todos os
-            # dígitos (revisão, ano, código) casava com o projeto errado ou nenhum.
-            proj = conn.execute(
-                "SELECT id FROM projects WHERE work_name=? AND UPPER(TRIM(pavement_name))="
-                "UPPER(TRIM(?)) ORDER BY updated_at DESC, created_at DESC, rowid DESC LIMIT 1",
-                (self._current_obra, pav),
-            ).fetchone()
-            if not proj and pav:
-                from src.core.ficha_utils import canonical_pavimento
-                wanted = canonical_pavimento(pav)
-                for row in conn.execute(
-                    "SELECT id, pavement_name FROM projects WHERE work_name=? "
-                    "ORDER BY updated_at DESC, created_at DESC, rowid DESC",
+            if pav_digits:
+                proj = conn.execute(
+                    "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? LIMIT 1",
+                    (self._current_obra, f"%{pav_digits}%"),
+                ).fetchone()
+            else:
+                proj = conn.execute(
+                    "SELECT id FROM projects WHERE work_name=? LIMIT 1",
                     (self._current_obra,),
-                ).fetchall():
-                    if canonical_pavimento(row["pavement_name"]) == wanted:
-                        proj = row
-                        break
+                ).fetchone()
             if not proj:
                 conn.close()
                 return {}
@@ -7563,16 +5993,14 @@ class TriLevelArea(QWidget):
         # LV: usa KB (NOMENCLATURA labels)
         if not self._kb_ents:
             return None
-        lv_base = _lv_elem_id(item_id)
-        _lv_cands = {lv_base, lv_base.replace('_', '.'),
-                     f'{lv_base}_A', f'{lv_base}.A',
-                     f'{lv_base}_B', f'{lv_base}.B'}
+        # KB usa ponto (V4.A), NavSidebar usa underscore (V4_A) — normalizar
+        kb_id = item_id.replace('_', '.')
         cx = cy = None
         for e in self._kb_ents:
             if e.get('type') not in ('MTEXT', 'TEXT'):
                 continue
             c = (e.get('content', '') or '').replace('\\P', '\n').split('\n')[0].strip()
-            if c in _lv_cands and e.get('layer', '') == 'NOMENCLATURA':
+            if c in (item_id, kb_id) and e.get('layer', '') == 'NOMENCLATURA':
                 ins = e.get('insert', [0, 0])
                 cx, cy = ins[0], ins[1]
                 break
@@ -7607,55 +6035,21 @@ class TriLevelArea(QWidget):
         return (min(all_xs)-pad, min(all_ys)-pad,
                 max(all_xs)+pad, min(cy+180, max(all_ys)+pad))
 
-    def _resolve_lj_recorte_path(self, item_id: str) -> Path | None:
-        """Path canônico do recorte N2 LAJ (âncora Reverse Hub → disco)."""
+    def _get_lj_content_bbox_for(self, item_id: str, pad: float = 45.0):
+        """BBox da área interna LAJ em coordenadas STOG, com folga para cotas."""
         try:
             import re as _re
-            from src.core.n2_anchor import resolve_n2_anchor
+            import sys as _sys
 
-            selected = getattr(self, "_selected_recorte_path", None)
-            if not selected:
-                parent = self
-                for _ in range(8):
-                    parent = getattr(parent, "parent", lambda: None)()
-                    if parent is None:
-                        break
-                    if hasattr(parent, "nav_sidebar"):
-                        selected = getattr(
-                            parent.nav_sidebar, "_selected_recorte_path", ""
-                        )
-                        break
-            if selected and Path(str(selected)).exists():
-                name = Path(str(selected)).name.upper()
-                if item_id.upper() in name.replace(".", "") or "LAJ_" in name:
-                    return Path(str(selected))
-
-            anchor = resolve_n2_anchor(
-                self._current_obra or "",
-                "LAJ",
-                item_id,
-                self._current_pav or "",
-            )
-            if anchor and anchor.get("recorte_path"):
-                cand = Path(anchor["recorte_path"])
-                if cand.exists():
-                    return cand
-
-            recortes_dir = (
-                DADOS_OBRAS_ROOT / self._current_obra
-                / "Fase-2_Triagem" / "recortes_reversos"
-            )
+            recortes_dir = (DADOS_OBRAS_ROOT / self._current_obra /
+                            "Fase-2_Triagem" / "recortes_reversos")
             if not recortes_dir.exists():
                 return None
-            pat_sel = _re.compile(
-                rf"^LAJ_{_re.escape(item_id)}_sel_\d+\.dxf$", _re.I
-            )
-            pat_motor = _re.compile(
-                rf"^LAJ_{_re.escape(item_id)}_motor_\d+\.dxf$", _re.I
-            )
+
+            pat_sel = _re.compile(rf"^LAJ_{_re.escape(item_id)}_sel_\d+\.dxf$", _re.I)
+            pat_motor = _re.compile(rf"^LAJ_{_re.escape(item_id)}_motor_\d+\.dxf$", _re.I)
             sel_candidates: list[Path] = []
             motor_candidates: list[Path] = []
-
             def _suffix_rank(path: Path) -> tuple[int, float]:
                 m = _re.search(r"_(?:motor|sel)_(\d+)$", path.stem, _re.I)
                 num = int(m.group(1)) if m else 0
@@ -7664,333 +6058,42 @@ class TriLevelArea(QWidget):
                 except OSError:
                     mtime = 0.0
                 return (num, mtime)
-
             for dxf in recortes_dir.rglob("*.dxf"):
                 name = dxf.name
                 if pat_sel.match(name):
                     sel_candidates.append(dxf)
                 elif pat_motor.match(name):
                     motor_candidates.append(dxf)
-            if sel_candidates:
-                return max(sel_candidates, key=_suffix_rank)
-            if motor_candidates:
-                return max(motor_candidates, key=_suffix_rank)
-        except Exception:
-            return None
-        return None
-
-    @staticmethod
-    def _lj_points_from_ficha_extract(
-        dxf_path: Path | str, item_id: str, obra: str
-    ) -> list:
-        """Polígono da laje no recorte — motor + pose (mesma base do N4)."""
-        try:
-            import sys as _sys
+            dxf_path = (
+                max(sel_candidates, key=_suffix_rank) if sel_candidates else
+                max(motor_candidates, key=_suffix_rank) if motor_candidates else
+                None
+            )
+            if not dxf_path:
+                return None
 
             scripts_dir = str(SCRIPTS_DIR)
             if scripts_dir not in _sys.path:
                 _sys.path.insert(0, scripts_dir)
             from motor_reverso_laj import extrair_ficha_laje
 
-            ficha = extrair_ficha_laje(str(dxf_path), item_id, obra)
+            ficha = extrair_ficha_laje(str(dxf_path), item_id, self._current_obra)
             coords = ficha.get("coordenadas") or []
             if len(coords) < 3:
-                return []
+                return None
+
             xs = [float(c[0]) for c in coords]
             ys = [float(c[1]) for c in coords]
             raw_x0, raw_y0 = min(xs), min(ys)
             pose = ficha.get("_stog_pose") or {}
-            if pose and abs(raw_x0) <= 0.5 and abs(raw_y0) <= 0.5:
-                off_x = float(pose.get("x", 0.0) or 0.0)
-                off_y = float(pose.get("y", 0.0) or 0.0)
-            else:
-                off_x = off_y = 0.0
-            return [(x + off_x, y + off_y) for x, y in zip(xs, ys)]
+            off_x = float(pose.get("x", 0.0)) if pose and abs(raw_x0) <= 0.5 else 0.0
+            off_y = float(pose.get("y", 0.0)) if pose and abs(raw_y0) <= 0.5 else 0.0
+            abs_xs = [x + off_x for x in xs]
+            abs_ys = [y + off_y for y in ys]
+            return (min(abs_xs) - pad, min(abs_ys) - pad,
+                    max(abs_xs) + pad, max(abs_ys) + pad)
         except Exception:
-            return []
-
-    @staticmethod
-    def _lj_points_from_paineis_extent(dxf_path: Path | str) -> list:
-        """Retângulo do extent da layer Painéis (superfície de fôrma no recorte)."""
-        try:
-            import ezdxf
-        except Exception:
-            return []
-        path = Path(dxf_path)
-        if not path.exists():
-            return []
-        try:
-            doc = ezdxf.readfile(str(path))
-            msp = doc.modelspace()
-        except Exception:
-            return []
-        xs: list[float] = []
-        ys: list[float] = []
-        for ent in msp:
-            try:
-                ly = str(getattr(ent.dxf, "layer", "") or "").upper()
-                if "PAIN" not in ly:
-                    continue
-                t = ent.dxftype()
-                if t == "LWPOLYLINE":
-                    for x, y, *_ in ent.get_points("xy"):
-                        xs.append(float(x))
-                        ys.append(float(y))
-                elif t == "LINE":
-                    xs.extend([float(ent.dxf.start.x), float(ent.dxf.end.x)])
-                    ys.extend([float(ent.dxf.start.y), float(ent.dxf.end.y)])
-            except Exception:
-                continue
-        if len(xs) < 4:
-            return []
-        x0, y0, x1, y1 = min(xs), min(ys), max(xs), max(ys)
-        if (x1 - x0) < 20.0 or (y1 - y0) < 10.0:
-            return []
-        return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
-
-    @staticmethod
-    def _outline_points_from_recorte_dxf(dxf_path: Path | str) -> list:
-        """Fallback: maior LWPOLYLINE fechada estrutural (sem bbox expandido)."""
-        try:
-            import ezdxf
-        except Exception:
-            return []
-        path = Path(dxf_path)
-        if not path.exists():
-            return []
-        try:
-            doc = ezdxf.readfile(str(path))
-            msp = doc.modelspace()
-        except Exception:
-            return []
-
-        skip = {
-            "COTA", "DEFPOINTS", "FOLHAS", "CARIMBO", "AUX00",
-            "NOMENCLATURA", "TEXTO_GERAL", "REAPROVEITAMENTO", "HACHURA", "7",
-        }
-        best = None
-        for ent in msp:
-            try:
-                ly = str(getattr(ent.dxf, "layer", "") or "").upper()
-                if ly in skip or ly.startswith("COTA"):
-                    continue
-                if ent.dxftype() != "LWPOLYLINE":
-                    continue
-                pts = [(float(x), float(y)) for x, y, *_ in ent.get_points("xy")]
-                if len(pts) < 3:
-                    continue
-                closed = bool(ent.closed) or pts[0] == pts[-1]
-                if not closed:
-                    continue
-                ring = pts if pts[0] == pts[-1] else pts + [pts[0]]
-                area = abs(
-                    sum(
-                        ring[i][0] * ring[i + 1][1]
-                        - ring[i + 1][0] * ring[i][1]
-                        for i in range(len(ring) - 1)
-                    )
-                ) / 2.0
-                poly = pts[:-1] if pts[0] == pts[-1] else pts
-                if best is None or area > best[0]:
-                    best = (area, poly)
-            except Exception:
-                continue
-        if best and best[0] >= 50.0 and len(best[1]) >= 3:
-            return best[1]
-        return []
-
-    @staticmethod
-    def _bb_size(points: list) -> tuple[float, float]:
-        xs = [float(p[0]) for p in points]
-        ys = [float(p[1]) for p in points]
-        return (max(xs) - min(xs), max(ys) - min(ys))
-
-    def _lj_attention_note(self, item_id: str) -> str:
-        """Lê nota humana N4/N2 do item — dinâmica em qualquer obra/pavimento.
-
-        Notas no CE usam frequentemente o pavement_name técnico do projeto
-        (TMC-EST-…), não só 14_PAV — faz fallback SQL por obra+item.
-        """
-        try:
-            import sqlite3
-            from src.core.item_attention_store import load_attention, DB_PATH
-            from src.core.n2_anchor import pav_key_to_db_pav
-
-            obra = self._current_obra or ""
-            pav = self._current_pav or ""
-            if not obra or not item_id:
-                return ""
-            candidates = [pav]
-            try:
-                p2 = pav_key_to_db_pav(pav)
-                if p2 and p2 not in candidates:
-                    candidates.append(p2)
-            except Exception:
-                pass
-            # se o combo já trouxe o nome CAD longo, também entra
-            if pav and pav not in candidates:
-                candidates.append(pav)
-            for p in candidates:
-                for cls in ("LJ", "LAJ"):
-                    for scope in ("N4", "N2"):
-                        data = load_attention(obra, p, cls, item_id, scope)
-                        note = (data.get("note") or "").strip()
-                        if note:
-                            return note
-            # Fallback: qualquer pavimento da obra para esse item (nota mais recente)
-            with sqlite3.connect(str(DB_PATH)) as conn:
-                row = conn.execute(
-                    """
-                    SELECT note FROM item_attention_notes
-                    WHERE obra_name=? AND UPPER(item_id)=?
-                      AND UPPER(classe) IN ('LJ','LAJ')
-                      AND UPPER(scope) IN ('N4','N2')
-                      AND TRIM(COALESCE(note,'')) != ''
-                    ORDER BY updated_at DESC LIMIT 1
-                    """,
-                    (obra, str(item_id).upper()),
-                ).fetchone()
-            if row and row[0]:
-                return str(row[0]).strip()
-        except Exception:
-            return ""
-        return ""
-
-    def _pick_lj_highlight_points(
-        self, motor_pts: list, paineis_pts: list, note: str = ""
-    ) -> list:
-        """Escolhe contorno do marco. Nota de atenção enviesa a escolha (universal)."""
-        note_l = (note or "").lower()
-        invade = any(
-            k in note_l for k in ("invad", "viga", "pilar", "pilares", "vigas")
-        )
-        faltou = any(
-            k in note_l for k in ("faltou", "falta", "topo", "pedaco", "pedaço")
-        )
-
-        if not motor_pts and not paineis_pts:
-            return []
-        if motor_pts and not paineis_pts:
-            return motor_pts
-        if paineis_pts and not motor_pts:
-            return paineis_pts
-
-        mw, mh = self._bb_size(motor_pts)
-        pw, ph = self._bb_size(paineis_pts)
-        if mw < 1 or mh < 1:
-            return paineis_pts
-        if pw < 1 or ph < 1:
-            return motor_pts
-
-        # Nota "faltou área/topo" primeiro — mesmo em forma complexa (L410).
-        if faltou:
-            if (pw > mw * 1.03 or ph > mh * 1.03) and pw < mw * 1.35 and ph < mh * 1.35:
-                return paineis_pts
-            return motor_pts
-
-        # L/degrau: path do motor (nunca AABB). Se nota invade e motor >> paineis, aperta.
-        if len(motor_pts) >= 6:
-            if invade and (mw > pw * 1.05 or mh > ph * 1.05):
-                return paineis_pts
-            return motor_pts
-
-        if invade:
-            if mw > pw * 1.02 or mh > ph * 1.02:
-                return paineis_pts
-            if pw > mw * 1.2 or ph > mh * 1.2:
-                return motor_pts
-            return motor_pts if (mw * mh) <= (pw * ph) else paineis_pts
-
-        if mw > pw * 1.08 or mh > ph * 1.08:
-            return paineis_pts
-        if pw > mw * 1.25 or ph > mh * 1.25:
-            return motor_pts
-        if pw > mw * 1.05 or ph > mh * 1.05:
-            return paineis_pts
-        return motor_pts
-
-    def _get_lj_content_points_for(
-        self, item_id: str, recorte_path: Path | str | None = None
-    ):
-        """Polígono do marco vermelho LAJ ≡ contorno N4 (motor dinâmico).
-
-        Ordem (igual ao 13_PAV estável):
-        1) Motor live no recorte N2 do pavimento atual
-        2) Ficha DB filtrada por obra+pav
-        3) Sem heurística de “atenção” que encolha diferente do gerador
-        """
-        try:
-            from src.core.n2_marco_highlight import (
-                extract_ficha_live,
-                load_ficha_db,
-                n4_outline_world_from_ficha,
-                open_ring,
-            )
-
-            obra = str(getattr(self, "_current_obra", "") or "").strip()
-            pav = str(getattr(self, "_current_pav", "") or "").strip()
-            if not obra:
-                try:
-                    parent = self
-                    for _ in range(6):
-                        parent = getattr(parent, "parent", lambda: None)()
-                        if parent is None:
-                            break
-                        if hasattr(parent, "fase8_panel"):
-                            obra = str(
-                                parent.fase8_panel.cmb_obra.currentData()
-                                or parent.fase8_panel.cmb_obra.currentText()
-                                or ""
-                            ).strip()
-                            pav = str(
-                                getattr(parent.fase8_panel, "current_pav_key", "")
-                                or pav
-                            )
-                            break
-                except Exception:
-                    pass
-
-            dxf_path = Path(recorte_path) if recorte_path else None
-            if dxf_path is None or not dxf_path.exists():
-                dxf_path = self._resolve_lj_recorte_path(item_id)
-
-            # 1) LIVE no recorte (dinâmico — como 13_PAV)
-            if dxf_path and dxf_path.exists():
-                ficha = extract_ficha_live(dxf_path, item_id, obra)
-                poly = n4_outline_world_from_ficha(ficha)
-                if len(poly) >= 3:
-                    pts = open_ring(poly)
-                    _ce_log(
-                        f"N2 marco LIVE {item_id} pav={pav!r} "
-                        f"{ficha.get('comprimento')}x{ficha.get('largura')} n={len(pts)}"
-                    )
-                    return pts
-
-            # 2) Ficha DB do pavimento (sem cruzar 13/14)
-            ficha = load_ficha_db(obra, item_id, pavimento=pav)
-            if ficha:
-                poly = n4_outline_world_from_ficha(ficha)
-                if len(poly) >= 3:
-                    pts = open_ring(poly)
-                    _ce_log(
-                        f"N2 marco DB {item_id} pav={pav!r} "
-                        f"{ficha.get('comprimento')}x{ficha.get('largura')} n={len(pts)}"
-                    )
-                    return pts
-
-            _ce_log(f"N2 marco vazio {item_id} obra={obra!r} pav={pav!r}")
-            return []
-        except Exception as exc:
-            _ce_log(f"N2 marco ERROR {item_id}: {exc}")
-            return []
-
-    def _get_lj_content_bbox_for(self, item_id: str, pad: float = 0.0):
-        """BBox justo do polígono da laje (só para zoom; highlight usa o path)."""
-        points = self._get_lj_content_points_for(item_id)
-        if not points:
             return None
-        return self._points_bbox(points, pad=pad if pad else 5.0)
-
 
     def _ficha_generic(self, classe: str, item_id: str) -> list:
         """Lê JSON de Fase-4_Sincronizacao para qualquer classe."""
@@ -8005,10 +6108,7 @@ class TriLevelArea(QWidget):
             data = json.loads(json_path.read_text(encoding='utf-8', errors='replace'))
         except Exception as exc:
             return [("Erro leitura", str(exc)[:60])]
-        rows = [
-            ("==", f"FICHA N3 · ROBÔ · {classe} {item_id}"),
-            ("==", "IDENTIFICAÇÃO"),
-        ]
+        rows = []
         for k, v in data.items():
             if isinstance(v, (dict, list)):
                 rows.append((k, json.dumps(v, ensure_ascii=False)[:80]))
@@ -8096,8 +6196,7 @@ class TriLevelArea(QWidget):
         """Reseta todos os steps de todos os níveis para 'pending'."""
         for col in self._columns:
             col.pipeline.reset()
-        # Restaura N3 e N4 para single-viewer caso estejam em modo LV/PIL 3-panel
-        self._columns[2].restore_single_view()
+        # Restaura N4 para single-viewer caso esteja em modo PIL 3-panel
         self._columns[3].restore_single_view()
 
     # ── Fichas ──────────────────────────────────────────────────────
@@ -8176,10 +6275,9 @@ class TriLevelArea(QWidget):
             ]
 
         elif classe == 'PL':
-            base_item_id = _pil_strip_pp(item_id)
-            pd_ = self._pilares_fase3.get(base_item_id, {})
-            pa  = self._pilares_assembly.get(base_item_id, {})
-            pos = self._est_labels.get(base_item_id)
+            pd_ = self._pilares_fase3.get(item_id, {})
+            pa  = self._pilares_assembly.get(item_id, {})
+            pos = self._est_labels.get(item_id)
             rows += [
                 ("==", "DIMENSIONAMENTO"),
                 ("b (cm)", _fmt(pd_.get("b"))),
@@ -8195,23 +6293,6 @@ class TriLevelArea(QWidget):
                 ("Confidence", _pct(pd_.get("confidence"))),
                 ("Source", _fmt(pd_.get("source"))),
             ]
-            # Campos de face (SA) + resumo do contrato N3 derivado, se existir.
-            try:
-                sa_faces = self._pl_sa_face_summary(base_item_id)
-            except Exception:
-                sa_faces = []
-            if sa_faces:
-                rows.append(("==", "FACES SA (laje / viga)"))
-                rows.extend(sa_faces)
-            mode = _pil_pp_from_id(item_id)
-            if mode and self._current_obra:
-                try:
-                    crows = self._pl_n3_contract_summary(base_item_id, mode)
-                    if crows:
-                        rows.append(("==", f"CONTRATO N3 {mode.upper()} (derivado SA)"))
-                        rows.extend(crows)
-                except Exception:
-                    pass
 
         elif classe == 'FV':
             fv = self._vigas_fundo_fase3.get(viga_key) or self._vigas_fundo_fase3.get(item_id, {})
@@ -8429,11 +6510,6 @@ class TriLevelArea(QWidget):
         panels_B = sorted(panels_B, reverse=True)
 
         return [
-            ("==", f"FICHA N2 · ENGENHARIA REVERSA · LV {vn}"),
-            ("==", "GEOMETRIA E POSIÇÃO"),
-            ("Sentinel (x, y)", f"({cx:.0f}, {cy:.0f})"),
-            ("Face sep y (A/B)", f"A={face_y.get('A',0):.0f} B={face_y.get('B',0):.0f}" if face_y else "—"),
-            ("==", "COMPONENTES E DETALHAMENTO"),
             ("Entidades na região KB", n_ents),
             ("Layers presentes", ", ".join(sorted(layers)) or "—"),
             ("Painéis A (larguras cm)", str(panels_A) if panels_A else "—"),
@@ -8441,6 +6517,8 @@ class TriLevelArea(QWidget):
             ("Sarrafos (tipo: count)", str(sarr_counts) or "—"),
             ("MTEXT/labels", " | ".join(mtext_content[:8]) or "—"),
             ("COTAs (amostra)", str(sorted(set(dim_values))[:10]) or "—"),
+            ("Face sep y (A/B)", f"A={face_y.get('A',0):.0f} B={face_y.get('B',0):.0f}" if face_y else "—"),
+            ("Sentinel (x, y)", f"({cx:.0f}, {cy:.0f})"),
         ]
 
     def _ficha_n2_for(self, classe: str, item_id: str) -> list:
@@ -8460,12 +6538,9 @@ class TriLevelArea(QWidget):
                       if abs(ex - cx) < R and abs(ey - cy) < R]
             layers = sorted({e[3] for e in nearby})
             return [
-                ("==", f"FICHA N2 · ENGENHARIA REVERSA · PILAR {item_id}"),
-                ("==", "GEOMETRIA E POSIÇÃO"),
                 ("Item", item_id),
                 ("Posição estrutural (x)", f"{cx:.0f}"),
                 ("Posição estrutural (y)", f"{cy:.0f}"),
-                ("==", "COMPONENTES E DETALHAMENTO"),
                 ("Entidades vizinhas", len(nearby)),
                 ("Layers vizinhos", ", ".join(layers[:6]) or "—"),
             ]
@@ -8474,13 +6549,10 @@ class TriLevelArea(QWidget):
             if not fv:
                 return [("N2 FV", "Dados de fundo viga não encontrados na Fase-3")]
             return [
-                ("==", f"FICHA N2 · ENGENHARIA REVERSA · FUNDO {item_id}"),
-                ("==", "DIMENSÕES E NÍVEIS"),
                 ("Nome", item_id),
                 ("b (cm)", fv.get("b", "—")),
                 ("h (cm)", fv.get("h", "—")),
                 ("Comprimento (cm)", fv.get("comprimento", "—")),
-                ("==", "VALIDAÇÃO E ORIGEM"),
                 ("Confidence", f"{fv.get('confidence',0)*100:.1f}%" if fv.get('confidence') else "—"),
             ]
         elif classe == 'LJ':
@@ -8489,117 +6561,14 @@ class TriLevelArea(QWidget):
                 return [("N2 Laje", "Dados de laje não encontrados na Fase-3")]
             linhas_v = lj.get("linhas_verticais", [])
             return [
-                ("==", f"FICHA N2 · ENGENHARIA REVERSA · LAJE {item_id}"),
-                ("==", "DIMENSÕES E NÍVEIS"),
                 ("Nome", item_id),
                 ("Comprimento (cm)", lj.get("comprimento", "—")),
                 ("Largura (cm)", lj.get("largura", "—")),
-                ("==", "COMPONENTES E DETALHAMENTO"),
                 ("Linhas verticais", len(linhas_v)),
                 ("Obstáculos", len(lj.get("obstaculos", []))),
-                ("==", "GEOMETRIA E POSIÇÃO"),
                 ("Coordenadas", f"{len(lj.get('coordenadas',[]))} pts"),
             ]
         return [("N2", f"Classe '{classe}' sem ficha N2 implementada")]
-
-    def _pl_sa_face_summary(self, base_item_id: str) -> list:
-        """Lê faces do pilar no DB (extra_data / sides) para a ficha N1."""
-        rows: list = []
-        try:
-            import sqlite3
-            conn = sqlite3.connect(r"D:/Agente-cad-PYSIDE/project_data.vision")
-            conn.row_factory = sqlite3.Row
-            cur = conn.cursor()
-            cur.execute(
-                """
-                SELECT p.extra_data_json, p.sides_data_json, pr.name AS proj
-                FROM pillars p
-                JOIN projects pr ON pr.id = p.project_id
-                WHERE p.name = ?
-                ORDER BY p.id DESC
-                LIMIT 8
-                """,
-                (base_item_id,),
-            )
-            candidates = cur.fetchall()
-            conn.close()
-        except Exception:
-            return rows
-        pick = None
-        for row in candidates:
-            proj = str(row["proj"] or "")
-            if "13P" in proj.upper() or "13_PAV" in proj.upper() or "13" in proj:
-                pick = row
-                break
-        if pick is None and candidates:
-            pick = candidates[0]
-        if not pick:
-            return rows
-        try:
-            extra = json.loads(pick["extra_data_json"] or "{}")
-        except Exception:
-            extra = {}
-        try:
-            sides = json.loads(pick["sides_data_json"] or "{}")
-        except Exception:
-            sides = {}
-        for fid in ("A", "B", "C", "D"):
-            l1 = extra.get(f"p_s{fid}_l1_n") or (sides.get(fid) or {}).get("l1_n") or "—"
-            l1h = extra.get(f"p_s{fid}_l1_h") or (sides.get(fid) or {}).get("l1_h") or "—"
-            vn = (
-                extra.get(f"p_s{fid}_v_int_n")
-                or (sides.get(fid) or {}).get("v_int_n")
-                or extra.get(f"p_s{fid}_v_esq_n")
-                or (sides.get(fid) or {}).get("v_esq_n")
-                or "—"
-            )
-            vd = (
-                extra.get(f"p_s{fid}_v_int_d")
-                or (sides.get(fid) or {}).get("v_int_d")
-                or extra.get(f"p_s{fid}_v_esq_d")
-                or (sides.get(fid) or {}).get("v_esq_d")
-                or "—"
-            )
-            rows.append((f"Face {fid} laje", f"{l1} / H={l1h}"))
-            rows.append((f"Face {fid} viga", f"{vn} / dim={vd}"))
-        return rows
-
-    def _pl_n3_contract_summary(self, base_item_id: str, mode: str) -> list:
-        """Resumo do contrato N3 PARA/PASSA publicado em n3_variants."""
-        rows: list = []
-        if not self._current_obra or mode not in ("para", "passa"):
-            return rows
-        path = (
-            DADOS_OBRAS_ROOT / self._current_obra / "Fase-6_Execucao_CAD"
-            / "n3_variants" / mode / f"{base_item_id}.json"
-        )
-        if not path.exists():
-            rows.append(("Contrato", f"ausente: {path.name}"))
-            return rows
-        try:
-            data = json.loads(path.read_text(encoding="utf-8"))
-        except Exception as exc:
-            rows.append(("Contrato", f"erro leitura: {exc}"))
-            return rows
-        contract = data.get("_sa_mode_contract") or {}
-        rows.append(("modo", str(contract.get("modo_semantico") or mode).upper()))
-        rows.append(("schema", str(contract.get("schema") or "—")))
-        for fid, face in (contract.get("faces") or {}).items():
-            topo = (face or {}).get("vazio_topo") or {}
-            stops = (face or {}).get("aberturas_vigas_que_param") or []
-            arrs = (face or {}).get("aberturas_vigas_que_chegam") or []
-            act_s = [o for o in stops if o.get("estado") == "ativa"]
-            act_a = [o for o in arrs if o.get("estado") == "ativa"]
-            neu = [o for o in arrs if o.get("estado") == "neutralizada"]
-            bits = [f"topo={topo.get('valor_cm')}({topo.get('fonte')})"]
-            for o in act_s:
-                bits.append(f"PARA {o.get('slot')}:{o.get('nome')}")
-            for o in act_a:
-                bits.append(f"CHEGA {o.get('slot')}:{o.get('nome')}")
-            for o in neu:
-                bits.append(f"NEUT {o.get('slot')}:{o.get('nome')}")
-            rows.append((f"Face {fid}", "; ".join(bits)))
-        return rows
 
     def _ficha_n3(self, vn: str) -> list:
         """Ficha N3 para LV (fichas_lv_v2.json)."""
@@ -8611,76 +6580,54 @@ class TriLevelArea(QWidget):
         fase4 = obra_dir / "Fase-4_Sincronizacao"
 
         if classe == 'LV':
-            import re as _re2
-            base_item_id = _re2.sub(r'_(Para|Passa)$', '', item_id)  # strip sufixo virtual
-            behavior = _lv_pp_from_id(item_id)
-            if behavior:
-                beam_id = _lv_elem_id(item_id)
-                contract_dir = (
-                    fase4 / "JSON_Vigas_Laterais" /
-                    f"LV-{behavior.upper()}"
-                )
-                rows = []
-                for side in ("A", "B"):
-                    rows.extend(self._ficha_fase4_json(
-                        'LV', f"{beam_id}_{side}", contract_dir
-                    ))
-                    rows.append(("---", ""))
-                return rows
             # LV usa fichas_lv_v2 (estrutura especializada)
-            entries = [f for f in self._fichas_lv_v2 if f.get('viga') == base_item_id]
+            entries = [f for f in self._fichas_lv_v2 if f.get('viga') == item_id]
             if not entries:
                 # Fallback para JSON individual em Fase-4
-                return self._ficha_fase4_json('LV', base_item_id, fase4 / "JSON_Vigas_Laterais")
+                return self._ficha_fase4_json('LV', item_id, fase4 / "JSON_Vigas_Laterais")
             rows = []
             for e in entries:
-                face = str(e.get('face', '?'))
-                face_data = dict(e)
-                face_data.setdefault("_sa_meta", {
-                    "source": "Structural Analyzer / N1",
-                })
-                rows.extend(_n3_structured_ficha_rows(
-                    face_data,
-                    base_item_id,
-                    "LV",
-                    title_suffix=f"FACE {face}",
-                ))
-                rows.append(("---", ""))
+                face = e.get('face', '?')
+                segs = e.get('segmentos', [])
+                widths = [s.get('largura_cm', '?') for s in segs]
+                codes  = ['/'.join(s.get('codigos_forma', [])) for s in segs]
+                rows += [
+                    (f"[{face}] h_cm", e.get('h_cm', '—')),
+                    (f"[{face}] b_cm", e.get('b_cm', '—')),
+                    (f"[{face}] laje_sup_cm", e.get('laje_sup_cm', '—')),
+                    (f"[{face}] laje_inf_cm", e.get('laje_inf_cm', '—')),
+                    (f"[{face}] comprimento_cm", e.get('comprimento_cm', '—')),
+                    (f"[{face}] painéis (cm)", str(widths)),
+                    (f"[{face}] códigos forma", str(codes)),
+                    (f"[{face}] sarrafos",
+                     f"{e.get('total_sarrafos','—')} ({e.get('sarr_por_tipo',{})})"),
+                    (f"[{face}] nota_face", e.get('nota_face', '—')),
+                    ("---", ""),
+                ]
             return rows or [("Ficha LV v2", "vazia")]
 
         elif classe == 'PL':
-            mode = _pil_pp_from_id(item_id)
-            base_item_id = _pil_strip_pp(item_id)
-            if mode:
-                variant = (
-                    obra_dir / "Fase-6_Execucao_CAD" / "n3_variants" /
-                    mode / f"{base_item_id}.json"
-                )
-                if variant.exists():
-                    try:
-                        data = json.loads(variant.read_text(encoding='utf-8'))
-                        return _n3_structured_ficha_rows(
-                            data, item_id, 'PL',
-                            title_suffix=f"CONTRATO N3 {mode.upper()} VIA SA",
-                        )
-                    except Exception:
-                        pass
-            return self._ficha_fase4_json('PL', base_item_id, fase4 / "JSON_Pilares")
+            return self._ficha_fase4_json('PL', item_id, fase4 / "JSON_Pilares")
 
         elif classe == 'FV':
-            return self._ficha_fase4_json(
-                'FV', f"{item_id}_fundo", fase4 / "JSON_Vigas_Fundo"
-            )
+            rows = self._ficha_n1_for('FV', item_id)
+            rows += [("---", ""), ("==", "N3 ROBO FUNDO / FASE 4")]
+            rows += self._ficha_fase4_json('FV', f"{item_id}_fundo", fase4 / "JSON_Vigas_Fundo")
+            return rows
 
         elif classe == 'LJ':
-            return self._ficha_fase4_json(
-                'LJ', item_id, fase4 / "JSON_Lajes"
-            )
+            rows = [
+                ("==", "N1 STRUCTURAL ANALYZER"),
+                *self._ficha_n1_for("LJ", item_id),
+                ("==", "FICHA N3 / ROBO LAJE"),
+            ]
+            rows.extend(self._ficha_fase4_json('LJ', item_id, fase4 / "JSON_Lajes"))
+            return rows
 
         return self._ficha_generic(classe, item_id)
 
     def _ficha_fase4_json(self, classe: str, item_id: str, json_dir: Path) -> list:
-        """Lê a ficha N3/N1 e aplica o mesmo contrato visual usado pelo N4."""
+        """Lê JSON Fase-4 e formata para exibição com agrupamento semântico."""
         json_path = json_dir / f"{item_id}.json"
         if not json_path.exists():
             return [(f"JSON Fase-4 {classe}", f"não encontrado: {item_id}")]
@@ -8689,8 +6636,63 @@ class TriLevelArea(QWidget):
         except Exception as exc:
             return [("Erro leitura", str(exc)[:60])]
 
-        display_item_id = re.sub(r'_fundo$', '', item_id, flags=re.IGNORECASE)
-        return _n3_structured_ficha_rows(data, display_item_id, classe)
+        meta = data.pop('_sa_meta', {})
+        rows = []
+
+        # Campos de identificação sempre primeiro
+        for k in ('nome', 'numero', 'name', 'number', 'pavimento', 'floor', 'side'):
+            if k in data:
+                rows.append((k, str(data.pop(k))))
+
+        # Dimensões
+        rows.append(("---", ""))
+        for k in ('comprimento', 'largura', 'altura', 'total_width', 'total_height',
+                  'b', 'h', 'area_cm2'):
+            if k in data:
+                rows.append((k, str(data.pop(k))))
+
+        # Painéis (LV/FV)
+        if 'panels' in data:
+            panels = data.pop('panels')
+            rows.append(("---", ""))
+            rows.append(("Painéis (n)", len(panels)))
+            for i, p in enumerate(panels[:8]):
+                w = p.get('width', '?')
+                h1 = p.get('height1', '?')
+                rows.append((f"Painel {i+1}", f"L={w} H={h1}"))
+
+        # Grades
+        rows.append(("---", ""))
+        for k in sorted(k for k in data if k.startswith('grade_')):
+            if data[k]:
+                rows.append((k, str(data.pop(k))))
+
+        # Par (parafusos)
+        pars = {k: v for k, v in data.items() if k.startswith('par_') and v}
+        if pars:
+            rows.append(("---", ""))
+            for k, v in sorted(pars.items()):
+                rows.append((k, str(v)))
+                data.pop(k)
+
+        # Completude meta
+        if meta:
+            rows.append(("---", ""))
+            rows.append(("Completude", f"{meta.get('completude_pct', '?'):.1f}%"
+                         if isinstance(meta.get('completude_pct'), (int, float)) else "?"))
+            rows.append(("Campos extraídos", str(len(meta.get('campos_extraidos', [])))))
+            rows.append(("Campos defaulted", str(len(meta.get('campos_defaulted', [])))))
+
+        # Resto (campos não mapeados)
+        remaining = {k: v for k, v in data.items()
+                     if v not in (0, 0.0, '', None, [], {})
+                     and not k.startswith('h1_') and not k.startswith('larg1_')}
+        if remaining:
+            rows.append(("---", ""))
+            for k, v in list(remaining.items())[:12]:
+                rows.append((k, str(v)[:40]))
+
+        return rows or [("(vazio)", "")]
 
 
 # ──────────────────────────────────────────────────────
@@ -8812,298 +6814,6 @@ class AnaliseGeralWorker(QThread):
 # Module principal (Tab 2)
 # ──────────────────────────────────────────────────────
 
-class LvN3PanelConfigWidget(QFrame):
-    """Configuração de painel LV (H1/H2, modo, continuidade, sarrafos) — ficha N3.
-
-    Campos que saíram do SA de interpretação e passam a viver na ficha
-    executiva N3, no painel superior próximo ao Modo visual.
-    """
-    config_changed = Signal(dict)
-
-    _MODES = ("Sarrafo", "Garfo", "Grade")
-    _CONT = ("Obstáculo", "Viga", "Último Seg.")
-    _SARR = (
-        ("v_e_h1", "Vert.Esq H1"), ("p_e_h1", "Press.Esq H1"),
-        ("v_d_h1", "Vert.Dir H1"), ("p_d_h1", "Press.Dir H1"),
-        ("v_e_h2", "Vert.Esq H2"), ("p_e_h2", "Press.Esq H2"),
-        ("v_d_h2", "Vert.Dir H2"), ("p_d_h2", "Press.Dir H2"),
-    )
-
-    def __init__(self, er_ficha: dict | None = None, accent: str = Semantic.SUCCESS, parent=None):
-        super().__init__(parent)
-        self._loading = False
-        self._data = dict(er_ficha or {})
-        self.setStyleSheet(
-            f"QFrame {{ background: {Colors.BG_PANEL}; border: 1px solid {accent}55; "
-            f"border-radius: 4px; }}"
-        )
-        root = QVBoxLayout(self)
-        root.setContentsMargins(6, 4, 6, 4)
-        root.setSpacing(4)
-
-        hdr = QHBoxLayout()
-        title = QLabel("Painel executivo LV (N3)")
-        title.setStyleSheet(
-            f"color: {accent}; font-size: 10px; font-weight: bold; background: transparent;"
-        )
-        hdr.addWidget(title)
-        hdr.addStretch()
-        hint = QLabel("Modo visual (Nova/Ini) + alturas/modos/sarrafos ficam aqui — não no SA.")
-        hint.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 8px; background: transparent;")
-        hint.setWordWrap(True)
-        root.addLayout(hdr)
-        root.addWidget(hint)
-
-        # Alturas H1 / H2
-        row_h = QHBoxLayout()
-        row_h.setSpacing(6)
-        self._h1 = QLineEdit(str(self._data.get("panel_h1") or self._data.get("h1") or ""))
-        self._h2 = QLineEdit(str(self._data.get("panel_h2") or self._data.get("h2") or ""))
-        for w, lab in ((self._h1, "H1 cm"), (self._h2, "H2 cm")):
-            w.setPlaceholderText(lab)
-            w.setFixedHeight(22)
-            w.setStyleSheet(
-                f"background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY}; "
-                f"border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px; font-size: 10px;"
-            )
-            w.editingFinished.connect(self._emit)
-            lbl = QLabel(lab)
-            lbl.setStyleSheet(f"color: {Colors.TEXT_DIM}; font-size: 9px;")
-            row_h.addWidget(lbl)
-            row_h.addWidget(w, 1)
-        root.addLayout(row_h)
-
-        # Modos H1 / H2
-        row_m = QHBoxLayout()
-        row_m.setSpacing(8)
-        self._mode_h1_group = QButtonGroup(self)
-        self._mode_h2_group = QButtonGroup(self)
-        cur_m1 = str(self._data.get("mode_h1") or "Sarrafo")
-        cur_m2 = str(self._data.get("mode_h2") or "Sarrafo")
-        for label, group, current in (
-            ("Modo H1", self._mode_h1_group, cur_m1),
-            ("Modo H2", self._mode_h2_group, cur_m2),
-        ):
-            box = QVBoxLayout()
-            box.setSpacing(1)
-            box.addWidget(QLabel(label))
-            box.itemAt(0).widget().setStyleSheet(
-                f"color: {Colors.TEXT_DIM}; font-size: 9px; font-weight: bold;"
-            )
-            rrow = QHBoxLayout()
-            for mode in self._MODES:
-                rb = QRadioButton(mode)
-                rb.setStyleSheet(f"QRadioButton {{ color: {Colors.TEXT_PRIMARY}; font-size: 9px; }}")
-                group.addButton(rb)
-                if mode == current:
-                    rb.setChecked(True)
-                rb.toggled.connect(lambda checked: checked and self._emit())
-                rrow.addWidget(rb)
-            box.addLayout(rrow)
-            row_m.addLayout(box)
-        root.addLayout(row_m)
-
-        # Continuidade
-        cont_row = QHBoxLayout()
-        cont_row.addWidget(QLabel("Continuidade:"))
-        cont_row.itemAt(0).widget().setStyleSheet(
-            f"color: {Colors.TEXT_DIM}; font-size: 9px; font-weight: bold;"
-        )
-        self._cont_group = QButtonGroup(self)
-        cur_c = str(self._data.get("continuidade") or self._data.get("continuation") or "Obstáculo")
-        for opt in self._CONT:
-            rb = QRadioButton(opt)
-            rb.setStyleSheet(f"QRadioButton {{ color: {Colors.TEXT_PRIMARY}; font-size: 9px; }}")
-            self._cont_group.addButton(rb)
-            if opt == cur_c:
-                rb.setChecked(True)
-            rb.toggled.connect(lambda checked: checked and self._emit())
-            cont_row.addWidget(rb)
-        cont_row.addStretch()
-        root.addLayout(cont_row)
-
-        # Sarrafos / travamento
-        sarr_lab = QLabel("Sarrafos e travamento")
-        sarr_lab.setStyleSheet(
-            f"color: {Colors.TEXT_DIM}; font-size: 9px; font-weight: bold;"
-        )
-        root.addWidget(sarr_lab)
-        grid = QGridLayout()
-        grid.setSpacing(3)
-        self._sarr_cbs = {}
-        sarr_src = self._data.get("sarrafos") or {}
-        for i, (key, lab) in enumerate(self._SARR):
-            cb = QCheckBox(lab)
-            cb.setStyleSheet(f"QCheckBox {{ color: {Colors.TEXT_PRIMARY}; font-size: 9px; }}")
-            checked = bool(
-                sarr_src.get(key)
-                or self._data.get(f"chk_{key}")
-                or self._data.get(key)
-            )
-            cb.setChecked(checked)
-            cb.toggled.connect(lambda _c: self._emit())
-            self._sarr_cbs[key] = cb
-            grid.addWidget(cb, i // 4, i % 4)
-        root.addLayout(grid)
-
-    def to_dict(self) -> dict:
-        mode_h1 = next(
-            (b.text() for b in self._mode_h1_group.buttons() if b.isChecked()), "Sarrafo"
-        )
-        mode_h2 = next(
-            (b.text() for b in self._mode_h2_group.buttons() if b.isChecked()), "Sarrafo"
-        )
-        cont = next(
-            (b.text() for b in self._cont_group.buttons() if b.isChecked()), "Obstáculo"
-        )
-        sarr = {k: cb.isChecked() for k, cb in self._sarr_cbs.items()}
-        return {
-            "panel_h1": self._h1.text().strip(),
-            "panel_h2": self._h2.text().strip(),
-            "mode_h1": mode_h1,
-            "mode_h2": mode_h2,
-            "continuidade": cont,
-            "sarrafos": sarr,
-        }
-
-    def _emit(self):
-        if self._loading:
-            return
-        payload = self.to_dict()
-        self._data.update(payload)
-        self.config_changed.emit(payload)
-
-    def load_from(self, er_ficha: dict | None):
-        self._loading = True
-        try:
-            data = dict(er_ficha or {})
-            self._data = data
-            self._h1.setText(str(data.get("panel_h1") or data.get("h1") or ""))
-            self._h2.setText(str(data.get("panel_h2") or data.get("h2") or ""))
-            m1 = str(data.get("mode_h1") or "Sarrafo")
-            m2 = str(data.get("mode_h2") or "Sarrafo")
-            for b in self._mode_h1_group.buttons():
-                b.setChecked(b.text() == m1)
-            for b in self._mode_h2_group.buttons():
-                b.setChecked(b.text() == m2)
-            cont = str(data.get("continuidade") or data.get("continuation") or "Obstáculo")
-            for b in self._cont_group.buttons():
-                b.setChecked(b.text() == cont)
-            sarr = data.get("sarrafos") or {}
-            for k, cb in self._sarr_cbs.items():
-                cb.setChecked(bool(sarr.get(k) or data.get(f"chk_{k}") or data.get(k)))
-        finally:
-            self._loading = False
-
-
-class VisualModeSelector(QWidget):
-    """Seletor Nova/Ini; N3 e N4 compartilham o perfil visual do robô."""
-
-    mode_changed = Signal(str)
-    _SUPPORTED_CLASSES = {"PL", "LV", "FV"}
-
-    def __init__(self, level: str, accent: str, parent=None):
-        super().__init__(parent)
-        self._level = str(level).upper()
-        self._classe = ""
-        self._mode = "NOVA"
-        self._loading = False
-        self._settings = QSettings("AgenteCAD", "ComparisonEngine")
-
-        layout = QHBoxLayout(self)
-        layout.setContentsMargins(4, 0, 4, 0)
-        layout.setSpacing(5)
-        label = QLabel("Modo visual:")
-        label.setStyleSheet(f"color: {accent}; font-size: 9px; font-weight: bold;")
-        layout.addWidget(label)
-
-        self.radio_nova = QRadioButton("Nova")
-        self.radio_ini = QRadioButton("Ini")
-        self._group = QButtonGroup(self)
-        self._group.setExclusive(True)
-        self._group.addButton(self.radio_nova)
-        self._group.addButton(self.radio_ini)
-        radio_style = (
-            f"QRadioButton {{ color: {accent}; font-size: 9px; spacing: 3px; }}"
-            "QRadioButton::indicator { width: 10px; height: 10px; "
-            f"border-radius: 6px; border: 1px solid {accent}; background: transparent; }}"
-            f"QRadioButton::indicator:checked {{ background: {accent}; "
-            "border: 2px solid #222222; }}"
-        )
-        self.radio_nova.setStyleSheet(radio_style)
-        self.radio_ini.setStyleSheet(radio_style)
-        self.radio_nova.toggled.connect(
-            lambda checked: checked and self._select_mode("NOVA")
-        )
-        self.radio_ini.toggled.connect(
-            lambda checked: checked and self._select_mode("INI")
-        )
-        layout.addWidget(self.radio_nova)
-        layout.addWidget(self.radio_ini)
-        self.radio_nova.setChecked(True)
-
-    @property
-    def mode(self) -> str:
-        return self._mode
-
-    def set_classe(self, classe: str) -> None:
-        self._classe = str(classe or "").upper()
-        supported = self._classe in self._SUPPORTED_CLASSES
-        self.setVisible(supported)
-        if not supported:
-            self._set_mode("NOVA", emit=False)
-            return
-        if self._level in ("N3", "N4", "N5"):
-            legacy_n4 = self._settings.value(
-                f"visual_mode/N4/{self._classe}", "NOVA"
-            )
-            saved = self._settings.value(
-                f"visual_mode/ROBOT/{self._classe}", legacy_n4
-            )
-        else:
-            saved = self._settings.value(
-                f"visual_mode/{self._level}/{self._classe}", "NOVA"
-            )
-        self._set_mode(str(saved).upper(), emit=False)
-
-    def sync_mode(self, mode: str) -> None:
-        """Sincroniza outro seletor sem disparar uma segunda regeneração."""
-        self._set_mode(mode, emit=False)
-        if self._classe not in self._SUPPORTED_CLASSES:
-            return
-        self._settings.setValue(
-            f"visual_mode/{self._level}/{self._classe}", self._mode
-        )
-        if self._level in ("N3", "N4", "N5"):
-            self._settings.setValue(
-                f"visual_mode/ROBOT/{self._classe}", self._mode
-            )
-
-    def _set_mode(self, mode: str, emit: bool) -> None:
-        normalized = mode if mode in ("NOVA", "INI") else "NOVA"
-        changed = normalized != self._mode
-        self._loading = True
-        self._mode = normalized
-        self.radio_nova.setChecked(normalized == "NOVA")
-        self.radio_ini.setChecked(normalized == "INI")
-        self._loading = False
-        if emit and changed:
-            self.mode_changed.emit(normalized)
-
-    def _select_mode(self, mode: str) -> None:
-        if self._loading:
-            return
-        self._set_mode(mode, emit=True)
-        if self._classe in self._SUPPORTED_CLASSES:
-            self._settings.setValue(
-                f"visual_mode/{self._level}/{self._classe}", self._mode
-            )
-            if self._level in ("N3", "N4", "N5"):
-                self._settings.setValue(
-                    f"visual_mode/ROBOT/{self._classe}", self._mode
-                )
-
-
 class ComparisonEngineModule(QWidget):
     """
     Tab 2 — Comparison Engine / Fase-8 Validação Visual.
@@ -9126,9 +6836,7 @@ class ComparisonEngineModule(QWidget):
         # Conteúdo interno (sem largura fixa — deixa o scroll controlar)
         left_inner = QFrame()
         left_inner.setStyleSheet(f"background: {Colors.BG_SECONDARY};")
-        left_inner.setMinimumWidth(0)
-        left_inner.setMaximumWidth(340)
-        left_inner.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Minimum)
+        left_inner.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
         left_inner_lay = QVBoxLayout(left_inner)
         left_inner_lay.setContentsMargins(0, 0, 0, 0)
         left_inner_lay.setSpacing(0)
@@ -9149,10 +6857,7 @@ class ComparisonEngineModule(QWidget):
         self.nav_sidebar.gerar_n4_requested.connect(self._on_gerar_n4)
         self.nav_sidebar.gerar_n5_requested.connect(self._on_gerar_n5)
         self.nav_sidebar.analise_requested.connect(self._on_iniciar_analise)
-        self.nav_sidebar.rag_context_requested.connect(self._on_rag_context_requested)
         self.nav_sidebar.fase4_requested.connect(self._on_fase4_sync)
-        self.fase8_panel.btn_certify = self.nav_sidebar.btn_certify
-        self.nav_sidebar.btn_certify.clicked.connect(self.fase8_panel._on_certify)
         self.nav_sidebar.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
         left_inner_lay.addWidget(self.nav_sidebar, 1)
 
@@ -9181,50 +6886,11 @@ class ComparisonEngineModule(QWidget):
 
         # 3. Área central 3 níveis (flex)
         self.tri_level = TriLevelArea()
-        self.tri_level.setMinimumHeight(1180)
-        self.tri_level_scroll = QScrollArea()
-        self.tri_level_scroll.setWidget(self.tri_level)
-        self.tri_level_scroll.setWidgetResizable(True)
-        self.tri_level_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.tri_level_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.tri_level_scroll.setStyleSheet(f"""
-            QScrollArea {{
-                background: {Colors.BG_SECONDARY};
-                border: none;
-            }}
-            QScrollBar:vertical {{
-                background: {Colors.BG_DEEP}; width: 8px;
-            }}
-            QScrollBar::handle:vertical {{
-                background: {Colors.BORDER_DEFAULT}; border-radius: 4px; min-height: 28px;
-            }}
-            QScrollBar::handle:vertical:hover {{
-                background: {Colors.ACCENT_PRIMARY};
-            }}
-        """)
-        layout.addWidget(self.tri_level_scroll, 1)
+        layout.addWidget(self.tri_level, 1)
 
         # Conectar obra/pav da Fase8 ao TriLevelArea (CE-004)
         self.fase8_panel.cmb_obra.currentTextChanged.connect(self._on_obra_pav_changed)
         self.fase8_panel.cmb_pav.currentTextChanged.connect(self._on_obra_pav_changed)
-
-        # Masterplan OBRAS DRIVE Fase 5: toggle "Dados WEB/Local" — redireciona
-        # tri_level/nav_sidebar pro obra_dir da web (só quando marcado) sem
-        # nunca perder a referência da obra local real (ver _on_obra_pav_changed).
-        self._ce_obra_override = None
-
-        def _on_ver_web_toggled(checked: bool):
-            if checked:
-                self._ce_obra_override = self.fase8_panel._sa_web_work_name_atual
-                self._on_obra_pav_changed(manter_toggle=True)
-
-        def _on_ver_local_toggled(checked: bool):
-            if checked:
-                self._ce_obra_override = None
-                self._on_obra_pav_changed(manter_toggle=True)
-
-        self.fase8_panel.btn_ver_web.toggled.connect(_on_ver_web_toggled)
-        self.fase8_panel.btn_ver_local.toggled.connect(_on_ver_local_toggled)
         # Quando scan do DXF conclui → filtrar lista LJ pelos labels do DXF ativo
         self.tri_level.scan_done.connect(self.nav_sidebar.set_lj_filter)
         # Disparar carga inicial após construção (500ms delay para event loop estabilizar)
@@ -9237,80 +6903,50 @@ class ComparisonEngineModule(QWidget):
             b.setStyleSheet(
                 f"QPushButton {{ background: rgba(0,0,0,0.3); color: {accent}; border-radius: 3px; "
                 f"padding: 1px 8px; font-size: 10px; font-weight: bold; border: 1px solid {accent}55; }}"
-                f"QPushButton:hover {{ background: {accent}33; color: {Text.BRIGHT}; }}"
-                f"QPushButton:checked {{ background: {accent}; color: {Surface.DEEP}; }}"
+                f"QPushButton:hover {{ background: {accent}33; color: #fff; }}"
+                f"QPushButton:checked {{ background: {accent}; color: #000; }}"
             )
             return b
 
-        # N2 header: abrir o recorte STOG humano selecionado
-        _btn_open_n2 = _hdr_btn("Abrir DXF", _N2_FG)
-        _btn_open_n2.clicked.connect(lambda: self._on_abrir_dxf(1))
-        self.tri_level._columns[1]._badge_row.addWidget(_btn_open_n2)
-
         # N3 header: Comparar com N1 | Abrir DXF
-        _btn_cmp_n1 = _hdr_btn("Comparar com N1", _N3_FG, checkable=True)
+        _btn_cmp_n1 = _hdr_btn("Comparar com N1", "#cf8a4a", checkable=True)
         _btn_cmp_n1.clicked.connect(self._on_comparar_n1_toggled)
         self._btn_comparar_n1 = _btn_cmp_n1
         self.tri_level._columns[2]._badge_row.addWidget(_btn_cmp_n1)
-        _btn_cmp_n4_on_n3 = _hdr_btn("Comparar com N4", _N3_FG, checkable=True)
+        _btn_cmp_n4_on_n3 = _hdr_btn("Comparar com N4", "#cf8a4a", checkable=True)
         _btn_cmp_n4_on_n3.clicked.connect(self._on_comparar_n4_on_n3_toggled)
         self._btn_comparar_n4_on_n3 = _btn_cmp_n4_on_n3
         self.tri_level._columns[2]._badge_row.addWidget(_btn_cmp_n4_on_n3)
-        _btn_open_n3 = _hdr_btn("Abrir DXF", _N3_FG)
+        _btn_open_n3 = _hdr_btn("Abrir DXF", "#cf8a4a")
         _btn_open_n3.clicked.connect(lambda: self._on_abrir_dxf(2))
         self.tri_level._columns[2]._badge_row.addWidget(_btn_open_n3)
-        _btn_pdf_n3 = _hdr_btn("Criar Ficha PDF", _N3_FG)
-        _btn_pdf_n3.clicked.connect(self._on_criar_ficha_pdf)
-        self.tri_level._columns[2]._badge_row.addWidget(_btn_pdf_n3)
-        _btn_cfg_n3 = _hdr_btn("Configuracao Visual", _N3_FG)
+        _btn_cfg_n3 = _hdr_btn("Configuracao Visual", "#cf8a4a")
         _btn_cfg_n3.clicked.connect(lambda: self._on_configuracao_visual(2))
         self.tri_level._columns[2]._badge_row.addWidget(_btn_cfg_n3)
-        self._visual_mode_n3 = VisualModeSelector("N3", _N3_FG, self)
-        self._visual_mode_n3.mode_changed.connect(
-            lambda mode: self._on_visual_mode_changed("N3", mode)
-        )
-        self.tri_level._columns[2]._badge_row.addWidget(self._visual_mode_n3)
 
         # N4 header: Comparar com N2 | Abrir DXF
-        _btn_cmp_n2 = _hdr_btn("Comparar com N2", _N4_FG, checkable=True)
+        _btn_cmp_n2 = _hdr_btn("Comparar com N2", "#a855f7", checkable=True)
         _btn_cmp_n2.clicked.connect(self._on_comparar_n2_toggled)
         self._btn_comparar_n2 = _btn_cmp_n2
         self.tri_level._columns[3]._badge_row.addWidget(_btn_cmp_n2)
-        _btn_open_n4 = _hdr_btn("Abrir DXF", _N4_FG)
+        _btn_open_n4 = _hdr_btn("Abrir DXF", "#a855f7")
         _btn_open_n4.clicked.connect(lambda: self._on_abrir_dxf(3))
         self.tri_level._columns[3]._badge_row.addWidget(_btn_open_n4)
-        _btn_cfg_n4 = _hdr_btn("Configuracao Visual", _N4_FG)
+        _btn_cfg_n4 = _hdr_btn("Configuracao Visual", "#a855f7")
         _btn_cfg_n4.clicked.connect(lambda: self._on_configuracao_visual(3))
         self.tri_level._columns[3]._badge_row.addWidget(_btn_cfg_n4)
-        self._visual_mode_n4 = VisualModeSelector("N4", _N4_FG, self)
-        self._visual_mode_n4.mode_changed.connect(
-            lambda mode: self._on_visual_mode_changed("N4", mode)
-        )
-        self.tri_level._columns[3]._badge_row.addWidget(self._visual_mode_n4)
 
         # N5 header: Comparar Eng. Reversa Humana | Abrir DXF
-        _btn_cmp_n5 = _hdr_btn("Comparar Eng. Rev. Humana", _N5_FG, checkable=True)
+        _btn_cmp_n5 = _hdr_btn("Comparar Eng. Rev. Humana", "#00bcd4", checkable=True)
         _btn_cmp_n5.clicked.connect(self._on_comparar_er_humana_toggled)
         self._btn_comparar_n5 = _btn_cmp_n5
         self.tri_level._columns[4]._badge_row.addWidget(_btn_cmp_n5)
-        _btn_open_n5 = _hdr_btn("Abrir DXF", _N5_FG)
+        _btn_open_n5 = _hdr_btn("Abrir DXF", "#00bcd4")
         _btn_open_n5.clicked.connect(lambda: self._on_abrir_dxf(4))
         self.tri_level._columns[4]._badge_row.addWidget(_btn_open_n5)
-        _btn_cfg_n5 = _hdr_btn("Configuracao Visual", _N5_FG)
+        _btn_cfg_n5 = _hdr_btn("Configuracao Visual", "#00bcd4")
         _btn_cfg_n5.clicked.connect(lambda: self._on_configuracao_visual(4))
         self.tri_level._columns[4]._badge_row.addWidget(_btn_cfg_n5)
-        self._visual_mode_n5 = VisualModeSelector("N5", _N5_FG, self)
-        self._visual_mode_n5.mode_changed.connect(
-            lambda mode: self._on_visual_mode_changed("N5", mode)
-        )
-        self.tri_level._columns[4]._badge_row.addWidget(self._visual_mode_n5)
-        _initial_classe = getattr(self.nav_sidebar, "_current_classe", "")
-        for _selector in (
-            self._visual_mode_n3,
-            self._visual_mode_n4,
-            self._visual_mode_n5,
-        ):
-            _selector.set_classe(_initial_classe)
 
         # Troca de classe → N5 auto-gera | seleção de item → N3 ou N4 auto-exibe
         self.nav_sidebar.classe_changed.connect(self._on_classe_changed)
@@ -9343,7 +6979,7 @@ class ComparisonEngineModule(QWidget):
                 classe = getattr(self.nav_sidebar, "_selected_classe", "")
                 item_id = getattr(self.nav_sidebar, "_selected_item", "")
                 bbox = self.tri_level._get_n1_bbox_for(item_id, classe) if item_id else None
-                points = self.tri_level._get_n1_highlight_points(item_id, classe) if item_id else None
+                points = self.tri_level._get_lj_n1_points(item_id) if classe == "LJ" and item_id else None
                 col_n3.show_n2_above(
                     n1_path,
                     title=f"DXF N1 - {item_id}" if item_id else "DXF N1",
@@ -9376,77 +7012,22 @@ class ComparisonEngineModule(QWidget):
         """Toggle: mostra/esconde DXF N2 (recorte) acima do viewer N4."""
         col = self.tri_level._columns[3]
         if checked:
-            recorte = self._resolve_n2_recorte_path()
-            if not recorte:
-                self.nav_sidebar.set_status(
-                    "Sem recorte N2 para este item — rode Motor Reverso / selecione na lista Eng.Rev.",
-                    Colors.TEXT_DIM,
-                )
-                self._btn_comparar_n2.setChecked(False)
-                _ce_log("Comparar N2: recorte não resolvido")
-                return
-            if not self._refresh_n4_compare_if_active(
-                recorte, cull_to_bbox=False
-            ):
+            recorte = getattr(self.nav_sidebar, '_selected_recorte_path', "") or ""
+            if not recorte or not self._refresh_n4_compare_if_active(recorte, cull_to_bbox=False):
                 self.nav_sidebar.set_status("Sem recorte N2 para este item", Colors.TEXT_DIM)
                 self._btn_comparar_n2.setChecked(False)
-                return
-            _ce_log(f"Comparar N2 OK path={recorte}")
+            return
+            recorte = getattr(self.nav_sidebar, '_selected_recorte_path', "") or ""
+            if recorte and Path(recorte).exists():
+                col.show_n2_above(recorte)
+            else:
+                self.nav_sidebar.set_status("Sem recorte N2 para este item", Colors.TEXT_DIM)
+                self._btn_comparar_n2.setChecked(False)
         else:
             col.hide_n2_above()
 
-    def _resolve_n2_recorte_path(self) -> str:
-        """Resolve o DXF de recorte N2 para o item atual (estrutural ou reverso).
-
-        Ordem:
-        1. path da lista Eng.Rev. (UserRole+1)
-        2. último DXF carregado na coluna N2
-        3. lookup DB/disco via _get_recorte_dxf_for_er (base id sem _Para/_Passa)
-        """
-        recorte = getattr(self.nav_sidebar, "_selected_recorte_path", "") or ""
-        if recorte and Path(recorte).exists():
-            return str(recorte)
-        col_n2 = self.tri_level._columns[1]._last_loaded_dxf or ""
-        if col_n2 and Path(col_n2).exists():
-            # Só aceita se parecer recorte (não o STOG completo do pav)
-            name = Path(col_n2).name.upper()
-            if "PIL_" in name or "LV_" in name or "FV_" in name or "LAJ_" in name or "_SEL_" in name or "_MOTOR_" in name:
-                return str(col_n2)
-        classe = getattr(self.nav_sidebar, "_selected_classe", "") or ""
-        item_id = getattr(self.nav_sidebar, "_selected_item", "") or ""
-        if not classe or not item_id:
-            return ""
-        obra = (
-            self.fase8_panel.cmb_obra.currentData()
-            or self.fase8_panel.cmb_obra.currentText()
-        )
-        pav_raw = getattr(self.fase8_panel, "current_pav_key", "") or ""
-        # reverse_eng_fichas usa 13_PAV; o combo pode entregar o nome CAD longo.
-        try:
-            pav = NavSidebar._pav_key_to_db_pav(str(pav_raw))
-        except Exception:
-            pav = str(pav_raw)
-        base_id = item_id
-        if str(classe).upper() == "PL":
-            base_id = _pil_strip_pp(item_id)
-        elif str(classe).upper() == "LV":
-            base_id = _lv_elem_id(item_id)
-        try:
-            found = self._get_recorte_dxf_for_er(
-                str(obra), str(classe).upper(), str(base_id), pav=str(pav)
-            )
-            if found and Path(found).exists():
-                return str(found)
-        except Exception as exc:
-            _ce_log(f"_resolve_n2_recorte_path error: {exc}")
-        return ""
-
     def _refresh_n3_compare_if_active(self, classe: str | None = None, item_id: str | None = None) -> bool:
-        """Atualiza o viewer comparativo N1 aberto acima do N3 para o item atual.
-
-        PL/LJ/FV: carrega o estrutural completo (sem cull agressivo), destaca a
-        geometria real do item e faz zoom com contexto generoso ao redor.
-        """
+        """Atualiza o viewer comparativo N1 aberto acima do N3 para o item atual."""
         btn = getattr(self, "_btn_comparar_n1", None)
         if not btn or not btn.isChecked():
             return True
@@ -9455,48 +7036,13 @@ class ComparisonEngineModule(QWidget):
             return False
         classe = classe or getattr(self.nav_sidebar, "_selected_classe", "")
         item_id = item_id or getattr(self.nav_sidebar, "_selected_item", "")
-        classe_up = str(classe or "").upper()
         bbox = self.tri_level._get_n1_bbox_for(item_id, classe) if item_id else None
-        points = (
-            self.tri_level._get_n1_highlight_points(item_id, classe)
-            if item_id and classe_up in ("LJ", "FV", "PL")
-            else None
-        )
-        # Nunca culpar o mapa para PL/LJ/FV: o usuário precisa do contexto real.
-        # O zoom usa focus_on_bbox com context_factor.
-        keep_full_map = classe_up in ("LJ", "FV", "PL")
+        points = self.tri_level._get_lj_n1_points(item_id) if classe == "LJ" and item_id else None
         self.tri_level._columns[2].show_n2_above(
             n1_path,
             title=f"DXF N1 - {item_id}" if item_id else "DXF N1",
-            bbox=bbox if not keep_full_map else None,
+            bbox=bbox,
             highlight_points=points,
-            cull_to_bbox=not keep_full_map,
-        )
-        compare_view = getattr(
-            self.tri_level._columns[2], "_n2_above_view", None
-        )
-        if compare_view is not None:
-            # Destaque: polígono real; se não houver points, bbox justo do item
-            # (não o bbox expandido de contexto).
-            if points:
-                compare_view.set_highlight_geometry(points)
-            elif bbox and not keep_full_map:
-                compare_view.set_highlight_bbox(bbox)
-            elif classe_up == "PL" and item_id:
-                # Bbox justo só do pilar para o retângulo vermelho, se points falhar
-                tight = self.tri_level._points_bbox(
-                    self.tri_level._get_pl_n1_points(item_id), pad=4.0
-                )
-                if tight:
-                    compare_view.set_highlight_bbox(tight)
-            if bbox and hasattr(compare_view, "focus_on_bbox"):
-                # PL: mais contexto (vizinhança de vigas/lajes); LJ/FV: 2.2
-                factor = 1.35 if classe_up == "PL" else 2.2
-                # Para PL o bbox já inclui pad de contexto (~6x); factor extra leve.
-                compare_view.focus_on_bbox(bbox, context_factor=factor)
-        _ce_log(
-            f"Comparar N1 ok classe={classe} item={item_id} "
-            f"points={len(points or [])} bbox={bbox} full_map={keep_full_map}"
         )
         return True
 
@@ -9524,73 +7070,48 @@ class ComparisonEngineModule(QWidget):
 
     def _refresh_n4_compare_if_active(self, n2_path=None, classe: str | None = None,
                                       item_id: str | None = None, bbox=None,
-                                      cull_to_bbox: bool = False) -> bool:
-        """Atualiza o viewer comparativo N2 aberto acima do N4 para o item atual.
-
-        Recorte N2 já é local — default sem cull (mostra o recorte inteiro).
-        """
+                                      cull_to_bbox: bool = True) -> bool:
+        """Atualiza o viewer comparativo N2 aberto acima do N4 para o item atual."""
         btn = getattr(self, "_btn_comparar_n2", None)
         if not btn or not btn.isChecked():
             return True
-        path = n2_path or ""
+        path = n2_path or getattr(self.nav_sidebar, '_selected_recorte_path', "") or ""
         if not path:
-            path = self._resolve_n2_recorte_path()
+            path = self.tri_level._columns[1]._last_loaded_dxf or ""
         if not path or not Path(str(path)).exists():
-            _ce_log(f"Comparar N2 path ausente: {path!r}")
             return False
         classe = classe or getattr(self.nav_sidebar, "_selected_classe", "")
         item_id = item_id or getattr(self.nav_sidebar, "_selected_item", "")
-        if bbox is None and item_id and cull_to_bbox:
+        if bbox is None and item_id:
             bbox = self.tri_level._get_n2_bbox_for(item_id, classe)
-        # Marco vermelho = contorno da LAJE no recorte (motor+pose = mesma fonte N4),
-        # não o bbox expandido de todo o conteúdo do crop (apoios/vizinhos).
-        highlight_points = None
-        if str(classe).upper() == "LJ" and item_id:
-            highlight_points = self.tri_level._get_lj_content_points_for(
-                item_id, recorte_path=path
-            )
         self.tri_level._columns[3].show_n2_above(
             path,
             title=f"DXF N2 - {item_id}" if item_id else "DXF N2",
-            bbox=bbox if cull_to_bbox else None,
-            highlight_points=highlight_points,
+            bbox=bbox,
             cull_to_bbox=cull_to_bbox,
         )
         return True
 
-    def _load_recorte_full_with_optional_zoom(
-        self, col, dxf_path, bbox=None, highlight_points=None
-    ):
-        """Carrega recorte inteiro; destaque = polígono da laje (não retângulo AABB)."""
-        points = list(highlight_points) if highlight_points else None
-        zoom_bb = bbox
-        if points and len(points) >= 3 and zoom_bb is None:
-            zoom_bb = self.tri_level._points_bbox(points, pad=5.0)
-
-        def _apply_highlight():
-            try:
-                if points and len(points) >= 3 and hasattr(col.img_widget, "set_highlight_geometry"):
-                    col.img_widget.set_highlight_geometry(points)
-                elif zoom_bb and hasattr(col.img_widget, "set_highlight_bbox"):
-                    col.img_widget.set_highlight_bbox(zoom_bb)
-                if zoom_bb:
-                    col.img_widget.zoom_to_bbox(zoom_bb)
-            except Exception:
-                pass
-
-        if points or zoom_bb:
+    def _load_recorte_full_with_optional_zoom(self, col, dxf_path, bbox=None):
+        """Carrega recorte individual inteiro; bbox serve apenas para destacar/zoomar."""
+        if bbox:
             def _after_ready():
                 try:
                     col.img_widget.ready.disconnect(_after_ready)
                 except (RuntimeError, TypeError):
                     pass
-                _apply_highlight()
+                try:
+                    col.img_widget.set_highlight_bbox(bbox)
+                    col.img_widget.zoom_to_bbox(bbox)
+                except Exception:
+                    pass
             try:
                 col.img_widget.ready.connect(_after_ready)
             except (RuntimeError, TypeError):
                 pass
         col.load_content(str(dxf_path), None)
-        _apply_highlight()
+        if bbox and hasattr(col.img_widget, "set_highlight_bbox"):
+            col.img_widget.set_highlight_bbox(bbox)
 
     def _on_comparar_er_humana_toggled(self, checked: bool):
         """Toggle: mostra/esconde DXF Eng. Reversa Humana (obra_triagem) acima do viewer N5."""
@@ -9649,72 +7170,16 @@ class ComparisonEngineModule(QWidget):
             self._btn_comparar_n5.setChecked(False)
 
     def _on_abrir_dxf(self, col_index: int):
-        """Abre o recorte N2 ou os artefatos reais da coluna no aplicativo do SO."""
+        """Abre o último DXF carregado na coluna col_index no aplicativo padrão do SO."""
         import os as _os
-        classe = getattr(self.nav_sidebar, "_selected_classe", "")
-        item_id = getattr(self.nav_sidebar, "_selected_item", "")
-        paths = _resolve_open_dxf_paths(
-            col_index=col_index,
-            obra_dir=getattr(self.nav_sidebar, "_current_obra_dir", None),
-            classe=classe,
-            item_id=item_id,
-            last_loaded_dxf=(
-                self.tri_level._columns[col_index]._last_loaded_dxf or ""
-            ),
-            selected_recorte_path=(
-                getattr(self.nav_sidebar, "_selected_recorte_path", "") or ""
-            ),
-        )
-        if paths:
+        path = self.tri_level._columns[col_index]._last_loaded_dxf or ""
+        if path and Path(path).exists():
             try:
-                for path in paths:
-                    _os.startfile(str(path))
+                _os.startfile(path)
             except Exception as exc:
                 self.nav_sidebar.set_status(f"Erro ao abrir: {exc}", Colors.ACCENT_DANGER)
         else:
             self.nav_sidebar.set_status("Nenhum DXF carregado nesta aba", Colors.TEXT_DIM)
-
-    def _on_criar_ficha_pdf(self):
-        """Gera e abre a ficha PDF do item selecionado no CE (qualquer classe)."""
-        from .ficha_pdf_generator import gerar_ficha_pdf, abrir_pdf
-        from PySide6.QtWidgets import QMessageBox
-
-        obra_dir = getattr(self.nav_sidebar, "_current_obra_dir", None)
-        classe   = (getattr(self.nav_sidebar, "_selected_classe", "") or "").upper()
-        item_id  = getattr(self.nav_sidebar, "_selected_item", "") or ""
-
-        if not obra_dir or not classe or not item_id:
-            self.nav_sidebar.set_status(
-                "Selecione um item antes de gerar a ficha PDF", Colors.TEXT_DIM)
-            return
-
-        obra = obra_dir.name if obra_dir else ""
-        pav  = self.fase8_panel.current_pav_key or ""
-
-        self.nav_sidebar.set_status("Gerando ficha PDF…", Colors.TEXT_DIM)
-
-        try:
-            ficha   = self._get_er_ficha_dict(obra, classe, item_id)
-            dxf_p   = self._find_n3_dxf(obra_dir, classe, item_id)
-            out_dir = obra_dir / "Fase-6_Execucao_CAD" / "fichas_pdf"
-
-            pdf_path = gerar_ficha_pdf(
-                ficha=ficha,
-                classe=classe,
-                item_id=item_id,
-                obra=obra,
-                pav=pav,
-                out_dir=out_dir,
-                dxf_path=dxf_p,
-            )
-            self.nav_sidebar.set_status(
-                f"Ficha PDF gerada: {pdf_path.name}", Colors.ACCENT_SUCCESS)
-            abrir_pdf(pdf_path)
-        except Exception as exc:
-            self.nav_sidebar.set_status(
-                f"Erro ao gerar PDF: {str(exc)[:80]}", Colors.ACCENT_DANGER)
-            QMessageBox.critical(self, "Erro — Ficha PDF",
-                                 f"Não foi possível gerar a ficha PDF:\n\n{exc}")
 
     def _robot_widget_for_classe(self, classe: str):
         main = self.window()
@@ -9736,76 +7201,22 @@ class ComparisonEngineModule(QWidget):
         """Abre painel de configuracao visual do DXF para N3/N4/N5."""
         try:
             classe = getattr(self.nav_sidebar, "_current_classe", "") or "FV"
-            level = {2: "N3", 3: "N4", 4: "N5"}.get(col_index, "")
             script = self._script_for_visual_config(classe, col_index)
             robot = self._robot_widget_for_classe(classe)
             if not script.exists():
                 self.nav_sidebar.set_status(f"Script DXF nao encontrado: {script.name}", Colors.ACCENT_DANGER)
                 return
-            dlg = DxfVisualConfigDialog(
-                classe, script, robot_widget=robot, parent=self, level=level,
-            )
+            dlg = DxfVisualConfigDialog(classe, script, robot_widget=robot, parent=self)
             dlg.exec()
         except Exception as exc:
             self.nav_sidebar.set_status(f"Erro Config Visual: {str(exc)[:80]}", Colors.ACCENT_DANGER)
             print(f"[CE] _on_configuracao_visual error: {exc}")
 
-    def _visual_mode_for(self, level: str) -> str:
-        selector = {
-            "N3": getattr(self, "_visual_mode_n3", None),
-            "N4": getattr(self, "_visual_mode_n4", None),
-            "N5": getattr(self, "_visual_mode_n5", None),
-        }.get(str(level).upper())
-        return selector.mode if selector is not None else "NOVA"
-
-    def _on_visual_mode_changed(self, level: str, mode: str):
-        """Regenera somente o nivel atual usando o perfil visual selecionado."""
-        classe = str(getattr(self.nav_sidebar, "_current_classe", "") or "").upper()
-        if classe not in ("PL", "LV", "FV"):
-            return
-        for peer_level, peer in (
-            ("N3", getattr(self, "_visual_mode_n3", None)),
-            ("N4", getattr(self, "_visual_mode_n4", None)),
-            ("N5", getattr(self, "_visual_mode_n5", None)),
-        ):
-            if peer is not None and peer_level != level:
-                peer.sync_mode(mode)
-        self._seq_id += 1
-        if level == "N5":
-            item_ids = self.nav_sidebar.current_item_ids()
-            if item_ids:
-                self._on_gerar_n5(classe, item_ids)
-            return
-
-        selected_classe = str(
-            getattr(self.nav_sidebar, "_selected_classe", "") or ""
-        ).upper()
-        item_id = str(getattr(self.nav_sidebar, "_selected_item", "") or "")
-        if not item_id or selected_classe != classe:
-            self.nav_sidebar.set_status(
-                f"Modo {mode.title()} salvo; selecione um item para regenerar",
-                Colors.TEXT_DIM,
-            )
-            return
-        if level == "N3":
-            self._on_gerar_n3(classe, item_id, force_regen=True)
-        elif level == "N4":
-            self._on_gerar_n4(
-                classe, item_id, allow_validated_candidate=True
-            )
-
     def _on_classe_changed(self, cls: str):
         """Ao trocar aba de classe, gera/exibe dinamicamente o N5 da classe."""
         try:
-            for selector in (
-                getattr(self, "_visual_mode_n3", None),
-                getattr(self, "_visual_mode_n4", None),
-                getattr(self, "_visual_mode_n5", None),
-            ):
-                if selector is not None:
-                    selector.set_classe(cls)
             self.tri_level._nivel_tabs.setCurrentIndex(4)
-            if cls not in ("LJ", "PL", "LV", "FV"):
+            if cls not in ("LJ", "FV"):
                 col = self.tri_level._columns[4]
                 col.img_widget.cancel_load(f"N5 nao disponivel para {cls}")
                 return
@@ -9863,25 +7274,15 @@ class ComparisonEngineModule(QWidget):
             print(f"[CE] _validate_current_tab_human error: {exc}")
             return False
 
-    def _on_obra_pav_changed(self, _text: str = "", *, manter_toggle: bool = False):
+    def _on_obra_pav_changed(self, _text: str = ""):
         """Propaga mudança de obra/pav do Fase8Panel para o TriLevelArea e main.py.
         Carrega DXF limpo no N1 uma vez ao mudar pavimento (item click = só zoom).
         Também auto-dispara Análise Geral em background se não estiver em cache.
-        Guard: ignora chamadas com pav vazio (durante populate do combo).
-
-        Masterplan OBRAS DRIVE Fase 5: `self._ce_obra_override` (setado pelo
-        toggle "Dados WEB/Local") redireciona QUAL obra_dir alimenta
-        tri_level/nav_sidebar — `obra_local` (a obra real selecionada no
-        combo) continua sendo usada pra achar a referência web/popular o
-        toggle, nunca se perde mesmo em modo WEB. `manter_toggle=True` é
-        usado pelo próprio toggle pra re-renderizar sem resetar a si mesmo."""
+        Guard: ignora chamadas com pav vazio (durante populate do combo)."""
         try:
-            obra_local = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
+            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav  = self.fase8_panel.current_pav_key
-            if not manter_toggle:
-                self._ce_obra_override = None
-            obra = getattr(self, "_ce_obra_override", None) or obra_local
-            _ce_log(f"[CE] _on_obra_pav_changed obra={obra!r} pav={pav!r} (obra_local={obra_local!r})")
+            _ce_log(f"[CE] _on_obra_pav_changed obra={obra!r} pav={pav!r}")
             # Guard: não processar enquanto combo está sendo populado (pav vazio = populate em andamento)
             if not obra or not pav:
                 return
@@ -9899,60 +7300,6 @@ class ComparisonEngineModule(QWidget):
             obra_dir = str(DADOS_OBRAS_ROOT / obra)
             self.nav_sidebar.set_obra(obra_dir)
             self.nav_sidebar.set_pav(pav)   # filtra lista ER pelo pavimento selecionado
-            
-            stats = {}
-            for t in ["PL", "LV", "FV", "LJ"]:
-                structural = self.nav_sidebar._structural_item_rows(t)
-                tot = len(structural)
-                v = sum(1 for item_data in structural.values() if self.nav_sidebar._row_human_validated(t, item_data))
-                stats[t] = {"validated": v, "total": tot}
-            self.fase8_panel._refresh_processing_status(obra, pav, stats)
-
-            # Masterplan OBRAS DRIVE Fase 4/5: se esse pavimento (obra Drive)
-            # já teve SA rodado/persistido na WEB, mostra contagem + atalho
-            # de pasta + habilita o toggle "Dados WEB/Local". Busca SEMPRE
-            # por `obra_local` (nunca pelo `obra` efetivo, que pode já estar
-            # redirecionado) — sem isso o toggle desapareceria assim que
-            # entrasse em modo WEB. Reseta visual do toggle só quando NÃO é
-            # o próprio toggle chamando (`manter_toggle`).
-            try:
-                if not manter_toggle:
-                    self.fase8_panel.lbl_sa_web_ref.setVisible(False)
-                    self.fase8_panel.btn_abrir_sa_web.setVisible(False)
-                    self.fase8_panel.toggle_web_local_widget.setVisible(False)
-                    self.fase8_panel._sa_web_html_dir_atual = None
-                    self.fase8_panel._sa_web_work_name_atual = None
-                    self.fase8_panel.btn_ver_local.blockSignals(True)
-                    self.fase8_panel.btn_ver_local.setChecked(True)
-                    self.fase8_panel.btn_ver_local.blockSignals(False)
-                from src.core.database import DatabaseManager
-                _db_ce = DatabaseManager(db_path="D:/Agente-cad-PYSIDE/project_data.vision")
-                _conn_ce = _db_ce._get_conn()
-                _row_ce = _conn_ce.execute(
-                    "SELECT id, web_sa_project_id FROM projects WHERE work_name=? AND pavement_name=?",
-                    (obra_local, pav)
-                ).fetchone()
-                _conn_ce.close()
-                if _row_ce and _row_ce[1]:
-                    _cont_ce = _db_ce.contar_elementos_sa(_row_ce[1])
-                    if any(_cont_ce.values()):
-                        self.fase8_panel.lbl_sa_web_ref.setText(
-                            f"🌐 SA já rodado na WEB pra este pavimento: "
-                            f"{_cont_ce['pilares']} pilares, {_cont_ce['vigas']} vigas, {_cont_ce['lajes']} lajes."
-                        )
-                        self.fase8_panel.lbl_sa_web_ref.setVisible(True)
-                        _html_dir = _db_ce.obter_ultimo_html_dir_sa(_row_ce[1])
-                        if _html_dir:
-                            self.fase8_panel._sa_web_html_dir_atual = _html_dir
-                            self.fase8_panel.btn_abrir_sa_web.setVisible(True)
-                        _web_project = _db_ce.get_project_by_id(_row_ce[1])
-                        _web_work_name = (_web_project or {}).get("work_name")
-                        if _web_work_name:
-                            self.fase8_panel._sa_web_work_name_atual = _web_work_name
-                            self.fase8_panel.toggle_web_local_widget.setVisible(True)
-            except Exception as e:
-                _ce_log(f"[CE] Falha ao checar SA da web: {e}")
-
             # Cancela sequência anterior de item (novo pav = novo contexto)
             self._seq_id += 1
             # Carrega DXF limpo no N1 apenas quando muda obra ou pavimento
@@ -10006,16 +7353,10 @@ class ComparisonEngineModule(QWidget):
                 pass
             # Retirement: mesma estratégia do DXFLoadWorker
             self._retiring_analise_workers.append(old_aw)
-            # AnaliseGeralWorker.finished = Signal(str, str, bool, str): o Qt
-            # passa esses 4 args pro slot conectado. Sem o "*_ignored" antes
-            # de w/lst, o PySide sobrescreve os defaults com os args do sinal
-            # (w virava o 1º str emitido) e w.deleteLater() quebrava com
-            # AttributeError: 'str' object has no attribute 'deleteLater'.
-            def _retire_aw(*_ignored, w=old_aw, lst=self._retiring_analise_workers):
+            def _retire_aw(w=old_aw, lst=self._retiring_analise_workers):
                 try:
-                    if isinstance(lst, list):
-                        lst.remove(w)
-                except (ValueError, AttributeError):
+                    lst.remove(w)
+                except ValueError:
                     pass
                 try:
                     w.deleteLater()
@@ -10061,38 +7402,6 @@ class ComparisonEngineModule(QWidget):
         # Limpa cache e re-dispara
         self._analise_cache.clear()
         self._auto_analise_geral(obra, pav)
-
-    def _on_rag_context_requested(self, classe: str, item_id: str):
-        """Consulta RAG read-only. Nao altera Analise Geral, fichas ou DXFs."""
-        try:
-            import sys as _sys
-            scripts_dir = Path(__file__).resolve().parents[4] / "scripts"
-            if scripts_dir.exists() and str(scripts_dir) not in _sys.path:
-                _sys.path.insert(0, str(scripts_dir))
-            from rag_context_service import get_rag_context_for_item, format_context_text
-
-            obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
-            pav = self.fase8_panel.current_pav_key
-            context = get_rag_context_for_item(
-                classe=classe,
-                item_id=item_id,
-                obra=obra,
-                pavimento=pav,
-                min_tier="T1",
-            )
-            self.nav_sidebar.set_status(
-                f"RAG: {len(context.get('rules') or [])} regras, "
-                f"{len(context.get('validated_examples') or [])} exemplos T1+",
-                Colors.ACCENT_SUCCESS,
-            )
-            QMessageBox.information(
-                self,
-                "Contexto RAG read-only",
-                format_context_text(context),
-            )
-        except Exception as exc:
-            self.nav_sidebar.set_status(f"Erro RAG: {str(exc)[:80]}", Colors.ACCENT_DANGER)
-            print(f"[RAG] context query failed: {exc}")
 
     # ── Handlers Gerar N1 / N2 / N3 ────────────────────────────────
 
@@ -10156,14 +7465,18 @@ class ComparisonEngineModule(QWidget):
                 return f"{label}: pendente ({detail}; DXF ausente)."
 
             if classe == "LJ":
-                from scripts.arete_lj_canonico import canonical
-                import sys, os
-                if str(SCRIPTS_DIR) not in sys.path:
-                    sys.path.append(str(SCRIPTS_DIR))
-                from engrev_laj_recorte_loop import _score_diff
-                ref_fc = canonical(Path(left))
-                cand_fc = canonical(Path(right))
-                pct, fails = _score_diff(ref_fc, cand_fc)
+                from scripts.arete_lj_canonico import canonical, diff
+                diffs = diff(canonical(Path(left)), canonical(Path(right))).get("diffs", {})
+                weights = {
+                    "outline": 50,
+                    "linhas_verticais": 20,
+                    "linhas_horizontais": 20,
+                    "hlaz": 5,
+                    "obstaculos": 5,
+                }
+                lost = sum(weight for field, weight in weights.items() if field in diffs)
+                pct = max(0, 100 - lost)
+                fails = [field for field in weights if field in diffs]
                 suffix = "OK" if not fails else "diverge: " + ", ".join(fails)
                 return f"{label}: {pct:.0f}% ({detail}; marco/linhas LAJ; {suffix})."
 
@@ -10218,11 +7531,6 @@ class ComparisonEngineModule(QWidget):
             pav = self.fase8_panel.current_pav_key
             meta = load_attention(obra, pav, classe, item_id, scope)
             score_text = self._visual_score_for_level(scope, classe, item_id)
-            if scope == "N4" and is_qa_agente_validated(obra, pav, classe, item_id, scope):
-                qa_hint = "🟠 QA agente"
-                score_text = (
-                    f"{score_text} · {qa_hint}" if score_text else qa_hint
-                )
             col = self.tri_level._columns[idx]
             col.set_attention_context(
                 score_text,
@@ -10232,24 +7540,14 @@ class ComparisonEngineModule(QWidget):
                 meta.get("human_validated", False),
                 lambda ok, s=scope, c=classe, iid=item_id: self._save_level_human_validation(s, c, iid, ok),
             )
-            # LV e PIL exibem Para/Passa em N3/N4. Para PIL, N3 seleciona
-            # contratos derivados do SA; N4 continua sendo a ficha reversa.
+            # Para LV: exibe Para/Passa em N3 e N4 sincronizado com N2
             if classe == "LV":
-                tipo = _lv_pp_from_id(item_id) or load_para_passa(
-                    obra, pav, "LV", _lv_elem_id(item_id))
-                viga_base = _lv_elem_id(item_id)
+                import re as _re2
+                viga_base = _re2.sub(r'[_\.][AB]$', '', str(item_id).upper())
+                tipo = load_para_passa(obra, pav, "LV", viga_base)
                 col.set_para_passa(
                     tipo,
                     lambda t, b=viga_base: self._save_lv_para_passa_and_sync(b, t),
-                )
-            elif classe == "PL" and scope in ("N3", "N4"):
-                base_item_id = _pil_strip_pp(item_id)
-                tipo = _pil_pp_from_id(item_id) or load_para_passa(
-                    obra, pav, "PIL", base_item_id
-                )
-                col.set_para_passa(
-                    tipo,
-                    lambda t, iid=base_item_id: self._save_pil_para_passa_and_sync(iid, t),
                 )
             elif col._para_passa_row.isVisible():
                 # limpa apenas se estava visível (evita ocultar attention_inline por engano)
@@ -10261,26 +7559,7 @@ class ComparisonEngineModule(QWidget):
         try:
             obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav = self.fase8_panel.current_pav_key
-            previous = load_attention(obra, pav, classe, item_id, scope)
-            save_attention(obra, pav, classe, item_id, scope, attention, note, note_origin="human_ui")
-            before = {
-                "attention": bool(previous.get("attention")),
-                "note": previous.get("note") or "",
-            }
-            after = {"attention": bool(attention), "note": note or ""}
-            if before != after:
-                save_human_edit_event(
-                    obra_id=obra,
-                    classe=classe,
-                    item_id=item_id,
-                    fase_editada=f"{scope}_ATENCAO",
-                    ui_context="ComparisonEngine",
-                    estado_anterior=before,
-                    estado_novo=after,
-                    nota_usuario=(note or "Alteração manual de atenção")[:1000],
-                    source_agent="comparison_engine",
-                    correlation_id=f"{obra}:{pav}:{classe}:{item_id}:{scope}",
-                )
+            save_attention(obra, pav, classe, item_id, scope, attention, note)
             self.nav_sidebar.refresh_tree()
         except Exception as exc:
             print(f"[CE] _save_level_attention error: {exc}")
@@ -10289,33 +7568,7 @@ class ComparisonEngineModule(QWidget):
         try:
             obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
             pav = self.fase8_panel.current_pav_key
-            save_human_validation(
-                obra,
-                pav,
-                classe,
-                item_id,
-                scope,
-                human_validated,
-                validation_origin="human_ui",
-            )
-            try:
-                import sys as _sys
-                scripts_dir = Path(__file__).resolve().parents[4] / "scripts"
-                if scripts_dir.exists() and str(scripts_dir) not in _sys.path:
-                    _sys.path.insert(0, str(scripts_dir))
-                from rag_validation_events import record_comparison_human_validation
-                result = record_comparison_human_validation(
-                    obra_name=obra,
-                    pavimento=pav,
-                    classe=classe,
-                    item_id=item_id,
-                    scope=scope,
-                    human_validated=human_validated,
-                    validation_origin="human_ui",
-                )
-                print(f"[RAG] comparison human validation hook: {result}")
-            except Exception as hook_exc:
-                print(f"[RAG] comparison human validation hook failed: {hook_exc}")
+            save_human_validation(obra, pav, classe, item_id, scope, human_validated)
             self.nav_sidebar.set_status(
                 f"{scope} {'validado humano' if human_validated else 'validacao humana removida'} - {item_id}",
                 Colors.ACCENT_SUCCESS if human_validated else Colors.TEXT_DIM,
@@ -10333,20 +7586,14 @@ class ComparisonEngineModule(QWidget):
             if classe in ("PL", "LJ"):
                 db_cls = "PIL" if classe == "PL" else "LAJ"
                 tipo = load_para_passa(obra, pav, db_cls, item_id)
-                callback = (
-                    (lambda t, iid=item_id: self._save_pil_para_passa_and_sync(iid, t))
-                    if db_cls == "PIL"
-                    else (lambda t, s=db_cls, iid=item_id: self._save_para_passa_n2(s, iid, t))
-                )
                 col.set_para_passa(
                     tipo,
-                    callback,
+                    lambda t, s=db_cls, iid=item_id: self._save_para_passa_n2(s, iid, t),
                 )
             elif classe == "LV":
-                # Para IDs virtuais "V301_A_Para", extrai pp do ID e viga_base sem face/pp
-                tipo = _lv_pp_from_id(item_id) or load_para_passa(
-                    obra, pav, "LV", _lv_elem_id(item_id))
-                viga_base = _lv_elem_id(item_id)
+                import re as _re2
+                viga_base = _re2.sub(r'[_\.][AB]$', '', str(item_id).upper())
+                tipo = load_para_passa(obra, pav, "LV", viga_base)
                 col.set_para_passa(
                     tipo,
                     lambda t, b=viga_base: self._save_lv_para_passa_and_sync(b, t),
@@ -10393,35 +7640,6 @@ class ComparisonEngineModule(QWidget):
             self.nav_sidebar.refresh_tree()
         except Exception as exc:
             print(f"[CE] _save_lv_para_passa_and_sync error: {exc}")
-
-    def _save_pil_para_passa_and_sync(self, item_id: str, tipo: str):
-        """Salva a classificacao PIL uma vez e espelha os botoes N2/N4."""
-        try:
-            obra = (
-                self.fase8_panel.cmb_obra.currentData()
-                or self.fase8_panel.cmb_obra.currentText()
-            )
-            pav = self.fase8_panel.current_pav_key
-            save_para_passa(obra, pav, "PIL", item_id, tipo)
-            for index in (1, 3):
-                col = self.tri_level._columns[index]
-                if not col._para_passa_row.isVisible():
-                    continue
-                col._attention_loading = True
-                try:
-                    col._para_btn.setChecked(tipo == "para")
-                    col._passa_btn.setChecked(tipo == "passa")
-                finally:
-                    col._attention_loading = False
-            suffix = "-Vigas Passam" if tipo == "passa" else (
-                "-Vigas Param" if tipo == "para" else ""
-            )
-            self.nav_sidebar.set_status(
-                f"PIL {item_id}{suffix} classificado", Colors.ACCENT_SUCCESS
-            )
-            self.nav_sidebar.refresh_tree()
-        except Exception as exc:
-            print(f"[CE] _save_pil_para_passa_and_sync error: {exc}")
 
     def _on_item_selected(self, classe: str, item_id: str):
         """Auto-dispara N1 → N2 → N3 em sequência ao selecionar item.
@@ -10519,15 +7737,10 @@ class ComparisonEngineModule(QWidget):
 
             if col.img_widget.is_loaded:
                 # DXF já carregado — só reposiciona viewport
-                if classe in ("LJ", "FV"):
-                    col.img_widget.set_highlight_geometry(
-                        self.tri_level._get_n1_highlight_points(item_id, classe)
-                    )
-                    if hasattr(col.img_widget, "fit_all"):
-                        col.img_widget.fit_all()
-                    col.pipeline.set_step(1, 'ok', f'{item_id} (mapa completo)')
-                elif n1_bbox:
-                    if hasattr(col.img_widget, "set_highlight_bbox"):
+                if n1_bbox:
+                    if classe == "LJ" and hasattr(col.img_widget, "set_highlight_geometry"):
+                        col.img_widget.set_highlight_geometry(self.tri_level._get_lj_n1_points(item_id))
+                    elif hasattr(col.img_widget, "set_highlight_bbox"):
                         col.img_widget.set_highlight_bbox(n1_bbox)
                     col.img_widget.zoom_to_bbox(n1_bbox)
                     col.pipeline.set_step(1, 'ok', item_id)
@@ -10541,16 +7754,9 @@ class ComparisonEngineModule(QWidget):
                     obra_dir = DADOS_OBRAS_ROOT / obra
                     n1_dxf = self.tri_level._find_n1_clean_dxf(obra_dir, pav)
                 if n1_dxf and n1_dxf.exists():
-                    col.load_content(
-                        str(n1_dxf),
-                        None if classe in ("LJ", "FV") else n1_bbox,
-                    )
-                    if classe in ("LJ", "FV") and hasattr(col.img_widget, "set_highlight_geometry"):
-                        col.img_widget.set_highlight_geometry(
-                            self.tri_level._get_n1_highlight_points(item_id, classe)
-                        )
-                        if hasattr(col.img_widget, "fit_all"):
-                            col.img_widget.fit_all()
+                    col.load_content(str(n1_dxf), n1_bbox)
+                    if classe == "LJ" and hasattr(col.img_widget, "set_highlight_geometry"):
+                        col.img_widget.set_highlight_geometry(self.tri_level._get_lj_n1_points(item_id))
                     elif hasattr(col.img_widget, "set_highlight_bbox"):
                         col.img_widget.set_highlight_bbox(n1_bbox)
                     col.pipeline.set_step(1, 'ok', item_id)
@@ -10606,33 +7812,22 @@ class ComparisonEngineModule(QWidget):
 
             # Step 1: recorte N2
             col.pipeline.set_step(0, 'running', 'Localizando...')
-            highlight_pts = None
             if is_er_flow:
                 # Sempre re-consulta o DB para garantir o recorte mais recente (pós-edição)
                 # Passa pav para filtrar recorte pelo pavimento correto (evita cruzar COBERTURA/TIPO)
                 n2_dxf = self._get_recorte_dxf_for_er(obra, classe, item_id, pav=pav)
                 n2_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
-                if classe == "LJ" and item_id and n2_dxf:
-                    highlight_pts = self.tri_level._get_lj_content_points_for(
-                        item_id, recorte_path=n2_dxf
-                    )
                 _ce_log(f"N2 recorte_path={n2_dxf}")
             else:
                 n2_dxf  = self.tri_level._find_n2_dxf(obra, pav, classe)
                 n2_bbox = self.tri_level._get_n2_bbox_for(item_id, classe)
-                if classe == "LJ" and item_id:
-                    highlight_pts = self.tri_level._get_lj_content_points_for(item_id)
 
             if n2_dxf and n2_dxf.exists():
                 _ce_log(f"N2 loading DXF size={n2_dxf.stat().st_size//1024}KB")
                 if is_er_flow:
-                    self._load_recorte_full_with_optional_zoom(
-                        col, n2_dxf, n2_bbox, highlight_points=highlight_pts
-                    )
+                    self._load_recorte_full_with_optional_zoom(col, n2_dxf, n2_bbox)
                 else:
                     col.load_content(str(n2_dxf), n2_bbox)
-                    if highlight_pts and hasattr(col.img_widget, "set_highlight_geometry"):
-                        col.img_widget.set_highlight_geometry(highlight_pts)
                 self._refresh_n4_compare_if_active(
                     n2_dxf, classe, item_id, n2_bbox, cull_to_bbox=not is_er_flow
                 )
@@ -10753,66 +7948,39 @@ class ComparisonEngineModule(QWidget):
 
     def _format_ficha_rows(self, item_id: str, db_cls: str, campos: dict, conf: float,
                             rec_status: str, source: str) -> list:
-        """Ficha N2 ER estruturada por semântica e com detalhes aninhados."""
-        return _structured_ficha_rows(
-            campos,
-            item_id,
-            db_cls,
-            title=f"FICHA N2 · ENGENHARIA REVERSA · {db_cls}",
-            status=rec_status or "—",
-            confidence=float(conf or 0.0),
-            source=source,
-        )
+        """Monta as linhas padrão da ficha N2 ER: Elemento/Classe/Status ER/Confiança/Origem
+        + campos extraídos."""
+        result = [
+            ("Elemento", item_id),
+            ("Classe", db_cls),
+            ("Status ER", rec_status or "—"),
+            ("Confiança", f"{(conf or 0)*100:.0f}%"),
+            ("Origem", source),
+        ]
+        for k, v in campos.items():
+            if k.startswith("_"):
+                continue
+            if isinstance(v, list):
+                result.append((k, f"[{len(v)} itens]"))
+            elif isinstance(v, dict):
+                result.append((k, str(v)[:60]))
+            else:
+                result.append((k, str(v)))
+        return result
 
     def _get_recorte_dxf_for_er(self, obra: str, classe: str, item_id: str,
                                 pav: str = "") -> "Path | None":
         """Retorna o recorte DXF individual para o fluxo ER.
 
         Prioridade:
-        0. Âncora N2 (reverse_eng_recortes aprovado no Reverse Hub) — canônica
-        1. reverse_eng_fichas filtrado por pavimento
-        2. reverse_eng_fichas ORDER BY id DESC
-        3. reverse_eng_recortes (fallback legado)
+        1. reverse_eng_fichas filtrado por pavimento (pav passado ou derivado da ficha mais recente)
+           — evita cruzar pavimentos (ex: TIPO/12_PAV vs 13_PAV vs COBERTURA)
+        2. reverse_eng_fichas ORDER BY id DESC (mais recente = pavimento correto na prática)
+        3. reverse_eng_recortes (sem coluna pavimento — pode pegar pavimento errado)
         4. disco direto
         """
-        # LV: IDs virtuais "V301_A_Para" → elem_id no DB é "V301"
-        # PL: IDs virtuais "P1_Para"/"P1_Passa" → "P1"
-        if classe == "LV":
-            item_id = _lv_elem_id(item_id)
-        elif classe == "PL":
-            item_id = _pil_strip_pp(item_id)
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
-
-        # Normaliza pav CAD longo → 13_PAV etc.
-        if pav:
-            try:
-                pav = NavSidebar._pav_key_to_db_pav(str(pav))
-            except Exception:
-                pass
-        if not pav:
-            try:
-                pav = NavSidebar._pav_key_to_db_pav(
-                    str(getattr(self.fase8_panel, "current_pav_key", "") or "")
-                )
-            except Exception:
-                pav = ""
-
-        # 0) Âncora canônica: recorte validado no Diagnostic Reverse Hub
-        try:
-            from src.core.n2_anchor import resolve_n2_anchor
-            anchor = resolve_n2_anchor(obra, db_cls, item_id, pav or "")
-            if anchor and anchor.get("recorte_path"):
-                p = Path(anchor["recorte_path"])
-                if p.exists():
-                    _ce_log(
-                        f"N2 âncora via {anchor.get('source')} "
-                        f"status={anchor.get('status')} pav={pav}: {p.name}"
-                    )
-                    return p
-        except Exception as exc:
-            print(f"[CE] _get_recorte_dxf_for_er n2_anchor error: {exc}")
-
 
         import sqlite3 as _sqlite3
         db_path = r"D:/Agente-cad-PYSIDE/project_data.vision"
@@ -10897,12 +8065,6 @@ class ComparisonEngineModule(QWidget):
         Prioridade: reverse_eng_fichas cacheada (qualquer recorte_path) →
         info básica de reverse_eng_recortes → mensagem orientativa."""
         import json as _json
-        # LV: IDs virtuais "V301_A_Para" → elem_id no DB é "V301"
-        # PL: IDs virtuais "P1_Para"/"P1_Passa" → "P1"
-        if classe == "LV":
-            item_id = _lv_elem_id(item_id)
-        elif classe == "PL":
-            item_id = _pil_strip_pp(item_id)
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
 
@@ -11066,17 +8228,10 @@ class ComparisonEngineModule(QWidget):
             }
             try:
                 from src.core.laj_n3_learning import apply_learning_to_ficha, normalize_ficha_pose_coords
-                ficha = apply_learning_to_ficha(
-                    ficha,
-                    teacher=None,
-                    record_teacher=False,
-                    allow_gabarito_patterns=False,
-                )
+                ficha = apply_learning_to_ficha(ficha, teacher=None, record_teacher=False)
                 ficha = normalize_ficha_pose_coords(ficha)
             except Exception:
                 pass
-            from src.core.laje_n1_to_robot_ficha import apply_n1_outline_anchor
-            ficha = apply_n1_outline_anchor(ficha, n1_laje)
             ficha["_sa_meta"]["n3_source"] = "comparison_engine_n1"
             ficha["_sa_meta"]["n3_teacher"] = None
             out_dir = DADOS_OBRAS_ROOT / obra / "Fase-4_Sincronizacao" / "JSON_Lajes"
@@ -11091,125 +8246,7 @@ class ComparisonEngineModule(QWidget):
             print(f"[CE] _materialize_lj_n3_json_from_n1 error: {exc}")
             return None
 
-    def _materialize_fv_n3_json_from_n1(self, obra: str, item_id: str) -> "Path | None":
-        """Materializa o contrato FV atual do SA para o motor comum N3/N4."""
-        if not obra or not item_id:
-            return None
-        try:
-            from src.core.fv_generation_contract import materialize_fv_contract_from_db
-
-            project_id = self.tri_level._project_id_for_obra_pav(obra)
-            if not project_id:
-                return None
-            output_dir = (
-                DADOS_OBRAS_ROOT / obra / "Fase-4_Sincronizacao"
-                / "JSON_Vigas_Fundo"
-            )
-            return materialize_fv_contract_from_db(
-                db_path=r"D:/Agente-cad-PYSIDE/project_data.vision",
-                project_id=str(project_id),
-                item_id=item_id,
-                output_dir=output_dir,
-                floor=str(self.tri_level._current_pav or "Pavimento"),
-            )
-        except Exception as exc:
-            print(f"[CE] _materialize_fv_n3_json_from_n1 error: {exc}")
-            return None
-
-    def _load_human_validated_level(
-        self, scope: str, classe: str, item_id: str, obra: str
-    ) -> bool:
-        pav = self.fase8_panel.current_pav_key
-        human = is_human_validated(obra, pav, classe, item_id, scope)
-        qa = scope == "N4" and is_qa_agente_validated(
-            obra, pav, classe, item_id, scope
-        )
-        if not human and not qa:
-            return False
-
-        paths = restore_validation_artifacts(
-            obra, pav, classe, item_id, scope
-        )
-        if not paths:
-            paths = discover_level_artifacts(
-                obra, classe, item_id, scope
-            )
-
-        col_idx = 2 if scope == "N3" else 3
-        col = self.tri_level._columns[col_idx]
-        if not paths:
-            col.pipeline.set_step(2, "error", "validado, artefato ausente")
-            unlock_hint = (
-                "desmarque a validação humana"
-                if human
-                else "revogue o selo QA para regerar"
-            )
-            self.nav_sidebar.set_status(
-                f"🔒 {scope} validado — {unlock_hint} {item_id}",
-                Colors.ACCENT_WARNING,
-            )
-            self.nav_sidebar._enable_item_btns()
-            return True
-
-        if classe == "PL":
-            zones = {}
-            for zone in ("ABCD", "CIMA", "GRADES", "EFGH"):
-                zones[zone] = next(
-                    (
-                        path for path in paths
-                        if f"PL_{zone}_preview_" in path.name
-                    ),
-                    None,
-                )
-            zones = {key: value for key, value in zones.items() if value}
-            col.switch_to_pil_zones(zones, {})
-            loaded_name = "·".join(zones)
-        elif classe == "LV":
-            primary = next(
-                (
-                    path for path in paths
-                    if path.name.upper().endswith("_A.DXF")
-                ),
-                paths[0],
-            )
-            ficha = (
-                self._build_n3_lv_er_ficha(item_id)
-                if scope == "N3"
-                else self._get_er_ficha_dict(obra, classe, item_id)
-            )
-            col.switch_to_lv_zones(
-                self._lv_generated_zone_paths(primary, ficha or {}),
-                ficha or {},
-            )
-            loaded_name = primary.name
-        else:
-            primary = paths[0]
-            bbox = (
-                self.tri_level._get_n2_bbox_for(item_id, classe)
-                if scope == "N4" and classe == "LJ"
-                else None
-            )
-            col.load_content(str(primary), bbox)
-            loaded_name = primary.name
-
-        col.pipeline.set_step(2, "ok", f"🔒 {loaded_name[:22]}")
-        self._configure_level_attention(scope, classe, item_id)
-        seal_label = "humano" if human else "QA agente"
-        self.nav_sidebar.set_status(
-            f"🔒 {scope} {seal_label} preservado — {item_id}",
-            Colors.ACCENT_SUCCESS,
-        )
-        self.nav_sidebar._enable_item_btns()
-        return True
-
-    def _on_gerar_n3(
-        self,
-        classe: str,
-        item_id: str,
-        auto_chain: bool = False,
-        seq: int = -1,
-        force_regen: bool = False,
-    ):
+    def _on_gerar_n3(self, classe: str, item_id: str, auto_chain: bool = False, seq: int = -1):
         """Gerar N3: step 1=conversão, step 2=ficha, step 3=gerar DXF + carregar."""
         try:
             if seq >= 0 and seq != self._seq_id:
@@ -11220,9 +8257,6 @@ class ComparisonEngineModule(QWidget):
                 return
         except Exception as exc:
             print(f"[CE] _on_gerar_n3 early error: {exc}")
-            return
-
-        if self._load_human_validated_level("N3", classe, item_id, obra):
             return
 
         try:
@@ -11236,98 +8270,10 @@ class ComparisonEngineModule(QWidget):
 
             col.pipeline.set_step(1, 'running', 'Preenchendo ficha...')
             obra_dir = DADOS_OBRAS_ROOT / obra
-            pil_mode = _pil_pp_from_id(item_id) if classe == "PL" else ""
-            if pil_mode:
-                visual_mode = self._visual_mode_for("N3")
-                _ce_log(
-                    f"N3 PIL mode={pil_mode} item={item_id} "
-                    f"visual={visual_mode} force_regen={force_regen} "
-                    f"obra_dir={obra_dir}"
-                )
-                # Motor dinâmico: reescreve ABCD/GRADES no path canônico com
-                # o perfil do seletor (INI=MLINE, NOVA=LINE). Sem isso o CE
-                # só mostrava o DXF estático da publicação SA (sempre NOVA).
-                col.pipeline.set_step(1, 'running', f'Motor {visual_mode}...')
-                zones, mode_payload = self.tri_level._materialize_n3_pil_mode_zones(
-                    obra_dir, item_id, visual_mode=visual_mode,
-                )
-                if not zones:
-                    zones, mode_payload = self.tri_level._find_n3_pil_mode_zones(
-                        obra_dir, item_id,
-                    )
-                _ce_log(
-                    f"N3 PIL zones={list(zones)} payload_keys={len(mode_payload or {})} "
-                    f"variant={(mode_payload or {}).get('_sa_mode_variant')} "
-                    f"visual={(mode_payload or {}).get('_ce_visual_mode', visual_mode)}"
-                )
-                if not zones:
-                    col.pipeline.set_step(1, 'error', 'Contrato SA PARA/PASSA ausente')
-                    col.pipeline.set_step(2, 'error', 'Rode análise SA para publicar')
-                    self.nav_sidebar.set_status(
-                        f"❌ N3 PIL {pil_mode.upper()} ausente — {item_id}",
-                        Colors.ACCENT_DANGER,
-                    )
-                    self.nav_sidebar._enable_item_btns()
-                    return
-                # Não há fallback para o N3 canônico aqui: o item virtual deve
-                # provar que está exibindo a variante escolhida, não uma cópia.
-                col.pipeline.set_step(1, 'ok', f'SA {pil_mode.upper()} · {visual_mode}')
-                col.pipeline.set_step(2, 'running', 'Carregando zonas...')
-                # Ficha principal + mini-fichas por zona (contrato derivado).
-                try:
-                    col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
-                except Exception as exc:
-                    _ce_log(f"N3 PIL set_ficha error: {exc}")
-                try:
-                    col.switch_to_pil_zones(zones, mode_payload or {})
-                except Exception as exc:
-                    _ce_log(f"N3 PIL switch_to_pil_zones error: {exc}")
-                    col.pipeline.set_step(2, 'error', f'UI zonas: {exc}')
-                    self.nav_sidebar.set_status(
-                        f"❌ N3 PIL UI — {item_id}: {exc}",
-                        Colors.ACCENT_DANGER,
-                    )
-                    self.nav_sidebar._enable_item_btns()
-                    return
-                self._configure_level_attention("N3", classe, item_id)
-                col.pipeline.set_step(2, 'ok', f'N3 {pil_mode.upper()} · {visual_mode}')
-                self.nav_sidebar.set_status(
-                    f"✅ N3 PIL {pil_mode.upper()} [{visual_mode}] — {item_id}",
-                    Colors.ACCENT_SUCCESS,
-                )
-                _ce_log(f"N3 PIL OK {item_id} mode={pil_mode} visual={visual_mode}")
-                self._refresh_n3_compare_n4_if_active(classe, item_id)
-                self.nav_sidebar._enable_item_btns()
-                return
-            fv_contract_path = None
             if classe == "LJ":
                 self._materialize_lj_n3_json_from_n1(obra, item_id)
-            elif classe == "FV":
-                fv_contract_path = self._materialize_fv_n3_json_from_n1(
-                    obra, item_id
-                )
-                if not fv_contract_path or not Path(fv_contract_path).exists():
-                    col.pipeline.set_step(1, 'error', 'Ficha N1 FV ausente')
-                    col.pipeline.set_step(2, 'error', 'N3 não gerado')
-                    self.nav_sidebar.set_status(
-                        f"❌ N3 FV sem ficha N1 atual — {item_id}",
-                        Colors.ACCENT_DANGER,
-                    )
-                    _ce_log(
-                        f"N3 FV abortado: contrato N1 nao materializado "
-                        f"obra={obra} pav={self.tri_level._current_pav} item={item_id}"
-                    )
-                    self.nav_sidebar._enable_item_btns()
-                    return
-                _ce_log(
-                    f"N3 FV contrato atual: {fv_contract_path} "
-                    f"motor=ROBOT_FV_N3_N4"
-                )
             n3_dxf   = self.tri_level._find_n3_dxf(obra_dir, classe, item_id)
-            # FV N3 shares the generator/profile with N4 and must not reuse a
-            # preview produced with an older visual/detail contract. Its input
-            # remains the persistent Fase-4 ficha derived from N1.
-            if classe in ("LJ", "FV", "LV") or force_regen:
+            if classe == "LJ":
                 n3_dxf = None
             col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
             self._configure_level_attention("N3", classe, item_id)
@@ -11335,33 +8281,13 @@ class ComparisonEngineModule(QWidget):
 
             col.pipeline.set_step(2, 'running', 'Gerando DXF...')
             if n3_dxf and n3_dxf.exists():
-                if classe == 'LV':
-                    _n3_er = self._build_n3_lv_er_ficha(item_id)
-                    col.switch_to_lv_zones(
-                        self._lv_generated_zone_paths(n3_dxf, _n3_er),
-                        _n3_er
-                    )
-                else:
-                    col.load_content(str(n3_dxf), None)
+                col.load_content(str(n3_dxf), None)
                 col.pipeline.set_step(2, 'ok', 'DXF existente')
                 self.nav_sidebar.set_status(f"✅ N3 ok — {item_id}", Colors.ACCENT_SUCCESS)
                 self._refresh_n3_compare_n4_if_active(classe, item_id)
                 self.nav_sidebar._enable_item_btns()
-                if classe in ("LV", "FV"):
-                    self._append_segment_checklist_safe(col, classe, item_id)
             else:
-                if classe == 'LV':
-                    n3_ficha = self._build_n3_lv_er_ficha(item_id)
-                    self._start_n4_lv_generation(
-                        item_id, n3_ficha, obra_dir, col, level='N3'
-                    )
-                else:
-                    self._start_n3_generation(
-                        classe,
-                        item_id,
-                        col,
-                        fv_contract_path=fv_contract_path,
-                    )
+                self._start_n3_generation(classe, item_id, col)
 
         except Exception as exc:
             print(f"[CE] _on_gerar_n3 error: {exc}")
@@ -11370,94 +8296,7 @@ class ComparisonEngineModule(QWidget):
             except Exception:
                 pass
 
-    # ── Validação por segmento na ficha N3 (Fase 14) ────────────────────
-    # Checklist ADITIVO no fim da ficha já renderizada — não altera
-    # set_ficha/set_lv_ficha/switch_to_lv_zones. Compartilha o MESMO dado
-    # persistido no beam (`validated_segments`) usado pelo SA e pelo sync
-    # web→app; qualquer um dos 3 lugares reflete no mesmo selo verde.
-
-    def _append_segment_checklist_safe(self, col, classe: str, item_id: str):
-        try:
-            obra_local = (self.fase8_panel.cmb_obra.currentData()
-                          or self.fase8_panel.cmb_obra.currentText())
-            entries = self._segment_checklist_entries_for(classe, item_id, obra_local)
-            col.append_segment_checklist(
-                entries,
-                lambda prefix, idx, checked, c=classe, iid=item_id, ob=obra_local:
-                    self._on_segment_check_toggled(c, iid, ob, prefix, idx, checked),
-            )
-        except Exception as exc:
-            _ce_log(f"[CE] checklist de segmento falhou {classe}/{item_id}: {exc}")
-
-    def _segment_beam_name_and_prefixes(self, classe: str, item_id: str):
-        """(beam_name, [(prefix, behavior_ou_None), ...]) a partir do item_id
-        do CE — LV: 'V101_Para'/'V101_Passa' (ambos os lados A/B, filtrados
-        pelo comportamento); FV: 'V101' direto (viga_fundo, sem behavior)."""
-        if classe == "FV":
-            return str(item_id), [("viga_fundo", None)]
-        base = _pil_strip_pp(item_id)  # 'V101_Para' -> 'V101' (reusa helper LV já existente)
-        behavior = _pil_pp_from_id(item_id) or "para"
-        return base, [("viga_a", behavior), ("viga_b", behavior)]
-
-    def _segment_checklist_entries_for(self, classe: str, item_id: str, obra_local: str) -> list:
-        from src.core.database import DatabaseManager
-        from src.core.beam_segment_validation import segments_for_behavior, existing_segment_indices, segment_key
-
-        beam_name, prefixes = self._segment_beam_name_and_prefixes(classe, item_id)
-        project_id = self.tri_level._project_id_for_obra_pav(obra_local)
-        if not project_id:
-            return []
-        db = DatabaseManager(db_path="D:/Agente-cad-PYSIDE/project_data.vision")
-        beam = next(
-            (b for b in (db.load_beams(project_id) or [])
-             if str(b.get("name") or "").strip().upper() == beam_name.upper()),
-            None,
-        )
-        if not beam:
-            return []
-        segs = beam.get("validated_segments") or {}
-        entries = []
-        for prefix, behavior in prefixes:
-            indices = (
-                segments_for_behavior(beam, prefix, behavior) if behavior
-                else existing_segment_indices(beam, prefix)
-            )
-            lado = {"viga_a": "A", "viga_b": "B", "viga_fundo": "Fundo"}.get(prefix, prefix)
-            for idx in sorted(indices):
-                key = segment_key(prefix, idx)
-                entries.append((f"Lado {lado} · Segmento {idx}", prefix, idx, bool(segs.get(key))))
-        return entries
-
-    def _on_segment_check_toggled(self, classe: str, item_id: str, obra_local: str,
-                                   prefix: str, idx: int, checked: bool):
-        from src.core.database import DatabaseManager
-        from src.core.beam_segment_validation import segment_key, cascade_segments_to_item
-
-        beam_name, _ = self._segment_beam_name_and_prefixes(classe, item_id)
-        project_id = self.tri_level._project_id_for_obra_pav(obra_local)
-        if not project_id:
-            return
-        db = DatabaseManager(db_path="D:/Agente-cad-PYSIDE/project_data.vision")
-        beam = next(
-            (b for b in (db.load_beams(project_id) or [])
-             if str(b.get("name") or "").strip().upper() == beam_name.upper()),
-            None,
-        )
-        if not beam:
-            return
-        segs = beam.setdefault("validated_segments", {})
-        segs[segment_key(prefix, idx)] = bool(checked)
-        cascade_segments_to_item(beam)
-        db.save_beam(beam, project_id)
-
-    def _start_n3_generation(
-        self,
-        classe: str,
-        item_id: str,
-        col,
-        *,
-        fv_contract_path: "Path | None" = None,
-    ):
+    def _start_n3_generation(self, classe: str, item_id: str, col):
         """Executa o script gerador N3 correto por classe via QProcess."""
         if self._process is not None:
             if self._process.state() == QProcess.Running:
@@ -11489,8 +8328,6 @@ class ComparisonEngineModule(QWidget):
 
         obra = (self.fase8_panel.cmb_obra.currentData() or self.fase8_panel.cmb_obra.currentText())
         obra_dir = str(DADOS_OBRAS_ROOT / obra)
-        # LV: script espera stem real (ex: "V301_A"), não ID virtual "V301_A_Para"
-        script_item_id = _lv_strip_pp(item_id) if classe == "LV" else item_id
 
         self._process = QProcess(self)
         self._process.setProcessChannelMode(QProcess.MergedChannels)
@@ -11498,30 +8335,7 @@ class ComparisonEngineModule(QWidget):
         self._process.finished.connect(
             lambda code, _: self._on_n3_gen_done(code, col, classe, item_id)
         )
-        args = [str(script), "--obra", obra_dir, "--item", script_item_id]
-        if classe == "LV":
-            behavior = _lv_pp_from_id(item_id)
-            if behavior:
-                args += ["--behavior", behavior.capitalize()]
-        if classe == "FV":
-            contract_path = Path(fv_contract_path) if fv_contract_path else None
-            if not contract_path or not contract_path.exists():
-                col.pipeline.set_step(2, 'error', 'Contrato FV atual ausente')
-                self.nav_sidebar.set_status(
-                    f"❌ N3 FV sem contrato atual — {item_id}",
-                    Colors.ACCENT_DANGER,
-                )
-                self.nav_sidebar._enable_item_btns()
-                return
-            # Entrada explicita: nunca deixa o gerador reencontrar um JSON
-            # legado/stale em JSON_Vigas_Fundo.
-            args += ["--input-dir", str(contract_path.parent)]
-            _ce_log(
-                f"N3 FV launch script={script.resolve()} "
-                f"input={contract_path.resolve()} item={script_item_id}"
-            )
-        if classe in ("PL", "LV", "FV"):
-            args += ["--visual-mode", self._visual_mode_for("N3")]
+        args = [str(script), "--obra", obra_dir, "--item", item_id]
         self._process.start(sys.executable, args)
 
     def _on_n3_gen_done(self, code: int, col, classe: str, item_id: str):
@@ -11533,14 +8347,7 @@ class ComparisonEngineModule(QWidget):
         try:
             n3_dxf = self.tri_level._find_n3_dxf(obra_dir, classe, item_id)
             if code == 0 and n3_dxf and n3_dxf.exists():
-                if classe == 'LV':
-                    _n3_er = self._build_n3_lv_er_ficha(item_id)
-                    col.switch_to_lv_zones(
-                        self._lv_generated_zone_paths(n3_dxf, _n3_er),
-                        _n3_er
-                    )
-                else:
-                    col.load_content(str(n3_dxf), None)
+                col.load_content(str(n3_dxf), None)
                 col.pipeline.set_step(2, 'ok', '')
                 col.set_ficha(self.tri_level._ficha_n3_for(classe, item_id))
                 self._configure_level_attention("N3", classe, item_id)
@@ -11555,13 +8362,7 @@ class ComparisonEngineModule(QWidget):
         except RuntimeError:
             pass  # Widget deletado — ignorar silenciosamente
 
-    def _on_gerar_n4(
-        self,
-        classe: str,
-        item_id: str,
-        seq: int = -1,
-        allow_validated_candidate: bool = False,
-    ):
+    def _on_gerar_n4(self, classe: str, item_id: str, seq: int = -1):
         """Gerar N4: ficha ER → temp JSON → script robô → DXF em Fase-6/n4/.
         Option B: DXF independente do N3, gerado com dados da ficha ER (motor reverso N2).
         Chamado automaticamente após N2 no fluxo ER, ou manualmente via botão ▶ N4."""
@@ -11574,25 +8375,6 @@ class ComparisonEngineModule(QWidget):
                 return
         except Exception as exc:
             print(f"[CE] _on_gerar_n4 early error: {exc}")
-            return
-
-        # LV/LJ/FV sempre regeneram com o motor atual — selo humano/QA não
-        # pode bloquear o botão ▶ N4, senão o usuário vê artefato antigo
-        # mesmo após fixes no robô ou no recorte N2.
-        _n4_always_regen = classe in ("LJ", "FV", "LV")
-        if allow_validated_candidate:
-            # Garante que a politica esteja materializada antes de gerar; o
-            # promote abaixo gravara um candidato sem tocar no validado.
-            is_human_validated(
-                obra,
-                self.fase8_panel.current_pav_key,
-                classe,
-                item_id,
-                "N4",
-            )
-        elif not _n4_always_regen and self._load_human_validated_level(
-            "N4", classe, item_id, obra
-        ):
             return
 
         try:
@@ -11656,16 +8438,21 @@ class ComparisonEngineModule(QWidget):
             _ce_log(f"N4 dxf_check n4_dxf={n4_dxf} force_regen={force_regen}")
             if n4_dxf and n4_dxf.exists() and not force_regen:
                 if classe == 'LV':
-                    lv_zones = self._lv_generated_zone_paths(
-                        n4_dxf, er_ficha or {}
-                    )
+                    # 2-panel view: Visão Corte | Lateral A-B
+                    # sect_total = max(SECT_W+SECT_GAP, b+178) = max(190, b+178)
+                    # Face A começa em x = sect_total — corte 15cm antes para não incluir painéis
+                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(er_ficha or {})
+                    lv_zones = {
+                        'Visão Corte': (str(n4_dxf), vc_bbox),
+                        'Lateral A-B': (str(n4_dxf), lat_bbox),
+                    }
                     col.switch_to_lv_zones(lv_zones, er_ficha or {})
                     col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
                     self.nav_sidebar.set_status(f"✅ N4 LV — {item_id}", Colors.ACCENT_SUCCESS)
                     self._refresh_n3_compare_n4_if_active(classe, item_id)
                     self.nav_sidebar._enable_item_btns()
                 else:
-                    n4_bbox = None
+                    n4_bbox = self.tri_level._get_n2_bbox_for(item_id, classe) if classe == "LJ" else None
                     col.load_content(str(n4_dxf), n4_bbox)
                     col.pipeline.set_step(2, 'ok', Path(n4_dxf).name[:25])
                     self.nav_sidebar.set_status(f"✅ N4 ok — {item_id}", Colors.ACCENT_SUCCESS)
@@ -11684,33 +8471,9 @@ class ComparisonEngineModule(QWidget):
         except Exception as exc:
             print(f"[CE] _on_gerar_n4 error: {exc}")
             try:
-                import traceback as _traceback
-                _traceback.print_exc()
-            except Exception:
-                pass
-            try:
                 self.nav_sidebar._enable_item_btns()
             except Exception:
                 pass
-
-    def _n5_property_rows(self, classe: str, item_ids: list[str]) -> list:
-        """Inclui na ficha N5 as propriedades da classe/item de referência."""
-        if not item_ids:
-            return []
-        selected = str(getattr(self.nav_sidebar, "_selected_item", "") or "")
-        item_id = selected if selected in item_ids else str(item_ids[0])
-        rows = [
-            ("==", f"PROPRIEDADES CONSOLIDADAS · {classe}"),
-            ("Item de referência", item_id),
-        ]
-        try:
-            source_rows = self.tri_level._ficha_n3_for(classe, item_id)
-            rows.extend(source_rows[:80])
-            if len(source_rows) > 80:
-                rows.append(("Campos adicionais", f"{len(source_rows) - 80} omitidos"))
-        except Exception as exc:
-            rows.append(("⚠ Propriedades", f"Não foi possível carregar: {str(exc)[:70]}"))
-        return rows
 
     def _on_gerar_n5(self, classe: str, item_ids: list):
         """N5: monta 1 DXF consolidado da classe a partir dos previews N3."""
@@ -11724,52 +8487,30 @@ class ComparisonEngineModule(QWidget):
             col = self.tri_level._columns[4]
             col.pipeline.reset()
             col.pipeline.set_step(0, 'running', f'{classe} ({len(item_ids)})')
-            if classe not in ("LJ", "PL", "LV", "FV"):
+            if classe not in ("LJ", "FV"):
                 col.pipeline.set_step(0, 'error', 'classe sem N5')
-                self.nav_sidebar.set_status("Classe sem suporte N5", Colors.TEXT_DIM)
+                self.nav_sidebar.set_status("N5 suporta apenas LJ e FV neste ciclo", Colors.TEXT_DIM)
                 self.nav_sidebar._enable_item_btns()
                 return
 
             obra_dir = DADOS_OBRAS_ROOT / obra
             from src.core.n5_assembler import assemble_n5
 
-            item_positions = None
-            if classe == "LJ":
-                self.tri_level._refresh_lj_n1_from_latest_sa()
-                item_positions = {
-                    item_id: anchor
-                    for item_id in item_ids
-                    if (anchor := self.tri_level._get_lj_n1_anchor(item_id))
-                }
-
             col.pipeline.set_step(0, 'ok', f'{len(item_ids)} itens')
             col.pipeline.set_step(1, 'running', 'Consolidando...')
-            result = assemble_n5(
-                obra_dir,
-                classe,
-                item_ids=item_ids,
-                pavimento=pav,
-                visual_mode=self._visual_mode_for("N5"),
-                item_positions=item_positions,
-            )
+            result = assemble_n5(obra_dir, classe, item_ids=item_ids, pavimento=pav)
             col.pipeline.set_step(1, 'ok', f'{result.ok_count}/{len(result.items)} ok')
 
             col.pipeline.set_step(2, 'running', 'Carregando DXF...')
             rows = [
-                ("==", f"FICHA N5 · MONTAGEM CONSOLIDADA · {result.classe}"),
-                ("==", "IDENTIFICAÇÃO"),
                 ("Classe", result.classe),
                 ("Obra", result.obra),
                 ("Pavimento", result.pavimento or "GERAL"),
-                ("==", "ARQUIVOS E CONFIGURAÇÃO"),
                 ("DXF N5", str(result.output_path)),
                 ("Manifest", str(result.manifest_path)),
-                ("Modo visual", self._visual_mode_for("N5").title()),
-                ("Regra", "LJ nativo; PL/LV/FV em folhas ordenadas"),
-                ("==", "RESULTADO DA MONTAGEM"),
                 ("Itens OK", str(result.ok_count)),
                 ("Itens ausentes/erro", str(result.missing_count)),
-                ("==", "ITENS CONSOLIDADOS"),
+                ("Regra", "LJ: coordenadas nativas; FV: grade de folhas ordenada"),
             ]
             for n5_item in result.items[:80]:
                 status = n5_item.status.upper()
@@ -11777,7 +8518,6 @@ class ComparisonEngineModule(QWidget):
                 rows.append((f"{n5_item.item_id} [{status}]", msg))
             if len(result.items) > 80:
                 rows.append(("Itens omitidos", str(len(result.items) - 80)))
-            rows.extend(self._n5_property_rows(classe, item_ids))
 
             col.set_ficha(rows)
             col.load_content(str(result.output_path), None)
@@ -11804,12 +8544,6 @@ class ComparisonEngineModule(QWidget):
         """Retorna a ficha ER como dicionário (para passar ao script robô).
         Tenta DB primeiro, depois motor on-demand no DXF do disco."""
         import json as _json, re as _re
-        # LV: IDs virtuais "V301_A_Para" → elem_id no DB/motor é "V301"
-        # PL: IDs virtuais "P1_Para"/"P1_Passa" → "P1"
-        if classe == "LV":
-            item_id = _lv_elem_id(item_id)
-        elif classe == "PL":
-            item_id = _pil_strip_pp(item_id)
         _cls_map = {"PL": "PIL", "LV": "LV", "FV": "FV", "LJ": "LAJ"}
         db_cls = _cls_map.get(classe, classe)
 
@@ -11877,10 +8611,7 @@ class ComparisonEngineModule(QWidget):
                 scripts_dir = str(Path(__file__).parent.parent.parent.parent / "scripts")
                 if scripts_dir not in _sys.path:
                     _sys.path.insert(0, scripts_dir)
-                dxf_path = self._get_recorte_dxf_for_er(
-                    obra, classe, item_id,
-                    pav=self.fase8_panel.current_pav_key,
-                )
+                dxf_path = self._get_recorte_dxf_for_er(obra, classe, item_id)
                 if dxf_path:
                     from motor_reverso_laj import extrair_ficha_laje
                     return extrair_ficha_laje(str(dxf_path), item_id, obra)
@@ -11927,18 +8658,24 @@ class ComparisonEngineModule(QWidget):
         return {}
 
     def _ficha_rows_from_dict(self, campos: dict, item_id: str, db_cls: str) -> list:
-        """Ficha N4 estruturada por características do robô."""
-        meta = campos.get("_er_meta", {}) if isinstance(campos, dict) else {}
-        source = meta.get("source", "—") if isinstance(meta, dict) else "—"
-        return _structured_ficha_rows(
-            campos,
-            item_id,
-            db_cls,
-            title=f"FICHA N4 · ROBÔ VIA ENGENHARIA REVERSA · {db_cls}",
-            status=source,
-            confidence=float(campos.get("_confianca", 0.0) or 0.0),
-            source=source,
-        )
+        """Converte dict da ficha ER em lista de tuplas para set_ficha()."""
+        conf = float(campos.get("_confianca", 0.0))
+        result = [
+            ("Elemento", item_id),
+            ("Classe", db_cls),
+            ("Status ER", campos.get("_er_meta", {}).get("source", "—") if isinstance(campos.get("_er_meta"), dict) else "—"),
+            ("Confiança", f"{conf*100:.0f}%"),
+        ]
+        for k, v in campos.items():
+            if k.startswith("_"):
+                continue
+            if isinstance(v, list):
+                result.append((k, f"[{len(v)} itens]"))
+            elif isinstance(v, dict):
+                result.append((k, str(v)[:60]))
+            else:
+                result.append((k, str(v)))
+        return result
 
     def _find_or_generate_pil_zones(self, obra_dir: Path, item_id: str) -> dict:
         """Find (or generate if missing) zone DXFs for a PIL item.
@@ -11973,8 +8710,7 @@ class ComparisonEngineModule(QWidget):
                         [sys.executable, str(script),
                          "--obra", str(obra_dir),
                          "--item", item_id,
-                         "--zone", zone.lower(),
-                         "--visual-mode", self._visual_mode_for("N3")],
+                         "--zone", zone.lower()],
                         capture_output=True, timeout=30,
                     )
                 except Exception as _e:
@@ -12429,34 +9165,6 @@ class ComparisonEngineModule(QWidget):
             zones.append("EFGH")
 
         results: dict = {}
-        official_n4 = obra_dir / "Fase-6_Execucao_CAD" / "n4"
-        official_n4.mkdir(parents=True, exist_ok=True)
-
-        # O botao "Abrir DXF" usa o combinado para mostrar CIMA+ABCD+GRADES
-        # lado a lado no mesmo desenho. Ele precisa nascer da mesma ficha N2 e
-        # no mesmo ciclo dos splits; reutilizar um combinado antigo pode abrir
-        # geometria stale ou ate um DXF incompatível com o AutoCAD.
-        combined_expected = out_dir_n4 / f"PL_preview_{item_id}.dxf"
-        if script.exists():
-            try:
-                _sp.run(
-                    [sys.executable, str(script),
-                     "--obra", str(tmp_dir),
-                     "--item", item_id,
-                     "--visual-mode", self._visual_mode_for("N4")],
-                    capture_output=True, timeout=30,
-                )
-            except Exception as _e:
-                print(f"[CE] PIL N4 combined gen error: {_e}")
-        if combined_expected.exists():
-            combined_canonical = official_n4 / combined_expected.name
-            guarded_promote(
-                combined_expected,
-                combined_canonical,
-                motor_id="ROBOT_PL_N3_N4",
-                source_paths=[script],
-            )
-
         for zone in zones:
             expected = out_dir_n4 / f"PL_{zone}_preview_{item_id}.dxf"
             if script.exists():
@@ -12465,25 +9173,12 @@ class ComparisonEngineModule(QWidget):
                         [sys.executable, str(script),
                          "--obra", str(tmp_dir),
                          "--item", item_id,
-                         "--zone", zone.lower(),
-                         "--visual-mode", self._visual_mode_for("N4")],
+                         "--zone", zone.lower()],
                         capture_output=True, timeout=30,
                     )
                 except Exception as _e:
                     print(f"[CE] PIL N4 zone {zone} gen error: {_e}")
-            if expected.exists():
-                canonical = official_n4 / expected.name
-                generated = guarded_promote(
-                    expected,
-                    canonical,
-                    motor_id="ROBOT_PL_N3_N4",
-                    source_paths=[script],
-                )
-                results[zone] = (
-                    canonical if canonical.exists() else generated
-                )
-            else:
-                results[zone] = None
+            results[zone] = expected if expected.exists() else None
         return results
 
     def _get_pil_zone_fichas(self, obra: str, item_id: str,
@@ -12528,153 +9223,74 @@ class ComparisonEngineModule(QWidget):
         return None
 
     def _lv_n4_zone_bboxes(self, er_ficha: dict) -> tuple:
-        """Bboxes de visualizacao LV N4: corte com zoom finito e lateral separada.
-
-        Gerador N4 usa draw_viga_lateral (x_origin=0, y_top=0):
-          x_sect_center = max(40, sect_total - 124 - b)   ← NÃO 95!
-          y0_sect = y_top - h_A = -h_A
-          y_center_sect = y0_sect + h_section / 2
-        Faces: x_A = sect_total (≥1800)
-        """
+        """Bboxes de visualizacao LV N4: corte com zoom finito e lateral separada."""
         er_ficha = er_ficha or {}
-        b_cm   = float(er_ficha.get('b_cm',  er_ficha.get('b_geom', 19)) or 19)
-        h_A    = float(er_ficha.get('h_cm',  er_ficha.get('h_A',    45)) or 45)
-        h_sect = max(55.0, float(
-            er_ficha.get('h_section_cm', er_ficha.get('h_section', 55)) or 55
-        ))
+        b_cm = float(er_ficha.get('b_cm', er_ficha.get('b_geom', 19)) or 19)
         sect_total = max(190, int(b_cm) + 178, 1800)
-
-        # Posição horizontal da seção transversal (espelha draw_viga_lateral)
-        x_sect_center = max(40.0, float(sect_total) - 124.0 - b_cm)
-
-        # Posição vertical: y_top=0, seção começa em y0_A = -h_A
-        y0_sect   = -h_A
-        y_center0 = y0_sect + h_sect / 2.0
-
         section_views = er_ficha.get('section_views') or []
 
+        y_section = -150.0
         x_points: list[float] = []
         y_points: list[float] = []
-
-        # draw_viga_lateral só desenha a primeira section_view
-        sv = section_views[0] if section_views else None
-        if sv:
+        for sv in section_views:
             try:
-                sv_h = float(sv.get('h_section', sv.get('h_section_cm', h_sect)) or h_sect)
+                h_sec = float(
+                    sv.get('h_section', sv.get('h_section_cm', 0)) or 0
+                )
             except Exception:
-                sv_h = h_sect
-            sv_h    = max(sv_h, 55.0)
-            y_ctr   = y0_sect + sv_h / 2.0
-            prims   = (
+                h_sec = 0.0
+            h_sec = max(h_sec, 55.0)
+            y_center = y_section + h_sec / 2.0
+            primitives = (
                 (sv.get('raw') or {}).get('visual_primitives')
                 or sv.get('visual_primitives')
                 or []
             )
-            for prim in prims:
+
+            def _add_point(pt):
+                try:
+                    x_points.append(95.0 + float(pt[0]))
+                    y_points.append(y_center + float(pt[1]))
+                except Exception:
+                    pass
+
+            for prim in primitives:
                 kind = prim.get('kind')
-                pts  = []
                 if kind in ('line', 'polyline'):
-                    pts = prim.get('points') or []
+                    for pt in prim.get('points') or []:
+                        _add_point(pt)
                 elif kind == 'text':
-                    pts = [prim.get('insert') or [0.0, 0.0]]
+                    _add_point(prim.get('insert') or [0.0, 0.0])
                 elif kind == 'hatch':
                     for path in prim.get('paths') or []:
-                        pts.extend(path)
-                for pt in pts:
-                    try:
-                        x_points.append(x_sect_center + float(pt[0]))
-                        y_points.append(y_ctr        + float(pt[1]))
-                    except Exception:
-                        pass
+                        for pt in path:
+                            _add_point(pt)
 
-        # Fallback: bounds do draw_section_detail (barrote = widest element)
-        if not x_points or not y_points:
-            bw2 = (140.0 + b_cm) / 2.0       # meia-largura do barrote
-            x_points = [x_sect_center - bw2 - 5, x_sect_center + bw2 + b_cm + 5]
-            y_points  = [y0_sect - 25.0,          y0_sect + h_sect + 25.0]
+            if not primitives:
+                x_points.extend([25.0, min(sect_total - 25.0, 165.0)])
+                y_points.extend([y_center - h_sec / 2.0 - 45.0,
+                                 y_center + h_sec / 2.0 + 45.0])
+            y_section -= max(h_sec + 90.0, 180.0)
 
-        # vc_bbox: capear direita a sect_total-50 para nunca vazar em Face A (x=sect_total)
-        # Gap garantido: sect_total-50 vs lat_bbox que começa em sect_total-5 = 45 cm gap
-        vc_bbox = (
-            min(x_points) - 30.0,
-            min(y_points) - 30.0,
-            min(max(x_points) + 30.0, float(sect_total) - 50.0),
-            max(y_points) + 30.0,
-        )
-        y_min_section = vc_bbox[1]
-        y_max_section = vc_bbox[3]
+        if x_points and y_points:
+            vc_bbox = (
+                max(-80.0, min(x_points) - 35.0),
+                min(y_points) - 35.0,
+                min(float(sect_total - 15), max(x_points) + 35.0),
+                max(y_points) + 35.0,
+            )
+            y_min_section = vc_bbox[1]
+            y_max_section = vc_bbox[3]
+        else:
+            vc_bbox = (-60.0, -250.0, float(sect_total - 15), 80.0)
+            y_min_section, y_max_section = vc_bbox[1], vc_bbox[3]
 
-        lat_bbox = _lv_primary_face_bbox(er_ficha, 'A', combined_view=True)
-        if not lat_bbox:
-            lat_bbox = (sect_total - 5, y_min_section - 120, 99999, y_max_section + 120)
+        lat_bbox = (sect_total - 5, y_min_section - 120, 99999, y_max_section + 120)
         return vc_bbox, lat_bbox
 
-    def _lv_generated_zone_paths(self, dxf_path: Path, er_ficha: dict) -> dict:
-        """Resolve o pacote LV separado; aceita o DXF combinado como fallback."""
-        path = Path(dxf_path)
-        stem = re.sub(r'^LV_preview_', '', path.stem, flags=re.IGNORECASE)
-        base_id = re.sub(r'_A$', '', stem, flags=re.IGNORECASE)
-        dedicated = {
-            'Visão Corte': path.parent / f'LV_preview_{base_id}_CORTE.dxf',
-            'Visão A': path.parent / f'LV_preview_{base_id}_VIEW_A.dxf',
-            'Visão B': path.parent / f'LV_preview_{base_id}_VIEW_B.dxf',
-        }
-        if all(candidate.exists() for candidate in dedicated.values()):
-            zones = {}
-            for zone, candidate in dedicated.items():
-                bbox = None
-                if zone == 'Visão A':
-                    bbox = _lv_primary_face_bbox(er_ficha or {}, 'A')
-                elif zone == 'Visão B':
-                    bbox = _lv_primary_face_bbox(er_ficha or {}, 'B')
-                zones[zone] = (str(candidate), bbox)
-            return zones
-
-        vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(er_ficha or {})
-        return {
-            'Visão Corte': (str(path), vc_bbox),
-            'Visão A': (str(path), lat_bbox),
-            'Visão B': (str(path), lat_bbox),
-        }
-
-    def _build_n3_lv_er_ficha(self, item_id: str) -> dict:
-        """Constrói er_ficha mínimo para N3 LV a partir de fichas_lv_v2.json."""
-        import re as _re
-        base = _re.sub(r'_(Para|Passa)', '', item_id, flags=_re.IGNORECASE)
-        base = _re.sub(r'[_\.]([AB])', '', base, flags=_re.IGNORECASE)
-        entries = [e for e in getattr(self.tri_level, '_fichas_lv_v2', [])
-                   if e.get('viga') == base]
-        if not entries:
-            return {}
-        face_units = []
-        for e in entries:
-            face = str(e.get('face', 'A')).upper()
-            segs = e.get('segmentos', [])
-            panels = [dict(segment) for segment in segs]
-            face_units.append({
-                'side': face,
-                'label': f'{base}.{face}',
-                'panels': panels,
-                'h_body': e.get('h_cm', 0),
-                'laje_sup': e.get('laje_sup_cm', 0),
-                'laje_inf': e.get('laje_inf_cm', 0),
-            })
-        entry_a = next((e for e in entries if str(e.get('face', '')).upper() == 'A'), {})
-        entry_b = next((e for e in entries if str(e.get('face', '')).upper() == 'B'), {})
-        return {
-            'h_cm': entry_a.get('h_cm', 0),
-            'h_B_cm': entry_b.get('h_cm', entry_a.get('h_B_cm', 0)),
-            'b_cm': entry_a.get('b_cm', 0),
-            'h_section': entry_a.get('h_section_cm', 55),
-            'tipo_viga': entry_a.get('tipo_viga', '—'),
-            'section_views': entry_a.get('section_views', []),
-            'face_units': face_units,
-            '_sa_meta': {'source': 'Structural Analyzer / N1'},
-        }
-
     def _start_n4_lv_generation(self, item_id: str, er_ficha: dict,
-                                obra_dir: Path, col, level: str = 'N4'):
-        """Executa o motor LV comum; apenas a ficha de entrada muda entre N3/N4."""
+                                obra_dir: Path, col):
+        """Gera N4 LV via gerar_lv_n4_fichas.py (bypass DB — LV não está no DB)."""
         if self._process is not None:
             if self._process.state() == QProcess.Running:
                 try:
@@ -12690,17 +9306,12 @@ class ComparisonEngineModule(QWidget):
             self._process = None
 
         import re as _re, tempfile as _tempfile, uuid as _uuid
-        # LV: strip sufixo virtual Para/Passa antes de extrair base (sem face)
-        _clean_id = _re.sub(r'_(Para|Passa)$', '', item_id, flags=_re.IGNORECASE)
-        base_id = _re.sub(r'[_\.]([AB])$', '', _clean_id, flags=_re.IGNORECASE)
+        base_id = _re.sub(r'[_\.]([AB])$', '', item_id, flags=_re.IGNORECASE)
         n4_script = SCRIPTS_DIR / "arete" / "gerar_lv_n4_fichas.py"
-        level = str(level or 'N4').upper()
-        out_dir = obra_dir / "Fase-6_Execucao_CAD"
-        if level == 'N4':
-            out_dir = out_dir / "n4"
+        out_dir    = obra_dir / "Fase-6_Execucao_CAD" / "n4"
         out_dir.mkdir(parents=True, exist_ok=True)
         entry_path = Path(_tempfile.gettempdir()) / (
-            f"ce_lv_{level.lower()}_{base_id}_{_uuid.uuid4().hex}.json")
+            f"ce_lv_{base_id}_{_uuid.uuid4().hex}.json")
         entry_path.write_text(
             json.dumps(er_ficha, ensure_ascii=False, indent=2),
             encoding="utf-8",
@@ -12713,33 +9324,25 @@ class ComparisonEngineModule(QWidget):
         def _on_done(code, _sig,
                      _base_id=base_id, _item_id=item_id,
                      _out_dir=out_dir, _col=col, _er_ficha=er_ficha,
-                     _entry_path=entry_path, _level=level):
+                     _entry_path=entry_path):
             try:
                 # DXF gerado: LV_preview_{base_id}_A.dxf
                 dxf_path = _out_dir / f"LV_preview_{_base_id}_A.dxf"
                 if code == 0 and dxf_path.exists():
-                    lv_zones = self._lv_generated_zone_paths(
-                        dxf_path, _er_ficha or {}
-                    )
+                    vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_er_ficha or {})
+                    lv_zones = {
+                        'Visão Corte': (str(dxf_path), vc_bbox),
+                        'Lateral A-B': (str(dxf_path), lat_bbox),
+                    }
                     _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     _col.pipeline.set_step(2, 'ok', dxf_path.name[:25])
-                    self._configure_level_attention(_level, "LV", _item_id)
-                    if _level == 'N4':
-                        self._configure_level_attention("N3", "LV", _item_id)
-                    self.nav_sidebar.set_status(
-                        f"✅ {_level} LV gerado — {_item_id}",
-                        Colors.ACCENT_SUCCESS,
-                    )
+                    self._configure_level_attention("N4", "LV", _item_id)
+                    self._configure_level_attention("N3", "LV", _item_id)
+                    self.nav_sidebar.set_status(f"✅ N4 LV gerado — {_item_id}", Colors.ACCENT_SUCCESS)
                     self._refresh_n3_compare_n4_if_active("LV", _item_id)
-                    if _level == 'N3':
-                        self.tri_level.set_processing(False)
-                        self.nav_sidebar.refresh_tree()
                 else:
                     _col.pipeline.set_step(2, 'error', f'código {code}')
-                    self.nav_sidebar.set_status(
-                        f"❌ {_level} LV falhou — {_item_id}",
-                        Colors.ACCENT_ERROR,
-                    )
+                    self.nav_sidebar.set_status(f"❌ N4 LV falhou — {_item_id}", Colors.ACCENT_ERROR)
             except Exception as _e:
                 print(f"[CE] _on_done LV n4: {_e}")
             finally:
@@ -12757,7 +9360,6 @@ class ComparisonEngineModule(QWidget):
                 "--out", str(out_dir),
                 "--obra", str(obra_dir),
                 "--entry-json", str(entry_path),
-                "--visual-mode", self._visual_mode_for(level),
             ],
         )
 
@@ -12827,16 +9429,6 @@ class ComparisonEngineModule(QWidget):
         ficha_clean.setdefault('pillar_right', {'active': False, 'width': 0.0, 'length': 0.0})
         ficha_clean.setdefault('sarrafo_left_id',  0)
         ficha_clean.setdefault('sarrafo_right_id', 0)
-        if classe == "FV":
-            from src.core.fv_generation_contract import (
-                normalize_fv_generation_contract,
-            )
-            ficha_clean = normalize_fv_generation_contract(
-                item_id,
-                ficha_clean,
-                floor=str(ficha_clean.get("floor") or self.tri_level._current_pav or "Pavimento"),
-            )
-        ficha_clean = _ce_plain_value(ficha_clean)
 
         # Para LV: escreve _A.json e _B.json (script lê apenas *_A.json)
         temp_files: list[Path] = []
@@ -12882,50 +9474,38 @@ class ComparisonEngineModule(QWidget):
                 # Procura DXF gerado (nome: {PFX}{temp_item}.dxf ou variante)
                 fase6 = obra_dir / "Fase-6_Execucao_CAD"
                 generated = None
-                _ce_log(f"[N4-DONE] code={code} temp_item={_temp_item} pfx={_pfx_out} fase6={fase6}")
                 for cand in [f"{_pfx_out}{_temp_item}.dxf",
                               f"{_pfx_out}{_temp_item}_A.dxf"]:
                     p = fase6 / cand
-                    _ce_log(f"[N4-DONE] check candidate: {p} exists={p.exists()}")
                     if p.exists():
                         generated = p
                         break
                 if generated is None:
                     # Fallback: qualquer DXF recém-criado com temp_item no nome
-                    _ce_log(f"[N4-DONE] fallback glob: *{_temp_item}*.dxf")
                     for p in fase6.glob(f"*{_temp_item}*.dxf"):
                         generated = p
-                        _ce_log(f"[N4-DONE] fallback found: {p}")
                         break
 
                 if code == 0 and generated and generated.exists():
                     # Move para pasta n4 com nome canônico
                     canon = _out_dir / f"{_pfx_out}{_item_id}.dxf"
-                    _ce_log(f"[N4-DONE] promoting {generated} -> {canon}")
-                    promoted = guarded_promote(
-                        generated,
-                        canon,
-                        motor_id=f"ROBOT_{_classe}_N3_N4",
-                        source_paths=[script],
-                    )
-                    display_path = promoted
-                    _ce_log(f"[N4-DONE] display_path={display_path} exists={display_path.exists()}")
+                    generated.replace(canon)
                     if _classe == 'LV':
-                        lv_zones = self._lv_generated_zone_paths(
-                            display_path, _er_ficha or {}
-                        )
+                        vc_bbox, lat_bbox = self._lv_n4_zone_bboxes(_er_ficha or {})
+                        lv_zones = {
+                            'Visão Corte': (str(canon), vc_bbox),
+                            'Lateral A-B': (str(canon), lat_bbox),
+                        }
                         _col.switch_to_lv_zones(lv_zones, _er_ficha or {})
                     else:
                         n4_bbox = self.tri_level._get_n2_bbox_for(_item_id, _classe) if _classe == "LJ" else None
-                        _ce_log(f"[N4-DONE] load_content({display_path}, bbox={n4_bbox})")
-                        _col.load_content(str(display_path), n4_bbox)
-                    _col.pipeline.set_step(2, 'ok', display_path.name[:25])
+                        _col.load_content(str(canon), n4_bbox)
+                    _col.pipeline.set_step(2, 'ok', canon.name[:25])
                     self._configure_level_attention("N4", _classe, _item_id)
                     self._configure_level_attention("N3", _classe, _item_id)
                     self.nav_sidebar.set_status(f"✅ N4 gerado — {_item_id}", Colors.ACCENT_SUCCESS)
                     self._refresh_n3_compare_n4_if_active(_classe, _item_id)
                 else:
-                    _ce_log(f"[N4-DONE] FAIL: code={code} generated={generated} exists={generated.exists() if generated else 'N/A'}")
                     _col.pipeline.set_step(2, 'error', f'código {code}')
                     self.nav_sidebar.set_status(f"❌ N4 erro — {_item_id}", Colors.ACCENT_DANGER)
 
@@ -12936,8 +9516,6 @@ class ComparisonEngineModule(QWidget):
 
         self._process.finished.connect(_on_done)
         args = [str(script), "--obra", str(obra_dir), "--item", temp_item]
-        if classe in ("PL", "LV", "FV"):
-            args += ["--visual-mode", self._visual_mode_for("N4")]
         self._process.start(sys.executable, args)
         self.nav_sidebar.set_status(f"⏳ N4 gerando via robô — {item_id}...", Colors.ACCENT_WARNING)
 

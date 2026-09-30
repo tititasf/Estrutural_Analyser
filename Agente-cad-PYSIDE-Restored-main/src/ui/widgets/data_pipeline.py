@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                 QSizePolicy, QSpacerItem)
 from PySide6.QtCore import Qt, QSize, Signal, Property, QRect, QPoint, QEasingCurve, QPropertyAnimation
 from PySide6.QtGui import QPainter, QColor, QBrush, QPen, QPolygon, QFont, QLinearGradient
-from src.ui.theme import Colors, Fonts, Radius, Contextual, Semantic, Accent
+from src.ui.theme import Colors, Fonts, Radius
 
 class DiamondNode(QWidget):
     clicked = Signal()
@@ -214,23 +214,23 @@ class DataPipelineView(QWidget):
             title="INGESTÃO",
             value=f"{stats.get('ingestion', {}).get('works', 0)} OBRAS",
             subtext=f"{stats.get('ingestion', {}).get('documents', 0)} DOCS",
-            color=Accent.PRIMARY,
+            color=Colors.ACCENT_PRIMARY,
             details=stats.get('ingestion', {}).get('details', {})
         )
-
-        self._add_connector(Accent.PRIMARY)
-
+        
+        self._add_connector(Colors.ACCENT_PRIMARY)
+        
         # Phase 2: Triagem
         self._add_phase(
             name="FASE 02",
             title="TRIAGEM",
             value=f"{stats.get('triage', {}).get('processed', 0)} DXF",
             subtext="VALIDADOS",
-            color=Semantic.SUCCESS,
+            color=Colors.ACCENT_SUCCESS,
             details=stats.get('triage', {}).get('details', {})
         )
-
-        self._add_connector(Semantic.SUCCESS)
+        
+        self._add_connector(Colors.ACCENT_SUCCESS)
         
         # Phase 3: Extração/Detecção
         self._add_phase(
@@ -238,35 +238,35 @@ class DataPipelineView(QWidget):
             title="EXTRAÇÃO",
             value=f"{stats.get('detection', {}).get('total_items', 0)} ITENS",
             subtext="IDENTIFICADOS",
-            color=Contextual.PURPLE,
+            color="#a333c8",
             details=stats.get('detection', {}).get('details', {})
         )
-
-        self._add_connector(Contextual.PURPLE)
-
+        
+        self._add_connector("#a333c8")  # hardcoded-ok: cor semântica de fase de pipeline
+        
         # Phase 4: Reconhecimento (Johnson Robôs)
         self._add_phase(
             name="FASE 04",
             title="RECONHECIMENTO",
             value=f"{stats.get('recognition', {}).get('total_johnson', 0)} JSONS",
             subtext="JOHNSON ROBÔS",
-            color=Contextual.GOLD,
+            color="#fbbd08",  # hardcoded-ok: cor semântica de fase de pipeline
             details=stats.get('recognition', {}).get('details', {})
         )
 
-        self._add_connector(Contextual.GOLD)
-
+        self._add_connector("#fbbd08")  # hardcoded-ok: cor semântica de fase de pipeline
+        
         # Phase 5: Robot Feed (.SCR)
         self._add_phase(
             name="FASE 05",
             title="ROBOT FEED",
             value=f"{stats.get('robot_feed', {}).get('total_scripts', 0)} .SCR",
             subtext="GERADOS",
-            color=Semantic.DANGER,
+            color="#db2828",  # hardcoded-ok: cor semântica de fase de pipeline
             details=stats.get('robot_feed', {}).get('details', {})
         )
 
-        self._add_connector(Semantic.DANGER)
+        self._add_connector("#db2828")  # hardcoded-ok: cor semântica de fase de pipeline
 
         # Phase 6: Conversão (SCR -> DXF)
         self._add_phase(
@@ -274,11 +274,11 @@ class DataPipelineView(QWidget):
             title="CONVERSÃO",
             value=f"{stats.get('conversion', {}).get('total_dxf', 0)} DXF",
             subtext="POPULADOS",
-            color=Accent.INTERACTIVE,
+            color="#2185d0",  # hardcoded-ok: cor semântica de fase de pipeline
             details=stats.get('conversion', {}).get('details', {})
         )
 
-        self._add_connector(Accent.INTERACTIVE)
+        self._add_connector("#2185d0")  # hardcoded-ok: cor semântica de fase de pipeline
 
         # Phase 7: Unificação DXF
         self._add_phase(
@@ -286,11 +286,11 @@ class DataPipelineView(QWidget):
             title="UNIFICAÇÃO",
             value=f"{stats.get('unification', {}).get('total_unified', 0)} UNIF",
             subtext="PAVIMENTOS",
-            color=Contextual.MAGENTA,
+            color="#e03997",  # hardcoded-ok: cor semântica de fase de pipeline
             details=stats.get('unification', {}).get('details', {})
         )
 
-        self._add_connector(Contextual.MAGENTA)
+        self._add_connector("#e03997")  # hardcoded-ok: cor semântica de fase de pipeline
 
         # Phase 8: Entrega
         self._add_phase(
@@ -298,7 +298,7 @@ class DataPipelineView(QWidget):
             title="ENTREGA",
             value=f"{stats.get('delivery', {}).get('total_reviewed', 0)} PROJ",
             subtext="REVISADOS",
-            color=Semantic.SUCCESS,
+            color="#b5cc18",
             details=stats.get('delivery', {}).get('details', {})
         )
 

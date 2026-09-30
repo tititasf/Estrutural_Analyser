@@ -118,15 +118,6 @@ SKIP_G1: dict[str, set] = {
         # modo_selecionado: modo de seleção de painéis (0=vertical, 1=horizontal)
         # detectado pelo motor com base em heurística do DXF. Pode diferir do N2.
         "modo_selecionado",
-        # apoios_hachurados: contexto externo de apoio/vizinho extraído do recorte.
-        # N4 isolado desenha só a laje para não contaminar a área de comparação.
-        # A presença/ausência de apoio é verificada visualmente no G2-V quando
-        # o contexto estiver habilitado, não no round-trip geométrico da laje.
-        "apoios_hachurados",
-        # obstaculos: N2 guarda coords compactos (2 vértices); o motor reverso do
-        # N4 STOG reexpande para polígono (4 vértices). A geometria do obstáculo
-        # é validada por G2/G2-V, não por igualdade literal de lista no round-trip.
-        "obstaculos",
     },
 }
 
@@ -301,10 +292,7 @@ def roundtrip_item(classe: str, elemento_id: str,
         return result
 
     obra_dir, _ = materializar_item(row, campos_override=campos_override)
-    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
-                                real_obra_name=row.get("obra_name"),
-                                real_pavimento=row.get("pavimento"))
-    print(f"DEBUG: log={log}")
+    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
     result["log_gerador"] = log
 
     if not ok_gen:
@@ -321,14 +309,8 @@ def roundtrip_item(classe: str, elemento_id: str,
     if obra_name:
         real_path = get_real_n4_path(obra_name, classe, elemento_id)
         real_path.parent.mkdir(parents=True, exist_ok=True)
-        try:
-            shutil.copy2(dxf_path, real_path)
-            result["n4_path"] = str(real_path)
-        except OSError as exc:
-            # A UI pode manter o DXF exibido aberto. A regressão continua sobre
-            # o artefato isolado recém-gerado, sem encerrar o processo do dono.
-            result["n4_publish_blocked"] = str(exc)
-            result["n4_path"] = str(dxf_path)
+        shutil.copy2(dxf_path, real_path)
+        result["n4_path"] = str(real_path)
     else:
         result["n4_path"] = str(dxf_path)
 
@@ -338,25 +320,7 @@ def roundtrip_item(classe: str, elemento_id: str,
         result["erro"] = f"Re-extracao falhou: {n2_prime['_extracao_erro']}"
         return result
 
-    skip_keys = set(SKIP_G1.get(classe) or ())
-    if classe == "LAJ":
-        # Recorte sem grade persistida: o gerador preenche painéis; G2/G2-V validam.
-        if not (n2.get("linhas_verticais") or []):
-            skip_keys |= {"linhas_verticais", "_panel_vertical_segments"}
-        if not (n2.get("linhas_horizontais") or []):
-            skip_keys |= {"linhas_horizontais"}
-        # Contorno SA/N1 corrigido contra as arestas reais do RECORTE N2
-        # (achado 27/07, L410): a correcao so' se aplica extraindo do N2
-        # (layer 'Painéis'); re-extrair do N4 gerado (layer 'PAINEIS') nao
-        # tem recorte N2 pra comparar, entao esses campos legitimamente
-        # divergem no roundtrip -- G2/G2-V (visual) continuam validando o N4.
-        if isinstance(n2, dict) and n2.get("_sa_outline_snapped"):
-            skip_keys |= {
-                "comprimento", "largura", "coordenadas", "area_cm2",
-                "linhas_verticais", "linhas_horizontais", "_panel_vertical_segments",
-                "_stog_pose",
-            }
-    cmp = diff_campos(n2, n2_prime, skip_keys=skip_keys)
+    cmp = diff_campos(n2, n2_prime, skip_keys=SKIP_G1.get(classe))
     result["campos_comparados"] = cmp["total"]
     result["diffs"]             = cmp["diffs"]
     result["resultado"]         = "PASS" if cmp["pass"] else "FAIL"

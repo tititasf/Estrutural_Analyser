@@ -227,7 +227,6 @@ def _criar_fichas_lv_v2(obra_dir: Path, elemento_id: str, campos: dict) -> None:
             'is_first':        bool(p.get('is_first', False)),
             'is_last':         bool(p.get('is_last', False)),
             'reuse':           bool(p.get('reuse', False)),
-            'reuse_regions':   p.get('reuse_regions', []),
             'codigos_forma':   p.get('codigos_forma', []),
         }
 
@@ -414,19 +413,13 @@ def materializar_item(row: dict, tmp_base: Path | None = None,
             panels_b_full = []
             for p in campos["panels_B"]:
                 panels_b_full.append({
-                    "width":            float(p.get("width", p.get("largura_cm", 0)) or 0),
+                    "width":            float(p.get("width", 0)),
                     "height1":          h_b,
                     "height2":          h_b,
                     "grade_h1":         float(p.get("grade_h1", 0) or 0),
                     "grade_h2":         float(p.get("grade_h2", 0) or 0),
-                    "laje_central_alt": float(p.get("laje_central_alt", 0) or 0),
-                    "laje_sup_local":   float(p.get("laje_sup_local", p.get("slab_top", 0)) or 0),
-                    "laje_inf_local":   float(p.get("laje_inf_local", p.get("slab_bottom", 0)) or 0),
-                    "slab_top":         float(p.get("slab_top", p.get("laje_sup_local", 0)) or 0),
-                    "slab_bottom":      float(p.get("slab_bottom", p.get("laje_inf_local", 0)) or 0),
-                    "holes":            p.get("holes", []),
+                    "laje_central_alt": 0.0,
                     "reuse":            bool(p.get("reuse", False)),
-                    "reuse_regions":    p.get("reuse_regions", []),
                     "panel_type":       str(p.get("panel_type", "Sarrafeado")),
                 })
             campos_b["panels"] = panels_b_full
@@ -517,19 +510,9 @@ def get_recorte_path(elemento_id: str, classe: str,
 # ═════════════════════════════════════════════════════════════════════════════
 
 def rodar_gerador(obra_dir: Path, classe: str,
-                  elemento_id: str, real_obra_name: str | None = None,
-                  real_pavimento: str | None = None) -> tuple[bool, str]:
+                  elemento_id: str) -> tuple[bool, str]:
     """
     Chama o gerador STOG via subprocess com --obra {obra_dir} --item {elemento_id}.
-
-    Args:
-        real_obra_name: nome real da obra (ex: "Obra_TREINO_1"), para geradores
-            que descobrem metadados por obra (ex: layers do STOG em
-            dxf_discovery.json) e precisam saber a obra de verdade — `obra_dir`
-            aqui e' uma pasta temp/isolada ("LV_14_PAV_V414"), nao a obra real.
-        real_pavimento: pavimento real (ex: "14_PAV") — moldes STOG variam por
-            pavimento; sem isso o gerador cai num heuristico "melhor pavimento
-            da obra" que pode escolher o molde errado para este item.
 
     Returns:
         (ok: bool, log: str)
@@ -541,10 +524,6 @@ def rodar_gerador(obra_dir: Path, classe: str,
         "--item", elemento_id,
         "--max", "1",
     ]
-    if real_obra_name and classe == "LV":
-        cmd += ["--stog-obra-hint", real_obra_name]
-        if real_pavimento:
-            cmd += ["--stog-pav-hint", real_pavimento]
     try:
         result = subprocess.run(
             cmd,
@@ -599,9 +578,7 @@ def smoke_test(classe: str, elemento_id: str,
     obra_dir, json_path = materializar_item(row)
 
     # 4. Rodar gerador
-    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
-                                real_obra_name=row.get("obra_name"),
-                                real_pavimento=row.get("pavimento"))
+    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
     result["gerador_ok"] = ok_gen
     result["log"] = log
 

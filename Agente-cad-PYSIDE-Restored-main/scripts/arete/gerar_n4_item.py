@@ -12,139 +12,17 @@ Uso:
 """
 
 import argparse
-import shutil
-import subprocess
+import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from arete_config import DADOS_OBRAS, GERADORES, PAV_13, REPO_ROOT, get_subtipo_pil
+from arete_config import PAV_13, ESCOPO_13PAV
 from ficha_adapter import (
     query_fichas, query_ficha_item,
     materializar_item, rodar_gerador, get_output_dxf_path,
 )
-
-
-_PIL_ZONES = ("cima", "abcd", "grades")
-_LV_VIEWS = ("CORTE", "A", "B")
-
-
-def _publicar_splits_pil_n4(
-    obra_dir: Path,
-    obra_name: str,
-    elemento_id: str,
-) -> tuple[bool, dict[str, str], str]:
-    """Gera e publica os tres splits PIL usados pelas fichas HTML N4.
-
-    O DXF N4 combinado continua sendo a fonte do G1/G2. Os splits sao gerados
-    pelo mesmo motor e pela mesma ficha materializada, somente com ``--zone``;
-    assim o card N4 nunca cai no fallback da raiz, que pertence ao N3.
-    GRADES e publicado mesmo sem comparador automatico no 13_PAV.
-    """
-    gerador = GERADORES["PIL"]
-    temp_out = obra_dir / "Fase-6_Execucao_CAD"
-    real_out = (
-        DADOS_OBRAS
-        / obra_name
-        / "Fase-6_Execucao_CAD"
-        / "n4"
-    )
-    real_out.mkdir(parents=True, exist_ok=True)
-
-    published: dict[str, str] = {}
-    logs: list[str] = []
-    zones = _PIL_ZONES + (("efgh",) if get_subtipo_pil(elemento_id) in {"L", "U"} else ())
-    for zone in zones:
-        cmd = [
-            sys.executable,
-            str(gerador),
-            "--obra",
-            str(obra_dir),
-            "--item",
-            elemento_id,
-            "--max",
-            "1",
-            "--zone",
-            zone,
-        ]
-        try:
-            completed = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=120,
-                cwd=str(REPO_ROOT),
-            )
-        except (subprocess.TimeoutExpired, OSError) as exc:
-            return False, published, f"split PIL {zone}: {exc}"
-
-        zone_log = (completed.stdout or "") + (completed.stderr or "")
-        logs.append(zone_log)
-        if completed.returncode != 0:
-            return (
-                False,
-                published,
-                f"split PIL {zone} falhou (rc={completed.returncode})\n{zone_log}",
-            )
-
-        filename = f"PL_{zone.upper()}_preview_{elemento_id}.dxf"
-        source = temp_out / filename
-        if not source.exists() or source.stat().st_size == 0:
-            return False, published, f"split PIL {zone} ausente ou vazio: {source}"
-
-        destination = real_out / filename
-        shutil.copy2(source, destination)
-        published[zone.upper()] = str(destination)
-
-    return True, published, "".join(logs)
-
-
-def _publicar_splits_lv_n4(
-    obra_dir: Path,
-    obra_name: str,
-    elemento_id: str,
-    pavimento: str | None = None,
-) -> tuple[bool, dict[str, str], str]:
-    """Gera e publica os trÃªs viewers LV N4 da mesma ficha N2 materializada.
-
-    O adaptador enriquece o item a partir do seu recorte antes de escrever a
-    pasta temporÃ¡ria. Os viewers, portanto, nÃ£o leem o fichas_lv_v2 global da
-    obra (que pode estar velho) nem reutilizam a geometria de outra viga.
-    """
-    gerador = GERADORES["LV"]
-    temp_out = obra_dir / "Fase-6_Execucao_CAD"
-    real_out = DADOS_OBRAS / obra_name / "Fase-6_Execucao_CAD" / "n4"
-    real_out.mkdir(parents=True, exist_ok=True)
-    published: dict[str, str] = {}
-    logs: list[str] = []
-    for view in _LV_VIEWS:
-        cmd = [
-            sys.executable, str(gerador), "--obra", str(obra_dir),
-            "--item", elemento_id, "--max", "1", "--view", view,
-            "--stog-obra-hint", obra_name,
-        ]
-        if pavimento:
-            cmd += ["--stog-pav-hint", pavimento]
-        try:
-            completed = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=120,
-                cwd=str(REPO_ROOT),
-            )
-        except (subprocess.TimeoutExpired, OSError) as exc:
-            return False, published, f"split LV {view}: {exc}"
-        view_log = (completed.stdout or "") + (completed.stderr or "")
-        logs.append(view_log)
-        if completed.returncode != 0:
-            return False, published, f"split LV {view} falhou (rc={completed.returncode})\n{view_log}"
-        suffix = "CORTE" if view == "CORTE" else f"VIEW_{view}"
-        source = temp_out / f"LV_preview_{elemento_id}_{suffix}.dxf"
-        if not source.exists() or source.stat().st_size == 0:
-            return False, published, f"split LV {view} ausente ou vazio: {source}"
-        destination = real_out / source.name
-        shutil.copy2(source, destination)
-        published[view] = str(destination)
-    return True, published, "".join(logs)
 
 
 def gerar_item(classe: str, elemento_id: str,
@@ -159,7 +37,6 @@ def gerar_item(classe: str, elemento_id: str,
     result = {
         "ok": False, "classe": classe, "elemento_id": elemento_id,
         "dxf_path": None, "obra_dir": None, "log": "", "erro": "",
-        "split_paths": {},
     }
 
     # 1. Buscar ficha no DB
@@ -180,9 +57,7 @@ def gerar_item(classe: str, elemento_id: str,
         print(f"  Materializado: {json_path}")
 
     # 3. Rodar gerador
-    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
-                                real_obra_name=row.get("obra_name"),
-                                real_pavimento=row.get("pavimento"))
+    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
     result["log"] = log
 
     if not ok_gen:
@@ -195,44 +70,8 @@ def gerar_item(classe: str, elemento_id: str,
     # 4. Verificar DXF
     dxf_path = get_output_dxf_path(Path(obra_dir), classe, elemento_id)
     if dxf_path.exists() and dxf_path.stat().st_size > 0:
-        result["dxf_path"] = str(dxf_path)
-        if classe == "PIL":
-            canonical_n4 = (
-                DADOS_OBRAS
-                / row["obra_name"]
-                / "Fase-6_Execucao_CAD"
-                / "n4"
-                / dxf_path.name
-            )
-            canonical_n4.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(dxf_path, canonical_n4)
-            result["dxf_path"] = str(canonical_n4)
-
-            splits_ok, split_paths, split_log = _publicar_splits_pil_n4(
-                Path(obra_dir), row["obra_name"], elemento_id
-            )
-            result["split_paths"] = split_paths
-            result["log"] += split_log
-            if not splits_ok:
-                result["erro"] = split_log
-                if verbose:
-                    print(f"  [FAIL] {split_log}")
-                return result
-
-        elif classe == "LV":
-            splits_ok, split_paths, split_log = _publicar_splits_lv_n4(
-                Path(obra_dir), row["obra_name"], elemento_id,
-                pavimento=row.get("pavimento"),
-            )
-            result["split_paths"] = split_paths
-            result["log"] += split_log
-            if not splits_ok:
-                result["erro"] = split_log
-                if verbose:
-                    print(f"  [FAIL] {split_log}")
-                return result
-
         result["ok"] = True
+        result["dxf_path"] = str(dxf_path)
         if verbose:
             kb = dxf_path.stat().st_size // 1024
             print(f"  [PASS] DXF: {dxf_path.name} ({kb} KB)")

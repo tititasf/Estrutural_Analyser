@@ -119,11 +119,6 @@ classes futuras.
 do robô SCR de lajes (`_ROBOS_ABAS/Robo_Lajes`); fix POR FÓRMULA em `gerar_lj_dxf_stog.py` ou
 `motor_reverso_laj.py`; preview PNG → inspeção visual → arete → regenera lote. Um fix por causa.
 
-> **G2 numérico sozinho não autoriza "golden selado" (decisão do dono, 03/07 —
-> `docs/LOOPING-CANONICO.md` §1.5).** "PASS" nas stories acima significa G2 canônico
-> (numérico); a selagem de golden exige também G2-V (veredito visual registrado —
-> render do recorte N2 humano × DXF N4 do robô, os dois sempre juntos).
-
 **Atenção LAJ-específica:** se a grade de painéis (linhas_vert/horiz) do N4 não bate com o
 recorte, o fix é no **algoritmo de cálculo** (`calcular_modo1` / lógica de uniões), por fórmula
 — nunca hardcodar a divisão de uma laje. Validar `modo_selecionado` (0 vs 1) é parte do match.
@@ -131,12 +126,6 @@ recorte, o fix é no **algoritmo de cálculo** (`calcular_modo1` / lógica de un
 ---
 
 ## 4. FASE LJ-B — N2 ↔ N1 (aprender a interpretar)
-
-**Persistência N1 granular:** contorno, dimensão, nível, pilares de apoio, visão de
-corte e demais campos mantêm validações independentes. A reanálise preserva somente
-campo/slot/vínculo validado e substitui o restante pelo candidato novo. Validar
-`laje_outline_segs` também congela a geometria raiz `points`. Ver
-`PERSISTENCIA-HEADLESS-SA.md`.
 
 **Objetivo:** preencher os campos do **Structural Analyzer (N1)** com a mesma informação que
 o N2 tem, usando o motor de interpretação do N1 sobre o **estrutural limpo** — e treinar os

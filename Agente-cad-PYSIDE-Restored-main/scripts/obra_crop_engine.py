@@ -32,16 +32,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 
-def _force_write_text(path_obj, text):
-    import stat
-    if path_obj.exists():
-        try:
-            path_obj.chmod(stat.S_IWRITE)
-        except Exception:
-            pass
-    path_obj.write_text(text, encoding="utf-8")
-
-
 # ─── Dependências ────────────────────────────────────────────────────────────
 try:
     import numpy as np
@@ -128,96 +118,6 @@ def _point_in_bbox(x: float, y: float, bbox: tuple, padding: float = 0.0) -> boo
     return (x1 - padding) <= x <= (x2 + padding) and (y1 - padding) <= y <= (y2 + padding)
 
 
-def _point_in_polygon(x: float, y: float, poligono: list[tuple[float, float]]) -> bool:
-    """Ray casting padrão. `poligono` é uma lista de (x, y) em coordenada DXF,
-    não precisa estar fechada (o último ponto liga ao primeiro implicitamente).
-    """
-    dentro = False
-    n = len(poligono)
-    if n < 3:
-        return False
-    x1, y1 = poligono[-1]
-    for x2, y2 in poligono:
-        if ((y1 > y) != (y2 > y)) and (
-            x < (x2 - x1) * (y - y1) / (y2 - y1 + 1e-12) + x1
-        ):
-            dentro = not dentro
-        x1, y1 = x2, y2
-    return dentro
-
-
-def crop_dxf_by_polygon(
-    input_path: str | Path,
-    output_path: str | Path,
-    poligono: list[tuple[float, float]],
-) -> dict:
-    """Copia para `output_path` as entidades de `input_path` cujo CENTRO cai
-    dentro do polígono (coordenada DXF, ray casting).
-
-    Existe para o laço de desenho do viewer web (P3): o operador desenha uma
-    linha contínua sobre o estrutural limpo, os pontos (já convertidos px->DXF
-    pela transform do render) chegam aqui como `poligono`, e o recorte sai só
-    com o que estava dentro do traço — igual ao lasso do app desktop, sem
-    dependência de retângulo (`crop_dxf`/`crop_dxf_multi` só cortam bbox).
-
-    Mesma limitação estrutural de `_entity_center`: entidade sem centro
-    calculável (tipo não mapeado) não entra nunca, mesmo dentro do laço — não
-    é rejeição por estar fora, é ausência de suporte a esse tipo.
-
-    Retorna: {"output": str, "entities_copied": int, "bbox": [...] | None,
-              "error": None | str}
-    """
-    if not _HAS_EZDXF:
-        return {"error": "ezdxf não instalado"}
-    if len(poligono) < 3:
-        return {"error": "poligono precisa de pelo menos 3 pontos"}
-
-    input_path = Path(input_path)
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    try:
-        doc = ezdxf.readfile(str(input_path))
-    except Exception as e:
-        return {"error": f"Falha ao ler DXF: {e}"}
-
-    msp = doc.modelspace()
-    new_doc = ezdxf.new("R2018")
-    try:
-        for layer in doc.layers:
-            lname = layer.dxf.name
-            if lname not in new_doc.layers:
-                new_layer = new_doc.layers.new(lname)
-                new_layer.dxf.color = layer.dxf.get("color", 7)
-    except Exception:
-        pass
-
-    new_msp = new_doc.modelspace()
-    copied = 0
-    pontos_copiados: list[tuple[float, float]] = []
-
-    for entity in msp:
-        centro = _entity_center(entity)
-        if centro is None:
-            continue
-        if not _point_in_polygon(centro[0], centro[1], poligono):
-            continue
-        try:
-            new_msp.add_entity(entity.copy())
-            copied += 1
-            pontos_copiados.append(centro)
-        except Exception:
-            pass
-
-    try:
-        new_doc.saveas(str(output_path))
-    except Exception as e:
-        return {"error": f"Falha ao salvar DXF: {e}"}
-
-    bbox = list(_bbox_of_points(pontos_copiados)) if pontos_copiados else None
-    return {"output": str(output_path), "entities_copied": copied, "bbox": bbox, "error": None}
-
-
 # ─── Detecção de regiões (DBSCAN) ────────────────────────────────────────────
 
 def detect_regions(
@@ -225,7 +125,6 @@ def detect_regions(
     n_torres: int = 1,
     eps_factor: float = 0.025,
     min_samples: int = 8,
-    bad_bboxes: list[list[float]] | None = None,
 ) -> dict:
     """
     Detecta regiões de torre e detalhes por densidade de entidades (DBSCAN).
@@ -306,23 +205,6 @@ def detect_regions(
             "score": score,
         })
 
-    # ── 4.5 Penalizar clusters inválidos (Anti-Repetição) ────────────────────
-    if bad_bboxes:
-        def _iou(bA, bB):
-            xA = max(bA[0], bB[0]); yA = max(bA[1], bB[1])
-            xB = min(bA[2], bB[2]); yB = min(bA[3], bB[3])
-            iA = max(0, xB - xA) * max(0, yB - yA)
-            if iA == 0: return 0.0
-            aA = (bA[2] - bA[0]) * (bA[3] - bA[1])
-            aB = (bB[2] - bB[0]) * (bB[3] - bB[1])
-            return iA / float(aA + aB - iA)
-            
-        for c in clusters:
-            for bad in bad_bboxes:
-                if _iou(c["bbox"], bad) > 0.5:
-                    c["score"] = -1  # Força a virar detalhe, nunca torre
-                    break
-
     # ── 5. Ordenar por score (maior primeiro) ─────────────────────────────────
     clusters.sort(key=lambda c: c["score"], reverse=True)
 
@@ -350,7 +232,6 @@ def crop_dxf(
     output_path: str | Path,
     bbox: tuple | list,
     padding_pct: float = 0.01,
-    selection_mode: str = "center",
 ) -> dict:
     """
     Extrai entidades dentro de bbox (com padding) do DXF input e salva em output.
@@ -371,8 +252,6 @@ def crop_dxf(
 
     x1, y1, x2, y2 = bbox
     padding = max(x2 - x1, y2 - y1) * padding_pct
-    if selection_mode not in {"center", "contained"}:
-        return {"error": f"selection_mode invalido: {selection_mode}"}
 
     msp = doc.modelspace()
     new_doc = ezdxf.new("R2018")
@@ -390,54 +269,21 @@ def crop_dxf(
     new_msp = new_doc.modelspace()
     copied = 0
 
-    if selection_mode == "contained":
-        from ezdxf import bbox as ezbbox
-        caixas = ezbbox.multi_flat(msp, fast=True)
-    else:
-        caixas = (None for _ in msp)
-
-    skipped_outside = 0
-    skipped_no_bbox = 0
-    for entity, caixa in zip(msp, caixas):
-        if selection_mode == "contained":
-            incluir = bool(
-                caixa is not None and caixa.has_data
-                and caixa.extmin.x >= x1 - padding
-                and caixa.extmin.y >= y1 - padding
-                and caixa.extmax.x <= x2 + padding
-                and caixa.extmax.y <= y2 + padding
-            )
-            if caixa is None or not caixa.has_data:
-                skipped_no_bbox += 1
-        else:
-            c = _entity_center(entity)
-            incluir = bool(c and _point_in_bbox(c[0], c[1], (x1, y1, x2, y2), padding))
-        if incluir:
+    for entity in msp:
+        c = _entity_center(entity)
+        if c and _point_in_bbox(c[0], c[1], (x1, y1, x2, y2), padding):
             try:
                 new_msp.add_entity(entity.copy())
                 copied += 1
             except Exception:
                 pass
-        else:
-            skipped_outside += 1
-
-    if selection_mode == "contained" and copied == 0:
-        return {"error": "Nenhuma entidade ficou integralmente dentro do recorte"}
 
     try:
         new_doc.saveas(str(output_path))
     except Exception as e:
         return {"error": f"Falha ao salvar DXF: {e}"}
 
-    return {
-        "output": str(output_path),
-        "entities_copied": copied,
-        "entities_skipped_outside": skipped_outside,
-        "entities_skipped_no_bbox": skipped_no_bbox,
-        "selection_bbox": [float(x1), float(y1), float(x2), float(y2)],
-        "selection_mode": selection_mode,
-        "error": None,
-    }
+    return {"output": str(output_path), "entities_copied": copied, "error": None}
 
 
 def crop_dxf_multi(
@@ -445,7 +291,6 @@ def crop_dxf_multi(
     output_path: str | Path,
     bboxes: list[tuple | list],
     padding_pct: float = 0.01,
-    selection_mode: str = "center",
 ) -> dict:
     """
     Extrai entidades de MÚLTIPLAS bboxes do DXF e salva num único arquivo.
@@ -457,8 +302,6 @@ def crop_dxf_multi(
         return {"error": "ezdxf não instalado"}
     if not bboxes:
         return {"error": "Nenhuma bbox fornecida"}
-    if selection_mode not in {"center", "contained"}:
-        return {"error": f"selection_mode invalido: {selection_mode}"}
 
     input_path  = Path(input_path)
     output_path = Path(output_path)
@@ -491,59 +334,25 @@ def crop_dxf_multi(
     new_msp = new_doc.modelspace()
     copied = 0
 
-    if selection_mode == "contained":
-        from ezdxf import bbox as ezbbox
-        caixas = ezbbox.multi_flat(msp, fast=True)
-    else:
-        caixas = (None for _ in msp)
-
-    skipped_outside = 0
-    skipped_no_bbox = 0
-    for entity, caixa in zip(msp, caixas):
-        c = _entity_center(entity) if selection_mode == "center" else None
-        if selection_mode == "center" and not c:
-            skipped_outside += 1
+    for entity in msp:
+        c = _entity_center(entity)
+        if not c:
             continue
-        if selection_mode == "contained" and (caixa is None or not caixa.has_data):
-            skipped_no_bbox += 1
-            skipped_outside += 1
-            continue
-        incluir = False
         for (x1, y1, x2, y2, pad) in padded_bboxes:
-            if selection_mode == "contained":
-                incluir = bool(
-                    caixa.extmin.x >= x1 - pad and caixa.extmin.y >= y1 - pad
-                    and caixa.extmax.x <= x2 + pad and caixa.extmax.y <= y2 + pad
-                )
-            else:
-                incluir = _point_in_bbox(c[0], c[1], (x1, y1, x2, y2), pad)
-            if incluir:
+            if _point_in_bbox(c[0], c[1], (x1, y1, x2, y2), pad):
                 try:
                     new_msp.add_entity(entity.copy())
                     copied += 1
                 except Exception:
                     pass
                 break  # evitar duplicatas se cai em múltiplas bboxes
-        if not incluir:
-            skipped_outside += 1
-
-    if selection_mode == "contained" and copied == 0:
-        return {"error": "Nenhuma entidade ficou integralmente dentro dos recortes"}
 
     try:
         new_doc.saveas(str(output_path))
     except Exception as e:
         return {"error": f"Falha ao salvar DXF: {e}"}
 
-    return {
-        "output": str(output_path),
-        "entities_copied": copied,
-        "entities_skipped_outside": skipped_outside,
-        "entities_skipped_no_bbox": skipped_no_bbox,
-        "selection_bboxes": [[float(v) for v in b] for b in bboxes],
-        "selection_mode": selection_mode,
-        "error": None,
-    }
+    return {"output": str(output_path), "entities_copied": copied, "error": None}
 
 
 def crop_dxf_from_entities(
@@ -729,7 +538,9 @@ def process_pavimento_crops(
         result["detalhes"].append(entry)
 
     # 4. Salvar resultado
-    _force_write_text(out_dir / "crop_result.json", json.dumps(result, ensure_ascii=False, indent=2))
+    (out_dir / "crop_result.json").write_text(
+        json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
 
     # 5. Atualizar log global da obra (dataset de aprendizado)
     _append_to_recortes_log(obra_name, result)
@@ -758,7 +569,7 @@ def _append_to_recortes_log(obra_name: str, crop_result: dict):
             "approved_bboxes": None,   # preenchido quando usuário aprovar
             "processed_at":    crop_result["processed_at"],
         })
-        _force_write_text(log_path, json.dumps(log, ensure_ascii=False, indent=2))
+        log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception as e:
         print(f"[crop_engine] Aviso: falha ao gravar recortes_log.json: {e}")
 
@@ -793,7 +604,7 @@ def approve_recorte(
                     entry["approved_bbox"] = final_bbox
                 break
 
-        _force_write_text(result_file, json.dumps(result, ensure_ascii=False, indent=2))
+        result_file.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 
         # Atualizar log de aprendizado
         _update_learning_log(obra_name, pavimento_name, recorte_type, final_bbox)
@@ -820,7 +631,7 @@ def _update_learning_log(obra_name, pavimento_name, recorte_type, approved_bbox)
                 else:
                     entry["approved_bboxes"][recorte_type] = "auto_accepted"
                 break
-        _force_write_text(log_path, json.dumps(log, ensure_ascii=False, indent=2))
+        log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception:
         pass
 
@@ -893,7 +704,7 @@ def record_approval_bbox(obra_name: str, pavimento_name: str,
 
             break
 
-        _force_write_text(log_path, json.dumps(log, ensure_ascii=False, indent=2))
+        log_path.write_text(json.dumps(log, ensure_ascii=False, indent=2), encoding="utf-8")
     except Exception as e:
         print(f"[crop_engine] Aviso record_approval_bbox: {e}")
 
@@ -979,7 +790,7 @@ def compute_learned_params(obra_name: str) -> dict:
     }
 
     out_path = DADOS_ROOT / obra_name / LEARNED_PARAMS_FILE
-    _force_write_text(out_path, json.dumps(params, ensure_ascii=False, indent=2))
+    out_path.write_text(json.dumps(params, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"[crop_engine] Parâmetros aprendidos salvos: {out_path}")
     return params
 

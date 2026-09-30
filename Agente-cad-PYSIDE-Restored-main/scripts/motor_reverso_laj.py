@@ -2,11 +2,10 @@
 """Motor Reverso LAJ — Extrai ficha N2 de recorte DXF STOG laje."""
 
 from pathlib import Path
-import json, re, math, sqlite3
+import json, re, math
 import unicodedata
 
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
-PROJECT_DB_PATH = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 UNIAO_MIN = 15.0
 UNIAO_MAX = 30.0
 TOL = 0.5
@@ -26,183 +25,11 @@ def _lookup_fase4_laj(elem_id: str, obra_root: Path) -> dict | None:
             return json.load(f)
     return None
 
-def _real_grid_lines_for_snap(
-    msp, layers: set[str], min_len: float = 25.0
-) -> tuple[list[float], list[float], list[tuple[tuple[float, float], tuple[float, float]]]]:
-    """Arestas H/V longas (posição) e segmentos diagonais longos (par de
-    pontas) nas layers dadas (contorno real)."""
-    xs: list[float] = []
-    ys: list[float] = []
-    diag_segs: list[tuple[tuple[float, float], tuple[float, float]]] = []
-    for e in msp:
-        layer = str(getattr(e.dxf, 'layer', '') or '')
-        if layer not in layers:
-            continue
-        t = e.dxftype()
-        segments: list[tuple[tuple[float, float], tuple[float, float]]] = []
-        if t == 'LINE':
-            a, b = _line_points(e)
-            segments = [(a, b)]
-        elif t in ('LWPOLYLINE', 'POLYLINE'):
-            pts = _entity_points(e)
-            segments = list(zip(pts, pts[1:]))
-        for a, b in segments:
-            dx, dy = abs(a[0] - b[0]), abs(a[1] - b[1])
-            if math.hypot(dx, dy) < min_len:
-                continue
-            if dy <= TOL:
-                ys.append(round((a[1] + b[1]) / 2, 1))
-            elif dx <= TOL:
-                xs.append(round((a[0] + b[0]) / 2, 1))
-            else:
-                diag_segs.append((a, b))
-    return sorted(set(xs)), sorted(set(ys)), diag_segs
-
-
-def _snap_outline_to_real_edges(
-    coords_local: list, pose: dict, xs_real: list[float], ys_real: list[float],
-    diag_segs: list[tuple[tuple[float, float], tuple[float, float]]] | None = None,
-    *, tol: float = 30.0, min_significant: float = 5.0,
-) -> list:
-    """Corrige vértices de um contorno SA/N1 que caem perto de uma aresta real
-    do N2 (layers de contorno) mas com um desvio grosseiro.
-
-    So' ajusta quando o desvio esta' ENTRE min_significant e tol: abaixo de
-    min_significant e' ruido normal de digitalizacao (deixa como esta', nao
-    mexe em casos ja' proximos o bastante -- ver L319/13_PAV golden, onde os
-    desvios sao <=1.2cm); acima de tol e' considerado uma feicao diferente,
-    nao a mesma aresta (nao forca correspondencia sem evidencia).
-
-    Arestas DIAGONAIS (nem H nem V) sao casadas como PAR -- os dois vertices
-    da mesma aresta SA sao ajustados juntos contra o MESMO segmento diagonal
-    real (por soma de distancia dos dois vertices, testando as duas
-    orientacoes), nunca vertice a vertice isolado. Paredes sao desenhadas
-    como duas linhas paralelas (faces interna/externa, ~15-20cm de
-    espessura); casar por vertice deixava cada ponta grudar na linha
-    paralela mais proxima dela, e como as duas pontas de uma MESMA aresta
-    podiam ficar mais pertas de paralelas DIFERENTES, o resultado virava uma
-    diagonal torta que nao existe no desenho (achado L410, 27/07, "parte de
-    baixo" da diagonal reportada errada apos o primeiro fix por vertice).
-    """
-    if not coords_local:
-        return coords_local
-    ox, oy = float(pose.get('x', 0) or 0), float(pose.get('y', 0) or 0)
-    n = len(coords_local)
-
-    def _is_diag(p1, p2) -> bool:
-        dx, dy = abs(p1[0] - p2[0]), abs(p1[1] - p2[1])
-        return dx > TOL and dy > TOL
-
-    world = [(float(x) + ox, float(y) + oy) for x, y in coords_local]
-    out_world = list(world)
-    handled = [False] * n
-
-    if diag_segs:
-        for i in range(n):
-            j = (i + 1) % n
-            if not _is_diag(world[i], world[j]):
-                continue
-            best = None
-            for a, b in diag_segs:
-                for pa, pb in ((a, b), (b, a)):
-                    d = math.hypot(pa[0] - world[i][0], pa[1] - world[i][1]) + \
-                        math.hypot(pb[0] - world[j][0], pb[1] - world[j][1])
-                    if best is None or d < best[0]:
-                        best = (d, pa, pb)
-            if best and best[0] <= 2 * tol:
-                d_i = math.hypot(best[1][0] - world[i][0], best[1][1] - world[i][1])
-                d_j = math.hypot(best[2][0] - world[j][0], best[2][1] - world[j][1])
-                if d_i > min_significant:
-                    out_world[i] = best[1]
-                if d_j > min_significant:
-                    out_world[j] = best[2]
-                handled[i] = handled[j] = True
-
-    out = []
-    for i, (wx, wy) in enumerate(out_world):
-        if not handled[i]:
-            if ys_real:
-                by = min(ys_real, key=lambda v: abs(v - wy))
-                if min_significant < abs(by - wy) <= tol:
-                    wy = by
-            if xs_real:
-                bx = min(xs_real, key=lambda v: abs(v - wx))
-                if min_significant < abs(bx - wx) <= tol:
-                    wx = bx
-        out.append([round(wx - ox, 2), round(wy - oy, 2)])
-    return out
-
-
-def _lookup_sa_outline(fase4: dict | None, elem_id: str, reference: dict | None = None) -> dict | None:
-    project_id = ((fase4 or {}).get('_sa_meta') or {}).get('project_id')
-    if not PROJECT_DB_PATH.exists():
-        return None
-    conn = sqlite3.connect(f'file:{PROJECT_DB_PATH}?mode=ro', uri=True)
-    try:
-        if project_id:
-            rows = conn.execute(
-                'SELECT points_json, area FROM slabs WHERE project_id=? AND name=? ORDER BY rowid DESC',
-                (str(project_id), str(elem_id)),
-            ).fetchall()
-        else:
-            rows = conn.execute(
-                'SELECT points_json, area FROM slabs WHERE name=? ORDER BY rowid DESC',
-                (str(elem_id),),
-            ).fetchall()
-    finally:
-        conn.close()
-    if not rows:
-        return None
-    candidates = []
-    ref_w = float((reference or {}).get('comprimento') or 0.0)
-    ref_h = float((reference or {}).get('largura') or 0.0)
-    for row in rows:
-        try:
-            points = [(float(x), float(y)) for x, y in json.loads(row[0] or '[]')]
-        except Exception:
-            continue
-        box = _bbox(points)
-        if len(points) < 3 or not box:
-            continue
-        normalized = _simplify_closed_polygon(_normalize_poly(points))
-        area = _poly_area(points)
-        bbox_area = _area_bbox(box)
-        if len(normalized) <= 5 or not area or area >= bbox_area * 0.98:
-            continue
-        width = box[2] - box[0]
-        height = box[3] - box[1]
-        score = abs(width - ref_w) / max(ref_w, 1.0) + abs(height - ref_h) / max(ref_h, 1.0)
-        candidates.append((score, {
-            'coordenadas': normalized,
-            'comprimento': round(width, 2),
-            'largura': round(height, 2),
-            'area_cm2': round(area, 2),
-        }))
-    return min(candidates, key=lambda item: item[0])[1] if candidates else None
-
 def _entity_points(e) -> list[tuple[float, float]]:
     if e.dxftype() == 'LWPOLYLINE':
         return [(float(x), float(y)) for x, y, *_ in e.get_points()]
     if e.dxftype() == 'POLYLINE':
         return [(float(v.dxf.location.x), float(v.dxf.location.y)) for v in e.vertices]
-    return []
-
-def _hatch_polyline_points(e) -> list[tuple[float, float]]:
-    points: list[tuple[float, float]] = []
-    try:
-        paths = list(e.paths)
-    except Exception:
-        return []
-    for path in paths:
-        vertices = getattr(path, 'vertices', None)
-        if not vertices:
-            continue
-        try:
-            points = [(float(v[0]), float(v[1])) for v in vertices]
-        except Exception:
-            points = []
-        if points:
-            return points
     return []
 
 def _bbox(points: list[tuple[float, float]]) -> tuple[float, float, float, float] | None:
@@ -228,35 +55,6 @@ def _normalize_poly(points: list[tuple[float, float]]) -> list[list[float]]:
         norm.append(norm[0])
     return norm
 
-def _simplify_closed_polygon(points: list[list[float]], tol: float = 0.5) -> list[list[float]]:
-    clean = [[float(x), float(y)] for x, y in points]
-    if clean and clean[0] == clean[-1]:
-        clean.pop()
-    changed = True
-    while changed and len(clean) > 3:
-        changed = False
-        simplified = []
-        count = len(clean)
-        for index, point in enumerate(clean):
-            prev = clean[(index - 1) % count]
-            nxt = clean[(index + 1) % count]
-            dx = nxt[0] - prev[0]
-            dy = nxt[1] - prev[1]
-            span = math.hypot(dx, dy)
-            distance = abs(dx * (prev[1] - point[1]) - (prev[0] - point[0]) * dy) / max(span, 1.0)
-            between = (
-                min(prev[0], nxt[0]) - tol <= point[0] <= max(prev[0], nxt[0]) + tol
-                and min(prev[1], nxt[1]) - tol <= point[1] <= max(prev[1], nxt[1]) + tol
-            )
-            if distance <= tol and between:
-                changed = True
-                continue
-            simplified.append(point)
-        clean = simplified
-    if clean:
-        clean.append(list(clean[0]))
-    return [[round(x, 2), round(y, 2)] for x, y in clean]
-
 def _rect_from_bbox(box) -> list[list[float]]:
     x0, y0, x1, y1 = box
     return [[0.0, 0.0], [round(x1 - x0, 2), 0.0],
@@ -280,29 +78,6 @@ def _axis_aligned_points(points: list[tuple[float, float]]) -> bool:
             return False
     return True
 
-def _has_diagonal_geometry(msp) -> bool:
-    for e in msp:
-        layer_key = _layer_key(getattr(e.dxf, 'layer', ''))
-        # Marcas X de reaproveitamento (layer 1) e hachuras não definem o
-        # contorno da laje. PAINEIS permanece válida porque o N4 canônico
-        # grava nela o contorno estrutural; o limite de comprimento elimina
-        # setas e hachuras curtas.
-        if layer_key in {'1', 'HACHURA', 'REAPROVEITAMENTO'}:
-            continue
-        if e.dxftype() == 'LINE':
-            segments = [_line_points(e)]
-        elif e.dxftype() in ('POLYLINE', 'LWPOLYLINE'):
-            pts = _entity_points(e)
-            segments = list(zip(pts, pts[1:]))
-        else:
-            continue
-        for a, b in segments:
-            dx = abs(a[0] - b[0])
-            dy = abs(a[1] - b[1])
-            if dx > 5.0 and dy > 5.0 and math.hypot(dx, dy) >= 60.0:
-                return True
-    return False
-
 def _is_closed_poly(e, points: list[tuple[float, float]]) -> bool:
     if len(points) < 4:
         return False
@@ -319,93 +94,18 @@ def _bbox_overlap(a, b) -> float:
     y1 = min(a[3], b[3])
     return max(0.0, x1 - x0) * max(0.0, y1 - y0)
 
-def _discover_structural_layers(msp) -> set[str]:
-    stats: dict[str, dict[str, float]] = {}
-    for e in msp:
-        layer = str(getattr(e.dxf, 'layer', ''))
-        if e.dxftype() in ('TEXT', 'MTEXT'):
-            text = _plain_text(e).replace(',', '.')
-            if re.fullmatch(r'\d+(?:\.\d+)?', text):
-                stats.setdefault(layer, {'h': 0.0, 'v': 0.0, 'count': 0.0, 'numeric': 0.0})['numeric'] += 1
-            continue
-        if e.dxftype() not in ('LINE', 'POLYLINE', 'LWPOLYLINE'):
-            continue
-        row = stats.setdefault(layer, {'h': 0.0, 'v': 0.0, 'count': 0.0, 'numeric': 0.0})
-        if e.dxftype() == 'LINE':
-            segments = [_line_points(e)]
-        else:
-            pts = _entity_points(e)
-            segments = list(zip(pts, pts[1:]))
-            if _is_closed_poly(e, pts) and pts:
-                segments.append((pts[-1], pts[0]))
-        for a, b in segments:
-            dx = abs(float(a[0]) - float(b[0]))
-            dy = abs(float(a[1]) - float(b[1]))
-            length = math.hypot(dx, dy)
-            if length < 2.0 or length > 3300.0:
-                continue
-            if dy <= TOL:
-                row['h'] += length
-                row['count'] += 1
-            elif dx <= TOL:
-                row['v'] += length
-                row['count'] += 1
-
-    ranked = []
-    for layer, row in stats.items():
-        total = row['h'] + row['v']
-        if total <= 0 or row['h'] <= 0 or row['v'] <= 0:
-            continue
-        balance = min(row['h'], row['v']) / max(row['h'], row['v'])
-        ranked.append((row['numeric'], total * (1.0 + balance * 0.25), layer, balance))
-    if not ranked:
-        return set()
-    # Uma layer extremamente desbalanceada (quase só horizontal ou quase só
-    # vertical) tipicamente é contexto do recorte (viga/faixa longa vizinha),
-    # não a malha de painéis da própria laje — mesmo que acumule mais texto
-    # numérico por acidente (ex.: L318/L409: 1 cota solta cai na layer errada
-    # e derruba a contagem de "numeric", que é o critério padrão). Layers com
-    # min(h,v)/max(h,v) < 0.15 só entram no desempate se NENHUMA outra tiver
-    # um mínimo de balanço real. Verificado sem mudar a escolha em nenhum dos
-    # 53 itens conhecidos (31 golden 13_PAV + 22 do 14_PAV) exceto L409.
-    balanced = [item for item in ranked if item[3] >= 0.15]
-    pool = balanced or ranked
-    pool.sort(key=lambda item: (item[0], item[1]), reverse=True)
-    return {pool[0][2]}
-
-def _discover_contour_layers(msp, primary_layers: set[str]) -> set[str]:
-    lengths: dict[str, float] = {}
-    for e in msp:
-        if e.dxftype() != 'LINE':
-            continue
-        a, b = _line_points(e)
-        dx = abs(a[0] - b[0])
-        dy = abs(a[1] - b[1])
-        if dx > TOL and dy > TOL:
-            continue
-        length = math.hypot(dx, dy)
-        if 2.0 <= length <= 3300.0:
-            layer = str(getattr(e.dxf, 'layer', ''))
-            lengths[layer] = lengths.get(layer, 0.0) + length
-    if not lengths:
-        return set(primary_layers)
-    peak = max(lengths.values())
-    return set(primary_layers) | {
-        layer for layer, length in lengths.items()
-        if length >= max(20.0, peak * 0.10)
-    }
-
 def _extract_outline_polygon(msp, fallback_box=None):
     """Extrai o poligono real da area interna LAJ quando ha contorno fechado."""
     candidates = []
     for e in msp:
         if e.dxftype() not in ('POLYLINE', 'LWPOLYLINE'):
             continue
-        layer_key = _layer_key(getattr(e.dxf, 'layer', ''))
-        if layer_key in {'7', 'HACHURA', 'REAPROVEITAMENTO'}:
+        layer = str(getattr(e.dxf, 'layer', ''))
+        layer_key = _layer_key(layer)
+        if layer_key in {'7', 'HACHURA'}:
             continue
         pts = _entity_points(e)
-        if not _is_closed_poly(e, pts):
+        if not _is_closed_poly(e, pts) or not _axis_aligned_points(pts):
             continue
         box = _bbox(pts)
         if not box:
@@ -417,15 +117,11 @@ def _extract_outline_polygon(msp, fallback_box=None):
             continue
         if fallback_box and _bbox_overlap(box, fallback_box) < min(area, _area_bbox(box)) * 0.25:
             continue
-        if fallback_box:
-            fw = fallback_box[2] - fallback_box[0]
-            fh = fallback_box[3] - fallback_box[1]
-            if w < fw * 0.25 or h < fh * 0.25:
-                continue
         score = area
-        if fallback_box:
-            overlap = _bbox_overlap(box, fallback_box)
-            score *= 1.0 + overlap / max(_area_bbox(box), 1.0)
+        if 'REAPROVEITAMENTO' in layer_key:
+            score *= 3.0
+        elif 'PAIN' in layer_key or layer_key == '3':
+            score *= 1.5
         candidates.append((score, box, pts))
 
     if not candidates:
@@ -433,79 +129,7 @@ def _extract_outline_polygon(msp, fallback_box=None):
     _, box, pts = max(candidates, key=lambda item: item[0])
     return box, _normalize_poly(pts)
 
-def _extract_panel_union_outline(msp, fallback_box=None):
-    """Reconstrói o contorno pela união dos painéis fechados do próprio N2.
-
-    O STOG pode representar uma laje em degrau por vários retângulos de
-    REAPROVEITAMENTO, ligados por uma faixa HLAZ. Usar somente o bbox desses
-    retângulos preenche vazios que não pertencem à laje. A união só é aceita
-    quando cobre o envelope inteiro e uma fração forte desse envelope.
-    """
-    if not fallback_box:
-        return None
-    try:
-        from shapely.geometry import box as shapely_box
-        from shapely.ops import unary_union
-    except ImportError:
-        return None
-
-    fx0, fy0, fx1, fy1 = fallback_box
-    fw = fx1 - fx0
-    fh = fy1 - fy0
-    if fw <= 0 or fh <= 0:
-        return None
-
-    rectangles = []
-    for entity in msp:
-        if entity.dxftype() not in ('POLYLINE', 'LWPOLYLINE'):
-            continue
-        layer_key = _layer_key(getattr(entity.dxf, 'layer', ''))
-        if layer_key not in {'REAPROVEITAMENTO', 'HACHURA'}:
-            continue
-        points = _entity_points(entity)
-        rect_box = _bbox(points)
-        if (
-            not rect_box
-            or not _is_closed_poly(entity, points)
-            or not _axis_aligned_points(points + [points[0]])
-        ):
-            continue
-        x0, y0, x1, y1 = rect_box
-        if x1 - x0 < 30.0 or y1 - y0 < 5.0:
-            continue
-        clipped = (
-            max(fx0, x0), max(fy0, y0),
-            min(fx1, x1), min(fy1, y1),
-        )
-        if clipped[2] - clipped[0] < 1.0 or clipped[3] - clipped[1] < 1.0:
-            continue
-        rectangles.append(shapely_box(*clipped))
-
-    if len(rectangles) < 2:
-        return None
-    merged = unary_union(rectangles)
-    if merged.geom_type != 'Polygon' or merged.is_empty:
-        return None
-    mx0, my0, mx1, my1 = merged.bounds
-    edge_tol = max(2.0, min(8.0, min(fw, fh) * 0.04))
-    covers_envelope = (
-        abs(mx0 - fx0) <= edge_tol
-        and abs(my0 - fy0) <= edge_tol
-        and abs(mx1 - fx1) <= edge_tol
-        and abs(my1 - fy1) <= edge_tol
-    )
-    coverage = float(merged.area) / max(fw * fh, 1.0)
-    if not covers_envelope or coverage < 0.55:
-        return None
-
-    absolute = _simplify_closed_polygon(
-        [[float(x), float(y)] for x, y in merged.exterior.coords],
-        tol=0.5,
-    )
-    box = _bbox([(x, y) for x, y in absolute])
-    return (box, _normalize_poly([(x, y) for x, y in absolute])) if box else None
-
-def _extract_stepped_outline_from_segments(msp, fallback_box=None, structural_layers=None):
+def _extract_stepped_outline_from_segments(msp, fallback_box=None):
     """Reconstrói contorno em degrau quando o STOG não tem polyline fechada.
 
     Algumas lajes rasas trazem o outline só como segmentos horizontais longos
@@ -518,7 +142,8 @@ def _extract_stepped_outline_from_segments(msp, fallback_box=None, structural_la
     for e in msp:
         if e.dxftype() not in ('LINE', 'POLYLINE', 'LWPOLYLINE'):
             continue
-        if structural_layers and str(getattr(e.dxf, 'layer', '')) not in structural_layers:
+        layer_key = _layer_key(getattr(e.dxf, 'layer', ''))
+        if layer_key not in {'PAINEIS', '3'}:
             continue
         pts = _entity_points(e) if e.dxftype() != 'LINE' else [tuple(_line_points(e)[0]), tuple(_line_points(e)[1])]
         if len(pts) < 2:
@@ -585,17 +210,8 @@ def _extract_stepped_outline_from_segments(msp, fallback_box=None, structural_la
         return None
 
     short_candidates = [y for y in short_vertical_tops if y0 + height * 0.45 < y < y1 - TOL]
-    if not short_candidates:
-        # Sem uma vertical curta (12-22cm) conectando os dois niveis, nao ha
-        # evidencia direta de um degrau real -- a diferenca entre bx1/tx1 (ou
-        # bx0/tx0) pode ser so folga/overshoot de desenho entre arestas que
-        # nao se tocam (ver L402: aresta vertical de contorno cobre a altura
-        # inteira, mas a aresta horizontal da base "passa" 7cm alem dela, sem
-        # nenhuma aresta conectando -- nao e um degrau, e um gap). Sem essa
-        # evidencia, nao fabricar contorno em degrau; deixa o fallback (bbox
-        # limpo de _extract_panel_geometry) decidir.
-        return None
-    step_y = min(short_candidates)
+    middle_ys = [y for y, x0, x1, span in major if y0 + TOL < y < y1 - TOL]
+    step_y = min(short_candidates) if short_candidates else (max(middle_ys) if middle_ys else y0 + height * 0.72)
     pts = [(bx0, y0), (bx1, y0)]
     if abs(tx1 - bx1) > 1.0:
         pts.extend([(bx1, step_y), (tx1, step_y)])
@@ -607,11 +223,6 @@ def _extract_stepped_outline_from_segments(msp, fallback_box=None, structural_la
     box = _bbox(pts)
     if not box:
         return None
-    if fallback_box:
-        fw = fallback_box[2] - fallback_box[0]
-        fh = fallback_box[3] - fallback_box[1]
-        if (box[2] - box[0]) < fw * 0.85 or (box[3] - box[1]) < fh * 0.85:
-            return None
     return box, _normalize_poly(pts)
 
 def _filter_internal_lines(lines: list[dict], total: float) -> list[dict]:
@@ -641,6 +252,9 @@ def _extract_paineis_cotas(msp, slab_box) -> list[dict]:
     seen = set()
     for e in msp:
         if e.dxftype() not in ('TEXT', 'MTEXT'):
+            continue
+        layer = str(getattr(e.dxf, 'layer', ''))
+        if not _is_paineis_layer(layer):
             continue
         txt = _plain_text(e).replace(',', '.')
         if not re.fullmatch(r'\d+(?:\.\d+)?', txt):
@@ -718,14 +332,12 @@ def _merge_intervals(intervals: list[tuple[float, float]], gap_tol: float = 1.0)
             merged.append((a, b))
     return merged
 
-def _panel_axis_groups(msp, min_len: float = 10.0, structural_layers=None) -> tuple[list[dict], list[dict]]:
+def _panel_axis_groups(msp, min_len: float = 10.0) -> tuple[list[dict], list[dict]]:
     """Agrupa linhas da layer Paineis por eixo para inferir grade interna."""
     h_raw: dict[float, list[tuple[float, float]]] = {}
     v_raw: dict[float, list[tuple[float, float]]] = {}
     for e in msp:
-        if e.dxftype() != 'LINE':
-            continue
-        if structural_layers and str(getattr(e.dxf, 'layer', '')) not in structural_layers:
+        if e.dxftype() != 'LINE' or not _is_paineis_layer(getattr(e.dxf, 'layer', '')):
             continue
         axis = _line_axis(e)
         if not axis:
@@ -781,399 +393,9 @@ def _dedupe_positions(values: list[float], tol: float = 0.5) -> list[float]:
             out.append(round(value, 1))
     return out
 
-def _snap_nominal_panel_segments(values: list[float]) -> list[float]:
-    snapped = []
-    previous = 0.0
-    for value in sorted(values):
-        segment = value - previous
-        nominal = min((60.0, 122.0, 244.0), key=lambda item: abs(item - segment))
-        if abs(nominal - segment) <= 0.6:
-            value = previous + nominal
-        value = round(value, 1)
-        snapped.append(value)
-        previous = value
-    return snapped
-
-def _fill_oversized_panel_spans(lines: list[dict], total: float) -> list[dict]:
-    ordered = sorted((dict(item) for item in lines or []), key=lambda item: float(item['value']))
-    out = []
-    previous = 0.0
-    for item in ordered + [{'value': total, '_edge': True}]:
-        value = float(item['value'])
-        while value - previous > 244.6:
-            previous = round(previous + 244.0, 1)
-            out.append({'value': previous, 'is_union': False})
-        if not item.get('_edge'):
-            out.append(item)
-            previous = value
-    return out
-
-def _axis_panel_lengths(positions: list[float], total: float) -> list[float]:
-    edges = [0.0] + sorted(float(p) for p in positions) + [float(total)]
-    return [round(b - a, 2) for a, b in zip(edges, edges[1:]) if b - a > 0.5]
-
-def _is_preferred_panel_length(length: float) -> bool:
-    return any(abs(length - target) <= 1.0 for target in (244.0, 122.0, 60.0))
-
-def _looks_like_canonical_panel_distribution(lines: list[dict], total: float) -> bool:
-    lengths = _axis_panel_lengths([float(item.get('value') or 0.0) for item in lines or []], total)
-    if not lengths:
-        return True
-    residuals = []
-    for length in lengths:
-        if _is_preferred_panel_length(length):
-            continue
-        if UNIAO_MIN <= length <= UNIAO_MAX:
-            continue
-        if length >= 60.0:
-            residuals.append(length)
-            continue
-        return False
-    return len(residuals) <= 1
-
-def _smart_canonical_lines(comprimento: float, largura: float) -> list[dict]:
-    try:
-        try:
-            from smart_panner import distribute_panels
-        except ImportError:
-            from scripts.smart_panner import distribute_panels
-        return distribute_panels(comprimento, largura).get('linhas_verticais') or []
-    except Exception:
-        lines = []
-        pos = 244.0
-        while pos < comprimento - 60.0:
-            lines.append({'value': round(pos, 1), 'is_union': False})
-            pos += 244.0
-        return lines
-
-def _smart_canonical_axis_lines(total: float, other: float, axis: str) -> list[dict]:
-    try:
-        try:
-            from smart_panner import distribute_panels
-        except ImportError:
-            from scripts.smart_panner import distribute_panels
-        if axis == 'x':
-            return distribute_panels(total, other).get('linhas_verticais') or []
-        return distribute_panels(other, total).get('linhas_horizontais') or []
-    except Exception:
-        lines = []
-        pos = 244.0
-        while pos < total - 60.0:
-            lines.append({'value': round(pos, 1), 'is_union': False})
-            pos += 244.0
-        return lines
-
-def _polygon_break_anchors_local(coords, comp: float, larg: float, axis: str) -> list[float]:
-    if not coords or len(coords) <= 4:
-        return []
-    pts = [(float(x), float(y)) for x, y in coords]
-    x0 = min(x for x, _ in pts)
-    y0 = min(y for _, y in pts)
-    if pts[0] != pts[-1]:
-        pts.append(pts[0])
-    anchors = []
-    for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
-        if axis == 'x':
-            if abs(x1 - x2) > 0.5:
-                continue
-            local = round(x1 - x0, 1)
-            length = abs(y2 - y1)
-            total = larg
-            axis_total = comp
-        else:
-            if abs(y1 - y2) > 0.5:
-                continue
-            local = round(y1 - y0, 1)
-            length = abs(x2 - x1)
-            total = comp
-            axis_total = larg
-        if local <= 30.0 or local >= axis_total - 30.0:
-            continue
-        if 5.0 <= length < total - 0.5:
-            anchors.append(local)
-    return _dedupe_positions(anchors)
-
-def _anchored_axis_lines(lines: list[dict], total: float, other: float, anchors: list[float], axis: str) -> list[dict]:
-    anchors = [float(a) for a in anchors if 1.0 < float(a) < total - 1.0]
-    if not anchors:
-        return lines
-    current = [float(item.get('value') or 0.0) for item in lines or []]
-    if current and not any(
-        min(abs(anchor - pos) for pos in current) <= 35.0
-        for anchor in anchors
-    ):
-        return lines
-    out = []
-    edges = [0.0] + anchors + [float(total)]
-    edges = _dedupe_positions(edges)
-    previous = 0.0
-    for edge in edges[1:]:
-        span = edge - previous
-        for item in _smart_canonical_axis_lines(span, other, axis):
-            value = previous + float(item.get('value') or 0.0)
-            if previous + 1.0 < value < edge - 1.0:
-                out.append({'value': round(value, 1), 'is_union': bool(item.get('is_union', False))})
-        if edge < total - 1.0:
-            out.append({'value': round(edge, 1), 'is_union': False})
-        previous = edge
-    if not out:
-        return lines
-    if len(out) > max(len(lines or []) + len(anchors) + 2, 3):
-        return lines
-    return out
-
-def _canonicalize_long_panel_axis(lines: list[dict], comprimento, largura) -> list[dict]:
-    try:
-        comp = float(comprimento or 0.0)
-        larg = float(largura or 0.0)
-    except (TypeError, ValueError):
-        return lines
-    if comp < max(larg, 2 * 244.0) or not lines:
-        return lines
-    if _looks_like_canonical_panel_distribution(lines, comp):
-        return lines
-    canonical = _smart_canonical_lines(comp, larg)
-    return canonical or lines
-
-def _canonicalize_noisy_panel_axis(lines: list[dict], total, other, axis: str) -> list[dict]:
-    try:
-        total_f = float(total or 0.0)
-        other_f = float(other or 0.0)
-    except (TypeError, ValueError):
-        return lines
-    if not lines or total_f <= 0:
-        return lines
-    if min(total_f, other_f) <= 75.0:
-        return lines
-    if _looks_like_canonical_panel_distribution(lines, total_f):
-        return lines
-    canonical = _smart_canonical_axis_lines(total_f, other_f, axis)
-    return canonical or lines
-
-def _canonicalize_panel_axes_for_outline(
-    linhas_v: list[dict],
-    linhas_h: list[dict],
-    coords,
-    comprimento,
-    largura,
-) -> tuple[list[dict], list[dict]]:
-    try:
-        comp = float(comprimento or 0.0)
-        larg = float(largura or 0.0)
-    except (TypeError, ValueError):
-        return linhas_v, linhas_h
-    if not coords or len(coords) <= 4:
-        return linhas_v, linhas_h
-    x_anchors = _polygon_break_anchors_local(coords, comp, larg, 'x')
-    if x_anchors:
-        linhas_v = _anchored_axis_lines(linhas_v, comp, larg, x_anchors, 'x')
-    # Eixo Y fica desativado por enquanto: Fase-4 é fonte oficial/intocável e
-    # alguns itens (ex.: L319) ainda têm paginação antiga armazenada ali.
-    return linhas_v, linhas_h
-
-def _label_anchor(msp, elemento_id: str | None) -> tuple[float, float] | None:
-    """Retorna a âncora de um identificador LAJ escrito no próprio recorte.
-
-    O identificador é apenas uma evidência de localização: nunca carrega
-    geometria nem consulta N1/Fase-4.  Isso permite separar, de forma geral,
-    a malha da laje da malha de contexto que também vem no recorte reverso.
-    """
-    target = str(elemento_id or '').strip().upper()
-    if not target:
-        return None
-    for entity in msp:
-        if entity.dxftype() not in ('TEXT', 'MTEXT'):
-            continue
-        if _plain_text(entity).strip().upper() != target:
-            continue
-        insert = entity.dxf.insert
-        return float(insert.x), float(insert.y)
-    return None
-
-
-def _box_gap(left, right) -> float:
-    """Menor distância ortogonal entre dois bboxes (zero se tocam)."""
-    dx = max(left[0] - right[2], right[0] - left[2], 0.0)
-    dy = max(left[1] - right[3], right[1] - left[3], 0.0)
-    return math.hypot(dx, dy)
-
-
-def _union_box(left, right) -> tuple[float, float, float, float]:
-    return (
-        min(left[0], right[0]), min(left[1], right[1]),
-        max(left[2], right[2]), max(left[3], right[3]),
-    )
-
-
-def _expand_local_box_with_aligned_boundary_segments(msp, box, structural_layers):
-    """Recupera bordas locais quebradas por hachura de apoio/cota.
-
-    A expansão exige que o segmento cubra a maior parte da borda já encontrada
-    e fique próximo dela. Assim uma linha de viga remota não vira contorno da
-    laje, mas uma borda estrutural interrompida por um apoio continua legível.
-    """
-    x0, y0, x1, y1 = box
-    for _ in range(2):
-        width, height = x1 - x0, y1 - y0
-        max_gap = max(30.0, min(60.0, max(width, height) * 0.13))
-        candidates = {'left': [], 'right': [], 'bottom': [], 'top': []}
-        for entity in msp:
-            if entity.dxftype() != 'LINE':
-                continue
-            if str(getattr(entity.dxf, 'layer', '')) in structural_layers:
-                continue
-            a, b = _line_points(entity)
-            if abs(a[1] - b[1]) <= TOL:
-                lo, hi = sorted((a[0], b[0]))
-                overlap = max(0.0, min(x1, hi) - max(x0, lo))
-                if width and overlap / width < 0.65:
-                    continue
-                y = (a[1] + b[1]) / 2.0
-                if y0 - max_gap <= y < y0:
-                    candidates['bottom'].append(y)
-                elif y1 < y <= y1 + max_gap:
-                    candidates['top'].append(y)
-            elif abs(a[0] - b[0]) <= TOL:
-                lo, hi = sorted((a[1], b[1]))
-                overlap = max(0.0, min(y1, hi) - max(y0, lo))
-                if height and overlap / height < 0.65:
-                    continue
-                x = (a[0] + b[0]) / 2.0
-                if x0 - max_gap <= x < x0:
-                    candidates['left'].append(x)
-                elif x1 < x <= x1 + max_gap:
-                    candidates['right'].append(x)
-        if candidates['left']:
-            x0 = min(candidates['left'])
-        if candidates['right']:
-            x1 = max(candidates['right'])
-        if candidates['bottom']:
-            y0 = min(candidates['bottom'])
-        if candidates['top']:
-            y1 = max(candidates['top'])
-    return x0, y0, x1, y1
-
-
-def _local_structural_box_for_label(
-    msp, structural_layers, elemento_id: str | None, *, expand_boundaries: bool = True
-):
-    """Isola a ilha de linhas estruturais que contém o rótulo da laje.
-
-    Recortes N2 trazem frequentemente partes de vigas e lajes vizinhas na
-    mesma layer ``Painéis``.  A regra antiga escolhia a maior guia horizontal
-    e vertical do arquivo e por isso transformava esse contexto em contorno.
-    Aqui os segmentos são agrupados por conectividade local; o agrupamento é
-    aceito somente se contém um rótulo exato e continua significativamente
-    menor que uma expansão ampla do próprio componente.  Sem essa evidência,
-    o caminho histórico permanece intacto.
-    """
-    anchor = _label_anchor(msp, elemento_id)
-    if anchor is None or not structural_layers:
-        return None
-
-    segments: list[tuple[tuple[float, float], tuple[float, float]]] = []
-    for entity in msp:
-        if entity.dxftype() != 'LINE':
-            continue
-        if str(getattr(entity.dxf, 'layer', '')) not in structural_layers:
-            continue
-        axis = _line_axis(entity)
-        if not axis:
-            continue
-        a, b = _line_points(entity)
-        if math.hypot(b[0] - a[0], b[1] - a[1]) < 10.0:
-            continue
-        segments.append((a, b))
-    if not segments:
-        return None
-
-    # União por endpoint com índice espacial: evita O(n²) nos recortes grandes.
-    tolerance = 3.5
-    cell = tolerance
-    parent = list(range(len(segments)))
-
-    def find(index: int) -> int:
-        while parent[index] != index:
-            parent[index] = parent[parent[index]]
-            index = parent[index]
-        return index
-
-    def union(left: int, right: int) -> None:
-        left_root, right_root = find(left), find(right)
-        if left_root != right_root:
-            parent[right_root] = left_root
-
-    buckets: dict[tuple[int, int], list[int]] = {}
-    for index, segment in enumerate(segments):
-        for point in segment:
-            key = (round(point[0] / cell), round(point[1] / cell))
-            for dx in (-1, 0, 1):
-                for dy in (-1, 0, 1):
-                    for other in buckets.get((key[0] + dx, key[1] + dy), []):
-                        if min(
-                            math.hypot(point[0] - endpoint[0], point[1] - endpoint[1])
-                            for endpoint in segments[other]
-                        ) <= tolerance:
-                            union(index, other)
-            buckets.setdefault(key, []).append(index)
-
-    components: dict[int, list[int]] = {}
-    for index in range(len(segments)):
-        components.setdefault(find(index), []).append(index)
-    boxes = []
-    for indexes in components.values():
-        points = [point for index in indexes for point in segments[index]]
-        xs, ys = [point[0] for point in points], [point[1] for point in points]
-        box = (min(xs), min(ys), max(xs), max(ys))
-        width, height = box[2] - box[0], box[3] - box[1]
-        if len(indexes) >= 2 and width >= 30.0 and height >= 15.0:
-            boxes.append(box)
-    if not boxes:
-        return None
-
-    # A âncora pode ficar sobre a cota interna; uma margem pequena é aceitável.
-    candidates = [
-        box for box in boxes
-        if box[0] - 5.0 <= anchor[0] <= box[2] + 5.0
-        and box[1] - 5.0 <= anchor[1] <= box[3] + 5.0
-    ]
-    if not candidates:
-        return None
-    selected = min(candidates, key=lambda box: (box[2] - box[0]) * (box[3] - box[1]))
-    base_width, base_height = selected[2] - selected[0], selected[3] - selected[1]
-    anchor_x_ratio = (anchor[0] - selected[0]) / base_width
-    # Rótulo encostado numa ponta indica, em geral, uma submalha lateral e não
-    # a área inteira. Falha fechado para evitar recortar uma laje complexa.
-    if not 0.20 <= anchor_x_ratio <= 0.80:
-        return None
-
-    # Reconecta partes da mesma ilha separadas por setas/hachuras, sem deixar a
-    # ilha crescer até a laje vizinha. Os limites são relativos ao componente,
-    # não a qualquer obra, pavimento ou identificador.
-    max_width = base_width * 1.35 + 10.0
-    max_height = max(base_height * 5.0, 100.0)
-    changed = True
-    while changed:
-        changed = False
-        for box in boxes:
-            if box == selected or _box_gap(selected, box) > 8.0:
-                continue
-            expanded = _union_box(selected, box)
-            if expanded[2] - expanded[0] > max_width or expanded[3] - expanded[1] > max_height:
-                continue
-            if expanded != selected:
-                selected = expanded
-                changed = True
-    if expand_boundaries and min(base_width, base_height) < 60.0:
-        selected = _expand_local_box_with_aligned_boundary_segments(
-            msp, selected, structural_layers
-        )
-    return tuple(round(value, 3) for value in selected)
-
-
-def _extract_panel_geometry(msp, structural_layers=None):
+def _extract_panel_geometry(msp):
     """Inferencia universal da area interna e linhas a partir da layer Paineis."""
-    h_groups, v_groups = _panel_axis_groups(msp, structural_layers=structural_layers)
+    h_groups, v_groups = _panel_axis_groups(msp)
     if not h_groups or not v_groups:
         return None
 
@@ -1244,241 +466,11 @@ def _extract_panel_geometry(msp, structural_layers=None):
                 if edge_tol_y < rel < larg - edge_tol_y:
                     y_cuts.add(rel)
 
-    xs = _snap_nominal_panel_segments(_dedupe_positions(list(x_cuts)))
-    ys = _snap_nominal_panel_segments(_dedupe_positions(list(y_cuts)))
+    xs = _dedupe_positions(list(x_cuts))
+    ys = _dedupe_positions(list(y_cuts))
     linhas_v = [{'value': x, 'is_union': _is_union_position(x, xs)} for x in xs]
     linhas_h = [{'value': y, 'is_union': _is_union_position(y, ys)} for y in ys]
     return (x0, y0, x1, y1), linhas_v, linhas_h
-
-def _pillar_boxes_layer7(msp) -> list[tuple[float, float, float, float]]:
-    """AABBs de pilares no recorte (layer '7') — mesma heurística de
-    src/core/n2_marco_highlight.pillar_boxes (arestas soltas -> cluster por
-    proximidade), reaproveitada aqui para o safety-net de _clip_panel_box_at_pillars.
-    """
-    segs: list[tuple[float, float, float, float]] = []
-    closed: list[tuple[float, float, float, float]] = []
-    for e in msp:
-        layer = str(getattr(e.dxf, 'layer', '') or '').strip()
-        if layer != '7':
-            continue
-        t = e.dxftype()
-        if t == 'LINE':
-            x1, y1 = float(e.dxf.start.x), float(e.dxf.start.y)
-            x2, y2 = float(e.dxf.end.x), float(e.dxf.end.y)
-            segs.append((min(x1, x2), min(y1, y2), max(x1, x2), max(y1, y2)))
-        elif t == 'LWPOLYLINE':
-            pts = [(float(x), float(y)) for x, y, *_ in e.get_points('xy')]
-            if len(pts) < 2:
-                continue
-            xs = [p[0] for p in pts]
-            ys = [p[1] for p in pts]
-            bb = (min(xs), min(ys), max(xs), max(ys))
-            w, h = bb[2] - bb[0], bb[3] - bb[1]
-            closed_poly = bool(getattr(e, 'closed', False)) or (
-                len(pts) >= 3 and abs(pts[0][0] - pts[-1][0]) < 0.5
-                and abs(pts[0][1] - pts[-1][1]) < 0.5
-            )
-            if closed_poly and w >= 5 and h >= 5 and not (w > 400 and h > 400):
-                closed.append(bb)
-            else:
-                for a, b in zip(pts, pts[1:]):
-                    segs.append(
-                        (min(a[0], b[0]), min(a[1], b[1]), max(a[0], b[0]), max(a[1], b[1]))
-                    )
-    boxes = list(closed)
-    if not segs:
-        return boxes
-    used = [False] * len(segs)
-    gap = 40.0
-    for i, s in enumerate(segs):
-        if used[i]:
-            continue
-        x0, y0, x1, y1 = s
-        used[i] = True
-        changed = True
-        while changed:
-            changed = False
-            for j, t in enumerate(segs):
-                if used[j]:
-                    continue
-                if t[2] < x0 - gap or t[0] > x1 + gap or t[3] < y0 - gap or t[1] > y1 + gap:
-                    continue
-                x0, y0 = min(x0, t[0]), min(y0, t[1])
-                x1, y1 = max(x1, t[2]), max(y1, t[3])
-                used[j] = True
-                changed = True
-        w, h = x1 - x0, y1 - y0
-        if w < 4 and h < 4:
-            continue
-        if w > 450 and h > 450:
-            continue
-        if w * h > 120_000:
-            continue
-        boxes.append((x0, y0, x1, y1))
-    return boxes
-
-
-def _clip_panel_box_at_pillars(
-    box: tuple[float, float, float, float],
-    pillars: list[tuple[float, float, float, float]],
-    threshold: float = 0.5,
-) -> tuple[float, float, float, float]:
-    """Rede de segurança do bbox global de _extract_panel_geometry.
-
-    Quando _local_structural_box_for_label não consegue isolar a ilha da
-    própria laje (segmentos de grade paralelos que não se tocam nos vértices
-    — comum nesses recortes), o bbox global (maior guia H x maior guia V) pode
-    incluir contexto de viga/pilar vizinho e "engolir" um pilar de borda
-    inteiro. Aperta só a borda em que um pilar de canto está majoritariamente
-    dentro do box — nunca amplia, nunca mexe em pilares no miolo.
-    """
-    if not box or not pillars:
-        return box
-    x0, y0, x1, y1 = box
-    w, h = x1 - x0, y1 - y0
-    if w < 30 or h < 15:
-        return box
-    changed = False
-    for px0, py0, px1, py1 in pillars:
-        ox0, oy0 = max(x0, px0), max(y0, py0)
-        ox1, oy1 = min(x1, px1), min(y1, py1)
-        if ox1 <= ox0 or oy1 <= oy0:
-            continue
-        inter = (ox1 - ox0) * (oy1 - oy0)
-        p_area = max((px1 - px0) * (py1 - py0), 1e-6)
-        if inter / p_area < threshold:
-            continue
-        cx, cy = (px0 + px1) / 2.0, (py0 + py1) / 2.0
-        near_right = (x1 - cx) < w * 0.30
-        near_left = (cx - x0) < w * 0.30
-        near_top = (y1 - cy) < h * 0.30
-        near_bottom = (cy - y0) < h * 0.30
-        if near_right and px0 > x0 + w * 0.5:
-            x1 = min(x1, px0 - 1.0)
-            changed = True
-        elif near_left and px1 < x1 - w * 0.5:
-            x0 = max(x0, px1 + 1.0)
-            changed = True
-        elif near_top and py0 > y0 + h * 0.5:
-            y1 = min(y1, py0 - 1.0)
-            changed = True
-        elif near_bottom and py1 < y1 - h * 0.5:
-            y0 = max(y0, py1 + 1.0)
-            changed = True
-    if not changed or x1 <= x0 + 20 or y1 <= y0 + 8:
-        return box
-    return (x0, y0, x1, y1)
-
-
-def _extract_complex_outline_cuts(msp, outline_box, structural_layers):
-    x0, y0, x1, y1 = outline_box
-    width = x1 - x0
-    height = y1 - y0
-    edge_x = max(15.0, min(25.0, width * 0.02))
-    edge_y = max(15.0, min(25.0, height * 0.02))
-    xs = []
-    ys = []
-    for e in msp:
-        if e.dxftype() != 'LINE':
-            continue
-        if structural_layers and str(getattr(e.dxf, 'layer', '')) not in structural_layers:
-            continue
-        axis = _line_axis(e)
-        if not axis:
-            continue
-        a, b = _line_points(e)
-        if axis == 'v':
-            length = abs(b[1] - a[1])
-            rel = round(((a[0] + b[0]) / 2.0) - x0, 1)
-            overlap = max(0.0, min(y1, max(a[1], b[1])) - max(y0, min(a[1], b[1])))
-            if length >= max(20.0, height * 0.20) and overlap >= length * 0.70:
-                if edge_x < rel < width - edge_x:
-                    xs.append(rel)
-        else:
-            length = abs(b[0] - a[0])
-            rel = round(((a[1] + b[1]) / 2.0) - y0, 1)
-            overlap = max(0.0, min(x1, max(a[0], b[0])) - max(x0, min(a[0], b[0])))
-            if length >= max(20.0, width * 0.10) and overlap >= length * 0.70:
-                if edge_y < rel < height - edge_y:
-                    ys.append(rel)
-    xs = _dedupe_positions(xs)
-    ys = _dedupe_positions(ys)
-    return (
-        [{'value': x, 'is_union': _is_union_position(x, xs)} for x in xs],
-        [{'value': y, 'is_union': _is_union_position(y, ys)} for y in ys],
-    )
-
-def _extract_local_vertical_segments(msp, slab_box, structural_layers, lines):
-    x0, y0, _, y1 = slab_box
-    positions = [float(item['value']) for item in lines]
-    grouped = {round(value, 1): [] for value in positions}
-    for e in msp:
-        if e.dxftype() != 'LINE':
-            continue
-        if structural_layers and str(getattr(e.dxf, 'layer', '')) not in structural_layers:
-            continue
-        if _line_axis(e) != 'v':
-            continue
-        a, b = _line_points(e)
-        rel_x = round(((a[0] + b[0]) / 2) - x0, 1)
-        match = min(positions, key=lambda value: abs(value - rel_x), default=None)
-        if match is None or abs(match - rel_x) > 0.6:
-            continue
-        lo = max(y0, min(a[1], b[1]))
-        hi = min(y1, max(a[1], b[1]))
-        if hi - lo >= 10.0:
-            grouped[round(match, 1)].append((lo - y0, hi - y0))
-    result = []
-    for value, intervals in grouped.items():
-        for lo, hi in _merge_intervals(intervals, gap_tol=1.0):
-            result.append({'value': value, 'y0': round(lo, 1), 'y1': round(hi, 1)})
-    return result
-
-def _extract_local_horizontal_segments(msp, slab_box, structural_layers, lines):
-    x0, y0, x1, _ = slab_box
-    positions = [float(item['value']) for item in lines]
-    grouped = {round(value, 1): [] for value in positions}
-    for entity in msp:
-        if entity.dxftype() != 'LINE':
-            continue
-        if structural_layers and str(getattr(entity.dxf, 'layer', '')) not in structural_layers:
-            continue
-        if _line_axis(entity) != 'h':
-            continue
-        a, b = _line_points(entity)
-        rel_y = round(((a[1] + b[1]) / 2) - y0, 1)
-        match = min(positions, key=lambda value: abs(value - rel_y), default=None)
-        if match is None or abs(match - rel_y) > 0.6:
-            continue
-        lo = max(x0, min(a[0], b[0]))
-        hi = min(x1, max(a[0], b[0]))
-        if hi - lo >= 10.0:
-            grouped[round(match, 1)].append((lo - x0, hi - x0))
-    result = []
-    for value, intervals in grouped.items():
-        for lo, hi in _merge_intervals(intervals, gap_tol=1.0):
-            result.append({'value': value, 'x0': round(lo, 1), 'x1': round(hi, 1)})
-    return result
-
-def _extract_panel_dimension_texts(msp, slab_box):
-    x0, y0, _, _ = slab_box
-    result = []
-    for entity in msp:
-        if entity.dxftype() != 'TEXT' or not _is_paineis_layer(getattr(entity.dxf, 'layer', '')):
-            continue
-        text = str(getattr(entity.dxf, 'text', '')).strip()
-        if not re.fullmatch(r'\d+(?:[.,]\d+)?', text):
-            continue
-        insert = entity.dxf.insert
-        result.append({
-            'text': text,
-            'value': float(text.replace(',', '.')),
-            'x': round(float(insert.x) - x0, 2),
-            'y': round(float(insert.y) - y0, 2),
-            'rotation': round(float(getattr(entity.dxf, 'rotation', 0) or 0), 2),
-            'height': round(float(getattr(entity.dxf, 'height', 8) or 8), 2),
-        })
-    return result
 
 def _canonical_lines_from_lengths(values: list[float], total: float) -> list[dict]:
     """Converte valores de cotas em distancias acumuladas internas."""
@@ -1506,14 +498,6 @@ def _best_subset_sum(values: list[float], target: float) -> tuple[list[float], l
         rest.remove(v)
     return chosen, rest
 
-def _best_dimension_total(values: list[float], target: float) -> float | None:
-    clean = [round(float(v), 1) for v in values if 2.0 <= float(v) <= target * 1.05]
-    if not clean or target <= 0:
-        return None
-    candidates = clean + [round(sum(clean), 1)]
-    best = min(candidates, key=lambda total: abs(total - target))
-    return best if abs(best - target) <= max(4.0, target * 0.015) else None
-
 def _lines_from_segments(segments: list[float]) -> list[dict]:
     acc = 0.0
     lines = []
@@ -1522,49 +506,25 @@ def _lines_from_segments(segments: list[float]) -> list[dict]:
         lines.append({'value': acc, 'is_union': UNIAO_MIN <= seg <= UNIAO_MAX})
     return lines
 
-def _extract_form_bbox(msp, structural_layers=None):
+def _extract_form_bbox(msp):
     """BBox do conteudo LAJ, evitando contexto de pilar/cota distante."""
-    closed_strips = []
+    hatches = []
     painel_segments = []
     all_form_pts = []
 
     for e in msp:
         etype = e.dxftype()
         layer = str(getattr(e.dxf, 'layer', ''))
-        if etype == 'HATCH' and _layer_key(layer) == 'HACHURA' and int(getattr(e.dxf, 'color', 0) or 0) == 251:
-            pts = _hatch_polyline_points(e)
-            box = _bbox(pts)
-            if not box:
-                continue
-            w = box[2] - box[0]
-            h = box[3] - box[1]
-            if (
-                _axis_aligned_points(pts + [pts[0]])
-                and w >= 30.0
-                and 5.0 <= h <= 100.0
-                and w >= h * 2.0
-            ):
-                closed_strips.append((box, pts))
         if etype in ('POLYLINE', 'LWPOLYLINE'):
             pts = _entity_points(e)
             box = _bbox(pts)
             if not box:
                 continue
-            w = box[2] - box[0]
-            h = box[3] - box[1]
-            if (
-                _layer_key(layer) == 'HACHURA'
-                and
-                _is_closed_poly(e, pts)
-                and _axis_aligned_points(pts + [pts[0]])
-                and w >= 30.0
-                and 5.0 <= h <= 100.0
-                and w >= h * 2.0
-            ):
-                closed_strips.append((box, pts))
-            if not structural_layers or layer in structural_layers:
+            if layer.lower() == 'hachura':
+                hatches.append((box, pts))
+            elif layer in ('3', 'Painéis', 'Paineis'):
                 all_form_pts.extend(pts)
-        elif etype == 'LINE' and (not structural_layers or layer in structural_layers):
+        elif etype == 'LINE' and layer in ('3', 'Painéis', 'Paineis'):
             length = _line_len(e)
             if length >= 40:
                 a = e.dxf.start
@@ -1572,19 +532,9 @@ def _extract_form_bbox(msp, structural_layers=None):
                 painel_segments.append((length, _line_axis(e), (float(a.x), float(a.y)), (float(b.x), float(b.y)), layer))
                 all_form_pts.extend([(float(a.x), float(a.y)), (float(b.x), float(b.y))])
 
-    form_box = _bbox(all_form_pts)
-    if form_box:
-        form_w = form_box[2] - form_box[0]
-        form_h = form_box[3] - form_box[1]
-        closed_strips = [
-            item for item in closed_strips
-            if abs((item[0][2] - item[0][0]) - form_w) > max(10.0, form_w * 0.03)
-            or abs((item[0][3] - item[0][1]) - form_h) > max(5.0, form_h * 0.05)
-        ]
-
-    if closed_strips:
+    if hatches:
         # HLAZ e a regua mais confiavel para o vao da laje no recorte.
-        best_hatch = max(closed_strips, key=lambda item: _area_bbox(item[0]))
+        best_hatch = max(hatches, key=lambda item: _area_bbox(item[0]))
         hx0, hy0, hx1, hy1 = best_hatch[0]
         near_pts = [(x, y) for _, _, a, b, _ in painel_segments for x, y in (a, b)
                     if hx0 - 5 <= x <= hx1 + 5 and hy0 - 150 <= y <= hy1 + 150]
@@ -1592,89 +542,11 @@ def _extract_form_bbox(msp, structural_layers=None):
             return _bbox(near_pts), best_hatch[0]
         return best_hatch[0], best_hatch[0]
 
-    if form_box:
-        return form_box, None
+    if all_form_pts:
+        return _bbox(all_form_pts), None
     return None, None
 
-def _point_in_polygon(point: tuple[float, float], polygon) -> bool:
-    x, y = point
-    points = [(float(px), float(py)) for px, py in (polygon or [])]
-    if len(points) < 3:
-        return False
-    inside = False
-    previous = points[-1]
-    for current in points:
-        x1, y1 = previous
-        x2, y2 = current
-        if (y1 > y) != (y2 > y):
-            x_cross = (x2 - x1) * (y - y1) / ((y2 - y1) or 1e-9) + x1
-            if x < x_cross:
-                inside = not inside
-        previous = current
-    return inside
-
-# Obstáculos espúrios (ticks de cota, X, diagonais curtas) → quadradinhos amarelos no N4.
-# Buraco/vão real de laje tem pelo menos ~12 cm em um lado e área mínima útil.
-OBS_SPURIOUS_MAX_SIDE_CM = 10.0
-OBS_MIN_MEANINGFUL_SIDE_CM = 12.0
-OBS_MIN_AREA_CM2 = 80.0
-
-
-def is_spurious_laj_obstacle(obstacle: dict) -> bool:
-    """True se o 'obstáculo' é ruído de cota/seta/X, não vão real na laje.
-
-    Padrão clássico 14_PAV: width=height=5.0 com coords de 2 pontos (diagonal).
-    O gerador N4 desenhava isso como LWPOLY amarelo na layer 3.
-    """
-    if not isinstance(obstacle, dict):
-        return True
-    try:
-        w = float(obstacle.get("width") or 0)
-        h = float(obstacle.get("height") or 0)
-    except (TypeError, ValueError):
-        return True
-    if w <= 0.01 or h <= 0.01:
-        return True
-
-    coords = obstacle.get("coords") or []
-    n_pts = 0
-    if isinstance(coords, (list, tuple)):
-        n_pts = len(coords)
-
-    # Segmento aberto / tick (2 pts) com bbox pequeno
-    if n_pts <= 2 and max(w, h) <= 15.0:
-        return True
-
-    # Quadradinho 5×5 (ou até 10×10): seta de cota / marcador SOLID
-    if w <= OBS_SPURIOUS_MAX_SIDE_CM and h <= OBS_SPURIOUS_MAX_SIDE_CM:
-        return True
-
-    # Área mínima: evita polilinhas de ruído um pouco maiores
-    area = w * h
-    if area < OBS_MIN_AREA_CM2 and max(w, h) < 25.0:
-        return True
-
-    # Ambos os lados abaixo do mínimo significativo de vão
-    if max(w, h) < OBS_MIN_MEANINGFUL_SIDE_CM:
-        return True
-
-    return False
-
-
-def sanitize_laj_obstacles(obstacles) -> list[dict]:
-    """Remove obstáculos espúrios (universal — motor, gerador, rebind)."""
-    return [
-        obs
-        for obs in (obstacles or [])
-        if isinstance(obs, dict) and not is_spurious_laj_obstacle(obs)
-    ]
-
-
-def _extract_obstacles(
-    polys: list[tuple[str, list[tuple[float, float]]]],
-    slab_box,
-    slab_outline=None,
-) -> list[dict]:
+def _extract_obstacles(polys: list[tuple[str, list[tuple[float, float]]]], slab_box) -> list[dict]:
     if not slab_box:
         return []
     sx0, sy0, sx1, sy1 = slab_box
@@ -1689,104 +561,20 @@ def _extract_obstacles(
         if w <= 1 or h <= 1:
             continue
         if x0 > sx0 + TOL and y0 > sy0 + TOL and x1 < sx1 - TOL and y1 < sy1 - TOL:
-            center_local = (
-                (x0 + x1) / 2 - sx0,
-                (y0 + y1) / 2 - sy0,
-            )
-            if slab_outline and not _point_in_polygon(center_local, slab_outline):
-                continue
             obstacles.append({
                 'x': round(x0 - sx0, 2), 'y': round(y0 - sy0, 2),
                 'width': round(w, 2), 'height': round(h, 2),
-                'coords': [[round(x - sx0, 2), round(y - sy0, 2)] for x, y in (pts[:-1] if len(pts) > 1 and pts[0] == pts[-1] else pts)],
+                'coords': [[round(x - sx0, 2), round(y - sy0, 2)] for x, y in pts],
             })
-    return sanitize_laj_obstacles(obstacles)
+    return obstacles
 
-def _extract_support_hatch_lines(msp, slab_box) -> list[dict]:
-    """Extrai hachura diagonal de apoio STOG como primitivas locais.
-
-    No produto de referência esses traços são LINEs a 45 graus na layer 3,
-    tangentes ou próximos ao contorno da laje. O campo explícito evita que o
-    gerador invente apoios por heurística.
-    """
-    if not slab_box:
-        return []
-    sx0, sy0, sx1, sy1 = slab_box
-    margin = 100.0
-    lines = []
-    for entity in msp:
-        if entity.dxftype() != 'LINE' or _layer_key(getattr(entity.dxf, 'layer', '')) != '3':
-            continue
-        a, b = _line_points(entity)
-        vx = float(b[0]) - float(a[0])
-        vy = float(b[1]) - float(a[1])
-        dx = abs(vx)
-        dy = abs(vy)
-        if not (0.5 <= dx <= 40.0 and 0.5 <= dy <= 40.0):
-            continue
-        if vx * vy <= 0 or not (0.75 <= dx / dy <= 1.25):
-            continue
-        mx = (float(a[0]) + float(b[0])) / 2
-        my = (float(a[1]) + float(b[1])) / 2
-        if not (sx0 - margin <= mx <= sx1 + margin and sy0 - margin <= my <= sy1 + margin):
-            continue
-        lines.append({
-            'x1': round(float(a[0]) - sx0, 2),
-            'y1': round(float(a[1]) - sy0, 2),
-            'x2': round(float(b[0]) - sx0, 2),
-            'y2': round(float(b[1]) - sy0, 2),
-        })
-    # Uma hachura real é uma sequência; traços isolados são setas/ruído.
-    return lines if len(lines) >= 3 else []
-
-
-def _filter_support_hatch_lines(lines: list[dict], comprimento, largura) -> list[dict]:
-    """Remove hachuras de vizinhos fora da janela local da laje."""
-    try:
-        comp = float(comprimento or 0)
-        larg = float(largura or 0)
-    except (TypeError, ValueError):
-        return []
-    if comp <= 0 or larg <= 0:
-        return []
-    margin = 100.0
-    filtered = []
-    for line in lines or []:
-        try:
-            mx = (float(line['x1']) + float(line['x2'])) / 2
-            my = (float(line['y1']) + float(line['y2'])) / 2
-        except (KeyError, TypeError, ValueError):
-            continue
-        if -margin <= mx <= comp + margin and -margin <= my <= larg + margin:
-            filtered.append(line)
-    return filtered if len(filtered) >= 3 else []
-
-
-def _filter_obstacles_by_outline(obstacles: list[dict], outline) -> list[dict]:
-    cleaned = sanitize_laj_obstacles(obstacles)
-    if not outline:
-        return cleaned
-    valid = []
-    for obstacle in cleaned:
-        try:
-            center = (
-                float(obstacle.get('x', 0)) + float(obstacle.get('width', 0)) / 2,
-                float(obstacle.get('y', 0)) + float(obstacle.get('height', 0)) / 2,
-            )
-        except (TypeError, ValueError):
-            continue
-        if _point_in_polygon(center, outline):
-            valid.append(obstacle)
-    return valid
-
-def _extract_laj_from_dxf(dxf_path: str, elemento_id: str | None = None) -> dict:
+def _extract_laj_from_dxf(dxf_path: str) -> dict:
     """Extrai campos LAJ do DXF recorte."""
     result = {'_confianca_extracao': 0.4}
     try:
         import ezdxf
         doc = ezdxf.readfile(str(dxf_path))
         msp = doc.modelspace()
-        result['_has_diagonal_geometry'] = _has_diagonal_geometry(msp)
 
         polylines = []
         for e in msp:
@@ -1795,91 +583,19 @@ def _extract_laj_from_dxf(dxf_path: str, elemento_id: str | None = None) -> dict
                 if len(pts) >= 2:
                     polylines.append((str(e.dxf.layer), pts))
 
-        structural_layers = _discover_structural_layers(msp)
-        contour_layers = _discover_contour_layers(msp, structural_layers)
-        slab_box, hlaz_box = _extract_form_bbox(msp, structural_layers)
-        source_form_box = slab_box
-        panel_geom = _extract_panel_geometry(msp, structural_layers)
+        slab_box, hlaz_box = _extract_form_bbox(msp)
+        panel_geom = _extract_panel_geometry(msp)
         panel_linhas_v = []
         panel_linhas_h = []
         panel_box = None
-        local_panel_box = _local_structural_box_for_label(
-            msp,
-            structural_layers,
-            elemento_id,
-            expand_boundaries=not result['_has_diagonal_geometry'],
-        )
-        if local_panel_box and panel_geom:
-            global_box = panel_geom[0]
-            global_area = max(
-                (global_box[2] - global_box[0]) * (global_box[3] - global_box[1]),
-                1.0,
-            )
-            local_area = (local_panel_box[2] - local_panel_box[0]) * (local_panel_box[3] - local_panel_box[1])
-            # A ancoragem só substitui a malha global quando revela uma ilha
-            # realmente compacta. Ajustes marginais preservam o caminho já
-            # certificado do golden e evitam troca de borda por ruído.
-            if local_area / global_area > 0.75:
-                local_panel_box = None
-        if local_panel_box:
-            # Evidência local vence o bbox global do recorte. As linhas internas
-            # serão reconstituídas a partir do próprio contorno/grade local mais
-            # abaixo; não reutilizamos offsets da malha global.
-            panel_box = local_panel_box
-            slab_box = local_panel_box
-            result['_local_label_geometry'] = True
-        elif panel_geom:
+        if panel_geom:
             panel_box, panel_linhas_v, panel_linhas_h = panel_geom
             # A layer Paineis representa a area interna da laje. O bbox amplo
             # de layer 3 pode conter vigas/pilares de contexto ao redor.
-            # Rede de seguranca adicional: quando a ilha local nao pode ser
-            # isolada (guias paralelas que nao se tocam), o bbox global as
-            # vezes engole um pilar de borda inteiro (ver
-            # _clip_panel_box_at_pillars) — aperta só a(s) borda(s) afetada(s).
-            clipped_panel_box = _clip_panel_box_at_pillars(
-                panel_box, _pillar_boxes_layer7(msp)
-            )
-            if clipped_panel_box != panel_box:
-                dx = panel_box[0] - clipped_panel_box[0]
-                dy = panel_box[1] - clipped_panel_box[1]
-                if abs(dx) > TOL:
-                    for item in panel_linhas_v:
-                        item['value'] = round(float(item.get('value', 0.0)) + dx, 1)
-                if abs(dy) > TOL:
-                    for item in panel_linhas_h:
-                        item['value'] = round(float(item.get('value', 0.0)) + dy, 1)
-                panel_box = clipped_panel_box
             slab_box = panel_box
-            source_w = source_form_box[2] - source_form_box[0] if source_form_box else 0.0
-            source_h = source_form_box[3] - source_form_box[1] if source_form_box else 0.0
-            panel_w = panel_box[2] - panel_box[0]
-            panel_h = panel_box[3] - panel_box[1]
-            source_extends_panel = source_w > panel_w + 5.0 or source_h > panel_h + 5.0
-            if result['_has_diagonal_geometry'] and not hlaz_box and source_form_box and source_extends_panel:
-                dx = panel_box[0] - source_form_box[0]
-                dy = panel_box[1] - source_form_box[1]
-                for item in panel_linhas_v:
-                    item['value'] = round(float(item.get('value', 0.0)) + dx, 1)
-                for item in panel_linhas_h:
-                    item['value'] = round(float(item.get('value', 0.0)) + dy, 1)
-                _, complex_h = _extract_complex_outline_cuts(
-                    msp, source_form_box, structural_layers
-                )
-                if complex_h:
-                    panel_linhas_h = complex_h
-                    result['_stog_clip_unions'] = True
-                slab_box = source_form_box
-        if local_panel_box:
-            # Contornos fechados amplos pertencem, com frequência, ao recorte
-            # inteiro. Para a ilha ancorada só aceitamos reconstrução local.
-            outline = _extract_stepped_outline_from_segments(
-                msp, slab_box, structural_layers
-            )
-        else:
-            panel_union_outline = _extract_panel_union_outline(msp, slab_box)
-            outline = panel_union_outline or _extract_outline_polygon(msp, slab_box)
-            if not outline:
-                outline = _extract_stepped_outline_from_segments(msp, slab_box, contour_layers)
+        outline = _extract_outline_polygon(msp, slab_box)
+        if not outline:
+            outline = _extract_stepped_outline_from_segments(msp, slab_box)
         outline_coords = None
         if outline:
             old_box = slab_box
@@ -1893,14 +609,6 @@ def _extract_laj_from_dxf(dxf_path: str, elemento_id: str | None = None) -> dict
                 if abs(dy) > TOL:
                     for item in panel_linhas_h:
                         item['value'] = round(float(item.get('value', 0.0)) + dy, 1)
-            if len(outline_coords or []) > 5:
-                complex_v, complex_h = _extract_complex_outline_cuts(
-                    msp, slab_box, structural_layers
-                )
-                if complex_v:
-                    panel_linhas_v = complex_v
-                if complex_h:
-                    panel_linhas_h = complex_h
         if slab_box:
             x0, y0, x1, y1 = slab_box
             comp = round(abs(x1-x0), 2)
@@ -1917,59 +625,21 @@ def _extract_laj_from_dxf(dxf_path: str, elemento_id: str | None = None) -> dict
         # Textos numericos da layer Painéis sao os valores canonicos de cotas no recorte.
         cota_nums = []
         cota_entries = []
-        declared_dimensions = []
         textos = []
         for e in msp:
             if e.dxftype() in ('TEXT', 'MTEXT'):
                 txt = _plain_text(e)
                 if txt:
                     textos.append(txt)
-                for match in re.finditer(r'(\d+(?:[.,]\d+)?)\s*[Xx]\s*(\d+(?:[.,]\d+)?)', txt):
-                    declared_dimensions.extend(
-                        [float(match.group(1).replace(',', '.')), float(match.group(2).replace(',', '.'))]
-                    )
-                if re.fullmatch(r'\d+(?:[.,]\d+)?', txt):
+                layer_norm = str(e.dxf.layer).upper().replace('É', 'E')
+                if 'PAINE' in layer_norm:
                     try:
                         val = float(txt.replace(',', '.'))
                         cota_nums.append(val)
                         ins = e.dxf.insert
-                        cota_entries.append({
-                            'value': val,
-                            'x': float(ins.x),
-                            'y': float(ins.y),
-                            'rotation': float(getattr(e.dxf, 'rotation', 0.0)) % 180.0,
-                        })
+                        cota_entries.append({'value': val, 'x': float(ins.x), 'y': float(ins.y)})
                     except Exception:
                         pass
-
-        if slab_box and not outline:
-            x0, y0, x1, y1 = slab_box
-            comp = x1 - x0
-            larg = y1 - y0
-            horizontal_values = [
-                entry['value'] for entry in cota_entries
-                if min(entry['rotation'], 180.0 - entry['rotation']) <= 15.0
-            ]
-            vertical_values = [
-                entry['value'] for entry in cota_entries
-                if abs(entry['rotation'] - 90.0) <= 15.0
-            ]
-            declared_width = min(declared_dimensions, key=lambda v: abs(v - comp), default=None)
-            declared_height = min(declared_dimensions, key=lambda v: abs(v - larg), default=None)
-            exact_comp = _best_dimension_total(horizontal_values, comp)
-            exact_larg = _best_dimension_total(vertical_values, larg)
-            if declared_width is not None and abs(declared_width - comp) <= max(5.0, comp * 0.03):
-                exact_comp = declared_width
-            if declared_height is not None and abs(declared_height - larg) <= max(5.0, larg * 0.03):
-                exact_larg = declared_height
-            if exact_comp is not None or exact_larg is not None:
-                comp = round(exact_comp if exact_comp is not None else comp, 2)
-                larg = round(exact_larg if exact_larg is not None else larg, 2)
-                slab_box = (x0, y0, x0 + comp, y0 + larg)
-                result['comprimento'] = comp
-                result['largura'] = larg
-                result['coordenadas'] = _rect_from_bbox(slab_box)
-                result['area_cm2'] = round(comp * larg, 2)
 
         linhas_v = []
         linhas_h = []
@@ -2003,9 +673,7 @@ def _extract_laj_from_dxf(dxf_path: str, elemento_id: str | None = None) -> dict
             _raw_v: list[float] = []
             _raw_h: list[float] = []
             for _e in msp:
-                if _e.dxftype() != 'LINE':
-                    continue
-                if structural_layers and str(getattr(_e.dxf, 'layer', '')) not in structural_layers:
+                if _e.dxftype() != 'LINE' or not _is_paineis_layer(str(getattr(_e.dxf, 'layer', ''))):
                     continue
                 _a = _e.dxf.start; _b = _e.dxf.end
                 _ddx = abs(_b.x - _a.x); _ddy = abs(_b.y - _a.y)
@@ -2070,115 +738,7 @@ def _extract_laj_from_dxf(dxf_path: str, elemento_id: str | None = None) -> dict
 
         result['linhas_verticais'] = _filter_internal_lines(linhas_v, result.get('comprimento', 0))
         result['linhas_horizontais'] = _filter_internal_lines(linhas_h, result.get('largura', 0))
-        result['linhas_verticais'] = _canonicalize_long_panel_axis(
-            result['linhas_verticais'],
-            result.get('comprimento', 0),
-            result.get('largura', 0),
-        )
-        complex_outline = bool(
-            panel_union_outline
-            or (outline_coords and len(outline_coords) > 5)
-        )
-        if not complex_outline and not hlaz_box:
-            # Em retângulos simples, linhas extraídas que geram peça <60 cm são
-            # ruído de paginação antiga, não geometria. Canonicalizar ambos os
-            # eixos pela regra 244/122/60 + uma sobra ampla.
-            result['linhas_verticais'] = _canonicalize_noisy_panel_axis(
-                result['linhas_verticais'],
-                result.get('comprimento', 0),
-                result.get('largura', 0),
-                'x',
-            )
-            result['linhas_horizontais'] = _canonicalize_noisy_panel_axis(
-                result['linhas_horizontais'],
-                result.get('largura', 0),
-                result.get('comprimento', 0),
-                'y',
-            )
-        result['linhas_verticais'], result['linhas_horizontais'] = _canonicalize_panel_axes_for_outline(
-            result['linhas_verticais'],
-            result['linhas_horizontais'],
-            result.get('coordenadas') or [],
-            result.get('comprimento', 0),
-            result.get('largura', 0),
-        )
-        if complex_outline and result['linhas_horizontais']:
-            local_horizontal = _extract_local_horizontal_segments(
-                msp, slab_box, structural_layers, result['linhas_horizontais']
-            )
-            kept_horizontal = []
-            for item in result['linhas_horizontais']:
-                value = float(item.get('value') or 0)
-                segments = [
-                    {'x0': segment['x0'], 'x1': segment['x1']}
-                    for segment in local_horizontal
-                    if abs(float(segment['value']) - value) <= 0.1
-                ]
-                # Cortes derivados apenas de endpoints são bordas do degrau,
-                # não uma divisão que deva atravessar o bbox inteiro.
-                if not segments:
-                    continue
-                clean = dict(item)
-                comp = float(result.get('comprimento') or 0)
-                is_full_width = all(
-                    float(segment['x0']) <= 0.5
-                    and float(segment['x1']) >= comp - 0.5
-                    for segment in segments
-                )
-                if not is_full_width:
-                    clean['segments'] = segments
-                else:
-                    clean.pop('segments', None)
-                kept_horizontal.append(clean)
-            result['linhas_horizontais'] = kept_horizontal
-        result['cotas_paineis'] = _extract_panel_dimension_texts(msp, slab_box)
-        if min(float(result.get('comprimento') or 0), float(result.get('largura') or 0)) <= 75.0:
-            larg = float(result.get('largura') or 0)
-            local_segments = _extract_local_vertical_segments(
-                msp, slab_box, structural_layers, result['linhas_verticais']
-            )
-            local_segments = [
-                segment for segment in local_segments
-                if float(segment['y0']) <= 1.0 and float(segment['y1']) >= larg - 1.0
-            ]
-            full_values = {round(float(segment['value']), 1) for segment in local_segments}
-            result['linhas_verticais'] = [
-                item for item in result['linhas_verticais']
-                if round(float(item.get('value') or 0), 1) in full_values
-            ]
-            result['linhas_horizontais'] = [
-                item for item in result['linhas_horizontais']
-                if min(float(item.get('value') or 0), larg - float(item.get('value') or 0)) >= 30.0
-            ]
-            if larg <= 75.0:
-                canonical_h = _smart_canonical_axis_lines(larg, float(result.get('comprimento') or 0), 'y')
-                if canonical_h:
-                    result['linhas_horizontais'] = canonical_h
-            if float(result.get('comprimento') or 0) <= 75.0:
-                canonical_v = _smart_canonical_axis_lines(
-                    float(result.get('comprimento') or 0),
-                    larg,
-                    'x',
-                )
-                if canonical_v:
-                    result['linhas_verticais'] = canonical_v
-            for item in result['linhas_verticais'] + result['linhas_horizontais']:
-                item['is_union'] = False
-                item['exact'] = True
-            result['_panel_vertical_segments'] = local_segments
-            for item in result['linhas_verticais']:
-                value = float(item.get('value') or 0)
-                segments = [
-                    {'y0': segment['y0'], 'y1': segment['y1']}
-                    for segment in local_segments
-                    if abs(float(segment['value']) - value) <= 0.1
-                ]
-                if segments:
-                    item['segments'] = segments
-        result['obstaculos'] = _extract_obstacles(
-            polylines, slab_box, result.get('coordenadas')
-        )
-        result['apoios_hachurados'] = _extract_support_hatch_lines(msp, slab_box)
+        result['obstaculos'] = _extract_obstacles(polylines, slab_box)
         if hlaz_box:
             hx0, hy0, hx1, hy1 = hlaz_box
             result['_hlaz'] = [{'x': round(hx0 - slab_box[0], 2), 'y': round(hy0 - slab_box[1], 2),
@@ -2210,97 +770,16 @@ def extrair_ficha_laje(
     if obra_name and obra_root_path is None:
         obra_root_path = DADOS_OBRAS_ROOT / obra_name
     fase4 = _lookup_fase4_laj(elemento_id, obra_root_path) if obra_root_path else None
-    dxf_data = _extract_laj_from_dxf(recorte_path, elemento_id)
+    dxf_data = _extract_laj_from_dxf(recorte_path)
     dxf_conf = dxf_data.pop('_confianca_extracao', 0.4)
     dxf_data.pop('_extracao_erro', None)
-    has_diagonal_geometry = bool(dxf_data.pop('_has_diagonal_geometry', False))
-    # Compatibilidade dos recortes antigos: a recuperação histórica de
-    # contorno complexo continua apenas quando NÃO existe uma ilha N2 local
-    # inequívoca. Quando a evidência local existe, ela nunca é substituída por
-    # SA/N1 (a comparação posterior continua capaz de acusar divergência).
-    sa_outline = _lookup_sa_outline(fase4, elemento_id, dxf_data)
-    if has_diagonal_geometry and sa_outline and not dxf_data.get('_local_label_geometry'):
-        dxf_data.update(sa_outline)
-        # O contorno SA/N1 conhece a proporcao geral mas pode errar o detalhe
-        # fino de um degrau por dezenas de cm (achado L410, 27/07: passo
-        # superior ~19-26cm abaixo da aresta real do N2). Corrige por
-        # vertice quando ha' uma aresta real (layer de contorno do proprio
-        # recorte) proxima com desvio grosseiro -- nunca mexe em desvios
-        # pequenos (ruido normal, ver golden L319/13_PAV).
-        coords = dxf_data.get('coordenadas')
-        pose = dxf_data.get('_stog_pose')
-        if coords and pose:
-            try:
-                import ezdxf as _ezdxf
-                _doc = _ezdxf.readfile(str(recorte_path))
-                _msp = _doc.modelspace()
-                # So' faz sentido corrigir contra a geometria "real" quando o
-                # arquivo E' o recorte N2 humano (layer 'Painéis', com acento,
-                # exclusiva do N2) -- um N4 ja' gerado usa 'PAINEIS' (maiuscula,
-                # sem acento) e e' sintetico/canonico por definicao; corrigir
-                # contra a propria geometria gerada quebra o roundtrip G1
-                # (achado L319/13_PAV golden, 27/07: re-extracao do N4 batia
-                # contra as guias DO N4, nao as do N2 original, e divergia).
-                is_n2_recorte = any(
-                    str(getattr(e.dxf, 'layer', '')) == 'Painéis' for e in _msp
-                )
-                _layers = set(_discover_structural_layers(_msp)) | {'3'}
-                xs_real, ys_real, diag_real = (
-                    _real_grid_lines_for_snap(_msp, _layers) if is_n2_recorte else ([], [], [])
-                )
-                pts = coords[:-1] if len(coords) > 1 and coords[0] == coords[-1] else coords
-                snapped = _snap_outline_to_real_edges(pts, pose, xs_real, ys_real, diag_real)
-                if snapped != pts:
-                    box = _bbox(snapped)
-                    if box:
-                        # Renormaliza pra origem (0,0): o snap pode empurrar um
-                        # vertice pra fora do bbox antigo (coord local negativa),
-                        # o que quebra a heuristica "local comeca perto de 0" em
-                        # n2_marco_highlight.n4_outline_world_from_ficha e o
-                        # proprio gerador STOG (espera comp/larg positivos a
-                        # partir da pose). Desloca pose + poligono juntos.
-                        shift_x, shift_y = box[0], box[1]
-                        if abs(shift_x) > 1e-6 or abs(shift_y) > 1e-6:
-                            snapped = [[round(x - shift_x, 2), round(y - shift_y, 2)] for x, y in snapped]
-                            pose = {
-                                'x': round(float(pose.get('x', 0) or 0) + shift_x, 2),
-                                'y': round(float(pose.get('y', 0) or 0) + shift_y, 2),
-                            }
-                            dxf_data['_stog_pose'] = pose
-                            for item in dxf_data.get('linhas_verticais') or []:
-                                item['value'] = round(float(item.get('value', 0.0)) - shift_x, 1)
-                            for item in dxf_data.get('linhas_horizontais') or []:
-                                item['value'] = round(float(item.get('value', 0.0)) - shift_y, 1)
-                        dxf_data['comprimento'] = round(box[2] - box[0], 2)
-                        dxf_data['largura'] = round(box[3] - box[1], 2)
-                        dxf_data['area_cm2'] = round(_poly_area([(float(x), float(y)) for x, y in snapped]) or 0.0, 2)
-                    dxf_data['coordenadas'] = snapped + [snapped[0]] if snapped else snapped
-                    # Sinaliza pro roundtrip (G1): esta ficha so' bate a aresta
-                    # real porque veio do RECORTE N2 (layer 'Painéis' com
-                    # acento); re-extrair do N4 gerado (layer 'PAINEIS', sem
-                    # acento) nao aplica a mesma correcao (por definicao nao
-                    # ha' recorte N2 pra comparar) -- comprimento/largura/
-                    # area_cm2/coordenadas legitimamente divergem no roundtrip
-                    # e devem ser pulados na comparacao G1 pra este item.
-                    dxf_data['_sa_outline_snapped'] = True
-            except Exception:
-                pass
-    if has_diagonal_geometry:
-        dxf_data['linhas_verticais'] = _fill_oversized_panel_spans(
-            dxf_data.get('linhas_verticais') or [], float(dxf_data.get('comprimento') or 0)
-        )
-        dxf_data['linhas_horizontais'] = _fill_oversized_panel_spans(
-            dxf_data.get('linhas_horizontais') or [], float(dxf_data.get('largura') or 0)
-        )
     if fase4:
         result = dict(fase4)
         for key in (
             'comprimento', 'largura', 'coordenadas', 'area_cm2',
             'linhas_verticais', 'linhas_horizontais', 'obstaculos',
-            'apoios_hachurados',
             'cotas_paineis', 'modo_selecionado', 'unioes_nos_bordes', 'observacoes',
-            'pontaletes', '_hlaz', '_stog_pose', '_forma_canonica', '_stog_clip_unions',
-            '_panel_vertical_segments', '_sa_outline_snapped',
+            'pontaletes', '_hlaz', '_stog_pose', '_forma_canonica'
         ):
             if key in dxf_data:
                 result[key] = dxf_data[key]
@@ -2317,13 +796,6 @@ def extrair_ficha_laje(
         }
         result['_er_meta'] = {'source': 'dxf_extract', 'dxf_path': str(recorte_path), 'confianca': dxf_conf}
         result['_confianca'] = dxf_conf
-    result['obstaculos'] = _filter_obstacles_by_outline(
-        result.get('obstaculos') or [], result.get('coordenadas')
-    )
-    result['apoios_hachurados'] = _filter_support_hatch_lines(
-        result.get('apoios_hachurados') or [],
-        result.get('comprimento'), result.get('largura'),
-    )
     return result
 
 

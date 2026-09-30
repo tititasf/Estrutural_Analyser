@@ -169,44 +169,25 @@ class PillarAnalyzer:
         if 'confidence_map' not in p_data: p_data['confidence_map'] = {}
         
         # 0. Identificador (Nome)
-        # No pipeline name-driven a identidade já foi resolvida antes da
-        # pré-ficha. Não permitir que um P# vizinho sobrescreva o nome canônico.
-        if not p_data.get('identity_locked'):
-            self._analyze_field(
-                p_data, 'name', 'label',
-                {'prompt': "Buscar texto ('P')", 'radius': 500},
-            )
+        # Regra: Texto próximo iniciando com P
+        self._analyze_field(p_data, 'name', 'label', {'prompt': "Buscar texto ('P')", 'radius': 500})
         
         # 1. Dimensão
         # Regra: Texto (ex: 20x40) Próximo. Regex simples dimensions
         dim_regex = r"\d+([xX]\d+)?"
-        # A regex não tem âncoras: "V301"/"P35" também casam pelo dígito.
-        # Quando a pré-ficha já forçou o vínculo real (main.py, bloco
-        # "FORÇAR VÍNCULOS REAIS DA PRÉ-FICHA"), não deixar essa busca ingênua
-        # substituir a dimensão correta por um rótulo de viga/pilar vizinho.
-        if not p_data.get('dim_locked'):
-            self._analyze_field(p_data, 'dim', 'label', {'prompt': f"regex: {dim_regex}", 'radius': 400})
+        self._analyze_field(p_data, 'dim', 'label', {'prompt': f"regex: {dim_regex}", 'radius': 400})
 
         # 2. Topo/Nível
         # (Opcional, depende do projeto)
         
         # 3. Analisar Lados (Lajes e Vigas)
         sides_data = p_data.get('sides_data', {})
-        # Slots gerados por pillar_face_beams são geométricos e já têm o par
-        # nome+seção correto. A busca textual por raio é útil como fallback,
-        # mas não pode substituir essa evidência por um P#, L# ou uma cota de
-        # elemento vizinho. O marcador é efêmero, criado por main.py antes de
-        # chamar este analisador.
-        authoritative_fields = set(
-            p_data.get('_face_beam_authoritative_fields') or ()
-        )
         for side, content in sides_data.items():
             # Laje Nome
             f_id_n = f'p_s{side}_l1_n'
-            if f_id_n not in authoritative_fields:
-                # Regra: Texto iniciando com L no setor 'side'
-                self._analyze_field(p_data, f_id_n, 'label', {'prompt': "Buscar texto ('L')", 'radius': 800}, side=side)
-
+            # Regra: Texto iniciando com L no setor 'side'
+            self._analyze_field(p_data, f_id_n, 'label', {'prompt': "Buscar texto ('L')", 'radius': 800}, side=side)
+            
             # Laje Espessura (h=12)
             f_id_h = f'p_s{side}_l1_h'
             # Regra: Texto numérico próximo à laje encontrada
@@ -214,20 +195,13 @@ class PillarAnalyzer:
             # O ContextEngine suporta ref_origin mas aqui simplificamos usando o centro do pilar
             self._analyze_field(p_data, f_id_h, 'thick', {'prompt': "regex: h[=:]?\\d+", 'radius': 1000}, side=side)
             
-            # Vigas que passam: 2 slots por esquina (passa_esq / passa_dir)
-            for _slot in ('passa_esq', 'passa_dir'):
-                f_id_vn = f'p_s{side}_v_{_slot}_n'
-                if f_id_vn not in authoritative_fields:
-                    self._analyze_field(
-                        p_data, f_id_vn, 'label',
-                        {'prompt': "Buscar texto ('V')", 'radius': 600}, side=side,
-                    )
-                f_id_vd = f'p_s{side}_v_{_slot}_d'
-                if f_id_vd not in authoritative_fields:
-                    self._analyze_field(
-                        p_data, f_id_vd, 'dim',
-                        {'prompt': f"regex: {dim_regex}", 'radius': 600}, side=side,
-                    )
+            # Vigas (Esquerda/Direita do lado)
+            # Simplificação: Apenas Viga Esquerda por enquanto (padrão do código original)
+            f_id_vn = f'p_s{side}_v_esq_n'
+            self._analyze_field(p_data, f_id_vn, 'label', {'prompt': "Buscar texto ('V')", 'radius': 600}, side=side)
+            
+            f_id_vd = f'p_s{side}_v_esq_d'
+            self._analyze_field(p_data, f_id_vd, 'dim', {'prompt': f"regex: {dim_regex}", 'radius': 600}, side=side)
             
             # Validação de Vazio (X)
             # Se não achou Laje, verifica se tem X

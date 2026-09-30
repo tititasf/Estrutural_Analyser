@@ -39,19 +39,6 @@ import json
 import re
 import sqlite3
 
-try:
-    from fv_l_panel_geometry import (
-        derive_quadrilateral_chanfros,
-        detect_left_angled_l_panel,
-        detect_right_l_panel,
-    )
-except ModuleNotFoundError:  # importado como scripts.motor_reverso_fv
-    from scripts.fv_l_panel_geometry import (
-        derive_quadrilateral_chanfros,
-        detect_left_angled_l_panel,
-        detect_right_l_panel,
-    )
-
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 
 GAP_PILAR_MIN = 2.0      # cm — gap minimo entre polys para contar como pilar cruzado
@@ -128,12 +115,6 @@ def _base_code(elemento_id: str) -> str:
 
 def _normalize_name(name: str) -> str:
     return re.sub(r'[-/\s]+', '-', name.strip())
-
-def _requested_elem_codes(elemento_id: str) -> set[str]:
-    """Return every beam code requested by a simple or composite item name."""
-    return set(re.findall(
-        r'[A-Z]+\d+[A-Z]?', _base_code(elemento_id).upper()
-    ))
 
 def _elem_codes(text: str):
     matches = _ELEM_CODE_RE.findall(text.upper())
@@ -307,7 +288,7 @@ def _nomenclatura_labels(msp):
     return out
 
 
-def _row_polys_for_label(polys, nom_x, nom_y, noms, target_codes):
+def _row_polys_for_label(polys, nom_x, nom_y, noms, target):
     """Aplica o algoritmo nearest-label + gap contíguo (ver docstring do módulo)
     para UMA label/linha específica. Retorna lista de bboxes de polys incluídos
     (ordenada em x), ou None se a linha não tiver polys."""
@@ -334,7 +315,7 @@ def _row_polys_for_label(polys, nom_x, nom_y, noms, target_codes):
         if abs(y - nom_y) > Y_TOL_ROW:
             continue
         codes = _elem_codes(txt)
-        if set(codes) & set(target_codes):
+        if target in codes:
             continue
         for code in codes:
             boundary.append((code, x))
@@ -370,23 +351,6 @@ def _row_polys_for_label(polys, nom_x, nom_y, noms, target_codes):
     return [row_polys[i] for i in included]
 
 
-def _calc_sarrafos(p_width, p_height, is_l_drop=False):
-    """Descreve os sarrafos construtivos de um painel FV."""
-    w = max(0.0, float(p_width or 0.0))
-    h = max(0.0, float(p_height or 0.0))
-    if is_l_drop:
-        vertical = f"1x {w:g}x7"
-        horizontal = f"2x {max(0.0, h - 7.0):g}x7"
-    else:
-        vertical = f"1x {h:g}x7"
-        horizontal = f"2x {max(0.0, w - 7.0):g}x7"
-    return {
-        'padrao': {'vertical': vertical, 'horizontal': horizontal},
-        'aberturas': [],
-        'chanfros': [],
-    }
-
-
 def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, loose_entities=None, visual_obstacles=None):
     """Agrupa polys de UMA linha em segmentos (gap<=GAP_PILAR_MIN funde; gap
     maior = pilar cruzado real, vira 'hole'). Retorna (segments, holes_raw,
@@ -415,89 +379,10 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
         
         for i, p in enumerate(polys):
             cy = (p[2] + p[3]) / 2.0
-            p_width = round(p[1] - p[0], 1)
-            p_height = round(p[3] - p[2], 1)
-            p_texts = [
-                t[0] for t in msp_texts
-                if t[3] == '5'
-                and p[0] - 5 <= t[1] <= p[1] + 5
-                and abs(t[2] - cy) < Y_TOL_ROW
-            ]
-            p_dict = {
-                'width': p_width,
-                'height': p_height,
-                'is_L_drop': False,
-                'texts': list(set(p_texts)),
-                'sarrafos': _calc_sarrafos(p_width, p_height),
-            }
-            p_dict['is_liso'] = any(
-                t[0].strip().upper() == 'LISO'
-                and p[0] - 2 <= t[1] <= p[1] + 2
-                and p[2] - 2 <= t[2] <= p[3] + 2
-                for t in msp_texts
-            )
+            p_texts = [t[0] for t in msp_texts if t[3] == '5' and p[0]-5 <= t[1] <= p[1]+5 and abs(t[2] - cy) < Y_TOL_ROW]
+            p_dict = {'width': round(p[1] - p[0], 1), 'texts': list(set(p_texts))}
             if len(p) > 4 and len(p[4]) >= 4:
                 p_dict['vertices'] = [{'x': round(v[0] - p[0], 1), 'y': round(v[1] - row_base_y, 1)} for v in p[4]]
-                angled_l = detect_left_angled_l_panel(p_dict['vertices'])
-                if angled_l:
-                    p_dict['angled_l'] = angled_l
-                else:
-                    chanfros = derive_quadrilateral_chanfros(p_dict['vertices'])
-                    if chanfros:
-                        top_annotations = []
-                        for text, tx, ty, layer in msp_texts:
-                            if (
-                                'PAIN' not in layer
-                                or not (p[3] <= ty <= p[3] + 40)
-                            ):
-                                continue
-                            try:
-                                value = float(text.replace(',', '.'))
-                            except ValueError:
-                                continue
-                            if 0 < value < p_width / 2:
-                                top_annotations.append((value, tx))
-                        for key, is_left in (('te', True), ('td', False)):
-                            derived = float(chanfros.get(key, 0) or 0)
-                            side_values = [
-                                value for value, tx in top_annotations
-                                if (tx < (p[0] + p[1]) / 2) == is_left
-                                and abs(value - derived) <= 1.0
-                            ]
-                            if derived > 0 and side_values:
-                                chanfros[key] = round(min(
-                                    side_values,
-                                    key=lambda value: abs(value - derived),
-                                ), 1)
-                        p_dict['chanfros'] = chanfros
-
-            # Alguns contornos especiais representam mais de um painel físico
-            # em uma única polilinha. Preserve as divisões verticais explícitas
-            # do N2 para que o gerador não dependa da forma ou do nome da viga.
-            divider_height = float(
-                p_dict.get('angled_l', {}).get(
-                    'main_height', b_fv_poly or p_height
-                )
-            )
-            panel_dividers = []
-            for entity in loose_entities:
-                if entity.get('type') != 'LINE':
-                    continue
-                start, end = entity['start'], entity['end']
-                if abs(float(start['x']) - float(end['x'])) > 0.5:
-                    continue
-                divider_x = (float(start['x']) + float(end['x'])) / 2.0
-                y_min = min(float(start['y']), float(end['y']))
-                y_max = max(float(start['y']), float(end['y']))
-                if not (p[0] + 1.0 < divider_x < p[1] - 1.0):
-                    continue
-                if (
-                    abs(y_min - row_base_y) <= 1.0
-                    and abs(y_max - (row_base_y + divider_height)) <= 1.0
-                ):
-                    panel_dividers.append(round(divider_x - p[0], 1))
-            if panel_dividers:
-                p_dict['panel_dividers'] = sorted(set(panel_dividers))
             
             # Extract sub-dimensions (tiers)
             cota_texts = []
@@ -538,44 +423,6 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
                             unique_tiers.append(t)
                     p_dict['tiers'] = unique_tiers
 
-            l_geometry = detect_right_l_panel(
-                p_dict.get('vertices'), b_fv_poly or p_height
-            )
-            if l_geometry:
-                main_panel = dict(p_dict)
-                main_panel['width'] = l_geometry['main_width']
-                main_panel['height'] = float(b_fv_poly or p_height)
-                main_panel['is_L_drop'] = False
-                main_panel.pop('vertices', None)
-                main_panel['sarrafos'] = _calc_sarrafos(
-                    main_panel['width'], main_panel['height']
-                )
-                tiers = main_panel.get('tiers') or []
-                if tiers and any(
-                    abs(sum(float(value) for value in tier) - main_panel['width']) >= 2.0
-                    for tier in tiers
-                ):
-                    main_panel.pop('tiers', None)
-
-                leaf_panel = {
-                    'width': l_geometry['leaf_width'],
-                    'height': l_geometry['leaf_height'],
-                    'is_L_drop': True,
-                    'l_side': l_geometry['side'],
-                    'l_drop_depth': l_geometry['drop_depth'],
-                    'texts': [],
-                    'sarrafos': _calc_sarrafos(
-                        l_geometry['leaf_width'],
-                        l_geometry['leaf_height'],
-                        is_l_drop=True,
-                    ),
-                }
-                panels_rich.extend((main_panel, leaf_panel))
-                continue
-
-            # O painel principal sempre precede uma eventual queda em L.
-            panels_rich.append(p_dict)
-
             # Attach loose entities (L-corners) to the last panel in the segment
             if i == len(polys) - 1:
                 adjacent_loose = []
@@ -605,34 +452,20 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
                             elif le['type'] == 'TEXT':
                                 norm_le['insert'] = {'x': round(le['insert']['x'] - p[0], 1), 'y': round(le['insert']['y'] - row_base_y, 1)}
                             adjacent_loose.append(norm_le)
-                if adjacent_loose and 'vertices' not in p_dict:
-                    p_dict['loose'] = adjacent_loose
-                    line_entities = [
-                        le for le in adjacent_loose if le.get('type') == 'LINE'
-                    ]
-                    max_loose_x = max(
-                        [le['start']['x'] for le in line_entities]
-                        + [le['end']['x'] for le in line_entities]
-                        + [0.0]
-                    )
-                    if max_loose_x > p_dict['width']:
-                        extra = round(max_loose_x - p_dict['width'], 1)
-                        seg_width = round(seg_width + extra, 1)
-                        loose_y = (
-                            [le['start']['y'] for le in line_entities]
-                            + [le['end']['y'] for le in line_entities]
-                        )
-                        drop_h = abs(min(loose_y)) if loose_y and min(loose_y) < 0 else 0.0
-                        l_height = round(p_height + drop_h, 1)
-                        panels_rich.append({
-                            'width': extra,
-                            'height': l_height,
-                            'is_L_drop': True,
-                            'texts': [],
-                            'sarrafos': _calc_sarrafos(
-                                extra, l_height, is_l_drop=True
-                            ),
-                        })
+                if adjacent_loose:
+                    if 'vertices' in p_dict:
+                        # Se já extraímos o polígono fechado, ignoramos as loose entities (que provavelmente são cotas)
+                        adjacent_loose = []
+                    else:
+                        p_dict['loose'] = adjacent_loose
+                        # Se há loose entities estendendo o segmento à direita, ajusta o total_width
+                        max_loose_x = max([le['end']['x'] for le in adjacent_loose if le['type'] == 'LINE'] + [0.0])
+                        if max_loose_x > p_dict['width']:
+                            extra = max_loose_x - p_dict['width']
+                            p_dict['width'] = round(max_loose_x, 1)
+                            seg_width = round(seg_width + extra, 1)
+
+            panels_rich.append(p_dict)
 
         # Detectar texto multiplicador "NX" (ex: "4X", "6X") no layer Painéis
         import re as _re_mult
@@ -640,16 +473,7 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
         seg_max_x = max(p[1] for p in polys)
         _mult = None
         for _t in msp_texts:
-            multiplier_in_row = (
-                row_base_y - 100.0
-                <= _t[2]
-                <= row_base_y + (b_fv_poly or 19.0) + 2.0
-            )
-            if (
-                ('PAIN' in _t[3].upper() or _t[3].upper() == 'COTA')
-                and seg_min_x - 5 <= _t[1] <= seg_max_x + 5
-                and multiplier_in_row
-            ):
+            if 'PAIN' in _t[3].upper() and seg_min_x - 5 <= _t[1] <= seg_max_x + 5:
                 _m = _re_mult.match(r'^(\d+)[Xx]$', _t[0].strip())
                 if _m:
                     _mult = int(_m.group(1))
@@ -657,27 +481,6 @@ def _segments_and_holes_for_row(final_polys, msp_texts, nom_y, b_fv_hint=None, l
         seg_dict = {'total_width': seg_width, 'panels': panels_rich}
         if _mult and _mult > 1:
             seg_dict['_multiplier'] = _mult
-            
-        # Labels de apoio ficam na faixa de cotas abaixo do fundo. Restringir
-        # essa busca evita promover textos internos do painel a labels de borda.
-        def is_edge_label(t):
-            return row_base_y - 100 <= t[2] <= row_base_y + 1
-
-        left_x = seg_min_x - 10
-        right_x = seg_max_x + 10
-        left_cands = [
-            t for t in msp_texts
-            if t[3] == '5' and abs(t[1] - left_x) < 50 and is_edge_label(t)
-        ]
-        right_cands = [
-            t for t in msp_texts
-            if t[3] == '5' and abs(t[1] - right_x) < 50 and is_edge_label(t)
-        ]
-        if left_cands:
-            seg_dict['texto_esq'] = min(left_cands, key=lambda t: abs(t[1] - left_x))[0]
-        if right_cands:
-            seg_dict['texto_dir'] = min(right_cands, key=lambda t: abs(t[1] - right_x))[0]
-            
         return seg_dict, seg_width
 
     for i in range(len(final_polys) - 1):
@@ -754,13 +557,11 @@ def _extract_fv_from_geometry(msp, elemento_id: str, visual_obstacles: list[dict
     if not polys:
         return None
 
-    target_codes = _requested_elem_codes(elemento_id)
+    target = _base_code(elemento_id).upper()
+    target = _normalize_name(target)
     noms = _nomenclatura_labels(msp)
 
-    own = [
-        n for n in noms
-        if target_codes and target_codes.issubset(set(_elem_codes(n[0])))
-    ]
+    own = [n for n in noms if target in _elem_codes(n[0])]
     if not own:
         return None
 
@@ -790,9 +591,7 @@ def _extract_fv_from_geometry(msp, elemento_id: str, visual_obstacles: list[dict
     loose_entities = _loose_paineis_entities(msp)
 
     for idx, (nom_y, nom_x) in enumerate(own_rows):
-        final_polys = _row_polys_for_label(
-            polys, nom_x, nom_y, noms, target_codes
-        )
+        final_polys = _row_polys_for_label(polys, nom_x, nom_y, noms, target)
         if not final_polys:
             continue
         all_final_polys.extend(final_polys)
@@ -830,12 +629,7 @@ def _extract_fv_from_geometry(msp, elemento_id: str, visual_obstacles: list[dict
         cy = sum(p[2]+p[3] for p in all_final_polys) / (2 * len(all_final_polys))
         Y_TOL_LABEL = 100.0
         # Textos plausíveis para as pontas (ignora a própria nomenclatura Vxxx.C)
-        valid_texts = [
-            t for t in msp_texts
-            if abs(t[2] - cy) < Y_TOL_LABEL
-            and t[3] in ('5', 'NOMENCLATURA')
-            and not (target_codes & set(_elem_codes(t[0])))
-        ]
+        valid_texts = [t for t in msp_texts if abs(t[2] - cy) < Y_TOL_LABEL and t[3] in ('5', 'NOMENCLATURA') and (not target or target not in t[0])]
         
         # Filtra por proximidade do x_min e x_max (tolerância de 50cm para dentro ou para fora)
         X_TOL_END = 50.0

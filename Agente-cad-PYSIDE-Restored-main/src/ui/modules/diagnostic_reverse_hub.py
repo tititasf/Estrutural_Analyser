@@ -7,10 +7,7 @@ dos DXFs STOG humanos (Projetos_Finalizados_para_Engenharia_Reversa/).
 Sprint ER-2 | MASTERPLAN-ENGENHARIA-REVERSA.md
 """
 from __future__ import annotations
-import sys
-from src.mcp.db_bridge import save_human_edit_event
 
-import hashlib
 import json
 import sqlite3
 from pathlib import Path
@@ -21,20 +18,15 @@ from PySide6.QtWidgets import (
     QPushButton, QListWidget, QListWidgetItem, QSplitter,
     QTabWidget, QTableWidget, QTableWidgetItem, QTextEdit,
     QProgressBar, QMessageBox, QSizePolicy, QScrollArea,
-    QComboBox, QDialog, QDialogButtonBox, QLineEdit, QInputDialog,
+    QComboBox, QDialog, QDialogButtonBox, QLineEdit,
     QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem,
     QGraphicsSimpleTextItem, QRadioButton, QButtonGroup, QApplication,
 )
 from PySide6.QtGui import QColor
 
-from src.ui.theme import Colors, Fonts, Semantic, Accent, Contextual, Text, Surface, Border
-from src.ui.canvas import CADCanvas, RenderMode
+from src.ui.theme import Colors, Fonts
+from src.ui.canvas import CADCanvas
 from src.core.ficha_utils import ensure_db_backup, stamp_ficha_json
-from src.core.crop_learning_store import (
-    ensure_crop_learning_schema as _crop_learning_ensure_schema,
-    record_crop_learning_event as _record_crop_learning_event,
-    revoke_crop_learning_events_for_recorte as _revoke_crop_learning_events_for_recorte,
-)
 
 try:
     from src.core.engrev_laj_recorte_learning_store import (
@@ -56,11 +48,8 @@ _CLASSES = [
     ("LAJ", "Lajes"),
 ]
 _CLS_COLORS = {
-    "PIL": Accent.PRIMARY, "LV": Semantic.SUCCESS, "FV": Semantic.WARNING, "LAJ": Contextual.MAGENTA
+    "PIL": "#7ab3e0", "LV": "#4caf50", "FV": "#ff9800", "LAJ": "#e91e63"
 }
-SCRIPTS_DIR = Path(__file__).resolve().parents[4] / "scripts"
-if SCRIPTS_DIR.exists() and str(SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(SCRIPTS_DIR))
 
 # Valores aceitos por chave de classe (short + full, ambos podem aparecer em notes)
 _CLS_FILTER: dict[str, set] = {
@@ -139,48 +128,6 @@ def _infer_cls_from_filename(fname: str) -> str:
     if _re.search(r'[-\s]PL[-\s.]|[-\s]PL$', stem): return "PIL"
     return "OUTROS"
 
-_ELEM_ID_RE: dict = {
-    "PIL": _re.compile(r'(?:^|_)(P\d+)(?:_|$)', _re.IGNORECASE),
-    "LV":  _re.compile(r'(?:^|_)(V\d+)(?:_|$)', _re.IGNORECASE),
-    "FV":  _re.compile(r'(?:^|_)(V\d+)(?:_|$)', _re.IGNORECASE),
-    "LAJ": _re.compile(r'(?:^|_)(L\d+)(?:_|$)', _re.IGNORECASE),
-}
-
-def _extract_elem_id(stem: str, cls: str) -> str:
-    """Extrai elemento_id (ex: 'P18', 'V13') de um stem de filename."""
-    pat = _ELEM_ID_RE.get((cls or "").upper())
-    if not pat:
-        return ""
-    m = pat.search(stem)
-    return m.group(1).upper() if m else ""
-
-
-_exc_mod = None  # cache do módulo exception_registry
-
-def _get_pending_exceptions(cls: str, elem_id: str, pav: str | None = None) -> list:
-    """Retorna exceções G2 PENDENTE para (cls, elem_id). Silencia erros de import."""
-    global _exc_mod
-    if not elem_id:
-        return []
-    if _exc_mod is None:
-        try:
-            import sys as _sys
-            arete_dir = str(Path(__file__).resolve().parent.parent.parent / "scripts" / "arete")
-            if arete_dir not in _sys.path:
-                _sys.path.insert(0, arete_dir)
-            import exception_registry as _exc_mod_tmp
-            _exc_mod = _exc_mod_tmp
-        except Exception:
-            _exc_mod = False
-    if not _exc_mod:
-        return []
-    try:
-        return [e for e in _exc_mod.get_item_exceptions(cls, elem_id, pav)
-                if e.get("status") == "PENDENTE"]
-    except Exception:
-        return []
-
-
 def _obra_name_from_path(path: str | Path) -> str:
     """Resolve obra_name from a path under DADOS-OBRAS."""
     try:
@@ -221,10 +168,6 @@ def _db_ensure_schema():
     try:
         if _engrev_laj_recorte_learning_ensure_schema:
             _engrev_laj_recorte_learning_ensure_schema()
-    except Exception:
-        pass
-    try:
-        _crop_learning_ensure_schema(DB_PATH)
     except Exception:
         pass
 
@@ -287,40 +230,6 @@ def _record_laj_learning_event(
         )
     except Exception:
         pass
-
-
-def _record_generic_crop_learning_event(
-    *,
-    obra_name: str,
-    elemento_id: str,
-    classe: str,
-    recorte_path: str,
-    notes: str | None = None,
-    metadata: dict | None = None,
-) -> str | None:
-    """Registra aprendizado de recorte sem validar/promover ficha F5/N2."""
-    try:
-        row = _db_query(
-            "SELECT bbox_json, projeto_id FROM reverse_eng_recortes WHERE recorte_path=? "
-            "ORDER BY id DESC LIMIT 1",
-            (recorte_path,),
-        )
-        bbox_json = row[0][0] if row else None
-        pavimento = row[0][1] if row else None
-        return _record_crop_learning_event(
-            obra_name=obra_name,
-            pavimento=pavimento,
-            classe=classe,
-            elemento_id=elemento_id,
-            recorte_path=recorte_path,
-            bbox_json=bbox_json,
-            notes=notes,
-            metadata=metadata,
-            db_path=DB_PATH,
-        )
-    except Exception as exc:
-        print(f"[CROP-LEARNING] approval hook failed: {exc}")
-        return None
 
 
 def _migrate_fichas_unique_constraint() -> None:
@@ -420,11 +329,10 @@ class _LeftPanel(QFrame):
         self._cls_btns: dict = {}
 
         self.setStyleSheet(f"background:{Colors.BG_SECONDARY};")
-        self.setMinimumWidth(180)
-        self.setMaximumWidth(350)
+        self.setFixedWidth(220)
 
         lay = QVBoxLayout(self)
-        lay.setContentsMargins(4, 4, 4, 4)
+        lay.setContentsMargins(5, 5, 5, 5)
         lay.setSpacing(4)
 
         # Título
@@ -439,14 +347,14 @@ class _LeftPanel(QFrame):
         self.cmb_obra.setPlaceholderText("— selecione a obra —")
         self.cmb_obra.setStyleSheet(f"""
             QComboBox {{
-                background: {Colors.BG_DEEP}; color: white;
-                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
-                padding: 4px 8px; font-size: 11px;
+                background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY};
+                border:1px solid {Colors.BORDER_DEFAULT}; border-radius:4px;
+                font-size:10px; padding:2px 6px;
             }}
-            QComboBox::drop-down {{ border: none; }}
+            QComboBox::drop-down {{ border:none; }}
             QComboBox QAbstractItemView {{
-                background: {Colors.BG_DEEP}; color: white;
-                selection-background-color: {Colors.ACCENT_TEAL};
+                background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY};
+                selection-background-color:{Colors.ACCENT_BLUE};
             }}
         """)
         self.cmb_obra.currentTextChanged.connect(self._on_cmb_obra_changed)
@@ -471,57 +379,21 @@ class _LeftPanel(QFrame):
         self.lst = QListWidget()
         self.lst.setStyleSheet(f"""
             QListWidget {{
-                background: {Colors.BG_DEEP}; color: white;
-                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
-                font-size: 11px;
+                background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY};
+                border:1px solid {Colors.BORDER_DEFAULT}; font-size:10px;
             }}
-            QListWidget::item {{ padding: 5px 8px; }}
-            QListWidget::item:selected {{
-                background: rgba(0, 180, 180, 64); color: {Colors.ACCENT_TEAL};
-            }}
-            QListWidget::item:hover {{ background: {Colors.BG_PANEL}; }}
+            QListWidget::item {{ padding:2px 4px; }}
+            QListWidget::item:selected {{ background:{Colors.ACCENT_BLUE}; color:{Colors.TEXT_BRIGHT}; }}
+            QListWidget::item:hover {{ background:{Colors.BG_CARD}; }}
         """)
         self.lst.itemClicked.connect(self._on_item_clicked)
         lay.addWidget(self.lst, 1)
-
-        btn_lay = QVBoxLayout()
-        btn_lay.setSpacing(4)
-
-        # Botão Abrir DXF
-        btn_abrir_dxf = QPushButton("📂 Abrir")
-        btn_abrir_dxf.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: {Colors.BG_CARD}; color: #FFFFFF;
-                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
-                padding: 4px; font-size: 11px;
-            }}
-            QPushButton:hover {{ color: white; }}
-        """)
-        btn_abrir_dxf.clicked.connect(self._abrir_dxf_item)
-        btn_lay.addWidget(btn_abrir_dxf)
-
-        # Botão Atualizar
-        btn_refresh = QPushButton("↻ Atualizar")
-        btn_refresh.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: {Colors.BG_CARD}; color: #FFFFFF;
-                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
-                padding: 4px; font-size: 11px;
-            }}
-            QPushButton:hover {{ color: white; }}
-        """)
-        btn_refresh.clicked.connect(self._refresh_list)
-        btn_lay.addWidget(btn_refresh)
-
-        lay.addLayout(btn_lay)
 
         # Inicializar com "PIL" selecionado
         self._select_cls("PIL")
 
     def _populate_obra_combo(self, obras: list[str] | None = None):
-        """Carrega todas as obras no combo (igual ao cmb_works do main) +
-        obras do portal (Masterplan OBRAS DRIVE) — mesmo design visual dos
-        demais comboboxes de obra da app (ver `drive_obras_combo.py`).
+        """Carrega todas as obras no combo (igual ao cmb_works do main).
 
         Se `obras` for fornecida (lista de strings), usa direto.
         Caso contrário faz query no DB (todas as obras cadastradas).
@@ -537,28 +409,22 @@ class _LeftPanel(QFrame):
                 )
             obras = [r[0] for r in rows if r[0]]
 
-        from src.ui.drive_obras_combo import popular_combo_obras_com_drive
-        self._drive_obras_portal = popular_combo_obras_com_drive(self.cmb_obra, self, obras)
-
+        self.cmb_obra.blockSignals(True)
         current = self._current_obra
+        self.cmb_obra.clear()
+        for obra in obras:
+            self.cmb_obra.addItem(f"📁 {obra}", obra)
         if current:
             idx = self.cmb_obra.findData(current)
             if idx >= 0:
-                self.cmb_obra.blockSignals(True)
                 self.cmb_obra.setCurrentIndex(idx)
-                self.cmb_obra.blockSignals(False)
+        else:
+            self.cmb_obra.setCurrentIndex(-1)
+        self.cmb_obra.blockSignals(False)
 
     def _on_cmb_obra_changed(self, obra_name: str):
         obra_name = self.cmb_obra.currentData() or obra_name
         if obra_name and obra_name != self._current_obra:
-            try:
-                from src.core.database import DatabaseManager
-                from src.ui.drive_obras_combo import espelhar_se_necessario
-                espelhar_se_necessario(
-                    DatabaseManager(db_path=DB_PATH), obra_name, getattr(self, "_drive_obras_portal", {})
-                )
-            except Exception as e:
-                print(f"[DiagnosticReverseHub] Falha ao espelhar obra Drive: {e}", flush=True)
             self._current_obra = obra_name
             self._refresh_list()
             self.obra_changed.emit(obra_name)
@@ -571,14 +437,14 @@ class _LeftPanel(QFrame):
             btn.setChecked(active)
             if active:
                 btn.setStyleSheet(
-                    f"QPushButton {{ color: white; background:{color}; color: #FFFFFF; border-radius:3px; "
-                    f"font-size:9px; font-weight:bold; border-bottom:2px solid {Text.BRIGHT}; }}"
+                    f"QPushButton {{ background:{color}; color:#fff; border-radius:3px; "
+                    f"font-size:9px; font-weight:bold; border-bottom:2px solid white; }}"
                 )
             else:
                 btn.setStyleSheet(
-                    f"QPushButton {{ color: white; background:{Surface.CARD}; color: #FFFFFF; "
-                    f"border-radius:3px; font-size:9px; border:1px solid {Border.DEFAULT}; }} "
-                    f"QPushButton:hover {{ background:{Surface.BASE}; }}"
+                    f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY}; "
+                    f"border-radius:3px; font-size:9px; border:1px solid {Colors.BORDER_DEFAULT}; }} "
+                    f"QPushButton:hover {{ background:{Colors.BG_PANEL}; }}"
                 )
         self.class_changed.emit(cls)
         self._refresh_list()
@@ -644,22 +510,14 @@ class _LeftPanel(QFrame):
             font = QFont()
             font.setBold(True)
             header.setFont(font)
-            header.setForeground(QColor(Semantic.SUCCESS))
+            header.setForeground(QColor("#00ff9d"))
             self.lst.addItem(header)
             
             for (row_id, fname, fpath) in items:
                 label = Path(fname).stem if fname else str(row_id)
-                elem_id = _extract_elem_id(label, self._current_cls)
-                pending = _get_pending_exceptions(self._current_cls, elem_id)
-                display = ("⚠ " + label) if pending else label
-                it = QListWidgetItem(display)
+                it = QListWidgetItem(label)
                 it.setData(Qt.UserRole, (str(row_id), fpath or ""))
-                if pending:
-                    it.setForeground(QColor(Contextual.GOLD))
-                    ids = ", ".join(e["id"] for e in pending)
-                    it.setToolTip(f"Exceção G2 pendente: {ids}")
-                else:
-                    it.setForeground(color)
+                it.setForeground(color)
                 self.lst.addItem(it)
 
     def _on_item_clicked(self, item: QListWidgetItem):
@@ -668,35 +526,6 @@ class _LeftPanel(QFrame):
             return
         proj_id, dxf_path = data
         self.item_selected.emit(self._current_obra, str(proj_id), dxf_path or "")
-
-    def _abrir_dxf_item(self):
-        item = self.lst.currentItem()
-        if not item:
-            from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Aviso", "Nenhum item selecionado.")
-            return
-        data = item.data(Qt.UserRole)
-        if not data:
-            return
-        proj_id, dxf_path = data
-        if dxf_path:
-            import os
-            from pathlib import Path
-            raw_path = str(dxf_path)
-            if raw_path.upper().startswith("B:/") or raw_path.upper().startswith("B:\\"):
-                raw_path = raw_path.replace("B:/", "D:/").replace("B:\\", "D:\\")
-            elif raw_path.upper().startswith("C:/") or raw_path.upper().startswith("C:\\"):
-                raw_path = raw_path.replace("C:/", "D:/").replace("C:\\", "D:\\")
-            p = Path(raw_path)
-            if p.exists():
-                try:
-                    os.startfile(str(p))
-                except Exception as e:
-                    from PySide6.QtWidgets import QMessageBox
-                    QMessageBox.warning(self, "Erro", f"Não foi possível abrir o arquivo: {e}")
-            else:
-                from PySide6.QtWidgets import QMessageBox
-                QMessageBox.warning(self, "Erro", "Arquivo não encontrado.")
 
     def set_obra(self, obra_name: str):
         self._current_obra = obra_name
@@ -803,8 +632,8 @@ class _DXFRenderProxy(QObject):
                     vp.setUpdatesEnabled(False)
                 try:
                     canvas.add_dxf_entities(entities,
-                                            render_mode=dd.get('render_mode', RenderMode.TRUE_GEOMETRY),
-                                            compute_snaps=False, source_dxf_path=dd.get('source_path'))
+                                            render_mode=dd.get('render_mode', 'TRUE_GEOMETRY'),
+                                            compute_snaps=False)
                 finally:
                     if vp is not None:
                         vp.setUpdatesEnabled(True)
@@ -833,42 +662,42 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
         elemento_id = str(data.get('name', data.get('nome', data.get('number', data.get('numero', '')))))
 
     if confianca >= 0.85:
-        conf_color, conf_label = Semantic.SUCCESS, f'{confianca*100:.0f}%'
+        conf_color, conf_label = '#16a34a', f'{confianca*100:.0f}%'
     elif confianca >= 0.6:
-        conf_color, conf_label = Contextual.GOLD, f'{confianca*100:.0f}%'
+        conf_color, conf_label = '#d97706', f'{confianca*100:.0f}%'
     elif confianca > 0.0:
-        conf_color, conf_label = Semantic.DANGER, f'{confianca*100:.0f}%'
+        conf_color, conf_label = '#dc2626', f'{confianca*100:.0f}%'
     else:
-        conf_color, conf_label = Text.MUTED, 'N/A'
+        conf_color, conf_label = '#64748b', 'N/A'
 
-    cls_colors = {'PIL': Accent.INTERACTIVE, 'LV': Contextual.PURPLE, 'FV': Accent.PRIMARY, 'LAJ': Semantic.SUCCESS}
-    cls_color = cls_colors.get(str(classe).upper(), Text.MUTED)
+    cls_colors = {'PIL': '#3b82f6', 'LV': '#8b5cf6', 'FV': '#06b6d4', 'LAJ': '#10b981'}
+    cls_color = cls_colors.get(str(classe).upper(), '#64748b')
 
-    def _sec(title: str, kv: dict, color: str = Accent.INTERACTIVE) -> str:
+    def _sec(title: str, kv: dict, color: str = '#3b82f6') -> str:
         if not kv:
             return ''
         rows = ''
         for k, v in kv.items():
             vstr = json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else str(v)
-            rows += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 8px;white-space:nowrap;'
+            rows += (f'<tr><td style="color:#94a3b8;padding:2px 8px;white-space:nowrap;'
                      f'font-size:10px;">{k}</td>'
-                     f'<td style="color:{Text.PRIMARY};padding:2px 8px;font-size:10px;">{vstr}</td></tr>')
+                     f'<td style="color:#e2e8f0;padding:2px 8px;font-size:10px;">{vstr}</td></tr>')
         return (f'<div style="background:{color}22;color:{color};padding:3px 8px;margin-top:7px;'
                 f'border-left:3px solid {color};font-size:9px;text-transform:uppercase;'
                 f'">{title}</div>'
                 f'<table width="100%" style="border-collapse:collapse;">{rows}</table>')
 
-    def _sec_list(title: str, items: list, color: str = Contextual.GOLD) -> str:
+    def _sec_list(title: str, items: list, color: str = '#f59e0b') -> str:
         if not items:
             return ''
         if items and isinstance(items[0], dict):
             cols = list(items[0].keys())
-            hdrs = ''.join(f'<th style="color:{Text.SECONDARY};padding:2px 6px;border-bottom:1px solid {Border.STRONG};'
+            hdrs = ''.join(f'<th style="color:#94a3b8;padding:2px 6px;border-bottom:1px solid #30363d;'
                            f'text-align:left;font-size:9px;">{c}</th>' for c in cols)
             drows = ''
             for item in items:
                 drows += '<tr>' + ''.join(
-                    f'<td style="color:{Text.PRIMARY};padding:2px 6px;border-bottom:1px solid {Border.DEFAULT};'
+                    f'<td style="color:#e2e8f0;padding:2px 6px;border-bottom:1px solid #21262d;'
                     f'font-size:10px;">{item.get(c, "")}</td>' for c in cols
                 ) + '</tr>'
             tbl = f'<table width="100%" style="border-collapse:collapse;"><tr>{hdrs}</tr>{drows}</table>'
@@ -876,7 +705,7 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
             vals = ', '.join(str(x) for x in items[:30])
             if len(items) > 30:
                 vals += f' … ({len(items)} total)'
-            tbl = f'<div style="color:{Text.PRIMARY};padding:4px 8px;font-size:10px;">{vals}</div>'
+            tbl = f'<div style="color:#e2e8f0;padding:4px 8px;font-size:10px;">{vals}</div>'
         return (f'<div style="background:{color}22;color:{color};padding:3px 8px;margin-top:7px;'
                 f'border-left:3px solid {color};font-size:9px;text-transform:uppercase;">'
                 f'{title} ({len(items)})</div>{tbl}')
@@ -907,32 +736,43 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
     others = {k: v for k, v in scalars.items()
               if k not in ident and k not in dims and k not in grades and k not in bolts}
 
-    cls_badge = (f'<span style="background:{cls_color};color: white;padding:2px 8px;'
+    cls_badge = (f'<span style="background:{cls_color};color:white;padding:2px 8px;'
                  f'border-radius:3px;font-size:11px;font-weight:bold;">{classe}</span>') if classe else ''
-    elem_span = (f'<span style="margin-left:8px;font-size:12px;color:{Text.PRIMARY};'
+    elem_span = (f'<span style="margin-left:8px;font-size:12px;color:#e2e8f0;'
                  f'font-weight:bold;">{elemento_id}</span>') if elemento_id else ''
-    conf_badge = (f'<span style="background:{conf_color};color: white;padding:2px 7px;'
+    conf_badge = (f'<span style="background:{conf_color};color:white;padding:2px 7px;'
                   f'border-radius:3px;font-size:10px;">{conf_label} confiança</span>')
 
     # Exceções G2 (Arete) pendentes para este item — ver
     # scripts/arete/exception_registry.py e
-    # scripts/arete/exception_registry.py — apenas PENDENTE (SUPERSEDED excluído)
-    pavimento = data.get('pavimento') or data.get('floor') or None
-    item_exceptions = _get_pending_exceptions(classe, elemento_id, pavimento) if (classe and elemento_id) else []
+    # scripts/arete/relatorios/AR-1prime-canonico/EXCECOES-FRONTEND.md
+    item_exceptions = []
+    if classe and elemento_id:
+        try:
+            import sys as _sys
+            from pathlib import Path as _Path
+            arete_dir = str(_Path(__file__).resolve().parent.parent.parent.parent / "scripts" / "arete")
+            if arete_dir not in _sys.path:
+                _sys.path.insert(0, arete_dir)
+            from exception_registry import get_item_exceptions
+            pavimento = data.get('pavimento') or data.get('floor') or None
+            item_exceptions = get_item_exceptions(classe, elemento_id, pavimento)
+        except Exception:
+            item_exceptions = []
 
     exc_badge = ''
     if item_exceptions:
         exc_badge = (
-            f'<span style="margin-left:8px;background:{Contextual.GOLD};color:{Surface.DEEP};padding:2px 8px;'
+            '<span style="margin-left:8px;background:#f59e0b;color:#1a1300;padding:2px 8px;'
             'border-radius:3px;font-size:10px;font-weight:bold;" '
             f'title="{len(item_exceptions)} exceção(ões) G2 pendente(s)">⚠ EXCEÇÃO</span>'
         )
 
     parts = [
         '<html><head><meta charset="utf-8"></head>',
-        f'<body style="background:{Surface.DEEP};color:{Text.PRIMARY};font-family:monospace;margin:0;padding:0;">',
+        '<body style="background:#0d1117;color:#c9d1d9;font-family:monospace;margin:0;padding:0;">',
         '<div style="padding:8px 10px;">',
-        f'<div style="background:{Surface.BASE};padding:7px 10px;border-radius:5px;margin-bottom:8px;">',
+        f'<div style="background:#161b22;padding:7px 10px;border-radius:5px;margin-bottom:8px;">',
         f'  {cls_badge}{elem_span}{exc_badge}',
         f'  <span style="float:right;">{conf_badge}</span>',
         f'</div>',
@@ -943,27 +783,27 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
         for exc in item_exceptions:
             cats = ', '.join(exc.get('categorias_afetadas', []))
             exc_rows += (
-                f'<tr><td style="color:{Contextual.GOLD};padding:2px 8px;white-space:nowrap;'
+                '<tr><td style="color:#f59e0b;padding:2px 8px;white-space:nowrap;'
                 f'font-size:10px;font-weight:bold;">{exc["id"]}</td>'
-                f'<td style="color:{Text.PRIMARY};padding:2px 8px;font-size:10px;">'
+                '<td style="color:#e2e8f0;padding:2px 8px;font-size:10px;">'
                 f'[{exc.get("status")}] categorias: {cats}<br>{exc["motivo"]}</td></tr>'
             )
         parts.append(
-            f'<div style="background:rgba(230, 180, 0, 0.13);color:{Contextual.GOLD};padding:3px 8px;margin-top:0;'
-            f'border-left:3px solid {Contextual.GOLD};font-size:9px;text-transform:uppercase;'
-            '>⚠ Exceção G2 Pendente — gate canônico FAIL, causa raiz '
+            '<div style="background:rgba(245, 158, 11, 34);color:#f59e0b;padding:3px 8px;margin-top:0;'
+            'border-left:3px solid #f59e0b;font-size:9px;text-transform:uppercase;'
+            '">⚠ Exceção G2 Pendente — gate canônico FAIL, causa raiz '
             'investigada (avaliação caso a caso futura)</div>'
             f'<table width="100%" style="border-collapse:collapse;">{exc_rows}</table>'
         )
 
-    parts.append(_sec('Identificação', ident, Accent.INTERACTIVE))
-    parts.append(_sec('Dimensões', dims, Accent.PRIMARY))
+    parts.append(_sec('Identificação', ident, '#3b82f6'))
+    parts.append(_sec('Dimensões', dims, '#06b6d4'))
     if grades:
-        parts.append(_sec('Grades / Armação', grades, Contextual.PURPLE))
+        parts.append(_sec('Grades / Armação', grades, '#8b5cf6'))
     if bolts:
-        parts.append(_sec('Parafusos / Furação', bolts, Contextual.GOLD))
+        parts.append(_sec('Parafusos / Furação', bolts, '#f59e0b'))
     if others:
-        parts.append(_sec('Outros Campos', others, Text.MUTED))
+        parts.append(_sec('Outros Campos', others, '#64748b'))
 
     # Dicionários (faces A-H, pilares, etc.)
     for dk, dv in dicts_.items():
@@ -972,7 +812,7 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
         if isinstance(dv.get('active'), bool) and not dv['active']:
             continue
         sub = {sk: sv for sk, sv in dv.items() if sk != 'active'}
-        parts.append(_sec(dk, sub, Semantic.SUCCESS))
+        parts.append(_sec(dk, sub, '#10b981'))
 
     # Listas (panels, holes, pontaletes, etc.)
     for lk, lv in lists_.items():
@@ -983,7 +823,7 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
             filtered = [x for x in lv if isinstance(x, dict) and x.get('active', False)]
             if not filtered:
                 continue
-        parts.append(_sec_list(lk, filtered, Contextual.GOLD))
+        parts.append(_sec_list(lk, filtered, '#f59e0b'))
 
     # Metadados ao final
     meta_filtered = {k: v for k, v in metas.items() if k != '_confianca'}
@@ -993,11 +833,11 @@ def _render_ficha_html(data: dict, classe: str = '', confianca: float = 0.0, ele
             meta_kv[k] = json.dumps(v, ensure_ascii=False) if isinstance(v, (dict, list)) else str(v)
         meta_rows = ''
         for k, v in meta_kv.items():
-            meta_rows += (f'<tr><td style="color:{Text.MUTED};padding:2px 8px;font-size:9px;">{k}</td>'
-                          f'<td style="color:{Text.SECONDARY};padding:2px 8px;font-size:9px;">{v}</td></tr>')
+            meta_rows += (f'<tr><td style="color:#4a5568;padding:2px 8px;font-size:9px;">{k}</td>'
+                          f'<td style="color:#718096;padding:2px 8px;font-size:9px;">{v}</td></tr>')
         parts.append(
-            f'<div style="background:{Surface.BASE};color:{Text.MUTED};padding:3px 8px;margin-top:8px;'
-            f'border-left:3px solid {Border.DEFAULT};font-size:9px;text-transform:uppercase;">Metadados</div>'
+            '<div style="background:#1a202c;color:#4a5568;padding:3px 8px;margin-top:8px;'
+            'border-left:3px solid #2d3748;font-size:9px;text-transform:uppercase;">Metadados</div>'
             f'<table width="100%" style="border-collapse:collapse;">{meta_rows}</table>'
         )
 
@@ -1021,9 +861,9 @@ def _render_obra_html(data: dict) -> str:
 
     # Cores de confiança
     def _conf_color(c: float) -> str:
-        if c >= 0.85: return Semantic.SUCCESS
-        if c >= 0.65: return Contextual.GOLD
-        return Semantic.DANGER
+        if c >= 0.85: return '#16a34a'
+        if c >= 0.65: return '#d97706'
+        return '#dc2626'
 
     def _conf_label(c: float) -> str:
         if c >= 0.85: return 'Excelente'
@@ -1032,13 +872,13 @@ def _render_obra_html(data: dict) -> str:
         return 'Baixa'
 
     NIVEL_CFG = {
-        'sucesso': (Semantic.SUCCESS,    Semantic.SUCCESS_BG_DARK, '✅'),
-        'info':    (Accent.INTERACTIVE,  Surface.RAISED,           'ℹ'),
-        'aviso':   (Contextual.GOLD,     Semantic.WARNING_BG_DARK, '⚠'),
-        'alerta':  (Semantic.DANGER,     Semantic.DANGER_BG_DARK,  '✗'),
+        'sucesso': ('#16a34a', '#052e16', '✅'),
+        'info':    ('#3b82f6', '#0c1a3a', 'ℹ'),
+        'aviso':   ('#d97706', '#2d1a06', '⚠'),
+        'alerta':  ('#dc2626', '#2d0806', '✗'),
     }
 
-    CLS_COLOR  = {'PIL': Accent.INTERACTIVE, 'LV': Contextual.PURPLE, 'FV': Accent.PRIMARY, 'LAJ': Semantic.SUCCESS}
+    CLS_COLOR  = {'PIL': '#3b82f6', 'LV': '#8b5cf6', 'FV': '#06b6d4', 'LAJ': '#10b981'}
     CLS_ICON   = {'PIL': '🧱', 'LV': '🔷', 'FV': '🔹', 'LAJ': '⬛'}
     CLS_LABEL  = {'PIL': 'Pilares', 'LV': 'Vigas Laterais', 'FV': 'Fundos de Viga', 'LAJ': 'Lajes'}
 
@@ -1046,19 +886,19 @@ def _render_obra_html(data: dict) -> str:
 
     parts = [
         '<html><head><meta charset="utf-8"></head>',
-        f'<body style="background:{Surface.DEEP};color:{Text.PRIMARY};font-family:monospace;margin:0;padding:0;">',
+        '<body style="background:#0d1117;color:#c9d1d9;font-family:monospace;margin:0;padding:0;">',
         '<div style="padding:10px 12px;">',
     ]
 
     # ── Cabeçalho da obra ──
     parts.append(f'''
-<div style="background:{Surface.BASE};border-radius:6px;padding:10px 14px;margin-bottom:10px;">
-  <div style="font-size:15px;font-weight:bold;color:{Text.PRIMARY};">{obra_name}</div>
-  <div style="font-size:10px;color:{Text.MUTED};margin-top:2px;">
+<div style="background:#161b22;border-radius:6px;padding:10px 14px;margin-bottom:10px;">
+  <div style="font-size:15px;font-weight:bold;color:#e2e8f0;">{obra_name}</div>
+  <div style="font-size:10px;color:#64748b;margin-top:2px;">
     Ficha da Obra ER · {total} fichas · {len(pavimentos)} pavimento(s) · Gerado {gerado_em}
   </div>
   <div style="margin-top:6px;display:inline-block;">
-    <span style="background:{cc};color: white;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:bold;">
+    <span style="background:{cc};color:white;padding:2px 10px;border-radius:3px;font-size:11px;font-weight:bold;">
       {conf_geral*100:.0f}% confiança média — {_conf_label(conf_geral)}
     </span>
   </div>
@@ -1075,14 +915,14 @@ def _render_obra_html(data: dict) -> str:
             cm = s.get('confianca_media', 0)
             baixa = s.get('baixa_confianca_count', 0)
             pavs_cob = len(s.get('pavimentos_cobertos', []))
-            col = CLS_COLOR.get(cls, Text.SECONDARY)
+            col = CLS_COLOR.get(cls, '#64748b')
             icon = CLS_ICON.get(cls, '●')
             lbl = CLS_LABEL.get(cls, cls)
 
             # Badge de baixa confiança
             badge_baixa = ''
             if baixa > 0:
-                badge_baixa = (f'<span style="background:{Semantic.DANGER_BG_DARK};color:{Semantic.DANGER};padding:1px 5px;'
+                badge_baixa = (f'<span style="background:#7c2d12;color:#fca5a5;padding:1px 5px;'
                                f'border-radius:2px;font-size:9px;margin-left:5px;">'
                                f'{baixa} baixa conf.</span>')
 
@@ -1097,17 +937,17 @@ def _render_obra_html(data: dict) -> str:
 
             parts.append(f'''
 <div style="display:table-cell;width:50%;padding:4px;">
-  <div style="background:{Surface.BASE};border-left:3px solid {col};border-radius:4px;padding:8px 10px;">
+  <div style="background:#161b22;border-left:3px solid {col};border-radius:4px;padding:8px 10px;">
     <div style="font-size:12px;font-weight:bold;color:{col};">{icon} {lbl}</div>
-    <div style="font-size:20px;color:{Text.PRIMARY};font-weight:bold;margin-top:2px;">
+    <div style="font-size:20px;color:#e2e8f0;font-weight:bold;margin-top:2px;">
       {n}
-      <span style="font-size:10px;color:{Text.MUTED};font-weight:normal;">elementos</span>
+      <span style="font-size:10px;color:#64748b;font-weight:normal;">elementos</span>
       {badge_baixa}
     </div>
-    <div style="background:{Border.DEFAULT};border-radius:2px;height:4px;margin-top:5px;">
+    <div style="background:#21262d;border-radius:2px;height:4px;margin-top:5px;">
       <div style="background:{bar_color};width:{bar_w}%;height:4px;border-radius:2px;"></div>
     </div>
-    <div style="font-size:9px;color:{Text.MUTED};margin-top:2px;">{cm*100:.0f}% conf. média · {pavs_cob} pavimento(s)</div>
+    <div style="font-size:9px;color:#64748b;margin-top:2px;">{cm*100:.0f}% conf. média · {pavs_cob} pavimento(s)</div>
   </div>
 </div>''')
 
@@ -1116,13 +956,13 @@ def _render_obra_html(data: dict) -> str:
     # ── Pavimentos cobertos ──
     if pavimentos:
         pav_cells = ''.join(
-            f'<span style="background:{Surface.CARD};color:{Text.SECONDARY};padding:2px 7px;border-radius:3px;'
+            f'<span style="background:#1f2937;color:#94a3b8;padding:2px 7px;border-radius:3px;'
             f'font-size:10px;margin:2px;display:inline-block;">{p}</span>'
             for p in sorted(pavimentos)
         )
         parts.append(f'''
-<div style="background:{Surface.RAISED};border-radius:4px;padding:8px 10px;margin-top:8px;">
-  <div style="font-size:9px;color:{Text.MUTED};text-transform:uppercase;margin-bottom:4px;">
+<div style="background:#0f172a;border-radius:4px;padding:8px 10px;margin-top:8px;">
+  <div style="font-size:9px;color:#475569;text-transform:uppercase;margin-bottom:4px;">
     Pavimentos Processados
   </div>
   <div>{pav_cells}</div>
@@ -1136,7 +976,7 @@ def _render_obra_html(data: dict) -> str:
         analise = por_classe[cls].get('analise', {})
         if not analise:
             continue
-        col = CLS_COLOR.get(cls, Text.SECONDARY)
+        col = CLS_COLOR.get(cls, '#64748b')
         lbl = CLS_LABEL.get(cls, cls)
 
         rows_html = ''
@@ -1146,10 +986,10 @@ def _render_obra_html(data: dict) -> str:
             for item in dist[:5]:
                 bar_w = int(item['pct'] / max_pct * 90) if max_pct else 0
                 html += (f'<div style="margin-top:2px;font-size:9px;">'
-                         f'<span style="color:{Text.SECONDARY};display:inline-block;min-width:50px;">{item["valor"]}</span>'
+                         f'<span style="color:#94a3b8;display:inline-block;min-width:50px;">{item["valor"]}</span>'
                          f'<span style="background:{col}44;display:inline-block;height:8px;width:{bar_w}px;'
                          f'border-radius:2px;vertical-align:middle;margin:0 4px;"></span>'
-                         f'<span style="color:{Contextual.SLATE};">{item["count"]}× ({item["pct"]}%)</span>'
+                         f'<span style="color:#64748b;">{item["count"]}× ({item["pct"]}%)</span>'
                          f'</div>')
             return html
 
@@ -1163,11 +1003,11 @@ def _render_obra_html(data: dict) -> str:
                 dom_pct = info.get('dominante_pct', 0)
                 mn, mx, med = info.get('min', 0), info.get('max', 0), info.get('media', 0)
                 rows_html += (
-                    f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;white-space:nowrap;">'
+                    f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;white-space:nowrap;">'
                     f'{campo.title()}</td>'
                     f'<td style="padding:2px 6px;">'
-                    f'<span style="color:{Text.PRIMARY};font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
-                    f'<span style="color:{Text.SECONDARY};font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
+                    f'<span style="color:#e2e8f0;font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
+                    f'<span style="color:#64748b;font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
                     f'</td></tr>'
                 )
                 if campo == 'comprimento' and info.get('distribuicao'):
@@ -1176,15 +1016,15 @@ def _render_obra_html(data: dict) -> str:
 
             g2_taxa = analise.get('grade_2_taxa_presenca')
             if g2_taxa is not None:
-                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Grade 2</td>'
-                              f'<td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">'
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Grade 2</td>'
+                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">'
                               f'presente em {g2_taxa}% dos pilares</td></tr>')
 
             anom = analise.get('anomalias_comprimento', [])
             if anom:
                 nomes = ', '.join(a['elemento'] for a in anom)
-                rows_html += (f'<tr><td style="color:{Semantic.WARNING};padding:2px 6px;font-size:9px;">Outliers</td>'
-                              f'<td style="color:{Contextual.GOLD};padding:2px 6px;font-size:9px;">{nomes}</td></tr>')
+                rows_html += (f'<tr><td style="color:#d97706;padding:2px 6px;font-size:9px;">Outliers</td>'
+                              f'<td style="color:#fbbf24;padding:2px 6px;font-size:9px;">{nomes}</td></tr>')
 
         # LV / FV
         elif cls in ('LV', 'FV'):
@@ -1196,10 +1036,10 @@ def _render_obra_html(data: dict) -> str:
                 dom_pct = info.get('dominante_pct', 0)
                 mn, mx, med = info.get('min', 0), info.get('max', 0), info.get('media', 0)
                 rows_html += (
-                    f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">{campo.title()}</td>'
+                    f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">{campo.title()}</td>'
                     f'<td style="padding:2px 6px;">'
-                    f'<span style="color:{Text.PRIMARY};font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
-                    f'<span style="color:{Text.SECONDARY};font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
+                    f'<span style="color:#e2e8f0;font-size:10px;">dom: <b>{dom}</b> cm ({dom_pct}%)</span>'
+                    f'<span style="color:#64748b;font-size:9px;margin-left:8px;">min {mn} · max {mx} · méd {med}</span>'
                     f'</td></tr>'
                 )
                 if campo == 'altura' and info.get('distribuicao'):
@@ -1208,9 +1048,9 @@ def _render_obra_html(data: dict) -> str:
 
             np_ = analise.get('num_paineis')
             if np_:
-                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Painéis</td>'
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Painéis</td>'
                               f'<td style="padding:2px 6px;">'
-                              f'<span style="color:{Text.PRIMARY};font-size:10px;">dom: <b>{np_["dominante"]}</b> painéis ({np_["dominante_pct"]}%)</span>'
+                              f'<span style="color:#e2e8f0;font-size:10px;">dom: <b>{np_["dominante"]}</b> painéis ({np_["dominante_pct"]}%)</span>'
                               f'</td></tr>')
                 if np_.get('distribuicao'):
                     rows_html += (f'<tr><td></td><td style="padding:1px 6px;">'
@@ -1218,26 +1058,26 @@ def _render_obra_html(data: dict) -> str:
 
             lp = analise.get('larguras_paineis', {})
             if lp.get('distribuicao'):
-                rows_html += f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Larg. painéis</td>'
+                rows_html += f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Larg. painéis</td>'
                 rows_html += f'<td style="padding:1px 6px;">{_dist_bar(lp["distribuicao"], 80)}</td></tr>'
 
             fp = analise.get('furos_presentes_pct', 0)
             if fp > 0:
-                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Furos</td>'
-                              f'<td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">{fp}% dos elementos com furos ativos</td></tr>')
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Furos</td>'
+                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">{fp}% dos elementos com furos ativos</td></tr>')
 
             ple = analise.get('pilar_esq_pct', 0)
             pld = analise.get('pilar_dir_pct', 0)
             if ple > 0 or pld > 0:
-                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Pilares ext.</td>'
-                              f'<td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">'
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Pilares ext.</td>'
+                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">'
                               f'esq: {ple}% · dir: {pld}%</td></tr>')
 
             anom = analise.get('anomalias_altura', [])
             if anom:
                 nomes = ', '.join(a['elemento'] for a in anom[:4])
-                rows_html += (f'<tr><td style="color:{Semantic.WARNING};padding:2px 6px;font-size:9px;">Outliers</td>'
-                              f'<td style="color:{Contextual.GOLD};padding:2px 6px;font-size:9px;">{nomes}'
+                rows_html += (f'<tr><td style="color:#d97706;padding:2px 6px;font-size:9px;">Outliers</td>'
+                              f'<td style="color:#fbbf24;padding:2px 6px;font-size:9px;">{nomes}'
                               f'{"…" if len(anom) > 4 else ""}</td></tr>')
 
         # LAJ
@@ -1247,8 +1087,8 @@ def _render_obra_html(data: dict) -> str:
                 if not info:
                     continue
                 mn, mx, med = info.get('min', 0), info.get('max', 0), info.get('media', 0)
-                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">{campo}</td>'
-                              f'<td style="color:{Text.PRIMARY};padding:2px 6px;font-size:9px;">'
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">{campo}</td>'
+                              f'<td style="color:#e2e8f0;padding:2px 6px;font-size:9px;">'
                               f'min {mn} · max {mx} · méd {med}</td></tr>')
                 if info_key == 'area' and info.get('distribuicao'):
                     rows_html += (f'<tr><td></td><td style="padding:1px 6px;">'
@@ -1256,8 +1096,8 @@ def _render_obra_html(data: dict) -> str:
 
             pont = analise.get('pontaletes_por_laje', {})
             if pont:
-                rows_html += (f'<tr><td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">Pontaletes</td>'
-                              f'<td style="color:{Text.SECONDARY};padding:2px 6px;font-size:9px;">'
+                rows_html += (f'<tr><td style="color:#64748b;padding:2px 6px;font-size:9px;">Pontaletes</td>'
+                              f'<td style="color:#94a3b8;padding:2px 6px;font-size:9px;">'
                               f'dom: {pont["dominante"]} por laje ({pont["dominante_pct"]}%)</td></tr>')
 
         if rows_html:
@@ -1275,9 +1115,9 @@ def _render_obra_html(data: dict) -> str:
         sorted_insights = sorted(insights, key=lambda x: NIVEL_ORDER.index(x.get('nivel', 'info'))
                                  if x.get('nivel', 'info') in NIVEL_ORDER else 99)
 
-        parts.append(f'''
+        parts.append('''
 <div style="margin-top:10px;">
-  <div style="background:{Surface.BASE};color:{Text.SECONDARY};padding:4px 8px;border-radius:4px 4px 0 0;
+  <div style="background:#1f2937;color:#94a3b8;padding:4px 8px;border-radius:4px 4px 0 0;
               font-size:9px;text-transform:uppercase;">
     Insights &amp; Conclusões
   </div>
@@ -1287,13 +1127,13 @@ def _render_obra_html(data: dict) -> str:
             cfg = NIVEL_CFG.get(nivel, NIVEL_CFG['info'])
             col_ins, bg_ins, icon_ins = cfg
             cat = ins.get('categoria', '')
-            cat_badge = (f'<span style="background:{Surface.RAISED};color:{Text.MUTED};padding:1px 5px;'
+            cat_badge = (f'<span style="background:#1e293b;color:#475569;padding:1px 5px;'
                          f'border-radius:2px;font-size:8px;margin-left:6px;">{cat}</span>') if cat else ''
             parts.append(
                 f'<div style="background:{bg_ins};border-left:3px solid {col_ins};'
                 f'padding:5px 8px;margin-top:2px;">'
                 f'<span style="color:{col_ins};font-size:10px;">{icon_ins}</span>'
-                f'<span style="color:{Text.PRIMARY};font-size:10px;margin-left:6px;">{ins["texto"]}</span>'
+                f'<span style="color:#e2e8f0;font-size:10px;margin-left:6px;">{ins["texto"]}</span>'
                 f'{cat_badge}'
                 f'</div>'
             )
@@ -1308,11 +1148,9 @@ def _render_obra_html(data: dict) -> str:
 class _CenterPanel(QFrame):
     """4 tabs: Viz.Completo (CADCanvas) | Viz.Granular | Ficha Granular | Ficha Obra ER"""
 
-    ficha_validation_requested = Signal(bool)
-
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setStyleSheet(f"background:{Colors.BG_PRIMARY};")
+        self.setStyleSheet(f"background:{Colors.BG_DEEP};")
 
         # Estado de loading assíncrono
         self._dxf_threads:  list = []
@@ -1321,7 +1159,6 @@ class _CenterPanel(QFrame):
         self._canvas_pending: dict = {}
         # Lazy loading: DXF completo só carrega quando Tab 0 está ativa
         self._pending_completo_dxf: str | None = None
-        self._current_ficha_context: dict = {}
 
         lay = QVBoxLayout(self)
         lay.setContentsMargins(0, 0, 0, 0)
@@ -1329,7 +1166,7 @@ class _CenterPanel(QFrame):
 
         self._tabs = QTabWidget()
         self._tabs.setStyleSheet(f"""
-            QTabWidget::pane {{ border:none; background:{Colors.BG_PRIMARY}; }}
+            QTabWidget::pane {{ border:none; background:{Colors.BG_DEEP}; }}
             QTabBar::tab {{
                 background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY};
                 padding:4px 10px; font-size:9px; border-right:1px solid {Colors.BORDER_DEFAULT};
@@ -1362,11 +1199,11 @@ class _CenterPanel(QFrame):
             b.setFixedHeight(22)
             b.setToolTip(tip)
             b.setStyleSheet(
-                f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
+                f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; "
                 f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
                 f"font-size:9px; padding:0 7px; }} "
                 f"QPushButton:hover {{ background:{Colors.BG_PANEL}; color:{Colors.TEXT_BRIGHT}; }} "
-                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color: white; }}"
+                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color:#fff; }}"
             )
             b.setCheckable(True)
             return b
@@ -1375,7 +1212,7 @@ class _CenterPanel(QFrame):
         btn_delete.setFixedHeight(22)
         btn_delete.setToolTip("Remove entidades selecionadas do canvas")
         btn_delete.setStyleSheet(
-            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
+            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.ACCENT_DANGER}; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:rgba(211, 47, 47, 38); }}"
@@ -1386,7 +1223,7 @@ class _CenterPanel(QFrame):
         btn_fit.setToolTip("Ajustar view ao conteúdo")
         btn_fit.setCheckable(False)
         btn_fit.setStyleSheet(
-            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
+            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:{Colors.BG_PANEL}; }}"
@@ -1403,7 +1240,7 @@ class _CenterPanel(QFrame):
 
         # CADCanvas — sempre em modo select; pan via botão do meio
         self.canvas = CADCanvas()
-        # self.canvas.toolbar.setVisible(False)
+        self.canvas.toolbar.setVisible(False)
         self.canvas.set_edit_mode('select')
         comp_lay.addWidget(self.canvas, 1)
         self._tabs.addTab(completo_container, "Visualizador Projeto Completo")
@@ -1440,11 +1277,11 @@ class _CenterPanel(QFrame):
             b.setToolTip(tip)
             b.setCheckable(checkable)
             b.setStyleSheet(
-                f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
+                f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; "
                 f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
                 f"font-size:9px; padding:0 7px; }} "
                 f"QPushButton:hover {{ background:{Colors.BG_PANEL}; color:{Colors.TEXT_BRIGHT}; }} "
-                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color: white; }}"
+                f"QPushButton:checked {{ background:{Colors.ACCENT_BLUE}; color:#fff; }}"
             )
             return b
 
@@ -1453,7 +1290,7 @@ class _CenterPanel(QFrame):
         gbtn_delete.setCheckable(False)
         gbtn_delete.setToolTip("Remove entidades selecionadas do canvas granular")
         gbtn_delete.setStyleSheet(
-            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
+            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.ACCENT_DANGER}; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:rgba(211, 47, 47, 38); }}"
@@ -1464,7 +1301,7 @@ class _CenterPanel(QFrame):
         gbtn_save.setCheckable(False)
         gbtn_save.setToolTip("Salva o DXF granular atual (sobrescreve recorte)")
         gbtn_save.setStyleSheet(
-            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
+            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.ACCENT_SUCCESS}; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:rgba(67, 160, 71, 38); }}"
@@ -1475,7 +1312,7 @@ class _CenterPanel(QFrame):
         gbtn_fit.setCheckable(False)
         gbtn_fit.setToolTip("Ajustar view ao conteúdo")
         gbtn_fit.setStyleSheet(
-            f"QPushButton {{ color: white; background:{Colors.BG_CARD}; color: #FFFFFF; "
+            f"QPushButton {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; "
             f"font-size:9px; padding:0 7px; }} "
             f"QPushButton:hover {{ background:{Colors.BG_PANEL}; }}"
@@ -1493,7 +1330,7 @@ class _CenterPanel(QFrame):
 
         # CADCanvas granular — sempre em modo select; pan via botão do meio
         self.canvas_granular = CADCanvas()
-        # self.canvas_granular.toolbar.setVisible(False)
+        self.canvas_granular.toolbar.setVisible(False)
         self.canvas_granular.set_edit_mode('select')
         gran_lay.addWidget(self.canvas_granular, 1)
 
@@ -1506,55 +1343,12 @@ class _CenterPanel(QFrame):
         self.canvas_granular.keyPressEvent = self._canvas_granular_key_press
 
         # ── Tab 3 — Fichas Granulares [F5] ──
-        ficha_container = QWidget()
-        ficha_lay = QVBoxLayout(ficha_container)
-        ficha_lay.setContentsMargins(0, 0, 0, 0)
-        ficha_lay.setSpacing(0)
-
-        ficha_toolbar = QFrame()
-        ficha_toolbar.setFixedHeight(34)
-        ficha_toolbar.setStyleSheet(
-            f"background:{Colors.BG_SECONDARY}; border-bottom:1px solid {Colors.BORDER_DEFAULT};"
-        )
-        ficha_toolbar_lay = QHBoxLayout(ficha_toolbar)
-        ficha_toolbar_lay.setContentsMargins(8, 4, 8, 4)
-        ficha_toolbar_lay.setSpacing(6)
-
-        self._ficha_status = QLabel("Nenhuma ficha selecionada")
-        self._ficha_status.setStyleSheet(
-            f"color:{Colors.TEXT_DIM}; font-size:10px; font-weight:bold;"
-        )
-        ficha_toolbar_lay.addWidget(self._ficha_status)
-        ficha_toolbar_lay.addStretch()
-
-        self._btn_revoke_ficha = QPushButton("Revogar F5")
-        self._btn_revoke_ficha.setToolTip(
-            "Retira esta ficha do RAG global, preservando historico e tombstone TX."
-        )
-        self._btn_revoke_ficha.setEnabled(False)
-        self._btn_revoke_ficha.clicked.connect(
-            lambda: self.ficha_validation_requested.emit(False)
-        )
-        ficha_toolbar_lay.addWidget(self._btn_revoke_ficha)
-
-        self._btn_validate_ficha = QPushButton("Validar F5")
-        self._btn_validate_ficha.setToolTip(
-            "Confirma humanamente todos os campos exibidos e promove somente esta ficha para T1."
-        )
-        self._btn_validate_ficha.setEnabled(False)
-        self._btn_validate_ficha.clicked.connect(
-            lambda: self.ficha_validation_requested.emit(True)
-        )
-        ficha_toolbar_lay.addWidget(self._btn_validate_ficha)
-        ficha_lay.addWidget(ficha_toolbar)
-
         self._ficha_table = QTextEdit()
         self._ficha_table.setReadOnly(True)
         self._ficha_table.setStyleSheet(
-            f"background:{Surface.DEEP}; color:{Text.PRIMARY}; border:none;"
+            f"background:#0d1117; color:#c9d1d9; border:none;"
         )
-        ficha_lay.addWidget(self._ficha_table, 1)
-        self._tabs.addTab(ficha_container, "Fichas Granulares [F5]")
+        self._tabs.addTab(self._ficha_table, "Fichas Granulares [F5]")
         
         # ── Tab 4 — Ficha Pavimento/Classe [F4] ──
         self._pav_text = QTextEdit()
@@ -1563,7 +1357,7 @@ class _CenterPanel(QFrame):
             "Execute a geração de fichas para consolidar a ficha do pavimento atual."
         )
         self._pav_text.setStyleSheet(
-            f"background:{Colors.BG_CARD}; color: white; font-size:10px;"
+            f"background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; font-size:10px;"
         )
         self._tabs.addTab(self._pav_text, "Ficha Pavimento/Classe [F4]")
 
@@ -1574,7 +1368,7 @@ class _CenterPanel(QFrame):
             "Execute 'Gerar Fichas' para consolidar a ficha global da obra (Base N1)."
         )
         self._obra_text.setStyleSheet(
-            f"background:{Colors.BG_CARD}; color: white; font-size:10px;"
+            f"background:{Colors.BG_CARD}; color:{Colors.TEXT_PRIMARY}; font-size:10px;"
         )
         self._tabs.addTab(self._obra_text, "Ficha Obra ER [F6]")
 
@@ -1644,12 +1438,6 @@ class _CenterPanel(QFrame):
             return
 
         out_path = Path(self._granular_dxf_path)
-        old_hash = (
-            hashlib.sha256(out_path.read_bytes()).hexdigest()
-            if out_path.exists()
-            else ""
-        )
-        removed_count = len(self._granular_deleted)
 
         result = _CenterPanel.export_scene_to_dxf(self.canvas_granular, out_path)
         if result.get('error'):
@@ -1659,32 +1447,6 @@ class _CenterPanel(QFrame):
 
         self._granular_deleted.clear()
         n = result.get('entities_copied', 0)
-        try:
-            current_item = self._current_item if getattr(self, "_current_item", None) else {}
-            classe = str(current_item.get("classe") or "UNK")
-            item_id = str(
-                current_item.get("elemento_id")
-                or current_item.get("numero")
-                or out_path.stem
-            )
-            new_hash = hashlib.sha256(out_path.read_bytes()).hexdigest()
-            if old_hash != new_hash or removed_count:
-                save_human_edit_event(
-                    obra_id=getattr(self, "_current_obra", "") or _obra_name_from_path(out_path),
-                    classe=classe,
-                    item_id=item_id,
-                    fase_editada="CROP_EDIT",
-                    ui_context="DiagnosticReverseHub",
-                    estado_anterior={"dxf_sha256": old_hash},
-                    estado_novo={"dxf_sha256": new_hash, "entities_copied": n},
-                    # O hash anterior/novo e a contagem já registram a
-                    # evidência técnica; salvar não exige comentário manual.
-                    nota_usuario="",
-                    source_agent="diagnostic_reverse_hub",
-                    correlation_id=str(out_path.resolve()),
-                )
-        except Exception as exc:
-            print(f"[MCP] evidência de edição não registrada: {exc}")
         QMessageBox.information(
             self, "Salvar Granular",
             f"DXF salvo com sucesso.\n{n} entidade(s) · {out_path.name}"
@@ -1778,25 +1540,12 @@ class _CenterPanel(QFrame):
         proxy  = _DXFRenderProxy(canvas, thread, self._canvas_pending, parent=self)
         self._canvas_pending[canvas_id] = thread
 
-        def _cleanup_load(t=thread, w=worker, p=proxy,
-                          lt=self._dxf_threads, lw=self._dxf_workers, lp=self._dxf_proxies):
-            try:
-                if t in lt: lt.remove(t)
-                if w in lw: lw.remove(w)
-                if p in lp: lp.remove(p)
-            except Exception:
-                pass
-            try:
-                t.deleteLater()
-            except Exception:
-                pass
-
         thread.started.connect(worker.run)
         worker.finished.connect(proxy.on_loaded)
         worker.error.connect(proxy.on_error)
         worker.finished.connect(thread.quit)
         worker.error.connect(thread.quit)
-        thread.finished.connect(_cleanup_load)
+        thread.finished.connect(thread.deleteLater)
 
         self._dxf_threads.append(thread)
         self._dxf_workers.append(worker)
@@ -1835,70 +1584,26 @@ class _CenterPanel(QFrame):
         proxy  = _DXFRenderProxy(canvas, thread, self._canvas_pending, parent=self)
         self._canvas_pending[canvas_id] = thread
 
-        def _cleanup_gran(t=thread, w=worker, p=proxy,
-                          lt=self._dxf_threads, lw=self._dxf_workers, lp=self._dxf_proxies):
-            try:
-                if t in lt: lt.remove(t)
-                if w in lw: lw.remove(w)
-                if p in lp: lp.remove(p)
-            except Exception:
-                pass
-            try:
-                t.deleteLater()
-            except Exception:
-                pass
-
         thread.started.connect(worker.run)
         worker.finished.connect(proxy.on_loaded)
         worker.error.connect(proxy.on_error)
         worker.finished.connect(thread.quit)
         worker.error.connect(thread.quit)
-        thread.finished.connect(_cleanup_gran)
+        thread.finished.connect(thread.deleteLater)
 
         self._dxf_threads.append(thread)
         self._dxf_workers.append(worker)
         self._dxf_proxies.append(proxy)
         thread.start()
 
-    def load_ficha_granular(
-        self,
-        campos_json: str | None,
-        classe: str = '',
-        confianca: float = 0.0,
-        elemento_id: str = '',
-        context: dict | None = None,
-    ):
-        self._current_ficha_context = dict(context or {})
-        has_ficha = bool(campos_json and self._current_ficha_context.get("ficha_id"))
-        status = str(self._current_ficha_context.get("status") or "draft").lower()
-        self._btn_validate_ficha.setEnabled(has_ficha)
-        self._btn_revoke_ficha.setEnabled(
-            has_ficha and status in {"aprovado", "approved"}
-        )
-        if not has_ficha:
-            self._ficha_status.setText("Nenhuma ficha selecionada")
-            status_color = Colors.TEXT_DIM
-        elif status in {"aprovado", "approved"}:
-            indexed = bool(self._current_ficha_context.get("rag_indexed"))
-            self._ficha_status.setText(
-                f"T1 validada humanamente | RAG {'indexado' if indexed else 'pendente'}"
-            )
-            status_color = Colors.ACCENT_SUCCESS
-        elif status in {"revoked", "desvalidado", "invalidado"}:
-            self._ficha_status.setText("TX revogada | fora das consultas RAG")
-            status_color = Colors.ACCENT_DANGER
-        else:
-            self._ficha_status.setText("T0 em quarentena | revise antes de validar")
-            status_color = Colors.ACCENT_WARNING
-        self._ficha_status.setStyleSheet(
-            f"color:{status_color}; font-size:10px; font-weight:bold;"
-        )
+    def load_ficha_granular(self, campos_json: str | None,
+                             classe: str = '', confianca: float = 0.0, elemento_id: str = ''):
         if not campos_json:
             self._ficha_table.setHtml(
-                f'<html><body style="background:{Surface.DEEP};color:{Text.MUTED};font-family:monospace;padding:16px;">'
-                f'Nenhuma ficha disponível.<br>'
-                f'Execute <b style="color:{Accent.INTERACTIVE};">Gerar Fichas</b> para processar os recortes aprovados.'
-                f'</body></html>'
+                '<html><body style="background:#0d1117;color:#4a5568;font-family:monospace;padding:16px;">'
+                'Nenhuma ficha disponível.<br>'
+                'Execute <b style="color:#60a5fa;">Gerar Fichas</b> para processar os recortes aprovados.'
+                '</body></html>'
             )
             return
         try:
@@ -1912,10 +1617,10 @@ class _CenterPanel(QFrame):
     def load_ficha_pavimento_classe(self, resumo_json: str | None):
         if not resumo_json:
             self._pav_text.setHtml(
-                f'<html><body style="background:{Surface.DEEP};color:{Text.MUTED};font-family:monospace;padding:16px;">'
-                f'Nenhuma ficha F4 disponível para este pavimento/classe.<br>'
-                f'Execute <b style="color:{Accent.INTERACTIVE};">Gerar Fichas</b> para compilar os recortes.'
-                f'</body></html>'
+                '<html><body style="background:#0d1117;color:#4a5568;font-family:monospace;padding:16px;">'
+                'Nenhuma ficha F4 disponível para este pavimento/classe.<br>'
+                'Execute <b style="color:#60a5fa;">Gerar Fichas</b> para compilar os recortes.'
+                '</body></html>'
             )
             return
         # Apenas joga o JSON parseado de forma visual
@@ -1924,7 +1629,7 @@ class _CenterPanel(QFrame):
             data = json.loads(resumo_json)
             formatted = json.dumps(data, indent=2, ensure_ascii=False)
             self._pav_text.setHtml(
-                f'<html><body style="background:{Surface.DEEP};color:{Text.PRIMARY};font-family:monospace;padding:16px;"><pre>{formatted}</pre></body></html>'
+                f'<html><body style="background:#0d1117;color:#c9d1d9;font-family:monospace;padding:16px;"><pre>{formatted}</pre></body></html>'
             )
         except:
             self._pav_text.setPlainText(resumo_json)
@@ -1932,10 +1637,10 @@ class _CenterPanel(QFrame):
     def load_ficha_obra(self, resumo_json: str | None):
         if not resumo_json:
             self._obra_text.setHtml(
-                f'<html><body style="background:{Surface.DEEP};color:{Text.MUTED};font-family:monospace;padding:16px;">'
-                f'Nenhuma ficha da obra gerada.<br>'
-                f'Execute <b style="color:{Accent.INTERACTIVE};">Gerar Fichas</b> para processar todos os recortes aprovados.'
-                f'</body></html>'
+                '<html><body style="background:#0d1117;color:#4a5568;font-family:monospace;padding:16px;">'
+                'Nenhuma ficha da obra gerada.<br>'
+                'Execute <b style="color:#60a5fa;">Gerar Fichas</b> para processar todos os recortes aprovados.'
+                '</body></html>'
             )
             return
         try:
@@ -1949,157 +1654,78 @@ class _CenterPanel(QFrame):
 
     @staticmethod
     def export_scene_to_dxf(canvas: "CADCanvas", output_path: Path) -> dict:
-        """Exporta todos os itens visiveis da scene para DXF preservando 100% da fidelidade."""
+        """Itera QGraphicsScene e grava DXF via ezdxf (mesma lógica do DiagnosticHub)."""
         try:
             import ezdxf
-            
-            items_to_export = canvas.scene.items()
-            
-            source_path = getattr(canvas, 'source_dxf_path', None)
-            
-            if source_path and Path(source_path).exists():
-                print(f"[Export] Copiando por deleção de {source_path} para garantir fidelidade 100% (SCENE COMPLETA)")
-                doc = ezdxf.readfile(source_path)
-                msp = doc.modelspace()
-                
-                handles_to_keep = set()
-                manual_items = []
-                for item in items_to_export:
-                    # Pular itens invisíveis e itens de overlay (que nao tem data(0))
-                    if not item.isVisible(): continue
-                    data = item.data(0)
-                    if not data: continue
-                    
-                    ent = item.data(256)
-                    if ent is not None and hasattr(ent, 'dxf') and hasattr(ent.dxf, 'handle'):
-                        handles_to_keep.add(ent.dxf.handle)
-                    else:
-                        manual_items.append(item)
-                
-                to_delete = []
-                for entity in msp:
-                    if hasattr(entity.dxf, 'handle') and entity.dxf.handle not in handles_to_keep:
-                        to_delete.append(entity)
-                
-                for entity in to_delete:
-                    msp.delete_entity(entity)
-                    
-                n = len(handles_to_keep)
-                
-            else:
-                print(f"[Export] source_dxf_path ausente, caindo no fallback manual (SCENE COMPLETA)")
-                doc = ezdxf.new('R2010')
-                msp = doc.modelspace()
-                n = 0
-                manual_items = items_to_export
-                for item in items_to_export:
-                    if not item.isVisible(): continue
-                    data = item.data(0)
-                    if not data: continue
-                    
-                    ent = item.data(256)
-                    if ent is not None:
-                        ent_copy = ent.copy()
-                        msp.add_entity(ent_copy)
-                        n += 1
-                        continue
-
-            from PySide6.QtWidgets import QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem
-            for item in manual_items:
-                if item.data(256) is not None: continue # ja processado
-                data = item.data(0) or {}
+            doc = ezdxf.new('R2010')
+            msp = doc.modelspace()
+            n = 0
+            for item in canvas.scene.items():
+                # Pular snap markers, overlays e itens internos do canvas:
+                # — itens sem data(0) são snap markers / helpers criados diretamente
+                # — itens invisíveis são marcadores ocultos (snap, temp, etc.)
+                data = item.data(0)
+                if not data:
+                    continue
+                if not item.isVisible():
+                    continue
                 layer  = str(data.get('layer', '0') or '0')
                 aci    = data.get('aci', 256)
-                attribs = {'layer': layer}
+                attribs: dict = {'layer': layer}
                 if isinstance(aci, int) and aci not in (0, 256):
                     attribs['color'] = aci
+
                 if isinstance(item, QGraphicsLineItem):
                     ln = item.line()
                     msp.add_line((ln.x1(), ln.y1()), (ln.x2(), ln.y2()), dxfattribs=attribs)
                     n += 1
                 elif isinstance(item, QGraphicsPathItem):
                     path = item.path()
-                    for i in range(path.elementCount()-1):
-                        e1, e2 = path.elementAt(i), path.elementAt(i+1)
-                        if e1.isMoveTo() and e2.isLineTo() or e1.isLineTo() and e2.isLineTo():
-                            msp.add_line((e1.x, e1.y), (e2.x, e2.y), dxfattribs=attribs)
-                    n += 1
+                    pts = [(path.elementAt(i).x, path.elementAt(i).y)
+                           for i in range(path.elementCount())]
+                    if len(pts) >= 2:
+                        msp.add_polyline2d(pts, dxfattribs=attribs)
+                        n += 1
                 elif isinstance(item, QGraphicsEllipseItem):
-                    r = item.rect()
-                    center = r.center()
-                    radius = r.width() / 2
-                    msp.add_circle((center.x(), center.y()), radius, dxfattribs=attribs)
+                    rect = item.rect()
+                    cx, cy = rect.center().x(), rect.center().y()
+                    rw, rh = rect.width() / 2, rect.height() / 2
+                    if abs(rw - rh) < 0.5:
+                        msp.add_circle((cx, cy), (rw + rh) / 2, dxfattribs=attribs)
+                        n += 1
+                elif isinstance(item, QGraphicsSimpleTextItem):
+                    p = item.pos()
+                    h = float(data.get('height', 2.5) or 2.5)
+                    msp.add_text(item.text(),
+                                 dxfattribs={**attribs, 'height': h,
+                                             'insert': (p.x(), p.y())})
                     n += 1
-
             doc.saveas(str(output_path))
-            return {'success': True, 'entities_copied': n, 'file': str(output_path)}
+            return {'entities_copied': n}
         except Exception as e:
-            import traceback
-            traceback.print_exc()
             return {'error': str(e)}
 
     @staticmethod
     def export_selection_to_dxf(canvas: "CADCanvas", output_path: Path) -> dict:
-        """Exporta APENAS os itens selecionados na scene para DXF preservando 100% da fidelidade."""
+        """Exporta APENAS os itens selecionados na scene para DXF."""
         try:
             import ezdxf
             selected = canvas.scene.selectedItems()
+            # [FIX] Fallback para lista interna se scene foi limpa pelo QDialog.exec()
             if not selected:
-                selected = [i for i in getattr(canvas, 'selected_items', []) if i is not None]
+                selected = [i for i in canvas.selected_items if i is not None]
             if not selected:
                 return {'error': 'Nenhum item selecionado. Use box select no viewer antes de recortar.'}
-            
-            source_path = getattr(canvas, 'source_dxf_path', None)
-            
-            if source_path and Path(source_path).exists():
-                print(f"[Export] Copiando por deleção de {source_path} para garantir fidelidade 100%")
-                doc = ezdxf.readfile(source_path)
-                msp = doc.modelspace()
-                
-                handles_to_keep = set()
-                manual_items = []
-                for item in selected:
-                    if not item.isVisible(): continue
-                    ent = item.data(256)
-                    if ent is not None and hasattr(ent, 'dxf') and hasattr(ent.dxf, 'handle'):
-                        handles_to_keep.add(ent.dxf.handle)
-                    else:
-                        manual_items.append(item)
-                
-                # Deletar do modelspace original tudo que no est nos handles
-                to_delete = []
-                for entity in msp:
-                    if hasattr(entity.dxf, 'handle') and entity.dxf.handle not in handles_to_keep:
-                        to_delete.append(entity)
-                
-                for entity in to_delete:
-                    msp.delete_entity(entity)
-                    
-                n = len(handles_to_keep)
-                
-            else:
-                print(f"[Export] source_dxf_path ausente, caindo no fallback manual")
-                doc = ezdxf.new('R2010')
-                msp = doc.modelspace()
-                n = 0
-                manual_items = selected
-                for item in selected:
-                    if not item.isVisible(): continue
-                    ent = item.data(256)
-                    if ent is not None:
-                        ent_copy = ent.copy()
-                        msp.add_entity(ent_copy)
-                        n += 1
-                        continue
-
-            # Fallback para itens manuais (QGraphicsPathItem, etc adicionados pelo usuario)
-            from PySide6.QtWidgets import QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem
-            for item in manual_items:
-                if item.data(256) is not None: continue # ja processado
-                data = item.data(0) or {}
+            doc = ezdxf.new('R2010')
+            msp = doc.modelspace()
+            n = 0
+            for item in selected:
+                data = item.data(0)
+                if not data or not item.isVisible():
+                    continue
                 layer  = str(data.get('layer', '0') or '0')
                 aci    = data.get('aci', 256)
-                attribs = {'layer': layer}
+                attribs: dict = {'layer': layer}
                 if isinstance(aci, int) and aci not in (0, 256):
                     attribs['color'] = aci
                 if isinstance(item, QGraphicsLineItem):
@@ -2108,44 +1734,52 @@ class _CenterPanel(QFrame):
                     n += 1
                 elif isinstance(item, QGraphicsPathItem):
                     path = item.path()
-                    for i in range(path.elementCount()-1):
-                        e1, e2 = path.elementAt(i), path.elementAt(i+1)
-                        if e1.isMoveTo() and e2.isLineTo() or e1.isLineTo() and e2.isLineTo():
-                            msp.add_line((e1.x, e1.y), (e2.x, e2.y), dxfattribs=attribs)
-                    n += 1
+                    pts = [(path.elementAt(i).x, path.elementAt(i).y)
+                           for i in range(path.elementCount())]
+                    if len(pts) >= 2:
+                        msp.add_polyline2d(pts, dxfattribs=attribs)
+                        n += 1
                 elif isinstance(item, QGraphicsEllipseItem):
-                    r = item.rect()
-                    center = r.center()
-                    radius = r.width() / 2
-                    msp.add_circle((center.x(), center.y()), radius, dxfattribs=attribs)
+                    rect = item.rect()
+                    cx, cy = rect.center().x(), rect.center().y()
+                    rw, rh = rect.width() / 2, rect.height() / 2
+                    if abs(rw - rh) < 0.5:
+                        msp.add_circle((cx, cy), (rw + rh) / 2, dxfattribs=attribs)
+                        n += 1
+                elif isinstance(item, QGraphicsSimpleTextItem):
+                    p = item.pos()
+                    h = float(data.get('height', 2.5) or 2.5)
+                    msp.add_text(item.text(),
+                                 dxfattribs={**attribs, 'height': h,
+                                             'insert': (p.x(), p.y())})
                     n += 1
-
             doc.saveas(str(output_path))
-            return {'success': True, 'count': n, 'file': str(output_path)}
+            return {'entities_copied': n}
         except Exception as e:
-            import traceback
-            traceback.print_exc()
             return {'error': str(e)}
 
 
-# ── Widget de item de recorte (linha na lista do painel direito) ──────────────
+# ── Widget de item de recorte com badge de status ─────────────────────────────
 
 class _RecorteItemWidget(QWidget):
-    """Row widget shown inside QListWidget for each recorte granular.
+    """Item da lista de recortes: texto + badge confiança + badge status."""
 
-    Displays: text label | confidence badge | status badge.
-    """
-
-    _BASE_BADGE = (
-        "border-radius:3px; font-size:8px; font-weight:bold; padding:1px 2px;"
+    _STYLE_OK = (
+        "background:#0d2b0d; color:#4caf50; border:1px solid #4caf50; "
+        "border-radius:3px; font-size:8px; font-weight:bold; padding:0 3px;"
     )
-    _STYLE_CONF_NONE = f"background:{Border.STRONG}; color:{Text.SECONDARY}; {_BASE_BADGE}"
-    _STYLE_CONF_HIGH = f"background:{Semantic.SUCCESS_BG_DARK}; color: white; {_BASE_BADGE}"
-    _STYLE_CONF_MED  = f"background:{Semantic.WARNING_BG_DARK}; color: white; {_BASE_BADGE}"
-    _STYLE_CONF_LOW  = f"background:{Semantic.DANGER_BG_DARK}; color: white; {_BASE_BADGE}"
-    _STYLE_OK        = f"background:{Semantic.SUCCESS_BG_DARK}; color: white; {_BASE_BADGE}"
-    _STYLE_AUTO      = f"background:{Accent.INTERACTIVE}; color: white; {_BASE_BADGE}"
-    _STYLE_PEND      = f"background:{Border.DEFAULT}; color:{Text.SECONDARY}; {_BASE_BADGE}"
+    _STYLE_AUTO = (
+        "background:#1a2a0d; color:#8bc34a; border:1px solid #8bc34a; "
+        "border-radius:3px; font-size:8px; padding:0 3px;"
+    )
+    _STYLE_PEND = (
+        "background:transparent; color:#777; border:1px solid #444; "
+        "border-radius:3px; font-size:8px; padding:0 3px;"
+    )
+    _STYLE_CONF_HIGH  = "background:#0d2b0d; color:#4caf50; border:1px solid #4caf50; border-radius:3px; font-size:8px; font-weight:bold; padding:0 3px;"
+    _STYLE_CONF_MED   = "background:#2b2000; color:#ffb300; border:1px solid #ffb300; border-radius:3px; font-size:8px; padding:0 3px;"
+    _STYLE_CONF_LOW   = "background:#2b0000; color:#ef5350; border:1px solid #ef5350; border-radius:3px; font-size:8px; padding:0 3px;"
+    _STYLE_CONF_NONE  = "background:transparent; color:#555; border:1px solid #333; border-radius:3px; font-size:8px; padding:0 3px;"
 
     def __init__(
         self,
@@ -2164,7 +1798,7 @@ class _RecorteItemWidget(QWidget):
 
         self._lbl_text = QLabel(text)
         self._lbl_text.setStyleSheet(
-            f"color:{Text.SECONDARY}; font-size:9px; background:transparent;"
+            "color:#cccccc; font-size:9px; background:transparent;"
         )
         self._lbl_text.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         h.addWidget(self._lbl_text, 1)
@@ -2243,8 +1877,7 @@ class _RightPanel(QFrame):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setMinimumWidth(220)
-        self.setMaximumWidth(350)
+        self.setFixedWidth(250)
         self.setStyleSheet(f"background:{Colors.BG_SECONDARY}; border: none;")
 
         main_layout = QVBoxLayout(self)
@@ -2269,10 +1902,10 @@ class _RightPanel(QFrame):
             b = QPushButton(text)
             b.setFixedHeight(h)
             b.setStyleSheet(
-                f"QPushButton {{ color: white; background:{bg}; color: #FFFFFF; border-radius:3px; "
+                f"QPushButton {{ background:{bg}; color:#fff; border-radius:3px; "
                 f"font-size:9px; font-weight:bold; padding:2px 4px; }} "
                 f"QPushButton:hover {{ background:{hover}; }} "
-                f"QPushButton:disabled {{ background:{Colors.BORDER_DEFAULT}; color:white; }}"
+                f"QPushButton:disabled {{ background:{Colors.BORDER_DEFAULT}; color:{Colors.TEXT_DIM}; }}"
             )
             return b
 
@@ -2292,15 +1925,12 @@ class _RightPanel(QFrame):
         self.lst_recortes = QListWidget()
         self.lst_recortes.setStyleSheet(f"""
             QListWidget {{
-                background: {Colors.BG_DEEP}; color: white;
-                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
-                font-size: 10px;
+                background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY};
+                border:1px solid {Colors.BORDER_DEFAULT}; font-size:9px;
             }}
-            QListWidget::item {{ padding: 5px 8px; }}
-            QListWidget::item:selected {{
-                background: rgba(0, 180, 180, 51); color: {Colors.ACCENT_TEAL};
-            }}
-            QListWidget::item:hover {{ background: {Colors.BG_PANEL}; }}
+            QListWidget::item {{ padding:2px 4px; }}
+            QListWidget::item:selected {{ background:{Colors.ACCENT_BLUE}; color:{Colors.TEXT_BRIGHT}; }}
+            QListWidget::item:hover {{ background:{Colors.BG_CARD}; }}
         """)
         # currentItemChanged garante que setas do teclado também disparam o load
         self.lst_recortes.currentItemChanged.connect(
@@ -2311,216 +1941,136 @@ class _RightPanel(QFrame):
 
         lay.addWidget(self._sep())
 
-        # ── Seção: Ações ──
-        # Botão recorte manual
-        btn_rec = QPushButton("✂ Recortar")
-        btn_rec.setToolTip("Recortar — exporta todas as entidades visíveis do canvas")
-        btn_rec.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(180, 120, 0, 160); color: #FFFFFF;
-                border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
-                font-size: 11px; font-weight: bold; padding: 3px 6px;
-            }}
-            QPushButton:hover {{ background: rgba(180, 120, 0, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
-        """)
-        btn_rec.clicked.connect(self._on_recortar)
-        lay.addWidget(btn_rec)
+        # ── Seção: Ações (2 colunas para liberar espaço vertical na lista) ──
 
-        # Botão recorte por seleção
-        btn_rec_sel = QPushButton("✂ Recortar Seleção")
-        btn_rec_sel.setToolTip("Recortar Seleção — exporta apenas os itens selecionados (box select) do canvas")
-        btn_rec_sel.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(120, 60, 180, 160); color: #FFFFFF;
-                border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
-                font-size: 11px; font-weight: bold; padding: 3px 6px;
-            }}
-            QPushButton:hover {{ background: rgba(120, 60, 180, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
-        """)
+        def _row(*widgets):
+            fr = QFrame()
+            fr.setStyleSheet("background:transparent; border:none;")
+            rl = QHBoxLayout(fr)
+            rl.setContentsMargins(0, 0, 0, 0)
+            rl.setSpacing(4)
+            for w in widgets:
+                rl.addWidget(w)
+            return fr
+
+        # [✂ Recortar | ✂ Rec. Seleção]
+        btn_rec = _btn("✂ Recortar", "#1b3a6b", "#2a5ab0")
+        btn_rec.setToolTip("Recortar — exporta todas as entidades visíveis do canvas")
+        btn_rec.clicked.connect(self._on_recortar)
+
+        btn_rec_sel = _btn("✂ Rec. Seleção", "#4a1a7a", "#7a3ab0")
+        btn_rec_sel.setToolTip(
+            "Recortar Seleção — exporta apenas os itens selecionados (box select) do canvas"
+        )
         btn_rec_sel.clicked.connect(self._on_recortar_selecao)
-        lay.addWidget(btn_rec_sel)
+        lay.addWidget(_row(btn_rec, btn_rec_sel))
 
         lay.addWidget(self._sep())
 
         lbl_proc = QLabel("Processar Granulares:")
-        lbl_proc.setStyleSheet(f"color:{Colors.TEXT_SECONDARY}; font-size:10px; background:transparent;")
+        lbl_proc.setStyleSheet(f"color:{Colors.TEXT_DIM}; font-size:9px; background:transparent;")
         lay.addWidget(lbl_proc)
 
+        # [▶ Pilares | ▶ L.Vigas]  e  [▶ F.Vigas | ▶ Lajes]
         _cls_defs = [
-            ("PIL", "Pilares"), ("LV", "L.Vigas"), ("FV", "F.Vigas"), ("LAJ", "Lajes")
+            ("PIL", "Pilares",  "#1b3a6b", "#2a5ab0"),
+            ("LV",  "L.Vigas",  "#1a4a2a", "#2a7a4a"),
+            ("FV",  "F.Vigas",  "#4a2a00", "#8a5a00"),
+            ("LAJ", "Lajes",    "#4a002a", "#8a0050"),
         ]
-        proc_grid = QGridLayout()
-        proc_grid.setContentsMargins(0, 0, 0, 0)
-        proc_grid.setSpacing(4)
-        for i, (k, lbl) in enumerate(_cls_defs):
-            b = QPushButton(f"▶ {lbl}")
-            b.setToolTip(f"Processar Granulares {lbl}")
-            b.setStyleSheet(f"""
-                QPushButton {{ color: white;
-                    background: rgba(0, 180, 180, 160); color: #FFFFFF;
-                    border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
-                    font-size: 11px; font-weight: bold; padding: 3px 6px;
-                }}
-                QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-                QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
-            """)
-            b.clicked.connect(lambda _c, key=k: self._on_processar_cls(key))
-            proc_grid.addWidget(b, i // 2, i % 2)
-        lay.addLayout(proc_grid)
+        for (k0, l0, bg0, hv0), (k1, l1, bg1, hv1) in zip(_cls_defs[::2], _cls_defs[1::2]):
+            b0 = _btn(f"▶ {l0}", bg0, hv0)
+            b0.setToolTip(f"Processar Granulares {l0}")
+            b0.clicked.connect(lambda _c, k=k0: self._on_processar_cls(k))
+            b1 = _btn(f"▶ {l1}", bg1, hv1)
+            b1.setToolTip(f"Processar Granulares {l1}")
+            b1.clicked.connect(lambda _c, k=k1: self._on_processar_cls(k))
+            lay.addWidget(_row(b0, b1))
 
-        # ⚡ Processar toda a Obra
-        btn_tudo = QPushButton("⚡ Processar toda a Obra (Auto)")
+        # ⚡ Processar toda a Obra (largura total)
+        btn_tudo = _btn("⚡ Processar toda a Obra\n(todos pavs × classes)", "#3a1a5a", "#5a2a8a", h=32)
         btn_tudo.setToolTip(
-            "Roda PIL/LV/FV/LAJ em todos os pavimentos aprovados da obra.\\n"
+            "Roda PIL/LV/FV/LAJ em todos os pavimentos aprovados da obra.\n"
             "Cada classe usa o DXF correto automaticamente."
         )
-        btn_tudo.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(0, 180, 180, 160); color: #FFFFFF;
-                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
-                font-size: 11px; font-weight: bold; padding: 3px 6px;
-            }}
-            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
-        """)
         btn_tudo.clicked.connect(self._on_processar_tudo)
         lay.addWidget(btn_tudo)
 
-        # 📋 Gerar Fichas
-        btn_ficha = QPushButton("📋 Gerar Fichas [F4] [F5] [F6]")
+        # 📋 Gerar Fichas (largura total)
+        btn_ficha = _btn(
+            "📋 Gerar Fichas\n[F4-Pavimentos] [F5-Granulares]\ne [F6-Obra ER]", "#1a3a1a", "#2a6a2a", h=50
+        )
         btn_ficha.setToolTip(
-            "Processa todos os itens aprovados para gerar simultaneamente:\\n"
-            "- Fichas Granulares (F5) N2 para cada recorte\\n"
-            "- Fichas de Pavimentos (F4) agrupadas por classe\\n"
+            "Processa todos os itens aprovados para gerar simultaneamente:\n"
+            "- Fichas Granulares (F5) N2 para cada recorte\n"
+            "- Fichas de Pavimentos (F4) agrupadas por classe\n"
             "- Ficha Obra Engenharia Reversa (F6) consolidada global"
         )
-        btn_ficha.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(0, 180, 180, 160); color: #FFFFFF;
-                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
-                font-size: 11px; font-weight: bold; padding: 3px 6px;
-            }}
-            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
-        """)
         btn_ficha.clicked.connect(self._on_gerar_ficha)
         lay.addWidget(btn_ficha)
 
         lay.addWidget(self._sep())
 
-        # ── Ajustar Classe ──────────────────────
+        # ── Ajustar Classe (radios em grid 2×2) ──────────────────────
         lbl_cls_adj = QLabel("Ajustar Classe:")
         lbl_cls_adj.setStyleSheet(
-            f"color:{Colors.TEXT_SECONDARY}; font-size:10px; background:transparent;"
+            f"color:{Colors.TEXT_DIM}; font-size:9px; background:transparent;"
         )
         lay.addWidget(lbl_cls_adj)
 
-        self._cls_radios: dict[str, QPushButton] = {}
+        cls_frame = QFrame()
+        cls_frame.setStyleSheet(
+            f"background:{Colors.BG_CARD}; border:1px solid {Colors.BORDER_DEFAULT}; "
+            f"border-radius:4px;"
+        )
+        cls_grid = QGridLayout(cls_frame)
+        cls_grid.setContentsMargins(6, 3, 6, 3)
+        cls_grid.setSpacing(2)
+
+        self._cls_radios: dict[str, QRadioButton] = {}
         self._cls_group = QButtonGroup(self)
-        self._cls_group.setExclusive(True)
-
-        cls_rows = [QHBoxLayout(), QHBoxLayout()]
-        for r in cls_rows:
-            r.setSpacing(4)
-            lay.addLayout(r)
-
-        _cls_colors = {
-            "PIL": Contextual.PURPLE,
-            "LV": Colors.ACCENT_TEAL,
-            "FV": Accent.PRIMARY,
-            "LAJ": Contextual.GOLD,
-        }
+        rb_style = (
+            f"QRadioButton {{ color:{Colors.TEXT_PRIMARY}; font-size:10px; "
+            f"background:transparent; }}"
+            f"QRadioButton::indicator {{ width:12px; height:12px; }}"
+            f"QRadioButton::indicator:checked {{ background:{Colors.ACCENT_BLUE}; "
+            f"border:2px solid {Colors.ACCENT_BLUE}; border-radius:6px; }}"
+            f"QRadioButton::indicator:unchecked {{ background:transparent; "
+            f"border:2px solid {Colors.BORDER_DEFAULT}; border-radius:6px; }}"
+        )
         for i, (key, label) in enumerate(_CLASSES):
-            btn = QPushButton(label)
-            btn.setCheckable(True)
-            btn.setFixedHeight(24)
-            cls_color = _cls_colors.get(key, Colors.TEXT_SECONDARY)
-            btn.setStyleSheet(f"""
-                QPushButton {{ color: white;
-                    background: transparent; color: #FFFFFF;
-                    border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 12px;
-                    font-size: 10px; font-weight: normal;
-                }}
-                QPushButton:hover {{ border-color: {cls_color}; }}
-                QPushButton:checked {{
-                    background: {cls_color}; color: {Colors.TEXT_BRIGHT};
-                    border: 1px solid {cls_color}; font-weight: bold;
-                }}
-                QPushButton:disabled {{ color: white; border-color: white; }}
-            """)
-            self._cls_group.addButton(btn, i)
-            self._cls_radios[key] = btn
-            cls_rows[i // 2].addWidget(btn)
+            rb = QRadioButton(label)
+            rb.setStyleSheet(rb_style)
+            self._cls_group.addButton(rb, i)
+            self._cls_radios[key] = rb
+            cls_grid.addWidget(rb, i // 2, i % 2)
+
+        lay.addWidget(cls_frame)
 
         lay.addWidget(self._sep())
 
-        # Botão salvar estado do viewer
-        btn_salvar = QPushButton("💾 Salvar")
-        btn_salvar.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(0, 180, 180, 160); color: #FFFFFF;
-                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
-                font-size: 10px; font-weight: bold; padding: 4px 8px;
-            }}
-            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
-        """)
+        # [💾 Salvar | 🗑 Excluir]
+        btn_salvar  = _btn("💾 Salvar",  Colors.ACCENT_BLUE,   Colors.ACCENT_BLUE_HOVER)
+        btn_excluir = _btn("🗑 Excluir", Colors.ACCENT_DANGER,  "rgba(211, 47, 47, 1)")
         btn_salvar.clicked.connect(self._on_salvar)
-        lay.addWidget(btn_salvar)
-
-        btn_row = QHBoxLayout()
-        btn_row.setSpacing(4)
-
-        btn_aprovar = QPushButton("✓ Aprovar")
-        btn_aprovar.setToolTip(
-            "Aprova somente o recorte com revisão humana.\\n"
-            "Ensina o recortador por classe; não valida F5/N2 nem N4."
-        )
-        btn_aprovar.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(0, 200, 120, 160); color: #FFFFFF;
-                border: 1px solid {{Colors.ACCENT_SUCCESS_ALT}}; border-radius: 4px;
-                font-size: 10px; font-weight: bold; padding: 4px 8px;
-            }}
-            QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {{Colors.TEXT_DIM}}; }}
-        """)
-        btn_aprovar.clicked.connect(self._on_aprovar)
-        btn_row.addWidget(btn_aprovar)
-
-        btn_excluir = QPushButton("🗑 Excluir")
-        btn_excluir.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(255, 80, 80, 160); color: #FFFFFF;
-                border: 1px solid {{Colors.ACCENT_DANGER}}; border-radius: 4px;
-                font-size: 10px; font-weight: bold; padding: 4px 8px;
-            }}
-            QPushButton:hover {{ background: rgba(255, 80, 80, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {{Colors.TEXT_DIM}}; }}
-        """)
         btn_excluir.clicked.connect(self._on_excluir)
-        btn_row.addWidget(btn_excluir)
-        lay.addLayout(btn_row)
+        lay.addWidget(_row(btn_salvar, btn_excluir))
 
-        btn_auto_aprovar = QPushButton("⚡ Aprovar tudo ≥ 90%")
+        # ⚡ Aprovar tudo ≥ 90% (largura total)
+        btn_auto_aprovar = _btn("⚡ Aprovar tudo ≥ 90%", "#1a4a1a", "#2a7a2a", h=26)
         btn_auto_aprovar.setToolTip(
-            "Aprova automaticamente todos os recortes com confiança ≥ 90%.\\n"
-            "⚠️ Estes NÃO são usados como dados de treino.\\n"
+            "Aprova automaticamente todos os recortes com confiança ≥ 90%.\n"
+            "⚠️ Estes NÃO são usados como dados de treino.\n"
             "Use apenas para avançar — revisão humana 1-a-1 gera dados reais."
         )
-        btn_auto_aprovar.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(0, 200, 120, 160); color: #FFFFFF;
-                border: 1px solid {{Colors.ACCENT_SUCCESS_ALT}}; border-radius: 4px;
-                font-size: 11px; font-weight: bold; padding: 4px 8px;
-            }}
-            QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {{Colors.TEXT_DIM}}; }}
-        """)
         btn_auto_aprovar.clicked.connect(self._on_aprovar_auto)
         lay.addWidget(btn_auto_aprovar)
+
+        # ✅ Aprovar (largura total)
+        btn_aprovar = _btn("✅ Aprovar", Colors.ACCENT_SUCCESS, "rgba(67, 160, 71, 1)")
+        btn_aprovar.setToolTip("Aprova este recorte com revisão humana — gera dado de treino autêntico.")
+        btn_aprovar.clicked.connect(self._on_aprovar)
+        lay.addWidget(btn_aprovar)
 
         lay.addWidget(self._sep())
 
@@ -2663,7 +2213,7 @@ class _RightPanel(QFrame):
         dialog = QDialog(self)
         dialog.setWindowTitle(title)
         dialog.setMinimumWidth(340)
-        dialog.setStyleSheet(f"background:{Colors.BG_PANEL}; color: white;")
+        dialog.setStyleSheet(f"background:{Colors.BG_PANEL}; color:{Colors.TEXT_PRIMARY};")
         dlg_lay = QVBoxLayout(dialog)
         dlg_lay.setSpacing(10)
 
@@ -2672,7 +2222,7 @@ class _RightPanel(QFrame):
         le_id = QLineEdit()
         le_id.setPlaceholderText("ex: PIL-01, VIG-A3, LAJ-P02…")
         le_id.setStyleSheet(
-            f"background:{Colors.BG_DEEP}; color: white; "
+            f"background:{Colors.BG_DEEP}; color:{Colors.TEXT_PRIMARY}; "
             f"border:1px solid {Colors.BORDER_DEFAULT}; border-radius:3px; padding:4px;"
         )
         dlg_lay.addWidget(le_id)
@@ -2687,7 +2237,7 @@ class _RightPanel(QFrame):
         cls_row.setContentsMargins(8, 6, 8, 6)
         cls_row.setSpacing(12)
 
-        _cls_colors = {"PIL": Accent.INTERACTIVE, "LV": Semantic.SUCCESS, "FV": Semantic.WARNING, "LAJ": Contextual.MAGENTA}
+        _cls_colors = {"PIL": "#7ab3e0", "LV": "#4caf50", "FV": "#ff9800", "LAJ": "#e91e63"}
         rb_group = QButtonGroup(dialog)
         radios = {}
         for i, (key, label) in enumerate(_CLASSES):
@@ -2942,20 +2492,10 @@ class _FichaMotorWorker(QObject):
         # --- BLOCO DE PRESERVAÇÃO DE INTEGRIDADE ---
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT campos_json, COALESCE(status,'draft'), COALESCE(rag_indexed,0)
-            FROM reverse_eng_fichas
+            SELECT campos_json FROM reverse_eng_fichas
             WHERE obra_name=? AND pavimento=? AND classe=? AND elemento_id=?
         """, (obra_name, pavimento, classe, elemento_id))
         row = cursor.fetchone()
-
-        # F5 aprovada é imutável. Para corrigir: revogar -> reextrair -> revalidar.
-        if row and str(row[1] or "").lower() in {"aprovado", "approved"}:
-            print(
-                f"[F5-IMMUTABLE] {obra_name}/{pavimento}/{classe}/{elemento_id} "
-                "preservada; revogue antes de reextrair."
-            )
-            conn.close()
-            return
         
         if row and row[0]:
             try:
@@ -2994,7 +2534,6 @@ class _FichaMotorWorker(QObject):
                 campos_json=excluded.campos_json,
                 confianca=excluded.confianca,
                 recorte_path=excluded.recorte_path,
-                rag_indexed=0,
                 updated_at=excluded.updated_at
         """, (projeto_id, obra_name, pavimento, classe, elemento_id,
               campos_json, recorte_path, confianca,
@@ -3034,31 +2573,30 @@ class DiagnosticReverseHub(QWidget):
         self._selected_proj_id: str = ""
         self._selected_dxf_path: str = ""
 
-        self.setStyleSheet(f"background:{Colors.BG_PRIMARY};")
+        self.setStyleSheet(f"background:{Colors.BG_DEEP};")
 
         root = QHBoxLayout(self)
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(0)
 
-        # ── Divisor central ──────────────────────────────────────────
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.setHandleWidth(4)
-        splitter.setStyleSheet(
-            f"QSplitter::handle {{ background:{Colors.BORDER_DEFAULT}; }}"
-        )
-
         # ── Painel Esquerdo ───────────────────────────────────────────
         self._left = _LeftPanel()
         self._left.item_selected.connect(self._on_item_selected)
         self._left.obra_changed.connect(lambda obra: setattr(self, '_current_obra', obra))
-        splitter.addWidget(self._left)
+        root.addWidget(self._left)
+
+        # ── Divisor central ──────────────────────────────────────────
+        splitter = QSplitter(Qt.Horizontal)
+        splitter.setHandleWidth(2)
+        splitter.setStyleSheet(
+            f"QSplitter::handle {{ background:{Colors.BORDER_DEFAULT}; }}"
+        )
 
         # ── Painel Central ────────────────────────────────────────────
         self._center = _CenterPanel()
-        self._center.ficha_validation_requested.connect(
-            self._on_ficha_validation_requested
-        )
         splitter.addWidget(self._center)
+
+        root.addWidget(splitter, 1)
 
         # ── Painel Direito ────────────────────────────────────────────
         self._right = _RightPanel()
@@ -3077,10 +2615,7 @@ class DiagnosticReverseHub(QWidget):
         self._right.processar_cls.connect(self._on_processar_cls)
         self._right.processar_tudo.connect(self._on_processar_tudo)
         self._right.gerar_ficha_requested.connect(self._on_gerar_ficha)
-        splitter.addWidget(self._right)
-
-        splitter.setSizes([240, 700, 260])
-        root.addWidget(splitter, 1)
+        root.addWidget(self._right)
 
         # Worker de motor (para não bloquear UI)
         self._motor_worker: QThread | None = None
@@ -3091,25 +2626,15 @@ class DiagnosticReverseHub(QWidget):
 
     def _on_recorte_selected_wrapper(self, dxf_path: str):
         from PySide6.QtCore import Qt
-        obra_name = self._current_obra or getattr(self._left, '_current_obra', '')
-
-        # Masterplan OBRAS DRIVE: download sob demanda — no-op pra qualquer
-        # obra local (só age se obra_name for espelhada do Drive).
-        try:
-            from src.core.database import DatabaseManager
-            from src.core.drive_download_hook import garantir_drive_download
-            garantir_drive_download(DatabaseManager(db_path=DB_PATH), obra_name, dxf_path)
-        except Exception as e:
-            print(f"[DiagnosticReverseHub] Falha no download sob demanda: {e}", flush=True)
-
         # 1. Carrega o DXF no canvas central
         self._center.load_dxf_granular(dxf_path)
-
+        
         # 2. Obtem os dados do recorte clicado para carregar a Ficha N2 (F5) e o Pavimento (F4)
         selected = self._right.lst_recortes.currentItem()
         if selected:
             elem_id = selected.data(Qt.UserRole + 2)
             classe = selected.data(Qt.UserRole + 1) or ''
+            obra_name = self._current_obra or getattr(self._left, '_current_obra', '')
             if elem_id and obra_name:
                 self._load_ficha_for_elemento(elem_id, obra_name, classe)
 
@@ -3145,15 +2670,6 @@ class DiagnosticReverseHub(QWidget):
     def _on_item_selected(self, obra_name: str, proj_id: str, dxf_path: str):
         self._selected_proj_id  = proj_id
         self._selected_dxf_path = dxf_path
-
-        # Masterplan OBRAS DRIVE: download sob demanda — no-op pra qualquer
-        # obra local (só age se obra_name for espelhada do Drive).
-        try:
-            from src.core.database import DatabaseManager
-            from src.core.drive_download_hook import garantir_drive_download
-            garantir_drive_download(DatabaseManager(db_path=DB_PATH), obra_name, dxf_path)
-        except Exception as e:
-            print(f"[DiagnosticReverseHub] Falha no download sob demanda: {e}", flush=True)
 
         # Tab 1: DXF completo
         self._center.load_dxf_completo(dxf_path)
@@ -3384,9 +2900,6 @@ class DiagnosticReverseHub(QWidget):
         if not recorte_path:
             QMessageBox.warning(self, "Aviso", "Item sem caminho de arquivo associado.")
             return
-        recorte_file = Path(recorte_path)
-        old_hash = hashlib.sha256(recorte_file.read_bytes()).hexdigest() if recorte_file.exists() else ""
-        old_cls = str(current.data(Qt.UserRole + 1) or "")
 
         # Descobrir qual radio está marcado
         new_cls = None
@@ -3433,23 +2946,6 @@ class DiagnosticReverseHub(QWidget):
 
         # Se há edições DXF pendentes no Visualizador Granular → salvar junto
         self._center._save_granular_dxf_silent()
-        try:
-            new_hash = hashlib.sha256(recorte_file.read_bytes()).hexdigest() if recorte_file.exists() else ""
-            if old_cls != new_cls or old_hash != new_hash:
-                save_human_edit_event(
-                    obra_id=obra_name,
-                    classe=new_cls,
-                    item_id=str(elem_id or recorte_file.stem),
-                    fase_editada="CROP_EDIT",
-                    ui_context="DiagnosticReverseHub",
-                    estado_anterior={"classe": old_cls, "dxf_sha256": old_hash},
-                    estado_novo={"classe": new_cls, "dxf_sha256": new_hash},
-                    nota_usuario="",
-                    source_agent="diagnostic_reverse_hub",
-                    correlation_id=str(recorte_file.resolve()),
-                )
-        except Exception as exc:
-            print(f"[MCP] evidência de recorte não registrada: {exc}")
         _record_laj_learning_event(
             "human_saved",
             obra_name=obra_name,
@@ -3461,11 +2957,7 @@ class DiagnosticReverseHub(QWidget):
         )
 
     def _on_aprovar(self):
-        """Aprova 1-a-1 com revisão humana.
-
-        Este ato valida somente o recorte e alimenta crop learning. Ele nao
-        valida campos F5/N2, nao valida N4 e nao promove ficha para T1.
-        """
+        """Aprova 1-a-1 com revisão humana — este recorte ENTRA nos dados de treino."""
         lst = self._right.lst_recortes
         current = lst.currentItem()
         if current is None:
@@ -3483,8 +2975,7 @@ class DiagnosticReverseHub(QWidget):
             return
         self._current_obra = obra_name
 
-        # status='aprovado' = revisão humana autentica do recorte.
-        # Nao implica validacao de F5/N2 nem promocao para RAG global de fichas.
+        # status='aprovado' = revisão humana autêntica → usado em treino
         _db_execute(
             "UPDATE reverse_eng_recortes SET status='aprovado', obra_name=? WHERE recorte_path=?",
             (obra_name, recorte_path)
@@ -3496,16 +2987,6 @@ class DiagnosticReverseHub(QWidget):
 
         elem_id = current.data(Qt.UserRole + 2) or ""
         classe = current.data(Qt.UserRole + 1) or ""
-        crop_event_id = _record_generic_crop_learning_event(
-            obra_name=obra_name,
-            elemento_id=elem_id,
-            classe=classe,
-            recorte_path=recorte_path,
-            notes="human_reviewed_crop_approval",
-            metadata={"source": "diagnostic_reverse_hub._on_aprovar"},
-        )
-        if crop_event_id:
-            print(f"[CROP-LEARNING] approved crop event: {crop_event_id}")
         _record_laj_learning_event(
             "human_approved",
             obra_name=obra_name,
@@ -3762,8 +3243,7 @@ class DiagnosticReverseHub(QWidget):
         extra_cls = "AND classe=?" if classe else ""
         params_with_cls = (obra_name, id_or_elem, classe) if classe else (obra_name, id_or_elem)
         rows = _db_query(
-            f"SELECT id, campos_json, classe, confianca, recorte_path, status, "
-            f"COALESCE(rag_indexed,0), obra_name, pavimento FROM reverse_eng_fichas "
+            f"SELECT campos_json, classe, confianca FROM reverse_eng_fichas "
             f"WHERE (obra_name=? OR obra_name='') AND elemento_id=? {extra_cls} "
             f"ORDER BY CASE WHEN obra_name=? THEN 0 ELSE 1 END, updated_at DESC LIMIT 1",
             (*params_with_cls, obra_name)
@@ -3771,131 +3251,20 @@ class DiagnosticReverseHub(QWidget):
         if not rows:
             # Fallback: proj_id numerico (legado)
             rows = _db_query(
-                "SELECT id, campos_json, classe, confianca, recorte_path, status, "
-                "COALESCE(rag_indexed,0), obra_name, pavimento FROM reverse_eng_fichas "
+                "SELECT campos_json, classe, confianca FROM reverse_eng_fichas "
                 "WHERE projeto_id=? ORDER BY updated_at DESC LIMIT 1",
                 (id_or_elem,)
             )
         if rows:
-            (
-                ficha_id,
-                campos_json,
-                db_cls,
-                db_conf,
-                recorte_path,
-                status,
-                rag_indexed,
-                db_obra,
-                pavimento,
-            ) = rows[0]
+            campos_json, db_cls, db_conf = rows[0]
             self._center.load_ficha_granular(
                 campos_json,
                 classe=classe or (db_cls or ''),
                 confianca=float(db_conf or 0.0),
                 elemento_id=id_or_elem,
-                context={
-                    "ficha_id": ficha_id,
-                    "obra_name": db_obra or obra_name,
-                    "pavimento": pavimento,
-                    "classe": classe or (db_cls or ""),
-                    "elemento_id": id_or_elem,
-                    "recorte_path": recorte_path,
-                    "status": status,
-                    "rag_indexed": rag_indexed,
-                },
             )
         else:
             self._center.load_ficha_granular(None)
-
-    def _on_ficha_validation_requested(self, validate: bool):
-        """Aplica validação/revogação humana exclusivamente à ficha F5 selecionada."""
-        context = dict(self._center._current_ficha_context or {})
-        if not context.get("ficha_id"):
-            QMessageBox.warning(self, "Ficha F5", "Selecione uma ficha granular primeiro.")
-            return
-
-        if validate:
-            answer = QMessageBox.question(
-                self,
-                "Validar ficha F5",
-                "Confirma que revisou os campos exibidos desta ficha N2/F5?\n\n"
-                "Somente esta ficha será promovida para T1 e poderá ensinar o RAG global.",
-                QMessageBox.Yes | QMessageBox.No,
-                QMessageBox.No,
-            )
-            if answer != QMessageBox.Yes:
-                return
-            try:
-                from rag_validation_events import record_reverse_hub_approval
-
-                result = record_reverse_hub_approval(
-                    obra_name=context["obra_name"],
-                    classe=context["classe"],
-                    elemento_id=context["elemento_id"],
-                    recorte_path=context.get("recorte_path") or "",
-                    db_path=DB_PATH,
-                    auto_index=True,
-                    validation_origin="human_ui",
-                )
-            except Exception as exc:
-                QMessageBox.critical(self, "Validar ficha F5", str(exc))
-                return
-            if result.get("status") != "promoted_t1":
-                QMessageBox.warning(
-                    self,
-                    "Validar ficha F5",
-                    f"A ficha não foi promovida: {result}",
-                )
-                return
-            message = "Ficha promovida para T1."
-            if result.get("index_error"):
-                message += "\nA indexação ficou pendente: " + str(result["index_error"])
-            elif result.get("indexed"):
-                message += "\nÍndice global atualizado para esta ficha."
-            QMessageBox.information(self, "Validar ficha F5", message)
-        else:
-            reason, ok = QInputDialog.getText(
-                self,
-                "Revogar ficha F5",
-                "Motivo da revogação humana:",
-            )
-            reason = str(reason or "").strip()
-            if not ok or not reason:
-                return
-            try:
-                from rag_validation_events import record_reverse_hub_revocation
-
-                result = record_reverse_hub_revocation(
-                    obra_name=context["obra_name"],
-                    classe=context["classe"],
-                    elemento_id=context["elemento_id"],
-                    recorte_path=context.get("recorte_path"),
-                    reason=reason,
-                    db_path=DB_PATH,
-                    validation_origin="human_ui",
-                )
-            except Exception as exc:
-                QMessageBox.critical(self, "Revogar ficha F5", str(exc))
-                return
-            if result.get("status") != "revoked_tx":
-                QMessageBox.warning(
-                    self,
-                    "Revogar ficha F5",
-                    f"A ficha não foi revogada: {result}",
-                )
-                return
-            QMessageBox.information(
-                self,
-                "Revogar ficha F5",
-                "Ficha marcada como TX e removida das consultas RAG. "
-                "O histórico foi preservado.",
-            )
-
-        self._load_ficha_for_elemento(
-            context["elemento_id"],
-            context["obra_name"],
-            context["classe"],
-        )
 
     def _on_excluir(self):
         """Exclui o recorte selecionado na lista direita (reverse_eng_recortes + arquivo físico)."""
@@ -3920,16 +3289,6 @@ class DiagnosticReverseHub(QWidget):
         )
         if resp != QMessageBox.Yes:
             return
-
-        # Revoga primeiro qualquer exemplo que este recorte tenha ensinado.
-        revoked_learning = _revoke_crop_learning_events_for_recorte(
-            recorte_path,
-            reason="human_deleted_or_invalidated_crop",
-            revoked_by="human_ui",
-            db_path=DB_PATH,
-        )
-        if revoked_learning:
-            print(f"[CROP-LEARNING] revoked {revoked_learning} event(s) for {recorte_path}")
 
         # 1. Remover do banco de dados
         _db_execute(

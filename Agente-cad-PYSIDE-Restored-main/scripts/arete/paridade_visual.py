@@ -257,12 +257,6 @@ SKIP_LAYERS_G2: dict[str, set] = {
         "CONCRETO", "detalhes",
         # FV-específico:
         "SARR_EDITAR",   # sarrafos de edição manual (layer recorte humano, N4 não reproduz)
-        # Vigas estreitas (semântica adicionada ao gerador em 26/06/2026, pós-selagem do
-        # golden de 25/06): 10≤b≤14cm → sarrafo na layer SARR_5cm; b<10cm → contorno
-        # LWPOLYLINE na layer SARR_CONTORNO_10cm. São layers-padrão do robô (mesma
-        # categoria sarrafo das variantes acima); conteúdo verificado via G1 + PNG,
-        # como as demais SARR_*. Sem isto, toda viga b≤14 falha G2 com ref=0.
-        "SARR_5cm", "SARR_CONTORNO_10cm",
         # Painéis FV: REF usa LINEs de divisão + TEXTs de dimensão por painel,
         # N4 usa LWPOLYLINEs fechadas — formato estruturalmente diferente.
         # Geometria e propriedades verificadas via G1 (round-trip) + PNG visual.
@@ -451,66 +445,29 @@ def _collect_dxf_segments(dxf_path: str | Path):
     segments = []
     texts    = []
     all_xs, all_ys = [], []
-    admin_layers = {"folhas", "carimbo", "carimbo_layer"}
 
     for e in msp:
         layer = _safe_layer(e)
-        if layer.strip().lower() in admin_layers:
-            continue
         dt    = e.dxftype()
         try:
             if dt == "LINE":
                 s, en = e.dxf.start, e.dxf.end
                 xs, ys = [s.x, en.x], [s.y, en.y]
-                if any(x < -5000 for x in xs):
-                    continue
                 segments.append((xs, ys, layer))
                 all_xs.extend(xs); all_ys.extend(ys)
             elif dt in ("LWPOLYLINE", "POLYLINE"):
                 pts = list(e.get_points())
                 xs  = [p[0] for p in pts]
                 ys  = [p[1] for p in pts]
-                if any(x < -5000 for x in xs):
-                    continue
                 if e.closed and pts:
                     xs.append(xs[0]); ys.append(ys[0])
                 segments.append((xs, ys, layer))
                 all_xs.extend(xs); all_ys.extend(ys)
             elif dt in ("TEXT", "MTEXT"):
                 ins = e.dxf.insert
-                if ins.x < -5000:
-                    continue
-                txt = e.dxf.text if dt == "TEXT" else e.plain_text()
+                txt = e.dxf.text if dt == "TEXT" else e.plain_mtext()
                 texts.append((ins.x, ins.y, txt[:20]))
                 all_xs.append(ins.x); all_ys.append(ins.y)
-            elif dt == "DIMENSION":
-                # A cota DXF e uma entidade composta: suas linhas e texto vivem
-                # nas virtual_entities(). Sem isso o G2-V/G5-V fica cego para
-                # valores e posicionamento de cotas.
-                for virtual in e.virtual_entities():
-                    vdt = virtual.dxftype()
-                    if vdt == "LINE":
-                        start, end = virtual.dxf.start, virtual.dxf.end
-                        if start.x < -5000 or end.x < -5000:
-                            continue
-                        segments.append(([start.x, end.x], [start.y, end.y], layer))
-                        all_xs.extend((start.x, end.x)); all_ys.extend((start.y, end.y))
-                    elif vdt == "TEXT":
-                        ins = virtual.dxf.insert
-                        if ins.x < -5000:
-                            continue
-                        texts.append((ins.x, ins.y, virtual.dxf.text[:20]))
-                        all_xs.append(ins.x); all_ys.append(ins.y)
-                midpoint = e.dxf.get("text_midpoint")
-                if midpoint is not None and midpoint.x >= -5000:
-                    text = str(e.dxf.get("text", "")).strip()
-                    if text in ("", "<>"):
-                        measurement = e.get_measurement()
-                        if isinstance(measurement, (int, float)):
-                            text = f"{float(measurement):.3f}".rstrip("0").rstrip(".")
-                    if text:
-                        texts.append((midpoint.x, midpoint.y, text[:20]))
-                        all_xs.append(midpoint.x); all_ys.append(midpoint.y)
         except Exception:
             pass
 
@@ -540,8 +497,7 @@ def _norm_coords(segments, texts, bbox):
 
 
 def _render_dxf_ax(ax, dxf_path: str | Path, title: str, color_map: dict | None = None,
-                   segs_precomp=None, txts_precomp=None, bbox_precomp=None,
-                   fixed_view: bool = False):
+                   segs_precomp=None, txts_precomp=None, bbox_precomp=None):
     """
     Renderiza DXF num Axes com coordenadas normalizadas ao bounding box próprio.
     Aceita segmentos pré-computados (segs_precomp) para evitar re-leitura.
@@ -572,23 +528,15 @@ def _render_dxf_ax(ax, dxf_path: str | Path, title: str, color_map: dict | None 
         ax.plot(xs, ys, color=color, linewidth=0.5)
 
     for x, y, txt in txts_n:
-        ax.text(x, y, txt, fontsize=5, color="#ffff88", alpha=0.9)
+        ax.text(x, y, txt, fontsize=3, color="#ffff88", alpha=0.8)
 
-    if fixed_view:
-        ax.set_xlim(0.0, w_n)
-        ax.set_ylim(0.0, h_n)
     ax.set_title(title, color="#ccccff", fontsize=8)
     ax.tick_params(colors="#555577", labelsize=6)
 
 
 def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
                       out_png: str | Path,
-                      diffs: dict | None = None,
-                      ref_label: str = "Recorte N2 (gabarito)",
-                      candidate_label: str = "N4 gerado",
-                      ref_bbox_override=None,
-                      ref_outline=None,
-                      high_resolution: bool = False) -> bool:
+                      diffs: dict | None = None) -> bool:
     """
     Gera PNG side-by-side: recorte | N4 | overlay diff.
     Cada DXF é normalizado ao próprio bounding box (transladado para origem)
@@ -598,48 +546,28 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
     if not MATPLOTLIB_OK:
         return False
 
-    figsize = (24, 12) if high_resolution else (24, 8)
-    fig, axes = plt.subplots(1, 3, figsize=figsize, facecolor="#0a0a14")
+    fig, axes = plt.subplots(1, 3, figsize=(24, 8), facecolor="#0a0a14")
 
     # Coletar segmentos dos dois DXFs
     segs_ref, txts_ref, bbox_ref = _collect_dxf_segments(recorte_path)
     segs_n4,  txts_n4,  bbox_n4  = _collect_dxf_segments(n4_path)
 
     # Painel 1: recorte N2 (normalizado ao próprio bbox)
-    ref_view_bbox = ref_bbox_override or bbox_ref
-    _render_dxf_ax(
-        axes[0], recorte_path, ref_label,
-        segs_precomp=segs_ref, txts_precomp=txts_ref,
-        bbox_precomp=ref_view_bbox,
-        fixed_view=bool(ref_bbox_override),
-    )
-    if ref_outline and ref_view_bbox:
-        rx0, ry0, rx1, ry1 = ref_view_bbox
-        rscale = max(rx1 - rx0, ry1 - ry0, 1e-6)
-        outline = list(ref_outline)
-        if outline and outline[0] != outline[-1]:
-            outline.append(outline[0])
-        axes[0].plot(
-            [(float(x) - rx0) / rscale for x, _ in outline],
-            [(float(y) - ry0) / rscale for _, y in outline],
-            color="#ff3333", linewidth=1.5, alpha=0.95,
-        )
+    _render_dxf_ax(axes[0], recorte_path, "Recorte N2 (gabarito)",
+                   segs_precomp=segs_ref, txts_precomp=txts_ref, bbox_precomp=bbox_ref)
 
     # Painel 2: N4 gerado (normalizado ao próprio bbox)
-    _render_dxf_ax(axes[1], n4_path, candidate_label,
+    _render_dxf_ax(axes[1], n4_path, "N4 gerado",
                    segs_precomp=segs_n4, txts_precomp=txts_n4, bbox_precomp=bbox_n4)
 
     # Painel 3: overlay — ambos normalizados individualmente para [0,1]×[0,1]
     # Isso permite comparar forma/proporção independente de escala/posição absoluta.
     axes[2].set_facecolor("#0a0a14")
-    axes[2].set_aspect("auto")
-    axes[2].set_title(
-        f"Overlay normalizado (verde={ref_label}, vermelho={candidate_label})",
-        color="#ccccff", fontsize=8,
-    )
+    axes[2].set_aspect("equal")
+    axes[2].set_title("Overlay normalizado (verde=ref, vermelho=N4)", color="#ccccff", fontsize=8)
 
-    segs_ref_n, _, ref_w_n, ref_h_n = _norm_coords(segs_ref, txts_ref, ref_view_bbox)
-    segs_n4_n,  _, n4_w_n, n4_h_n = _norm_coords(segs_n4, txts_n4, bbox_n4)
+    segs_ref_n, _, _, _ = _norm_coords(segs_ref, txts_ref, bbox_ref)
+    segs_n4_n,  _, _, _ = _norm_coords(segs_n4,  txts_n4,  bbox_n4)
 
     for xs, ys, _ in segs_ref_n:
         axes[2].plot(xs, ys, color="#44ff44", linewidth=0.4, alpha=0.7)
@@ -647,13 +575,11 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
         axes[2].plot(xs, ys, color="#ff4444", linewidth=0.4, alpha=0.7)
 
     legend = [
-        mpatches.Patch(color="#44ff44", label=ref_label),
-        mpatches.Patch(color="#ff4444", label=candidate_label),
+        mpatches.Patch(color="#44ff44", label="Recorte N2"),
+        mpatches.Patch(color="#ff4444", label="N4 gerado"),
     ]
     axes[2].legend(handles=legend, loc="upper right",
                    fontsize=6, facecolor="#1a1a2a", labelcolor="white")
-    axes[2].set_xlim(0.0, max(ref_w_n, n4_w_n, 1e-6))
-    axes[2].set_ylim(0.0, max(ref_h_n, n4_h_n, 1e-6))
     axes[2].tick_params(colors="#555577", labelsize=6)
 
     # Anotação de resultado
@@ -667,8 +593,7 @@ def render_comparacao(recorte_path: str | Path, n4_path: str | Path,
 
     plt.tight_layout()
     try:
-        dpi = 130 if high_resolution else 100
-        plt.savefig(str(out_png), dpi=dpi, bbox_inches="tight", facecolor="#0a0a14")
+        plt.savefig(str(out_png), dpi=100, bbox_inches="tight", facecolor="#0a0a14")
         plt.close()
         return True
     except Exception:

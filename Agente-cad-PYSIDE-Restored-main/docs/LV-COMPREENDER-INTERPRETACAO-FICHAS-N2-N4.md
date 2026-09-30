@@ -4,13 +4,6 @@ Data: 2026-06-23
 Escopo: laterais de vigas (`LV`) em engenharia reversa, ficha N2 e reproducao N4.  
 Fonte empirica atual: `Obra_TREINO_1`, pavimento `13 PAV`, 30 vigas LV.
 
-> **Limite arquitetural (2026-07-21):** este documento descreve a leitura N2
-> e seus aprendizados empiricos. Ele nao define heuristicas para o gerador.
-> O contrato autoritativo do motor esta em
-> `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md`. A ficha e a unica entrada do N4;
-> ausencia de elemento e falha de interpretacao, enquanto desenho incorreto de
-> campo presente e falha do motor.
-
 Este documento registra os aprendizados do loop N2 -> ficha -> N4 -> validacao visual.
 Ele deve servir como base viva para uma futura harmonizacao/RAG por classe estrutural.
 
@@ -57,27 +50,13 @@ Padroes observados:
 - O roundtrip atual fechou 33/33 pares de visao-corte.
 - O N4 precisa manter a coluna A/B afastada da coluna de corte para o viewer isolar a
   visao-corte sem contaminar o crop com laterais.
-- Primitivas visuais podem permanecer como evidencia do interpretador e do QA,
-  mas nao substituem os campos executivos do contrato rigido.
+- As primitivas visuais do N2 sao mais fieis que redesenhar a secao por template rigido.
 
 Padrao de geracao:
 
-- Desenhar o corte a partir dos campos executivos validados da ficha.
-- Nao reler nem copiar primitivas do recorte durante a geracao estrita.
+- Preferir `visual_primitives` quando disponiveis.
+- Usar template `draw_section_detail` apenas como fallback.
 - Render/crop deve isolar a zona de corte e evitar puxar lateral A/B para dentro do quadro.
-
-#### Correspondencia obrigatoria Corte <-> A/B
-
-- Corte e contexto comum da mesma viga; nao autoriza espelhar, mesclar ou copiar
-  dados entre os contratos A e B.
-- Cada sarrafo horizontal declarado em A/B precisa ter a altura correspondente
-  no Corte de sua propria face. Os pequenos retangulos verticais/horizontais
-  do Corte sao sarrafos, nao simbolos de cota, e recebem hachura diagonal.
-- As cotas internas B/H usam linhas e ticks convencionais; os quadrados do
-  dimstyle nao sao geometria de forma. O titulo usa `VIGA (H x B)`, por
-  exemplo `V327 (50x14)`.
-- N3 usa esta anatomia com B/H/h_A/h_B do contrato N1; N4 usa os campos N2.
-  Sem transportar primitivas N2/N4 para N3.
 
 ### 3.2 Lados A/B
 
@@ -126,34 +105,6 @@ Padroes observados:
 - Cota proxima tambem nao basta para declarar laje. V310 mostrou que cotas `16`, `13` e `5`
   podem estar proximas da face sem existir faixa/hachura de laje na elevacao. A promocao
   de laje deve exigir geometria compativel, como hachura/faixa na regiao de topo/base.
-
-#### 3.4.1 Degrau de laje (2026-09-11)
-
-A laje pode ter **altura diferente por trecho** da mesma face, com o topo
-PLANO. Onde ha' painel de fechamento no topo, a laje e' mais baixa e o painel
-completa a altura; fora dele a laje vai inteira ate' o mesmo topo.
-
-Evidencia V13 face A (medida no recorte):
-
-| trecho | laje | painel | topo |
-|---|---|---|---|
-| direito (215) | 15 | — | y=3285.3 |
-| esquerdo (200) | 12 | 3 | y=3285.3 |
-
-O `3` que aparece cotado e' o **degrau** (15 − 12), nao um painel empilhado
-acima da laje.
-
-**Divergencia doc x codigo (aberta).** Esta secao manda "desenhar laje por
-painel quando `laje_sup_local` estiver presente", mas hoje esse campo carrega
-a **espessura do painel de fechamento** (V13: `laje_sup_local = 3.0`), nao a
-altura da laje daquele trecho. Alem disso o limite do degrau (x=200) nao cai
-em fronteira de painel (244/63/108), entao "por painel" nao chega a expressar
-o degrau — falta altura de laje **por trecho**.
-
-Estado do motor: a ficha entrega `laje_sup` = 12.3 para a face inteira (o
-valor de baixo do painel aplicado em todo lugar) e o N4 desenha 12.3 nos 415,
-deixando o lado do painel 3 mais alto que o outro. Pela regra §8 do contrato
-rigido, o conserto comeca no interpretador/contrato, nao no motor.
 
 Regra operacional atual:
 
@@ -273,68 +224,7 @@ Decisoes atuais:
 16. `slab_center` e campo de ficha. Ele so deve virar faixa/hachura no N4 quando o segmento
     tem altura alta (`height1 >= 80`); em segmentos baixos, manter como evidencia sem desenhar.
 
-## 6. Modelo de Segmentos/Painéis Confirmado (2026-06-28, via vision V301)
-
-### 6.1 Estrutura visual N2 LV (segmentos vs painéis)
-
-Descoberto por leitura vision iterativa com o dono sobre V301:
-
-- Cada `face_unit` no DB representa o TEMPLATE de 2 segmentos visuais exibidos
-  lado a lado (par espelho) no recorte N2. O motor detecta 1 face_unit, o DXF
-  mostra 2 instâncias espelho.
-- Cada segmento visual tem 2 PAINÉIS (não 4 sub-widths como o motor extrai):
-  - Painel 1 (esq): `largura_cm` = grande (ex. 244), `height1` = REDUZIDO (ex. 44cm)
-    — painel baixo sobre o pilar/cruzamento.
-  - Painel 2 (dir): `largura_cm` = restante (ex. 161.5), `height1` = h_body (ex. 109cm)
-    — painel completo do vão.
-- O motor extrai 4 sub-widths [244, 28.7, 21.8, 111] por LIMITAÇÃO: as
-  V-lines internas de sarrafo/abertura criam sub-segmentos extras. Os sub-widths
-  28.7+21.8 = 50.5 = largura real da abertura em P2.
-
-### 6.2 Abertura (recorte de canto)
-
-- Uma abertura é um recorte retangular no canto de um painel (não um buraco
-  interno), identificado por LWPOLYLINE DASHED na layer Painéis.
-- Campos capturados: `corner` (TL/TR/BL/BR), `width`, `height`, `position`.
-- A partir de 2026-06-28 o motor também exporta `raw_holes` por face_unit:
-  lista de todas LWPOLYLINE DASHED que intersectam o bbox da face, em
-  coordenadas brutas. O gerador N4 pode usar isso para perfis em L/degrau.
-
-### 6.3 Height1 por segmento (degrau de painel)
-
-- Antes: `height1 = h_body` para todos os painéis de uma face_unit.
-- Agora (2026-06-28): o motor detecta H-lines INTERNAS da layer Painéis dentro
-  do y_range da face. Se uma H-line interna abrange ≥55% do X de um segmento e
-  está pelo menos 5cm acima de y_bot, `height1 = y_top - y_inner` (altura real
-  do painel, menor que h_body).
-- Exemplo V301.A: P1 [0,244] → height1=44; P2 e sub-segs → height1=109 (=h_body).
-
-### 6.4 Laje (campo ainda problemático em V301)
-
-- Laje correta de V301.A na imagem: 15cm (COTA "15" visível no topo).
-- Motor extrai laje_sup=7cm. Causa provável: o motor encontra um H-line pair
-  com h_body=125 confirmado pela COTA "124" (h_total correto de P2), porque
-  124 ≈ 125 dentro da tolerância de 1.5cm. Com h_body=125 e h_total=124 o
-  motor computa laje=124-125=-1 → 0, e cai no passo 2 que pega algum "7".
-- Fix futuro: tornar a confirmação por COTA mais restrita ao lado DIREITO do
-  par específico, não ao range geral do label.
-
-### 6.5 Regras RAG adicionais (LV/AB/)
-
-17. `LV/AB/h1_per_panel`: painéis em degrau têm `height1` diferente do
-    `h_body` da face. Detectar via H-line interna que abrange o painel mas
-    não a face inteira.
-18. `LV/AB/raw_holes_face`: `raw_holes` no face_unit contém LWPOLYLINE DASHED
-    em coords brutas; usar no N4 para recortes de canto (perfil em L/degrau).
-19. `LV/AB/panel_count_vs_subwidths`: o motor extrai N sub-widths por V-lines;
-    os visuais "painéis" do engenheiro são agrupamentos desses sub-widths
-    separados por aberturas/sarrafos. Para V301.A: 4 sub-widths = 2 painéis
-    visuais (P1=244, P2=161.5 com abertura 50.5×65).
-20. `LV/AB/mirror_pair`: cada face_unit do DB = 2 segmentos espelho exibidos
-    lado a lado no recorte N2. O N4 deve replicar o template 2× (normal +
-    espelho) ao gerar por face_unit.
-
-## 7. Gaps Restantes
+## 6. Gaps Restantes
 
 Principais itens que ainda seguram A/B abaixo de arete:
 
@@ -412,71 +302,8 @@ Exemplos de entradas RAG candidatas:
     `h_total` quando passam filtros de largura, faixa local e altura minima.
 16. `LV/AB/slab_center_draw_guard`: `slab_center` extraido de cota local so vira desenho no
     N4 para segmentos altos; em segmentos baixos, e apenas campo de auditoria.
-17. `LV/AB/horizontal_dimension_levels`: a cadeia individual ocupa o nivel interno;
-    painel principal largo (>=150 cm) e o complemento dos demais paineis ocupam o
-    nivel externo. Vale para degrau inicial e espelhado (`244 | 63+111=174` e
-    `52.5+22.5=75 | 244`).
-18. `LV/AB/raised_panel_witness`: as patas de uma cota horizontal devem terminar no
-    fundo real do intervalo cotado. Se o intervalo pertence ao painel elevado, as
-    duas patas terminam no ombro; uma borda exata nao pode cair no vazio por engano.
-19. `LV/AB/coplanar_step_divider`: a divisao entre paineis elevados coplanares existe
-    somente entre ombro e topo. Nunca prolongar esse divisor pelo vazio ate a base.
-20. `LV/AB/top_panel_after_slab`: retangulo fechado de `Paineis`, com 4--12 cm de
-    altura, imediatamente acima da laje, e campo separado da ficha
-    (`painel_sup_alt/width/x_offset`). O N4 desenha retangulo e cota proprios; a
-    altura total soma corpo + laje + painel superior.
-21. `LV/AB/dimension_side_by_wall`: em degrau espelhado, altura de corpo/total fica
-    na parede alta esquerda e alturas do painel curto ficam na parede direita. Cada
-    cota vertical pertence a parede que materializa aquele nivel.
-22. `LV/AB/material_body_over_bbox`: se o bbox vertical inclui cotas externas e os
-    paineis formam uma altura material coerente entre 80 e 125 cm, `h_body` vem da
-    maior altura dos paineis; laje e painel superior permanecem campos separados.
-23. `LV/AB/explicit_zero_beats_global`: `laje_inf=0` explicito na unidade nao pode
-    ser substituido pelo fallback global. O fallback so preenche campo ausente.
-24. `LV/AB/dimension_chain_can_split`: a cadeia horizontal cotada pode revelar mais
-    paineis que as V-lines brutas (`174 = 111+63`). A reconciliacao pode aumentar a
-    quantidade de segmentos quando a soma recompõe exatamente a largura util.
-25. `LV/AB/slab_dimension_outer_anchors`: as cotas de laje 14/15 pertencem às duas
-    extremidades do contorno superior, nunca à parede interna do degrau.
-26. `LV/N4/layout_order_is_drawing_order`: detalhes por ocorrencia devem repetir a
-    ordenacao espacial final do desenhador; ordenar CONT/sem-rotulo de forma distinta
-    desloca painel superior e cotas para a unidade vizinha.
-27. `LV/AB/trailing_locator_pair`: dois paineis finais menores que 28 cm, cuja soma
-    fica abaixo de 55 cm depois de um painel principal, sao marcos de localizacao e
-    nao entram na cadeia util; o prefixo anterior pode formar cota externa 161,5.
 
-## 8. Inventario Minimo Nas Fichas De Interpretacao / Validacao Visual
-
-Desde 2026-07-17, validacao visual N2×N4 de LV **so e valida** com inventário
-linha-a-linha (nao contagem, nao "parece igual").
-
-Documento canônico: `docs/QA-INVENTARIO-MINIMO-VALIDACAO-VISUAL.md`.
-
-### 8.1 O que toda ficha / veredito deve carregar
-
-1. **Metadados da face:** origem abs N2, h_body, `panel_widths[]`, clip.
-2. **LINEs estruturais** Painéis+SARR: id, `(x1,y1)→(x2,y2)` rel, orient, L, status vs N4.
-3. **Cotas:** no N2 sao `TEXT` numericos (muitas na layer `Painéis`); no N4 sao
-   `DIMENSION`. Listar valor + insert/mid + status MATCH/MISSING/EXTRA.
-4. **Textos:** label do item (`V301.A`) vs vizinhos do recorte (nao copiar).
-5. **Resumo de status** e path do JSON/MD de rastreio.
-
-### 8.2 Ficha HTML (review / granular)
-
-Antes dos checkboxes de aprovacao/reprovacao, a ficha (ou o pacote G2-V anexo) deve
-ter um bloco **"Inventario minimo"** ou link para
-`scripts/arete/relatorios/g2v/{item}_n2_inventory/*.md`. Sem isso, o agente nao
-pode emitir PASS no harness.
-
-### 8.3 Exemplo ouro
-
-V301 face A: `scripts/arete/relatorios/g2v/v301_n2_inventory/`  
-Script: `scripts/arete/tmp/_v301_n2_inventory.py`.
-
-SEG1 corpo (9 linhas estruturais) MATCH 9/9; cotas N2 agrupadas (50.5, 161.5) vs
-N4 granular (28.7, 21.8, …) devem aparecer no rastreio, nao serem omitidas.
-
-## 9. Proximos Ataques
+## 8. Proximos Ataques
 
 Ordem recomendada:
 
@@ -489,7 +316,7 @@ Ordem recomendada:
    - depois 90%;
    - depois 95% arete.
 
-## 10. Regra De Seguranca
+## 9. Regra De Seguranca
 
 Nenhuma regra deve ser hardcoded por viga. Todo ajuste precisa ser:
 

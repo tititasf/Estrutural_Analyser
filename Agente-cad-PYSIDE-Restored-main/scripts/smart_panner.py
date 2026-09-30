@@ -28,105 +28,6 @@ SOBRA_MIN      =  60.0
 LIMIAR_MENOR   = 200.0
 
 
-def panel_fits_sheet(side_a: float, side_b: float, tol: float = 0.51) -> bool:
-    """Chapa NOVA 244×122 cm (pode girar).
-
-    Regra inegociável: max(lados) ≤ 244 e min(lados) ≤ 122.
-    Ex.: 244×122 OK · 244×169 FAIL · 238×122 OK · 169×122 OK.
-    """
-    a = float(side_a)
-    b = float(side_b)
-    if a <= 0.01 or b <= 0.01:
-        return True
-    return max(a, b) <= PAINEL_GRANDE + tol and min(a, b) <= PAINEL_MEDIO + tol
-
-
-def _segments_from_lines(lines, total):
-    """Lista (comprimento, is_union) dos trechos ao longo de um eixo."""
-    items = sorted(
-        (float(line.get("value", 0)), bool(line.get("is_union", False)))
-        for line in (lines or [])
-        if isinstance(line, dict)
-    )
-    edges = [0.0] + [v for v, _u in items] + [float(total)]
-    # dedupe mantendo ordem
-    clean = []
-    for edge in edges:
-        if not clean or abs(edge - clean[-1]) > 0.05:
-            clean.append(edge)
-    if len(clean) < 2:
-        return [(float(total), False)] if float(total) > 0.01 else []
-
-    line_at = {round(v, 1): u for v, u in items}
-    segs = []
-    for a, b in zip(clean, clean[1:]):
-        length = b - a
-        if length <= 0.05:
-            continue
-        end_union = bool(line_at.get(round(b, 1), False))
-        is_union = end_union and (GAP_MIN - 1.0) <= length <= (GAP_MAX + 1.0)
-        segs.append((length, is_union))
-    return segs
-
-
-def cells_fit_sheet(lv, lh, comprimento, largura, tol: float = 0.51) -> bool:
-    """True se todas as células não-união cabem na chapa 244×122."""
-    sx = _segments_from_lines(lv, comprimento) or [(float(comprimento), False)]
-    sy = _segments_from_lines(lh, largura) or [(float(largura), False)]
-    for w, wu in sx:
-        for h, hu in sy:
-            if wu or hu:
-                continue
-            if not panel_fits_sheet(w, h, tol=tol):
-                return False
-    return True
-
-
-def _distribute_cap_medio(total_length):
-    """Divide o eixo da face 122 cm: nenhum painel (não-união) > 122.
-
-    Usado no eixo menor / quando o outro eixo já tem chapas de 244, para
-    nunca gerar célula 244×169 (ou pior).
-    """
-    total = float(total_length)
-    if total <= PAINEL_MEDIO + 0.01:
-        return []
-
-    lines = []
-    pos = 0.0
-    rem = total
-    guard = 0
-    while rem > PAINEL_MEDIO + 0.01 and guard < 40:
-        guard += 1
-        # Coloca chapa 122
-        pos = round(pos + PAINEL_MEDIO, 1)
-        lines.append({"value": pos, "is_union": False})
-        rem = round(total - pos, 6)
-        if rem <= PAINEL_MEDIO + 0.01:
-            break
-        # Ainda cabe mais painel: separa com união 20
-        if rem > GAP_UNION + 0.01:
-            pos = round(pos + GAP_UNION, 1)
-            lines.append({"value": pos, "is_union": True})
-            rem = round(total - pos, 6)
-        else:
-            break
-    return lines
-
-
-def _distribute_narrow_strip(length):
-    """Divide tiras ate 75 cm sem gerar meia-medida desnecessaria."""
-    if length <= PAINEL_PEQUENO:
-        return []
-    half = length / 2.0
-    split = round(half / 5.0) * 5.0
-    split = max(30.0, min(split, length - 30.0))
-    split = round(split, 1)
-    if abs(split - round(split)) < 1e-6:
-        split = float(int(round(split)))
-    return [{"value": split, "is_union": False}]
-
-
 def _distribute_244_rule(total_length):
     """Eixo maior: distribui 244 em 244. Se sobra < 60, troca último 244 por 122."""
     if total_length <= 0.01:
@@ -155,21 +56,6 @@ def _distribute_small_side(length):
     GAP = GAP_UNION
     if length <= PAINEL_PEQUENO:
         return []
-
-    # Faixas estreitas ate 90 cm usam uma divisao limpa perto do meio; acima
-    # disso ja cabe preferir um painel de 60 cm e deixar a sobra no vizinho.
-    if length <= 90.0:
-        return _distribute_narrow_strip(length)
-
-    # Quando o vão comporta uma faixa pequena de 61 cm e uma união, ancora
-    # essas duas faixas na borda final. Isso preserva uma peça ampla no início.
-    if 163.0 <= length < LIMIAR_MENOR:
-        small_panel = 61.0
-        first = length - GAP - small_panel
-        return [
-            {"value": round(first, 1), "is_union": False},
-            {"value": round(first + GAP, 1), "is_union": True},
-        ]
 
     # Tenta 122
     available = length - GAP
@@ -226,30 +112,6 @@ def _try_align_deformity(length, obstaculos, axis):
 
 def _distribute_elastic(total_length, obstaculos=None, axis='x'):
     """Regra elástica: painéis 122/60 com uniões 15-30cm, score otimizado."""
-    # Vão 304–366: antes era 122 + união + residual (ex. 169 em 311).
-    # Residual > 122 com o outro eixo em 244 gera célula 244×169 — proibido.
-    # Cap na face 122: 122 + união + 122 + residual ≤ 122 (ex. 311 → … + 47).
-    if 304.0 <= total_length < 366.0:
-        return _distribute_cap_medio(total_length)
-
-    # Um painel médio, união e painel pequeno; o recorte residual fecha o vão.
-    if 264.0 <= total_length < 304.0:
-        return [
-            {"value": PAINEL_MEDIO, "is_union": False},
-            {"value": PAINEL_MEDIO + GAP_UNION, "is_union": True},
-            {"value": PAINEL_MEDIO + GAP_UNION + PAINEL_PEQUENO, "is_union": False},
-        ]
-
-    # Três painéis médios: distribuir igualmente a folga em duas uniões.
-    if 3 * PAINEL_MEDIO + 2 * GAP_MIN <= total_length <= 3 * PAINEL_MEDIO + 2 * GAP_MAX:
-        gap = (total_length - 3 * PAINEL_MEDIO) / 2.0
-        return [
-            {"value": PAINEL_MEDIO, "is_union": False},
-            {"value": round(PAINEL_MEDIO + gap, 1), "is_union": True},
-            {"value": round(2 * PAINEL_MEDIO + gap, 1), "is_union": False},
-            {"value": round(2 * PAINEL_MEDIO + 2 * gap, 1), "is_union": True},
-        ]
-
     solutions = []
     min_p = int(PAINEL_PEQUENO)   # 60
     max_p = int(PAINEL_MEDIO)     # 122
@@ -346,86 +208,19 @@ def distribute_panels(comprimento, largura=0.0, obstaculos=None):
     """
     obs = obstaculos or []
 
-    # Tiras de até 75 cm são bipartidas no eixo estreito. No eixo longo segue
-    # valendo a regra de chapas de 244 cm.
-    if 0 < largura <= 75.0:
-        return {
-            'linhas_verticais': (
-                [{"value": round(comprimento / 2.0, 1), "is_union": False}]
-                if comprimento <= PAINEL_GRANDE else _distribute_244_rule(comprimento)
-            ),
-            'linhas_horizontais': _distribute_narrow_strip(largura),
-        }
-    if 0 < comprimento <= 75.0:
-        return {
-            'linhas_verticais': _distribute_narrow_strip(comprimento),
-            'linhas_horizontais': (
-                [{"value": round(largura / 2.0, 1), "is_union": False}]
-                if largura <= PAINEL_GRANDE else _distribute_244_rule(largura)
-            ),
-        }
-
     # Determinar eixo maior
     is_horizontal_major = comprimento >= largura
 
-    def _is_continuous_narrow_strip(minor: float) -> bool:
-        """Tira sem junta transversal — face curta já é 1 chapa e não pede bipartição.
-
-        - ≤90 cm: deixa ``_distribute_small_side`` bipartir (meia-medida limpa).
-        - 90–122 cm: um painel único na face 122, sem linha artificial.
-        - >122 cm: proibido (geraria 244×169 etc.); usa cap-médio.
-        """
-        return 90.0 < minor <= PAINEL_MEDIO + 0.01
-
-    def _continuous_strip_hlaz(minor: float, major: float, axis: str):
-        """Faixa de uniao de uma tira continua, em coordenadas locais."""
-        strip_start = round(max(0.0, minor - GAP_UNION - (PAINEL_PEQUENO + 1.0)), 1)
-        if axis == 'y':
-            return [{"x": 0.0, "y": strip_start, "width": round(major, 1), "height": GAP_UNION}]
-        return [{"x": strip_start, "y": 0.0, "width": GAP_UNION, "height": round(major, 1)}]
-
     if is_horizontal_major:
         lv = _distribute_244_rule(comprimento)
-        continuous_strip = _is_continuous_narrow_strip(largura)
-        lh = (
-            [] if continuous_strip
-            else _distribute_minor_axis(largura, obs, 'y') if largura > 0 else []
-        )
-        hlaz = _continuous_strip_hlaz(largura, comprimento, 'y') if continuous_strip else []
+        lh = _distribute_minor_axis(largura, obs, 'y') if largura > 0 else []
     else:
         lh = _distribute_244_rule(largura)
-        continuous_strip = _is_continuous_narrow_strip(comprimento)
-        lv = (
-            [] if continuous_strip
-            else _distribute_minor_axis(comprimento, obs, 'x') if comprimento > 0 else []
-        )
-        hlaz = _continuous_strip_hlaz(comprimento, largura, 'x') if continuous_strip else []
-
-    # Gate final: se alguma célula não cabe na chapa 244×122, recorta o eixo
-    # que tem face > 122 com a regra cap-médio (nunca 244×169).
-    if not cells_fit_sheet(lv, lh, comprimento, largura):
-        sx = _segments_from_lines(lv, comprimento) or [(float(comprimento), False)]
-        sy = _segments_from_lines(lh, largura) or [(float(largura), False)]
-        x_has_wide = any((not u) and length > PAINEL_MEDIO + 0.5 for length, u in sx)
-        y_has_wide = any((not u) and length > PAINEL_MEDIO + 0.5 for length, u in sy)
-        if x_has_wide and y_has_wide:
-            # Ambos eixos com face > 122: o menor usa cap 122; o maior mantém 244.
-            if comprimento >= largura:
-                lh = _distribute_cap_medio(largura) if largura > 0 else []
-            else:
-                lv = _distribute_cap_medio(comprimento) if comprimento > 0 else []
-            hlaz = []
-        elif y_has_wide:
-            lh = _distribute_cap_medio(largura) if largura > 0 else []
-            hlaz = []
-        elif x_has_wide:
-            lv = _distribute_cap_medio(comprimento) if comprimento > 0 else []
-            hlaz = []
+        lv = _distribute_minor_axis(comprimento, obs, 'x') if comprimento > 0 else []
 
     return {
         'linhas_verticais': lv,
         'linhas_horizontais': lh,
-        'hlaz': hlaz,
     }
 
 

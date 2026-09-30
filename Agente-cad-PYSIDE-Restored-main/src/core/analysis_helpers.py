@@ -308,124 +308,10 @@ def process_beam_intelligent(b: Dict) -> None:
 # Interpretação de Laje
 # ──────────────────────────────────────────────────────────────────────────────
 
-def _point_inside_slab(points: Any, point: 'tuple[float, float]') -> bool:
-    from src.core.slab_level_inference import point_inside_ring
-
-    return point_inside_ring(points, point)
-
-
-def _looks_like_level_text(text: str) -> bool:
-    value = str(text or '').strip()
-    if not value or not any(mark in value for mark in ('+', '-', '.')):
-        return False
-    return bool(re.search(r'[+-]?\d+\.\d+|[+-]?\d+', value))
-
-
-def apply_plan_level_provenance(
-    s: Dict, dxf_texts: List[Dict], learning: Dict,
-    floor_height: Optional[float] = None,
-    reference_level: Optional[float] = None,
-) -> None:
-    """Reclassifica o nível da laje pela autoridade geométrica da anotação.
-
-    A escolha por proximidade ao rótulo não distingue a anotação da própria
-    laje da anotação da laje vizinha. Quando existe anotação dentro do
-    contorno, ela vence; caso contrário o valor anterior é preservado e
-    marcado, para que o QA saiba onde o motor está sem evidência local.
-    """
-    from src.core.slab_level_inference import select_plan_level_annotation
-
-    def _as_candidate(text: Any, token: Any) -> 'Dict | None':
-        try:
-            value = float(str(text).strip().replace(',', '.').replace('+', ''))
-        except (TypeError, ValueError):
-            return None
-        pos = token.get('pos') if isinstance(token, dict) else None
-        if not pos:
-            return None
-        return {
-            'value': value, 'text': str(text).strip(),
-            'pos': (float(pos[0]), float(pos[1])), 'token': token,
-        }
-
-    candidates: List[Dict] = []
-    seen: set = set()
-    for txt, token in s.get('_nivel_candidates') or []:
-        candidate = _as_candidate(txt, token)
-        if candidate:
-            candidates.append(candidate)
-            seen.add((candidate['text'], candidate['pos']))
-
-    # A anotação de dentro do contorno é a prova do vínculo e não pode ficar de
-    # fora por estar longe do rótulo — foi assim que lajes grandes perderam o
-    # próprio nível para o da vizinha.
-    level_layers = learning.get('level_layers')
-    for token in dxf_texts or []:
-        text = str(token.get('text') or '').strip()
-        if not _looks_like_level_text(text) or text == s.get('name'):
-            continue
-        if level_layers and token.get('layer') not in level_layers:
-            continue
-        candidate = _as_candidate(text, token)
-        if not candidate or (candidate['text'], candidate['pos']) in seen:
-            continue
-        if _point_inside_slab(s.get('points'), candidate['pos']):
-            candidates.append(candidate)
-            seen.add((candidate['text'], candidate['pos']))
-
-    if not candidates:
-        return
-
-    selected = select_plan_level_annotation(
-        s.get('points'),
-        candidates,
-        label_pos=s.get('pos'),
-        reference_level=reference_level,
-        floor_height=floor_height,
-        label_radius=float(learning.get('search_radius', 200.0)),
-    )
-    if not selected:
-        from src.core.slab_level_inference import plausible_level_candidates
-
-        _, far = plausible_level_candidates(
-            candidates, reference_level=reference_level, floor_height=floor_height,
-        )
-        current = str(s.get('fields', {}).get('laje_nivel') or '').strip()
-        if current and any(row['text'] == current for row in far):
-            # O valor vigente veio de uma anotação distante demais para ser
-            # deste pavimento. Mantê-lo seria propagar o palpite adiante.
-            s['fields'].pop('laje_nivel', None)
-            provenance = 'descartado_fora_do_pavimento'
-        else:
-            provenance = 'sem_evidencia_local'
-        s['_nivel_provenance'] = {
-            'provenance': provenance,
-            'value': current or None,
-            'discarded_out_of_range': [row['text'] for row in far],
-            'needs_human_review': True,
-        }
-        return
-
-    s['fields']['laje_nivel'] = selected['text']
-    links = s.setdefault('links', {}).setdefault(
-        'laje_nivel', {'label': [], 'cut_view_geom': [], 'cut_view_text': []},
-    )
-    links['label'] = [selected['token']]
-    s['_nivel_provenance'] = {
-        'provenance': selected['provenance'],
-        'value': selected['text'],
-        'alternatives': selected.get('alternatives') or [],
-        'discarded_out_of_range': selected.get('discarded_out_of_range') or [],
-        'needs_human_review': bool(selected.get('needs_human_review')),
-    }
-
-
 def process_slab_intelligent(
     s: Dict,
     dxf_texts: List[Dict],
     slab_learning_config: Optional[Dict] = None,
-    floor_height: Optional[float] = None,
-    reference_level: Optional[float] = None,
 ) -> None:
     """
     Popula s['fields'] e s['links'] com a interpretação semântica da laje.
@@ -435,8 +321,6 @@ def process_slab_intelligent(
         s: dicionário da laje (saído do SlabTracer).
         dxf_texts: lista de textos do DXF carregado (dxf_data['texts']).
         slab_learning_config: configurações de aprendizado ativo (opcional).
-        floor_height: altura do pavimento, usada para descartar nível de outro
-            pavimento/vista. Sem ela nenhum candidato é descartado por valor.
     """
     learning = slab_learning_config or {}
 
@@ -502,25 +386,16 @@ def process_slab_intelligent(
                 found_thick = True
                 continue
 
-            # Nível — coleta TODOS os candidatos para possível retry anti-alucinação
+            # Nível
             is_lvl_cand = (
                 (learned_lvl_lvls and t_layer in learned_lvl_lvls) or
                 (not learned_lvl_lvls)
             )
-            if is_lvl_cand:
+            if not found_level and is_lvl_cand:
                 if ('+' in txt_val or '-' in txt_val or '.' in txt_val) and re_level.search(txt_val):
-                    s.setdefault('_nivel_candidates', []).append((txt_val, t))
-                    if not found_level:
-                        s['links']['laje_nivel']['label'].append(t)
-                        s['fields']['laje_nivel'] = txt_val
-                        found_level = True
-
-    # 2b. Autoridade do nível: anotação DENTRO do contorno prova o vínculo;
-    #     proximidade ao rótulo é indício fraco. Sem nenhuma das duas, o valor
-    #     já obtido permanece, porém declarado sem evidência local.
-    apply_plan_level_provenance(
-        s, dxf_texts, learning, floor_height, reference_level,
-    )
+                    s['links']['laje_nivel']['label'].append(t)
+                    s['fields']['laje_nivel'] = txt_val
+                    found_level = True
 
     # 3. Contorno (geometria já encontrada pelo SlabTracer)
     if s.get('points'):
@@ -620,87 +495,6 @@ def correlate_sides_data(pilares: List[Dict], vigas: List[Dict], search_radius: 
                 side_data['v_esq_n'] = best_v.get('name', '')
                 side_data['v_esq_d'] = v_dim
                 side_data['v_esq_v'] = v_level_str
-
-
-# ──────────────────────────────────────────────────────────────────────────────
-# Retry anti-alucinação de niveis de laje
-# ──────────────────────────────────────────────────────────────────────────────
-
-def retry_hallucinated_niveis(
-    slabs: 'List[Dict]',
-    outlier_threshold: float = 4.0,
-    max_retries: int = 2,
-) -> 'tuple[list[str], list[str]]':
-    """
-    Detecta lajes com nivel alucinado e tenta revinculá-las ao próximo candidato.
-
-    Computa a mediana dos niveis de todas as lajes do pavimento.  Para cada
-    outlier (|val − mediana| > outlier_threshold), tenta os candidatos alternativos
-    armazenados em ``slab['_nivel_candidates']`` (índices 1 e 2, já ordenados por
-    distância ao centroide da laje).
-
-    Se um candidato alternativo for válido (dentro do limiar), atualiza:
-      - ``slab['fields']['laje_nivel']``
-      - ``slab['links']['laje_nivel']['label']``
-      - ``slab['_nivel_retry_info']`` (log da substituição)
-
-    Retorna (nomes_recuperados, nomes_ainda_suspeitos).
-    """
-    import statistics as _st
-
-    def _parse(txt: Any) -> 'float | None':
-        if txt is None:
-            return None
-        try:
-            return float(str(txt).strip().replace(',', '.').replace('+', ''))
-        except Exception:
-            return None
-
-    slab_vals: list[tuple[dict, float]] = []
-    for s in slabs:
-        v = _parse(s.get('fields', {}).get('laje_nivel') or s.get('laje_nivel'))
-        if v is not None:
-            slab_vals.append((s, v))
-
-    if len(slab_vals) < 2:
-        return [], []
-
-    median_lv = _st.median(v for _, v in slab_vals)
-
-    recovered: list[str] = []
-    suspect:   list[str] = []
-
-    for s, init_val in slab_vals:
-        if abs(init_val - median_lv) <= outlier_threshold:
-            continue
-
-        name = s.get('name') or str(s.get('id') or id(s))
-        candidates = s.get('_nivel_candidates', [])
-        fixed = False
-
-        # Varre TODOS os candidatos (não limitado a max_retries sequenciais) para
-        # garantir que valores corretos mais distantes do centroide sejam encontrados.
-        for attempt, (alt_txt, alt_t) in enumerate(candidates[1:], start=1):
-            alt_val = _parse(alt_txt)
-            if alt_val is None:
-                continue
-            if abs(alt_val - median_lv) <= outlier_threshold:
-                s['fields']['laje_nivel'] = alt_txt
-                links = s.setdefault('links', {}).setdefault('laje_nivel', {'label': [], 'cut_view_geom': [], 'cut_view_text': []})
-                links['label'] = [alt_t]
-                s.setdefault('_nivel_retry_info', {}).update({
-                    'original': str(init_val),
-                    'corrected': alt_txt,
-                    'attempt': attempt,
-                })
-                fixed = True
-                recovered.append(name)
-                break
-
-        if not fixed:
-            suspect.append(name)
-
-    return recovered, suspect
 
 
 # ──────────────────────────────────────────────────────────────────────────────

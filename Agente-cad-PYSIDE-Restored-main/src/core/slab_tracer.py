@@ -1,8 +1,7 @@
-from shapely.geometry import Point, LineString, Polygon, MultiLineString
+﻿from shapely.geometry import Point, LineString, Polygon, MultiLineString
 from shapely.ops import polygonize, unary_union
 from typing import List, Tuple, Optional, Dict
 import math
-import re
 
 class SlabTracer:
     """
@@ -712,16 +711,6 @@ class SlabTracer:
                 if abs((row_y1 - row_y0) - row_h) > 12.0:
                     row_y1 = row_y0 + row_h
                 row_w = median(widths) if len(widths) >= 2 else 0.0
-                full_row = sorted(
-                    (it for it in row if it[5] >= row_w * 0.90),
-                    key=lambda it: it[1],
-                ) if row_w else []
-                row_gaps = [
-                    right[1] - left[3]
-                    for left, right in zip(full_row, full_row[1:])
-                    if 0.0 <= right[1] - left[3] <= max(80.0, row_w * 0.20)
-                ]
-                nominal_gap = median(row_gaps) if row_gaps else None
 
                 for slab, x0, y0, x1, y1, w, h, _ym in row:
                     pos = slab.get("pos") or ((x0 + x1) / 2.0, (y0 + y1) / 2.0)
@@ -737,14 +726,6 @@ class SlabTracer:
                     if row_w >= 390.0 and w < row_w * 0.86:
                         half = row_w / 2.0
                         nx0, nx1 = lx - half, lx + half
-                        # No fim da fileira o rótulo pode não estar no centro
-                        # geométrico. A malha vizinha e o vão repetido são a
-                        # referência estrutural mais forte.
-                        previous = [it for it in full_row if it[3] <= x0 + 25.0]
-                        if previous and nominal_gap is not None:
-                            anchored_x0 = max(it[3] for it in previous) + nominal_gap
-                            if abs(anchored_x0 - x0) <= max(25.0, row_w * 0.15):
-                                nx0, nx1 = anchored_x0, anchored_x0 + row_w
                         changed = True
 
                     if not changed:
@@ -871,32 +852,6 @@ class SlabTracer:
                 if len(h_groups) < 2 or len(v_groups) < 2:
                     continue
 
-                axis_tol = max(2.0, h * 0.02)
-
-                def band_overlap(group, band_y0, band_y1):
-                    return sum(
-                        max(0.0, min(float(b), band_y1) - max(float(a), band_y0))
-                        for a, b in group.get("intervals", [])
-                    )
-
-                # A borda direita precisa atravessar a faixa da própria laje.
-                # Usar apenas o span global aceitava eixos longos de outra
-                # fileira dentro da margem de busca (caso real L318).
-                top_groups = [
-                    group for group in h_groups
-                    if abs(float(group["const"]) - y1) <= axis_tol
-                ]
-
-                def closes_top_edge(group):
-                    axis_x = float(group["const"])
-                    if band_overlap(group, y0, y1) < h * 0.80:
-                        return False
-                    return any(
-                        float(a) <= x1 + axis_tol and abs(float(b) - axis_x) <= axis_tol
-                        for top in top_groups
-                        for a, b in top.get("intervals", [])
-                    )
-
                 step_axes = [
                     float(g["const"])
                     for g in v_groups
@@ -905,11 +860,7 @@ class SlabTracer:
                 right_axes = [
                     float(g["const"])
                     for g in v_groups
-                    if (
-                        x1 + 250.0 <= float(g["const"]) <= x1 + 850.0
-                        and float(g.get("span", 0.0)) >= h * 1.2
-                        and closes_top_edge(g)
-                    )
+                    if x1 + 250.0 <= float(g["const"]) <= x1 + 850.0 and float(g.get("span", 0.0)) >= h * 1.2
                 ]
                 lower_axes = [
                     float(g["const"])
@@ -919,18 +870,11 @@ class SlabTracer:
                 if not step_axes or not right_axes or not lower_axes:
                     continue
                 step_x = min(step_axes, key=lambda v: abs(v - x1))
-                # Preferir o eixo mais PROXIMO (nao o mais distante): o mais
-                # distante pode pertencer a outra sala/corredor nao
-                # relacionado, fazendo a extensao avancar sobre lajes e
-                # vigas que nao sao desta faixa.
-                right_x = min(right_axes)
+                right_x = max(right_axes)
                 low_y = min(lower_axes, key=lambda v: abs((y0 - v) - 49.0))
                 if right_x - step_x < 250.0 or y0 - low_y < 25.0:
                     continue
 
-                # Quando uma cota vertical explícita confirma a altura total
-                # entre low_y e y1, y0 é uma linha interna, não uma borda. A
-                # evidência vem exclusivamente do DXF estrutural (nunca N2).
                 coords = [
                     (x0, y0),
                     (step_x, y0),
@@ -958,7 +902,6 @@ class SlabTracer:
                 diag = dict(slab.get("trace_diagnostics") or {})
                 diag["outline_source"] = slab["method"]
                 diag["right_step_expanded"] = True
-                diag["right_axis_band_validated"] = True
                 slab["trace_diagnostics"] = diag
         except Exception:
             return
@@ -1108,22 +1051,7 @@ class SlabTracer:
                     continue
                 mid_x = min(mid_axes, key=lambda v: abs(v - (x0 + 182.0)))
                 step_y = min(step_axes, key=lambda v: abs(v - (y1 - 9.0)))
-                mid_group = min(v_groups, key=lambda g: abs(float(g["const"]) - mid_x))
-                # Uma linha horizontal distante só prova uma viga paralela.
-                # Entre os topos candidatos, selecionar somente o que fecha
-                # na face vertical do degrau; o maior pode ser a face externa
-                # da viga e não a borda da laje.
-                linked_tops = []
-                for candidate_top in top_axes:
-                    vertical_link = sum(
-                        max(0.0, min(float(b), candidate_top) - max(float(a), step_y))
-                        for a, b in mid_group.get("intervals", [])
-                    )
-                    if vertical_link >= (candidate_top - step_y) * 0.92:
-                        linked_tops.append(candidate_top)
-                if not linked_tops:
-                    continue
-                top_y = max(linked_tops)
+                top_y = max(top_axes)
                 if top_y - y0 < h + 120.0:
                     continue
 
@@ -1973,15 +1901,11 @@ class SlabTracer:
     def trace_boundary(self, start_point: Tuple[float, float], search_radius: float = 1000.0, valid_layers: List[str] = None, label_id: str = None) -> Optional[Polygon]:
         """Find slab polygon via cascade: semantic filter -> local crop -> polygonize -> N2 axes -> professor N2."""
         cx, cy = start_point
-        crop_bbox = self._laj_crop_bbox_from_labels(label_id or "", start_point, search_radius)
-        crop_w = max(1.0, crop_bbox[2] - crop_bbox[0])
-        crop_h = max(1.0, crop_bbox[3] - crop_bbox[1])
-        half_x = max(search_radius, crop_w * 1.60)
-        half_y = max(search_radius, crop_h * 1.20)
-        bounds = (cx - half_x, cy - half_y, cx + half_x, cy + half_y)
+        bounds = (cx - search_radius, cy - search_radius, cx + search_radius, cy + search_radius)
         candidates = self.spatial_index.query_bbox(bounds)
         lines, rejected, classified = self._collect_laje_candidate_lines(candidates, valid_layers=valid_layers)
         preferred_lines = self._collect_laje_preferred_outline_lines(candidates)
+        crop_bbox = self._laj_crop_bbox_from_labels(label_id or "", start_point, search_radius)
         self.last_trace_diagnostics = {
             "candidate_line_count": len(classified),
             "accepted_line_count": len(lines),
@@ -1989,7 +1913,6 @@ class SlabTracer:
             "preferred_line_count": len(preferred_lines),
             "label_id": label_id,
             "n2_axes_crop_bbox": crop_bbox,
-            "trace_query_bbox": bounds,
             "outline_source": "none",
             "rejections": [
                 {"layer": info.get("layer"), "reasons": info.get("reasons", [])}
@@ -2057,10 +1980,6 @@ class SlabTracer:
                     source = self.last_trace_diagnostics.get("outline_source", "outline")
                     self.last_trace_diagnostics["outline_source"] = f"{source}_dim_text"
                     result = dim_refined
-            # A refinação por cotas pode reintroduzir pequenos rasgos de
-            # vista/corte filtrados no polygonize inicial. A limpeza preserva
-            # recortes acima da escala de um detalhe CAD.
-            result = self._clean_small_orthogonal_notches(result, target_pt)
             self.last_trace_diagnostics["confidence_score"] = self._compute_confidence(result, target_pt, teacher, crop_bbox)
             return result
         except Exception as e:
@@ -2432,12 +2351,6 @@ class SlabTracer:
         teacher_count = len(self._laj_teacher_dims)
         print(f"[DEBUG] SlabTracer cascade on {len(texts)} texts. N2 teacher={teacher_count}")
         for t in texts:
-            try:
-                from PySide6.QtCore import QCoreApplication
-                QCoreApplication.processEvents()
-            except ImportError:
-                pass
-                
             txt = t.get('text', '').strip()
             if not slab_pattern.match(txt):
                 continue
@@ -2527,483 +2440,9 @@ class SlabTracer:
                 slab['trace_diagnostics'] = dict(diag)
             slabs.append(slab)
 
-        # Guarda o contorno bruto (antes das normalizacoes de fileira) para
-        # poder reverter qualquer expansao que produza sobreposicao real
-        # entre lajes -- ver _reject_overlapping_row_expansions.
-        originals = {
-            slab['id']: (list(slab['points']), slab['area'], slab['method'])
-            for slab in slabs
-        }
-
         self._normalize_thin_slab_rows(slabs)
         self._normalize_partial_medium_edge_slabs(slabs)
         self._normalize_medium_row_heights(slabs)
         self._expand_left_chamfered_tall_slabs(slabs)
         self._expand_long_strip_right_step(slabs)
-        self._trim_support_strip_offsets(slabs)
-        self._apply_thin_row_side_notches(slabs)
-        self._carve_boundary_pillar_intrusions(slabs)
-        self._reject_overlapping_row_expansions(slabs, originals)
         return slabs
-
-    def _carve_boundary_pillar_intrusions(self, slabs: List[Dict]) -> None:
-        """Remove a faixa de laje que invade um pilar fechado na sua borda.
-
-        O traçador é executado antes do relatório de pilares, então a prova
-        local é uma polilinha retangular ortogonal acompanhada de rótulo P###.
-        Só recorta intrusões que tocam a borda da laje; furos internos seguem
-        para o estágio que possui o modelo completo de obstáculos.
-        """
-        try:
-            pillar_rects = []
-            for item in self.spatial_index.items.values():
-                if not isinstance(item, dict) or not item.get("points"):
-                    continue
-                points = [(float(x), float(y)) for x, y, *_ in item["points"]]
-                if len(points) != 5 or points[0] != points[-1]:
-                    continue
-                corners = points[:-1]
-                if any(
-                    not (
-                        abs(a[0] - b[0]) <= 1e-6
-                        or abs(a[1] - b[1]) <= 1e-6
-                    )
-                    for a, b in zip(corners, corners[1:] + corners[:1])
-                ):
-                    continue
-                obstacle = Polygon(points)
-                if not obstacle.is_valid or obstacle.area <= 100.0:
-                    continue
-                x0, y0, x1, y1 = obstacle.bounds
-                width, height = x1 - x0, y1 - y0
-                if not (10.0 <= width <= 150.0 and 10.0 <= height <= 150.0):
-                    continue
-                label_margin = max(width, height) + 30.0
-                labels = self.spatial_index.query_bbox(
-                    (x0 - label_margin, y0 - label_margin,
-                     x1 + label_margin, y1 + label_margin)
-                )
-                if not any(
-                    isinstance(label, dict)
-                    and re.fullmatch(r"P\d+[A-Z]*", str(label.get("text", "")).strip().upper())
-                    for label in labels
-                ):
-                    continue
-                pillar_rects.append(obstacle)
-
-            for slab in slabs:
-                points = slab.get("points") or []
-                if len(points) < 4:
-                    continue
-                outline = Polygon(points)
-                if not outline.is_valid or outline.area <= 100.0:
-                    continue
-                carved = outline
-                for pillar in pillar_rects:
-                    if not carved.boundary.intersects(pillar):
-                        continue
-                    overlap = carved.intersection(pillar)
-                    # Contato quase pontual com o pilar vizinho é ruído de
-                    # precisão entre eixos (não uma faixa invadida).
-                    if overlap.area <= 2.0 or overlap.area > carved.area * 0.20:
-                        continue
-                    candidate = carved.difference(pillar)
-                    if (
-                        candidate.geom_type == "Polygon"
-                        and not candidate.interiors
-                        and candidate.is_valid
-                        and candidate.area > 100.0
-                    ):
-                        carved = candidate
-                if not carved.equals(outline):
-                    slab["points"] = list(carved.exterior.coords)
-                    slab["area"] = carved.area
-                    slab["method"] = f"{slab.get('method', 'unknown')}_pillar_trim"
-                    diag = dict(slab.get("trace_diagnostics") or {})
-                    diag["outline_source"] = slab["method"]
-                    diag["boundary_pillar_intrusion_trimmed"] = True
-                    slab["trace_diagnostics"] = diag
-
-                # O agrupamento de eixos reduz precisão para estabilizar o
-                # traçado. Quando a borda extrema já coincide (<= 1 unidade)
-                # com a face de um pilar adjacente, restaurar a coordenada
-                # exata do DXF evita uma faixa residual de laje dentro dele.
-                sx0, sy0, sx1, sy1 = carved.bounds
-                snapped_x = None
-                for pillar in pillar_rects:
-                    px0, py0, px1, py1 = pillar.bounds
-                    vertical_overlap = max(0.0, min(sy1, py1) - max(sy0, py0))
-                    if vertical_overlap < min(sy1 - sy0, py1 - py0) * 0.55:
-                        continue
-                    if abs(sx1 - px0) <= 1.0:
-                        snapped_x = (sx1, px0)
-                        break
-                    if abs(sx0 - px1) <= 1.0:
-                        snapped_x = (sx0, px1)
-                        break
-                if snapped_x is not None:
-                    old_x, new_x = snapped_x
-                    snapped = Polygon([
-                        (new_x if abs(x - old_x) <= 1e-6 else x, y)
-                        for x, y in carved.exterior.coords
-                    ])
-                    if snapped.is_valid and snapped.area > 100.0:
-                        carved = snapped
-                        slab["points"] = list(carved.exterior.coords)
-                        slab["area"] = carved.area
-                        slab["method"] = f"{slab.get('method', 'unknown')}_pillar_face_snap"
-                        diag = dict(slab.get("trace_diagnostics") or {})
-                        diag["outline_source"] = slab["method"]
-                        diag["boundary_pillar_face_snapped"] = True
-                        slab["trace_diagnostics"] = diag
-
-                # Recupera a coordenada exata da linha estrutural quando o
-                # agrupador de eixos a arredondou. Só aceita segmento vertical
-                # não-pilar que cobre parte material da borda da própria laje.
-                sx0, sy0, sx1, sy1 = carved.bounds
-
-                def exact_structural_axis(edge_x: float) -> float | None:
-                    candidates = []
-                    for item in self.spatial_index.query_bbox(
-                        (edge_x - 1.0, sy0 - 1.0, edge_x + 1.0, sy1 + 1.0)
-                    ):
-                        if not isinstance(item, dict) or str(item.get("layer", "")) == "7":
-                            continue
-                        raw = item.get("points") or (
-                            [item["start"], item["end"]]
-                            if "start" in item and "end" in item else []
-                        )
-                        for a, b in zip(raw, raw[1:]):
-                            ax, ay = float(a[0]), float(a[1])
-                            bx, by = float(b[0]), float(b[1])
-                            if abs(ax - bx) > 1e-6 or abs(ax - edge_x) > 1.0:
-                                continue
-                            overlap_y = max(0.0, min(sy1, max(ay, by)) - max(sy0, min(ay, by)))
-                            if overlap_y >= (sy1 - sy0) * 0.20:
-                                candidates.append((abs(ax - edge_x), ax))
-                    return min(candidates)[1] if candidates else None
-
-                structural_snap = exact_structural_axis(sx1)
-                if structural_snap is not None and abs(structural_snap - sx1) > 1e-6:
-                    snapped = Polygon([
-                        (structural_snap if abs(x - sx1) <= 1e-6 else x, y)
-                        for x, y in carved.exterior.coords
-                    ])
-                    if snapped.is_valid and snapped.area > 100.0:
-                        carved = snapped
-                        slab["points"] = list(carved.exterior.coords)
-                        slab["area"] = carved.area
-                        slab["method"] = f"{slab.get('method', 'unknown')}_structural_axis_snap"
-                        diag = dict(slab.get("trace_diagnostics") or {})
-                        diag["outline_source"] = slab["method"]
-                        diag["boundary_structural_axis_snapped"] = True
-                        slab["trace_diagnostics"] = diag
-        except Exception:
-            return
-
-    def _trim_support_strip_offsets(self, slabs: List[Dict]) -> None:
-        """Trim outer support-strip axes when a parallel inner slab edge is explicit."""
-        try:
-            for slab in slabs:
-                pts = slab.get("points") or []
-                if len(pts) != 5:
-                    continue
-                xs = [float(p[0]) for p in pts]
-                ys = [float(p[1]) for p in pts]
-                x0, x1 = min(xs), max(xs)
-                y0, y1 = min(ys), max(ys)
-                w, h = x1 - x0, y1 - y0
-                if w < 80.0 or h < 360.0:
-                    continue
-                pos = slab.get("pos") or ((x0 + x1) / 2.0, (y0 + y1) / 2.0)
-                py = float(pos[1])
-                max_gap = max(10.0, min(25.0, h * 0.06))
-                search = (x0 - 80.0, y0 - 80.0, x1 + 80.0, y1 + 80.0)
-                lines, _, _ = self._collect_laje_candidate_lines(
-                    self.spatial_index.query_bbox(search), valid_layers=None
-                )
-                h_groups, _v_groups = self._axis_groups_from_laj_lines(
-                    lines, search, margin=90.0
-                )
-
-                def covered(group) -> float:
-                    return sum(
-                        max(0.0, min(x1, float(b)) - max(x0, float(a)))
-                        for a, b in group.get("intervals", [])
-                    )
-
-                candidates_bottom = [
-                    float(g["const"])
-                    for g in h_groups
-                    if 1.0 <= float(g["const"]) - y0 <= max_gap
-                    and covered(g) >= w * 0.82
-                    and float(g["const"]) < py
-                ]
-                candidates_top = [
-                    float(g["const"])
-                    for g in h_groups
-                    if 1.0 <= y1 - float(g["const"]) <= max_gap
-                    and covered(g) >= w * 0.82
-                    and float(g["const"]) > py
-                ]
-                ny0 = max(candidates_bottom) if candidates_bottom else y0
-                ny1 = min(candidates_top) if candidates_top else y1
-                if ny0 == y0 and ny1 == y1:
-                    continue
-                if ny1 - ny0 < 80.0:
-                    continue
-                poly = Polygon([(x0, ny0), (x1, ny0), (x1, ny1), (x0, ny1), (x0, ny0)])
-                if not poly.is_valid or poly.area <= 100.0:
-                    continue
-                slab["points"] = list(poly.exterior.coords)
-                slab["area"] = poly.area
-                slab["method"] = f"{slab.get('method', 'unknown')}_support_trim"
-                diag = dict(slab.get("trace_diagnostics") or {})
-                diag["outline_source"] = slab["method"]
-                diag["support_strip_trimmed"] = True
-                slab["trace_diagnostics"] = diag
-        except Exception:
-            return
-
-    def _apply_thin_row_side_notches(self, slabs: List[Dict]) -> None:
-        """Compose thin strip slabs with explicit side notches from local axes."""
-        try:
-            for slab in slabs:
-                pts = slab.get("points") or []
-                if len(pts) < 4:
-                    continue
-                xs = [float(p[0]) for p in pts]
-                ys = [float(p[1]) for p in pts]
-                x0, x1 = min(xs), max(xs)
-                y0, y1 = min(ys), max(ys)
-                w, h = x1 - x0, y1 - y0
-                if w < 250.0 or not (55.0 <= h <= 90.0):
-                    continue
-                search = (x0 - 45.0, y0 - 45.0, x1 + 45.0, y1 + 45.0)
-                lines, _, _ = self._collect_laje_candidate_lines(
-                    self.spatial_index.query_bbox(search), valid_layers=None
-                )
-                h_groups, v_groups = self._axis_groups_from_laj_lines(
-                    lines, search, margin=55.0
-                )
-
-                step_candidates = [
-                    g for g in h_groups
-                    if y0 + h * 0.62 <= float(g["const"]) <= y0 + h * 0.82
-                ]
-                if not step_candidates:
-                    continue
-                step_y = float(max(step_candidates, key=lambda g: float(g.get("span", 0.0)))["const"])
-                lower_h = step_y - y0
-                if lower_h <= 20.0:
-                    continue
-
-                def v_cover(group) -> float:
-                    return sum(
-                        max(0.0, min(step_y, float(b)) - max(y0, float(a)))
-                        for a, b in group.get("intervals", [])
-                    )
-
-                left_axes = [
-                    float(g["const"])
-                    for g in v_groups
-                    if x0 + 1.0 <= float(g["const"]) <= x0 + min(12.0, w * 0.05)
-                    and v_cover(g) >= lower_h * 0.70
-                ]
-                right_axes = [
-                    float(g["const"])
-                    for g in v_groups
-                    if x1 - min(12.0, w * 0.05) <= float(g["const"]) <= x1 - 1.0
-                    and v_cover(g) >= lower_h * 0.70
-                ]
-                if not left_axes and not right_axes:
-                    continue
-                has_left_neighbor = False
-                has_right_neighbor = False
-                for other in slabs:
-                    if other is slab:
-                        continue
-                    other_pts = other.get("points") or []
-                    if len(other_pts) < 4:
-                        continue
-                    oxs = [float(p[0]) for p in other_pts]
-                    oys = [float(p[1]) for p in other_pts]
-                    ox0, ox1 = min(oxs), max(oxs)
-                    oy0, oy1 = min(oys), max(oys)
-                    ow, oh = ox1 - ox0, oy1 - oy0
-                    if ow < 250.0 or abs(oh - h) > max(8.0, h * 0.20):
-                        continue
-                    y_overlap = max(0.0, min(y1, oy1) - max(y0, oy0))
-                    if y_overlap < h * 0.60:
-                        continue
-                    if 0.0 <= x0 - ox1 <= 80.0:
-                        has_left_neighbor = True
-                    if 0.0 <= ox0 - x1 <= 80.0:
-                        has_right_neighbor = True
-
-                # Na ponta externa da fileira, o eixo de 2,5 cm é face de
-                # apoio/viga: não deve virar dobra do contorno da laje.
-                if left_axes and not has_left_neighbor:
-                    left_axes = []
-                if right_axes and not has_right_neighbor:
-                    right_axes = []
-
-                if bool(left_axes) != bool(right_axes):
-                    # Em ponta de fileira, o eixo local detectado pode ser o
-                    # apoio/viga externa. O rebaixo fabricável fica no lado
-                    # interno, isto é, voltado para o vizinho da mesma faixa.
-                    terminal_depth = min(2.5, max(1.0, w * 0.01))
-                    if right_axes and not has_right_neighbor:
-                        left_axes = [x0 + terminal_depth]
-                        right_axes = []
-                    elif left_axes and not has_left_neighbor:
-                        right_axes = [x1 - terminal_depth]
-                        left_axes = []
-                lx = min(left_axes, key=lambda v: abs(v - x0)) if left_axes else x0
-                rx = min(right_axes, key=lambda v: abs(v - x1)) if right_axes else x1
-                if rx <= lx or (lx - x0) > 15.0 or (x1 - rx) > 15.0:
-                    continue
-                if left_axes and right_axes:
-                    points = [
-                        (lx, y0),
-                        (rx, y0),
-                        (rx, step_y),
-                        (x1, step_y),
-                        (x1, y1),
-                        (x0, y1),
-                        (x0, step_y),
-                        (lx, step_y),
-                        (lx, y0),
-                    ]
-                elif left_axes:
-                    points = [
-                        (lx, y0),
-                        (x1, y0),
-                        (x1, y1),
-                        (x0, y1),
-                        (x0, step_y),
-                        (lx, step_y),
-                        (lx, y0),
-                    ]
-                else:
-                    # No início de uma fileira, a face externa em ``x1``
-                    # pertence ao apoio. O eixo interno achado à direita é a
-                    # borda superior fabricável; abaixo do degrau o recuo é
-                    # a espessura do apoio, não uma invasão na viga.
-                    outer_right = x1
-                    lower_right = rx
-                    points = [
-                        (x0, y0),
-                        (lower_right, y0),
-                        (lower_right, step_y),
-                        (outer_right, step_y),
-                        (outer_right, y1),
-                        (x0, y1),
-                        (x0, y0),
-                    ]
-                poly = Polygon(points)
-                if not poly.is_valid or poly.area <= 100.0:
-                    continue
-                slab["points"] = list(poly.exterior.coords)
-                slab["area"] = poly.area
-                slab["method"] = f"{slab.get('method', 'unknown')}_side_notches"
-                diag = dict(slab.get("trace_diagnostics") or {})
-                diag["outline_source"] = slab["method"]
-                diag["thin_row_side_notches"] = True
-                slab["trace_diagnostics"] = diag
-        except Exception:
-            return
-
-    def _reject_overlapping_row_expansions(
-        self, slabs: List[Dict], originals: Dict[str, tuple],
-    ) -> None:
-        """As passagens de normalizacao de fileira (_normalize_thin_slab_rows,
-        _normalize_partial_medium_edge_slabs, _normalize_medium_row_heights,
-        _expand_left_chamfered_tall_slabs, _expand_long_strip_right_step)
-        generalizam por banda numerica de altura/largura sem verificar se o
-        eixo escolhido e realmente a face da viga que separa esta laje da
-        vizinha -- podem avancar sobre o territorio da laje ao lado (ou
-        sobre a viga entre elas). Lajes reais nunca se sobrepoem
-        fisicamente: qualquer overlap real entre duas lajes computadas
-        indica que uma expansao foi longe demais. Reverte a(s) laje(s)
-        que foram MODIFICADAS por essas passagens (nunca a vizinha nao
-        tocada) para o contorno anterior as normalizacoes.
-        """
-        try:
-            polys: Dict[str, Polygon] = {}
-            for slab in slabs:
-                pts = slab.get("points") or []
-                if len(pts) < 3:
-                    continue
-                poly = Polygon(pts)
-                if poly.is_valid and poly.area > 0:
-                    polys[slab["id"]] = poly
-
-            expanded_ids = {
-                sid for sid, (orig_pts, _, _) in originals.items()
-                if sid in polys and list(polys[sid].exterior.coords) != orig_pts
-            }
-            if not expanded_ids:
-                return
-
-            slabs_by_id = {slab["id"]: slab for slab in slabs}
-            strong_evidence_ids = {
-                sid
-                for sid in expanded_ids
-                if (
-                    (slabs_by_id.get(sid, {}).get("trace_diagnostics") or {}).get(
-                        "right_axis_band_validated"
-                    ) is True
-                    and len(list(polys[sid].exterior.coords)) == 7
-                )
-            }
-            reverted = set()
-            for sid in expanded_ids:
-                poly = polys.get(sid)
-                if poly is None:
-                    continue
-                slab = slabs_by_id.get(sid, {})
-                diag = slab.get("trace_diagnostics") or {}
-                # Uma expansão retangular sustentada simultaneamente por
-                # fechamento de borda, overlap do eixo com a banda e cota
-                # vertical explícita é mais forte que o overlap aparente das
-                # faixas de apoio vizinhas. A exceção é deliberadamente
-                # estreita; expansões heurísticas comuns continuam protegidas.
-                strong_right_edge_evidence = sid in strong_evidence_ids
-                if strong_right_edge_evidence:
-                    diag = dict(diag)
-                    diag["row_expansion_overlap_accepted_structural_evidence"] = True
-                    slab["trace_diagnostics"] = diag
-                    continue
-                for other_id, other_poly in polys.items():
-                    if other_id == sid or other_id in reverted:
-                        continue
-                    inter_area = poly.intersection(other_poly).area
-                    tolerance = max(25.0, 0.03 * min(poly.area, other_poly.area))
-                    # Faixas de apoio compartilhadas podem produzir um overlap
-                    # pequeno com um contorno retangular de evidência forte.
-                    # A margem adicional é limitada a 5%; invasões maiores
-                    # continuam revertendo a expansão heurística.
-                    if other_id in strong_evidence_ids:
-                        tolerance = max(
-                            tolerance, 0.05 * min(poly.area, other_poly.area)
-                        )
-                    if inter_area <= tolerance:
-                        continue
-                    reverted.add(sid)
-                    break
-
-            if not reverted:
-                return
-            for slab in slabs:
-                if slab["id"] not in reverted:
-                    continue
-                orig_points, orig_area, orig_method = originals[slab["id"]]
-                slab["points"] = orig_points
-                slab["area"] = orig_area
-                slab["method"] = orig_method
-                diag = dict(slab.get("trace_diagnostics") or {})
-                diag["row_expansion_reverted_overlap"] = True
-                slab["trace_diagnostics"] = diag
-        except Exception:
-            return

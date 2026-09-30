@@ -46,7 +46,7 @@ from PySide6.QtGui import QPainter, QLinearGradient, QColor, QGradient
 from src.ui.dialogs.project_details_dialog import ProjectDetailsDialog
 from src.ui.components.project_cards import CuradoriaCard
 from src.ui.widgets.data_pipeline import DataPipelineView
-from src.ui.theme import Colors, Fonts, Radius, Accent, Text, Border, Surface
+from src.ui.theme import Colors, Fonts, Radius
 
 class DashboardCard(QFrame):
     def __init__(self, title: str, value: str, subtext: str = "", color: str = Colors.ACCENT_BLUE):
@@ -99,78 +99,33 @@ class AdminDashboard(QWidget):
         layout.addWidget(header)
         
         self.tabs = QTabWidget()
-        self.tabs.setStyleSheet(f"""
-            QTabWidget::pane {{ border: 1px solid {Border.DEFAULT}; background: {Surface.DEEP}; border-radius: 8px; }}
-            QTabBar::tab {{ background: {Surface.CARD}; padding: 12px 25px; color: {Text.SECONDARY}; font-weight: bold; }}
-            QTabBar::tab:selected {{ background: {Accent.INTERACTIVE}; color: {Text.BRIGHT}; border-bottom: 2px solid {Text.BRIGHT}; }}
+        self.tabs.setStyleSheet("""
+            QTabWidget::pane { border: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_DEEP}; border-radius: 8px; }
+            QTabBar::tab { background: {Colors.BG_CARD}; padding: 12px 25px; color: {Colors.TEXT_SECONDARY}; font-weight: bold; }
+            QTabBar::tab:selected { background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; border-bottom: 2px solid #fff; }
         """)
         
-        # 1. Mapa RAG
-        self.mapa_tab = QWidget()
-        self.setup_mapa_tab()
-        self.tabs.addTab(self.mapa_tab, "🗺️ Mapa RAG")
-        
-        # 2. Enciclopédia
-        self.enciclopedia_tab = QWidget()
-        self.setup_enciclopedia_tab()
-        self.tabs.addTab(self.enciclopedia_tab, "📚 Enciclopédia")
-        
-        # 3. Corpus & Cobertura (Lista de Obras/Nuvem)
+        # 0. Community Projects List (Existing logic moved here)
         self.curadoria_tab = QWidget()
         self.setup_curadoria_tab()
-        self.tabs.addTab(self.curadoria_tab, "🌐 Corpus & Cobertura")
+        self.tabs.addTab(self.curadoria_tab, "📋 Lista de Curadoria")
 
-        # 4. Aprendizado (Accuracy & Comprehension)
-        self.accuracy_tab = QWidget()
-        self.setup_accuracy_tab()
-        self.tabs.addTab(self.accuracy_tab, "📈 Aprendizado")
-
-        # 5. Memória Vetorial
+        # 1. Database Dashboard
+        self.db_tab = QWidget()
+        self.setup_db_tab()
+        self.tabs.addTab(self.db_tab, "📊 Banco de Dados")
+        
+        # 2. Vector Intelligence
         self.vector_tab = QWidget()
         self.setup_vector_tab()
         self.tabs.addTab(self.vector_tab, "🧠 Memória Vetorial")
-
-        # 6. Banco de Dados (Pipeline)
-        self.db_tab = QWidget()
-        self.setup_db_tab()
-        self.tabs.addTab(self.db_tab, "🗄️ Banco de Dados")
+        
+        # 3. Accuracy & Comprehension
+        self.accuracy_tab = QWidget()
+        self.setup_accuracy_tab()
+        self.tabs.addTab(self.accuracy_tab, "🎯 Acurácia & IA")
         
         layout.addWidget(self.tabs)
-
-    def setup_mapa_tab(self):
-        layout = QVBoxLayout(self.mapa_tab)
-        layout.setAlignment(Qt.AlignCenter)
-        lbl = QLabel("🗺️ MAPA RAG - Fluxo do Segundo Cérebro\n\nN1/N2 (Drafts) -> Quarentena (T0)\nValidação Humana -> Professor (T1)\nConsolidação Global -> Regra (T2)")
-        lbl.setStyleSheet(f"color: {Colors.TEXT_BRIGHT}; font-size: 20px; font-weight: bold; background: {Colors.BG_CARD}; padding: 30px; border-radius: 12px; border: 1px solid {Accent.PRIMARY};")
-        lbl.setAlignment(Qt.AlignCenter)
-        layout.addWidget(lbl)
-
-    def setup_enciclopedia_tab(self):
-        layout = QVBoxLayout(self.enciclopedia_tab)
-        layout.setAlignment(Qt.AlignTop)
-        title = QLabel("📚 Enciclopédia Estrutural (As 8 Dimensões)")
-        title.setStyleSheet(f"color: {Accent.PRIMARY}; font-size: 22px; font-weight: bold; margin-bottom: 20px;")
-        layout.addWidget(title)
-        
-        dims = [
-            "1. Visual Estrutural Limpa (N1)", "2. Desenho dos Robôs (N3/N4)", 
-            "3. Dados / Fichas / Campos", "4. Regras Semânticas (Domain Knowledge)",
-            "5. Contexto Obra/Pavimento", "6. Engenharia Reversa (N2)",
-            "7. Visual STOG (Layers/Cores)", "8. Corpus Global (FAISS)"
-        ]
-        grid = QGridLayout()
-        grid.setSpacing(15)
-        
-        for i, dim in enumerate(dims):
-            card = QFrame()
-            card.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Border.DEFAULT}; border-radius: 8px;")
-            cl = QVBoxLayout(card)
-            l = QLabel(dim)
-            l.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-weight: bold; font-size: 14px;")
-            cl.addWidget(l)
-            grid.addWidget(card, i // 2, i % 2)
-            
-        layout.addLayout(grid)
 
     def setup_curadoria_tab(self):
         """Nova UI: Lista de Obras (Esq) | Abas Detalhes (Dir)"""
@@ -193,28 +148,28 @@ class AdminDashboard(QWidget):
         left_layout.addWidget(lbl_works)
         
         self.list_cloud_works = QListWidget()
-        self.list_cloud_works.setStyleSheet(f"""
-            QListWidget {{ background: {Surface.CARD}; border: 1px solid {Border.DEFAULT}; border-radius: 4px; padding: 5px; }}
-            QListWidget::item {{ padding: 10px; color: {Text.PRIMARY}; border-bottom: 1px solid {Border.DEFAULT}; }}
-            QListWidget::item:selected {{ background: {Accent.INTERACTIVE}; color: {Text.BRIGHT}; border-radius: 4px; }}
+        self.list_cloud_works.setStyleSheet("""
+            QListWidget { background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px; padding: 5px; }
+            QListWidget::item { padding: 10px; color: {Colors.TEXT_PRIMARY}; border-bottom: 1px solid {Colors.BORDER_DEFAULT}; }
+            QListWidget::item:selected { background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; border-radius: 4px; }
         """)
         self.list_cloud_works.itemClicked.connect(self.on_cloud_work_selected)
         left_layout.addWidget(self.list_cloud_works)
         
         btn_layout = QHBoxLayout()
         self.btn_refresh_cloud = QPushButton("🔄 Atualizar Lista")
-        self.btn_refresh_cloud.setStyleSheet(f"""
-            QPushButton {{ background: {Surface.CARD}; color: {Text.BRIGHT}; border: 1px solid {Border.STRONG}; padding: 6px; border-radius: 4px; }}
-            QPushButton:hover {{ background: {Border.STRONG}; }}
+        self.btn_refresh_cloud.setStyleSheet("""
+            QPushButton { background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border: 1px solid {Colors.BORDER_INPUT}; padding: 6px; border-radius: 4px; }
+            QPushButton:hover { background: {Colors.BORDER_INPUT}; }
         """)
         self.btn_refresh_cloud.clicked.connect(self.load_community_projects)
         btn_layout.addWidget(self.btn_refresh_cloud)
         
         self.btn_sync_full_work = QPushButton("☁️ Baixar Obra Completa")
         self.btn_sync_full_work.setToolTip("Baixa todos os itens desta obra para o PC local.")
-        self.btn_sync_full_work.setStyleSheet(f"""
-            QPushButton {{ background: rgba(26, 50, 75, 1); color: {Accent.PRIMARY}; border: 1px solid {Accent.PRIMARY}; padding: 6px; border-radius: 4px; font-weight: bold; }}
-            QPushButton:hover {{ background: {Accent.PRIMARY}; color: {Surface.DEEP}; }}
+        self.btn_sync_full_work.setStyleSheet("""
+            QPushButton { background: rgba(26, 50, 75, 1); color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.ACCENT_PRIMARY}; padding: 6px; border-radius: 4px; font-weight: bold;}
+            QPushButton:hover { background: {Colors.ACCENT_PRIMARY}; color: {Colors.BG_DEEP}; }
         """)
         self.btn_sync_full_work.clicked.connect(self.download_full_work)
         self.btn_sync_full_work.setVisible(False)
@@ -234,10 +189,10 @@ class AdminDashboard(QWidget):
         
         # Abas de Detalhes
         self.work_tabs = QTabWidget()
-        self.work_tabs.setStyleSheet(f"""
-            QTabWidget::pane {{ border: 1px solid {Border.DEFAULT}; background: {Surface.DEEP}; }}
-            QTabBar::tab {{ background: {Surface.BASE}; color: {Text.SECONDARY}; padding: 8px 16px; margin-right: 2px; }}
-            QTabBar::tab:selected {{ background: {Accent.INTERACTIVE}; color: {Text.BRIGHT}; }}
+        self.work_tabs.setStyleSheet("""
+            QTabWidget::pane { border: 1px solid {Colors.BORDER_DEFAULT}; background: {Colors.BG_DEEP}; }
+            QTabBar::tab { background: {Colors.BG_PANEL}; color: {Colors.TEXT_SECONDARY}; padding: 8px 16px; margin-right: 2px; }
+            QTabBar::tab:selected { background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT}; }
         """)
         
         # Aba 1: Pavimentos (Cards)

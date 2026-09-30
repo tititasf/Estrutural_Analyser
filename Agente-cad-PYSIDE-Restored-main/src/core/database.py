@@ -309,53 +309,6 @@ class DatabaseManager:
             )
         ''')
 
-        # Tabela ADITIVA: mapeia obra "espelho local" de volta pro UUID do portal
-        # web (Masterplan OBRAS DRIVE, Fase 1). Usada só pelo fluxo de download
-        # sob demanda em diagnostic_hub.py — obras locais normais nunca têm linha aqui.
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS drive_obras (
-                obra_nome        TEXT NOT NULL,
-                bruto_id         TEXT NOT NULL,
-                item_id          TEXT NOT NULL,
-                portal_obra_id   TEXT NOT NULL,
-                portal_bruto_id  TEXT NOT NULL,
-                portal_item_id   TEXT NOT NULL,
-                created_at       TEXT,
-                PRIMARY KEY (obra_nome, bruto_id, item_id)
-            )
-        ''')
-
-        # Tabela ADITIVA: mapeia 1 documento bruto/PDF/etc (não um recorte —
-        # ver `drive_obras` pra isso) de volta pro doc_id do portal, keyed
-        # pelo path local esperado (documentos não têm o par bruto/item que
-        # recortes têm — são identificados só pelo `doc_id` do portal).
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS drive_documentos (
-                obra_nome        TEXT NOT NULL,
-                arquivo_local    TEXT NOT NULL,
-                portal_obra_id   TEXT NOT NULL,
-                portal_doc_id    TEXT NOT NULL,
-                created_at       TEXT,
-                PRIMARY KEY (obra_nome, arquivo_local)
-            )
-        ''')
-
-        # Validação "item completo" N1+N3 por classe (Masterplan OBRAS DRIVE
-        # Fase 3) — espelha `portal_validacoes` (etapa 5 do portal, gateia
-        # liberação do N5 lá). NÃO substitui o sistema rico de aprovação por
-        # item do Diagnostic Reverse Hub — é um flag de confirmação manual
-        # separado, mesmo nível de granularidade que o portal tem hoje.
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS validacoes_n1n3 (
-                obra_nome    TEXT NOT NULL,
-                classe       TEXT NOT NULL,
-                n1_ok        BOOLEAN DEFAULT 0,
-                n3_ok        BOOLEAN DEFAULT 0,
-                validado_em  TEXT,
-                PRIMARY KEY (obra_nome, classe)
-            )
-        ''')
-
         # Tabela de Scripts Gerados
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS generated_scripts (
@@ -423,27 +376,6 @@ class DatabaseManager:
         _check_and_add_column('projects', 'deadline', 'TEXT')
         _check_and_add_column('projects', 'author_name', "TEXT DEFAULT 'Local'")
         _check_and_add_column('projects', 'file_version', 'TEXT')
-        # Validação "item completo" do SA (Masterplan OBRAS DRIVE Fase 2) —
-        # eixo coarse, espelhado com o portal; NÃO é o mesmo que `is_validated`
-        # de pillars/beams/slabs (esse é por campo, fica só local).
-        _check_and_add_column('projects', 'validado_sa', 'BOOLEAN DEFAULT 0')
-        _check_and_add_column('projects', 'validado_sa_em', 'TEXT')
-        # Referência (ISOLADA, nunca colide) pro `id` do project que o
-        # pipeline SA do PORTAL registra pra esse MESMO pavimento real
-        # (`_garantir_project_registrado`, work_name=path do servidor) —
-        # espelho local e SA-web usam ids/work_name completamente diferentes
-        # de propósito (uuid4 local vs `drive:{bruto_id}` vs path bruto do
-        # servidor — nunca colidem). Isso só REFERENCIA o outro, não funde.
-        _check_and_add_column('projects', 'web_sa_project_id', 'TEXT')
-
-        # Cache/expiração dos arquivos baixados sob demanda do Drive
-        # (Masterplan OBRAS DRIVE Fase 13) — versão remota (`Last-Modified`
-        # HTTP do portal) na hora do último download, pra detectar sem custo
-        # (HEAD request) se a web mudou o arquivo depois. Nunca expira por
-        # tempo; só por versão, e nunca sobrescreve silenciosamente um item
-        # já validado localmente (ver `tem_item_validado_para_obra`).
-        _check_and_add_column('drive_obras', 'remoto_versao', 'TEXT')
-        _check_and_add_column('drive_documentos', 'remoto_versao', 'TEXT')
 
         # WORKS
         _check_and_add_column('works', 'client_id', 'TEXT')
@@ -540,55 +472,12 @@ class DatabaseManager:
                 created_at           DATETIME DEFAULT CURRENT_TIMESTAMP,
                 UNIQUE(obra_name, pavimento)
             );
-
-            CREATE TABLE IF NOT EXISTS crop_learning_events (
-                id TEXT PRIMARY KEY,
-                created_at TEXT NOT NULL,
-                updated_at TEXT,
-                status TEXT NOT NULL DEFAULT 'validated',
-                obra_name TEXT NOT NULL,
-                pavimento TEXT,
-                classe TEXT NOT NULL,
-                elemento_id TEXT NOT NULL,
-                source_dxf TEXT,
-                source_layer TEXT,
-                source_color TEXT,
-                recorte_path TEXT NOT NULL,
-                recorte_hash TEXT,
-                bbox_json TEXT,
-                polygon_json TEXT,
-                margin_profile_json TEXT,
-                nearby_entities_json TEXT,
-                method_version TEXT NOT NULL,
-                approved_by TEXT,
-                approved_at TEXT,
-                revoked_by TEXT,
-                revoked_at TEXT,
-                revoked_reason TEXT,
-                notes TEXT,
-                metadata_json TEXT
-            );
-
-            CREATE INDEX IF NOT EXISTS idx_crop_learning_active_class
-                ON crop_learning_events(classe, status, created_at);
-            CREATE INDEX IF NOT EXISTS idx_crop_learning_item
-                ON crop_learning_events(obra_name, pavimento, classe, elemento_id);
-            CREATE INDEX IF NOT EXISTS idx_crop_learning_recorte
-                ON crop_learning_events(recorte_path, status);
         """)
 
         # reverse_eng_recortes — colunas adicionadas no sprint ER-2
         _check_and_add_column('reverse_eng_recortes', 'projeto_id', 'TEXT')
         _check_and_add_column('reverse_eng_recortes', 'classe',     'TEXT')
         _check_and_add_column('reverse_eng_recortes', 'status',     "TEXT DEFAULT 'manual'")
-        # [2026-07-31] 'confidence' existe no project_data.vision de PRODUÇÃO
-        # (visto via PRAGMA table_info real) mas nunca tinha migração aqui —
-        # drift entre o bootstrapper "oficial" e o banco real. Achado testando
-        # item_manual.criar_item_manual contra um DatabaseManager novo: a
-        # tabela criada do zero não tinha a coluna que o INSERT gravava.
-        # Qualquer instalação fresca (obra nova, CI, ambiente de teste) caía
-        # nesse mesmo erro.
-        _check_and_add_column('reverse_eng_recortes', 'confidence', 'REAL DEFAULT NULL')
 
 
     def create_work(self, name: str, client_id: str = None):
@@ -662,231 +551,6 @@ class DatabaseManager:
         try:
             cursor = conn.execute('SELECT name FROM works ORDER BY name ASC')
             return [r[0] for r in cursor.fetchall()]
-        finally:
-            conn.close()
-
-    # --- Drive Obras (Masterplan OBRAS DRIVE, Fase 1) ---------------------
-
-    def registrar_drive_item(self, obra_nome: str, bruto_id: str, item_id: str,
-                              portal_obra_id: str, portal_bruto_id: str, portal_item_id: str) -> None:
-        """Registra o mapeamento espelho-local -> UUID do portal pra 1 item de recorte.
-        Idempotente (chave composta obra_nome+bruto_id+item_id)."""
-        conn = self._get_conn()
-        try:
-            conn.execute('''
-                INSERT INTO drive_obras (obra_nome, bruto_id, item_id, portal_obra_id, portal_bruto_id, portal_item_id, created_at)
-                VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                ON CONFLICT(obra_nome, bruto_id, item_id) DO UPDATE SET
-                    portal_obra_id=excluded.portal_obra_id,
-                    portal_bruto_id=excluded.portal_bruto_id,
-                    portal_item_id=excluded.portal_item_id
-            ''', (obra_nome, bruto_id, item_id, portal_obra_id, portal_bruto_id, portal_item_id))
-            conn.commit()
-        finally:
-            conn.close()
-
-    def obter_drive_item(self, obra_nome: str, bruto_id: str, item_id: str) -> Optional[Dict]:
-        """Devolve o mapeamento portal (obra_id/bruto_id/item_id) de 1 item de
-        recorte espelhado, ou None se essa obra/bruto/item não veio do Drive."""
-        conn = self._get_conn()
-        conn.row_factory = sqlite3.Row
-        try:
-            row = conn.execute(
-                'SELECT * FROM drive_obras WHERE obra_nome = ? AND bruto_id = ? AND item_id = ?',
-                (obra_nome, bruto_id, item_id)
-            ).fetchone()
-            return dict(row) if row else None
-        finally:
-            conn.close()
-
-    def obra_e_drive(self, obra_nome: str) -> bool:
-        """True se `obra_nome` tem pelo menos 1 item espelhado do Drive."""
-        conn = self._get_conn()
-        try:
-            row = conn.execute(
-                'SELECT 1 FROM drive_obras WHERE obra_nome = ? '
-                'UNION SELECT 1 FROM drive_documentos WHERE obra_nome = ? LIMIT 1',
-                (obra_nome, obra_nome)
-            ).fetchone()
-            return row is not None
-        finally:
-            conn.close()
-
-    def obter_portal_obra_id(self, obra_nome: str) -> Optional[str]:
-        """UUID do portal pra `obra_nome` (qualquer mapeamento já registrado
-        serve — todos apontam pro mesmo portal_obra_id). None se não for
-        obra Drive."""
-        conn = self._get_conn()
-        try:
-            row = conn.execute(
-                'SELECT portal_obra_id FROM drive_obras WHERE obra_nome = ? '
-                'UNION SELECT portal_obra_id FROM drive_documentos WHERE obra_nome = ? LIMIT 1',
-                (obra_nome, obra_nome)
-            ).fetchone()
-            return row[0] if row else None
-        finally:
-            conn.close()
-
-    def contar_elementos_sa(self, project_id: Optional[str]) -> Dict:
-        """Contagem de pilares/vigas/lajes salvos pra 1 project_id — usado
-        pra comparar o SA local (espelho Drive) com o SA já rodado pela web
-        pro MESMO pavimento real (`projects.web_sa_project_id`), sem fundir
-        os dois registros (ficam isolados, cada um com seus próprios dados)."""
-        if not project_id:
-            return {"pilares": 0, "vigas": 0, "lajes": 0}
-        conn = self._get_conn()
-        try:
-            return {
-                "pilares": conn.execute('SELECT COUNT(*) FROM pillars WHERE project_id=?', (project_id,)).fetchone()[0],
-                "vigas": conn.execute('SELECT COUNT(*) FROM beams WHERE project_id=?', (project_id,)).fetchone()[0],
-                "lajes": conn.execute('SELECT COUNT(*) FROM slabs WHERE project_id=?', (project_id,)).fetchone()[0],
-            }
-        finally:
-            conn.close()
-
-    def obter_ultimo_html_dir_sa(self, project_id: Optional[str]) -> Optional[str]:
-        """Pasta do pack HTML (fichas) do commit SA mais recente pra 1
-        project_id — só existe se `sa_persistence_runs` tiver alguma linha
-        (ou seja, se `--persist-db` já commitou pra esse id). Usado só pra
-        abrir a pasta real em disco (atalho de leitura), nunca redireciona
-        o pipeline N1-N5 do Comparison Engine."""
-        if not project_id:
-            return None
-        conn = self._get_conn()
-        try:
-            row = conn.execute(
-                "SELECT html_dir FROM sa_persistence_runs WHERE project_id=? AND status='COMMITTED' "
-                "ORDER BY created_at DESC LIMIT 1",
-                (project_id,)
-            ).fetchone()
-            return row[0] if row and row[0] else None
-        except sqlite3.OperationalError:
-            return None  # tabela pode nao existir se nenhum --persist-db rodou ainda
-        finally:
-            conn.close()
-
-    def obter_validacao_n1n3(self, obra_nome: str, classe: str) -> Dict:
-        """Estado local de validação N1+N3 (item completo) pra 1 classe."""
-        conn = self._get_conn()
-        conn.row_factory = sqlite3.Row
-        try:
-            row = conn.execute(
-                'SELECT * FROM validacoes_n1n3 WHERE obra_nome = ? AND classe = ?',
-                (obra_nome, classe.upper())
-            ).fetchone()
-            if row is None:
-                return {"obra_nome": obra_nome, "classe": classe.upper(), "n1_ok": False, "n3_ok": False}
-            d = dict(row)
-            d["n1_ok"] = bool(d["n1_ok"])
-            d["n3_ok"] = bool(d["n3_ok"])
-            return d
-        finally:
-            conn.close()
-
-    def set_validacao_n1n3(self, obra_nome: str, classe: str, n1_ok: bool, n3_ok: bool) -> None:
-        """Grava a validação local — merge protetivo: nunca rebaixa n1_ok/n3_ok
-        já True (harmoniza com o que vier do portal em `_garantir...`)."""
-        conn = self._get_conn()
-        try:
-            conn.execute('''
-                INSERT INTO validacoes_n1n3 (obra_nome, classe, n1_ok, n3_ok, validado_em)
-                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-                ON CONFLICT(obra_nome, classe) DO UPDATE SET
-                    n1_ok=CASE WHEN validacoes_n1n3.n1_ok=1 THEN 1 ELSE excluded.n1_ok END,
-                    n3_ok=CASE WHEN validacoes_n1n3.n3_ok=1 THEN 1 ELSE excluded.n3_ok END,
-                    validado_em=CURRENT_TIMESTAMP
-            ''', (obra_nome, classe.upper(), int(n1_ok), int(n3_ok)))
-            conn.commit()
-        finally:
-            conn.close()
-
-    def registrar_drive_documento(self, obra_nome: str, arquivo_local: str,
-                                   portal_obra_id: str, portal_doc_id: str) -> None:
-        """Registra o mapeamento espelho-local -> doc_id do portal pra 1
-        documento bruto/PDF/etc (não-recorte). Idempotente (chave composta
-        obra_nome+arquivo_local)."""
-        conn = self._get_conn()
-        try:
-            conn.execute('''
-                INSERT INTO drive_documentos (obra_nome, arquivo_local, portal_obra_id, portal_doc_id, created_at)
-                VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
-                ON CONFLICT(obra_nome, arquivo_local) DO UPDATE SET
-                    portal_obra_id=excluded.portal_obra_id,
-                    portal_doc_id=excluded.portal_doc_id
-            ''', (obra_nome, arquivo_local, portal_obra_id, portal_doc_id))
-            conn.commit()
-        finally:
-            conn.close()
-
-    def obter_drive_documento(self, obra_nome: str, arquivo_local: str) -> Optional[Dict]:
-        """Devolve o mapeamento portal (obra_id/doc_id) de 1 documento
-        espelhado, ou None se esse arquivo não veio do Drive."""
-        conn = self._get_conn()
-        conn.row_factory = sqlite3.Row
-        try:
-            row = conn.execute(
-                'SELECT * FROM drive_documentos WHERE obra_nome = ? AND arquivo_local = ?',
-                (obra_nome, arquivo_local)
-            ).fetchone()
-            return dict(row) if row else None
-        finally:
-            conn.close()
-
-    def atualizar_drive_item_versao(self, obra_nome: str, bruto_id: str, item_id: str, versao: Optional[str]) -> None:
-        """Grava a versão remota (`Last-Modified` HTTP) do último download de
-        1 recorte — Masterplan OBRAS DRIVE Fase 13 (cache/expiração)."""
-        if not versao:
-            return
-        conn = self._get_conn()
-        try:
-            conn.execute(
-                'UPDATE drive_obras SET remoto_versao=? WHERE obra_nome=? AND bruto_id=? AND item_id=?',
-                (versao, obra_nome, bruto_id, item_id),
-            )
-            conn.commit()
-        finally:
-            conn.close()
-
-    def atualizar_drive_documento_versao(self, obra_nome: str, arquivo_local: str, versao: Optional[str]) -> None:
-        """Grava a versão remota (`Last-Modified` HTTP) do último download de
-        1 documento — Masterplan OBRAS DRIVE Fase 13 (cache/expiração)."""
-        if not versao:
-            return
-        conn = self._get_conn()
-        try:
-            conn.execute(
-                'UPDATE drive_documentos SET remoto_versao=? WHERE obra_nome=? AND arquivo_local=?',
-                (versao, obra_nome, arquivo_local),
-            )
-            conn.commit()
-        finally:
-            conn.close()
-
-    def tem_item_validado_para_obra(self, obra_nome: str) -> bool:
-        """True se QUALQUER pilar/laje/viga de QUALQUER pavimento desta obra
-        (todo `project_id` cujo `work_name` = `obra_nome`) já tem selo verde
-        (`is_validated=1`) — usado pra nunca sobrescrever silenciosamente um
-        arquivo Drive já em uso pra validação (Fase 13, cache/expiração).
-        Checagem propositalmente ampla (obra inteira, não só o pavimento do
-        arquivo) — errar pro lado de proteger demais é preferível a perder
-        trabalho de validação."""
-        conn = self._get_conn()
-        try:
-            row = conn.execute(
-                '''
-                SELECT 1 FROM pillars WHERE is_validated=1 AND project_id IN
-                    (SELECT id FROM projects WHERE work_name=?)
-                UNION
-                SELECT 1 FROM slabs WHERE is_validated=1 AND project_id IN
-                    (SELECT id FROM projects WHERE work_name=?)
-                UNION
-                SELECT 1 FROM beams WHERE is_validated=1 AND project_id IN
-                    (SELECT id FROM projects WHERE work_name=?)
-                LIMIT 1
-                ''',
-                (obra_nome, obra_nome, obra_nome),
-            ).fetchone()
-            return row is not None
         finally:
             conn.close()
 
@@ -1515,50 +1179,6 @@ class DatabaseManager:
             conn.close()
 
 
-    @staticmethod
-    def _merge_validated_field_tracking(old_value: Any, new_value: Any) -> Any:
-        """Une duas marcações de "campo validado", em qualquer um dos dois
-        formatos que já existem em produção: a lista simples de nomes
-        (``["dim", "name"]``) e o dicionário de proveniência mais recente
-        (``{"dim": [{"origem": "qa_agente", "quando": "..."}]}``, escrito por
-        `qa_agente`/`humano_app`).
-
-        `dict + dict` (e `dict + list`) explode com `TypeError` no Python —
-        e no 13_PAV real **100% dos pilares** já estão no formato de
-        proveniência, então a proteção de dados validados (o motivo de
-        existir esse merge) falhava silenciosamente para todos eles: o save
-        levantava exceção, o `except` de `save_pillar` só logava, e a chamada
-        parecia ter funcionado.
-
-        Quando qualquer um dos dois lados é um dicionário, o resultado é um
-        dicionário — a proveniência nunca é descartada, só união. Quando os
-        dois são listas (ou vazios), o comportamento é o de sempre.
-        """
-        if isinstance(old_value, dict) or isinstance(new_value, dict):
-            merged: dict[str, Any] = {}
-            for source in (old_value, new_value):
-                if isinstance(source, dict):
-                    for field, provenance in source.items():
-                        incoming = provenance if isinstance(provenance, list) else [provenance]
-                        existing = merged.setdefault(field, [])
-                        for entry in incoming:
-                            if entry not in existing:
-                                existing.append(entry)
-                elif isinstance(source, (list, tuple, set)):
-                    for field in source:
-                        merged.setdefault(str(field), [])
-            return merged
-        return list(set((old_value or []) + (new_value or [])))
-
-    @staticmethod
-    def _validated_field_names(value: Any) -> set:
-        """Nomes de campo validados, lendo qualquer um dos dois formatos."""
-        if isinstance(value, dict):
-            return set(value.keys())
-        if isinstance(value, (list, tuple, set)):
-            return set(value)
-        return set()
-
     # Keys handled by dedicated columns — excluded from extra_data_json
     _PILLAR_FIXED_KEYS = frozenset({
         'id', 'project_id', 'name', 'type', 'area_val', 'area',
@@ -1590,18 +1210,14 @@ class DatabaseManager:
                 old_extra = json.loads(row[0]) if row[0] else {}
                 val_fields = json.loads(row[1]) if row[1] else []
                 if val_fields:
-                    p['validated_fields'] = self._merge_validated_field_tracking(
-                        p.get('validated_fields'), val_fields,
-                    )
-                    for vf in self._validated_field_names(val_fields):
+                    p['validated_fields'] = list(set(p.get('validated_fields', []) + val_fields))
+                    for vf in val_fields:
                         if vf in old_extra:
                             p[vf] = old_extra[vf]
 
                 na_fields = json.loads(row[2]) if row[2] else []
                 if na_fields:
-                    p['na_fields'] = self._merge_validated_field_tracking(
-                        p.get('na_fields'), na_fields,
-                    )
+                    p['na_fields'] = list(set(p.get('na_fields', []) + na_fields))
 
                 if row[3]:
                     p['is_validated'] = True
@@ -1638,7 +1254,6 @@ class DatabaseManager:
                     name=excluded.name,
                     type=excluded.type,
                     area=excluded.area,
-                    points_json=excluded.points_json,
                     sides_data_json=excluded.sides_data_json,
                     links_json=excluded.links_json,
                     conf_map_json=excluded.conf_map_json,
@@ -1768,18 +1383,14 @@ class DatabaseManager:
                 old_extra = json.loads(row[0]) if row[0] else {}
                 val_fields = json.loads(row[1]) if row[1] else []
                 if val_fields:
-                    s['validated_fields'] = self._merge_validated_field_tracking(
-                        s.get('validated_fields'), val_fields,
-                    )
-                    for vf in self._validated_field_names(val_fields):
+                    s['validated_fields'] = list(set(s.get('validated_fields', []) + val_fields))
+                    for vf in val_fields:
                         if vf in old_extra:
                             s[vf] = old_extra[vf]
 
                 na_fields = json.loads(row[2]) if row[2] else []
                 if na_fields:
-                    s['na_fields'] = self._merge_validated_field_tracking(
-                        s.get('na_fields'), na_fields,
-                    )
+                    s['na_fields'] = list(set(s.get('na_fields', []) + na_fields))
 
                 old_val_links = json.loads(row[4]) if len(row) > 4 and row[4] else {}
                 if isinstance(old_val_links, dict) and old_val_links:
@@ -1911,51 +1522,19 @@ class DatabaseManager:
                 import re
                 old_b = json.loads(row[0])
                 val_fields = old_b.get('validated_fields', [])
-
-                # Fundo de viga possui topologia própria: validar dimensão ou
-                # apoio de um trecho não autoriza o banco a restaurar uma área
-                # antiga sobre a segmentação recém-interpretada. Um conjunto FV
-                # só preserva as áreas quando a topologia humana completa está
-                # efetivamente bloqueada. Locks parciais/stale continuam
-                # preservando os campos auxiliares, mas não a área nem seu
-                # status de validação.
-                stale_fv_area_topology = False
-                nomes_val_fields = self._validated_field_names(val_fields)
-                if any(re.match(r'^viga_fundo_seg_\d+_area_segs$', str(f)) for f in nomes_val_fields):
-                    try:
-                        from src.core.preficha_segments import fundo_topology_is_locked
-                        stale_fv_area_topology = not fundo_topology_is_locked(old_b)
-                    except Exception:
-                        # Em caso de falha, mantém a proteção conservadora
-                        # existente em vez de descartar uma validação humana.
-                        stale_fv_area_topology = False
-                if stale_fv_area_topology:
-                    if isinstance(val_fields, dict):
-                        val_fields = {
-                            k: v for k, v in val_fields.items()
-                            if not re.match(r'^viga_fundo_seg_\d+_area_segs$', str(k))
-                        }
-                    else:
-                        val_fields = [
-                            field for field in val_fields
-                            if not re.match(r'^viga_fundo_seg_\d+_area_segs$', str(field))
-                        ]
-
+                
                 if val_fields:
-                    b['validated_fields'] = self._merge_validated_field_tracking(
-                        b.get('validated_fields'), val_fields,
-                    )
-                    nomes_val_fields = self._validated_field_names(val_fields)
-
+                    b['validated_fields'] = list(set(b.get('validated_fields', []) + val_fields))
+                    
                     # 1. Mapear prefixos de segmentos que possuem algo validado
                     val_prefixes = set()
-                    for vf in nomes_val_fields:
+                    for vf in val_fields:
                         m = re.match(r'(.*_seg_\d+)', vf)
                         if m:
                             val_prefixes.add(m.group(1))
-
+                            
                     # 2. Restaurar campos do nível raiz E do dicionário 'fields'
-                    for vf in nomes_val_fields:
+                    for vf in val_fields:
                         if vf in old_b:
                             b[vf] = old_b[vf]
                         if 'fields' in old_b and vf in old_b['fields']:
@@ -1983,12 +1562,7 @@ class DatabaseManager:
                     if val_prefixes and 'links' in old_b:
                         b.setdefault('links', {})
                         for link_key, link_val in old_b['links'].items():
-                            if (
-                                stale_fv_area_topology
-                                and re.match(r'^viga_fundo_seg_\d+_area_segs$', str(link_key))
-                            ):
-                                continue
-                            if any(link_key.startswith(p) for p in val_prefixes) or link_key in nomes_val_fields:
+                            if any(link_key.startswith(p) for p in val_prefixes) or link_key in val_fields:
                                 # Previne que vínculos vazios antigos (oriundos de bugs) sobrescrevam novos gerados
                                 if isinstance(link_val, dict) and 'contour' in link_val:
                                     if not link_val['contour'] and link_key in b['links'] and b['links'][link_key].get('contour'):
@@ -1998,20 +1572,13 @@ class DatabaseManager:
                 # Preserva NA fields
                 na_fields = old_b.get('na_fields', [])
                 if na_fields:
-                    b['na_fields'] = self._merge_validated_field_tracking(
-                        b.get('na_fields'), na_fields,
-                    )
+                    b['na_fields'] = list(set(b.get('na_fields', []) + na_fields))
 
                 old_val_links = old_b.get('validated_link_classes', {})
                 if isinstance(old_val_links, dict) and old_val_links:
                     new_val_links = b.setdefault('validated_link_classes', {})
                     if isinstance(new_val_links, dict):
                         for field_id, slots in old_val_links.items():
-                            if (
-                                stale_fv_area_topology
-                                and re.match(r'^viga_fundo_seg_\d+_area_segs$', str(field_id))
-                            ):
-                                continue
                             merged = set(new_val_links.get(field_id, []) or [])
                             merged.update(slots or [])
                             new_val_links[field_id] = list(merged)
@@ -2028,15 +1595,6 @@ class DatabaseManager:
                 # Preserva is_validated da viga inteira
                 if old_b.get('is_validated'):
                     b['is_validated'] = True
-
-                # Preserva selos individuais de segmento (FV/LV) — merge
-                # aditivo, nunca rebaixa um segmento já validado (manual ou
-                # por campo) que a chamada atual não mencione.
-                old_val_segs = old_b.get('validated_segments')
-                if isinstance(old_val_segs, dict) and old_val_segs:
-                    merged_segs = dict(old_val_segs)
-                    merged_segs.update(b.get('validated_segments') or {})
-                    b['validated_segments'] = merged_segs
             # ------------------------------------------------
 
             class NumpyEncoder(json.JSONEncoder):
@@ -2120,18 +1678,6 @@ class DatabaseManager:
                     b['pkl_path'] = row['pkl_path']
                 except (IndexError, KeyError):
                     b['pkl_path'] = b.get('pkl_path')
-
-                # Carregar links estruturados da coluna links_json (se existir)
-                try:
-                    if 'links_json' in row.keys() and row['links_json']:
-                        links_col = json.loads(row['links_json'])
-                        if isinstance(links_col, dict):
-                            b_links = b.setdefault('links', {})
-                            for k, v in links_col.items():
-                                if k not in b_links or not b_links[k]:
-                                    b_links[k] = v
-                except (IndexError, KeyError, TypeError):
-                    pass
 
                 # Carregar campos de validação/NA das colunas dedicadas
                 for col, key in [('validated_fields_json', 'validated_fields'),

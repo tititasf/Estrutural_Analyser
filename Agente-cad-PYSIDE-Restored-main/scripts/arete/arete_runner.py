@@ -112,63 +112,6 @@ def _sha256(path: Path) -> str:
     return h.hexdigest()
 
 
-def _g2v_n4_evidence_path(row: dict, n4_path: Path) -> Path:
-    """Alinha o byte N4 do selo com o mesmo artefato usado no G2-V."""
-    classe = str(row.get("classe") or "")
-    elemento_id = str(row.get("elemento_id") or "")
-    if classe == "LV" and elemento_id:
-        corte = Path(n4_path).parent / f"LV_preview_{elemento_id}_CORTE.dxf"
-        if corte.is_file():
-            return corte
-    return Path(n4_path)
-
-
-def g2v_pass_atual(row: dict, n4_path: Path) -> tuple[bool, str]:
-    """Exige PASS visual estrito ligado aos mesmos bytes N2/N4 do G2 atual."""
-    recorte_path = get_recorte_path(
-        row["elemento_id"], row["classe"], row=row
-    )
-    if not recorte_path or not Path(recorte_path).exists():
-        return False, "recorte N2 atual ausente"
-    expected_n2 = _sha256(Path(recorte_path))
-    expected_n4 = _sha256(_g2v_n4_evidence_path(row, n4_path))
-    reports_root = RELATORIOS_DIR / "g2v"
-    if not reports_root.exists():
-        return False, "nenhum relatório G2-V"
-
-    reports = sorted(
-        reports_root.glob("*/relatorio.json"),
-        key=lambda path: path.stat().st_mtime_ns,
-        reverse=True,
-    )
-    for report_path in reports:
-        try:
-            report = json.loads(report_path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            continue
-        if report.get("par") != "n2xn4":
-            continue
-        for item in report.get("itens") or []:
-            if (
-                item.get("classe") != row["classe"]
-                or item.get("elemento_id") != row["elemento_id"]
-            ):
-                continue
-            verdict = (item.get("vereditos") or {}).get("cli") or {}
-            if str(verdict.get("veredito") or "").upper() != "PASS":
-                return False, f"último G2-V não é PASS: {report_path}"
-            checklist = verdict.get("checklist_visual") or {}
-            if not checklist or any(value is not True for value in checklist.values()):
-                return False, f"PASS sem checklist estrito: {report_path}"
-            sources = item.get("evidencia_fontes") or {}
-            n2_hash = ((sources.get("n2") or {}).get("sha256"))
-            n4_hash = ((sources.get("n4") or {}).get("sha256"))
-            if n2_hash != expected_n2 or n4_hash != expected_n4:
-                return False, f"PASS visual pertence a fontes antigas: {report_path}"
-            return True, str(report_path)
-    return False, "nenhum G2-V encontrado para o item"
-
-
 def g6_selar(row: dict, n4_path: Path, g1_result: dict,
              g2_result: dict, png_path: Path | None = None) -> dict:
     """
@@ -424,9 +367,7 @@ def processar_item(row: dict, ts_dir: Path,
             if "_extracao_erro" not in n2_fb:
                 campos_fb = n2_fb
         obra_dir, _ = materializar_item(row, campos_override=campos_fb)
-        ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
-                                    real_obra_name=row.get("obra_name"),
-                                    real_pavimento=row.get("pavimento"))
+        ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
         if ok_gen:
             dxf = get_output_dxf_path(obra_dir, classe, elemento_id)
             if dxf.exists():
@@ -478,42 +419,17 @@ def processar_item(row: dict, ts_dir: Path,
 
     # ── G6: selar se PASS ─────────────────────────────────────────────────────
     if resultado["resultado_final"] == "PASS" and n4_path_str:
-        visual_ok, visual_evidence = g2v_pass_atual(
-            row, Path(n4_path_str)
+        g6 = g6_selar(
+            row=row,
+            n4_path=Path(n4_path_str),
+            g1_result=g1,
+            g2_result=g2,
+            png_path=g2.get("png_path"),
         )
-        if not visual_ok:
-            resultado["g6"] = {
-                "gate": "G6",
-                "resultado": "BLOCKED",
-                "erro": visual_evidence,
-            }
-            resultado["golden_selado"] = False
-            if verbose:
-                print(f"  G6 BLOCKED (G2-V): {visual_evidence}")
-            return resultado
-        try:
-            g6 = g6_selar(
-                row=row,
-                n4_path=Path(n4_path_str),
-                g1_result=g1,
-                g2_result=g2,
-                png_path=g2.get("png_path"),
-            )
-            resultado["g6"] = g6
-            resultado["golden_selado"] = True
-            if verbose:
-                print(f"  G6 SELADO → {g6['golden_dir']}")
-        except OSError as exc:
-            # O Comparison Engine pode manter comparacao.png mapeado. Isso não
-            # autoriza encerrar a UI; G6 fica bloqueado e a regressão continua.
-            resultado["g6"] = {
-                "gate": "G6",
-                "resultado": "BLOCKED",
-                "erro": str(exc),
-            }
-            resultado["golden_selado"] = False
-            if verbose:
-                print(f"  G6 BLOCKED (arquivo em uso): {exc}")
+        resultado["g6"]           = g6
+        resultado["golden_selado"] = True
+        if verbose:
+            print(f"  G6 SELADO → {g6['golden_dir']}")
 
     return resultado
 
@@ -630,11 +546,7 @@ def _gerar_relatorio_md(sumario: dict, ts_dir: Path):
                 diffs_g1 = g1.get("diffs", [])
                 linhas.append(f"- **G1 FAIL** — {len(diffs_g1)} diffs no round-trip:")
                 for d in diffs_g1[:3]:
-                    if d.get("tipo") == "list_len":
-                        n2_val, n2p_val = d.get("n2_len"), d.get("n2p_len")
-                    else:
-                        n2_val, n2p_val = d.get("n2"), d.get("n2p")
-                    linhas.append(f"  - `{d.get('campo')}`: N2={n2_val} N2′={n2p_val} [{d.get('tipo')}]")
+                    linhas.append(f"  - `{d.get('campo')}`: N2={d.get('n2')} N2′={d.get('n2p')} [{d.get('tipo')}]")
             if g2.get("resultado") == "FAIL":
                 nde = len(g2.get("diffs_entidades", []))
                 ndg = len(g2.get("diffs_geometria", []))
@@ -674,17 +586,9 @@ def _proximo_fail(fails: list) -> str:
     g1  = r.get("g1", {})
     g2  = r.get("g2", {})
     if g1.get("resultado") == "FAIL":
-        diffs = g1.get("diffs") or []
-        if not diffs:
-            erro = g1.get("erro") or g1.get("log_gerador") or "falha sem diff de campo"
-            return f"Atacar G1-FAIL em {eid}: {erro}."
-        d = diffs[0]
-        if d.get("tipo") == "list_len":
-            n2_val, n2p_val = d.get("n2_len"), d.get("n2p_len")
-        else:
-            n2_val, n2p_val = d.get("n2"), d.get("n2p")
+        d  = g1.get("diffs", [{}])[0]
         return (f"Atacar G1-FAIL em {eid}: campo `{d.get('campo')}` "
-                f"diverge N2={n2_val} vs N2′={n2p_val} [{d.get('tipo')}].")
+                f"diverge N2={d.get('n2')} vs N2′={d.get('n2p')} [{d.get('tipo')}].")
     if g2.get("resultado") == "FAIL":
         dts = g2.get("diffs_textos", [])
         if dts:

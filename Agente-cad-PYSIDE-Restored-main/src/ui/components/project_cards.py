@@ -3,7 +3,7 @@ from PySide6.QtWidgets import (QFrame, QVBoxLayout, QHBoxLayout, QLabel,
                                 QPushButton, QProgressBar, QWidget, QGridLayout, QScrollArea)
 from PySide6.QtCore import Qt, Signal, QSize
 from PySide6.QtGui import QColor, QCursor, QFont
-from src.ui.theme import Colors, Fonts, Radius, Surface, Accent, Semantic, Text, Border, Contextual
+from src.ui.theme import Colors, Fonts, Radius
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -22,28 +22,29 @@ def _extract_pav_class(name: str) -> tuple[str, str]:
 
     # Mapa classe → (label legível, cor)
     _MAP = {
-        "FUN":  ("FUN",   Semantic.WARNING),     # laranja — fundação
-        "TER":  ("TER",   Contextual.GOLD),      # âmbar   — térreo
-        "TIP":  ("TIPO",  Accent.PRIMARY),        # ciano   — tipo
-        "COB":  ("COB",   Contextual.PURPLE),     # roxo    — cobertura
-        "ATC":  ("ÁTC",   Contextual.MAGENTA),   # pink    — ático
-        "LOC":  ("LOC",   Text.SECONDARY),        # cinza   — localização
-        "BAR":  ("BAR",   Text.SECONDARY),        # cinza   — barrilete
-        "DEC":  ("DECK",  Text.SECONDARY),        # cinza
+        "FUN":  ("FUN",   "#e67e22"),   # laranja — fundação
+        "TER":  ("TER",   "#f1c40f"),   # amarelo — térreo
+        "TIP":  ("TIPO",  "#00d9ff"),   # ciano   — tipo
+        "COB":  ("COB",   "#9b59b6"),   # roxo    — cobertura
+        "ATC":  ("ÁTC",   "#e91e8c"),   # pink    — ático
+        "LOC":  ("LOC",   "#7f8c8d"),   # cinza   — localização
+        "BAR":  ("BAR",   "#7f8c8d"),   # cinza   — barrilete
+        "DEC":  ("DECK",  "#7f8c8d"),   # cinza
     }
     if raw in _MAP:
         return _MAP[raw]
 
     # Pavimento numerado: 1PV, 2PV, 13P, 14P, SS, etc.
     if _re.match(r'^\d+PV?$', raw):
-        return (raw, Semantic.SUCCESS)   # verde
+        # 1PV → "1PV", 13P → "13P"
+        return (raw, "#00c864")   # verde
 
     if raw.startswith("SS") or "SUB" in raw:
-        return ("SS", Accent.INTERACTIVE)
+        return ("SS", "#3498db")
 
     # fallback — primeiros 6 chars do raw ou do nome original
     label = raw[:6] if raw else name.split("-")[-1][:6]
-    return (label, Text.SECONDARY)
+    return (label, "#8a9ab5")  # cinza neutro
 
 class BaseCard(QFrame):
     clicked = Signal(object) # Emits project data on click
@@ -85,9 +86,9 @@ class ProjectCard(BaseCard):
         self.setMaximumHeight(56)
         self.setObjectName("BaseCard")
         self.setStyleSheet(
-            f"#BaseCard {{ background: {Surface.DEEP}; border: 1px solid {Border.SUBTLE};"
-            f" border-radius: 5px; }}"
-            f"#BaseCard:hover {{ border-color: {Accent.PRIMARY}; }}"
+            "#BaseCard { background: #12161e; border: 1px solid #2a2f3d;"
+            " border-radius: 5px; }"
+            "#BaseCard:hover { border-color: #00d9ff; }"
         )
         self._setup_ui()
 
@@ -99,11 +100,11 @@ class ProjectCard(BaseCard):
         # ── Status badge ──────────────────────────────────────────────
         status = (self.data.get('sync_status') or 'pending').upper()
         if status == 'SYNCED':
-            badge_bg, badge_fg = 'rgba(76, 175, 80, 38)', Semantic.SUCCESS
+            badge_bg, badge_fg = 'rgba(0, 200, 100, 38)', '#00c864'
         elif status == 'EXTRACTING':
-            badge_bg, badge_fg = 'rgba(0, 212, 255, 38)', Accent.PRIMARY
+            badge_bg, badge_fg = 'rgba(0, 217, 255, 38)', '#00d9ff'
         else:
-            badge_bg, badge_fg = 'rgba(230, 180, 0, 38)', Contextual.GOLD
+            badge_bg, badge_fg = 'rgba(230, 180, 0, 38)', '#e6b400'
 
         lbl_status = QLabel(status)
         lbl_status.setFixedWidth(72)
@@ -134,7 +135,7 @@ class ProjectCard(BaseCard):
         # Nome completo (legível, tooltip com raw)
         lbl_pav = QLabel(pav_name)
         lbl_pav.setStyleSheet(
-            f"color: {Accent.PRIMARY}; font-size: 11px; font-weight: bold;"
+            "color: #00d9ff; font-size: 11px; font-weight: bold;"
             " background: transparent; border: none;"
         )
         lbl_pav.setToolTip(self.data.get('name', pav_name))
@@ -155,25 +156,25 @@ class ProjectCard(BaseCard):
             )
             return chip
 
-        row.addWidget(_stat_chip("PIL", "pil",  Contextual.PURPLE))
-        row.addWidget(_stat_chip("VIG", "beam", Accent.INTERACTIVE))
-        row.addWidget(_stat_chip("LAJ", "slab", Semantic.SUCCESS))
+        row.addWidget(_stat_chip("PIL", "pil",  "#9B59B6"))
+        row.addWidget(_stat_chip("VIG", "beam", "#2980B9"))
+        row.addWidget(_stat_chip("LAJ", "slab", "#27AE60"))
 
         # ── Date ──────────────────────────────────────────────────────
         date_upd = str(self.data.get('updated_at') or '')[:16].replace('T', ' ')
         if date_upd:
             lbl_date = QLabel(date_upd)
             lbl_date.setStyleSheet(
-                f"color: {Text.MUTED}; font-size: 9px; background: transparent; border: none;"
+                "color: #4a5060; font-size: 9px; background: transparent; border: none;"
             )
             row.addWidget(lbl_date)
 
         # ── Action buttons ────────────────────────────────────────────
         _btn_css = (
-            f"QPushButton {{ background: {Surface.BASE}; color: {Text.SECONDARY};"
-            f" border: 1px solid {Border.SUBTLE}; border-radius: 3px;"
-            f" font-size: 10px; font-weight: bold; padding: 1px 8px; }}"
-            f" QPushButton:hover {{ color: {Text.BRIGHT}; border-color: {Accent.PRIMARY}; }}"
+            "QPushButton { background: #1a1f2e; color: #8a9ab5;"
+            " border: 1px solid #2a3040; border-radius: 3px;"
+            " font-size: 10px; font-weight: bold; padding: 1px 8px; }"
+            " QPushButton:hover { color: #ffffff; border-color: #00d9ff; }"
         )
 
         btn_ficha = QPushButton("📄 Ficha")
@@ -186,10 +187,10 @@ class ProjectCard(BaseCard):
         btn_dxf = QPushButton("👁 Abrir DXF")
         btn_dxf.setFixedHeight(24)
         btn_dxf.setStyleSheet(
-            f"QPushButton {{ background: rgba(0, 212, 255, 31); color: {Accent.PRIMARY};"
-            f" border: 1px solid {Accent.PRIMARY}; border-radius: 3px;"
-            f" font-size: 10px; font-weight: bold; padding: 1px 8px; }}"
-            f" QPushButton:hover {{ background: rgba(0, 212, 255, 64); }}"
+            "QPushButton { background: rgba(0, 217, 255, int(12/100*255)); color: #00d9ff;"
+            " border: 1px solid #00d9ff; border-radius: 3px;"
+            " font-size: 10px; font-weight: bold; padding: 1px 8px; }"
+            " QPushButton:hover { background: rgba(0, 217, 255, int(25/100*255)); }"
         )
         btn_dxf.setCursor(Qt.PointingHandCursor)
         btn_dxf.clicked.connect(lambda: self.action_open_dxf.emit(self.data))
@@ -198,9 +199,9 @@ class ProjectCard(BaseCard):
         btn_del = QPushButton("✕")
         btn_del.setFixedSize(24, 24)
         btn_del.setStyleSheet(
-            f"QPushButton {{ background: transparent; color: {Text.MUTED};"
-            f" border: 1px solid {Border.DEFAULT}; border-radius: 3px; font-size: 12px; }}"
-            f" QPushButton:hover {{ color: {Semantic.DANGER}; border-color: {Semantic.DANGER}; }}"
+            "QPushButton { background: transparent; color: #4a3040;"
+            " border: 1px solid #3a2030; border-radius: 3px; font-size: 12px; }"
+            " QPushButton:hover { color: #e74c3c; border-color: #e74c3c; }"
         )
         btn_del.setCursor(Qt.PointingHandCursor)
         btn_del.clicked.connect(lambda: self.action_delete.emit(self.data))
@@ -231,7 +232,7 @@ class CuradoriaCard(BaseCard):
         lbl_id.setAlignment(Qt.AlignCenter)
         lbl_id.setFixedSize(70, 24)
         lbl_id.setStyleSheet(f"""
-            background-color: {Colors.BG_HOVER}; color: {Text.SECONDARY}; 
+            background-color: {Colors.BG_HOVER}; color: #8890B0; 
             border-radius: 4px; font-family: monospace; font-size: 11px; font-weight: bold;
         """)
         header.addWidget(lbl_id)
@@ -261,7 +262,7 @@ class CuradoriaCard(BaseCard):
         
         work_name = self.data.get('metadata', {}).get('work_name') or self.data.get('work_name') or 'OBRA DESCONHECIDA'
         lbl_work = QLabel(work_name.upper())
-        lbl_work.setStyleSheet(f"color: {Text.SECONDARY}; font-size: 10px; font-weight: 600;")
+        lbl_work.setStyleSheet("color: #8890B0; font-size: 10px; font-weight: 600; ")
         status_row.addWidget(lbl_work)
         
         status_row.addStretch()
@@ -393,7 +394,7 @@ class CuradoriaCard(BaseCard):
     def _add_doc_row(self, layout, name, count):
         row = QHBoxLayout()
         name_l = QLabel(name)
-        name_l.setStyleSheet(f"color: {Text.SECONDARY}; font-size: 10px;")
+        name_l.setStyleSheet("color: #8890B0; font-size: 10px;")
         row.addWidget(name_l)
         row.addStretch()
         
@@ -421,7 +422,7 @@ class CuradoriaCard(BaseCard):
         else:
              btn.setStyleSheet(f"""
                 QPushButton {{
-                    background-color: {Surface.CARD}; border: 1px solid {Colors.BORDER_INPUT};
+                    background-color: #252630; border: 1px solid {Colors.BORDER_INPUT};
                     color: {Colors.TEXT_SECONDARY}; font-weight: bold; font-size: 10px; border-radius: 4px;
                 }}
                 QPushButton:hover {{ background-color: {Colors.BG_HOVER}; color: {Colors.TEXT_PRIMARY}; }}

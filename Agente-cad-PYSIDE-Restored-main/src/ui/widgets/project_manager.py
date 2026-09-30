@@ -4,12 +4,11 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget,
                                  QComboBox, QInputDialog, QMenu, QToolButton, QTabWidget,
                                  QFrame, QScrollArea, QSplitter, QAbstractItemView, QProgressBar, QTextEdit, QGridLayout, QSizePolicy,
                                  QTreeWidget, QTreeWidgetItem)
-from PySide6.QtCore import Signal, Qt, QSize, QEvent, QTimer, QProcess
+from PySide6.QtCore import Signal, Qt, QSize, QEvent, QTimer
 from PySide6.QtGui import QIcon, QFont, QColor
 import json
 import re
 import os
-import sys
 import logging
 import shutil
 import uuid
@@ -26,7 +25,7 @@ from src.ui.dialogs.project_details_dialog import ProjectDetailsDialog
 from src.ui.dialogs.document_upload_dialog import DocumentUploadDialog
 from src.core.storage.project_storage import ProjectStorageManager
 from src.core.cad_utils import get_cad_version_info
-from src.ui.theme import Colors, Fonts, Radius, Contextual, Text, Surface, Accent, Semantic, Border
+from src.ui.theme import Colors, Fonts, Radius
 
 import re as _css_re
 def _resolve_css(css: str) -> str:
@@ -69,17 +68,16 @@ class ProjectManager(QWidget):
         self.sync_service = SyncService()
         self.current_project_id = None
         self.current_work_name = None
-        self._auto_rag_process = None
-        self._auto_rag_active_work = None
-        self._auto_rag_pending_work = None
         self.sync_complete_signal.connect(self._on_sync_complete)
         # Lazy tab rendering — só renderiza o tab visível
         self._classified_docs_cache: dict = {}
         self._dirty_phases: set = set(range(1, 9))
         
-        # Este componente vive dentro do QStackedWidget da janela principal.
+        # Window Setup
         self.setWindowTitle("Gerenciador de Projetos - Vision AI")
-        self.setWindowFlags(Qt.Widget)
+        self.resize(1400, 900)
+        self.setWindowFlags(Qt.Window)
+        self.setWindowState(Qt.WindowMaximized)
         
         self.apply_styles()
         self.setup_ui()
@@ -259,7 +257,7 @@ class ProjectManager(QWidget):
         
         self.community_tab = QWidget()
         self.setup_community_tab()
-        self.tabs.addTab(self.community_tab, "CURADORIA RAG/MCP")
+        self.tabs.addTab(self.community_tab, "🛡️ CURADORIA")
 
         self.central_tab = CentralControle(self.db, self.memory, self.auth_service)
         self.tabs.addTab(self.central_tab, "CENTRAL DE CONTROLE")
@@ -410,15 +408,7 @@ class ProjectManager(QWidget):
         self.lbl_selected_work = QLabel("Selecione uma Obra")
         self.lbl_selected_work.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.TEXT_BRIGHT}; ")
         self.header_layout.addWidget(self.lbl_selected_work)
-
-        # Código público (App de Consulta) — só aparece pra obras Drive já
-        # publicadas; vazio/oculto pra obras locais ou ainda não sincronizadas
-        # [2026-07-13].
-        self.lbl_code_publico_obra = QLabel("")
-        self.lbl_code_publico_obra.setStyleSheet(f"font-size: 12px; color: {Colors.TEXT_MUTED}; margin-left: 10px;")
-        self.lbl_code_publico_obra.setVisible(False)
-        self.header_layout.addWidget(self.lbl_code_publico_obra)
-
+        
         self.header_layout.addStretch()
         
         # Botão de Remover Obra (inicialmente escondido)
@@ -525,7 +515,7 @@ class ProjectManager(QWidget):
         ficha_tab = self._create_ficha_obra_tab()
         self.phase_tabs.addTab(ficha_tab, "2.1 Ficha Pré-Obra [F1]")
         self.phase_tab_widgets['ficha'] = ficha_tab
-        self.phase_tabs.tabBar().setTabTextColor(_FICHA_IDX, _QColor(Contextual.GOLD))
+        self.phase_tabs.tabBar().setTabTextColor(_FICHA_IDX, _QColor('#e6b400'))
 
         # Fases 3-8
         for phase_num in range(3, 9):
@@ -736,7 +726,7 @@ class ProjectManager(QWidget):
                 background-color: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT};
                 border-radius: 3px; font-size: 10px; font-weight: 600; padding: 0 10px;
             }
-            QPushButton:hover { background-color: {Colors.ACCENT_BLUE_HOVER}; }
+            QPushButton:hover { background-color: #1a8fe3; }
             QPushButton:disabled { background-color: {Colors.BG_SURFACE}; color: {Colors.TEXT_MUTED}; }
         """))
         self.btn_save_work_specs.clicked.connect(self.save_work_metadata)
@@ -979,23 +969,23 @@ class ProjectManager(QWidget):
         # ── Header ──────────────────────────────────────────────────────────
         hdr = QHBoxLayout()
         lbl_title = QLabel("📋  Ficha Pré-Obra [F1]")
-        lbl_title.setStyleSheet(
-            f"color: {Contextual.GOLD}; font-size: 15px; font-weight: bold;"
+        lbl_title.setStyleSheet(_resolve_css(
+            "color: #e6b400; font-size: 15px; font-weight: bold;"
             " background: transparent; border: none;"
-        )
+        ))
         hdr.addWidget(lbl_title)
         hdr.addStretch()
 
         btn_refresh_ficha = QPushButton("↻ Atualizar Ficha")
         btn_refresh_ficha.setFixedHeight(26)
-        btn_refresh_ficha.setStyleSheet(f"""
-            QPushButton {{
-                background: rgba(230, 180, 0, 31); color: {Contextual.GOLD};
-                border: 1px solid {Contextual.GOLD}; border-radius: 4px;
+        btn_refresh_ficha.setStyleSheet(_resolve_css("""
+            QPushButton {
+                background: rgba(230, 180, 0, 31); color: #e6b400;
+                border: 1px solid #e6b400; border-radius: 4px;
                 padding: 1px 12px; font-size: 10px; font-weight: bold;
-            }}
-            QPushButton:hover {{ background: rgba(230, 180, 0, 64); }}
-        """)
+            }
+            QPushButton:hover { background: rgba(230, 180, 0, 64); }
+        """))
         btn_refresh_ficha.clicked.connect(self._refresh_ficha_obra)
         hdr.addWidget(btn_refresh_ficha)
         lay.addLayout(hdr)
@@ -1015,13 +1005,13 @@ class ProjectManager(QWidget):
 
         # ── Campos da ficha (labels dinâmicos) ───────────────────────────────
         fields_frame = QFrame()
-        fields_frame.setStyleSheet(f"""
-            QFrame {{
-                background: {Surface.BASE};
-                border: 1px solid {Contextual.BORDER_GOLD_DARK};
+        fields_frame.setStyleSheet(_resolve_css("""
+            QFrame {
+                background: {Colors.BG_PANEL};
+                border: 1px solid #3a3000;
                 border-radius: 8px;
-            }}
-        """)
+            }
+        """))
         fields_lay = QVBoxLayout(fields_frame)
         fields_lay.setContentsMargins(16, 12, 16, 12)
         fields_lay.setSpacing(8)
@@ -1035,12 +1025,12 @@ class ProjectManager(QWidget):
             lbl_k = QLabel(label)
             lbl_k.setFixedWidth(200)
             lbl_k.setStyleSheet(
-                f"color: {Text.SECONDARY}; font-size: 11px; font-weight: bold;"
+                "color: #8a9ab5; font-size: 11px; font-weight: bold;"
                 " background: transparent; border: none;"
             )
             lbl_v = QLabel(default)
             lbl_v.setStyleSheet(
-                f"color: {Text.PRIMARY}; font-size: 11px;"
+                "color: #e0e4f0; font-size: 11px;"
                 " background: transparent; border: none;"
             )
             lbl_v.setWordWrap(True)
@@ -1069,7 +1059,7 @@ class ProjectManager(QWidget):
         # ── Log do último Pré-processar Todos ────────────────────────────────
         lbl_log_title = QLabel("Log — Último Pré-processamento")
         lbl_log_title.setStyleSheet(
-            f"color: {Contextual.GOLD}; font-size: 11px; font-weight: bold;"
+            "color: #e6b400; font-size: 11px; font-weight: bold;"
             " background: transparent; border: none; padding-top: 6px;"
         )
         lay.addWidget(lbl_log_title)
@@ -1081,14 +1071,14 @@ class ProjectManager(QWidget):
         self._ficha_log.setPlaceholderText(
             "Execute ⚡ Pré-processar Todos no Diagnostic Hub para gerar o log aqui."
         )
-        self._ficha_log.setStyleSheet(f"""
-            QPlainTextEdit {{
-                background: {Surface.DEEP}; color: {Text.SECONDARY};
-                border: 1px solid {Contextual.BORDER_GOLD_DARK}; border-radius: 5px;
+        self._ficha_log.setStyleSheet(_resolve_css("""
+            QPlainTextEdit {
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_SECONDARY};
+                border: 1px solid #3a3000; border-radius: 5px;
                 font-size: 10px; font-family: monospace;
                 padding: 6px;
-            }}
-        """)
+            }
+        """))
         lay.addWidget(self._ficha_log)
         lay.addStretch()
 
@@ -1219,12 +1209,12 @@ class ProjectManager(QWidget):
             ingest_row.setSpacing(10)
             ingest_row.setContentsMargins(0, 0, 0, 0)
 
-            self._btn_ingest_all = QPushButton("⚡ Atualizar Obra (DB + RAG Local)")
+            self._btn_ingest_all = QPushButton("⚡ Indexar Obra (DB + RAG + Triagem)")
             self._btn_ingest_all.setToolTip(
-                "Executa duas etapas seguras em sequência:\n"
+                "Executa as duas etapas de ingestão em sequência:\n"
                 "① Fase 1 → DB: registra arquivos físicos novos no banco\n"
-                "② RAG local: atualiza o snapshot de contexto desta obra\n\n"
-                "Dados em quarentena permanecem locais e nunca ensinam o RAG global."
+                "② RAG + Triagem: indexa vetorialmente e gera sugestões de triagem\n\n"
+                "Incremental — arquivos já processados são ignorados."
             )
             self._btn_ingest_all.setStyleSheet(f"""
                 QPushButton {{
@@ -1462,70 +1452,44 @@ class ProjectManager(QWidget):
             db_list_container = QWidget()
             db_layout = QVBoxLayout(db_list_container)
             db_layout.setContentsMargins(0, 10, 0, 0)
-
+            
             lbl_db = QLabel(f"🔢 {class_name} (Dados Vinculados)")
             lbl_db.setStyleSheet(f"color: {Colors.ACCENT_PRIMARY}; font-weight: bold; font-size: 11px;")
             db_layout.addWidget(lbl_db)
-
-            def _make_tree(cn):
-                t = QTreeWidget()
-                if cn == "Scripts Pilares":
-                    t.setHeaderLabels(["Item", "Nome", "Cima", "Grades", "ABCD", "Ação"])
-                    t.setColumnWidth(0, 60); t.setColumnWidth(1, 150)
-                    t.setColumnWidth(2, 60); t.setColumnWidth(3, 60); t.setColumnWidth(4, 60)
-                else:
-                    t.setHeaderLabels(["Item", "Nome", "Status", "Ação"])
-                    t.setColumnWidth(0, 60); t.setColumnWidth(1, 150); t.setColumnWidth(2, 80)
-                t.setStyleSheet(f"QTreeWidget {{ background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT}; }}")
-                t.setMinimumHeight(200)
-                return t
-
-            # Fase 3 "Vigas" usa sub-abas Para / Passam
-            if phase_num == 3 and class_name == "Vigas":
-                lv_tabs = QTabWidget()
-                lv_tabs.setStyleSheet(
-                    f"QTabBar::tab {{ background:{Colors.BG_CARD}; color:{Colors.TEXT_SECONDARY};"
-                    f" border-radius:3px; padding:3px 10px; margin-right:2px; }}"
-                    f"QTabBar::tab:selected {{ background:{Contextual.FOREST}; color:{Text.BRIGHT}; font-weight:bold; }}"
-                    f"QTabWidget::pane {{ border:1px solid {Colors.BORDER_DEFAULT}; }}"
-                )
-                tree_para  = _make_tree(class_name)
-                tree_passa = _make_tree(class_name)
-                lv_tabs.addTab(tree_para,  "Vigas Para")
-                lv_tabs.addTab(tree_passa, "Vigas Passam")
-                # Carregar só ao selecionar a sub-aba
-                lv_tabs.currentChanged.connect(
-                    lambda idx, cn=class_name, tp=tree_para, ts=tree_passa:
-                        self._refresh_phase3_data(cn, tp, "Para") if idx == 0
-                        else self._refresh_phase3_data(cn, ts, "Passa")
-                )
-                db_layout.addWidget(lv_tabs)
-                tree = tree_para  # referência legacy (para refresh btn)
-                class_frame.setProperty("db_tree_para",  tree_para)
-                class_frame.setProperty("db_tree_passa", tree_passa)
-                class_frame.setProperty("db_lv_tabs",    lv_tabs)
-                class_frame.setProperty("db_tree", None)  # sem tree unificada
+            
+            # Tree Widget parecido com o do main.py
+            tree = QTreeWidget()
+            
+            if class_name == "Scripts Pilares":
+                tree.setHeaderLabels(["Item", "Nome", "Cima", "Grades", "ABCD", "Ação"])
+                tree.setColumnWidth(0, 60)
+                tree.setColumnWidth(1, 150)
+                tree.setColumnWidth(2, 60)  # Cima
+                tree.setColumnWidth(3, 60)  # Grades
+                tree.setColumnWidth(4, 60)  # ABCD
             else:
-                tree = _make_tree(class_name)
-                db_layout.addWidget(tree)
-                class_frame.setProperty("db_tree", tree)
-
+                tree.setHeaderLabels(["Item", "Nome", "Status", "Ação"])
+                tree.setColumnWidth(0, 60)
+                tree.setColumnWidth(1, 150)
+                tree.setColumnWidth(2, 80)
+            
+            tree.setStyleSheet(f"QTreeWidget {{ background: {Colors.BG_DEEP}; border: 1px solid {Colors.BORDER_DEFAULT}; }}")
+            tree.setMinimumHeight(200)
+            db_layout.addWidget(tree)
+            
             class_layout.addWidget(db_list_container)
-
+            
+            # Salvar referencia na classe para popular depois
+            class_frame.setProperty("db_tree", tree)
+            
             # Botão de Refresh Específico
             btn_refresh = QPushButton("🔄 Atualizar")
             btn_refresh.setCursor(Qt.PointingHandCursor)
             btn_refresh.setStyleSheet(f"background: transparent; color: {Colors.TEXT_SECONDARY}; border: none; font-size: 10px;")
             if phase_num == 3:
-                if class_name == "Vigas":
-                    # Refresh: recarrega a sub-aba ativa
-                    btn_refresh.clicked.connect(
-                        lambda checked=False, cn=class_name, cf=class_frame:
-                            self._refresh_lv_active_tab(cn, cf)
-                    )
-                else:
-                    btn_refresh.clicked.connect(lambda checked=False, cn=class_name, t=tree: self._refresh_phase3_data(cn, t))
+                btn_refresh.clicked.connect(lambda checked=False, cn=class_name, t=tree: self._refresh_phase3_data(cn, t))
             elif phase_num == 5:
+                # Na fase 5, chame o refresh específico de scripts
                 btn_refresh.clicked.connect(lambda checked=False, cn=class_name, t=tree: self._refresh_phase5_data(cn, t))
             else:
                 btn_refresh.clicked.connect(lambda checked=False, cn=class_name, t=tree: self._refresh_phase4_data(cn, t))
@@ -1537,24 +1501,8 @@ class ProjectManager(QWidget):
 
         return class_frame
 
-    def _refresh_lv_active_tab(self, class_name: str, class_frame):
-        """Recarrega a sub-aba LV ativa (Para ou Passa)."""
-        lv_tabs = class_frame.property("db_lv_tabs")
-        tree_para  = class_frame.property("db_tree_para")
-        tree_passa = class_frame.property("db_tree_passa")
-        if lv_tabs is None:
-            return
-        idx = lv_tabs.currentIndex()
-        if idx == 0:
-            self._refresh_phase3_data(class_name, tree_para, "Para")
-        else:
-            self._refresh_phase3_data(class_name, tree_passa, "Passa")
-
-    def _refresh_phase3_data(self, class_name, tree_widget, pp_filter: str = ""):
-        """Carrega dados do SQLite para a lista.
-
-        pp_filter: "Para" | "Passa" | "" (sem filtro — pilares/lajes)
-        """
+    def _refresh_phase3_data(self, class_name, tree_widget):
+        """Carrega dados do SQLite para a lista"""
         if not self.current_project_id: return
 
         tree_widget.clear()
@@ -1620,37 +1568,34 @@ class ProjectManager(QWidget):
                 status_txt = status_label
 
             if is_lv:
-                # LV com sub-abas: só mostra a classe Para ou Passa conforme pp_filter
-                pp_classes = [pp_filter] if pp_filter in ("Para", "Passa") else ("Para", "Passa")
-                parent_item = QTreeWidgetItem(tree_widget)
-                parent_item.setText(0, f"{i+1:02}")
-                parent_item.setText(1, f"LV-{name}")
-                parent_item.setText(2, status_txt)
-                parent_item.setExpanded(True)
-                for pp in pp_classes:
-                    pp_group = QTreeWidgetItem(parent_item)
-                    pp_group.setText(0, "")
-                    pp_group.setText(1, f"LV-{name} {pp}")
-                    pp_group.setText(2, "")
-                    pp_group.setExpanded(True)
-                    for face in ("A", "B"):
-                        leaf = QTreeWidgetItem(pp_group)
-                        leaf.setText(0, "")
-                        leaf.setText(1, f"LV-{name}.{face} {pp}")
-                        leaf.setText(2, status_txt if face == "A" else "")
-                        if validated:
-                            leaf.setForeground(2, Qt.green)
-                        elif pct is not None and pct >= 70:
-                            leaf.setForeground(2, QColor("#80cbc4"))  # hardcoded-ok
-                        else:
-                            leaf.setForeground(2, QColor(Colors.ACCENT_INFO))
-                        btn = QPushButton("Ver Detalhes")
-                        btn.setCursor(Qt.PointingHandCursor)
-                        btn.setStyleSheet(
-                            f"background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; "
-                            "border-radius: 4px; padding: 2px; font-size: 10px;")
-                        btn.clicked.connect(lambda checked=False, d=item_data: self._open_detail_dialog(d))
-                        tree_widget.setItemWidget(leaf, 3, btn)
+                # LV: mostrar Face A e Face B como sub-itens separados
+                try:
+                    from src.core.item_attention_store import load_para_passa
+                    _proj = next((p for p in self.db.get_projects()
+                                  if str(p.get('id')) == str(self.current_project_id)), {})
+                    _obra = _proj.get('work_name', '')
+                    _pav  = _proj.get('pavement_name', '')
+                    pp = load_para_passa(_obra, _pav, "LV", str(name).upper())
+                except Exception:
+                    pp = ""
+                pp_suffix = f"-{pp.capitalize()}" if pp else ""
+                for face in ("A", "B"):
+                    display = f"LV-{name}.{face}{pp_suffix}"
+                    tree_item = QTreeWidgetItem(tree_widget)
+                    tree_item.setText(0, f"{i+1:02}{face}")
+                    tree_item.setText(1, display)
+                    tree_item.setText(2, status_txt)
+                    if validated:
+                        tree_item.setForeground(2, Qt.green)
+                    elif pct is not None and pct >= 70:
+                        tree_item.setForeground(2, QColor("#80cbc4"))  # hardcoded-ok
+                    else:
+                        tree_item.setForeground(2, QColor(Colors.ACCENT_INFO))
+                    btn = QPushButton("Ver Detalhes")
+                    btn.setCursor(Qt.PointingHandCursor)
+                    btn.setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.TEXT_BRIGHT}; border-radius: 4px; padding: 2px; font-size: 10px;")
+                    btn.clicked.connect(lambda checked=False, d=item_data: self._open_detail_dialog(d))
+                    tree_widget.setItemWidget(tree_item, 3, btn)
                 continue
 
             tree_item = QTreeWidgetItem(tree_widget)
@@ -1701,33 +1646,6 @@ class ProjectManager(QWidget):
             self._refresh_all_phase3_lists()
         except Exception:
             pass
-
-    def _refresh_all_phase3_lists(self):
-        """Recarrega todas as listas da Fase 3 (após edição/save)."""
-        phase_tab = self.phase_tab_widgets.get(3)
-        if not phase_tab:
-            return
-        container = phase_tab.widget()
-        if not container:
-            return
-        layout = container.layout()
-        if not layout:
-            return
-        for i in range(layout.count()):
-            widget = layout.itemAt(i).widget()
-            if not widget:
-                continue
-            class_name = widget.property("class_name")
-            if not class_name:
-                continue
-            # LV usa duas sub-árvores separadas
-            lv_tabs = widget.property("db_lv_tabs")
-            if lv_tabs is not None:
-                self._refresh_lv_active_tab(class_name, widget)
-                continue
-            tree = widget.property("db_tree")
-            if tree:
-                self._refresh_phase3_data(class_name, tree)
 
     def _refresh_all_phase4_lists(self):
         """Atualiza todas as listas de dados de robôs na Fase 4."""
@@ -2381,10 +2299,10 @@ class ProjectManager(QWidget):
         btn_consolidar.setFixedHeight(24)
         btn_consolidar.setStyleSheet(f"""
             QPushButton {{
-                background: rgba(160, 112, 255, 46); color: {Contextual.PURPLE};
-                border: 1px solid {Contextual.PURPLE}; border-radius: 3px; padding: 2px 8px; font-size: 10px; font-weight: bold;
+                background: #4a2a7a; color: {Colors.TEXT_BRIGHT};
+                border-radius: 3px; padding: 2px 8px; font-size: 10px; font-weight: bold;
             }}
-            QPushButton:hover {{ background: rgba(160, 112, 255, 66); }}
+            QPushButton:hover {{ background: #6a3a9a; }}
         """)
         btn_consolidar.clicked.connect(
             lambda _, sp=script_path, wn=work_name: self._run_generator_script(sp, wn)
@@ -2555,61 +2473,6 @@ class ProjectManager(QWidget):
 
     # ── RAG Pipeline ──────────────────────────────────────────────────────────
 
-    def _ensure_local_rag_snapshot(self, work_name: str | None):
-        """Atualiza silenciosamente o snapshot local ao selecionar uma obra."""
-        work_name = str(work_name or "").strip()
-        if not work_name or work_name == "__NO_WORK__":
-            return
-
-        if (
-            self._auto_rag_process is not None
-            and self._auto_rag_process.state() != QProcess.ProcessState.NotRunning
-        ):
-            if work_name != self._auto_rag_active_work:
-                self._auto_rag_pending_work = work_name
-            return
-
-        import sys
-
-        script = Path("D:/Agente-cad-PYSIDE/scripts/obra_rag_pipeline.py")
-        if not script.exists():
-            logging.warning("[RAG-LOCAL] pipeline ausente: %s", script)
-            return
-
-        process = QProcess(self)
-        process.setProcessChannelMode(QProcess.ProcessChannelMode.MergedChannels)
-        process.readyReadStandardOutput.connect(
-            lambda p=process: logging.info(
-                "[RAG-LOCAL] %s",
-                bytes(p.readAllStandardOutput()).decode("utf-8", errors="replace").strip(),
-            )
-        )
-        process.finished.connect(self._on_auto_rag_snapshot_finished)
-        self._auto_rag_process = process
-        self._auto_rag_active_work = work_name
-        process.start(
-            sys.executable,
-            [str(script), "--obra", work_name, "--apply"],
-        )
-
-    def _on_auto_rag_snapshot_finished(self, exit_code: int, _exit_status):
-        work_name = self._auto_rag_active_work
-        if exit_code:
-            logging.warning(
-                "[RAG-LOCAL] snapshot automatico falhou para %s (exit=%s)",
-                work_name,
-                exit_code,
-            )
-        elif work_name == self.current_work_name:
-            QTimer.singleShot(0, self._refresh_rag_badge)
-
-        self._auto_rag_process = None
-        self._auto_rag_active_work = None
-        pending = self._auto_rag_pending_work
-        self._auto_rag_pending_work = None
-        if pending and pending != work_name:
-            QTimer.singleShot(0, lambda obra=pending: self._ensure_local_rag_snapshot(obra))
-
     def _on_rag_pipeline_clicked(self):
         """Dispara o pipeline RAG semântico em QThread."""
         work_name = self.current_work_name or (
@@ -2633,9 +2496,9 @@ class ProjectManager(QWidget):
 
             def run(self):
                 try:
-                    _root = Path("D:/Agente-cad-PYSIDE")
-                    if str(_root) not in sys.path:
-                        sys.path.insert(0, str(_root))
+                    _scripts = Path("D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts")
+                    if str(_scripts.parent) not in sys.path:
+                        sys.path.insert(0, str(_scripts.parent))
                     from scripts.obra_rag_pipeline import run_pipeline
                     result = run_pipeline(
                         self._obra,
@@ -2678,7 +2541,7 @@ class ProjectManager(QWidget):
             # Restaurar botão unificado se existir
             if hasattr(self, '_btn_ingest_all'):
                 self._btn_ingest_all.setEnabled(True)
-                self._btn_ingest_all.setText("⚡ Atualizar Obra (DB + RAG Local)")
+                self._btn_ingest_all.setText("⚡ Indexar Obra (DB + RAG + Triagem)")
             if result.get("errors"):
                 errs = "\n".join(result["errors"][:5])
                 QMessageBox.warning(self, "RAG — Avisos", f"Pipeline concluído com avisos:\n\n{errs}")
@@ -2790,12 +2653,12 @@ class ProjectManager(QWidget):
         )
 
     def _get_rag_counts(self, work_name: str) -> tuple[int, int, int]:
-        """Retorna triagem legada e itens presentes no snapshot RAG local."""
+        """Retorna (triagem_total, triagem_pending, dxf_indexed) para a obra."""
         import sqlite3 as _sq3
         DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
         triagem_total   = 0
         triagem_pending = 0
-        local_items     = 0
+        dxf_indexed     = 0
         if not work_name:
             return 0, 0, 0
         try:
@@ -2812,42 +2675,38 @@ class ProjectManager(QWidget):
             conn.close()
         except Exception:
             pass
-        # Snapshot local por obra. T0 pode aparecer aqui como contexto de trabalho,
-        # mas nunca é promovido automaticamente ao RAG global.
+        # LanceDB — contagem rápida (sem embedding)
         try:
-            manifest_path = (
-                Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
-                / work_name
-                / "obra_rag"
-                / "manifest.json"
-            )
-            if manifest_path.exists():
-                manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-                local_items = int(manifest.get("counts", {}).get("reverse_fichas", 0))
+            from scripts.obra_rag_utils import get_obra_db
+            db = get_obra_db(work_name)
+            tables = db.table_names() if hasattr(db, 'table_names') else []
+            if "obra_dxf_inventory" in tables:
+                tbl = db.open_table("obra_dxf_inventory")
+                dxf_indexed = tbl.count_rows()
         except Exception:
             pass
-        return triagem_total, triagem_pending, local_items
+        return triagem_total, triagem_pending, dxf_indexed
 
     def _refresh_rag_badge(self):
-        """Atualiza o badge do RAG local e da triagem legada."""
+        """Atualiza o badge de estado RAG/Triagem ao lado do botão Indexar Obra."""
         if not hasattr(self, '_lbl_rag_status'):
             return
         work_name = self.current_work_name or ""
-        triagem_total, triagem_pending, local_items = self._get_rag_counts(work_name)
+        triagem_total, triagem_pending, dxf_indexed = self._get_rag_counts(work_name)
 
-        if triagem_total == 0 and local_items == 0:
+        if triagem_total == 0 and dxf_indexed == 0:
             text  = "—"
             color = Colors.TEXT_DIM
         elif triagem_pending > 0:
             text  = f"⏳ {triagem_pending} pendentes / {triagem_total} triagem"
-            if local_items:
-                text += f" / {local_items} itens locais"
+            if dxf_indexed:
+                text += f" / {dxf_indexed} DXFs"
             color = Colors.ACCENT_WARNING
         else:
             # Tudo classificado
             text  = f"✅ {triagem_total} triagem"
-            if local_items:
-                text += f" / {local_items} itens locais"
+            if dxf_indexed:
+                text += f" / {dxf_indexed} DXFs"
             color = Colors.ACCENT_SUCCESS_ALT
 
         self._lbl_rag_status.setText(text)
@@ -2918,7 +2777,7 @@ class ProjectManager(QWidget):
         self._btn_triagem_toggle = QPushButton("▲")
         self._btn_triagem_toggle.setFixedWidth(28)
         self._btn_triagem_toggle.setStyleSheet(
-            f"QPushButton {{ background: transparent; color: {Text.SECONDARY}; border: none; font-size: 11px; }}"
+            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
         )
 
         header.addWidget(self._lbl_triagem_summary)
@@ -3023,7 +2882,7 @@ class ProjectManager(QWidget):
             work = self.current_work_name or "..."
             msg = (
                 f"Nenhuma sugestão para {work}.\n"
-                "A atualização do RAG local não gera triagem automaticamente."
+                "Execute '🧠 Indexar Obra (RAG + Triagem)' na Fase 1 para gerar sugestões automáticas."
             )
             summary_txt = "🧠 Sugestões IA — nenhuma pendente"
             lbl = QLabel(msg)
@@ -3098,12 +2957,12 @@ class ProjectManager(QWidget):
 
     # Cor de fundo distinta por classe ER
     _ER_CLASS_COLORS: dict = {
-        "Pilares":         Contextual.PURPLE,
-        "Lateral de Viga": Accent.INTERACTIVE,
-        "Fundos de Viga":  Semantic.WARNING,
-        "Lajes":           Semantic.SUCCESS,
-        "GF":              Semantic.DANGER,
-        "Outros":          Text.SECONDARY,
+        "Pilares":         "#9B59B6",   # roxo
+        "Lateral de Viga": "#2980B9",   # azul
+        "Fundos de Viga":  "#D35400",   # laranja
+        "Lajes":           "#27AE60",   # verde
+        "GF":              "#C0392B",   # vermelho
+        "Outros":          "#607D8B",   # cinza azul
     }
 
     def _make_combo_chip(
@@ -3282,7 +3141,7 @@ class ProjectManager(QWidget):
             # Converter short code → label completo para exibição
             er_class_display = self._ER_SHORT_TO_FULL.get(er_class_current, er_class_current)
             # Cor distinta por classe
-            er_class_color = self._ER_CLASS_COLORS.get(er_class_display, Contextual.SLATE)
+            er_class_color = self._ER_CLASS_COLORS.get(er_class_display, "#607D8B")
             cls_conf = float(notes.get('class_confidence', inferred['class_conf']))
 
             def _on_class_change(opt, _notes=notes):
@@ -3748,7 +3607,7 @@ class ProjectManager(QWidget):
         self._btn_preprocess_toggle = QPushButton("▲")
         self._btn_preprocess_toggle.setFixedWidth(28)
         self._btn_preprocess_toggle.setStyleSheet(
-            f"QPushButton {{ background: transparent; color: {Text.SECONDARY}; border: none; font-size: 11px; }}"
+            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
         )
 
         header.addWidget(self._lbl_preprocess_summary)
@@ -4035,7 +3894,7 @@ class ProjectManager(QWidget):
         self._btn_projetos_toggle = QPushButton("▲")
         self._btn_projetos_toggle.setFixedWidth(28)
         self._btn_projetos_toggle.setStyleSheet(
-            f"QPushButton {{ background: transparent; color: {Text.SECONDARY}; border: none; font-size: 11px; }}"
+            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
         )
 
         header.addWidget(self._lbl_projetos_summary)
@@ -4211,7 +4070,7 @@ class ProjectManager(QWidget):
         if show_er_class:
             er_class_current = notes.get('er_class') or inferred['er_class']
             er_class_display  = self._ER_SHORT_TO_FULL.get(er_class_current, er_class_current)
-            er_class_color    = self._ER_CLASS_COLORS.get(er_class_display, Contextual.SLATE)
+            er_class_color    = self._ER_CLASS_COLORS.get(er_class_display, "#607D8B")
 
             def _on_class_change(opt, _rid=row_id, _notes=notes):
                 _notes['class_confidence'] = 1.0
@@ -4407,7 +4266,7 @@ class ProjectManager(QWidget):
         self._btn_detalhamentos_toggle = QPushButton("▲")
         self._btn_detalhamentos_toggle.setFixedWidth(28)
         self._btn_detalhamentos_toggle.setStyleSheet(
-            f"QPushButton {{ background: transparent; color: {Text.SECONDARY}; border: none; font-size: 11px; }}"
+            "QPushButton { background: transparent; color: #888; border: none; font-size: 11px; }"
         )
 
         header.addWidget(self._lbl_detalhamentos_summary)
@@ -4513,15 +4372,15 @@ class ProjectManager(QWidget):
                     self._detalhamentos_list_layout.addWidget(card)
 
         _add_section(
-            "Detalhes Recortados", Contextual.GOLD,
+            "Detalhes Recortados", "#E8A000",
             recortados, "✂"
         )
         _add_section(
-            "Documentos de Ingestão", Accent.INTERACTIVE,
+            "Documentos de Ingestão", "#2980B9",
             ingestao, "📄"
         )
         _add_section(
-            "Detalhes de Ingestão (DXF completos)", Semantic.SUCCESS,
+            "Detalhes de Ingestão (DXF completos)", "#27AE60",
             triagem, "📐"
         )
 
@@ -4563,7 +4422,7 @@ class ProjectManager(QWidget):
             lbl_ext.setFixedWidth(32)
             lbl_ext.setAlignment(Qt.AlignCenter)
             lbl_ext.setStyleSheet(
-                f"background: rgba(120, 120, 120, 46); color: {Text.SECONDARY};"
+                "background: rgba(120, 120, 120, 46); color: #aaa;"
                 " font-size: 9px; border-radius: 3px; border: none; padding: 1px 2px;"
             )
         else:
@@ -4644,7 +4503,7 @@ class ProjectManager(QWidget):
         # Fase 2: RAG (após badge refresh)
         def _start_rag():
             if hasattr(self, '_btn_ingest_all'):
-                self._btn_ingest_all.setText("⏳ Gerando RAG Local...")
+                self._btn_ingest_all.setText("⏳ Indexando RAG...")
             self._on_rag_pipeline_clicked()
         QTimer.singleShot(3500, _start_rag)
 
@@ -6066,1470 +5925,9 @@ class ProjectManager(QWidget):
 
     def setup_community_tab(self):
         layout = QVBoxLayout(self.community_tab)
-        layout.setContentsMargins(10, 10, 10, 10)
-        layout.setSpacing(10)
-
-        self.curadoria_rag_tabs = QTabWidget()
-        self.curadoria_rag_tabs.setObjectName("CuradoriaRagTabs")
-        self.curadoria_rag_tabs.setStyleSheet(_resolve_css("""
-            QTabWidget::pane {
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 6px;
-                background: {Colors.BG_PANEL};
-            }
-            QTabBar::tab {
-                background: {Colors.BG_DEEP};
-                color: {Colors.TEXT_SECONDARY};
-                padding: 7px 14px;
-                border: none;
-                border-right: 1px solid {Colors.BORDER_DEFAULT};
-                min-width: 96px;
-            }
-            QTabBar::tab:selected {
-                background: {Colors.BG_SECONDARY};
-                color: {Colors.ACCENT_PRIMARY};
-                border-bottom: 2px solid {Colors.ACCENT_PRIMARY};
-            }
-        """))
-
-        self._curadoria_metric_labels = {}
-        self._curadoria_tables = {}
-
-        self.curadoria_rag_tabs.setObjectName("CuradoriaRagTabs")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_map_tab(), "Mapa RAG")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_mcp_evidence_tab(), "Evidencias MCP")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_encyclopedia_tab(), "Enciclopedia")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_corpus_tab(), "Corpus")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_pending_tab(), "Pendencias")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_learning_tab(), "Aprendizado")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_training_pipelines_tab(), "Pipelines de Treino")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_vector_tab(), "Memoria Vetorial")
-        self.curadoria_rag_tabs.addTab(self._build_curadoria_db_tab(), "Banco de Dados")
-
+        layout.setContentsMargins(0, 0, 0, 0)
         self.admin_dashboard = AdminDashboard(self.db, self.memory)
-        self.curadoria_rag_tabs.addTab(self.admin_dashboard, "Admin Legado")
-
-        layout.addWidget(self.curadoria_rag_tabs)
-        self._refresh_curadoria_rag_observer()
-
-    def _make_curadoria_scroll_page(self):
-        page = QWidget()
-        root = QVBoxLayout(page)
-        root.setContentsMargins(0, 0, 0, 0)
-        root.setSpacing(0)
-
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
-        scroll.setStyleSheet("QScrollArea { border: none; background: transparent; }")
-
-        content = QWidget()
-        layout = QVBoxLayout(content)
-        layout.setContentsMargins(16, 16, 16, 16)
-        layout.setSpacing(12)
-        scroll.setWidget(content)
-
-        root.addWidget(scroll)
-        return page, layout
-
-    def _make_curadoria_header(self, title, subtitle):
-        header = QFrame()
-        header.setObjectName("CuradoriaHeader")
-        header.setStyleSheet(_resolve_css("""
-            #CuradoriaHeader {
-                background: {Colors.BG_CARD};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 6px;
-            }
-        """))
-        layout = QHBoxLayout(header)
-        layout.setContentsMargins(14, 12, 14, 12)
-        layout.setSpacing(12)
-
-        text_box = QVBoxLayout()
-        title_label = QLabel(title)
-        title_label.setStyleSheet(f"font-size: 16px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
-        subtitle_label = QLabel(subtitle)
-        subtitle_label.setWordWrap(True)
-        subtitle_label.setStyleSheet(f"font-size: 11px; color: {Colors.TEXT_SECONDARY};")
-        text_box.addWidget(title_label)
-        text_box.addWidget(subtitle_label)
-
-        refresh_btn = QPushButton("Atualizar")
-        refresh_btn.setFixedHeight(28)
-        refresh_btn.setToolTip("Recarrega metricas de leitura. Nao escreve no banco nem indexa fichas.")
-        refresh_btn.clicked.connect(self._refresh_curadoria_rag_observer)
-        refresh_btn.setStyleSheet(_resolve_css("""
-            QPushButton {
-                background: {Colors.BG_SECONDARY};
-                color: {Colors.TEXT_PRIMARY};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 5px;
-                padding: 4px 12px;
-                font-weight: 600;
-            }
-            QPushButton:hover { border-color: {Colors.ACCENT_PRIMARY}; }
-        """))
-
-        layout.addLayout(text_box, 1)
-        layout.addWidget(refresh_btn)
-        return header
-
-    def _make_curadoria_metric_card(self, key, title, subtitle):
-        card = QFrame()
-        card.setObjectName("CuradoriaMetricCard")
-        card.setMinimumHeight(78)
-        card.setStyleSheet(_resolve_css("""
-            #CuradoriaMetricCard {
-                background: {Colors.BG_PANEL};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 6px;
-            }
-        """))
-        layout = QVBoxLayout(card)
-        layout.setContentsMargins(12, 8, 12, 8)
-        layout.setSpacing(3)
-
-        title_label = QLabel(title)
-        title_label.setStyleSheet(f"font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY};")
-        value_label = QLabel("-")
-        value_label.setStyleSheet(f"font-size: 22px; font-weight: bold; color: {Colors.ACCENT_PRIMARY};")
-        value_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        subtitle_label = QLabel(subtitle)
-        subtitle_label.setWordWrap(True)
-        subtitle_label.setStyleSheet(f"font-size: 10px; color: {Colors.TEXT_MUTED};")
-
-        layout.addWidget(title_label)
-        layout.addWidget(value_label)
-        layout.addWidget(subtitle_label)
-        self._curadoria_metric_labels[key] = value_label
-        return card
-
-    def _make_curadoria_compact_metric_card(self, key, title, subtitle):
-        card = QFrame()
-        card.setObjectName("CuradoriaCompactMetricCard")
-        card.setFixedHeight(64)
-        card.setStyleSheet(_resolve_css("""
-            #CuradoriaCompactMetricCard {
-                background: {Colors.BG_PANEL};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 6px;
-            }
-        """))
-        layout = QHBoxLayout(card)
-        layout.setContentsMargins(12, 8, 12, 8)
-        layout.setSpacing(10)
-
-        value_label = QLabel("-")
-        value_label.setMinimumWidth(44)
-        value_label.setAlignment(Qt.AlignCenter)
-        value_label.setStyleSheet(f"font-size: 20px; font-weight: bold; color: {Colors.ACCENT_PRIMARY};")
-        value_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-
-        text_box = QVBoxLayout()
-        text_box.setSpacing(2)
-        title_label = QLabel(title)
-        title_label.setStyleSheet(f"font-size: 11px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
-        subtitle_label = QLabel(subtitle)
-        subtitle_label.setWordWrap(True)
-        subtitle_label.setStyleSheet(f"font-size: 10px; color: {Colors.TEXT_SECONDARY};")
-        text_box.addWidget(title_label)
-        text_box.addWidget(subtitle_label)
-
-        layout.addWidget(value_label)
-        layout.addLayout(text_box, 1)
-        self._curadoria_metric_labels[key] = value_label
-        return card
-
-    def _make_curadoria_table(self, key, headers):
-        table = QTableWidget(0, len(headers))
-        table.setHorizontalHeaderLabels(headers)
-        table.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        table.setAlternatingRowColors(True)
-        table.verticalHeader().setVisible(False)
-        table.setShowGrid(False)
-        table.setWordWrap(False)
-        table.verticalHeader().setDefaultSectionSize(34)
-        table.horizontalHeader().setStretchLastSection(True)
-        for idx in range(len(headers)):
-            table.horizontalHeader().setSectionResizeMode(idx, QHeaderView.Stretch)
-        table.setStyleSheet(_resolve_css("""
-            QTableWidget {
-                background: {Colors.BG_DEEP};
-                alternate-background-color: {Colors.BG_PANEL};
-                color: {Colors.TEXT_PRIMARY};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 6px;
-                gridline-color: transparent;
-                selection-background-color: rgba(0, 212, 255, 34);
-                selection-color: {Colors.TEXT_BRIGHT};
-            }
-            QTableWidget::item {
-                padding: 7px 10px;
-                border-bottom: 1px solid {Colors.BORDER_SUBTLE};
-            }
-            QTableWidget::item:hover {
-                background: rgba(0, 212, 255, 22);
-            }
-            QHeaderView::section {
-                background: {Colors.BG_SURFACE};
-                color: {Colors.TEXT_SECONDARY};
-                border: none;
-                border-bottom: 2px solid {Colors.ACCENT_PRIMARY};
-                padding: 7px 10px;
-                font-size: 10px;
-                font-weight: bold;
-            }
-        """))
-        self._curadoria_tables[key] = table
-        return table
-
-    def _make_training_cycle_card(self, code, title, subtitle, body, accent):
-        card = QFrame()
-        card.setObjectName("TrainingCycleCard")
-        card.setMinimumHeight(148)
-        card.setStyleSheet(f"""
-            QFrame#TrainingCycleCard {{
-                background: {Colors.BG_CARD};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-top: 3px solid {accent};
-                border-radius: 6px;
-            }}
-        """)
-        layout = QVBoxLayout(card)
-        layout.setContentsMargins(12, 10, 12, 10)
-        layout.setSpacing(7)
-
-        top = QHBoxLayout()
-        top.setSpacing(8)
-        badge = QLabel(code)
-        badge.setFixedHeight(22)
-        badge.setAlignment(Qt.AlignCenter)
-        badge.setStyleSheet(f"""
-            QLabel {{
-                background: {accent};
-                color: #050505;  /* hardcoded-ok — near-black contraste sobre badge colorido */
-                border-radius: 4px;
-                padding: 2px 8px;
-                font-size: 10px;
-                font-weight: bold;
-            }}
-        """)
-        title_label = QLabel(title)
-        title_label.setStyleSheet(f"font-size: 13px; font-weight: bold; color: {Colors.TEXT_BRIGHT};")
-        title_label.setWordWrap(True)
-        top.addWidget(badge)
-        top.addWidget(title_label, 1)
-        layout.addLayout(top)
-
-        subtitle_label = QLabel(subtitle)
-        subtitle_label.setWordWrap(True)
-        subtitle_label.setStyleSheet(f"font-size: 10px; color: {Colors.ACCENT_PRIMARY}; font-weight: 600;")
-        body_label = QLabel(body)
-        body_label.setWordWrap(True)
-        body_label.setStyleSheet(f"font-size: 11px; color: {Colors.TEXT_PRIMARY}; line-height: 135%;")
-        layout.addWidget(subtitle_label)
-        layout.addWidget(body_label, 1)
-        return card
-
-    def _build_curadoria_map_tab(self):
-        page, layout = self._make_curadoria_scroll_page()
-        layout.addWidget(self._make_curadoria_header(
-            "Mapa RAG - Cerebro com barreira de confianca",
-            "Fluxo observador: N1/N2/N3/N4 alimentam hipoteses, mas so T1/T2 entram no RAG global. TX representa conhecimento desvalidado por humano."
-        ))
-
-        grid = QGridLayout()
-        grid.setSpacing(10)
-        cards = [
-            ("tier_t0", "T0 Quarentena", "Hipoteses em desenvolvimento. Nao entram no RAG global."),
-            ("tier_t1", "T1 Validados", "Itens aprovados por humano. Podem ensinar o RAG."),
-            ("tier_t2", "T2 Consolidados", "Padroes validados em mais de uma obra."),
-            ("tier_tx", "TX Revogados", "Desvalidacoes humanas/tombstones. Ficam fora das consultas."),
-            ("semantic_total", "Regras Semanticas", "semantic_rag_kb populada a partir do domain_knowledge."),
-            ("crop_learning_total", "Recortes CROP-T1", "Recortes aprovados por humano. Ensinam crop, nao F5/N4."),
-            ("training_events", "Training Events", "Historico de validacoes, rejeicoes e sinais de treino."),
-            ("obra_rag_snapshots", "RAG por-obra", "Snapshots locais em DADOS-OBRAS/*/obra_rag."),
-        ]
-        for index, args in enumerate(cards):
-            grid.addWidget(self._make_curadoria_metric_card(*args), index // 3, index % 3)
-        layout.addLayout(grid)
-
-        pipeline = QTextEdit()
-        pipeline.setReadOnly(True)
-        pipeline.setMinimumHeight(170)
-        pipeline.setPlainText(
-            "DXF bruto -> Structural Analyzer (N1/F7) ----\\\n"
-            "                                               > Comparison Engine -> validacao humana -> BARREIRA DE TIER -> RAG Global\n"
-            "STOG humano -> Motor Reverso (N2/F5) --------/\n\n"
-            "Regras/semantica: podem entrar agora via domain_knowledge -> semantic_rag_kb.\n"
-            "Instancias/fichas: so entram apos validacao humana (T1/T2).\n"
-            "Recorte aprovado: alimenta CROP-T1 e melhora recorte por classe; nao valida F5/N2 nem N4.\n"
-            "Desvalidacao humana: vira TX/tombstone, sai das consultas e permanece auditavel."
-        )
-        pipeline.setStyleSheet(_resolve_css("""
-            QTextEdit {
-                background: {Colors.BG_CARD};
-                color: {Colors.TEXT_PRIMARY};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 6px;
-                padding: 10px;
-                font-family: Consolas, monospace;
-                font-size: 11px;
-            }
-        """))
-        layout.addWidget(pipeline)
-        layout.addStretch()
-        return page
-
-    def _build_curadoria_encyclopedia_tab(self):
-        page, layout = self._make_curadoria_scroll_page()
-        layout.addWidget(self._make_curadoria_header(
-            "Enciclopedia de Classes - 8 dimensoes",
-            "Cobertura baseada em evidencias presentes no N1/F7, N2/F5 e nas regras semanticas. Ausencia de evidencia nao e preenchida por inferencia."
-        ))
-
-        layout.addWidget(self._make_curadoria_table(
-            "encyclopedia",
-            ["Classe", "F5/N2", "F7/N1", "T0", "T1", "T2", "TX", "Regras", "Dimensoes com evidencia", "Cobertura"],
-        ))
-
-        dimensions = QTextEdit()
-        dimensions.setReadOnly(True)
-        dimensions.setMinimumHeight(145)
-        dimensions.setPlainText(
-            "DIM-1 Visual estrutural N1  | DIM-2 Desenho dos robos N3/N4\n"
-            "DIM-3 Dados e fichas        | DIM-4 Descricao, geometria e logica\n"
-            "DIM-5 Obra/pavimento/item   | DIM-6 Engenharia reversa N2\n"
-            "DIM-7 Layers/cores/historico| DIM-8 Corpus global entre obras\n\n"
-            "A cobertura indica apenas fontes materializadas. Nao declara que a compreensao da classe esta correta."
-        )
-        dimensions.setStyleSheet(_resolve_css("""
-            QTextEdit {
-                background: {Colors.BG_CARD};
-                color: {Colors.TEXT_PRIMARY};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 6px;
-                padding: 10px;
-                font-family: Consolas, monospace;
-                font-size: 11px;
-            }
-        """))
-        layout.addWidget(dimensions)
-        return page
-
-    def _build_curadoria_corpus_tab(self):
-        page, layout = self._make_curadoria_scroll_page()
-        layout.addWidget(self._make_curadoria_header(
-            "Corpus & Cobertura",
-            "Visao das fichas F5/F7, tiers e cobertura. Esta aba nao valida, nao desvalida e nao indexa."
-        ))
-
-        grid = QGridLayout()
-        grid.setSpacing(10)
-        for index, args in enumerate([
-            ("reverse_total", "F5/N2 Reverse", "Fichas granulares da engenharia reversa."),
-            ("reverse_indexed", "F5 rag_indexed", "Quantidade marcada como indexada no banco."),
-            ("fase3_total", "F7/N1 Structural", "Fichas do Structural Analyzer."),
-            ("fase3_reviewed", "F7 revisadas", "Itens revisados por humano."),
-        ]):
-            grid.addWidget(self._make_curadoria_metric_card(*args), index // 4, index % 4)
-        layout.addLayout(grid)
-
-        layout.addWidget(QLabel("Cobertura por tabela / tier"))
-        layout.addWidget(self._make_curadoria_table("coverage", ["Fonte", "Total", "T0", "T1", "T2", "TX", "Observacao"]))
-        layout.addWidget(QLabel("semantic_rag_kb por classe"))
-        layout.addWidget(self._make_curadoria_table("semantic_by_class", ["Classe", "Regras", "Contexto"]))
-        return page
-
-    def _build_curadoria_learning_tab(self):
-        page, layout = self._make_curadoria_scroll_page()
-        layout.addWidget(self._make_curadoria_header(
-            "Aprendizado supervisionado por humano",
-            "Historico observador dos sinais de treino. T0 e TX nunca contam como professores nem entram em retraining."
-        ))
-
-        grid = QGridLayout()
-        grid.setSpacing(10)
-        for index, args in enumerate([
-            ("learning_total", "Eventos", "Total de training_events auditaveis."),
-            ("learning_validations", "Validacoes", "Confirmacoes humanas registradas."),
-            ("learning_rejections", "Rejeicoes", "Correcoes e recusas humanas."),
-            ("learning_na", "N/A", "Campos marcados como nao aplicaveis."),
-            ("learning_accuracy", "Accuracy media", "Media das transformation_rules existentes."),
-        ]):
-            grid.addWidget(self._make_curadoria_metric_card(*args), index // 5, index % 5)
-        layout.addLayout(grid)
-
-        layout.addWidget(QLabel("Eventos por tipo"))
-        layout.addWidget(self._make_curadoria_table("learning_event_types", ["Tipo", "Eventos"]))
-        layout.addWidget(QLabel("Campos com mais sinais humanos"))
-        layout.addWidget(self._make_curadoria_table("learning_roles", ["Campo / role", "Eventos"]))
-        layout.addWidget(QLabel("Regras de transformacao"))
-        layout.addWidget(self._make_curadoria_table(
-            "learning_rules",
-            ["Tipo", "Regras", "Accuracy media", "Menor accuracy"],
-        ))
-        return page
-
-    def _build_curadoria_training_pipelines_tab(self):
-        page, layout = self._make_curadoria_scroll_page()
-        layout.addWidget(self._make_curadoria_header(
-            "Pipelines de Treino - Arete por classe",
-            "Mapa mental dos ciclos que melhoram recorte, N2->N4, N2<->N1 e N1->N3. Esta aba e observadora: nao treina, nao indexa e nao promove dado."
-        ))
-
-        grid = QGridLayout()
-        grid.setSpacing(8)
-        for index, args in enumerate([
-            ("train_docs_arete", "Docs Arete", "Masterplans e docs de treino encontrados."),
-            ("train_scripts", "Loopers/Scripts", "Scripts de loop, runner e auditoria Arete."),
-            ("train_runs", "Runs/Artefatos", "Artefatos de execucao encontrados em modo observador."),
-            ("train_events", "Training Events", "Sinais humanos para treino supervisionado."),
-            ("train_crop_events", "CROP-T1", "Recortes aprovados que ensinam crop por classe."),
-            ("train_human_notes", "Notas humanas", "Alertas/atencoes humanas registrados para revisao."),
-        ]):
-            grid.addWidget(self._make_curadoria_compact_metric_card(*args), index // 3, index % 3)
-        layout.addLayout(grid)
-
-        flow = QGridLayout()
-        flow.setSpacing(10)
-        cycle_cards = [
-            (
-                "CROP",
-                "Aprender a recortar",
-                "Professor: recorte aprovado",
-                "Ajusta janela, margem, classe, layers e falsos positivos. Nao valida ficha F5/N2 nem desenho N4.",
-                Colors.ACCENT_SUCCESS,
-            ),
-            (
-                "A",
-                "N2 -> N4",
-                "Professor: STOG humano + F5 validada",
-                "Treina motor reverso e robo N4 ate o DXF gerado reproduzir o desenho humano validado.",
-                Colors.ACCENT_PURPLE,
-            ),
-            (
-                "B",
-                "N2 <-> N1",
-                "Professor externo: N2/F5",
-                "Treina interpretacao do Structural Analyzer e o mapeamento N1 -> ficha de robo, sem copiar gabarito.",
-                Colors.ACCENT_BLUE,
-            ),
-            (
-                "C",
-                "N1 -> N3",
-                "Juiz externo: N4 validado",
-                "N1 gera N3 sozinho. Comparison Engine mede N3 contra N4 e bloqueia qualquer vazamento de N2/N4.",
-                Colors.ACCENT_WARNING,
-            ),
-            (
-                "NOTAS",
-                "Humano no loop",
-                "Professor: decisao e atencao humana",
-                "Aprovacao, rejeicao, N/A, desvalidacao e notas viram eventos auditaveis antes de qualquer regra global.",
-                Colors.ACCENT_INFO,
-            ),
-        ]
-        for index, args in enumerate(cycle_cards):
-            flow.addWidget(self._make_training_cycle_card(*args), index // 3, index % 3)
-        layout.addLayout(flow)
-
-        contract = QFrame()
-        contract.setObjectName("TrainingContract")
-        contract.setStyleSheet(_resolve_css("""
-            QFrame#TrainingContract {
-                background: {Colors.BG_PANEL};
-                border: 1px solid {Colors.BORDER_DEFAULT};
-                border-radius: 6px;
-            }
-        """))
-        contract_layout = QHBoxLayout(contract)
-        contract_layout.setContentsMargins(14, 10, 14, 10)
-        contract_layout.setSpacing(16)
-        for title, body, color in [
-            ("RAG", "Memoria consultavel. Nao e o treinador.", Colors.ACCENT_PRIMARY),
-            ("Tiers", "T0 quarentena | T1 validado | T2 consolidado | TX revogado.", Colors.ACCENT_GOLD),
-            ("Anti-vazamento", "N3 nunca recebe N2/N4 como entrada.", Colors.ACCENT_DANGER),
-        ]:
-            box = QVBoxLayout()
-            label = QLabel(title)
-            label.setStyleSheet(f"font-size: 12px; font-weight: bold; color: {color};")
-            text = QLabel(body)
-            text.setWordWrap(True)
-            text.setStyleSheet(f"font-size: 11px; color: {Colors.TEXT_PRIMARY};")
-            box.addWidget(label)
-            box.addWidget(text)
-            contract_layout.addLayout(box, 1)
-        layout.addWidget(contract)
-
-        layout.addWidget(QLabel("Ciclos operacionais"))
-        layout.addWidget(self._make_curadoria_table(
-            "training_pipelines",
-            ["Ciclo", "Professor / juiz", "Motor treinado", "Gate humano / metrica", "Alimenta RAG/Dados", "Nao fazer"],
-        ))
-        layout.addWidget(QLabel("Cobertura por classe"))
-        layout.addWidget(self._make_curadoria_table(
-            "training_classes",
-            ["Classe", "Partes", "Docs", "Loopers/Scripts", "Estado", "Proximo gate"],
-        ))
-        layout.addWidget(QLabel("Artefatos de execucao observados"))
-        layout.addWidget(self._make_curadoria_table(
-            "training_runs",
-            ["Fonte", "Classe", "Artefatos", "Ultima atualizacao", "Status"],
-        ))
-        return page
-
-    def _build_curadoria_pending_tab(self):
-        page, layout = self._make_curadoria_scroll_page()
-        layout.addWidget(self._make_curadoria_header(
-            "Pendencias de consolidacao",
-            "Fila deterministica do que precisa de validacao ou harmonizacao. Nao corrige, promove ou indexa dados automaticamente."
-        ))
-
-        grid = QGridLayout()
-        grid.setSpacing(10)
-        for index, args in enumerate([
-            ("pending_high", "Prioridade alta", "Exige decisao ou validacao humana."),
-            ("pending_medium", "Prioridade media", "Lacuna relevante para consolidacao."),
-            ("pending_info", "Informativo", "Cobertura incompleta durante o desenvolvimento."),
-        ]):
-            grid.addWidget(self._make_curadoria_metric_card(*args), 0, index)
-        layout.addLayout(grid)
-        layout.addWidget(self._make_curadoria_table(
-            "pending",
-            ["Prioridade", "Area", "Achado", "Acao recomendada"],
-        ))
-        return page
-
-    def _build_curadoria_mcp_evidence_tab(self):
-        page, layout = self._make_curadoria_scroll_page()
-        layout.addWidget(self._make_curadoria_header(
-            "Evidencias MCP - Active Learning controlado",
-            "Edicoes sao evidencias T0. Somente Aprovar proposta promove para T1; Salvar nunca valida."
-        ))
-        grid = QGridLayout()
-        grid.setSpacing(8)
-        for index, args in enumerate([
-            ("mcp_captured", "Capturadas", "Edicoes aguardando analise."),
-            ("mcp_proposed", "Propostas T0", "Hipoteses aguardando decisao humana."),
-            ("mcp_approved", "Aprovadas T1", "Licoes autorizadas explicitamente."),
-            ("mcp_indexed", "Indexadas", "Aprovadas materializadas no store MCP."),
-            ("mcp_rejected", "Rejeitadas/TX", "Historico preservado fora das consultas."),
-            ("mcp_failed", "Falhas", "Eventos reprocessaveis com erro auditavel."),
-        ]):
-            grid.addWidget(self._make_curadoria_compact_metric_card(*args), index // 3, index % 3)
-        layout.addLayout(grid)
-
-        actions = QGridLayout()
-        actions.setSpacing(8)
-        for index, (text, callback) in enumerate([
-            ("Gerar propostas T0", lambda: self._run_mcp_background("daemon")),
-            ("Analisar padroes", lambda: self._run_mcp_background("patterns")),
-            ("Atualizar indice candidato", lambda: self._run_mcp_background("candidates")),
-            ("Aprovar proposta", self._approve_selected_mcp_proposal),
-            ("Rejeitar proposta", self._reject_selected_mcp_proposal),
-            ("Indexar aprovadas T1", lambda: self._run_mcp_background("approved")),
-        ]):
-            button = QPushButton(text)
-            button.setMinimumHeight(30)
-            button.clicked.connect(callback)
-            actions.addWidget(button, index // 3, index % 3)
-        layout.addLayout(actions)
-        self._mcp_evidence_status = QLabel("")
-        self._mcp_evidence_status.setStyleSheet(f"color:{Colors.TEXT_SECONDARY}; font-size:11px;")
-        layout.addWidget(self._mcp_evidence_status)
-        layout.addWidget(self._make_curadoria_table(
-            "mcp_evidence",
-            ["ID", "Estado", "Tier", "Classe", "Item", "Fase", "Obra", "Motivo", "Atualizado"],
-        ))
-        return page
-
-    def _selected_mcp_log_id(self):
-        table = self._curadoria_tables.get("mcp_evidence")
-        if not table or table.currentRow() < 0:
-            return "", ""
-        row = table.currentRow()
-        id_item = table.item(row, 0)
-        status_item = table.item(row, 1)
-        return (
-            id_item.text() if id_item else "",
-            status_item.text() if status_item else "",
-        )
-
-    def _mcp_bridge(self):
-        import sys
-        repo_root = Path(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision")).resolve().parent
-        if str(repo_root) not in sys.path:
-            sys.path.insert(0, str(repo_root))
-        from src.mcp import db_bridge
-        return db_bridge
-
-    def _mcp_actor_id(self):
-        user = getattr(self.auth_service, "current_user", None)
-        if isinstance(user, dict):
-            return str(user.get("email") or user.get("id") or "ui_operator")
-        return str(getattr(user, "email", None) or getattr(user, "id", None) or "ui_operator")
-
-    def _approve_selected_mcp_proposal(self):
-        log_id, status = self._selected_mcp_log_id()
-        if not log_id or status != "PROPOSED":
-            QMessageBox.information(self, "Evidencias MCP", "Selecione uma proposta T0 em estado PROPOSED.")
-            return
-        reason, ok = QInputDialog.getText(
-            self, "Aprovar proposta", "Justificativa humana obrigatoria:"
-        )
-        if not ok or not reason.strip():
-            return
-        try:
-            changed = self._mcp_bridge().approve_event_candidate(
-                log_id,
-                approved_by=self._mcp_actor_id(),
-                reason=reason.strip(),
-                validation_origin="human_ui",
-                db_path=Path(self.db.db_path),
-            )
-            if not changed:
-                raise RuntimeError("a proposta mudou de estado antes da aprovacao")
-            self._refresh_curadoria_rag_observer()
-        except Exception as exc:
-            QMessageBox.critical(self, "Aprovar proposta", str(exc))
-
-    def _reject_selected_mcp_proposal(self):
-        log_id, status = self._selected_mcp_log_id()
-        if not log_id or status not in {"PROPOSED", "APPROVED"}:
-            QMessageBox.information(self, "Evidencias MCP", "Selecione uma proposta PROPOSED ou APPROVED.")
-            return
-        reason, ok = QInputDialog.getText(
-            self, "Rejeitar proposta", "Motivo obrigatorio:"
-        )
-        if not ok or not reason.strip():
-            return
-        try:
-            changed = self._mcp_bridge().reject_event_candidate(
-                log_id,
-                rejected_by=self._mcp_actor_id(),
-                reason=reason.strip(),
-                db_path=Path(self.db.db_path),
-            )
-            if not changed:
-                raise RuntimeError("a proposta mudou de estado antes da rejeicao")
-            self._refresh_curadoria_rag_observer()
-        except Exception as exc:
-            QMessageBox.critical(self, "Rejeitar proposta", str(exc))
-
-    def _run_mcp_background(self, mode):
-        if getattr(self, "_mcp_learning_process", None):
-            if self._mcp_learning_process.state() != QProcess.NotRunning:
-                return
-        repo_root = Path(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision")).resolve().parent
-        if mode == "daemon":
-            script = repo_root / "scripts" / "mcp_active_learning_daemon.py"
-            args = [str(script), "--db", str(self.db.db_path)]
-        elif mode == "patterns":
-            script = repo_root / "scripts" / "active_learning_patterns.py"
-            args = [str(script), "--db", str(self.db.db_path)]
-        else:
-            script = repo_root / "scripts" / "rag_active_trainer.py"
-            args = [str(script), "--db", str(self.db.db_path)]
-            if mode == "approved":
-                args.append("--approved")
-        process = QProcess(self)
-        process.setWorkingDirectory(str(repo_root))
-        process.finished.connect(lambda code, _status: self._on_mcp_background_finished(code))
-        self._mcp_learning_process = process
-        self._mcp_evidence_status.setText(f"Executando {mode}...")
-        process.start(sys.executable, args)
-
-    def _on_mcp_background_finished(self, exit_code):
-        process = getattr(self, "_mcp_learning_process", None)
-        output = bytes(process.readAllStandardOutput()).decode("utf-8", errors="replace") if process else ""
-        error = bytes(process.readAllStandardError()).decode("utf-8", errors="replace") if process else ""
-        self._mcp_evidence_status.setText(
-            ("Concluido. " + output.strip()) if exit_code == 0 else ("Falha: " + error.strip())
-        )
-        self._refresh_curadoria_rag_observer()
-
-    def _build_curadoria_vector_tab(self):
-        page, layout = self._make_curadoria_scroll_page()
-        layout.addWidget(self._make_curadoria_header(
-            "Memoria Vetorial",
-            "Stores FAISS e tombstones. Vetores antigos sem validacao aparecem como T0 e ficam ocultos nas consultas T1+."
-        ))
-        grid = QGridLayout()
-        grid.setSpacing(10)
-        for index, args in enumerate([
-            ("faiss_total", "FAISS meta", "Total de metadados nos arquivos *_meta.json."),
-            ("faiss_t1_visible", "FAISS visivel T1+", "Vetores que podem responder como professor."),
-            ("tombstones", "Tombstones", "Itens desvalidados humanamente."),
-            ("legacy_t0", "FAISS legado T0", "Vetores existentes sem selo de validacao."),
-        ]):
-            grid.addWidget(self._make_curadoria_metric_card(*args), index // 4, index % 4)
-        layout.addLayout(grid)
-        layout.addWidget(self._make_curadoria_table("faiss_stores", ["Store", "Metas", "T0", "T1", "T2", "TX", "Arquivo"]))
-        return page
-
-    def _build_curadoria_db_tab(self):
-        page, layout = self._make_curadoria_scroll_page()
-        layout.addWidget(self._make_curadoria_header(
-            "Banco de Dados",
-            "Leitura direta de project_data.vision com alertas de integridade para o plano RAG."
-        ))
-        layout.addWidget(self._make_curadoria_table("db_tables", ["Tabela", "Rows", "Status", "Alerta"]))
-        layout.addWidget(QLabel("Transformation rules"))
-        layout.addWidget(self._make_curadoria_table("rules", ["Tipo", "Regras", "Accuracy media", "Menor accuracy"]))
-        return page
-
-    def _refresh_curadoria_rag_observer(self):
-        metrics = self._collect_curadoria_rag_metrics()
-
-        values = {
-            "tier_t0": metrics["tiers"].get("T0", 0),
-            "tier_t1": metrics["tiers"].get("T1", 0),
-            "tier_t2": metrics["tiers"].get("T2", 0),
-            "tier_tx": metrics["tiers"].get("TX", 0),
-            "semantic_total": metrics["semantic_total"],
-            "crop_learning_total": metrics["table_counts"].get("crop_learning_events", 0),
-            "training_events": metrics["table_counts"].get("training_events", 0),
-            "obra_rag_snapshots": metrics["obra_rag_snapshots"],
-            "reverse_total": metrics["table_counts"].get("reverse_eng_fichas", 0),
-            "reverse_indexed": metrics["reverse_indexed"],
-            "fase3_total": metrics["table_counts"].get("fase3_fichas", 0),
-            "fase3_reviewed": metrics["fase3_reviewed"],
-            "faiss_total": metrics["faiss_total"],
-            "faiss_t1_visible": metrics["faiss_visible"],
-            "tombstones": metrics["tombstones"],
-            "legacy_t0": metrics["faiss_tiers"].get("T0", 0),
-            "learning_total": metrics["table_counts"].get("training_events", 0),
-            "learning_validations": metrics["learning_counts"].get("user_validation", 0),
-            "learning_rejections": metrics["learning_counts"].get("user_rejection", 0),
-            "learning_na": metrics["learning_counts"].get("user_na", 0),
-            "learning_accuracy": metrics["learning_accuracy"],
-            "train_docs_arete": metrics["train_docs_arete"],
-            "train_scripts": metrics["train_scripts"],
-            "train_runs": metrics["train_runs"],
-            "train_events": metrics["table_counts"].get("training_events", 0),
-            "train_crop_events": metrics["table_counts"].get("crop_learning_events", 0),
-            "train_artifacts": (
-                f"{metrics['artifact_counts'].get('render_ready', 0)}/"
-                f"{metrics['artifact_counts'].get('validated', 0)}"
-            ),
-            "train_human_notes": metrics["train_human_notes"],
-            "mcp_captured": metrics["mcp_status_counts"].get("CAPTURED", 0),
-            "mcp_proposed": metrics["mcp_status_counts"].get("PROPOSED", 0),
-            "mcp_approved": metrics["mcp_status_counts"].get("APPROVED", 0),
-            "mcp_indexed": metrics["mcp_status_counts"].get("INDEXED", 0),
-            "mcp_rejected": (
-                metrics["mcp_status_counts"].get("REJECTED", 0)
-                + metrics["mcp_status_counts"].get("TEST_QUARANTINED", 0)
-            ),
-            "mcp_failed": metrics["mcp_status_counts"].get("FAILED", 0),
-            "pending_high": metrics["pending_counts"].get("ALTA", 0),
-            "pending_medium": metrics["pending_counts"].get("MEDIA", 0),
-            "pending_info": metrics["pending_counts"].get("INFO", 0),
-        }
-        for key, value in values.items():
-            label = self._curadoria_metric_labels.get(key)
-            if label:
-                label.setText(str(value))
-
-        self._fill_curadoria_table("coverage", metrics["coverage_rows"])
-        self._fill_curadoria_table("encyclopedia", metrics["encyclopedia_rows"])
-        self._fill_curadoria_table("semantic_by_class", metrics["semantic_rows"])
-        self._fill_curadoria_table("learning_event_types", metrics["learning_event_rows"])
-        self._fill_curadoria_table("learning_roles", metrics["learning_role_rows"])
-        self._fill_curadoria_table("learning_rules", metrics["rule_rows"])
-        self._fill_curadoria_table("training_pipelines", metrics["training_pipeline_rows"])
-        self._fill_curadoria_table("training_classes", metrics["training_class_rows"])
-        self._fill_curadoria_table("training_runs", metrics["training_run_rows"])
-        self._fill_curadoria_table("mcp_evidence", metrics["mcp_evidence_rows"])
-        self._fill_curadoria_table("pending", metrics["pending_rows"])
-        self._fill_curadoria_table("faiss_stores", metrics["faiss_rows"])
-        self._fill_curadoria_table("db_tables", metrics["db_rows"])
-        self._fill_curadoria_table("rules", metrics["rule_rows"])
-
-    def _fill_curadoria_table(self, key, rows):
-        table = self._curadoria_tables.get(key)
-        if not table:
-            return
-        table.setRowCount(len(rows))
-        for row_idx, row in enumerate(rows):
-            for col_idx, value in enumerate(row):
-                item = QTableWidgetItem(str(value))
-                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-                item.setToolTip(str(value))
-                if key == "pending" and col_idx == 0:
-                    priority_colors = {
-                        "ALTA": Colors.ACCENT_DANGER,
-                        "MEDIA": Colors.ACCENT_WARNING,
-                        "INFO": Colors.ACCENT_INFO,
-                    }
-                    item.setForeground(QColor(priority_colors.get(str(value), Colors.TEXT_PRIMARY)))
-                    font = item.font()
-                    font.setBold(True)
-                    item.setFont(font)
-                elif key in {"training_pipelines", "training_classes", "training_runs"} and col_idx == 0:
-                    item.setForeground(QColor(Colors.ACCENT_PRIMARY))
-                    font = item.font()
-                    font.setBold(True)
-                    item.setFont(font)
-                table.setItem(row_idx, col_idx, item)
-
-    def _collect_curadoria_rag_metrics(self):
-        import sqlite3
-        import sys
-        from collections import Counter, defaultdict
-
-        repo_root = Path(getattr(self.db, "db_path", "D:/Agente-cad-PYSIDE/project_data.vision")).resolve().parent
-        app_root = Path(__file__).resolve().parents[3]
-        scripts_dir = repo_root / "scripts"
-        app_repo_root = app_root.parent
-        app_repo_scripts_dir = app_repo_root / "scripts"
-        for candidate_scripts_dir in (scripts_dir, app_repo_scripts_dir):
-            if candidate_scripts_dir.exists() and str(candidate_scripts_dir) not in sys.path:
-                sys.path.insert(0, str(candidate_scripts_dir))
-
-        try:
-            from rag_tier import get_tier, load_tombstones, tier_at_least
-        except Exception:
-            def get_tier(row, tombstones=None):
-                return "T0"
-            def load_tombstones(path=None):
-                return {}
-            def tier_at_least(tier, min_tier="T1"):
-                return tier in {"T1", "T2"}
-
-        registry_error = ""
-        try:
-            from classe_registry import canonicalize_class, load_registry, registered_classes
-            registry_path = repo_root / "data" / "classe_registry.json"
-            if not registry_path.exists():
-                registry_path = app_repo_root / "data" / "classe_registry.json"
-            class_registry = load_registry(registry_path)
-            canonical_classes = registered_classes(class_registry)
-
-            def canonical_class(value):
-                return canonicalize_class(value, class_registry)[0]
-        except Exception as exc:
-            registry_error = str(exc)
-            canonical_classes = {"PIL", "LV", "FV", "LAJ"}
-
-            def canonical_class(value):
-                raw = str(value or "?").strip().upper()
-                return {"PILAR": "PIL", "LAJE": "LAJ"}.get(raw, raw)
-
-        db_path = Path(getattr(self.db, "db_path", repo_root / "project_data.vision"))
-        faiss_dir = repo_root / "data" / "vectors" / "faiss"
-        tombstones = load_tombstones(faiss_dir / "rag_tombstones.json")
-        docs_dir = app_root / "docs"
-        app_scripts_dir = app_root / "scripts"
-        arete_docs = sorted(docs_dir.glob("*ARETE*.md")) if docs_dir.exists() else []
-        loop_script_patterns = ["*loop*.py", "*runner*.py", "*arete*.py", "*audit*.py"]
-        loop_scripts = []
-        for scripts_root in {scripts_dir, app_scripts_dir}:
-            if scripts_root.exists():
-                for pattern in loop_script_patterns:
-                    loop_scripts.extend(scripts_root.glob(pattern))
-        loop_scripts = sorted({path.resolve() for path in loop_scripts})
-
-        def _latest_mtime(paths):
-            latest = 0
-            for path in paths:
-                try:
-                    latest = max(latest, int(path.stat().st_mtime))
-                except OSError:
-                    pass
-            return latest
-
-        def _fmt_mtime(timestamp):
-            if not timestamp:
-                return "-"
-            return datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d %H:%M")
-
-        def _collect_arete_artifacts():
-            rows = []
-            tmp_dir = app_root / "scripts" / "arete" / "tmp"
-            if tmp_dir.exists():
-                children = [p for p in tmp_dir.iterdir() if p.is_dir()]
-                for classe in ["PIL", "LV", "FV", "LAJ"]:
-                    class_dirs = [p for p in children if p.name.upper().startswith(f"{classe}_")]
-                    if class_dirs:
-                        rows.append([
-                            "scripts/arete/tmp",
-                            classe,
-                            len(class_dirs),
-                            _fmt_mtime(_latest_mtime(class_dirs)),
-                            "Observado: resultado de looper, nao validacao humana",
-                        ])
-            lv_runs = app_root / "sandbox_lv_loop" / "runs"
-            if lv_runs.exists():
-                children = [p for p in lv_runs.iterdir()]
-                rows.append([
-                    "sandbox_lv_loop/runs",
-                    "LV",
-                    len(children),
-                    _fmt_mtime(_latest_mtime(children)),
-                    "Sandbox read-only na Curadoria",
-                ])
-            screenshots = app_root / "tests" / "screenshots"
-            if screenshots.exists():
-                pngs = list(screenshots.glob("*.png"))
-                if pngs:
-                    rows.append([
-                        "tests/screenshots",
-                        "QA",
-                        len(pngs),
-                        _fmt_mtime(_latest_mtime(pngs)),
-                        "Evidencia visual; nao promove tier",
-                    ])
-            return rows
-
-        metrics = {
-            "tiers": Counter(),
-            "faiss_tiers": Counter(),
-            "table_counts": {},
-            "semantic_total": 0,
-            "reverse_indexed": 0,
-            "fase3_reviewed": 0,
-            "faiss_total": 0,
-            "faiss_visible": 0,
-            "tombstones": len(tombstones),
-            "coverage_rows": [],
-            "encyclopedia_rows": [],
-            "semantic_rows": [],
-            "learning_counts": Counter(),
-            "artifact_counts": Counter(),
-            "artifact_history_rows": [],
-            "mcp_status_counts": Counter(),
-            "mcp_evidence_rows": [],
-            "learning_event_rows": [],
-            "learning_role_rows": [],
-            "learning_accuracy": "-",
-            "pending_counts": Counter(),
-            "pending_rows": [],
-            "faiss_rows": [],
-            "db_rows": [],
-            "rule_rows": [],
-            "training_pipeline_rows": [],
-            "training_class_rows": [],
-            "training_run_rows": _collect_arete_artifacts(),
-            "train_docs_arete": len(arete_docs),
-            "train_scripts": len(loop_scripts),
-            "train_runs": 0,
-            "train_human_notes": 0,
-            "obra_rag_snapshots": 0,
-            "latest_obra_rag": "",
-            "registry_error": registry_error,
-        }
-        metrics["train_runs"] = sum(
-            int(row[2]) for row in metrics["training_run_rows"] if str(row[2]).isdigit()
-        )
-
-        def table_exists(conn, table):
-            return conn.execute(
-                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
-                (table,),
-            ).fetchone() is not None
-
-        def table_columns(conn, table):
-            return [row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()]
-
-        def fetch_rows(conn, table):
-            if not table_exists(conn, table):
-                return []
-            conn.row_factory = sqlite3.Row
-            return [dict(row) for row in conn.execute(f"SELECT * FROM {table}").fetchall()]
-
-        if db_path.exists():
-            conn = sqlite3.connect(str(db_path))
-            try:
-                tracked_tables = [
-                    "reverse_eng_fichas",
-                    "fase3_fichas",
-                    "semantic_rag_kb",
-                    "crop_learning_events",
-                    "rag_artifact_validations",
-                    "training_events",
-                    "transformation_rules",
-                    "item_attention_notes",
-                    "human_event_logs",
-                    "cache_fichas",
-                ]
-                for table in tracked_tables:
-                    if table_exists(conn, table):
-                        count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-                        metrics["table_counts"][table] = count
-                    else:
-                        metrics["table_counts"][table] = 0
-
-                reverse_rows = fetch_rows(conn, "reverse_eng_fichas")
-                reverse_tiers = Counter(get_tier(row, tombstones=tombstones) for row in reverse_rows)
-                metrics["tiers"].update(reverse_tiers)
-                if table_exists(conn, "reverse_eng_fichas") and "rag_indexed" in table_columns(conn, "reverse_eng_fichas"):
-                    metrics["reverse_indexed"] = conn.execute(
-                        "SELECT COUNT(*) FROM reverse_eng_fichas WHERE COALESCE(rag_indexed, 0) != 0"
-                    ).fetchone()[0]
-
-                fase3_rows = fetch_rows(conn, "fase3_fichas")
-                fase3_tiers = Counter(get_tier(row, tombstones=tombstones) for row in fase3_rows)
-                metrics["tiers"].update(fase3_tiers)
-                if table_exists(conn, "fase3_fichas") and "revisado" in table_columns(conn, "fase3_fichas"):
-                    metrics["fase3_reviewed"] = conn.execute(
-                        "SELECT COUNT(*) FROM fase3_fichas WHERE COALESCE(revisado, 0) != 0"
-                    ).fetchone()[0]
-
-                metrics["semantic_total"] = metrics["table_counts"].get("semantic_rag_kb", 0)
-                if table_exists(conn, "rag_artifact_validations"):
-                    artifact_columns = set(table_columns(conn, "rag_artifact_validations"))
-                    if "status" in artifact_columns:
-                        for status, count in conn.execute(
-                            "SELECT status, COUNT(*) FROM rag_artifact_validations GROUP BY status"
-                        ).fetchall():
-                            metrics["artifact_counts"][str(status or "?")] = count
-                    if "render_status" in artifact_columns:
-                        metrics["artifact_counts"]["render_ready"] = conn.execute(
-                            """
-                            SELECT COUNT(*) FROM rag_artifact_validations
-                            WHERE status='validated' AND render_status='ready'
-                            """
-                        ).fetchone()[0]
-                    artifact_fields = [
-                        "scope", "classe", "item_id", "obra_name", "pavimento",
-                        "status", "render_status", "updated_at", "validated_at",
-                    ]
-                    projection = ", ".join(
-                        field if field in artifact_columns else f"NULL AS {field}"
-                        for field in artifact_fields
-                    )
-                    order_field = "updated_at" if "updated_at" in artifact_columns else "rowid"
-                    metrics["artifact_history_rows"] = [
-                        [
-                            str(row[0] or "?").upper(),
-                            row[1] or "?",
-                            row[2] or "?",
-                            row[3] or "?",
-                            row[4] or "?",
-                            str(row[5] or "?").upper(),
-                            row[6] or "-",
-                            row[7] or row[8] or "-",
-                        ]
-                        for row in conn.execute(
-                            f"""
-                            SELECT {projection} FROM rag_artifact_validations
-                            ORDER BY {order_field} DESC LIMIT 200
-                            """
-                        ).fetchall()
-                    ]
-                if table_exists(conn, "semantic_rag_kb"):
-                    semantic_by_class = Counter()
-                    for classe, count in conn.execute(
-                        "SELECT classe, COUNT(*) FROM semantic_rag_kb GROUP BY classe ORDER BY classe"
-                    ).fetchall():
-                        metrics["semantic_rows"].append([classe or "?", count, "domain_knowledge:field_semantics"])
-                        semantic_by_class[canonical_class(classe)] += count
-                else:
-                    semantic_by_class = Counter()
-
-                reverse_by_class = defaultdict(list)
-                for row in reverse_rows:
-                    reverse_by_class[canonical_class(row.get("classe"))].append(row)
-                fase3_by_class = defaultdict(list)
-                for row in fase3_rows:
-                    fase3_by_class[canonical_class(row.get("tipo"))].append(row)
-
-                classes = sorted(
-                    set(reverse_by_class)
-                    | set(fase3_by_class)
-                    | set(semantic_by_class)
-                    | set(canonical_classes)
-                )
-                for classe in classes:
-                    class_rows = reverse_by_class[classe] + fase3_by_class[classe]
-                    class_tiers = Counter(get_tier(row, tombstones=tombstones) for row in class_rows)
-                    evidence = set()
-                    if fase3_by_class[classe]:
-                        evidence.update({1, 3})
-                    if reverse_by_class[classe]:
-                        evidence.update({3, 5, 6})
-                    if semantic_by_class.get(classe, 0):
-                        evidence.add(4)
-                    evidence_text = ", ".join(str(dim) for dim in sorted(evidence)) or "-"
-                    metrics["encyclopedia_rows"].append([
-                        classe,
-                        len(reverse_by_class[classe]),
-                        len(fase3_by_class[classe]),
-                        class_tiers.get("T0", 0),
-                        class_tiers.get("T1", 0),
-                        class_tiers.get("T2", 0),
-                        class_tiers.get("TX", 0),
-                        semantic_by_class.get(classe, 0),
-                        evidence_text,
-                        f"{len(evidence)}/8",
-                    ])
-
-                metrics["coverage_rows"] = [
-                    [
-                        "F5/N2 reverse_eng_fichas",
-                        len(reverse_rows),
-                        reverse_tiers.get("T0", 0),
-                        reverse_tiers.get("T1", 0),
-                        reverse_tiers.get("T2", 0),
-                        reverse_tiers.get("TX", 0),
-                        "Instancias so indexam se T1/T2",
-                    ],
-                    [
-                        "F7/N1 fase3_fichas",
-                        len(fase3_rows),
-                        fase3_tiers.get("T0", 0),
-                        fase3_tiers.get("T1", 0),
-                        fase3_tiers.get("T2", 0),
-                        fase3_tiers.get("TX", 0),
-                        "Motor puro; revisao humana vira T1",
-                    ],
-                    [
-                        "crop_learning_events",
-                        metrics["table_counts"].get("crop_learning_events", 0),
-                        0,
-                        metrics["table_counts"].get("crop_learning_events", 0),
-                        0,
-                        0,
-                        "Recortes aprovados: ensinam crop, nao validam F5/N4",
-                    ],
-                    [
-                        "semantic_rag_kb",
-                        metrics["semantic_total"],
-                        0,
-                        metrics["semantic_total"],
-                        0,
-                        0,
-                        "Regras semanticas, nao fichas draft",
-                    ],
-                ]
-
-                metrics["db_rows"] = []
-                for table in tracked_tables:
-                    count = metrics["table_counts"].get(table, 0)
-                    alert = ""
-                    status = "OK"
-                    if table == "semantic_rag_kb" and count == 0:
-                        status, alert = "ATENCAO", "Bridge semantica vazia"
-                    elif table == "crop_learning_events" and count == 0:
-                        status, alert = "INFO", "Sem recortes humanos CROP-T1 ainda"
-                    elif table == "cache_fichas" and count == 0:
-                        status, alert = "INFO", "Cache vazio"
-                    elif table == "reverse_eng_fichas" and metrics["reverse_indexed"] == 0:
-                        status, alert = "OK", "Correto por enquanto: sem bulk de T0"
-                    metrics["db_rows"].append([table, count, status, alert])
-
-                if table_exists(conn, "transformation_rules"):
-                    cols = table_columns(conn, "transformation_rules")
-                    if "entity_type" in cols and "accuracy_pct" in cols:
-                        rows = conn.execute(
-                            """
-                            SELECT entity_type, COUNT(*), AVG(accuracy_pct), MIN(accuracy_pct)
-                            FROM transformation_rules
-                            GROUP BY entity_type
-                            ORDER BY entity_type
-                            """
-                        ).fetchall()
-                        for entity_type, count, avg_acc, min_acc in rows:
-                            metrics["rule_rows"].append([
-                                entity_type or "?",
-                                count,
-                                f"{(avg_acc or 0):.1f}%",
-                                f"{(min_acc or 0):.1f}%",
-                            ])
-                        accuracies = [
-                            row[0] for row in conn.execute(
-                                "SELECT accuracy_pct FROM transformation_rules WHERE accuracy_pct IS NOT NULL"
-                            ).fetchall()
-                        ]
-                        if accuracies:
-                            metrics["learning_accuracy"] = f"{sum(accuracies) / len(accuracies):.1f}%"
-
-                if table_exists(conn, "training_events"):
-                    for event_type, count in conn.execute(
-                        "SELECT type, COUNT(*) FROM training_events GROUP BY type ORDER BY COUNT(*) DESC"
-                    ).fetchall():
-                        key = str(event_type or "?")
-                        metrics["learning_counts"][key] = count
-                        metrics["learning_event_rows"].append([key, count])
-                    for role, count in conn.execute(
-                        """
-                        SELECT role, COUNT(*) FROM training_events
-                        GROUP BY role ORDER BY COUNT(*) DESC LIMIT 20
-                        """
-                    ).fetchall():
-                        metrics["learning_role_rows"].append([role or "?", count])
-                metrics["train_human_notes"] = metrics["table_counts"].get("item_attention_notes", 0)
-                if table_exists(conn, "human_event_logs"):
-                    human_columns = set(table_columns(conn, "human_event_logs"))
-                    if "status" in human_columns:
-                        for status, count in conn.execute(
-                            "SELECT status, COUNT(*) FROM human_event_logs GROUP BY status"
-                        ).fetchall():
-                            metrics["mcp_status_counts"][str(status or "CAPTURED")] = count
-                        fields = [
-                            "log_id", "status", "tier", "classe", "item_id",
-                            "fase_editada", "obra_id", "user_reason", "updated_at",
-                        ]
-                        projection = ", ".join(
-                            field if field in human_columns else f"NULL AS {field}"
-                            for field in fields
-                        )
-                        metrics["mcp_evidence_rows"] = [
-                            [
-                                row[0] or "?",
-                                row[1] or "CAPTURED",
-                                row[2] or "T0",
-                                row[3] or "?",
-                                row[4] or "?",
-                                row[5] or "?",
-                                row[6] or "?",
-                                row[7] or "",
-                                row[8] or "-",
-                            ]
-                            for row in conn.execute(
-                                f"""
-                                SELECT {projection} FROM human_event_logs
-                                ORDER BY COALESCE(updated_at, timestamp) DESC
-                                LIMIT 500
-                                """
-                            ).fetchall()
-                        ]
-            except Exception as exc:
-                metrics["db_rows"].append(["project_data.vision", 0, "ERRO", str(exc)])
-            finally:
-                conn.close()
-        else:
-            metrics["db_rows"].append([str(db_path), 0, "ERRO", "Banco nao encontrado"])
-
-        store_totals = defaultdict(Counter)
-        for meta_path in sorted(faiss_dir.glob("*_meta.json")):
-            if meta_path.name == "REGISTRY.json":
-                continue
-            try:
-                data = json.loads(meta_path.read_text(encoding="utf-8"))
-            except Exception:
-                data = []
-            rows = data if isinstance(data, list) else list(data.values()) if isinstance(data, dict) else []
-            counts = Counter(get_tier(row if isinstance(row, dict) else {}, tombstones=tombstones) for row in rows)
-            visible = sum(1 for row in rows if isinstance(row, dict) and tier_at_least(get_tier(row, tombstones=tombstones), "T1"))
-            metrics["faiss_total"] += len(rows)
-            metrics["faiss_visible"] += visible
-            metrics["faiss_tiers"].update(counts)
-            store_name = meta_path.name.replace("_meta.json", "")
-            store_totals[store_name].update(counts)
-            metrics["faiss_rows"].append([
-                store_name,
-                len(rows),
-                counts.get("T0", 0),
-                counts.get("T1", 0),
-                counts.get("T2", 0),
-                counts.get("TX", 0),
-                meta_path.name,
-            ])
-
-        obras_root = repo_root / "DADOS-OBRAS"
-        manifests = sorted(obras_root.glob("*/obra_rag/manifest.json"), key=lambda p: p.stat().st_mtime if p.exists() else 0)
-        metrics["obra_rag_snapshots"] = len(manifests)
-        if manifests:
-            metrics["latest_obra_rag"] = manifests[-1].parent.parent.name
-            metrics["db_rows"].append([
-                "obra_rag snapshots",
-                len(manifests),
-                "OK",
-                f"ultimo: {metrics['latest_obra_rag']}",
-            ])
-
-        metrics["training_pipeline_rows"] = [
-            [
-                "CROP - recorte",
-                "Recorte aprovado por humano",
-                "Detector/perfil de recorte por classe, layer e pavimento",
-                "CROP-T1: janela correta, classe correta, contexto correto",
-                "crop_learning_events; exemplos visuais locais",
-                "Nao validar F5/N2 nem N4 no clique de recorte",
-            ],
-            [
-                "A - N2 -> N4",
-                "F5/N2 validado + visual STOG humano",
-                "motor_reverso_* + gerar_*_dxf_stog",
-                "N4 visual/semantico passa no Comparison Engine",
-                "training_events; FAISS/Chroma so T1+; domain_knowledge",
-                "Nao copiar resultado para N1/N3; nao promover T0",
-            ],
-            [
-                "B - N2 <-> N1",
-                "N2/F5 como professor externo",
-                "Structural Analyzer + conversor N1->ficha robo",
-                "F7/N1 converge para F5/N2 por campo/geometria",
-                "transformation_rules; eventos por role; notas humanas",
-                "Nao sobrescrever validacao humana; nao usar N2 como input do N3",
-            ],
-            [
-                "C - N1 -> N3",
-                "N4 validado como juiz externo",
-                "Conversor N1->N3 + robos por classe",
-                "N3 ~= N4 sem vazamento de gabarito",
-                "pares N3/N4 validados; scores; regressao visual",
-                "Nao alimentar N3 com campos de N2/N4",
-            ],
-            [
-                "Notas humanas",
-                "Atencoes, rejeicoes e decisoes do operador",
-                "Fila de revisao semantica e calibradores",
-                "Nota vira regra so apos consenso/validacao",
-                "item_attention_notes; domain_knowledge; pendencias",
-                "Nao tratar nota solta como verdade global",
-            ],
-        ]
-
-        def has_doc(*needles):
-            names = [path.name.upper() for path in arete_docs]
-            return any(all(needle.upper() in name for needle in needles) for name in names)
-
-        def matching_scripts(*needles):
-            matches = []
-            for path in loop_scripts:
-                name = path.name.lower()
-                if all(needle.lower() in name for needle in needles):
-                    matches.append(path.name)
-            return matches
-
-        class_rows = [
-            [
-                "PIL",
-                "CIMA / GRADES / ABCD",
-                "MASTERPLAN-ARETE-PILAR.md + SEMANTICA-PILAR-NOVA + testes Arete",
-                "; ".join(matching_scripts("pil")[:4]) or "scripts/arete/test_n2_n4_abcd.py",
-                "Loop existe em testes/scripts, mas precisa documento canônico A/B/C",
-                "Validar gates por campo com T1 humano e comparar N3 vs N4 sem vazamento",
-            ],
-            [
-                "LAJ",
-                "Painel / outlines / aberturas / cotas",
-                "MASTERPLAN-ARETE-LAJE.md" if has_doc("ARETE", "LAJE") else "Doc Arete LAJ nao encontrado",
-                "; ".join((matching_scripts("laj") + matching_scripts("lj"))[:5]) or "laje_loop_runner.py",
-                "A/B/C documentado: N2->N4, N2<->N1, N1->N3",
-                "Rodar ciclos com T1+ e comparar N3 vs N4 sem vazamento",
-            ],
-            [
-                "LV",
-                "VC / lado A / lado B",
-                "MASTERPLAN-ARETE-LATERAL-VIGA.md + MASTERPLAN-LOOP-LV-N2-VISION-N4.md",
-                "; ".join(matching_scripts("lv")[:5]) or "lv_*_loop_runner.py",
-                "A/B/C documentado com subdivisoes visuais",
-                "Fechar equivalencia de vocabulario N1<->N2 por lado",
-            ],
-            [
-                "FV",
-                "Fundo / seções / eixo visual",
-                "MASTERPLAN-ARETE-FUNDO-VIGA.md" if has_doc("ARETE", "FUNDO", "VIGA") else "Doc Arete FV nao encontrado",
-                "; ".join(matching_scripts("fv")[:5]) or "fv_loop_runner.py",
-                "A/B/C documentado; render/loop existem",
-                "Validar N4 contra N2 antes de usar como juiz do N3",
-            ],
-            [
-                "Nova classe",
-                "Definir no classe_registry",
-                "docs/ENCICLOPEDIA-SCHEMA.md + MASTERPLAN-ARETE-{CLASSE}.md",
-                "motor_reverso_{classe}.py; gerar_{classe}_dxf_stog.py; loop_runner",
-                "Precisa nascer com CROP, A, B e C separados",
-                "Criar seed T1, gates e notas humanas antes de generalizar",
-            ],
-        ]
-        metrics["training_class_rows"] = class_rows
-
-        pending = []
-
-        def add_pending(priority, area, finding, action):
-            pending.append([priority, area, finding, action])
-            metrics["pending_counts"][priority] += 1
-
-        encyclopedia_by_class = {
-            str(row[0]).upper(): row for row in metrics["encyclopedia_rows"]
-        }
-        for classe in sorted(canonical_classes):
-            row = encyclopedia_by_class.get(classe)
-            if row is None:
-                add_pending(
-                    "ALTA",
-                    f"Classe {classe}",
-                    "Nenhuma fonte materializada na Enciclopedia.",
-                    "Revisar mapeamento N1/N2 e regras antes de criar conhecimento.",
-                )
-                continue
-            if int(row[4]) + int(row[5]) == 0:
-                add_pending(
-                    "ALTA",
-                    f"Classe {classe}",
-                    "Nenhuma instancia T1/T2 validada por humano.",
-                    "Validar casos dourados no fluxo operacional; nao fazer bulk.",
-                )
-            if int(row[7]) == 0:
-                add_pending(
-                    "MEDIA",
-                    f"Classe {classe}",
-                    "Sem regras em semantic_rag_kb.",
-                    "Harmonizar domain_knowledge com o dono antes de publicar regras.",
-                )
-            coverage = int(str(row[9]).split("/", 1)[0])
-            if coverage < 8:
-                add_pending(
-                    "INFO",
-                    f"Classe {classe}",
-                    f"{8 - coverage} das 8 dimensoes ainda sem evidencia materializada.",
-                    "Completar com exemplos reais; nao inferir conteudo ausente.",
-                )
-
-        for classe in sorted(set(encyclopedia_by_class) - canonical_classes):
-            add_pending(
-                "MEDIA",
-                "Taxonomia",
-                f"Classe/categoria '{classe}' nao esta no registro canonico PIL/LV/FV/LAJ.",
-                "Decidir se e alias, subclasse ou nova classe antes de consolidar.",
-            )
-
-        if metrics["registry_error"]:
-            add_pending(
-                "ALTA",
-                "Registro de classes",
-                f"classe_registry indisponivel ou invalido: {metrics['registry_error']}",
-                "Corrigir o registro antes de consolidar aliases ou novas classes.",
-            )
-
-        legacy_t0 = metrics["faiss_tiers"].get("T0", 0)
-        if legacy_t0:
-            add_pending(
-                "MEDIA",
-                "Memoria Vetorial",
-                f"{legacy_t0} metadados FAISS legados estao em T0.",
-                "Manter ocultos de T1+; revisar individualmente quando necessario.",
-            )
-        if metrics["semantic_total"] == 0:
-            add_pending(
-                "ALTA",
-                "Semantica",
-                "semantic_rag_kb esta vazia.",
-                "Popular somente regras confirmadas do domain_knowledge.",
-            )
-        if not manifests:
-            add_pending(
-                "INFO",
-                "RAG por obra",
-                "Nenhum snapshot local foi encontrado.",
-                "Gerar ao iniciar uma obra, sem promocao global.",
-            )
-
-        severity_order = {"ALTA": 0, "MEDIA": 1, "INFO": 2}
-        metrics["pending_rows"] = sorted(
-            pending,
-            key=lambda row: (severity_order.get(row[0], 9), row[1], row[2]),
-        )
-
-        return metrics
+        layout.addWidget(self.admin_dashboard)
 
     # --- Interaction Logic ---
 
@@ -7552,60 +5950,12 @@ class ProjectManager(QWidget):
             item_orphaned.setData(Qt.UserRole, "__NO_WORK__")
             item_orphaned.setToolTip("Pavimentos que não estão vinculados a nenhuma obra")
             self.list_works.addItem(item_orphaned)
-
-            # Masterplan OBRAS DRIVE (Fase 1): cabeçalho de categoria (não
-            # selecionável, igual aos cabeçalhos de grupo do Diagnostic Hub) —
-            # as obras de verdade são inseridas ABAIXO dele, cada uma como um
-            # item normal, clicável igual uma obra local. Carregamento adiado
-            # (QTimer) pra não travar a sidebar com I/O de rede síncrono.
-            header_drive = QListWidgetItem("☁️ OBRAS DRIVE")
-            header_drive.setFlags(header_drive.flags() & ~Qt.ItemIsSelectable & ~Qt.ItemIsEnabled)
-            self.list_works.addItem(header_drive)
-            from PySide6.QtCore import QTimer as _QT_DRIVE
-
-            _QT_DRIVE.singleShot(0, lambda h=header_drive: self._carregar_obras_drive_na_sidebar(h))
-
+            
         except Exception as e:
             logging.error(f"Erro ao carregar obras: {e}")
-
+            
         self.list_works.setCurrentRow(-1)
         self.list_works.blockSignals(False)
-
-    def _carregar_obras_drive_na_sidebar(self, header_item: QListWidgetItem):
-        """Busca as obras do portal (Masterplan OBRAS DRIVE) e insere, logo
-        abaixo do cabeçalho "☁️ OBRAS DRIVE", 1 sub-cabeçalho por membro
-        (dono vê todas as obras de todos — cada membro na sua própria
-        sub-lista) + 1 item clicável por obra, no mesmo nível visual/funcional
-        de uma obra local. Falha de rede/credenciais vira 1 item de aviso, não
-        trava a sidebar."""
-        try:
-            from src.core.drive_client import obter_cliente_padrao
-
-            obras = obter_cliente_padrao().listar_obras()
-        except Exception as e:
-            row = self.list_works.row(header_item) + 1
-            aviso = QListWidgetItem(f"⚠ Portal indisponível: {e}")
-            aviso.setFlags(aviso.flags() & ~Qt.ItemIsSelectable)
-            self.list_works.insertItem(row, aviso)
-            return
-
-        grupos: dict[str, list[dict]] = {}
-        for o in obras:
-            membro = o.get("membro_nome") or o.get("membro_login") or "—"
-            grupos.setdefault(membro, []).append(o)
-
-        row = self.list_works.row(header_item) + 1
-        for membro in sorted(grupos.keys()):
-            sub = QListWidgetItem(f"    👤 {membro}")
-            sub.setFlags(sub.flags() & ~Qt.ItemIsSelectable & ~Qt.ItemIsEnabled)
-            self.list_works.insertItem(row, sub)
-            row += 1
-            for o in grupos[membro]:
-                item = QListWidgetItem(f"    ☁️ {o.get('nome', '(sem nome)')}")
-                item.setData(Qt.UserRole, {"tipo": "drive", "obra": o})
-                item.setToolTip(f"Obra do portal web — membro: {membro}")
-                self.list_works.insertItem(row, item)
-                row += 1
 
     def _filter_works_list(self, text):
         """Filtra visualmente a lista de obras."""
@@ -7614,59 +5964,6 @@ class ProjectManager(QWidget):
             # Agora filtra todos os itens
             show = text.lower() in item.text().lower()
             item.setHidden(not show)
-
-    def _atualizar_code_publico_obra(self, obra_nome):
-        """Busca (em background, nunca bloqueia a UI) o código público
-        (App de Consulta) da obra Drive selecionada — some/oculta pra obras
-        locais, ainda não publicadas, ou se o portal estiver offline
-        [2026-07-13]. Regra de integridade: falha aqui NUNCA aparece pro
-        usuário nem trava a navegação — é só um badge informativo a mais."""
-        self.lbl_code_publico_obra.setVisible(False)
-        self.lbl_code_publico_obra.setText("")
-
-        if not obra_nome or not self.db.obra_e_drive(obra_nome):
-            return
-        portal_obra_id = self.db.obter_portal_obra_id(obra_nome)
-        if not portal_obra_id:
-            return
-
-        from PySide6.QtCore import QThread
-        from src.ui.workers.code_publico_worker import CodePublicoWorker
-
-        thread = QThread()
-        worker = CodePublicoWorker(portal_obra_id)
-        worker.moveToThread(thread)
-        thread.started.connect(worker.run)
-
-        if not hasattr(self, "_code_publico_threads"):
-            self._code_publico_threads = []
-        self._code_publico_threads.append(thread)
-
-        def _limpar():
-            if thread in self._code_publico_threads:
-                self._code_publico_threads.remove(thread)
-
-        def _on_code(code, referencia, _obra=obra_nome):
-            # Obra pode ter sido trocada enquanto a busca rodava — nao aplica
-            # um resultado tardio na obra errada.
-            if code and self.current_work_name == _obra:
-                texto = f"📱 Código de Obra: {code}"
-                if referencia:
-                    texto += f" ({referencia})"
-                self.lbl_code_publico_obra.setText(texto)
-                self.lbl_code_publico_obra.setVisible(True)
-            thread.quit()
-
-        def _on_error(_msg):
-            thread.quit()
-
-        worker.finished.connect(_on_code)
-        worker.error.connect(_on_error)
-        worker.finished.connect(worker.deleteLater)
-        worker.error.connect(worker.deleteLater)
-        thread.finished.connect(_limpar)
-        thread.finished.connect(thread.deleteLater)
-        thread.start()
 
     def load_projects(self):
         """Carrega os pavimentos filtrando pela obra selecionada usando Cards.
@@ -7688,43 +5985,14 @@ class ProjectManager(QWidget):
         selected_item = self.list_works.currentItem()
         filter_work = selected_item.data(Qt.UserRole) if selected_item else None
 
-        if isinstance(filter_work, dict) and filter_work.get("tipo") == "drive":
-            # Masterplan OBRAS DRIVE (Fase 1): obra do portal web selecionada.
-            # Espelha TODA a obra (brutos + itens de recorte, sem baixar DXF
-            # nenhum ainda — só metadados) e converte pro mesmo formato de
-            # `filter_work` de uma obra local (string com o nome do espelho),
-            # pra todo o resto desta função (cards/triagem/phase_tabs) tratar
-            # exatamente igual — a obra Drive já espelhada É uma obra local
-            # a partir daqui.
-            try:
-                from src.core.drive_client import obter_cliente_padrao
-                from src.core.drive_mirror import espelhar_obra_completa_drive
-
-                filter_work = espelhar_obra_completa_drive(
-                    self.db, obter_cliente_padrao(), filter_work["obra"]
-                )
-            except Exception as e:
-                logging.error(f"Erro ao espelhar obra Drive: {e}")
-                self.lbl_selected_work.setText(f"⚠ Falha ao carregar obra do Drive: {e}")
-                return
-
         self.current_work_name = filter_work if filter_work != "__NO_WORK__" else None
-        if self.current_work_name:
-            _QT.singleShot(
-                150,
-                lambda obra=self.current_work_name: self._ensure_local_rag_snapshot(obra),
-            )
 
         has_work = bool(filter_work) and filter_work != "__NO_WORK__"
         self.btn_delete_work.setVisible(has_work)
         self.btn_sync_work.setVisible(has_work)
 
-        display_text = (
-            selected_item.text().strip().replace("📁 ", "").replace("🏢 ", "").replace("☁️ ", "")
-            if selected_item else "Selecione uma Obra"
-        )
+        display_text = selected_item.text().replace("📁 ", "").replace("🏢 ", "") if selected_item else "Selecione uma Obra"
         self.lbl_selected_work.setText(display_text)
-        self._atualizar_code_publico_obra(self.current_work_name)
 
         self.load_work_metadata(filter_work)
 
@@ -7796,14 +6064,6 @@ class ProjectManager(QWidget):
                 _QT.singleShot(100, lambda p=first_project: self.on_project_card_clicked(p))
             else:
                 self.current_project_id = None
-                # Sem cards (comum pra obra Drive recém-espelhada: ainda não
-                # tem pavimento processado no SA) — reseta o breadcrumb, senão
-                # fica preso mostrando o último pavimento aberto antes de
-                # trocar de obra, confundindo com dado de obra errada.
-                self.breadcrumbs.set_path(
-                    "Projetos", self.current_work_name or "—",
-                    "Nenhum pavimento processado — veja a aba Triagem"
-                )
                 _QT.singleShot(100, self._refresh_phase_tabs)
 
         _QT.singleShot(0, _load_cards)

@@ -231,7 +231,6 @@ from PySide6.QtCore import QThread
 - `docs/ARCHITECTURE.md` - Arquitetura geral
 - `docs/VECTOR_SCHEMA.md` - Schema de dados
 - `docs/MASTER_PLAN.md` - Roadmap completo
-- `docs/GIT_DVC_GUIDE.md` - Workflow Git + DVC (branches, commits, dados)
 
 ### Memoria do Projeto
 - Byterover: Consulte conhecimento acumulado

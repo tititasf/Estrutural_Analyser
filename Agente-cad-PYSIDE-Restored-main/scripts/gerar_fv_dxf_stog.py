@@ -17,44 +17,18 @@ Uso:
   python scripts/gerar_fv_dxf_stog.py --obra DADOS-OBRAS/Obra_TREINO_1
 """
 import sys, io
-if __name__ == '__main__' and hasattr(sys.stdout, 'buffer'):
-    sys.stdout = io.TextIOWrapper(
-        sys.stdout.buffer, encoding='utf-8', errors='replace'
-    )
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 import json, argparse, re, math
 from pathlib import Path
 import ezdxf
-from visual_modes import apply_visual_mode
-from fv_l_panel_geometry import (
-    derive_quadrilateral_chanfros,
-    detect_left_angled_l_panel,
-    detect_right_l_panel,
-)
-
-_PROJECT_ROOT = Path(__file__).resolve().parents[1]
-if str(_PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(_PROJECT_ROOT))
-from src.core.artifact_governance import guarded_saveas
-from src.core.fv_generation_contract import FV_ENGINE_ID, compute_panel_modules
-
-_MOTOR_ID = FV_ENGINE_ID
-_MOTOR_SOURCES = [
-    Path(__file__),
-    Path(__file__).with_name("motor_reverso_fv.py"),
-    Path(__file__).with_name("fv_l_panel_geometry.py"),
-    _PROJECT_ROOT / "src" / "core" / "fv_generation_contract.py",
-]
 
 # -- Constants (calibrated from STOG DXFs) ------------------------------------
 GAP_VIGAS       = 47     # gap between vigas in same row (cm)
 GAP_ROW         = 115    # gap viga_top_inferior -> viga_bottom_superior (cm)
 NOM_ABOVE       = 9      # y = viga_top + NOM_ABOVE for NOMENCLATURA
 NOM_H           = 12.0   # NOMENCLATURA text height (SCR: -STYLE Standard, height 12)
-LABEL_ABOVE     = 40     # y = viga_top + LABEL_ABOVE for endpoint/gap labels
-LABEL_H         = 12.0   # endpoint/gap label height (layer 5)
-DIM_BELOW       = 25     # y = viga_bottom - DIM_BELOW  (nível 1: cota individual)
-DIM_TOTAL_BELOW = 50     # y = viga_bottom - DIM_TOTAL_BELOW (nível 2: total segmento)
-TIER_STEP       = 25     # espaçamento vertical adicional entre camadas de cotas
+DIM_BELOW       = 37     # y = viga_bottom - DIM_BELOW for individual panel dims
+DIM_TOTAL_BELOW = 69     # y = viga_bottom - DIM_TOTAL_BELOW for total viga dim
 DIM_B_RIGHT     = 28     # x = viga_right + DIM_B_RIGHT for vertical b dim
 PID_H           = 12.0   # panel-ID text height (layer '5')
 SARR_RECUO      = 7      # recuo offset for sarrafos from viga edges (cm)
@@ -71,7 +45,6 @@ CARD_GAP        = 100
 CARD_Y_GAP      = 200
 SARR_LAYER      = 'SARR_2.2x7'
 SARR_MAX_GAP    = 21     # max gap between sarrafo bands (cm)
-SARR_MAX_LEN    = 300    # max length of a single horizontal sarrafo bar (cm, 3m stock)
 
 # -- Layers (matching real STOG FV DXF) ---------------------------------------
 LAYERS = {
@@ -85,8 +58,6 @@ LAYERS = {
     'Madeira':                  126,
     'SARRAFO DE PRESSAO':       251,
     'SARR_2.2x7':                40,
-    'SARR_5cm':                   4,   # azul-esverdeado; vigas com 10≤b≤14cm
-    'SARR_CONTORNO_10cm':         3,   # verde; vigas com b<10cm
     'SARR_EDITAR':              141,
     'Perfil Met\u00e1lico':     224,
     'REAPROVEITAMENTO':         251,
@@ -100,21 +71,6 @@ LAYERS = {
 
 # Layer name constant (avoids encoding issues in code)
 LY_PAINEIS = 'Pain\u00e9is'
-
-
-def normalize_viga_name(value):
-    """Remove internal pipeline marks and an existing drawing suffix."""
-    name = str(value or '').strip()
-    name = re.sub(r'^\s*CONT\.\s*', '', name, flags=re.IGNORECASE)
-    # Remove n4er de forma mais agressiva para limpar ex: V301n4er
-    name = re.sub(r'n4er', '', name, flags=re.IGNORECASE)
-    name = re.sub(r'\.C\s*$', '', name, flags=re.IGNORECASE)
-    return name.strip(' _.-')
-
-
-def is_composite_viga_name(value):
-    name = normalize_viga_name(value).upper()
-    return len(re.findall(r'\b[A-Z]+\d+[A-Z]?\b', name)) > 1
 
 
 def create_nf_blocks(doc, max_n=10):
@@ -169,108 +125,24 @@ def setup_doc():
     return doc
 
 
-def panel_poly(msp, x0, y0, w, h, draw_left=True, draw_right=True):
-    """Draw a panel outline as independent LINE entities (STOG ground truth:
-    real panel rectangles are 4 LINEs, not a single closed LWPOLYLINE).
+def panel_poly(msp, x0, y0, w, h):
+    """Draw a panel as closed LWPOLYLINE + 2 interior horizontal wood-slat LINEs on Paineis layer.
 
-    draw_left/draw_right: suppress the vertical edge at a panel union when
-    the neighboring panel already owns that same line (via panel_divider()),
-    so adjacent panels don't stack 2-3 overlapping vertical LINEs on top of
-    each other at the same x — the union is represented by exactly 1 line.
-
-    Does not draw internal wood-board lines: those are always rendered
-    afterward by draw_sarr() (layer SARR_2.2x7/SARR_5cm) from the actual
-    sarrafo geometry. An earlier version also drew a fixed h/3-2h/3 pair of
-    "slat" lines here, which duplicated draw_sarr()'s lines at slightly
-    different coordinates (near-overlapping lines, visible as clutter in
-    the fallback compute_panels() path used whenever N1 lacks explicit
-    panel data).
+    Two evenly-spaced slat lines represent the real STOG wood-board pattern without
+    causing overdraw for obras with large-b vigas (b>24cm).
     """
-    msp.add_line((x0, y0), (x0 + w, y0), dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
-    msp.add_line((x0 + w, y0 + h), (x0, y0 + h), dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
-    if draw_left:
-        msp.add_line((x0, y0 + h), (x0, y0), dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
-    if draw_right:
-        msp.add_line((x0 + w, y0), (x0 + w, y0 + h), dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
-
-
-def draw_poly_as_lines(msp, pts, layer):
-    """Draw a closed polygon as N independent LINE entities (ground truth:
-    real STOG panel outlines are separate LINEs, never a closed LWPOLYLINE).
-
-    Some ficha vertex lists carry an explicit closing point (pts[-1] ==
-    pts[0]), left over from the old LWPOLYLINE(close=True) convention.
-    Closing the loop again on top of that produces a zero-length LINE —
-    invisible in a closed LWPOLYLINE but a stray "dot" once drawn as its
-    own LINE entity. Strip it, and skip any other zero-length edge.
-    """
-    if len(pts) > 1 and math.isclose(pts[0][0], pts[-1][0], abs_tol=1e-6) \
-            and math.isclose(pts[0][1], pts[-1][1], abs_tol=1e-6):
-        pts = pts[:-1]
-    n = len(pts)
-    for i in range(n):
-        p1, p2 = pts[i], pts[(i + 1) % n]
-        if math.isclose(p1[0], p2[0], abs_tol=1e-6) and math.isclose(p1[1], p2[1], abs_tol=1e-6):
-            continue
-        msp.add_line(p1, p2, dxfattribs={'layer': layer, 'lineweight': -1})
+    pts = [(x0, y0), (x0+w, y0), (x0+w, y0+h), (x0, y0+h)]
+    msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
+    # 2 fixed slat lines: at h/3 and 2h/3 from bottom edge
+    if h > 6:
+        for frac in (1/3, 2/3):
+            y_slat = y0 + h * frac
+            msp.add_line((x0, y_slat), (x0 + w, y_slat), dxfattribs={'layer': LY_PAINEIS})
 
 
 def panel_divider(msp, x, y0, b):
     """Draw vertical LINE divider between adjacent panels on Paineis layer."""
     msp.add_line((x, y0), (x, y0 + b), dxfattribs={'layer': LY_PAINEIS})
-
-
-def dedupe_panel_lines(msp, layer=None, tol=0.05):
-    """Remove exact-duplicate and zero-length LINE entities on the panel layer.
-
-    A panel union between two adjacent panels must be exactly 1 LINE, never
-    the same edge drawn 2-3 times (once per panel's own outline plus
-    panel_divider()'s dedicated union line). Panel outlines can come from
-    panel_poly(), draw_poly_as_lines() (custom trapezoid/vertices path) or
-    panel_divider() — coincident endpoints are only produced when the edges
-    truly overlap, so this never touches an intentionally distinct (e.g.
-    chanfro-angled) edge. Also drops zero-length LINEs (start == end), which
-    render as a stray "dot" at panel corners/unions instead of a real edge.
-    """
-    target_layer = layer or LY_PAINEIS
-    seen = set()
-    dupes = []
-    for e in msp.query('LINE'):
-        if e.dxf.layer != target_layer:
-            continue
-        p1 = (round(e.dxf.start.x / tol) * tol, round(e.dxf.start.y / tol) * tol)
-        p2 = (round(e.dxf.end.x / tol) * tol, round(e.dxf.end.y / tol) * tol)
-        if p1 == p2:
-            dupes.append(e)
-            continue
-        key = tuple(sorted((p1, p2)))
-        if key in seen:
-            dupes.append(e)
-        else:
-            seen.add(key)
-    for e in dupes:
-        msp.delete_entity(e)
-
-
-def _tier_panel_dividers(panel, panel_width):
-    """Return level-1 divider offsets for a panel stored as one polygon."""
-    if not isinstance(panel, dict):
-        return []
-    for tier in panel.get('tiers') or []:
-        try:
-            values = [float(value) for value in tier if float(value) > 0]
-        except (TypeError, ValueError):
-            continue
-        if len(values) <= 1 or abs(sum(values) - float(panel_width)) > 1.5:
-            continue
-        offsets = []
-        cursor = 0.0
-        for value in values[:-1]:
-            cursor += value
-            if 0.1 < cursor < float(panel_width) - 0.1:
-                offsets.append(cursor)
-        return offsets
-    return []
 
 
 def _sarr_h_offsets(b):
@@ -299,284 +171,8 @@ def _sarr_h_offsets(b):
     return offsets
 
 
-def build_chanfro_vertices(w, b, te=0.0, fe=0.0, td=0.0, fd=0.0):
-    """Boundary whose end edges connect the bottom and top setbacks."""
-    te = max(0.0, min(float(te), float(w)))
-    fe = max(0.0, min(float(fe), float(w)))
-    td = max(0.0, min(float(td), float(w)))
-    fd = max(0.0, min(float(fd), float(w)))
-    pts = [(fe, 0.0), (w - fd, 0.0), (w - td, b), (te, b)]
-    return [{'x': float(x), 'y': float(y)} for x, y in pts]
-
-
-def build_panel_l_loose(main_comp, main_b, comp2, larg2, tipo, paineis_2,
-                        angulo_l=90.0, recuos_2=None, aberturas_2=None):
-    """Build a complete secondary leaf in its perpendicular local system."""
-    parts = tipo.replace('-', '/').upper().split('/')
-    side = parts[0] if parts else 'E'
-    vert = parts[1] if len(parts) > 1 else 'T'
-
-    try:
-        angle = float(angulo_l)
-    except Exception:
-        angle = 90.0
-    if angle <= 0 or angle >= 180:
-        angle = 90.0
-
-    side_sign = 1.0 if side == 'E' else -1.0
-    vert_sign = 1.0 if vert == 'T' else -1.0
-    length_vec = (
-        side_sign * math.cos(math.radians(angle)),
-        vert_sign * math.sin(math.radians(angle)),
-    )
-    # Garante que width_vec seja sempre ortogonal a length_vec (mantém o painel retangular)
-    lx, ly = length_vec
-    width_vec = (ly, -lx) if side == 'E' else (-ly, lx)
-    outer_x = -float(larg2) if side == 'E' else float(main_comp + larg2)
-    outer_y = 0.0 if vert == 'T' else float(main_b)
-
-    def _pt(u, v):
-        return (
-            outer_x + length_vec[0] * float(u) + width_vec[0] * float(v),
-            outer_y + length_vec[1] * float(u) + width_vec[1] * float(v),
-        )
-
-    vals = list(recuos_2 or [0, 0, 0, 0]) + [0, 0, 0, 0]
-    te, fe, td, fd = (max(0.0, float(vals[i] or 0)) for i in range(4))
-    local_poly = build_chanfro_vertices(comp2, larg2, te, fe, td, fd)
-    poly = [_pt(v['x'], v['y']) for v in local_poly]
-    ents = [{
-        'type': 'LWPOLYLINE',
-        'points': [{'x': x, 'y': y} for x, y in poly],
-        'layer': LY_PAINEIS,
-    }]
-
-    u = 0.0
-    for pw2 in (paineis_2 or [])[:-1]:
-        u += float(pw2)
-        if 0 < u < float(comp2):
-            a, z = _pt(u, 0.0), _pt(u, larg2)
-            ents.append({
-                'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
-                'end': {'x': z[0], 'y': z[1]}, 'layer': LY_PAINEIS,
-            })
-
-    for frac in (1 / 3, 2 / 3):
-        v = float(larg2) * frac
-        left = fe + (te - fe) * frac
-        right = float(comp2) - (fd + (td - fd) * frac)
-        if right > left:
-            a, z = _pt(left, v), _pt(right, v)
-            ents.append({
-                'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
-                'end': {'x': z[0], 'y': z[1]}, 'layer': LY_PAINEIS,
-            })
-
-    openings = []
-    for idx, row in enumerate(list(aberturas_2 or [])[:4]):
-        if not isinstance(row, (list, tuple)) or len(row) < 3:
-            continue
-        dist, prof, width = (float(row[i] or 0) for i in range(3))
-        if dist <= 0 or prof <= 0 or width <= 0:
-            continue
-        x1 = float(comp2) - dist - width if idx >= 2 else dist
-        x1 = max(0.0, min(x1, float(comp2)))
-        x2 = max(x1, min(x1 + width, float(comp2)))
-        top = idx in (0, 2)
-        y1 = max(0.0, float(larg2) - prof) if top else 0.0
-        y2 = float(larg2) if top else min(prof, float(larg2))
-        openings.append((x1, x2, y1, y2))
-        rect = [_pt(x1, y1), _pt(x2, y1), _pt(x2, y2), _pt(x1, y2)]
-        ents.append({
-            'type': 'LWPOLYLINE',
-            'points': [{'x': x, 'y': y} for x, y in rect],
-            'layer': LY_PAINEIS,
-        })
-
-    if larg2 >= 10:
-        sarr_layer = 'SARR_5cm' if larg2 <= 14 else SARR_LAYER
-        for a, z in (
-            (_pt(fe + SARR_RECUO, 0), _pt(te + SARR_RECUO, larg2)),
-            (_pt(comp2 - fd - SARR_RECUO, 0),
-             _pt(comp2 - td - SARR_RECUO, larg2)),
-        ):
-            ents.append({
-                'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
-                'end': {'x': z[0], 'y': z[1]}, 'layer': sarr_layer,
-            })
-        for v in _sarr_h_offsets(float(larg2)):
-            frac = v / float(larg2)
-            left = fe + (te - fe) * frac + SARR_RECUO
-            right = float(comp2) - fd - (td - fd) * frac - SARR_RECUO
-            cuts = sorted(
-                (x1, x2) for x1, x2, y1, y2 in openings if y1 <= v <= y2
-            )
-            cursor = left
-            for x1, x2 in cuts:
-                if x1 > cursor:
-                    a, z = _pt(cursor, v), _pt(min(x1, right), v)
-                    ents.append({
-                        'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
-                        'end': {'x': z[0], 'y': z[1]}, 'layer': sarr_layer,
-                    })
-                cursor = max(cursor, x2)
-            if cursor < right:
-                a, z = _pt(cursor, v), _pt(right, v)
-                ents.append({
-                    'type': 'LINE', 'start': {'x': a[0], 'y': a[1]},
-                    'end': {'x': z[0], 'y': z[1]}, 'layer': sarr_layer,
-                })
-    return ents
-
-
-def robot_dados_to_fv_dict(dados, viga_nome='V?'):
-    """Convert robot get_current_data() format to a viga_dict for draw_viga().
-
-    Robot keys used:
-      largura, altura, paineis, recuos [TE,FE,TD,FD], aberturas [[dist,prof,larg]×4],
-      sarrafo_esq, sarrafo_dir, texto_esq, texto_dir,
-      tipo_painel2, comprimento_2, largura_2, paineis_2, angulo_l, obs.
-
-    Returns dict with keys: nome, b, comp, panels, label_left, label_right, obs.
-    Returns None if data is insufficient.
-    """
-    def _f(v):
-        try: return float(str(v).replace(',', '.').strip() or '0')
-        except: return 0.0
-
-    # Sub-panel widths from robot paineis fields
-    sub_widths = [_f(p) for p in dados.get('paineis', []) if _f(p) > 0]
-    if not sub_widths:
-        largura = _f(dados.get('largura', 0))
-        sub_widths = compute_panels(largura) if largura > 0 else []
-    if not sub_widths:
-        return None
-
-    b = _f(dados.get('altura', 14)) or 14.0
-    comp = sum(sub_widths)
-
-    # Chanfros [TE, FE, TD, FD]
-    recuos = dados.get('recuos', ['0', '0', '0', '0'])
-    te = _f(recuos[0]) if len(recuos) > 0 else 0.0
-    fe = _f(recuos[1]) if len(recuos) > 1 else 0.0
-    td = _f(recuos[2]) if len(recuos) > 2 else 0.0
-    fd = _f(recuos[3]) if len(recuos) > 3 else 0.0
-
-    aberturas = dados.get('aberturas', [])
-
-    def _abertura_rect(pw, b_val, ab_row, side_top, from_right=False):
-        if len(ab_row) < 3: return []
-        dist, prof, larg = _f(ab_row[0]), _f(ab_row[1]), _f(ab_row[2])
-        if dist <= 0 or prof <= 0 or larg <= 0: return []
-        x1 = (pw - dist - larg) if from_right else dist
-        x1 = max(0.0, min(x1, pw))
-        x2 = max(x1, min(x1 + larg, pw))
-        y1 = (b_val - prof) if side_top else 0.0
-        y1 = max(0.0, min(y1, b_val))
-        y2 = b_val if side_top else min(prof, b_val)
-        return {'x1': x1, 'x2': x2, 'y1': y1, 'y2': y2}
-
-    def _abertura_loose(pw, b_val, ab_row, side_top, from_right=False):
-        rect = _abertura_rect(pw, b_val, ab_row, side_top, from_right)
-        if not rect:
-            return []
-        x1, x2 = rect['x1'], rect['x2']
-        y1, y2 = rect['y1'], rect['y2']
-        return [
-            {'type': 'LINE', 'start': {'x': x1, 'y': y1}, 'end': {'x': x2, 'y': y1}},
-            {'type': 'LINE', 'start': {'x': x2, 'y': y1}, 'end': {'x': x2, 'y': y2}},
-            {'type': 'LINE', 'start': {'x': x2, 'y': y2}, 'end': {'x': x1, 'y': y2}},
-            {'type': 'LINE', 'start': {'x': x1, 'y': y2}, 'end': {'x': x1, 'y': y1}},
-        ]
-
-    # Build sub-panel objects with chanfros and aberturas
-    sub_panel_objs = []
-    for i, pw in enumerate(sub_widths):
-        is_first = (i == 0)
-        is_last  = (i == len(sub_widths) - 1)
-        obj = {'width': pw}
-
-        # Apply chanfros only to the endpoint panels
-        p_te = te if is_first else 0.0
-        p_fe = fe if is_first else 0.0
-        p_td = td if is_last  else 0.0
-        p_fd = fd if is_last  else 0.0
-        if p_te > 0 or p_fe > 0 or p_td > 0 or p_fd > 0:
-            obj['vertices'] = build_chanfro_vertices(pw, b, p_te, p_fe, p_td, p_fd)
-            obj['chanfros'] = {'te': p_te, 'fe': p_fe, 'td': p_td, 'fd': p_fd}
-
-        # Aberturas as rectangular notch outlines (TE=0, FE=1, TD=2, FD=3)
-        loose = []
-        panel_openings = []
-        if is_first:
-            if len(aberturas) > 0:
-                loose += _abertura_loose(pw, b, aberturas[0], side_top=True,  from_right=False)
-                rect = _abertura_rect(pw, b, aberturas[0], side_top=True, from_right=False)
-                if rect: panel_openings.append(rect)
-            if len(aberturas) > 1:
-                loose += _abertura_loose(pw, b, aberturas[1], side_top=False, from_right=False)
-                rect = _abertura_rect(pw, b, aberturas[1], side_top=False, from_right=False)
-                if rect: panel_openings.append(rect)
-        if is_last:
-            if len(aberturas) > 2:
-                loose += _abertura_loose(pw, b, aberturas[2], side_top=True,  from_right=True)
-                rect = _abertura_rect(pw, b, aberturas[2], side_top=True, from_right=True)
-                if rect: panel_openings.append(rect)
-            if len(aberturas) > 3:
-                loose += _abertura_loose(pw, b, aberturas[3], side_top=False, from_right=True)
-                rect = _abertura_rect(pw, b, aberturas[3], side_top=False, from_right=True)
-                if rect: panel_openings.append(rect)
-        if loose:
-            obj['loose'] = loose
-        if panel_openings:
-            obj['aberturas'] = panel_openings
-
-        sub_panel_objs.append(obj)
-
-    # Painel L: draw as loose entities attached to the first sub-panel
-    comp2 = _f(dados.get('comprimento_2', 0))
-    larg2 = _f(dados.get('largura_2', 0))
-    if comp2 > 0 and larg2 > 0:
-        tipo2  = dados.get('tipo_painel2', 'E/T') or 'E/T'
-        angulo_l = _f(dados.get('angulo_l', dados.get('angulo_2', 90))) or 90.0
-        pw2_raw = [_f(p) for p in dados.get('paineis_2', []) if _f(p) > 0]
-        if not pw2_raw:
-            pw2_raw = compute_panels(comp2)
-        l_loose = build_panel_l_loose(
-            comp, b, comp2, larg2, tipo2, pw2_raw,
-            angulo_l=angulo_l,
-            recuos_2=dados.get('recuos_2'),
-            aberturas_2=dados.get('aberturas_2'),
-        )
-        if l_loose:
-            sub_panel_objs[0]['loose'] = sub_panel_objs[0].get('loose', []) + l_loose
-
-    segment = {
-        'total_width': comp,
-        'panels': sub_panel_objs,
-        'sarrafo_esq': bool(dados.get('sarrafo_esq', True)),
-        'sarrafo_dir': bool(dados.get('sarrafo_dir', True)),
-        'texto_esq': dados.get('texto_esq', ''),
-        'texto_dir': dados.get('texto_dir', ''),
-    }
-    return {
-        'nome':        viga_nome,
-        'b':           b,
-        'comp':        comp,
-        'panels':      [segment],
-        'label_left':  dados.get('texto_esq', 'L Esq'),
-        'label_right': dados.get('texto_dir', 'L Dir'),
-        'obs':         dados.get('obs', ''),
-    }
-
-
-def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
-              panel_chanfros=None, panel_openings=None,
-              sarrafo_esq=True, sarrafo_dir=True, panel_items=None):
+def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None):
     """Draw SARR_2.2x7 lines for a single contiguous real segment.
-
-    sarrafo_esq/sarrafo_dir: when False, the respective vertical sarrafo
-    line is suppressed (used for robot manual control).
 
     Verified against ground truth (V305 recorte, FV_V305_motor_*.dxf):
     SARR_2.2x7 = exactly 4 LINE entities — 2 vertical recuo-edges (x0+7,
@@ -585,10 +181,7 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
     divider, e.g. x=244 for a 286cm viga). The previous per-panel-segment
     breaking logic was an unverified assumption and is WRONG — ground
     truth has 4 lines total regardless of how many STOG-module sub-panels
-    the beam splits into, AS LONG AS the run stays under SARR_MAX_LEN
-    (300cm): real sarrafo stock comes in ~3m bars, so any horizontal run
-    longer than that must be split into separate LINE entities at the
-    panel-union boundaries it crosses (never at an arbitrary midpoint).
+    the beam splits into.
 
     SARR_EDITAR (vertical lines at the absolute outer edges x0/x0+total)
     was also previously drawn unconditionally here, but ground truth shows
@@ -602,294 +195,41 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
     total_width = sum(panel_widths)
     if total_width <= 0 or b <= 0:
         return
-    if panel_items and all(
-        isinstance(panel, dict) and panel.get('is_liso')
-        for panel in panel_items
-    ):
+
+    xl_offset = SARR_RECUO
+    xr_offset = SARR_RECUO
+    layer = SARR_LAYER
+    
+    if panel_verts and panel_verts[0]:
+        left_verts = [v['x'] for v in panel_verts[0] if v['x'] < panel_widths[0]/2]
+        if left_verts:
+            xl_offset = max(left_verts) + SARR_RECUO
+            
+    if panel_verts and panel_verts[-1]:
+        right_verts = [v['x'] for v in panel_verts[-1] if v['x'] > panel_widths[-1]/2]
+        if right_verts:
+            xr_offset = (panel_widths[-1] - min(right_verts)) + SARR_RECUO
+
+    xl = x0 + xl_offset
+    xr = x0 + total_width - xr_offset
+    if xr <= xl:
         return
 
-    # V310: b<10cm recebe contorno verde no painel; 10≤b≤14cm usa sarrafo 5cm.
-    if b < 10:
-        xp = x0
-        for idx, pw in enumerate(panel_widths):
-            verts = panel_verts[idx] if _has_items(panel_verts) and idx < len(panel_verts) else None
-            if _has_items(verts):
-                pts = [(xp + float(v.get('x', 0.0)), y0 + float(v.get('y', 0.0))) for v in verts]
-            else:
-                pts = [(xp, y0), (xp + pw, y0), (xp + pw, y0 + b), (xp, y0 + b)]
-            msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': 'SARR_CONTORNO_10cm'})
-            xp += pw
-        return
-    layer = 'SARR_5cm' if b <= 14 else SARR_LAYER
+    # Vertical sarrafos at viga edges (one pair per viga) — layer SARR_2.2x7
+    msp.add_line((xl, y0), (xl, y0 + b), dxfattribs={'layer': layer})
+    msp.add_line((xr, y0), (xr, y0 + b), dxfattribs={'layer': layer})
 
-    angled_l_panel = None
-    if panel_items and len(panel_items) == 1 and isinstance(panel_items[0], dict):
-        angled_l_panel = panel_items[0].get('angled_l')
-    if angled_l_panel:
-        _draw_left_angled_l_sarr(
-            msp, x0, y0, angled_l_panel,
-            sarrafo_esq=sarrafo_esq, sarrafo_dir=sarrafo_dir,
-        )
-        return
-
-    right_l_panel = None
-    if panel_items and isinstance(panel_items[-1], dict):
-        candidate = panel_items[-1]
-        if candidate.get('is_L_drop') and candidate.get('l_side', 'right') == 'right':
-            right_l_panel = candidate
-    right_l_height = _panel_height(right_l_panel, b) if right_l_panel else 0.0
-    right_l_width = float(right_l_panel.get('width', 0.0)) if right_l_panel else 0.0
-    right_l_drop = max(0.0, right_l_height - float(b))
-    has_right_l = right_l_width > 0 and right_l_drop > 0.1
-
-    ch_left = panel_chanfros[0] if panel_chanfros else {}
-    ch_right = panel_chanfros[-1] if panel_chanfros else {}
-    te = float((ch_left or {}).get('te', 0.0))
-    fe = float((ch_left or {}).get('fe', 0.0))
-    td = float((ch_right or {}).get('td', 0.0))
-    fd = float((ch_right or {}).get('fd', 0.0))
-
-    # End sarrafos stay parallel to the inclined formwork edges.
-    if sarrafo_esq:
-        msp.add_line(
-            (x0 + fe + SARR_RECUO, y0),
-            (x0 + te + SARR_RECUO, y0 + b),
-            dxfattribs={'layer': SARR_LAYER},
-        )
-    if sarrafo_dir and not has_right_l:
-        msp.add_line(
-            (x0 + total_width - fd - SARR_RECUO, y0),
-            (x0 + total_width - td - SARR_RECUO, y0 + b),
-            dxfattribs={'layer': SARR_LAYER},
-        )
-
+    # Horizontal sarrafos: one continuous pair spanning the whole recuo-inset
+    # width of this real segment (xl to xr) — confirmed against ground truth.
     h_offsets = _sarr_h_offsets(b)
     if not h_offsets:
         return
 
-    openings = []
-    panel_x = 0.0
-    for idx, pw in enumerate(panel_widths):
-        for opening in (
-            panel_openings[idx]
-            if panel_openings and idx < len(panel_openings)
-            else []
-        ):
-            openings.append({
-                **opening,
-                'x1': panel_x + float(opening['x1']),
-                'x2': panel_x + float(opening['x2']),
-            })
-        panel_x += pw
-
-    # Panel-union x-boundaries (interior only), used to split horizontal
-    # sarrafo runs longer than SARR_MAX_LEN — real sarrafo bars come in
-    # ~3m stock, so a run spanning multiple panels beyond that length must
-    # be joined exactly at a panel union, never at an arbitrary midpoint.
-    panel_boundaries = []
-    boundary_x = 0.0
-    for pw in panel_widths[:-1]:
-        boundary_x += pw
-        panel_boundaries.append(boundary_x)
-
     for offset in h_offsets:
-        frac = offset / b
-        xl = fe + (te - fe) * frac + SARR_RECUO
-        if has_right_l:
-            # O sarrafo do painel horizontal cresce 7cm + largura da folha L,
-            # chegando à extremidade externa. O montante direito pertence ao L.
-            xr = total_width
-        else:
-            xr = total_width - fd - (td - fd) * frac - SARR_RECUO
-        if xr <= xl:
-            continue
-        cuts = [
-            (float(op['x1']), float(op['x2']))
-            for op in openings
-            if float(op['y1']) <= offset <= float(op['y2'])
-        ]
-        if xr - xl > SARR_MAX_LEN:
-            cuts.extend((pb, pb) for pb in panel_boundaries if xl < pb < xr)
-        cuts.sort()
-        cursor = xl
-        for cut_start, cut_end in cuts:
-            if cut_start > cursor:
-                msp.add_line(
-                    (x0 + cursor, y0 + offset),
-                    (x0 + min(cut_start, xr), y0 + offset),
-                    dxfattribs={'layer': layer},
-                )
-            cursor = max(cursor, cut_end)
-        if cursor < xr:
-            msp.add_line(
-                (x0 + cursor, y0 + offset),
-                (x0 + xr, y0 + offset),
-                dxfattribs={'layer': layer},
-            )
-
-    if has_right_l and sarrafo_dir:
-        inner_x = x0 + total_width - right_l_width
-        outer_x = x0 + total_width
-        bottom_y = y0 - right_l_drop
-        if right_l_drop >= 2 * SARR_RECUO:
-            rail_end_y = bottom_y + SARR_RECUO
-            for rail_x in (inner_x + SARR_RECUO, outer_x - SARR_RECUO):
-                msp.add_line(
-                    (rail_x, y0), (rail_x, rail_end_y),
-                    dxfattribs={'layer': layer},
-                )
-            for rail_y in (y0, rail_end_y):
-                msp.add_line(
-                    (inner_x, rail_y), (outer_x, rail_y),
-                    dxfattribs={'layer': layer},
-                )
-        else:
-            # Dobras curtas não comportam os dois montantes com recuo de 7cm.
-            for rail_y in (y0, y0 - right_l_drop / 2.0):
-                msp.add_line(
-                    (inner_x, rail_y), (outer_x, rail_y),
-                    dxfattribs={'layer': 'SARR_EDITAR'},
-            )
-
-
-def _line_intersection(p, direction, q, q_direction):
-    denominator = (
-        direction[0] * q_direction[1]
-        - direction[1] * q_direction[0]
-    )
-    if abs(denominator) < 1e-9:
-        return None
-    delta = (q[0] - p[0], q[1] - p[1])
-    scale = (
-        delta[0] * q_direction[1]
-        - delta[1] * q_direction[0]
-    ) / denominator
-    return (
-        p[0] + scale * direction[0],
-        p[1] + scale * direction[1],
-    )
-
-
-def _line_x_at_y(point, direction, target_y):
-    if abs(direction[1]) < 1e-9:
-        return None
-    scale = (target_y - point[1]) / direction[1]
-    return point[0] + scale * direction[0]
-
-
-def _draw_left_angled_l_sarr(
-    msp, x0, y0, geometry, sarrafo_esq=True, sarrafo_dir=True,
-):
-    def point(key):
-        value = geometry[key]
-        return float(value['x']), float(value['y'])
-
-    outer_mid = point('outer_mid')
-    bottom_left = point('bottom_left')
-    bottom_right = point('bottom_right')
-    top_right = point('top_right')
-    tip_top = point('tip_top')
-    main_height = float(geometry['main_height'])
-    direction = (
-        bottom_left[0] - outer_mid[0],
-        bottom_left[1] - outer_mid[1],
-    )
-    direction_length = math.hypot(*direction)
-    if direction_length <= 0:
-        return
-    unit = (
-        direction[0] / direction_length,
-        direction[1] / direction_length,
-    )
-    normal = (-unit[1], unit[0])
-    if (
-        (tip_top[0] - outer_mid[0]) * normal[0]
-        + (tip_top[1] - outer_mid[1]) * normal[1]
-    ) < 0:
-        normal = (-normal[0], -normal[1])
-
-    outer_start = (
-        outer_mid[0] + unit[0] * SARR_RECUO,
-        outer_mid[1] + unit[1] * SARR_RECUO,
-    )
-    outer_end = (
-        tip_top[0] + unit[0] * SARR_RECUO,
-        tip_top[1] + unit[1] * SARR_RECUO,
-    )
-    outer_direction = (
-        outer_end[0] - outer_start[0],
-        outer_end[1] - outer_start[1],
-    )
-    lower_sarr_y = SARR_RECUO
-
-    if sarrafo_esq:
         msp.add_line(
-            (x0 + outer_start[0], y0 + outer_start[1]),
-            (x0 + outer_end[0], y0 + outer_end[1]),
-            dxfattribs={'layer': SARR_LAYER},
-        )
-        offsets = sorted({
-            SARR_RECUO,
-            main_height - SARR_RECUO,
-            main_height,
-        })
-        for offset in offsets:
-            if offset <= 0 or offset > main_height + 0.1:
-                continue
-            rail_point = (
-                outer_mid[0] + normal[0] * offset,
-                outer_mid[1] + normal[1] * offset,
-            )
-            rail_start = _line_intersection(
-                rail_point, direction, outer_start, outer_direction
-            )
-            rail_end_x = _line_x_at_y(
-                rail_point, direction, lower_sarr_y
-            )
-            if rail_start is None or rail_end_x is None:
-                continue
-            msp.add_line(
-                (x0 + rail_start[0], y0 + rail_start[1]),
-                (x0 + rail_end_x, y0 + lower_sarr_y),
-                dxfattribs={'layer': SARR_LAYER},
-            )
-
-    main_offsets = _sarr_h_offsets(main_height)
-    top_rail_point = (
-        outer_mid[0] + normal[0] * main_height,
-        outer_mid[1] + normal[1] * main_height,
-    )
-    right_direction = (
-        top_right[0] - bottom_right[0],
-        top_right[1] - bottom_right[1],
-    )
-    lower_direction = (
-        bottom_left[0] - outer_mid[0],
-        bottom_left[1] - outer_mid[1],
-    )
-    for index, offset in enumerate(main_offsets):
-        if index == 0:
-            left_x = _line_x_at_y(outer_mid, lower_direction, offset)
-        else:
-            left_x = _line_x_at_y(top_rail_point, direction, offset)
-        right_boundary_x = _line_x_at_y(
-            bottom_right, right_direction, offset
-        )
-        if left_x is None or right_boundary_x is None:
-            continue
-        right_x = right_boundary_x - SARR_RECUO
-        if right_x > left_x:
-            msp.add_line(
-                (x0 + left_x, y0 + offset),
-                (x0 + right_x, y0 + offset),
-                dxfattribs={'layer': SARR_LAYER},
-            )
-
-    if sarrafo_dir:
-        msp.add_line(
-            (x0 + bottom_right[0] - SARR_RECUO, y0 + bottom_right[1]),
-            (x0 + top_right[0] - SARR_RECUO, y0 + top_right[1]),
-            dxfattribs={'layer': SARR_LAYER},
+            (xl, y0 + offset),
+            (xr, y0 + offset),
+            dxfattribs={'layer': layer}
         )
 
 
@@ -923,7 +263,19 @@ def compute_panels(comprimento):
       - Otherwise: n panels of 244 + remainder
       - If remainder < 30: merge into last full panel
     """
-    return compute_panel_modules(comprimento)
+    L = float(comprimento)
+    if L <= 0:
+        return []
+    if L <= PAINEL_MODULO:
+        return [L]
+    n_full = int(L // PAINEL_MODULO)
+    rem = L - n_full * PAINEL_MODULO
+    if rem < 0.5:
+        return [float(PAINEL_MODULO)] * n_full
+    elif rem < PAINEL_MIN:
+        return [float(PAINEL_MODULO)] * (n_full - 1) + [float(PAINEL_MODULO) + rem]
+    else:
+        return [float(PAINEL_MODULO)] * n_full + [rem]
 
 
 def add_text(msp, x, y, text, height, layer, halign=0, valign=0, rotation=0, style='Standard'):
@@ -954,12 +306,28 @@ def dim_panel(msp, x0, x1, y_base):
         pass
 
 
-def dim_viga_b(msp, x_right, y0, b, offset=None):
-    """Vertical dim for viga b -- right side (x_right + offset)."""
+def dim_viga_total(msp, x0, x1, y_base):
+    """Horizontal dim for total viga -- 2nd level (y_base - DIM_TOTAL_BELOW)."""
+    try:
+        d = msp.add_linear_dim(
+            base=(x0, y_base - DIM_TOTAL_BELOW),
+            p1=(x0, y_base),
+            p2=(x1, y_base),
+            angle=0,
+            dimstyle='PAINEL',
+            dxfattribs={'layer': 'COTA'},
+        )
+        d.render()
+    except Exception:
+        pass
+
+
+def dim_viga_b(msp, x_right, y0, b):
+    """Vertical dim for viga b -- right side (x_right + DIM_B_RIGHT)."""
     if b <= 0:
         return
     try:
-        x_base = x_right + (DIM_B_RIGHT if offset is None else float(offset))
+        x_base = x_right + DIM_B_RIGHT
         d = msp.add_linear_dim(
             base=(x_base, y0),
             p1=(x_right, y0),
@@ -990,192 +358,19 @@ def _parse_active_holes(holes):
         active.append({
             'width': hw,
             'position': float(h.get('position', 0)),
-            'text': h.get('text'),
         })
     active.sort(key=lambda h: h['position'])
     return active
 
 
-def draw_chanfro_cotas(msp, xp, y0, pw, b, chanfros):
-    """Dimension each longitudinal setback on its corresponding edge."""
-    te = chanfros.get('te', 0.0)
-    fe = chanfros.get('fe', 0.0)
-    td = chanfros.get('td', 0.0)
-    fd = chanfros.get('fd', 0.0)
-    OFFS = 5.0  # distância do canto para o texto
-
-    def _lin(x1, y1, x2, y2, bx, by):
-        try:
-            d = msp.add_linear_dim(
-                base=(bx, by), p1=(x1, y1), p2=(x2, y2),
-                angle=0 if abs(x2 - x1) >= abs(y2 - y1) else 90,
-                dimstyle='PAINEL', dxfattribs={'layer': 'COTA'}
-            )
-            d.render()
-        except Exception:
-            pass
-
-    # Each value is a horizontal setback, not a square notch size.
-    if te > 0:
-        _lin(xp, y0 + b, xp + te, y0 + b, xp + te / 2, y0 + b + OFFS)
-
-    if fe > 0:
-        _lin(xp, y0, xp + fe, y0, xp + fe / 2, y0 - OFFS)
-
-    if td > 0:
-        _lin(xp + pw - td, y0 + b, xp + pw, y0 + b, xp + pw - td / 2, y0 + b + OFFS)
-
-    if fd > 0:
-        _lin(xp + pw - fd, y0, xp + pw, y0, xp + pw - fd / 2, y0 - OFFS)
-
-
-def _panel_height(panel, default_b):
-    """Retorna a altura física desenhável, preservando fichas legadas."""
-    if isinstance(panel, dict):
-        try:
-            height = float(panel.get('height', 0) or 0)
-            if height > 0:
-                return height
-        except (TypeError, ValueError):
-            pass
-        verts = panel.get('vertices')
-        if _has_items(verts):
-            try:
-                ys = [float(v.get('y', 0)) for v in verts]
-                span = max(ys) - min(ys)
-                if span > 0:
-                    return span
-            except (TypeError, ValueError):
-                pass
-    return float(default_b)
-
-
-def _has_items(value):
-    if value is None:
-        return False
-    try:
-        return len(value) > 0
-    except TypeError:
-        return bool(value)
-
-
-def get_seg_b(seg_item, default_b):
-    """Obtém a largura principal do fundo; L-drops não a redefinem."""
-    if not isinstance(seg_item, dict):
-        return float(default_b)
-    regular = [
-        panel for panel in seg_item.get('panels', [])
-        if isinstance(panel, dict) and not panel.get('is_L_drop')
-    ]
-    heights = [
-        float(panel['angled_l']['main_height'])
-        if panel.get('angled_l')
-        else _panel_height(panel, default_b)
-        for panel in regular
-    ]
-    return max(heights) if heights else float(default_b)
-
-
-def _seg_width(seg_item):
-    if isinstance(seg_item, dict):
-        return float(seg_item.get('total_width', seg_item.get('width', 0)) or 0)
-    return float(seg_item)
-
-
-def _seg_text(seg_item, side):
-    if not isinstance(seg_item, dict):
-        return ''
-    key = 'texto_esq' if side == 'left' else 'texto_dir'
-    alt = 'label_left' if side == 'left' else 'label_right'
-    return str(seg_item.get(key, seg_item.get(alt, '')) or '').strip()
-
-
-def _same_mult_group(a, b):
-    return (
-        isinstance(a, dict)
-        and isinstance(b, dict)
-        and a.get('_mult_group_id') is not None
-        and a.get('_mult_group_id') == b.get('_mult_group_id')
-    )
-
-
-def _truthy_height_zero(panel):
-    if not isinstance(panel, dict) or 'height' not in panel:
-        return False
-    try:
-        return float(panel.get('height') or 0) <= 0.1
-    except (TypeError, ValueError):
-        return False
-
-
-def _sanitize_segments_after_multipliers(panels_json):
-    """Remove falso painel duplicado que pode vir apos um grupo multiplicado."""
-    cleaned = []
-    prev_was_multiplier = False
-    for seg in panels_json:
-        if not isinstance(seg, dict):
-            cleaned.append(seg)
-            prev_was_multiplier = False
-            continue
-
-        current = seg
-        panels = seg.get('panels') or []
-        if prev_was_multiplier and len(panels) > 1 and any(_truthy_height_zero(p) for p in panels):
-            kept = [p for p in panels if not _truthy_height_zero(p)]
-            if kept:
-                current = dict(seg)
-                current['panels'] = kept
-                current['total_width'] = round(
-                    sum(float(p.get('width', 0) or 0) for p in kept), 1
-                )
-
-        cleaned.append(current)
-        prev_was_multiplier = int(current.get('_multiplier', 1) or 1) > 1
-    return cleaned
-
-
-def _apoio_ok(text) -> bool:
-    t = str(text or "").strip()
-    if not t:
-        return False
-    return t.lower() not in ("none", "null", "nan", "n/a", "-", "—")
-
-
-def _apoio_text_width(text, height=LABEL_H) -> float:
-    return max(12.0, float(height) * 0.72 * max(len(str(text or "")), 1))
-
-
-def draw_gap_apoio_texts(msp, x_end, gap_w, right_text, next_left, y):
-    """One label if the junction apoios match; two labels, not overlapping, if not."""
-    a = str(right_text or "").strip()
-    b = str(next_left or "").strip()
-    if not _apoio_ok(a):
-        a = ""
-    if not _apoio_ok(b):
-        b = ""
-    if not a and not b:
-        return
-    gap_w = max(float(gap_w or 0.0), 0.0)
-    mid = x_end + gap_w / 2.0
-    if a and b and a.lower() == b.lower():
-        add_text(msp, mid, y, a, LABEL_H, "5", halign=1, rotation=0)
-        return
-    if a and not b:
-        add_text(msp, mid, y, a, LABEL_H, "5", halign=1, rotation=0)
-        return
-    if b and not a:
-        add_text(msp, mid, y, b, LABEL_H, "5", halign=1, rotation=0)
-        return
-    pad = 6.0
-    add_text(msp, x_end + pad, y, a, LABEL_H, "5", halign=0, rotation=0)
-    add_text(msp, x_end + gap_w - pad, y, b, LABEL_H, "5", halign=2, rotation=0)
+# Deeper dim level for segment totals (between sub-panel dims and overall total)
+DIM_SEG_TOTAL_BELOW = 53  # between DIM_BELOW(37) and DIM_TOTAL_BELOW(69)
+DIM_OVERALL_BELOW   = 85  # deepest level for overall viga total (multi-segment)
 
 
 def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
               pillar_left=None, pillar_right=None, holes=None, obs='',
-              label_left='L Esq', label_right='L Dir',
-              inter_segment_gap=0.0, dim_b_every_segment=False,
-              dim_b_offset=None, coalesce_junction_labels=False):
+              label_left='L Esq', label_right='L Dir'):
     """
     Draw a fundo de viga (FV) starting at x0, y0 (lower-left corner).
 
@@ -1191,60 +386,42 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
 
     Between segments a gap of hole.width is left (no geometry).
 
-    No overall dimension is drawn across multiple physical segments. Each
-    segment keeps its own total, so pillar gaps and row continuations are not
-    represented as one fabricated length.
+    Overall viga total dim is drawn at deepest level if >1 segment.
 
     Returns total footprint of the viga (segments + gaps).
     """
     if not panels_json or viga_b <= 0:
         return 0.0
 
-    panels_json = _sanitize_segments_after_multipliers(panels_json)
     b = viga_b
-    is_composite_name = is_composite_viga_name(viga_nome)
 
     # Pre-collect all hole texts and labels to avoid printing them inside panels
     ignore_texts = set()
-    if label_left: ignore_texts.add(str(label_left).strip().lower())
-    if label_right: ignore_texts.add(str(label_right).strip().lower())
+    if label_left: ignore_texts.add(label_left)
+    if label_right: ignore_texts.add(label_right)
     if holes:
         for h in holes:
             if isinstance(h, dict) and h.get('text'):
-                ignore_texts.add(str(h['text']).strip().lower())
-    if panels_json:
-        for p in panels_json:
-            if isinstance(p, dict):
-                te = p.get('texto_esq', p.get('label_left', ''))
-                td = p.get('texto_dir', p.get('label_right', ''))
-                if te: ignore_texts.add(str(te).strip().lower())
-                if td: ignore_texts.add(str(td).strip().lower())
+                ignore_texts.add(h['text'])
 
     # -- Parse segments (each panel dict = one segment) ------------------------
     import copy as _copy
     segments = []
-    mult_group_seq = 0
     for p in panels_json:
         if isinstance(p, dict) and 'total_width' in p:
             sw = float(p['total_width'])
             if sw > 0:
                 mult = int(p.get('_multiplier', 1) or 1)
                 if mult > 1:
-                    # Expandir N copias; o grupo guarda metadados para nao
-                    # desenhar textos entre as copias multiplicadas.
-                    mult_group_seq += 1
-                    group_id = f'mult-{mult_group_seq}'
-                    for idx in range(mult):
-                        item = _copy.deepcopy(p)
-                        item.pop('_multiplier', None)
-                        item['_mult_group_id'] = group_id
-                        item['_mult_index'] = idx
-                        item['_mult_count'] = mult
-                        if idx == 0:
-                            item['_mult_label'] = f'{mult}x{round(sw):g}'
-                        else:
-                            item['_is_mult_copy'] = True
-                        segments.append(item)
+                    # Expandir N cópias; só a primeira carrega _mult_label para exibir "NxMMM"
+                    base = _copy.deepcopy(p)
+                    base.pop('_multiplier', None)
+                    base['_mult_label'] = f'{mult}x{round(sw):g}'
+                    segments.append(base)
+                    for _ in range(mult - 1):
+                        other = _copy.deepcopy(base)
+                        other.pop('_mult_label', None)  # cópias não repetem o label
+                        segments.append(other)
                 else:
                     segments.append(p)
         else:
@@ -1261,97 +438,40 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
     # We match holes to inter-segment gaps using their cumulative position
     gaps = []
     current_pos = 0.0
-    logical_pos = 0.0
     hole_idx = 0
     for i in range(len(segments) - 1):
-        sw = _seg_width(segments[i])
+        sw = float(segments[i]['total_width']) if isinstance(segments[i], dict) else float(segments[i])
         current_pos += sw
         
-        is_curr_copy = isinstance(segments[i], dict) and segments[i].get('_is_mult_copy')
-        if not is_curr_copy:
-            logical_pos += sw
-        
-        next_seg = segments[i+1]
-        is_next_copy = isinstance(next_seg, dict) and next_seg.get('_is_mult_copy')
-        is_internal_mult = _same_mult_group(segments[i], next_seg)
-        
-        # Cópias e continuações vindas de outra linha da prancha precisam
-        # permanecer como segmentos visualmente separados no N4.
-        is_row_break = isinstance(next_seg, dict) and next_seg.get('row_break')
-        if is_internal_mult or is_next_copy or is_row_break:
-            mult_gap = 15.0
-            gaps.append((mult_gap, ''))
-            current_pos += mult_gap
-            continue
-
-        gap_w = 0.0
-        gap_label = ''
-
         # Check if the next active hole matches this position
         if hole_idx < len(active_holes):
             # Allow some floating point tolerance
-            hole = active_holes[hole_idx]
-            hole_text = str(hole.get('text') or '').strip().upper()
-            boundary_labels = {
-                _seg_text(segments[i], 'right').upper(),
-                _seg_text(segments[i + 1], 'left').upper(),
-            }
-            position_match = abs(hole['position'] - logical_pos) < 5.0
-            label_match = bool(hole_text and hole_text in boundary_labels)
-            if position_match or label_match:
-                gap_w = hole['width']
-                gap_label = hole.get('text') or 'Pilar Cruzado'
-                logical_pos += gap_w
+            if abs(active_holes[hole_idx]['position'] - current_pos) < 5.0:
+                gap_w = active_holes[hole_idx]['width']
+                gap_label = active_holes[hole_idx].get('text') or 'Pilar Cruzado'
+                gaps.append((gap_w, gap_label))
+                current_pos += gap_w
                 hole_idx += 1
-
-        # Variações de largura precisam de espaço visual para a cota vertical.
-        seg_b_current = get_seg_b(segments[i], b)
-        seg_b_next = get_seg_b(segments[i + 1], b)
-        if abs(seg_b_current - seg_b_next) > 0.1:
-            gap_w = max(gap_w, 40.0)
-        if inter_segment_gap:
-            gap_w = max(gap_w, float(inter_segment_gap))
-
-        gaps.append((gap_w, gap_label))
-        current_pos += gap_w
+                continue
+                
+        # No matching hole means this is a contiguous segment boundary (e.g. L-shape corner)
+        gaps.append((0.0, ''))
 
     # -- Compute total footprint -----------------------------------------------
-    total_footprint = sum(_seg_width(s) for s in segments) + sum(g[0] for g in gaps)
+    total_footprint = sum(float(s['total_width']) if isinstance(s, dict) else float(s) for s in segments) + sum(g[0] for g in gaps)
 
-    # -- Find global lowest cota Y for the entire viga to align all texts --
-    global_lowest_cota_y = y0 - DIM_BELOW
-    for seg_item in segments:
-        if isinstance(seg_item, dict) and 'panels' in seg_item:
-            s_panels = [p['width'] for p in seg_item['panels']]
-            s_panels_tiers = [p.get('tiers', []) for p in seg_item['panels']]
-        else:
-            s_width = float(seg_item) if not isinstance(seg_item, dict) else float(seg_item.get('width', 0))
-            s_panels = compute_panels(s_width)
-            s_panels_tiers = [[] for _ in s_panels]
-            
-        if len(s_panels) > 1:
-            global_lowest_cota_y = min(global_lowest_cota_y, y0 - DIM_TOTAL_BELOW)
-            
-        for pw, tiers in zip(s_panels, s_panels_tiers):
-            if tiers:
-                for t_idx, tier_vals in enumerate(tiers):
-                    tier_sum = sum(float(tv) for tv in tier_vals)
-                    if abs(tier_sum - pw) <= 1.5:
-                        global_lowest_cota_y = min(
-                            global_lowest_cota_y,
-                            y0 - (DIM_BELOW + t_idx * TIER_STEP),
-                        )
+    # -- Track all sub-panel edges for overall dims ----------------------------
+    all_subpanel_edges = []   # list of (x_start, x_end) for every sub-panel
+    segment_edges = []        # list of (seg_x0, seg_x_end) per segment
+    multi_subpanel_segs = 0   # count segments with >1 sub-panel
 
     # -- Draw each segment -----------------------------------------------------
     x_cursor = x0
-    last_drawn_text = None
     for seg_idx, seg_item in enumerate(segments):
         # Handle both flat float/dict and rich segment dictionaries
         if isinstance(seg_item, dict) and 'panels' in seg_item:
             seg_width = seg_item['total_width']
             sub_panels = [p['width'] for p in seg_item['panels']]
-            sub_panel_heights = [_panel_height(p, b) for p in seg_item['panels']]
-            sub_panel_l_drops = [bool(p.get('is_L_drop')) for p in seg_item['panels']]
             sub_panel_texts = [p.get('texts', []) for p in seg_item['panels']]
             sub_panel_verts = [p.get('vertices', None) for p in seg_item['panels']]
             sub_panel_loose = [p.get('loose', []) for p in seg_item['panels']]
@@ -1359,8 +479,6 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             # Fallback to legacy automatic computation
             seg_width = float(seg_item) if not isinstance(seg_item, dict) else float(seg_item.get('width', 0))
             sub_panels = compute_panels(seg_width)
-            sub_panel_heights = [b for _ in sub_panels]
-            sub_panel_l_drops = [False for _ in sub_panels]
             sub_panel_texts = [[] for _ in sub_panels]
             sub_panel_verts = [None for _ in sub_panels]
             sub_panel_loose = [[] for _ in sub_panels]
@@ -1374,121 +492,40 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             continue
 
         # Draw panel outlines (LWPOLYLINE) for each sub-panel
-        # is_standard: plain rectangular panels (no L-drop, no custom trapezoid).
-        # Between two standard neighbors, only panel_divider() below owns the
-        # shared vertical edge — panel_poly() skips it to avoid 2-3 overlapping
-        # LINEs stacked at the same union.
-        is_standard = [
-            not is_l_drop and not _has_items(p_verts)
-            for is_l_drop, p_verts in zip(sub_panel_l_drops, sub_panel_verts)
-        ]
         xp = seg_x0
-        for i, (pw, ph, is_l_drop, p_texts, p_verts, p_loose) in enumerate(zip(
-            sub_panels, sub_panel_heights, sub_panel_l_drops,
-            sub_panel_texts, sub_panel_verts, sub_panel_loose,
-        )):
-            if _has_items(p_verts):
-                # Custom trapezoid defined by top/bottom end setbacks.
+        for pw, p_texts, p_verts, p_loose in zip(sub_panels, sub_panel_texts, sub_panel_verts, sub_panel_loose):
+            if p_verts:
+                # Custom polygon (e.g. chamfers, L-shapes)
                 pts = [(xp + v['x'], y0 + v['y']) for v in p_verts]
-                draw_poly_as_lines(msp, pts, LY_PAINEIS)
-                p_obj = seg_item['panels'][i]
-                if not p_obj.get('angled_l'):
-                    angled_l = detect_left_angled_l_panel(p_verts)
-                    if angled_l:
-                        p_obj['angled_l'] = angled_l
-                if not p_obj.get('angled_l') and not p_obj.get('chanfros'):
-                    chanfros = derive_quadrilateral_chanfros(p_verts)
-                    if chanfros:
-                        p_obj['chanfros'] = chanfros
-            elif is_l_drop:
-                panel_poly(msp, xp, y0 + b - ph, pw, ph)
+                msp.add_lwpolyline(pts, close=True, dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
             else:
-                # Standard rectangular module. Skip the shared vertical edge
-                # towards a neighboring standard panel — panel_divider() draws
-                # that single union line below.
-                draw_left = not (i > 0 and is_standard[i - 1] and is_standard[i])
-                draw_right = not (
-                    i < len(sub_panels) - 1 and is_standard[i + 1] and is_standard[i]
-                )
-                panel_poly(msp, xp, y0, pw, ph, draw_left=draw_left, draw_right=draw_right)
-
-            if isinstance(seg_item, dict):
-                panel_objects = seg_item.get('panels') or []
-                panel_obj = panel_objects[i] if i < len(panel_objects) else {}
-                if panel_obj.get('is_liso'):
-                    limits = [0.0]
-                    limits.extend(sorted(float(value) for value in (
-                        panel_obj.get('panel_dividers') or []
-                    )))
-                    limits.append(float(pw))
-                    for start, end in zip(limits, limits[1:]):
-                        if end - start <= 0.1:
-                            continue
-                        add_text(
-                            msp, xp + (start + end) / 2.0,
-                            y0 + ph / 2.0, 'LISO', 8,
-                            'NOMENCLATURA', halign=1, valign=2,
-                        )
+                # Standard rectangular module
+                panel_poly(msp, xp, y0, pw, b)
             
             # Draw loose attached entities (L-corners, etc.)
             for le in p_loose:
-                le_layer = le.get('layer', LY_PAINEIS)
                 if le['type'] == 'LINE':
                     msp.add_line((xp + le['start']['x'], y0 + le['start']['y']),
                                  (xp + le['end']['x'], y0 + le['end']['y']),
-                                 dxfattribs={'layer': le_layer, 'lineweight': -1})
-                elif le['type'] == 'LWPOLYLINE':
-                    points = [
-                        (xp + p['x'], y0 + p['y']) for p in le['points']
-                    ]
-                    msp.add_lwpolyline(
-                        points, close=True,
-                        dxfattribs={'layer': le_layer, 'lineweight': -1},
-                    )
+                                 dxfattribs={'layer': LY_PAINEIS, 'lineweight': -1})
                 elif le['type'] == 'TEXT':
-                    t = msp.add_text(le['text'], dxfattribs={'layer': le_layer, 'height': 8})
+                    t = msp.add_text(le['text'], dxfattribs={'layer': LY_PAINEIS, 'height': 8})
                     t.dxf.insert = (xp + le['insert']['x'], y0 + le['insert']['y'])
                     
+            all_subpanel_edges.append((xp, xp + pw))
+            
             # Draw any specific texts inside the panel (e.g. 'P1', 'V309')
-            if _has_items(p_texts):
+            if p_texts:
                 for idx, txt in enumerate(p_texts):
-                    txt_clean = str(txt).strip()
-                    txt_upper = txt_clean.upper()
-                    base_name = normalize_viga_name(viga_nome).upper()
-                    if txt_clean.lower() in ignore_texts:
-                        continue
-                    if txt_upper in (base_name, f'{base_name}.C'):
-                        continue
-                    if label_left and txt_upper == str(label_left).strip().upper():
-                        continue
-                    if label_right and txt_upper == str(label_right).strip().upper():
-                        continue
-                    if isinstance(seg_item, dict):
-                        edge_labels = (
-                            seg_item.get('texto_esq', ''),
-                            seg_item.get('texto_dir', ''),
-                        )
-                        if any(
-                            txt_upper == str(value).strip().upper()
-                            for value in edge_labels if value
-                        ):
-                            continue
-                    t = msp.add_text(
-                        txt_clean, dxfattribs={'layer': '5', 'height': 8}
-                    )
-                    t.dxf.insert = (xp + pw/2 - 5, y0 + ph/2 + (idx * 10))
-
-            # Draw chanfro cotas se painel tem 'chanfros' explícito
-            if isinstance(seg_item, dict):
-                _seg_panels = seg_item.get('panels', [])
-                if i < len(_seg_panels) and isinstance(_seg_panels[i], dict):
-                    _ch = _seg_panels[i].get('chanfros')
-                    if _ch and any(_ch.get(k, 0) > 0 for k in ('te', 'fe', 'td', 'fd')):
-                        draw_chanfro_cotas(msp, xp, y0, pw, b, _ch)
-
+                    if txt in ignore_texts: continue
+                    t = msp.add_text(txt, dxfattribs={'layer': '5', 'height': 8})
+                    t.dxf.insert = (xp + pw/2 - 5, y0 + b/2 + (idx * 10))
+                    
             xp += pw
 
         seg_x_end = seg_x0 + seg_width
+        segment_edges.append((seg_x0, seg_x_end))
+
         # Draw panel dividers (vertical LINEs between adjacent sub-panels)
         xp = seg_x0
         for i, pw in enumerate(sub_panels):
@@ -1496,146 +533,27 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             if i < len(sub_panels) - 1:
                 panel_divider(msp, xp, y0, b)
 
-        # Alguns DXFs representam todos os painéis por um único contorno e
-        # registram as divisões somente na cota de nível 1 (ex.: 244 + 42).
-        if (
-            len(sub_panels) == 1
-            and isinstance(seg_item, dict)
-            and seg_item.get('panels')
-        ):
-            panel = seg_item['panels'][0]
-            explicit_dividers = panel.get('panel_dividers') or []
-            divider_offsets = list(explicit_dividers)
-            divider_offsets.extend(_tier_panel_dividers(panel, sub_panels[0]))
-            divider_height = float(
-                panel.get('angled_l', {}).get('main_height', b)
-            )
-            for offset in sorted(set(float(value) for value in divider_offsets)):
-                if 0.1 < offset < float(sub_panels[0]) - 0.1:
-                    panel_divider(
-                        msp, seg_x0 + offset, y0, divider_height
-                    )
+        # Draw sarrafos for this segment
+        draw_sarr(msp, seg_x0, y0, b, sub_panels, sub_panel_verts)
 
-        # Draw sarrafos for this segment (respecting sarrafo_esq/dir flags from robot)
-        seg_sarr_esq = seg_item.get('sarrafo_esq', True) if isinstance(seg_item, dict) else True
-        seg_sarr_dir = seg_item.get('sarrafo_dir', True) if isinstance(seg_item, dict) else True
-        panel_chanfros = [
-            p.get('chanfros', {}) for p in seg_item.get('panels', [])
-        ] if isinstance(seg_item, dict) else None
-        panel_openings = [
-            p.get('aberturas', []) for p in seg_item.get('panels', [])
-        ] if isinstance(seg_item, dict) else None
-        draw_sarr(msp, seg_x0, y0, b, sub_panels, sub_panel_verts,
-                  panel_chanfros=panel_chanfros,
-                  panel_openings=panel_openings,
-                  sarrafo_esq=seg_sarr_esq, sarrafo_dir=seg_sarr_dir,
-                  panel_items=(seg_item.get('panels', [])
-                               if isinstance(seg_item, dict) else None))
-
-        # Posiciona textos 15cm abaixo da cota mais baixa global (10cm originais + 5cm extras)
-        label_y = global_lowest_cota_y - 15
-        # Textos inicial/final ficam 5cm mais abaixo para distinguir dos "entre segmentos"
-        label_y_ends = label_y - 5
-
-        seg_label_left = ''
-        seg_label_right = ''
-        if isinstance(seg_item, dict):
-            seg_label_left = seg_item.get('texto_esq', seg_item.get('label_left', ''))
-            seg_label_right = seg_item.get('texto_dir', seg_item.get('label_right', ''))
-
-        # Fallback global para o primeiro e último segmento, se não estiver definido
-        if seg_idx == 0 and not seg_label_left and label_left:
-            seg_label_left = label_left
-        if seg_idx == len(segments) - 1 and not seg_label_right and label_right:
-            seg_label_right = label_right
-
-        is_first_seg = (seg_idx == 0)
-        is_last_seg  = (seg_idx == len(segments) - 1)
-        if is_composite_name and is_first_seg:
-            seg_label_left = ''
-        if is_composite_name and is_last_seg:
-            seg_label_right = ''
-        mult_index = int(seg_item.get('_mult_index', 0) or 0) if isinstance(seg_item, dict) else 0
-        mult_count = int(seg_item.get('_mult_count', 1) or 1) if isinstance(seg_item, dict) else 1
-        is_mult_member = isinstance(seg_item, dict) and seg_item.get('_mult_group_id') is not None
-        suppress_mult_left_text = is_mult_member and mult_index > 0
-        suppress_mult_right_text = is_mult_member and mult_index < (mult_count - 1)
-
-        text_left = str(seg_label_left).strip()
-        text_right = str(seg_label_right).strip()
-        next_left = "" if is_last_seg else _seg_text(segments[seg_idx + 1], "left")
-
-        if coalesce_junction_labels:
-            if (
-                is_first_seg
-                and not suppress_mult_left_text
-                and _apoio_ok(text_left)
-            ):
-                add_text(msp, seg_x0 - 10, label_y_ends, text_left, LABEL_H, '5',
-                         halign=2, rotation=0)
-            if not is_last_seg:
-                gap_w = gaps[seg_idx][0] if seg_idx < len(gaps) else 0.0
-                draw_gap_apoio_texts(
-                    msp, seg_x_end, gap_w, text_right, next_left, label_y_ends,
-                )
-            elif not suppress_mult_right_text and _apoio_ok(text_right):
-                add_text(msp, seg_x_end + 10, label_y_ends, text_right, LABEL_H, '5',
-                         halign=0, rotation=0)
-            last_drawn_text = text_right if _apoio_ok(text_right) else next_left
-        elif (
-            not suppress_mult_left_text
-            and _apoio_ok(text_left)
-        ):
-            # Verifica contra o texto direito do anterior E contra o gap_label anterior
-            if not last_drawn_text or text_left.lower() != last_drawn_text.lower():
-                if is_first_seg:
-                    add_text(msp, seg_x0 - 10, label_y_ends, text_left, LABEL_H, '5',
-                             halign=2, rotation=0)
-                else:
-                    add_text(msp, seg_x0 - 25, label_y_ends, text_left, LABEL_H, '5',
-                             halign=2, rotation=0)
-
-        if not coalesce_junction_labels:
-            last_drawn_text = None
-
-        if (
-            not coalesce_junction_labels
-            and not suppress_mult_right_text
-            and _apoio_ok(text_right)
-        ):
-            if is_last_seg:
-                add_text(msp, seg_x_end + 10, label_y_ends, text_right, LABEL_H, '5',
-                         halign=0, rotation=0)
-            else:
-                add_text(msp, seg_x_end - 5, label_y_ends, text_right, LABEL_H, '5',
-                         halign=0, rotation=0)
-            last_drawn_text = text_right
-
+        # Textos de inicio e fim de segmento (Labels ESQ / DIR)
+        if seg_idx == 0 and label_left:
+            add_text(msp, seg_x0, y0 - 30.0, label_left, 8, '5', halign=0, rotation=0)
+        
+        if seg_idx == len(segments) - 1 and label_right:
+            add_text(msp, seg_x_end, y0 - 30.0, label_right, 8, '5', halign=2, rotation=0)
+            
         if seg_idx < len(gaps):
             gap_label = gaps[seg_idx][1]
             if gap_label and gap_label != 'Pilar Cruzado':
-                gap_text = gap_label.strip()
-                if last_drawn_text and gap_text.lower() == last_drawn_text.lower():
-                    pass  # Já foi desenhado pelo right_text
-                else:
-                    gap_center = seg_x_end + gaps[seg_idx][0] / 2
-                    # Texto entre segmentos: 15cm para a esquerda e 5cm abaixo
-                    add_text(msp, gap_center - 15, label_y_ends, gap_text, LABEL_H, '5',
-                             halign=1, rotation=0)
-                    last_drawn_text = gap_text  # Atualiza para o próximo segmento checar!
+                gap_center = seg_x_end + gaps[seg_idx][0] / 2
+                add_text(msp, gap_center, y0 - 30.0, gap_label, 8, '5', halign=1, rotation=0)
 
         # Draw individual sub-panel dims (1st level, and tiers if present)
         xp = seg_x0
         for i, pw in enumerate(sub_panels):
-            if isinstance(seg_item, dict) and isinstance(seg_item.get('panels'), list) and i < len(seg_item['panels']):
-                p_item = seg_item['panels'][i]
-            else:
-                p_item = {}
-            is_l_panel = isinstance(p_item, dict) and p_item.get('is_L_drop')
-            if is_l_panel:
-                panel_bottom = y0 + b - _panel_height(p_item, b)
-                dim_panel(msp, xp, xp + pw, panel_bottom)
-            elif isinstance(p_item, dict) and 'tiers' in p_item and p_item['tiers']:
+            p_item = seg_item['panels'][i] if isinstance(seg_item.get('panels'), list) and i < len(seg_item['panels']) else {}
+            if isinstance(p_item, dict) and 'tiers' in p_item and p_item['tiers']:
                 tiers = p_item['tiers']
                 for t_idx, tier_vals in enumerate(tiers):
                     # Validar: só renderizar tier se sum(tier_vals) ≈ largura do painel (±1.5cm)
@@ -1643,7 +561,7 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                     if abs(tier_sum - pw) > 1.5:
                         continue
                     t_xp = xp
-                    y_off = DIM_BELOW + (t_idx * TIER_STEP)
+                    y_off = DIM_BELOW + (t_idx * 15)  # Stack them downwards
                     for tv in tier_vals:
                         try:
                             d = msp.add_linear_dim(
@@ -1662,9 +580,14 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 dim_panel(msp, xp, xp + pw, y0)
             xp += pw
 
+        x_cursor = seg_x_end
+        if seg_idx < len(gaps):
+            gap_w = gaps[seg_idx][0]
+            x_cursor += gap_w
 
         # Draw segment total dim (2nd level) if segment has >1 sub-panel
         if len(sub_panels) > 1:
+            multi_subpanel_segs += 1
             # Use DIM_TOTAL_BELOW for all segment total dimensions
             seg_dim_y_offset = DIM_TOTAL_BELOW
             try:
@@ -1680,37 +603,11 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             except Exception:
                 pass
 
-        # Texto multiplicador "NxMMM" — só quando painéis não têm geometria explícita
+        # Texto multiplicador "NxMMM" dentro do painel para segmentos expandidos
         if isinstance(seg_item, dict) and seg_item.get('_mult_label'):
-            has_verts = any(
-                isinstance(pp, dict) and _has_items(pp.get('vertices'))
-                for pp in seg_item.get('panels', [])
-            )
-            if not has_verts:
-                cx = (seg_x0 + seg_x_end) / 2.0
-                cy = y0 + b / 2.0
-                add_text(msp, cx, cy, seg_item['_mult_label'], 10, 'Painéis', halign=1)
-
-        seg_b = get_seg_b(seg_item, b)
-        right_l_panel = None
-        if isinstance(seg_item, dict) and seg_item.get('panels'):
-            candidate = seg_item['panels'][-1]
-            if (
-                isinstance(candidate, dict)
-                and candidate.get('is_L_drop')
-                and candidate.get('l_side', 'right') == 'right'
-            ):
-                right_l_panel = candidate
-        is_last_seg = seg_idx == len(segments) - 1
-        has_b_change = (
-            not is_last_seg
-            and abs(seg_b - get_seg_b(segments[seg_idx + 1], b)) > 0.1
-        )
-        if right_l_panel:
-            l_height = _panel_height(right_l_panel, b)
-            dim_viga_b(msp, seg_x_end, y0 + b - l_height, l_height, offset=dim_b_offset)
-        elif is_last_seg or has_b_change or dim_b_every_segment:
-            dim_viga_b(msp, seg_x_end, y0, seg_b, offset=dim_b_offset)
+            cx = (seg_x0 + seg_x_end) / 2.0
+            cy = y0 + b / 2.0
+            add_text(msp, cx, cy, seg_item['_mult_label'], 10, 'Painéis', halign=1)
 
         # Advance cursor past this segment + gap to next segment
         x_cursor = seg_x_end
@@ -1718,26 +615,17 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             x_cursor += gaps[seg_idx][0]
 
     # -- NOMENCLATURA text (once, above full viga) -----------------------------
-    is_continuation = bool(re.match(r'^\s*CONT\.\s*', str(viga_nome), re.IGNORECASE))
-    continuation_prefix = 'CONT. ' if is_continuation else ''
-    nom_text = f'{continuation_prefix}{normalize_viga_name(viga_nome)}.C'
+    nom_text = f'{viga_nome}.C'
     if obs:
         nom_text = f'{nom_text} {obs}'
-    nom_left_clearance = 0.0
-    if segments and isinstance(segments[0], dict):
-        first_panels = segments[0].get('panels', [])
-        if first_panels and isinstance(first_panels[0], dict):
-            first_ch = first_panels[0].get('chanfros', {})
-            nom_left_clearance = max(
-                float(first_ch.get('te', 0.0)),
-                float(first_ch.get('fe', 0.0)),
-            )
-            if nom_left_clearance > 0:
-                nom_left_clearance += NOM_H
-    add_text(msp, x0 + nom_left_clearance + 3, y0 + b + NOM_ABOVE, nom_text,
+    add_text(msp, x0 + 3, y0 + b + NOM_ABOVE, nom_text,
              NOM_H, 'NOMENCLATURA', style='Standard')
 
 
+
+    # -- Vertical b dim -- right side ------------------------------------------
+    rightmost_x = x0 + total_footprint
+    dim_viga_b(msp, rightmost_x, y0, b)
 
     return total_footprint
 
@@ -1797,175 +685,18 @@ def _contar_ids_stog_fv(obra_path: Path) -> set:
     return ids
 
 
-def _normalize_segments_rich(segments, viga_b):
-    """Normaliza vértices dos panels de segments_rich para espaço local [0,w]×[0,b].
-
-    O motor reverso extrai vértices em coordenadas CAD absolutas da posição
-    da viga no DXF STOG. Cada painel deve ter y ∈ [0, b], mas pode chegar
-    com y em qualquer valor absoluto (ex: y=-24.5 para b=19).
-
-    Estratégia: para cada panel com vértices, transladar y para que y_min=0.
-    Se após a translação y_max ainda divergir muito de b, truncar para b.
-    """
-    for seg in segments:
-        if not isinstance(seg, dict):
-            continue
-        b_seg = float(seg.get('total_width', 0))  # não é b, mas usamos viga_b
-        for p in seg.get('panels', []):
-            verts = p.get('vertices')
-            if not _has_items(verts) or len(verts) < 3:
-                continue
-            y_vals = [float(v.get('y', 0)) for v in verts]
-            y_min  = min(y_vals)
-            if abs(y_min) < 0.01:
-                continue  # já normalizado
-            for v in verts:
-                v['y'] = float(v.get('y', 0)) - y_min
-            # Após translação, verificar se dimensão é razoável
-            # L-panels podem ter y_max = b + comp2 (ala perpendicular), usar limite 3x
-            y_vals2 = [float(v['y']) for v in verts]
-            y_max2  = max(y_vals2)
-            if y_max2 > viga_b * 3.0:
-                # Provavelmente unidade diferente ou coordenada bugada — resetar
-                p.pop('vertices', None)
-    return segments
-
-
-def _split_legacy_right_l_panels(segments, viga_b):
-    """Upgrade old rich fichas whose right L was stored as one polygon."""
-    for seg in segments:
-        if not isinstance(seg, dict):
-            continue
-        # Segmentos N1 sem topologia explicita devem chegar intactos ao
-        # fallback compute_panels() do motor. Criar ``panels: []`` aqui fazia
-        # draw_viga() entrar no ramo rico vazio e desenhar apenas o nome.
-        if 'panels' not in seg:
-            continue
-        source_panels = seg.get('panels')
-        if not isinstance(source_panels, list) or not source_panels:
-            continue
-        upgraded = []
-        for panel in source_panels:
-            if not isinstance(panel, dict) or panel.get('is_L_drop'):
-                upgraded.append(panel)
-                continue
-            geometry = detect_right_l_panel(panel.get('vertices'), viga_b)
-            if not geometry:
-                upgraded.append(panel)
-                continue
-
-            main_panel = dict(panel)
-            main_panel['width'] = geometry['main_width']
-            main_panel['height'] = float(viga_b)
-            main_panel['is_L_drop'] = False
-            main_panel.pop('vertices', None)
-            tiers = main_panel.get('tiers') or []
-            if tiers and any(
-                abs(sum(float(value) for value in tier) - main_panel['width']) > 1.5
-                for tier in tiers
-            ):
-                main_panel.pop('tiers', None)
-
-            leaf_panel = {
-                'width': geometry['leaf_width'],
-                'height': geometry['leaf_height'],
-                'is_L_drop': True,
-                'l_side': geometry['side'],
-                'l_drop_depth': geometry['drop_depth'],
-                'texts': [],
-            }
-            upgraded.extend((main_panel, leaf_panel))
-        seg['panels'] = upgraded
-    return segments
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--obra', required=True)
     parser.add_argument('--max',  type=int, default=999)
     parser.add_argument('--item', type=str, default=None,
                         help='Gerar só esta viga (ex: V001). Output: FV_preview_V001.dxf')
-    parser.add_argument('--seg_idx', type=int, default=-1,
-                        help='Com --item: gera só o segmento N (0-based). Output: FV_preview_V001_segN.dxf')
-    parser.add_argument('--override_dir', type=str, default=None,
-                        help='Diretório com JSONs override (V*_fundo.json) editados manualmente. '
-                             'Sobrepõe segments_rich do JSON da Fase-4 quando presente.')
-    parser.add_argument('--robot_json', type=str, default=None,
-                        help='Caminho para JSON no formato get_current_data() do robô. '
-                             'Gera DXF preview completo (chanfros, sarrafos, painel L, aberturas) '
-                             'sem precisar de Fase-4 JSON. Requer também --obra e --item.')
-    parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
-                        help='Perfil visual do DXF (padrao: NOVA)')
-    parser.add_argument(
-        '--output-dir', type=str, default=None,
-        help='Diretório isolado para o DXF gerado; não altera o preview da Fase-6.',
-    )
-    parser.add_argument(
-        '--input-dir', type=str, default=None,
-        help='Diretorio isolado com contratos FV N3/N4; substitui JSON_Vigas_Fundo.',
-    )
     args = parser.parse_args()
 
-    # -- Modo robot_json: geração direta a partir dos dados do robô ---------------
-    if args.robot_json:
-        rj_path = Path(args.robot_json)
-        if not rj_path.exists():
-            print(f'[ERRO] robot_json não encontrado: {rj_path}'); return
-        rdata = json.loads(rj_path.read_text(encoding='utf-8'))
-        viga_nome = rdata.get('nome', '') or (args.item or 'V?')
-        viga_dict = robot_dados_to_fv_dict(rdata, viga_nome=viga_nome)
-        if not viga_dict:
-            print('[ERRO] robot_json: dados insuficientes (paineis ou altura zerados)'); return
-
-        obra_path = Path(args.obra)
-        out_dir = (
-            Path(args.output_dir)
-            if args.output_dir
-            else obra_path / 'Fase-6_Execucao_CAD'
-        )
-        out_dir.mkdir(parents=True, exist_ok=True)
-
-        doc = setup_doc()
-        msp = doc.modelspace()
-        x0, y0 = 0.0, 200.0
-        draw_viga(
-            msp, x0, y0,
-            viga_dict['panels'], viga_dict['b'], viga_dict['nome'],
-            obs=viga_dict.get('obs', ''),
-            label_left=viga_dict.get('label_left', 'L Esq'),
-            label_right=viga_dict.get('label_right', 'L Dir'),
-        )
-
-        # Normaliza o nome para FV_preview_V001.dxf
-        m_n = re.search(r'\d+', viga_nome)
-        if m_n:
-            prefix_str = re.sub(r'\d+', '', viga_nome.upper())
-            out_name = f'FV_preview_{prefix_str}{int(m_n.group()):03d}.dxf'
-        else:
-            out_name = f'FV_preview_{viga_nome}.dxf'
-
-        out_path = out_dir / out_name
-        dedupe_panel_lines(msp)
-        apply_visual_mode(doc, args.visual_mode, 'FV')
-        out_path = guarded_saveas(
-            doc, out_path,
-            motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
-        )
-        print(f'[FV] robot_json DXF → {out_path}')
-        return
-
     obra_path = Path(args.obra)
-    fv_dir = (
-        Path(args.input_dir)
-        if args.input_dir
-        else obra_path / 'Fase-4_Sincronizacao' / 'JSON_Vigas_Fundo'
-    )
+    fv_dir    = obra_path / 'Fase-4_Sincronizacao' / 'JSON_Vigas_Fundo'
     vs_path   = obra_path / 'Fase-4_Sincronizacao' / 'vigas_salvas.json'
-    out_dir = (
-        Path(args.output_dir)
-        if args.output_dir
-        else obra_path / 'Fase-6_Execucao_CAD'
-    )
+    out_dir   = obra_path / 'Fase-6_Execucao_CAD'
     out_dir.mkdir(parents=True, exist_ok=True)
 
     vigas_salvas = {}
@@ -1995,7 +726,6 @@ def main():
         print(f'[ERRO] Nenhum V*_fundo.json em {fv_dir}'); return
 
     # -- Load vigas ------------------------------------------------------------
-    override_dir_path = Path(args.override_dir) if args.override_dir else None
     vigas_raw = []
     for f in fv_files:
         try:
@@ -2003,38 +733,15 @@ def main():
         except (json.JSONDecodeError, OSError) as e:
             print(f'[ERRO] JSON inválido ou ilegível: {f.name} — {e}')
             continue
-        # Aplicar override manual se existir
-        if override_dir_path:
-            override_f = override_dir_path / f.name
-            if override_f.exists():
-                try:
-                    d_ov = json.loads(override_f.read_text(encoding='utf-8'))
-                    if 'segments_rich' in d_ov:
-                        d['segments_rich'] = d_ov['segments_rich']
-                    if 'holes' in d_ov:
-                        d['holes'] = d_ov['holes']
-                    if 'label_left' in d_ov:
-                        d['label_left'] = d_ov['label_left']
-                    if 'label_right' in d_ov:
-                        d['label_right'] = d_ov['label_right']
-                    if 'total_width' in d_ov and d_ov['total_width'] > 0:
-                        d['total_width'] = d_ov['total_width']
-                    print(f'[FV] Override aplicado: {override_f.name}')
-                except Exception as _ov_e:
-                    print(f'[FV] Override inválido {override_f.name}: {_ov_e}')
-        vname = normalize_viga_name(
-            re.sub(r'_fundo', '', f.stem, flags=re.IGNORECASE)
-        )
+        vname  = re.sub(r'_fundo', '', f.stem, flags=re.IGNORECASE)
         # Priority: extracted formwork width (total_width), then vigas_salvas
         v_b = d.get('total_width')
         if not v_b or v_b <= 0:
             v_b = vigas_salvas.get(vname, {}).get('b', 14)
         viga_b = float(v_b)
         
-        # Priority: segments_rich -> panels (com normalização de vértices)
+        # Priority: segments_rich -> panels
         panels = d.get('segments_rich', d.get('panels', []))
-        panels = _split_legacy_right_l_panels(panels, viga_b)
-        panels = _normalize_segments_rich(panels, viga_b)
         
         comp   = sum(float(p.get('total_width', p.get('width', 0))) for p in panels)
         if comp > 0 and viga_b > 0:
@@ -2043,17 +750,13 @@ def main():
                 'pillar_left': d.get('pillar_left'),
                 'pillar_right': d.get('pillar_right'),
                 'holes': d.get('holes', []),
-                # 'observations' e uma nota de auditoria do contrato
-                # (ex.: "Fonte: Structural Analyzer N1..."), nao um rotulo
-                # para desenhar na NOMENCLATURA do DXF.
+                'obs': d.get('observations', ''),
                 'label_left': d.get('label_left', 'L Esq'),
                 'label_right': d.get('label_right', 'L Dir'),
             }
             has_row_break = any(isinstance(p, dict) and p.get('row_break') for p in panels)
-            # Em modo --item não limita por MAX_ROW_W (a viga cabe inteira na prancha)
-            _over_max = (comp > MAX_ROW_W) and not args.item
-            should_split = (not args.item) and (_over_max or has_row_break)
-            if should_split and len(panels) > 1:
+            # Quebra se exceder MAX_ROW_W ou se o motor de extração detectou uma quebra de fileira (ex: chanfro em L)
+            if (comp > MAX_ROW_W or has_row_break) and len(panels) > 1:
                 parts = []
                 c_panels, c_holes = [], []
                 c_comp = 0.0
@@ -2061,7 +764,6 @@ def main():
                 holes_list = viga_dict.get('holes', [])
                 active_holes = [h for h in holes_list if h.get('active')]
                 hole_idx = 0
-                part_idx = 0
                 
                 for i, p in enumerate(panels):
                     w = float(p.get('total_width', p.get('width', 0))) if isinstance(p, dict) else float(p)
@@ -2079,20 +781,14 @@ def main():
                     is_break = isinstance(p, dict) and p.get('row_break')
                     
                     # Se estourar o limite OU se o próprio painel pede quebra, e já temos painéis na fileira atual
-                    _exceeds = (c_comp + w > MAX_ROW_W) and not args.item
-                    if (_exceeds or is_break) and c_panels:
-                        nm = viga_dict['nome']
-                        part_name = f"CONT. {nm}" if parts else nm
+                    if (c_comp + w > MAX_ROW_W or is_break) and c_panels:
+                        nm = viga_dict['nome'] if not parts else f"CONT. {viga_dict['nome']}"
                         parts.append({
-                            **viga_dict, 'nome': part_name, 'comp': c_comp,
+                            **viga_dict, 'nome': nm, 'comp': c_comp,
                             'panels': c_panels, 'holes': c_holes,
-                            'label_left': viga_dict.get('label_left') if not parts else (c_holes[-1]['text'] if c_holes else 'L Esq'),
-                            'label_right': 'L Dir',
-                            'parent_b': viga_b,
-                            'parent_comp': comp,
-                            'part_idx': part_idx,
+                            'label_left': viga_dict['label_left'] if not parts else (c_holes[-1]['text'] if c_holes else 'L Esq'),
+                            'label_right': 'L Dir'
                         })
-                        part_idx += 1
                         c_panels, c_holes = [], []
                         c_comp = 0.0
                         
@@ -2102,8 +798,8 @@ def main():
                     if gw > 0:
                         if i + 1 < len(panels):
                             next_w = float(panels[i+1].get('total_width', panels[i+1].get('width', 0))) if isinstance(panels[i+1], dict) else float(panels[i+1])
-                            # Only add the hole if it and the next panel fit in the current row (skip limit for --item)
-                            if args.item or c_comp + gw + next_w <= MAX_ROW_W:
+                            # Only add the hole if it and the next panel fit in the current row
+                            if c_comp + gw + next_w <= MAX_ROW_W:
                                 c_holes.append({
                                     'active': True,
                                     'width': gw,
@@ -2115,22 +811,13 @@ def main():
                     abs_pos += gw
                 
                 if c_panels:
-                    nm = viga_dict['nome']
-                    part_name = f"CONT. {nm}" if parts else nm
+                    nm = viga_dict['nome'] if not parts else f"CONT. {viga_dict['nome']}"
                     parts.append({
-                        **viga_dict, 'nome': part_name, 'comp': c_comp,
-                        'panels': c_panels, 'holes': c_holes,
-                        'label_left': viga_dict.get('label_left') if not parts else (c_holes[-1]['text'] if c_holes else 'L Esq'),
-                        'label_right': viga_dict.get('label_right'),
-                        'parent_b': viga_b,
-                        'parent_comp': comp,
-                        'part_idx': part_idx,
+                        **viga_dict, 'nome': nm, 'comp': c_comp,
+                        'panels': c_panels, 'holes': c_holes
                     })
                 vigas_raw.extend(parts)
             else:
-                viga_dict['parent_b'] = viga_b
-                viga_dict['parent_comp'] = comp
-                viga_dict['part_idx'] = 0
                 vigas_raw.append(viga_dict)
 
     # -- Filtro anti-hallucination: excluir vigas com b dominante ──────────────
@@ -2139,24 +826,6 @@ def main():
     # EXCEÇÃO: se o STOG FV contém todas/maioria das vigas (incluindo b dominante),
     # o filtro não deve ser aplicado.
     vigas = vigas_raw
-
-    # Modo segmento único: --item V301 --seg_idx 2
-    if args.item and args.seg_idx >= 0:
-        if not vigas_raw:
-            print(f'[ERRO] Nenhuma viga encontrada para {args.item}'); return
-        viga = vigas_raw[0]
-        segs = viga['panels']  # já é segments_rich
-        if args.seg_idx >= len(segs):
-            print(f'[ERRO] Segmento {args.seg_idx} não existe em {args.item} (total: {len(segs)})'); return
-        seg = segs[args.seg_idx]
-        viga['panels'] = [seg]
-        viga['holes']  = []
-        viga['comp']   = float(seg.get('total_width', seg.get('width', 0)))
-        viga['label_left']  = ''
-        viga['label_right'] = ''
-        vigas = [viga]
-        print(f'[FV] Modo segmento: {args.item} seg{args.seg_idx} — largura {viga["comp"]:.1f}cm')
-
     if vigas_raw and not args.item:
         from collections import Counter as _Counter
         b_counts = _Counter(round(v['b'], 1) for v in vigas_raw)
@@ -2202,20 +871,13 @@ def main():
             print(f'[FV-FILTER] Apenas 1 valor de b={list(b_counts.keys())[0]}cm — sem filtro.')
 
     # -- Sort and pack into rows -----------------------------------------------
-    # Em modo --item não reordena (preserva ordem original dos segmentos)
-    if not args.item:
-        vigas.sort(key=lambda v: (
-            -v.get('parent_b', v['b']),
-            -v.get('parent_comp', v['comp']),
-            v.get('part_idx', 0),
-        ))
+    vigas.sort(key=lambda v: (-v['b'], -v['comp']))
 
     rows = []
     cur_row, cur_w = [], 0.0
     for v in vigas:
         need = v['comp'] + (GAP_VIGAS if cur_row else 0)
-        # Em modo --item coloca tudo na mesma fileira independente do tamanho
-        if cur_row and cur_w + need > MAX_ROW_W and not args.item:
+        if cur_row and cur_w + need > MAX_ROW_W:
             rows.append(cur_row); cur_row = [v]; cur_w = v['comp']
         else:
             cur_row.append(v); cur_w += need
@@ -2263,17 +925,9 @@ def main():
     # No modo --item, estas camadas invisíveis fora do frame distorcem o
     # bounding-box e invalidam a comparação visual com o N2 recorte.
     if args.item:
-        if args.seg_idx >= 0:
-            out_name = f'FV_preview_{args.item}_seg{args.seg_idx}.dxf'
-        else:
-            out_name = f'FV_preview_{args.item}.dxf'
+        out_name = f'FV_preview_{args.item}.dxf'
         out_dxf  = out_dir / out_name
-        dedupe_panel_lines(msp)
-        apply_visual_mode(doc, args.visual_mode, 'FV')
-        out_dxf = guarded_saveas(
-            doc, out_dxf,
-            motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
-        )
+        doc.saveas(str(out_dxf))
         print(f'\nDXF: {out_dxf}')
         return
 
@@ -2356,8 +1010,7 @@ def main():
     # Layers core — nunca podar (sempre presentes em qualquer FV válido)
     # SARR_EDITAR NÃO está aqui: é condicional (prune correto para obras sem ele)
     _FV_REQUIRED_LAYERS = {
-        'SARR_2.2x7', 'SARR_5cm', 'SARR_CONTORNO_10cm',
-        'NOMENCLATURA', 'Painéis', 'PAINEIS',
+        'SARR_2.2x7', 'NOMENCLATURA', 'Painéis', 'PAINEIS',
         'COTA', '5', 'REAPROVEITAMENTO',
     }
     if _stog_layers_ref:
@@ -2428,12 +1081,7 @@ def main():
 
     out_name = 'FV_stog_quality.dxf'
     out_dxf = out_dir / out_name
-    dedupe_panel_lines(msp)
-    apply_visual_mode(doc, args.visual_mode, 'FV')
-    out_dxf = guarded_saveas(
-        doc, out_dxf,
-        motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
-    )
+    doc.saveas(str(out_dxf))
     print(f'\nDXF: {out_dxf}')
 
     # -- PNG preview -----------------------------------------------------------

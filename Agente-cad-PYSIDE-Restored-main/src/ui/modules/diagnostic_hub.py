@@ -8,14 +8,14 @@ from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QFrame,
                                QButtonGroup, QLabel, QMessageBox, QPushButton,
                                QScrollArea, QCheckBox, QProgressBar, QSizePolicy,
                                QComboBox, QTabWidget, QListWidget, QListWidgetItem,
-                               QSplitter, QAbstractItemView,
+                               QSplitter,
                                QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem)
 from PySide6.QtCore import QThread, Signal, QProcess, Qt, QTimer, QObject
 from src.ui.components.organisms import DiagnosticSidebar, TechSheetPanel
 from src.ui.canvas import CADCanvas
 from src.core.dxf_loader import RenderMode
 from src.core.services.data_coordinator import get_coordinator
-from src.ui.theme import Colors, Fonts, Radius, Semantic, Contextual, Text, Border, Surface, Accent
+from src.ui.theme import Colors, Fonts, Radius
 from src.core.services.fase4_importer import Fase4Importer
 
 # Raiz base das obras
@@ -72,7 +72,7 @@ class _DXFRenderProxy(QObject):
             canvas.add_dxf_entities(
                 entities,
                 render_mode=dd.get('render_mode', self._render_mode),
-                compute_snaps=False, source_dxf_path=dd.get('source_path'),
+                compute_snaps=False,
                 progress_callback=lambda pct: canvas.update_loading_progress(pct, "Renderizando"),
             )
             print(f"[DiagnosticHub] on_loaded: render concluído", flush=True)
@@ -174,7 +174,6 @@ class PreProcessAllWorker(QThread):
                 process_slab_intelligent,
                 correlate_sides_data,
                 run_sanity_checks,
-                retry_hallucinated_niveis,
             )
         except Exception as exc:
             self.error.emit(f"Erro ao importar motores Fase-3: {exc}")
@@ -252,7 +251,6 @@ class PreProcessAllWorker(QThread):
 
             pav_status   = "ok"
             pav_niveis: list = []
-            pav_laje_niveis: list = []   # [{name, nivel_str}] — para Convenção de Níveis
             # Acumula todos os itens do pavimento (agregação cross-torre para sides_data)
             pav_pilares: list = []
             pav_vigas:   list = []
@@ -320,12 +318,9 @@ class PreProcessAllWorker(QThread):
                     for s in raw_lajes:
                         process_slab_intelligent(s, texts)
                         lv = s.get('fields', {}).get('laje_nivel') or s.get('level') or s.get('nivel')
-                        laje_name = s.get('name') or ''
                         if lv:
-                            lv_str = str(lv).strip()
-                            pav_laje_niveis.append({'name': laje_name, 'nivel_str': lv_str})
                             try:
-                                pav_niveis.append(float(lv_str.replace(',', '.').replace('+', '')))
+                                pav_niveis.append(float(str(lv).replace(',', '.').replace('+', '')))
                             except Exception:
                                 pass
                     torre_lajes = raw_lajes
@@ -377,54 +372,8 @@ class PreProcessAllWorker(QThread):
                 project_id = _get_or_create_project_id(self.obra_name, pav_name)
                 _save_batch(project_id, pav_pilares, pav_vigas, pav_lajes)
 
-            # ── Retry anti-alucinação de niveis ──────────────────────────────
-            # Detecta outliers e tenta revinculá-los a candidatos alternativos
-            # (até 2 tentativas) antes de reportar como suspeito.
-            try:
-                retry_hallucinated_niveis(pav_lajes)
-                # Reconstrói pav_laje_niveis com os valores corrigidos
-                pav_laje_niveis = []
-                pav_niveis = []
-                for s in pav_lajes:
-                    lv = (s.get('fields', {}).get('laje_nivel')
-                          or s.get('level') or s.get('nivel'))
-                    laje_name = s.get('name') or ''
-                    if lv:
-                        lv_str = str(lv).strip()
-                        pav_laje_niveis.append({'name': laje_name, 'nivel_str': lv_str})
-                        try:
-                            pav_niveis.append(
-                                float(lv_str.replace(',', '.').replace('+', '')))
-                        except Exception:
-                            pass
-            except Exception:
-                pass
-
             # ── Pavimento aggregate ───────────────────────────────────────────
             niveis_s = sorted(set(pav_niveis))
-            # Deduplica laje_niveis
-            seen_lj: set = set()
-            laje_niveis_dedup: list = []
-            for entry in pav_laje_niveis:
-                k = entry.get('name', '')
-                if k and k not in seen_lj:
-                    seen_lj.add(k)
-                    laje_niveis_dedup.append(entry)
-
-            # Coleta viga_niveis: nivel_lado_a / nivel_lado_b por viga (se não-zero)
-            seen_vg: set = set()
-            viga_niveis_dedup: list = []
-            for viga in pav_vigas:
-                vname = viga.get('name') or ''
-                if not vname or vname in seen_vg:
-                    continue
-                for field_key in ('nivel_lado_a', 'nivel_lado_b', 'nivel_oposto_a', 'nivel_oposto_b'):
-                    val = viga.get('fields', {}).get(field_key)
-                    if val and val != 0:
-                        viga_niveis_dedup.append({'name': vname, 'nivel_str': str(val)})
-                        seen_vg.add(vname)
-                        break
-
             ficha_pavs.append({
                 'nome':                pav_name,
                 'n_pilares':           len(pav_pilares),
@@ -433,9 +382,6 @@ class PreProcessAllWorker(QThread):
                 'nivel_chegada':       niveis_s[0]  if niveis_s          else 0,
                 'nivel_saida':         niveis_s[-1] if len(niveis_s) > 1 else (niveis_s[0] if niveis_s else 0),
                 'lajes_nivel_distinto': len(niveis_s) > 1,
-                'laje_niveis':         laje_niveis_dedup,
-                'pilar_niveis':        [],   # SA não extrai nivel por pilar; preenchido via nivel_report no dialog
-                'viga_niveis':         viga_niveis_dedup,
                 'status':              pav_status,
                 'torres_count':        len(pav_list),
                 'analysis_mode':        self.analysis_mode,
@@ -637,7 +583,7 @@ class RagPipelineWorker(QThread):
         try:
             import sys
             from pathlib import Path
-            _ROOT = Path(__file__).resolve().parents[4]
+            _ROOT = Path(__file__).resolve().parent.parent.parent.parent
             if str(_ROOT) not in sys.path:
                 sys.path.insert(0, str(_ROOT))
 
@@ -733,8 +679,7 @@ class DiagnosticHubModule(QWidget):
     def _build_left_panel(self) -> QFrame:
         """Painel esquerdo: ComboBox de obra + lista de brutos aprovados."""
         panel = QFrame()
-        panel.setMinimumWidth(200)
-        panel.setMaximumWidth(350)
+        panel.setFixedWidth(250)
         panel.setStyleSheet(f"""
             QFrame {{
                 background: {Colors.BG_SECONDARY};
@@ -742,8 +687,8 @@ class DiagnosticHubModule(QWidget):
             }}
         """)
         vlay = QVBoxLayout(panel)
-        vlay.setContentsMargins(4, 4, 4, 4)
-        vlay.setSpacing(4)
+        vlay.setContentsMargins(8, 8, 8, 8)
+        vlay.setSpacing(6)
 
         # Title
         lbl_title = QLabel("✂ Diagnostic Hub")
@@ -755,19 +700,19 @@ class DiagnosticHubModule(QWidget):
 
         # Obra ComboBox
         lbl_obra = QLabel("Obra:")
-        lbl_obra.setStyleSheet(f"color: white; font-size: 11px; background: transparent;")
+        lbl_obra.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;")
         vlay.addWidget(lbl_obra)
 
         self._combo_obra = QComboBox()
         self._combo_obra.setStyleSheet(f"""
             QComboBox {{
-                background: {Colors.BG_DEEP}; color: white;
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px 8px; font-size: 11px;
             }}
             QComboBox::drop-down {{ border: none; }}
             QComboBox QAbstractItemView {{
-                background: {Colors.BG_DEEP}; color: white;
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
                 selection-background-color: {Colors.ACCENT_TEAL};
             }}
         """)
@@ -783,7 +728,7 @@ class DiagnosticHubModule(QWidget):
         # Brutos aprovados label
         self._lbl_brutos_count = QLabel("Brutos aprovados:")
         self._lbl_brutos_count.setStyleSheet(
-            f"color: white; font-size: 11px; background: transparent;"
+            f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;"
         )
         vlay.addWidget(self._lbl_brutos_count)
 
@@ -791,7 +736,7 @@ class DiagnosticHubModule(QWidget):
         self._list_brutos = QListWidget()
         self._list_brutos.setStyleSheet(f"""
             QListWidget {{
-                background: {Colors.BG_DEEP}; color: white;
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 font-size: 11px;
             }}
@@ -804,36 +749,18 @@ class DiagnosticHubModule(QWidget):
         self._list_brutos.itemClicked.connect(self._on_bruto_selected)
         vlay.addWidget(self._list_brutos, 1)
 
-        btn_layout = QVBoxLayout()
-        btn_layout.setSpacing(4)
-
-        # Abrir DXF button
-        btn_abrir_dxf = QPushButton("📂 Abrir")
-        btn_abrir_dxf.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: {Colors.BG_CARD}; color: white;
-                border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
-                padding: 4px; font-size: 11px;
-            }}
-            QPushButton:hover {{ color: white; }}
-        """)
-        btn_abrir_dxf.clicked.connect(self._abrir_dxf_bruto)
-        btn_layout.addWidget(btn_abrir_dxf)
-
         # Refresh button
         btn_refresh = QPushButton("↻ Atualizar")
         btn_refresh.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: {Colors.BG_CARD}; color: white;
+            QPushButton {{
+                background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 padding: 4px; font-size: 11px;
             }}
-            QPushButton:hover {{ color: white; }}
+            QPushButton:hover {{ color: {Colors.TEXT_PRIMARY}; }}
         """)
         btn_refresh.clicked.connect(self._populate_obras_combo)
-        btn_layout.addWidget(btn_refresh)
-
-        vlay.addLayout(btn_layout)
+        vlay.addWidget(btn_refresh)
 
         return panel
 
@@ -852,19 +779,19 @@ class DiagnosticHubModule(QWidget):
         self._canvas_tabs = QTabWidget()
         self._canvas_tabs.setStyleSheet(f"""
             QTabWidget::pane {{
-                border: none; background: {Colors.BG_CARD};
+                border: none; background: {Colors.BG_DEEP};
             }}
             QTabBar::tab {{
-                background: {Colors.BG_SECONDARY}; color: white;
+                background: {Colors.BG_SECONDARY}; color: {Colors.TEXT_SECONDARY};
                 padding: 6px 18px; border: 1px solid {Colors.BORDER_DEFAULT};
                 border-bottom: none; border-radius: 4px 4px 0 0;
                 font-size: 11px; font-weight: bold;
             }}
             QTabBar::tab:selected {{
-                background: {Colors.BG_CARD}; color: {Colors.ACCENT_TEAL};
+                background: {Colors.BG_DEEP}; color: {Colors.ACCENT_TEAL};
                 border-color: {Colors.ACCENT_TEAL};
             }}
-            QTabBar::tab:hover {{ color: white; }}
+            QTabBar::tab:hover {{ color: {Colors.TEXT_PRIMARY}; }}
         """)
         self._canvas_tabs.currentChanged.connect(self._on_canvas_tab_changed)
 
@@ -896,22 +823,16 @@ class DiagnosticHubModule(QWidget):
         self._ficha_tab_widget = self._build_ficha_tab()
         self._canvas_tabs.addTab(self._ficha_tab_widget, "📋 Ficha Pré-Pavimentos/Detalhes [F2]")
         self._canvas_tabs.tabBar().setTabTextColor(
-            3, __import__('PySide6.QtGui', fromlist=['QColor']).QColor(Contextual.GOLD)
+            3, __import__('PySide6.QtGui', fromlist=['QColor']).QColor('#e6b400')
         )
 
         # Tab 4 - FICHA GLOBAL [F3]
         self._ficha_f3_tab_widget = self._build_ficha_f3_tab()
         self._canvas_tabs.addTab(self._ficha_f3_tab_widget, "📋 Ficha Global [F3]")
         self._canvas_tabs.tabBar().setTabTextColor(
-            4, __import__('PySide6.QtGui', fromlist=['QColor']).QColor(Contextual.PURPLE)
+            4, __import__('PySide6.QtGui', fromlist=['QColor']).QColor('#b450c8')
         )
 
-        # Tab 5 - CONVENÇÃO DE NÍVEIS
-        self._niveis_tab_widget = self._build_niveis_tab_widget()
-        self._canvas_tabs.addTab(self._niveis_tab_widget, "📏 Convenção de Níveis")
-        self._canvas_tabs.tabBar().setTabTextColor(
-            5, __import__('PySide6.QtGui', fromlist=['QColor']).QColor(Colors.ACCENT_SUCCESS_ALT)
-        )
 
         vlay.addWidget(self._canvas_tabs, 1)
 
@@ -928,12 +849,12 @@ class DiagnosticHubModule(QWidget):
             btn = QPushButton(f"Modo {i}")
             btn.setFixedWidth(70)
             btn.setStyleSheet(f"""
-                QPushButton {{ color: white;
-                    background: {Colors.BG_CARD}; color: white;
+                QPushButton {{
+                    background: {Colors.BG_CARD}; color: {Colors.TEXT_SECONDARY};
                     border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 3px;
                     font-size: 10px; padding: 2px 6px;
                 }}
-                QPushButton:hover {{ color: white; }}
+                QPushButton:hover {{ color: {Colors.TEXT_PRIMARY}; }}
             """)
             btn.clicked.connect(lambda checked, idx=i: self._on_style_changed(idx))
             tb_layout.addWidget(btn)
@@ -951,18 +872,9 @@ class DiagnosticHubModule(QWidget):
         # Status do crop atual
         self._lbl_crop_info = QLabel("")
         self._lbl_crop_info.setStyleSheet(
-            f"color: white; font-size: 10px; background: transparent;"
+            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
         )
         tb_layout.addWidget(self._lbl_crop_info)
-
-        # Código público (App de Consulta) do pavimento selecionado — só
-        # aparece pra obras Drive já publicadas [2026-07-13].
-        self._lbl_code_publico_pavimento = QLabel("")
-        self._lbl_code_publico_pavimento.setStyleSheet(
-            f"color: {Colors.TEXT_MUTED}; font-size: 10px; background: transparent; margin-left: 8px;"
-        )
-        self._lbl_code_publico_pavimento.setVisible(False)
-        tb_layout.addWidget(self._lbl_code_publico_pavimento)
 
         tb_layout.addStretch()
         vlay.addWidget(style_toolbar)
@@ -976,8 +888,7 @@ class DiagnosticHubModule(QWidget):
     def _build_right_panel(self) -> QFrame:
         """Painel direito: lista de recortes + ferramentas de crop."""
         panel = QFrame()
-        panel.setMinimumWidth(200)
-        panel.setMaximumWidth(350)
+        panel.setFixedWidth(260)
         panel.setStyleSheet(f"""
             QFrame {{
                 background: {Colors.BG_SECONDARY};
@@ -985,8 +896,8 @@ class DiagnosticHubModule(QWidget):
             }}
         """)
         vlay = QVBoxLayout(panel)
-        vlay.setContentsMargins(4, 4, 4, 4)
-        vlay.setSpacing(4)
+        vlay.setContentsMargins(8, 8, 8, 8)
+        vlay.setSpacing(6)
 
         # Title
         lbl_title = QLabel("Recortes do Pavimento")
@@ -1000,7 +911,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_recortes_status = QLabel("Selecione um bruto")
         self._lbl_recortes_status.setWordWrap(True)
         self._lbl_recortes_status.setStyleSheet(
-            f"color: white; font-size: 10px; background: transparent;"
+            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
         )
         vlay.addWidget(self._lbl_recortes_status)
 
@@ -1012,13 +923,13 @@ class DiagnosticHubModule(QWidget):
             "a área desejada antes de clicar."
         )
         self._btn_manual_crop.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(180, 120, 0, 160); color: white;
+            QPushButton {{
+                background: rgba(180, 120, 0, 38); color: {Colors.ACCENT_WARNING};
                 border: 1px solid {Colors.ACCENT_WARNING}; border-radius: 4px;
-                font-size: 11px; font-weight: bold; padding: 3px 6px;
+                font-size: 11px; font-weight: bold; padding: 5px 10px;
             }}
-            QPushButton:hover {{ background: rgba(180, 120, 0, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:hover {{ background: rgba(180, 120, 0, 71); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_manual_crop.setEnabled(False)
         self._btn_manual_crop.clicked.connect(self._run_manual_crop)
@@ -1031,13 +942,13 @@ class DiagnosticHubModule(QWidget):
             "Selecione a área desejada no viewer com o mouse e clique aqui."
         )
         self._btn_selection_crop.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(120, 60, 180, 160); color: white;
-                border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
-                font-size: 11px; font-weight: bold; padding: 3px 6px;
+            QPushButton {{
+                background: rgba(120, 60, 180, 38); color: #c08aff;
+                border: 1px solid #c08aff; border-radius: 4px;
+                font-size: 11px; font-weight: bold; padding: 5px 10px;
             }}
-            QPushButton:hover {{ background: rgba(120, 60, 180, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:hover {{ background: rgba(120, 60, 180, 71); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_selection_crop.setEnabled(False)
         self._btn_selection_crop.clicked.connect(self._run_selection_crop)
@@ -1046,33 +957,17 @@ class DiagnosticHubModule(QWidget):
         # Botão processar automático
         self._btn_process_crops = QPushButton("⚙ Processar Auto")
         self._btn_process_crops.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(0, 180, 180, 160); color: white;
+            QPushButton {{
+                background: rgba(0, 180, 180, 38); color: {Colors.ACCENT_TEAL};
                 border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
-                font-size: 11px; font-weight: bold; padding: 3px 6px;
+                font-size: 11px; font-weight: bold; padding: 5px 10px;
             }}
-            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:hover {{ background: rgba(0, 180, 180, 71); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_crops.setEnabled(False)
         self._btn_process_crops.clicked.connect(self._run_crop_engine)
         vlay.addWidget(self._btn_process_crops)
-
-        # Botão processar ALL
-        self._btn_process_all_crops = QPushButton("⚡ Processar Todos Pav. Auto")
-        self._btn_process_all_crops.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(0, 180, 180, 160); color: white;
-                border: 1px solid {Colors.ACCENT_TEAL}; border-radius: 4px;
-                font-size: 11px; font-weight: bold; padding: 3px 6px;
-            }}
-            QPushButton:hover {{ background: rgba(0, 180, 180, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
-        """)
-        self._btn_process_all_crops.setEnabled(False)
-        self._btn_process_all_crops.clicked.connect(self._run_crop_engine_all)
-        vlay.addWidget(self._btn_process_all_crops)
-
 
         # Progress bar
         self._crop_progress = QProgressBar()
@@ -1100,14 +995,14 @@ class DiagnosticHubModule(QWidget):
         # Lista de recortes
         lbl_lista = QLabel("Recortes detectados:")
         lbl_lista.setStyleSheet(
-            f"color: white; font-size: 10px; background: transparent;"
+            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
         )
         vlay.addWidget(lbl_lista)
 
         self._list_recortes = QListWidget()
         self._list_recortes.setStyleSheet(f"""
             QListWidget {{
-                background: {Colors.BG_DEEP}; color: white;
+                background: {Colors.BG_DEEP}; color: {Colors.TEXT_PRIMARY};
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;
                 font-size: 10px;
             }}
@@ -1126,13 +1021,13 @@ class DiagnosticHubModule(QWidget):
             "Use para persistir edições feitas no viewer antes de aprovar."
         )
         self._btn_save_crop.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(80, 80, 220, 160); color: white;
-                border: 1px solid {Accent.INTERACTIVE_HOVER}; border-radius: 4px;
+            QPushButton {{
+                background: rgba(80, 80, 220, 31); color: #8888ff;
+                border: 1px solid #8888ff; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(80, 80, 220, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:hover {{ background: rgba(80, 80, 220, 71); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_save_crop.setEnabled(False)
         self._btn_save_crop.clicked.connect(self._save_current_crop)
@@ -1140,36 +1035,32 @@ class DiagnosticHubModule(QWidget):
         # ── Radio buttons de classificação do recorte ──────────────────────────
         lbl_class = QLabel("Classificar recorte:")
         lbl_class.setStyleSheet(
-            f"color: white; font-size: 10px; background: transparent;"
+            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
         )
         vlay.addWidget(lbl_class)
 
         _CROP_CLASSES = [
-            # (cls_id, label, color, row_index)
-            ("detalhe",           "Detalhe",     Contextual.PURPLE,             0),
-            ("torre",             "Torre 1",     Colors.ACCENT_TEAL,            0),
-            ("torre_2",           "Torre 2",     Accent.PRIMARY,                0),
-            ("convencao_pilares", "Conv. Pil.",  Contextual.GOLD,               1),
-            ("convencao_niveis",  "Conv. Nív.",  Colors.ACCENT_SUCCESS_ALT,     1),
-            ("outro",             "Outro",       Colors.TEXT_SECONDARY,         1),
+            ("detalhe",  "Detalhe",  "#aa88ff"),
+            ("torre",    "Torre 1",  Colors.ACCENT_TEAL),
+            ("torre_2",  "Torre 2",  "#44bbdd"),
+            ("outro",    "Outro",    Colors.TEXT_SECONDARY),
         ]
 
         self._crop_class_group = QButtonGroup(self)
         self._crop_class_group.setExclusive(True)
-        class_rows = [QHBoxLayout(), QHBoxLayout()]
-        for r in class_rows:
-            r.setSpacing(4)
+        class_row = QHBoxLayout()
+        class_row.setSpacing(4)
         self._crop_class_btns: dict[str, QPushButton] = {}
 
-        for cls_id, cls_label, cls_color, row_i in _CROP_CLASSES:
+        for cls_id, cls_label, cls_color in _CROP_CLASSES:
             btn = QPushButton(cls_label)
             btn.setCheckable(True)
             btn.setEnabled(False)
             btn.setFixedHeight(24)
             btn.setStyleSheet(f"""
-                QPushButton {{ color: white;
-                    background: {cls_color};
-                    color: white;
+                QPushButton {{
+                    background: transparent;
+                    color: {cls_color};
                     border: 1px solid {cls_color};
                     border-radius: 12px;
                     font-size: 9px; font-weight: bold;
@@ -1177,20 +1068,19 @@ class DiagnosticHubModule(QWidget):
                 }}
                 QPushButton:checked {{
                     background: {cls_color};
-                    color: {Surface.DEEP};
+                    color: #111;
                 }}
-                QPushButton:hover:!checked {{ background: rgba(255, 255, 255, 30); }}
+                QPushButton:hover:!checked {{ background: rgba(255, 255, 255, 18); }}
                 QPushButton:disabled {{
-                    color: white;
+                    color: {Colors.TEXT_DIM};
                     border-color: {Colors.TEXT_DIM};
                 }}
             """)
             self._crop_class_group.addButton(btn)
             self._crop_class_btns[cls_id] = btn
-            class_rows[row_i].addWidget(btn)
+            class_row.addWidget(btn)
 
-        for r in class_rows:
-            vlay.addLayout(r)
+        vlay.addLayout(class_row)
 
         # Conectar via QButtonGroup.buttonClicked — dispara 1x por clique do usuário,
         # NÃO dispara por setChecked() programático.
@@ -1206,13 +1096,13 @@ class DiagnosticHubModule(QWidget):
 
         self._btn_approve_crop = QPushButton("✓ Aprovar")
         self._btn_approve_crop.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(0, 200, 120, 160); color: white;
+            QPushButton {{
+                background: rgba(0, 200, 120, 31); color: {Colors.ACCENT_SUCCESS_ALT};
                 border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(0, 200, 120, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:hover {{ background: rgba(0, 200, 120, 71); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_approve_crop.setEnabled(False)
         self._btn_approve_crop.clicked.connect(self._approve_current_crop)
@@ -1224,13 +1114,13 @@ class DiagnosticHubModule(QWidget):
             "recorte manual com '✂ Recortar', edite, salve e aprove."
         )
         self._btn_delete_crop.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(255, 80, 80, 160); color: white;
+            QPushButton {{
+                background: rgba(255, 80, 80, 26); color: {Colors.ACCENT_DANGER};
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; font-weight: bold; padding: 4px 8px;
             }}
-            QPushButton:hover {{ background: rgba(255, 80, 80, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:hover {{ background: rgba(255, 80, 80, 64); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_delete_crop.setEnabled(False)
         self._btn_delete_crop.clicked.connect(self._delete_current_crop)
@@ -1252,13 +1142,13 @@ class DiagnosticHubModule(QWidget):
             "Preenche a pré-ficha de pavimento de forma complementar."
         )
         self._btn_process_limpo.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(180, 80, 200, 160); color: white;
+            QPushButton {{
+                background: rgba(180, 80, 200, 31); color: {Colors.ACCENT_PURPLE};
                 border: 1px solid {Colors.ACCENT_PURPLE}; border-radius: 4px;
                 font-size: 11px; font-weight: bold; padding: 5px 8px;
             }}
-            QPushButton:hover {{ background: rgba(180, 80, 200, 230); }}
-            QPushButton:disabled {{ color: white; border-color: {Colors.TEXT_DIM}; }}
+            QPushButton:hover {{ background: rgba(180, 80, 200, 64); }}
+            QPushButton:disabled {{ color: {Colors.TEXT_DIM}; border-color: {Colors.TEXT_DIM}; }}
         """)
         self._btn_process_limpo.setEnabled(False)
         self._btn_process_limpo.clicked.connect(lambda: self._run_pre_process_all("baseline"))
@@ -1280,13 +1170,13 @@ class DiagnosticHubModule(QWidget):
             "Aciona o motor de compreensão global que analisa todas as fichas granulares N2 "
             "e produz a visão coesa da Ficha Global da Obra (F3)."
         )
-        self._btn_process_f3.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(180, 80, 200, 160); color: white;
-                border: 1px solid {Contextual.PURPLE}; border-radius: 4px;
+        self._btn_process_f3.setStyleSheet("""
+            QPushButton {
+                background: rgba(180, 80, 200, 31); color: #b450c8;
+                border: 1px solid #b450c8; border-radius: 4px;
                 padding: 4px; font-weight: bold; font-size: 11px;
-            }}
-            QPushButton:hover {{ background: rgba(180, 80, 200, 230); }}
+            }
+            QPushButton:hover { background: rgba(180, 80, 200, 64); }
         """)
         self._btn_process_f3.setEnabled(False)
         self._btn_process_f3.clicked.connect(self._run_process_f3)
@@ -1295,12 +1185,12 @@ class DiagnosticHubModule(QWidget):
         # Botão cancelar (oculto até processamento iniciar)
         self._btn_cancel_preprocess = QPushButton("⏹ Cancelar")
         self._btn_cancel_preprocess.setStyleSheet(f"""
-            QPushButton {{ color: white;
-                background: rgba(220, 50, 50, 160); color: white;
+            QPushButton {{
+                background: rgba(220, 50, 50, 31); color: {Colors.ACCENT_DANGER};
                 border: 1px solid {Colors.ACCENT_DANGER}; border-radius: 4px;
                 font-size: 10px; padding: 3px 8px;
             }}
-            QPushButton:hover {{ background: rgba(220, 50, 50, 230); }}
+            QPushButton:hover {{ background: rgba(220, 50, 50, 64); }}
         """)
         self._btn_cancel_preprocess.setVisible(False)
         self._btn_cancel_preprocess.clicked.connect(self._cancel_pre_process)
@@ -1311,7 +1201,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_preprocess_feedback.setWordWrap(True)
         self._lbl_preprocess_feedback.setStyleSheet(f"""
             color: {Colors.TEXT_DIM}; font-size: 10px;
-            background: rgba(0, 0, 0, 46); border: 1px solid {Border.SUBTLE};
+            background: rgba(0, 0, 0, 46); border: 1px solid #2a2f3d;
             border-radius: 4px; padding: 5px 8px;
         """)
         vlay.addWidget(self._lbl_preprocess_feedback)
@@ -1337,7 +1227,7 @@ class DiagnosticHubModule(QWidget):
         self._lbl_rag_feedback.setWordWrap(True)
         self._lbl_rag_feedback.setStyleSheet(f"""
             color: {Colors.TEXT_DIM}; font-size: 10px;
-            background: rgba(0, 0, 0, 46); border: 1px solid {Border.SUBTLE};
+            background: rgba(0, 0, 0, 46); border: 1px solid #2a2f3d;
             border-radius: 4px; padding: 5px 8px;
         """)
         vlay.addWidget(self._lbl_rag_feedback)
@@ -1356,16 +1246,10 @@ class DiagnosticHubModule(QWidget):
     # ─────────────────────────────────────────────
 
     def _populate_obras_combo(self):
-        """Popula o ComboBox de obras com as obras que têm brutos aprovados,
-        MAIS todas as obras do portal (Masterplan OBRAS DRIVE) — mesmo as que
-        ainda não foram espelhadas nenhuma vez (0 cliques em Gerenciar
-        Projetos). Selecionar uma obra Drive ainda não espelhada dispara o
-        espelhamento na hora (`_on_obra_selected`). UI compartilhada com os
-        demais comboboxes de obra da app (SA, Comparison Engine, Reverse
-        Hub) via `src/ui/drive_obras_combo.py`."""
+        """Popula o ComboBox de obras com as obras que têm brutos aprovados."""
         import sqlite3
         DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
-        obras_locais = []
+        obras = []
         try:
             conn = sqlite3.connect(str(DB))
             cur = conn.execute(
@@ -1373,24 +1257,33 @@ class DiagnosticHubModule(QWidget):
                 " WHERE status='approved' AND suggested_category LIKE '%Bruto%'"
                 " ORDER BY obra_name"
             )
-            obras_locais = [r[0] for r in cur.fetchall()]
+            obras = [r[0] for r in cur.fetchall()]
             conn.close()
         except Exception:
             pass
 
+        # Also list obras from filesystem if not in DB
         try:
             obras_root = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
-            for d in obras_root.iterdir():
-                if d.is_dir() and d.name not in obras_locais:
-                    obras_locais.append(d.name)
+            fs_obras = [d.name for d in obras_root.iterdir() if d.is_dir()]
+            for o in fs_obras:
+                if o not in obras:
+                    obras.append(o)
+            obras.sort()
         except Exception:
             pass
 
-        from src.ui.drive_obras_combo import popular_combo_obras_com_drive
-
-        self._drive_obras_portal_por_nome_local = popular_combo_obras_com_drive(
-            self._combo_obra, self, obras_locais
-        )
+        self._combo_obra.blockSignals(True)
+        current = self._combo_obra.currentText()
+        self._combo_obra.clear()
+        self._combo_obra.addItem("— Selecione uma obra —")
+        for o in obras:
+            self._combo_obra.addItem(o)
+        # Restore selection
+        idx = self._combo_obra.findText(current)
+        if idx >= 0:
+            self._combo_obra.setCurrentIndex(idx)
+        self._combo_obra.blockSignals(False)
 
         # If coordinator has a work active, select it
         if self.coordinator:
@@ -1401,23 +1294,13 @@ class DiagnosticHubModule(QWidget):
                     self._combo_obra.setCurrentIndex(idx)
 
     def _on_obra_selected(self, obra_name: str):
-        """Atualiza lista de brutos ao selecionar obra no ComboBox.
-
-        Masterplan OBRAS DRIVE: se `obra_name` for uma obra do portal (mesmo
-        que nunca tenha sido aberta antes em Gerenciar Projetos), (re)espelha
-        na hora — idempotente, sempre pega o estado mais recente do portal
-        (novos brutos/itens que a equipe subiu desde a última vez)."""
+        """Atualiza lista de brutos ao selecionar obra no ComboBox."""
         if not obra_name or obra_name.startswith("—"):
             self._list_brutos.clear()
             self._lbl_brutos_count.setText("Brutos aprovados:")
             self._current_obra = None
             self._set_preprocess_buttons_enabled(False)
             return
-
-        from src.ui.drive_obras_combo import espelhar_se_necessario
-
-        espelhar_se_necessario(self.db, obra_name, getattr(self, "_drive_obras_portal_por_nome_local", {}))
-
         self._current_obra = obra_name
         self._refresh_brutos_list(obra_name)
         self._set_preprocess_buttons_enabled(True)
@@ -1450,27 +1333,6 @@ class DiagnosticHubModule(QWidget):
             pass
 
         self._list_brutos.clear()
-
-        # Batch pre-fetch de status dos recortes para a obra (1 única consulta ao invés de N x N no loop)
-        recortes_stats = {}
-        try:
-            conn = sqlite3.connect(str(DB))
-            cur = conn.execute(
-                "SELECT dxf_bruto_path, status FROM obra_recortes WHERE obra_name=?",
-                (obra_name,)
-            )
-            for r_path, r_status in cur.fetchall():
-                if r_path:
-                    for row in rows:
-                        fn = row.get('file_name', '')
-                        if fn and fn in r_path:
-                            stat = recortes_stats.setdefault(fn, [0, 0])
-                            stat[0] += 1
-                            if r_status == 'approved':
-                                stat[1] += 1
-            conn.close()
-        except Exception:
-            pass
         
         # Agrupar por classe do pavimento
         from PySide6.QtGui import QColor, QFont
@@ -1490,7 +1352,7 @@ class DiagnosticHubModule(QWidget):
                 fname = row.get('file_name', '').upper()
                 m_pav = re.search(r'(\d{1,2})\s*(?:PAV|PV|P)(?:\b|[-_])', fname)
                 if m_pav:
-                    cls = f"{int(m_pav.group(1))}º PAV"
+                    cls = f"{int(m_pav.group(1))}Âº PAV"
                 if '-TER-' in fname or 'TERREO' in fname: cls = 'TÉRREO'
                 elif '-TIP-' in fname or 'TIPO' in fname: cls = 'TIPO'
                 elif '-COB-' in fname or 'COBER' in fname: cls = 'COBERTURA'
@@ -1510,23 +1372,13 @@ class DiagnosticHubModule(QWidget):
             font = QFont()
             font.setBold(True)
             header.setFont(font)
-            header.setForeground(QColor(Semantic.SUCCESS))
+            header.setForeground(QColor("#00ff9d"))
             self._list_brutos.addItem(header)
             
             for row in items:
                 item = QListWidgetItem(row['file_name'])
                 item.setData(Qt.UserRole, row)
-                fn = row['file_name']
-                if fn in recortes_stats:
-                    tot, app = recortes_stats[fn]
-                    if not tot:
-                        status_icon = "⬜"
-                    elif app >= tot:
-                        status_icon = "✅"
-                    else:
-                        status_icon = "🔶"
-                else:
-                    status_icon = self._get_recorte_icon(obra_name, fn)
+                status_icon = self._get_recorte_icon(obra_name, row['file_name'])
                 item.setText(f"{status_icon} {row['file_name']}")
                 self._list_brutos.addItem(item)
 
@@ -1554,102 +1406,6 @@ class DiagnosticHubModule(QWidget):
         except Exception:
             return "⬜"
 
-    def _abrir_dxf_bruto(self):
-        item = self._list_brutos.currentItem()
-        if not item:
-            from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Aviso", "Nenhum item selecionado.")
-            return
-        row_data = item.data(Qt.UserRole)
-        if not row_data:
-            return
-        raw_path = row_data.get('file_path', '')
-        if raw_path:
-            self._garantir_drive_download(raw_path)
-        resolved = self._resolve_dxf_path(raw_path) if raw_path else None
-        if resolved and resolved.exists():
-            import os
-            try:
-                os.startfile(str(resolved))
-            except Exception as e:
-                from PySide6.QtWidgets import QMessageBox
-                QMessageBox.warning(self, "Erro", f"Não foi possível abrir o arquivo: {e}")
-        else:
-            from PySide6.QtWidgets import QMessageBox
-            QMessageBox.warning(self, "Erro", "Arquivo não encontrado.")
-
-    def _pavimento_da_notes(self, row_data: dict):
-        """Extrai o token de pavimento (`pav=TERREO` etc) salvo pela Triagem
-        na coluna `notes` de `obra_triagem` [2026-07-13] — mesmo formato bruto
-        usado pelo portal/App de Consulta (nunca o rótulo bonito com fallback
-        por nome de arquivo de `_refresh_brutos_list`, que pode não bater com
-        a chave real; nesse caso preferimos não buscar a não buscar errado)."""
-        import re
-        notes = row_data.get('notes', '') if row_data else ''
-        if notes and isinstance(notes, str):
-            match = re.search(r'pav=([^\s|]+)', notes)
-            if match:
-                return match.group(1).upper()
-        return None
-
-    def _atualizar_code_publico_pavimento(self, row_data: dict):
-        """Busca (em background, nunca bloqueia a UI) o código público
-        (App de Consulta) do pavimento do bruto selecionado — mesma regra de
-        integridade de `project_manager._atualizar_code_publico_obra`: some
-        silenciosamente pra obra local, pavimento ainda não publicado, ou
-        portal offline [2026-07-13]."""
-        self._lbl_code_publico_pavimento.setVisible(False)
-        self._lbl_code_publico_pavimento.setText("")
-
-        obra_nome = self._current_obra
-        if not obra_nome or not self.db.obra_e_drive(obra_nome):
-            return
-        pavimento = self._pavimento_da_notes(row_data)
-        if not pavimento:
-            return
-        portal_obra_id = self.db.obter_portal_obra_id(obra_nome)
-        if not portal_obra_id:
-            return
-
-        from PySide6.QtCore import QThread
-        from src.ui.workers.code_publico_worker import CodePublicoWorker
-
-        thread = QThread()
-        worker = CodePublicoWorker(portal_obra_id, pavimento)
-        worker.moveToThread(thread)
-        thread.started.connect(worker.run)
-
-        if not hasattr(self, "_code_publico_pav_threads"):
-            self._code_publico_pav_threads = []
-        self._code_publico_pav_threads.append(thread)
-
-        def _limpar():
-            if thread in self._code_publico_pav_threads:
-                self._code_publico_pav_threads.remove(thread)
-
-        def _on_code(code, referencia, _obra=obra_nome, _pav=pavimento):
-            # Usuário pode ter trocado de bruto/obra enquanto a busca rodava.
-            if code and self._current_obra == _obra and self._pavimento_da_notes(
-                (self._list_brutos.currentItem().data(Qt.UserRole) if self._list_brutos.currentItem() else {}) or {}
-            ) == _pav:
-                texto = f"📱 Código de Pavimento: {code}"
-                if referencia:
-                    texto += f" ({referencia})"
-                self._lbl_code_publico_pavimento.setText(texto)
-                self._lbl_code_publico_pavimento.setVisible(True)
-            thread.quit()
-
-        def _on_error(_msg):
-            thread.quit()
-
-        worker.finished.connect(_on_code)
-        worker.error.connect(_on_error)
-        worker.finished.connect(worker.deleteLater)
-        worker.error.connect(worker.deleteLater)
-        thread.finished.connect(_limpar)
-        thread.finished.connect(thread.deleteLater)
-        thread.start()
-
     def _on_bruto_selected(self, item: QListWidgetItem):
         """Ao selecionar bruto na lista, carrega no canvas BRUTO e atualiza recortes."""
         row_data = item.data(Qt.UserRole)
@@ -1658,9 +1414,6 @@ class DiagnosticHubModule(QWidget):
         raw_path  = row_data.get('file_path', '')
         file_name = row_data.get('file_name', '')
 
-        if raw_path:
-            self._garantir_drive_download(raw_path)
-
         # Resolve path (remapeia drives inválidos como B:/ → D:/)
         resolved  = self._resolve_dxf_path(raw_path) if raw_path else Path(raw_path)
         file_path = str(resolved)
@@ -1668,12 +1421,10 @@ class DiagnosticHubModule(QWidget):
 
         # Ativar controles
         self._btn_process_crops.setEnabled(bool(file_path))
-        self._btn_process_all_crops.setEnabled(bool(self._current_obra))
         self._btn_manual_crop.setEnabled(bool(file_path))
         self._btn_selection_crop.setEnabled(bool(file_path))
         self._lbl_recortes_status.setText(f"DXF: {file_name}")
         self._lbl_crop_info.setText(file_name)
-        self._atualizar_code_publico_pavimento(row_data)
 
         # Carregar no canvas BRUTO (tab 0)
         self._canvas_tabs.setCurrentIndex(0)
@@ -1747,7 +1498,7 @@ class DiagnosticHubModule(QWidget):
             return
         output_path = row_data.get('output_path', '')
         rtype = row_data.get('recorte_type', 'torre')
-        tab_idx = 1 if rtype in ('torre', 'torre_2') else 2
+        tab_idx = 1 if rtype == 'torre' else 2
         self._canvas_tabs.setCurrentIndex(tab_idx)
 
         self._btn_approve_crop.setEnabled(True)
@@ -1762,8 +1513,6 @@ class DiagnosticHubModule(QWidget):
             btn.setEnabled(True)
             btn.setChecked(cls_id == rtype)
 
-        if output_path:
-            self._garantir_drive_download(output_path)
         resolved = self._resolve_dxf_path(output_path) if output_path else None
         try:
             ok = resolved is not None and resolved.exists()
@@ -1775,7 +1524,6 @@ class DiagnosticHubModule(QWidget):
                 'id': str(hash(str(resolved))),
                 'name': resolved.name,
                 'file_path': str(resolved),
-                'source_path': str(resolved),  # ezdxf native render → data(256) com entidade original
                 'extension': '.dxf',
             }
             self._load_dxf_on_canvas(canvas, doc_data)
@@ -1866,18 +1614,6 @@ class DiagnosticHubModule(QWidget):
     # ─────────────────────────────────────────────
     # Helpers de path
     # ─────────────────────────────────────────────
-
-    def _garantir_drive_download(self, raw_path: str) -> None:
-        """Download sob demanda (Masterplan OBRAS DRIVE) — no-op pra qualquer
-        obra local normal. Lógica compartilhada com o Structural Analyzer
-        (`main.py`) e o Diagnostic Reverse Hub em `drive_download_hook.py`."""
-        if not raw_path or not getattr(self, "_current_obra", None):
-            return
-        if hasattr(self, "_lbl_recortes_status"):
-            self._lbl_recortes_status.setText(f"⬇ Verificando Drive: {Path(raw_path).name}…")
-        from src.core.drive_download_hook import garantir_drive_download
-
-        garantir_drive_download(self.db, self._current_obra, raw_path)
 
     @staticmethod
     def _resolve_dxf_path(raw_path: str) -> Path:
@@ -2020,7 +1756,6 @@ class DiagnosticHubModule(QWidget):
                 hub._refresh_recortes_list(self._bruto)
                 hub._refresh_brutos_list(hub._current_obra)
                 hub._btn_process_crops.setEnabled(True)
-                hub._btn_process_all_crops.setEnabled(True)
                 self._thread.quit()
 
             def on_error(self, msg: str):
@@ -2029,7 +1764,6 @@ class DiagnosticHubModule(QWidget):
                 hub._lbl_recortes_status.setText(f"⚠ Erro: {msg}")
                 QMessageBox.critical(hub, "Crop Engine", f"Erro ao processar recortes:\n{msg}")
                 hub._btn_process_crops.setEnabled(True)
-                hub._btn_process_all_crops.setEnabled(True)
                 self._thread.quit()
 
         crop_proxy = _CropProxy(self, bruto_str, thread, parent=self)
@@ -2065,183 +1799,119 @@ class DiagnosticHubModule(QWidget):
 
     @staticmethod
     def _export_scene_to_dxf(canvas, output_path: Path) -> dict:
-        """Exporta todos os itens visiveis da scene para DXF preservando 100% da fidelidade."""
+        """
+        Itera os QGraphicsScene items do canvas e grava um DXF novo via ezdxf.
+        Captura deleções manuais feitas no viewer (entidades removidas da scene
+        NÃO aparecem no arquivo — ao contrário de recortar por viewport_bbox).
+
+        Retorna dict com 'entities_copied' (int) e opcional 'error' (str).
+        """
         try:
             import ezdxf
-            
-            items_to_export = canvas.scene.items()
-            
-            source_path = getattr(canvas, 'source_dxf_path', None)
-            
-            if source_path and Path(source_path).exists():
-                print(f"[Export] Copiando por deleção de {source_path} para garantir fidelidade 100% (SCENE COMPLETA)")
-                doc = ezdxf.readfile(source_path)
-                msp = doc.modelspace()
-                
-                handles_to_keep = set()
-                manual_items = []
-                for item in items_to_export:
-                    # Pular itens invisíveis e itens de overlay (que nao tem data(0))
-                    if not item.isVisible(): continue
-                    data = item.data(0)
-                    if not data: continue
-                    
-                    ent = item.data(256)
-                    if ent is not None and hasattr(ent, 'dxf') and hasattr(ent.dxf, 'handle'):
-                        handles_to_keep.add(ent.dxf.handle)
-                    else:
-                        manual_items.append(item)
-                
-                to_delete = []
-                for entity in msp:
-                    if hasattr(entity.dxf, 'handle') and entity.dxf.handle not in handles_to_keep:
-                        to_delete.append(entity)
-                
-                for entity in to_delete:
-                    msp.delete_entity(entity)
-                    
-                n = len(handles_to_keep)
-                
-            else:
-                print(f"[Export] source_dxf_path ausente, caindo no fallback manual (SCENE COMPLETA)")
-                doc = ezdxf.new('R2010')
-                msp = doc.modelspace()
-                n = 0
-                manual_items = items_to_export
-                for item in items_to_export:
-                    if not item.isVisible(): continue
-                    data = item.data(0)
-                    if not data: continue
-                    
-                    ent = item.data(256)
-                    if ent is not None:
-                        ent_copy = ent.copy()
-                        msp.add_entity(ent_copy)
-                        n += 1
-                        continue
+            from PySide6.QtWidgets import QGraphicsSimpleTextItem
 
-            from PySide6.QtWidgets import QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem
-            for item in manual_items:
-                if item.data(256) is not None: continue # ja processado
-                data = item.data(0) or {}
+            doc = ezdxf.new('R2010')
+            msp = doc.modelspace()
+            n = 0
+
+            for item in canvas.scene.items():
+                data   = item.data(0) or {}
                 layer  = str(data.get('layer', '0') or '0')
                 aci    = data.get('aci', 256)
-                attribs = {'layer': layer}
+                attribs: dict = {'layer': layer}
                 if isinstance(aci, int) and aci not in (0, 256):
                     attribs['color'] = aci
+
                 if isinstance(item, QGraphicsLineItem):
                     ln = item.line()
                     msp.add_line((ln.x1(), ln.y1()), (ln.x2(), ln.y2()), dxfattribs=attribs)
                     n += 1
                 elif isinstance(item, QGraphicsPathItem):
                     path = item.path()
-                    for i in range(path.elementCount()-1):
-                        e1, e2 = path.elementAt(i), path.elementAt(i+1)
-                        if e1.isMoveTo() and e2.isLineTo() or e1.isLineTo() and e2.isLineTo():
-                            msp.add_line((e1.x, e1.y), (e2.x, e2.y), dxfattribs=attribs)
-                    n += 1
+                    pts = [(path.elementAt(i).x, path.elementAt(i).y)
+                           for i in range(path.elementCount())]
+                    if len(pts) >= 2:
+                        msp.add_polyline2d(pts, dxfattribs=attribs)
+                        n += 1
                 elif isinstance(item, QGraphicsEllipseItem):
-                    r = item.rect()
-                    center = r.center()
-                    radius = r.width() / 2
-                    msp.add_circle((center.x(), center.y()), radius, dxfattribs=attribs)
+                    rect = item.rect()
+                    cx, cy = rect.center().x(), rect.center().y()
+                    rw, rh = rect.width() / 2, rect.height() / 2
+                    if abs(rw - rh) < 0.5:
+                        msp.add_circle((cx, cy), (rw + rh) / 2, dxfattribs=attribs)
+                        n += 1
+                elif isinstance(item, QGraphicsSimpleTextItem):
+                    p = item.pos()
+                    h = float(data.get('height', 2.5) or 2.5)
+                    msp.add_text(item.text(),
+                                 dxfattribs={**attribs, 'height': h,
+                                             'insert': (p.x(), p.y())})
                     n += 1
 
             doc.saveas(str(output_path))
-            return {'success': True, 'entities_copied': n, 'file': str(output_path)}
+            return {'entities_copied': n}
         except Exception as e:
-            import traceback
-            traceback.print_exc()
             return {'error': str(e)}
 
     @staticmethod
     def _export_selection_to_dxf(canvas, output_path: Path) -> dict:
-        """Exporta APENAS os itens selecionados na scene para DXF preservando 100% da fidelidade."""
+        """
+        Mesmo que _export_scene_to_dxf mas exporta APENAS os itens selecionados
+        na scene (canvas.scene.selectedItems()).
+        """
         try:
             import ezdxf
+            from PySide6.QtWidgets import QGraphicsSimpleTextItem
+
             selected = canvas.scene.selectedItems()
             if not selected:
-                selected = [i for i in getattr(canvas, 'selected_items', []) if i is not None]
-            if not selected:
-                return {'error': 'Nenhum item selecionado. Use box select no viewer antes de recortar.'}
-            
-            source_path = getattr(canvas, 'source_dxf_path', None)
-            
-            if source_path and Path(source_path).exists():
-                print(f"[Export] Copiando por deleção de {source_path} para garantir fidelidade 100%")
-                doc = ezdxf.readfile(source_path)
-                msp = doc.modelspace()
-                
-                handles_to_keep = set()
-                manual_items = []
-                for item in selected:
-                    if not item.isVisible(): continue
-                    ent = item.data(256)
-                    if ent is not None and hasattr(ent, 'dxf') and hasattr(ent.dxf, 'handle'):
-                        handles_to_keep.add(ent.dxf.handle)
-                    else:
-                        manual_items.append(item)
-                
-                # Deletar do modelspace original tudo que no est nos handles
-                to_delete = []
-                for entity in msp:
-                    if hasattr(entity.dxf, 'handle') and entity.dxf.handle not in handles_to_keep:
-                        to_delete.append(entity)
-                
-                for entity in to_delete:
-                    msp.delete_entity(entity)
-                    
-                n = len(handles_to_keep)
-                
-            else:
-                print(f"[Export] source_dxf_path ausente, caindo no fallback manual")
-                doc = ezdxf.new('R2010')
-                msp = doc.modelspace()
-                n = 0
-                manual_items = selected
-                for item in selected:
-                    if not item.isVisible(): continue
-                    ent = item.data(256)
-                    if ent is not None:
-                        ent_copy = ent.copy()
-                        msp.add_entity(ent_copy)
-                        n += 1
-                        continue
+                return {'error': 'Nenhum item selecionado. Selecione uma área antes de recortar.'}
 
-            # Fallback para itens manuais (QGraphicsPathItem, etc adicionados pelo usuario)
-            from PySide6.QtWidgets import QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem
-            for item in manual_items:
-                if item.data(256) is not None: continue # ja processado
-                data = item.data(0) or {}
+            doc = ezdxf.new('R2010')
+            msp = doc.modelspace()
+            n = 0
+
+            for item in selected:
+                data   = item.data(0) or {}
                 layer  = str(data.get('layer', '0') or '0')
                 aci    = data.get('aci', 256)
-                attribs = {'layer': layer}
+                attribs: dict = {'layer': layer}
                 if isinstance(aci, int) and aci not in (0, 256):
                     attribs['color'] = aci
+
                 if isinstance(item, QGraphicsLineItem):
                     ln = item.line()
                     msp.add_line((ln.x1(), ln.y1()), (ln.x2(), ln.y2()), dxfattribs=attribs)
                     n += 1
                 elif isinstance(item, QGraphicsPathItem):
                     path = item.path()
-                    for i in range(path.elementCount()-1):
-                        e1, e2 = path.elementAt(i), path.elementAt(i+1)
-                        if e1.isMoveTo() and e2.isLineTo() or e1.isLineTo() and e2.isLineTo():
-                            msp.add_line((e1.x, e1.y), (e2.x, e2.y), dxfattribs=attribs)
-                    n += 1
+                    pts = [(path.elementAt(i).x, path.elementAt(i).y)
+                           for i in range(path.elementCount())]
+                    if len(pts) >= 2:
+                        msp.add_polyline2d(pts, dxfattribs=attribs)
+                        n += 1
                 elif isinstance(item, QGraphicsEllipseItem):
-                    r = item.rect()
-                    center = r.center()
-                    radius = r.width() / 2
-                    msp.add_circle((center.x(), center.y()), radius, dxfattribs=attribs)
+                    rect = item.rect()
+                    cx, cy = rect.center().x(), rect.center().y()
+                    rw, rh = rect.width() / 2, rect.height() / 2
+                    if abs(rw - rh) < 0.5:
+                        msp.add_circle((cx, cy), (rw + rh) / 2, dxfattribs=attribs)
+                        n += 1
+                elif isinstance(item, QGraphicsSimpleTextItem):
+                    p = item.pos()
+                    h = float(data.get('height', 2.5) or 2.5)
+                    msp.add_text(item.text(),
+                                 dxfattribs={**attribs, 'height': h,
+                                             'insert': (p.x(), p.y())})
                     n += 1
 
             doc.saveas(str(output_path))
-            return {'success': True, 'count': n, 'file': str(output_path)}
+            return {'entities_copied': n}
         except Exception as e:
-            import traceback
-            traceback.print_exc()
             return {'error': str(e)}
+
+    # Recorte manual (botão "Recortar")
+    # ─────────────────────────────────────────────
 
     def _run_manual_crop(self):
         """
@@ -2272,19 +1942,13 @@ class DiagnosticHubModule(QWidget):
         dlg_layout.addWidget(QLabel("Qual tipo de recorte?"))
 
         btn_group = QButtonGroup(dialog)
-        rb_torre       = QRadioButton("🏛 Pavimento Limpo (Torre)")
-        rb_detalhe     = QRadioButton("📐 Detalhes")
-        rb_conv_pil    = QRadioButton("📖 Convenção de Pilares")
-        rb_conv_niveis = QRadioButton("📏 Convenção de Níveis")
+        rb_torre   = QRadioButton("🏛 Pavimento Limpo (Torre)")
+        rb_detalhe = QRadioButton("📐 Detalhes")
         rb_torre.setChecked(True)
-        btn_group.addButton(rb_torre,       0)
-        btn_group.addButton(rb_detalhe,     1)
-        btn_group.addButton(rb_conv_pil,    2)
-        btn_group.addButton(rb_conv_niveis, 3)
+        btn_group.addButton(rb_torre,   0)
+        btn_group.addButton(rb_detalhe, 1)
         dlg_layout.addWidget(rb_torre)
         dlg_layout.addWidget(rb_detalhe)
-        dlg_layout.addWidget(rb_conv_pil)
-        dlg_layout.addWidget(rb_conv_niveis)
 
         # Número da torre (visível apenas para Pavimento Limpo)
         torre_row = QHBoxLayout()
@@ -2302,8 +1966,6 @@ class DiagnosticHubModule(QWidget):
 
         rb_torre.toggled.connect(_toggle_torre)
         rb_detalhe.toggled.connect(_toggle_torre)
-        rb_conv_pil.toggled.connect(_toggle_torre)
-        rb_conv_niveis.toggled.connect(_toggle_torre)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(dialog.accept)
@@ -2313,18 +1975,10 @@ class DiagnosticHubModule(QWidget):
         if dialog.exec() != QDialog.Accepted:
             return
 
-        is_detalhe     = rb_detalhe.isChecked()
-        is_conv_pil    = rb_conv_pil.isChecked()
-        is_conv_niveis = rb_conv_niveis.isChecked()
+        is_detalhe = rb_detalhe.isChecked()
         torre_num  = int(self._sb_torre_num.currentText())
 
-        if is_conv_niveis:
-            rtype    = "convencao_niveis"
-            filename = "convencao_niveis_manual.dxf"
-        elif is_conv_pil:
-            rtype    = "convencao_pilares"
-            filename = "convencao_pilares_manual.dxf"
-        elif is_detalhe:
+        if is_detalhe:
             rtype    = "detalhe"
             filename = "detalhes_manual.dxf"
         else:
@@ -2381,7 +2035,7 @@ class DiagnosticHubModule(QWidget):
             """, (
                 row_id, self._current_obra, pav_name, str(bruto_path),
                 rtype, next_idx, str(out_path), None, n_ent,
-                0.0, "manual", 1 if (is_detalhe or is_conv_pil) else torre_num, now,
+                0.0, "manual", torre_num if not is_detalhe else 1, now,
             ))
             conn.commit()
             conn.close()
@@ -2420,19 +2074,7 @@ class DiagnosticHubModule(QWidget):
             QMessageBox.warning(self, "Recortar Seleção", "Selecione um bruto primeiro.")
             return
 
-        tab_idx = self._canvas_tabs.currentIndex()
-        if tab_idx == 0:
-            target_canvas = self.canvas
-        elif tab_idx == 1:
-            target_canvas = self._canvas_limpo
-        elif tab_idx == 2:
-            target_canvas = self._canvas_det
-        else:
-            target_canvas = self.canvas
-
-        selected = target_canvas.scene.selectedItems()
-        if not selected and hasattr(target_canvas, 'selected_items'):
-            selected = [i for i in target_canvas.selected_items if i is not None]
+        selected = self.canvas.scene.selectedItems()
         if not selected:
             QMessageBox.warning(
                 self, "Recortar Seleção",
@@ -2461,19 +2103,13 @@ class DiagnosticHubModule(QWidget):
         dlg_layout.addWidget(QLabel(f"Itens selecionados: {len(selected)}\nQual tipo de recorte?"))
 
         btn_group = QButtonGroup(dialog)
-        rb_torre       = QRadioButton("🏛 Pavimento Limpo (Torre)")
-        rb_detalhe     = QRadioButton("📐 Detalhes")
-        rb_conv_pil    = QRadioButton("📖 Convenção de Pilares")
-        rb_conv_niveis = QRadioButton("📏 Convenção de Níveis")
+        rb_torre   = QRadioButton("🏛 Pavimento Limpo (Torre)")
+        rb_detalhe = QRadioButton("📐 Detalhes")
         rb_torre.setChecked(True)
-        btn_group.addButton(rb_torre,       0)
-        btn_group.addButton(rb_detalhe,     1)
-        btn_group.addButton(rb_conv_pil,    2)
-        btn_group.addButton(rb_conv_niveis, 3)
+        btn_group.addButton(rb_torre,   0)
+        btn_group.addButton(rb_detalhe, 1)
         dlg_layout.addWidget(rb_torre)
         dlg_layout.addWidget(rb_detalhe)
-        dlg_layout.addWidget(rb_conv_pil)
-        dlg_layout.addWidget(rb_conv_niveis)
 
         torre_row = QHBoxLayout()
         lbl_torre = QLabel("Número da torre:")
@@ -2490,8 +2126,6 @@ class DiagnosticHubModule(QWidget):
 
         rb_torre.toggled.connect(_toggle_torre)
         rb_detalhe.toggled.connect(_toggle_torre)
-        rb_conv_pil.toggled.connect(_toggle_torre)
-        rb_conv_niveis.toggled.connect(_toggle_torre)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(dialog.accept)
@@ -2501,18 +2135,10 @@ class DiagnosticHubModule(QWidget):
         if dialog.exec() != QDialog.Accepted:
             return
 
-        is_detalhe     = rb_detalhe.isChecked()
-        is_conv_pil    = rb_conv_pil.isChecked()
-        is_conv_niveis = rb_conv_niveis.isChecked()
+        is_detalhe = rb_detalhe.isChecked()
         torre_num  = int(sb_torre_num.currentText())
 
-        if is_conv_niveis:
-            rtype    = "convencao_niveis"
-            filename = "convencao_niveis_selecao.dxf"
-        elif is_conv_pil:
-            rtype    = "convencao_pilares"
-            filename = "convencao_pilares_selecao.dxf"
-        elif is_detalhe:
+        if is_detalhe:
             rtype    = "detalhe"
             filename = "detalhes_selecao.dxf"
         else:
@@ -2535,7 +2161,7 @@ class DiagnosticHubModule(QWidget):
             out_path = out_dir / f"{stem}_{ts}.dxf"
 
         # ── Exportar apenas selecionados → DXF ───────────────────────────────
-        crop_result = self._export_selection_to_dxf(target_canvas, out_path)
+        crop_result = self._export_selection_to_dxf(self.canvas, out_path)
 
         if crop_result.get("error"):
             QMessageBox.critical(self, "Recortar Seleção",
@@ -2565,7 +2191,7 @@ class DiagnosticHubModule(QWidget):
             """, (
                 row_id, self._current_obra, pav_name, str(bruto_path),
                 rtype, next_idx, str(out_path), None, n_ent,
-                0.0, "manual", 1 if (is_detalhe or is_conv_pil) else torre_num, now,
+                0.0, "manual", torre_num if not is_detalhe else 1, now,
             ))
             conn.commit()
             conn.close()
@@ -2681,11 +2307,12 @@ class DiagnosticHubModule(QWidget):
     # ─────────────────────────────────────────────
 
     def _save_current_crop(self):
-        """Salva o recorte preservando 100% de fidelidade DXF.
+        """
+        Salva o estado visual atual do canvas diretamente como DXF.
 
-        Lê o DXF fonte original e remove apenas as entidades deletadas pelo
-        usuário (ausentes na scene por handle), sem reconstruir do QGraphics.
-        Evita corrupção de tipos de entidade (LWPOLYLINE→POLYLINE2D, etc.).
+        Exporta os itens QGraphicsScene → novo DXF via ezdxf.
+        Isso garante que deleções manuais de entidades no canvas
+        sejam persistidas (não recria do arquivo original).
         """
         if not self._current_selected_recorte:
             QMessageBox.warning(self, "Salvar", "Selecione um recorte primeiro.")
@@ -2693,6 +2320,7 @@ class DiagnosticHubModule(QWidget):
 
         row = self._current_selected_recorte
         output_path = row.get('output_path', '')
+
         resolved = self._resolve_dxf_path(output_path) if output_path else None
         try:
             out_exists = resolved is not None and resolved.exists()
@@ -2704,6 +2332,9 @@ class DiagnosticHubModule(QWidget):
                                 f"Arquivo de recorte não encontrado:\n{output_path}")
             return
 
+        # ── Qual canvas está ativo agora? ─────────────────────────────────────
+        # Usa o tab visível — se o usuário editou no BRUTO (tab 0), usa self.canvas;
+        # se editou no LIMPO (tab 1) ou DETALHES (tab 2), usa o canvas respectivo.
         tab_idx = self._canvas_tabs.currentIndex()
         if tab_idx == 0:
             canvas = self.canvas
@@ -2712,51 +2343,43 @@ class DiagnosticHubModule(QWidget):
         else:
             canvas = self._canvas_det
 
-        import shutil, ezdxf
+        # ── Backup ────────────────────────────────────────────────────────────
+        import shutil
         bak = Path(str(resolved) + ".bak")
         try:
             shutil.copy2(str(resolved), str(bak))
         except Exception:
             pass
 
-        try:
-            # Coletar handles visíveis na scene (data(256) = entidade ezdxf original)
-            handles_ok: set[str] = set()
-            for item in canvas.scene.items():
-                if not item.isVisible():
-                    continue
-                ent = item.data(256)
-                if ent is not None and hasattr(ent, 'dxf') and hasattr(ent.dxf, 'handle'):
-                    handles_ok.add(ent.dxf.handle)
+        # ── Exportar scene → DXF (helper centralizado) ───────────────────────
+        crop_result = self._export_scene_to_dxf(canvas, resolved)
 
-            if not handles_ok:
-                # Canvas sem entidades ezdxf nativas → nada a salvar (sem alterações)
-                QMessageBox.information(self, "Salvar",
-                                        "Nenhuma edição detectada — recorte não foi alterado.")
-                return
-
-            # Fonte = arquivo fonte que o canvas carregou (ou o próprio recorte)
-            source = getattr(canvas, 'source_dxf_path', None) or str(resolved)
-            doc = ezdxf.readfile(str(source))
-            msp = doc.modelspace()
-            to_del = [e for e in msp
-                      if hasattr(e.dxf, 'handle') and e.dxf.handle not in handles_ok]
-            for e in to_del:
-                msp.delete_entity(e)
-            doc.saveas(str(resolved))
-
-            QMessageBox.information(
-                self, "Salvar",
-                f"Recorte salvo: {resolved.name}\n"
-                f"{len(handles_ok)} entidades preservadas.\n"
-                f"Backup: {bak.name}"
-            )
-        except Exception as e:
+        if crop_result.get("error"):
             try:
                 shutil.copy2(str(bak), str(resolved))
             except Exception:
                 pass
-            QMessageBox.critical(self, "Salvar", f"Erro ao salvar DXF:\n{e}")
+            QMessageBox.critical(self, "Salvar",
+                                 f"Erro ao salvar DXF:\n{crop_result['error']}")
+            return
+
+        n = crop_result['entities_copied']
+
+        # ── Recarrega o canvas a partir do arquivo salvo ──────────────────────
+        doc_data = {
+            'id': str(hash(str(resolved))),
+            'name': resolved.name,
+            'file_path': str(resolved),
+            'extension': '.dxf',
+        }
+        self._load_dxf_on_canvas(canvas, doc_data)
+
+        QMessageBox.information(
+            self, "Salvar",
+            f"Recorte salvo: {resolved.name}\n"
+            f"{n} entidades exportadas.\n"
+            f"Backup: {bak.name}"
+        )
 
     def _approve_current_crop(self):
         """Aprova o recorte selecionado.
@@ -2781,12 +2404,6 @@ class DiagnosticHubModule(QWidget):
         except Exception as e:
             QMessageBox.warning(self, "Aprovar", f"Erro: {e}")
             return
-
-        # Masterplan OBRAS DRIVE: validação é só PULL (portal → app) — decisão
-        # do dono: a app nunca escreve de volta no portal, pra não arriscar
-        # sobrescrever validação real da equipe com um clique/teste local.
-        # A aprovação acima já reflete no espelho local; o pull acontece
-        # sozinho no próximo re-espelhamento (`criar_espelho_local_drive`).
 
         # ── Sistema de aprendizado: registrar bbox aprovada e recalibrar ─────
         recorte_type = row.get('recorte_type', '')
@@ -2909,12 +2526,12 @@ class DiagnosticHubModule(QWidget):
             self._lbl_preprocess_feedback.setText("—  Ficha não gerada. Clique em ⚡ Interpretar Obra Toda.")
             self._lbl_preprocess_feedback.setStyleSheet(
                 f"color: {Colors.TEXT_DIM}; font-size: 10px; background: rgba(0, 0, 0, 46);"
-                f" border: 1px solid {Border.SUBTLE}; border-radius: 4px; padding: 5px 8px;"
+                " border: 1px solid #2a2f3d; border-radius: 4px; padding: 5px 8px;"
             )
             # Limpa ficha tab
             self._ficha_status_lbl.setText("⏳  Execute '⚡ Interpretar Obra Toda' para gerar a ficha.")
             self._ficha_status_lbl.setStyleSheet(
-                f"color: white; font-size: 11px; background: {Colors.BG_CARD};"
+                f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;"
             )
             return
         try:
@@ -2931,12 +2548,11 @@ class DiagnosticHubModule(QWidget):
                 f"{totais.get('pilares',0)}P / {totais.get('vigas',0)}V / {totais.get('lajes',0)}L"
             )
             self._lbl_preprocess_feedback.setStyleSheet(
-                f"color: {Semantic.SUCCESS}; font-size: 10px; background: rgba(0, 0, 0, 46);"
-                f" border: 1px solid {Semantic.SUCCESS}; border-radius: 4px; padding: 5px 8px;"
+                "color: #00c864; font-size: 10px; background: rgba(0, 0, 0, 46);"
+                " border: 1px solid #00c864; border-radius: 4px; padding: 5px 8px;"
             )
             self._lbl_preprocess_feedback.setText(fb)
             self.refresh_ficha_tab(ficha)
-            self.refresh_niveis_tab(ficha)
         except Exception as exc:
             self._lbl_preprocess_feedback.setText(f"⚠ Erro ao ler estado: {exc}")
 
@@ -2982,15 +2598,15 @@ class DiagnosticHubModule(QWidget):
         self._btn_cancel_preprocess.setVisible(True)
         self._lbl_preprocess_feedback.setText("⏳  Interpretação em andamento…")
         self._lbl_preprocess_feedback.setStyleSheet(
-            f"color: {Accent.INTERACTIVE_HOVER}; font-size: 10px; background: rgba(0, 0, 0, 46);"
-            f" border: 1px solid {Accent.INTERACTIVE_HOVER}; border-radius: 4px; padding: 5px 8px;"
+            "color: #7ab3e0; font-size: 10px; background: rgba(0, 0, 0, 46);"
+            " border: 1px solid #7ab3e0; border-radius: 4px; padding: 5px 8px;"
         )
 
         # Mostrar ficha tab com indicador de progresso
         self._canvas_tabs.setCurrentIndex(3)
         self._ficha_status_lbl.setText("⏳  Interpretando obra… aguarde.")
         self._ficha_status_lbl.setStyleSheet(
-            f"color: {Accent.INTERACTIVE_HOVER}; font-size: 11px; background: transparent;"
+            "color: #7ab3e0; font-size: 11px; background: transparent;"
         )
         # Limpar conteúdo anterior
         while self._ficha_content_lay.count():
@@ -3004,13 +2620,13 @@ class DiagnosticHubModule(QWidget):
         self._inline_progress.setStyleSheet(
             f"QProgressBar {{ border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px;"
             f" background: {Colors.BG_PANEL}; height: 10px; }}"
-            f"QProgressBar::chunk {{ background: {Contextual.PURPLE}; border-radius: 4px; }}"
+            f"QProgressBar::chunk {{ background: #9B59B6; border-radius: 4px; }}"
         )
         self._ficha_content_lay.addWidget(self._inline_progress)
         self._inline_log = QLabel("")
         self._inline_log.setWordWrap(True)
         self._inline_log.setStyleSheet(
-            f"color: white; font-size: 10px; background: transparent;"
+            f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: transparent;"
         )
         self._ficha_content_lay.addWidget(self._inline_log)
         self._ficha_content_lay.addStretch()
@@ -3025,7 +2641,7 @@ class DiagnosticHubModule(QWidget):
             self._lbl_preprocess_feedback.setText("⏹  Cancelado pelo usuário.")
             self._lbl_preprocess_feedback.setStyleSheet(
                 f"color: {Colors.TEXT_DIM}; font-size: 10px; background: rgba(0, 0, 0, 46);"
-                f" border: 1px solid {Border.SUBTLE}; border-radius: 4px; padding: 5px 8px;"
+                " border: 1px solid #2a2f3d; border-radius: 4px; padding: 5px 8px;"
             )
         self._set_preprocess_buttons_enabled(True)
         self._btn_cancel_preprocess.setVisible(False)
@@ -3048,12 +2664,12 @@ class DiagnosticHubModule(QWidget):
         n_v  = result.get('n_vigas', 0)
         n_l  = result.get('n_lajes', 0)
         st   = result.get('status', 'ok')
-        color = Semantic.SUCCESS if st == 'ok' else Contextual.GOLD
+        color = '#00c864' if st == 'ok' else '#e6b400'
         row_lbl = QLabel(
-            f"<span style='color:{Accent.INTERACTIVE}'>{pav}/t{tidx+1}</span>  "
-            f"<span style='color:{Contextual.PURPLE}'>P:{n_p}</span>  "
-            f"<span style='color:{Accent.INTERACTIVE}'>V:{n_v}</span>  "
-            f"<span style='color:{Semantic.SUCCESS}'>L:{n_l}</span>  "
+            f"<span style='color:#7ab3e0'>{pav}/t{tidx+1}</span>  "
+            f"<span style='color:#9B59B6'>P:{n_p}</span>  "
+            f"<span style='color:#2980B9'>V:{n_v}</span>  "
+            f"<span style='color:#27AE60'>L:{n_l}</span>  "
             f"<span style='color:{color}'>{'✅' if st=='ok' else '⚠'}</span>"
         )
         row_lbl.setStyleSheet(
@@ -3081,17 +2697,16 @@ class DiagnosticHubModule(QWidget):
             f"{totais.get('pilares',0)}P / {totais.get('vigas',0)}V / {totais.get('lajes',0)}L"
         )
         self._lbl_preprocess_feedback.setStyleSheet(
-            f"color: {Semantic.SUCCESS}; font-size: 10px; background: rgba(0, 0, 0, 46);"
-            f" border: 1px solid {Semantic.SUCCESS}; border-radius: 4px; padding: 5px 8px;"
+            "color: #00c864; font-size: 10px; background: rgba(0, 0, 0, 46);"
+            " border: 1px solid #00c864; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_preprocess_feedback.setText(fb)
 
         self.refresh_ficha_tab(ficha)
-        self.refresh_niveis_tab(ficha)
         print(f"[DiagnosticHub] PreProcess concluído — {n_pav} pavimento(s)", flush=True)
 
         # Dispara RAG automaticamente (fase 2 implícita)
-        self._lbl_rag_feedback.setText("⏳ Gerando RAG local...")
+        self._lbl_rag_feedback.setText("⏳ Indexando RAG semântico...")
         self._run_rag_pipeline()
 
         # Notifica main.py para refreshar combos e abrir Structural Analyzer
@@ -3103,12 +2718,12 @@ class DiagnosticHubModule(QWidget):
         self._btn_cancel_preprocess.setVisible(False)
         self._preprocess_worker = None
         self._lbl_preprocess_feedback.setStyleSheet(
-            f"color: {Semantic.DANGER}; font-size: 10px; background: rgba(0, 0, 0, 46);"
-            f" border: 1px solid {Semantic.DANGER}; border-radius: 4px; padding: 5px 8px;"
+            "color: #e74c3c; font-size: 10px; background: rgba(0, 0, 0, 46);"
+            " border: 1px solid #e74c3c; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_preprocess_feedback.setText(f"❌ Erro: {msg[:120]}")
         self._ficha_status_lbl.setText(f"❌ Erro no processamento.")
-        self._ficha_status_lbl.setStyleSheet(f"color: {Semantic.DANGER}; font-size: 11px; background: transparent;")
+        self._ficha_status_lbl.setStyleSheet("color: #e74c3c; font-size: 11px; background: transparent;")
         QMessageBox.warning(self, "Erro — Interpretar Obra", msg[:400])
 
     # ─────────────────────────────────────────────
@@ -3128,7 +2743,7 @@ class DiagnosticHubModule(QWidget):
         self._set_preprocess_buttons_enabled(False)
         self._rag_progress.setValue(0)
         self._rag_progress.setVisible(True)
-        self._lbl_rag_feedback.setText(f"⏳ Gerando snapshot RAG local para {obra}...")
+        self._lbl_rag_feedback.setText(f"⏳ Indexando RAG para {obra}...")
 
         self._rag_worker = RagPipelineWorker(obra, force=force, parent=self)
         self._rag_worker.progress.connect(self._on_rag_progress)
@@ -3147,20 +2762,20 @@ class DiagnosticHubModule(QWidget):
 
         status    = result.get("status", "ok")
         chunks    = result.get("doc_chunks", 0)
-        fichas    = result.get("dxf_indexed", 0)
-        recortes  = result.get("triagem_rows", 0)
+        dxfs      = result.get("dxf_indexed", 0)
+        triagem   = result.get("triagem_rows", 0)
         duration  = result.get("duration_s", 0)
         errs      = result.get("errors", [])
 
-        color = Semantic.SUCCESS if status == "ok" else Contextual.GOLD
+        color = "#00c864" if status == "ok" else "#e6b400"
         icon  = "✅" if status == "ok" else "⚠"
         self._lbl_rag_feedback.setStyleSheet(
             f"color: {color}; font-size: 10px; background: rgba(0, 0, 0, 46);"
             " border: 1px solid; border-radius: 4px; padding: 5px 8px;"
         )
         self._lbl_rag_feedback.setText(
-            f"{icon} RAG local concluído em {duration:.0f}s\n"
-            f"Docs: {chunks} | F5 locais: {fichas} | Recortes da obra: {recortes}"
+            f"{icon} RAG concluído em {duration:.0f}s\n"
+            f"Docs: {chunks} chunks | DXFs: {dxfs} | Triagem: {triagem}"
             + (f"\n⚠ {len(errs)} erro(s)" if errs else "")
         )
 
@@ -3169,11 +2784,11 @@ class DiagnosticHubModule(QWidget):
         self._rag_progress.setVisible(False)
         self._rag_worker = None
         self._lbl_rag_feedback.setStyleSheet(
-            f"color: {Semantic.DANGER}; font-size: 10px; background: rgba(0, 0, 0, 46);"
-            f" border: 1px solid {Semantic.DANGER}; border-radius: 4px; padding: 5px 8px;"
+            "color: #e74c3c; font-size: 10px; background: rgba(0, 0, 0, 46);"
+            " border: 1px solid #e74c3c; border-radius: 4px; padding: 5px 8px;"
         )
-        self._lbl_rag_feedback.setText(f"❌ Erro no RAG local: {msg[:120]}")
-        QMessageBox.warning(self, "Erro — RAG Local", msg[:400])
+        self._lbl_rag_feedback.setText(f"❌ Erro RAG: {msg[:120]}")
+        QMessageBox.warning(self, "Erro — RAG Semântico", msg[:400])
 
     # ─────────────────────────────────────────────
     # Ficha da Obra tab (Tab 3 do _canvas_tabs)
@@ -3186,24 +2801,24 @@ class DiagnosticHubModule(QWidget):
         main_lay.setContentsMargins(16, 14, 16, 14)
         main_lay.setSpacing(10)
         hdr = QLabel("📋 Ficha Global [F3]")
-        hdr.setStyleSheet(f"color: {Contextual.PURPLE}; font-size: 13px; font-weight: bold; background: transparent;")
+        hdr.setStyleSheet("color: #b450c8; font-size: 13px; font-weight: bold; background: transparent;")
         main_lay.addWidget(hdr)
         sep = QLabel("━" * 60)
-        sep.setStyleSheet(f"color: {Border.DEFAULT}; font-size: 10px; background: transparent;")
+        sep.setStyleSheet("color: #333333; font-size: 10px; background: transparent;")
         main_lay.addWidget(sep)
         self._ficha_f3_status_lbl = QLabel("⏳  Execute 'Analisar todas fichas e gerar Ficha da Obra [F3]' no menu lateral.")
         self._ficha_f3_status_lbl.setWordWrap(True)
-        self._ficha_f3_status_lbl.setStyleSheet(f"color: {Text.SECONDARY}; font-size: 11px; background: transparent;")
+        self._ficha_f3_status_lbl.setStyleSheet("color: #8a9ab5; font-size: 11px; background: transparent;")
         main_lay.addWidget(self._ficha_f3_status_lbl)
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setStyleSheet(f'''
-            QScrollArea {{ border: none; background: {Surface.DEEP}; }}
-            QScrollBar:vertical {{ background: {Border.SUBTLE}; width: 8px; border-radius: 4px; }}
-            QScrollBar::handle:vertical {{ background: {Border.STRONG}; border-radius: 4px; }}
+        scroll.setStyleSheet('''
+            QScrollArea { border: none; background: #1a1a1a; }
+            QScrollBar:vertical { background: #2a2a2a; width: 8px; border-radius: 4px; }
+            QScrollBar::handle:vertical { background: #4a4a4a; border-radius: 4px; }
         ''')
         self._ficha_f3_content = QWidget()
-        self._ficha_f3_content.setStyleSheet(f"background: {Surface.DEEP};")
+        self._ficha_f3_content.setStyleSheet("background: #1a1a1a;")
         self._ficha_f3_content_lay = QVBoxLayout(self._ficha_f3_content)
         self._ficha_f3_content_lay.setContentsMargins(0, 4, 0, 4)
         self._ficha_f3_content_lay.setSpacing(8)
@@ -3221,7 +2836,7 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_limpo.setEnabled(False)
         self._btn_cancel_preprocess.setVisible(True)
         self._ficha_f3_status_lbl.setText("⏳ Gerando Ficha Global F3 (Consolidando fichas granulares N2)...")
-        self._ficha_f3_status_lbl.setStyleSheet(f"color: {Contextual.GOLD}; font-size: 11px; font-weight: bold; background: transparent;")
+        self._ficha_f3_status_lbl.setStyleSheet("color: #e6b400; font-size: 11px; font-weight: bold; background: transparent;")
         
         # Consolida de verdade!
         try:
@@ -3246,7 +2861,7 @@ class DiagnosticHubModule(QWidget):
         self._btn_process_limpo.setEnabled(True)
         self._btn_cancel_preprocess.setVisible(False)
         self._ficha_f3_status_lbl.setText("✅ Ficha Global F3 Carregada!")
-        self._ficha_f3_status_lbl.setStyleSheet(f"color: {Semantic.SUCCESS}; font-size: 11px; font-weight: bold; background: transparent;")
+        self._ficha_f3_status_lbl.setStyleSheet("color: #00c864; font-size: 11px; font-weight: bold; background: transparent;")
         
         # Limpar o conteudo atual da F3
         while self._ficha_f3_content_lay.count():
@@ -3275,13 +2890,13 @@ class DiagnosticHubModule(QWidget):
                 
                 # Montar HTML premium
                 html = f"""
-                <div style="font-family: 'Segoe UI', Arial, sans-serif; color: {Text.PRIMARY}; max-width: 800px; padding: 10px;">
-                    <div style="background: rgba(180, 80, 200, 0.15); border-left: 4px solid {Contextual.PURPLE}; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-                        <h2 style="margin: 0 0 10px 0; color: {Contextual.PURPLE}; font-size: 18px;">📋 Ficha Global [F3] - Relatório Executivo</h2>
+                <div style="font-family: 'Segoe UI', Arial, sans-serif; color: #E2E8F0; max-width: 800px; padding: 10px;">
+                    <div style="background: rgba(180, 80, 200, 0.15); border-left: 4px solid #b450c8; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+                        <h2 style="margin: 0 0 10px 0; color: #b450c8; font-size: 18px;">📋 Ficha Global [F3] - Relatório Executivo</h2>
                         <table style="width: 100%; border-collapse: collapse;">
                             <tr>
-                                <td style="padding: 5px 0;"><b>Total de Peças Analisadas (F5):</b> <span style="color:{Semantic.SUCCESS};">{total_fichas}</span></td>
-                                <td style="padding: 5px 0;"><b>Grau de Confiança (IA):</b> <span style="color:{Contextual.GOLD};">{conf_media:.1f}%</span></td>
+                                <td style="padding: 5px 0;"><b>Total de Peças Analisadas (F5):</b> <span style="color:#00c864;">{total_fichas}</span></td>
+                                <td style="padding: 5px 0;"><b>Grau de Confiança (IA):</b> <span style="color:#e6b400;">{conf_media:.1f}%</span></td>
                             </tr>
                             <tr>
                                 <td style="padding: 5px 0;"><b>Pavimentos Cobertos:</b> {len(pavimentos)}</td>
@@ -3289,8 +2904,8 @@ class DiagnosticHubModule(QWidget):
                             </tr>
                         </table>
                     </div>
-
-                    <h3 style="color: {Text.SECONDARY}; font-size: 14px; border-bottom: 1px solid {Border.DEFAULT}; padding-bottom: 5px;">⚠️ Insights do Structural Analyzer</h3>
+                    
+                    <h3 style="color: #94A3B8; font-size: 14px; border-bottom: 1px solid #334155; padding-bottom: 5px;">⚠️ Insights do Structural Analyzer</h3>
                     <ul style="margin: 10px 0; padding-left: 20px; line-height: 1.6;">
                 """
                 
@@ -3298,18 +2913,18 @@ class DiagnosticHubModule(QWidget):
                     for insight in insights:
                         html += f"<li>{insight}</li>"
                 else:
-                    html += f"<li style='color: white;'>Nenhum desvio crítico ou outlier foi encontrado pelo motor.</li>"
+                    html += "<li style='color: #64748B;'>Nenhum desvio crítico ou outlier foi encontrado pelo motor.</li>"
                     
-                html += f"""
+                html += """
                     </ul>
-
-                    <h3 style="color: {Text.SECONDARY}; font-size: 14px; border-bottom: 1px solid {Border.DEFAULT}; padding-bottom: 5px; margin-top: 20px;">📦 Distribuição Granular (Resumo Bruto)</h3>
+                    
+                    <h3 style="color: #94A3B8; font-size: 14px; border-bottom: 1px solid #334155; padding-bottom: 5px; margin-top: 20px;">📦 Distribuição Granular (Resumo Bruto)</h3>
                     <div style="background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 4px;">
                 """
                 
                 # Montar um mini json das stats para nao poluir
                 stats = f3_data.get('por_classe_stats', {})
-                html += f'<pre style="color:{Text.SECONDARY}; font-family: monospace; font-size: 11px; margin: 0;">{json.dumps(stats, indent=2, ensure_ascii=False)}</pre>'
+                html += f'<pre style="color:#8b9eb3; font-family: monospace; font-size: 11px; margin: 0;">{json.dumps(stats, indent=2, ensure_ascii=False)}</pre>'
                 
                 html += "</div></div>"
                 
@@ -3319,7 +2934,7 @@ class DiagnosticHubModule(QWidget):
                 self._ficha_f3_content_lay.addWidget(lbl)
             else:
                 lbl = QLabel("Nenhuma Ficha F3 consolidada encontrada para esta obra.")
-                lbl.setStyleSheet(f"color: {Text.SECONDARY};")
+                lbl.setStyleSheet("color: #8a9ab5;")
                 self._ficha_f3_content_lay.addWidget(lbl)
             conn.close()
         except Exception as e:
@@ -3350,7 +2965,7 @@ class DiagnosticHubModule(QWidget):
         # ── Cabeçalho ─────────────────────────────────────────────────────────
         hdr = QLabel("📋 Ficha Pré-Pavimentos/Detalhes [F2]")
         hdr.setStyleSheet(
-            f"color: {Contextual.GOLD}; font-size: 13px; font-weight: bold; background: transparent;"
+            f"color: #e6b400; font-size: 13px; font-weight: bold; background: transparent;"
         )
         main_lay.addWidget(hdr)
 
@@ -3362,7 +2977,7 @@ class DiagnosticHubModule(QWidget):
         self._ficha_status_lbl = QLabel("⏳  Execute '⚡ Interpretar Obra Toda' para gerar a ficha.")
         self._ficha_status_lbl.setWordWrap(True)
         self._ficha_status_lbl.setStyleSheet(
-            f"color: white; font-size: 11px; background: transparent;"
+            f"color: {Colors.TEXT_SECONDARY}; font-size: 11px; background: transparent;"
         )
         main_lay.addWidget(self._ficha_status_lbl)
 
@@ -3435,19 +3050,19 @@ class DiagnosticHubModule(QWidget):
         # ── Totais globais ───────────────────────────────────────────────
         totais_frame = QFrame()
         totais_frame.setStyleSheet(
-            f"background: {Colors.BG_CARD}; border: 1px solid {Contextual.GOLD}; border-radius: 6px; padding: 8px;"
+            f"background: {Colors.BG_CARD}; border: 1px solid #e6b400; border-radius: 6px; padding: 8px;"
         )
         tf_lay = QHBoxLayout(totais_frame)
         tf_lay.setContentsMargins(12, 8, 12, 8)
         tf_lay.setSpacing(24)
 
         for label, val, color in [
-            ("Pilares", totais.get("pilares", 0), Contextual.PURPLE),
-            ("Vigas",   totais.get("vigas",   0), Accent.INTERACTIVE),
-            ("Lajes",   totais.get("lajes",   0), Semantic.SUCCESS),
-            ("Pavimentos", len(pavs), Contextual.GOLD),
+            ("Pilares", totais.get("pilares", 0), "#9B59B6"),
+            ("Vigas",   totais.get("vigas",   0), "#2980B9"),
+            ("Lajes",   totais.get("lajes",   0), "#27AE60"),
+            ("Pavimentos", len(pavs), "#e6b400"),
         ]:
-            chip = QLabel(f"<b style='color:{color}'>{val}</b><br><span style='font-size:10px;color:{Text.SECONDARY}'>{label}</span>")
+            chip = QLabel(f"<b style='color:{color}'>{val}</b><br><span style='font-size:10px;color:#888'>{label}</span>")
             chip.setAlignment(Qt.AlignCenter)
             chip.setStyleSheet("background: transparent;")
             tf_lay.addWidget(chip)
@@ -3460,15 +3075,15 @@ class DiagnosticHubModule(QWidget):
             rsm_lbl = QLabel(resumo)
             rsm_lbl.setWordWrap(True)
             rsm_lbl.setStyleSheet(
-                f"color: white; font-size: 10px; background: {Colors.BG_PANEL};"
-                f" border: 1px solid {Border.DEFAULT}; border-radius: 4px; padding: 8px;"
+                f"color: {Colors.TEXT_SECONDARY}; font-size: 10px; background: {Colors.BG_PANEL};"
+                " border: 1px solid #333; border-radius: 4px; padding: 8px;"
             )
             self._ficha_content_lay.addWidget(rsm_lbl)
 
         # ── Tabela por pavimento ─────────────────────────────────────────
         for pav in pavs:
             status = pav.get("status", "ok")
-            status_color = {"ok": Semantic.SUCCESS, "parcial": Contextual.GOLD, "erro": Semantic.DANGER}.get(status, Text.SECONDARY)
+            status_color = {"ok": "#00c864", "parcial": "#e6b400", "erro": "#e74c3c"}.get(status, "#888")
             status_icon  = {"ok": "✅", "parcial": "⚠", "erro": "❌"}.get(status, "—")
 
             pf = QFrame()
@@ -3482,26 +3097,26 @@ class DiagnosticHubModule(QWidget):
 
             nome_lbl = QLabel(f"<b>{pav.get('nome', '—')}</b>")
             nome_lbl.setFixedWidth(130)
-            nome_lbl.setStyleSheet(f"color: {Accent.PRIMARY}; font-size: 11px; background: transparent;")
+            nome_lbl.setStyleSheet("color: #00d4ff; font-size: 11px; background: transparent;")
             pf_lay.addWidget(nome_lbl)
 
             for lbl, val, color in [
-                ("PIL", pav.get("n_pilares", 0), Contextual.PURPLE),
-                ("VIG", pav.get("n_vigas",   0), Accent.INTERACTIVE),
-                ("LAJ", pav.get("n_lajes",   0), Semantic.SUCCESS),
+                (f"PIL", pav.get("n_pilares", 0), "#9B59B6"),
+                (f"VIG", pav.get("n_vigas",   0), "#2980B9"),
+                (f"LAJ", pav.get("n_lajes",   0), "#27AE60"),
             ]:
                 chip = QLabel(f"<span style='color:{color};font-weight:bold'>{lbl}</span> {val}")
-                chip.setStyleSheet(f"font-size: 10px; background: transparent; color: {Text.PRIMARY};")
+                chip.setStyleSheet("font-size: 10px; background: transparent; color: #ccc;")
                 pf_lay.addWidget(chip)
 
             nivel_txt = f"nível {pav.get('nivel_chegada', 0):.0f}→{pav.get('nivel_saida', 0):.0f} cm"
             nivel_lbl = QLabel(nivel_txt)
-            nivel_lbl.setStyleSheet(f"color: {Text.SECONDARY}; font-size: 10px; background: transparent;")
+            nivel_lbl.setStyleSheet("color: #888; font-size: 10px; background: transparent;")
             pf_lay.addWidget(nivel_lbl)
 
             if pav.get("lajes_nivel_distinto"):
                 dist_lbl = QLabel("↕ lajes distintas")
-                dist_lbl.setStyleSheet(f"color: {Contextual.GOLD}; font-size: 10px; background: transparent;")
+                dist_lbl.setStyleSheet("color: #e6b400; font-size: 10px; background: transparent;")
                 pf_lay.addWidget(dist_lbl)
 
             pf_lay.addStretch()
@@ -3517,310 +3132,13 @@ class DiagnosticHubModule(QWidget):
             f"✅  Ficha de '{obra}' gerada — {len(pavs)} pavimento(s) processado(s)."
         )
         self._ficha_status_lbl.setStyleSheet(
-            f"color: {Semantic.SUCCESS}; font-size: 11px; background: transparent;"
+            "color: #00c864; font-size: 11px; background: transparent;"
         )
         self._ficha_footer_lbl.setText(f"Última geração: {ts}")
 
     def _on_canvas_tab_changed(self, idx: int):
         """Atualiza estado ao trocar aba do canvas."""
         pass
-
-    # ─────────────────────────────────────────────
-    # Aba Convenção de Níveis
-    # ─────────────────────────────────────────────
-
-    def _build_niveis_tab_widget(self) -> QWidget:
-        """
-        Constrói o widget da aba 📏 CONVENÇÃO DE NÍVEIS (estado inicial vazio).
-
-        8 colunas: Nome Doc | Nome Pav | Nível Chegada | Nível Saída | Altura |
-                   Lajes (SA) | Pilares | Vigas
-
-        Preenchida por refresh_niveis_tab() após batch SA ou carregamento de estado.
-        """
-        from PySide6.QtWidgets import QTableWidget, QHeaderView, QAbstractItemView
-        container = QWidget()
-        container.setStyleSheet(f"background: {Colors.BG_DEEP};")
-        main_lay = QVBoxLayout(container)
-        main_lay.setContentsMargins(16, 14, 16, 14)
-        main_lay.setSpacing(10)
-
-        hdr = QLabel("📏 Convenção de Níveis")
-        hdr.setStyleSheet(
-            f"color: {Colors.ACCENT_SUCCESS_ALT}; font-size: 13px; font-weight: bold; background: transparent;"
-        )
-        main_lay.addWidget(hdr)
-
-        info = QLabel(
-            "Tabela de níveis absolutos de todos os pavimentos (chegada/saída/altura).\n"
-            "Fonte primária: recorte Conv. Nív. (Elevação Típica).  "
-            "Fonte secundária: pré-análise SA por laje_nivel.\n"
-            "Execute 'Analisar todos os Pavimentos Limpos' para preencher automaticamente."
-        )
-        info.setWordWrap(True)
-        info.setStyleSheet(f"color: white; font-size: 10px; background: transparent;")
-        main_lay.addWidget(info)
-
-        sep = QLabel("─" * 60)
-        sep.setStyleSheet(f"color: {Colors.BORDER_DEFAULT}; font-size: 10px; background: transparent;")
-        main_lay.addWidget(sep)
-
-        self._niveis_status_lbl = QLabel("⏳  Execute a pré-análise para preencher os níveis.")
-        self._niveis_status_lbl.setStyleSheet(
-            f"color: white; font-size: 11px; background: transparent;"
-        )
-        main_lay.addWidget(self._niveis_status_lbl)
-
-        tbl = QTableWidget(0, 8)
-        tbl.setHorizontalHeaderLabels([
-            "Nome Doc", "Nome Pav",
-            "Nível\nChegada", "Nível\nSaída", "Altura",
-            "Lajes (SA)", "Pilares", "Vigas",
-        ])
-        hv = tbl.horizontalHeader()
-        hv.setSectionResizeMode(0, QHeaderView.ResizeToContents)
-        hv.setSectionResizeMode(1, QHeaderView.ResizeToContents)
-        hv.setSectionResizeMode(2, QHeaderView.ResizeToContents)
-        hv.setSectionResizeMode(3, QHeaderView.ResizeToContents)
-        hv.setSectionResizeMode(4, QHeaderView.ResizeToContents)
-        hv.setSectionResizeMode(5, QHeaderView.Stretch)
-        hv.setSectionResizeMode(6, QHeaderView.ResizeToContents)
-        hv.setSectionResizeMode(7, QHeaderView.ResizeToContents)
-        tbl.verticalHeader().setVisible(False)
-        tbl.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        tbl.setSelectionBehavior(QAbstractItemView.SelectRows)
-        tbl.setAlternatingRowColors(True)
-        tbl.setWordWrap(True)
-        tbl.setStyleSheet(f"""
-            QTableWidget {{
-                background: {Colors.BG_SECONDARY}; color: white;
-                gridline-color: {Colors.BORDER_DEFAULT}; border: none; font-size: 10px;
-            }}
-            QTableWidget::item:alternate {{ background: {Colors.BG_PANEL}; }}
-            QHeaderView::section {{
-                background: {Colors.BG_PANEL}; color: {Colors.ACCENT_SUCCESS_ALT};
-                border: none; padding: 4px; font-size: 9px; font-weight: bold;
-            }}
-        """)
-        main_lay.addWidget(tbl, 1)
-        self._niveis_table = tbl
-
-        self._niveis_footer_lbl = QLabel("Última geração: —")
-        self._niveis_footer_lbl.setStyleSheet(
-            f"color: {Colors.TEXT_DIM}; font-size: 10px; background: transparent;"
-        )
-        main_lay.addWidget(self._niveis_footer_lbl)
-
-        return container
-
-    def refresh_niveis_tab(self, ficha_data: dict):
-        """
-        Popula a aba Convenção de Níveis (8 colunas).
-
-        Colunas: Nome Doc | Nome Pav | Nível Chegada | Nível Saída | Altura |
-                 Lajes (SA) | Pilares | Vigas
-
-        Fonte primária: recorte convencao_niveis (Elevação Típica) — todos os
-        pavimentos do projeto, não só os que temos DXFs SA.
-        Fonte secundária: laje_niveis do batch SA por pavimento.
-        """
-        from PySide6.QtWidgets import QTableWidgetItem
-        from PySide6.QtGui import QColor as _QColor, QFont as _QFont
-        from datetime import datetime as _dt
-        import sqlite3
-        import re as _re
-
-        if not hasattr(self, '_niveis_table'):
-            return
-
-        tbl = self._niveis_table
-        pavs = ficha_data.get('pavimentos', [])
-        obra = ficha_data.get('obra', '')
-
-        # ── Busca recorte convencao_niveis (obra-wide) ────────────────────────
-        recorte_path: 'str | None' = None
-        if obra:
-            try:
-                DB = Path("D:/Agente-cad-PYSIDE/project_data.vision")
-                conn = sqlite3.connect(str(DB), timeout=5)
-                row = conn.execute(
-                    "SELECT output_path FROM obra_recortes "
-                    "WHERE obra_name=? AND recorte_type='convencao_niveis' "
-                    "AND status IN ('approved','manual') "
-                    "ORDER BY recorte_index DESC LIMIT 1",
-                    (obra,)
-                ).fetchone()
-                conn.close()
-                if row and row[0] and Path(row[0]).exists():
-                    recorte_path = row[0]
-            except Exception:
-                pass
-
-        # ── Importa helpers ───────────────────────────────────────────────────
-        from src.core.niveis_extractor import (
-            extract_elevacao_tipica, pav_num_from_sa_name,
-            lajes_by_nivel, derive_nome_pav, filter_laje_niveis,
-        )
-
-        # ── Extrai Elevação Típica ────────────────────────────────────────────
-        elevacao_tipica: list = []
-        if recorte_path:
-            try:
-                from src.core.dxf_loader import DXFLoader as _DXFLoader
-                dxf_data = _DXFLoader.load_dxf(recorte_path)
-                texts_rec = dxf_data.get('texts', []) if dxf_data else []
-                elevacao_tipica = extract_elevacao_tipica(texts_rec)
-            except Exception as exc:
-                print(f"[DiagnosticHub] Erro ao extrair Elevação Típica: {exc}", flush=True)
-
-        # ── Lookup SA por pav_num ─────────────────────────────────────────────
-        sa_by_num: dict[int, tuple] = {}
-        tip_sa: 'tuple | None' = None
-        for pav in pavs:
-            sa_nome = pav.get('nome', '')
-            if not sa_nome:
-                continue
-            num = pav_num_from_sa_name(sa_nome)
-            if num is None:
-                if _re.search(r'[-_]TIP[-_]', sa_nome, _re.IGNORECASE) and tip_sa is None:
-                    tip_sa = pav
-            else:
-                if num not in sa_by_num:
-                    sa_by_num[num] = pav
-
-        # ── Monta linhas ──────────────────────────────────────────────────────
-        def _pav_row(num, pav_entry, nome_pav, chegada, saida, altura):
-            return {
-                'pav_num':    num,
-                'nome_doc':   pav_entry.get('nome', '—') if pav_entry else '—',
-                'nome_pav':   nome_pav,
-                'chegada':    chegada,
-                'saida':      saida,
-                'altura':     altura,
-                'laje_list':  (pav_entry or {}).get('laje_niveis', []),
-                'pilar_list': (pav_entry or {}).get('pilar_niveis', []),
-                'viga_list':  (pav_entry or {}).get('viga_niveis', []),
-            }
-
-        rows: list[dict] = []
-
-        if elevacao_tipica:
-            matched: set[int] = set()
-            for entry in elevacao_tipica:
-                num     = entry['pav_num']
-                sa_info = sa_by_num.get(num)
-                if sa_info is None and entry.get('is_tipo') and tip_sa:
-                    sa_info = tip_sa
-                if sa_info:
-                    matched.add(num)
-                rows.append(_pav_row(num, sa_info, entry['pav_raw'],
-                                     entry['chegada'], entry['saida'], entry['altura']))
-            for num, pav_entry in sa_by_num.items():
-                if num not in matched:
-                    rows.append(_pav_row(num, pav_entry, derive_nome_pav(num), '?', '?', '?'))
-        else:
-            for pav in pavs:
-                sa_nome = pav.get('nome', '—')
-                num = pav_num_from_sa_name(sa_nome)
-                rows.append(_pav_row(
-                    num if num is not None else 5000,
-                    pav, derive_nome_pav(num), '?', '?', '?'
-                ))
-
-        rows.sort(key=lambda r: r['pav_num'])
-
-        # ── Preenche tabela ───────────────────────────────────────────────────
-        tbl.setRowCount(0)
-        for row in rows:
-            ri = tbl.rowCount()
-            tbl.insertRow(ri)
-
-            # Col 0: Nome Doc
-            item_doc = QTableWidgetItem(row['nome_doc'])
-            item_doc.setForeground(_QColor(Colors.TEXT_SECONDARY))
-            item_doc.setToolTip(row['nome_doc'])
-            tbl.setItem(ri, 0, item_doc)
-
-            # Col 1: Nome Pav
-            item_np = QTableWidgetItem(row['nome_pav'])
-            item_np.setForeground(_QColor(Colors.ACCENT_SUCCESS_ALT))
-            tbl.setItem(ri, 1, item_np)
-
-            # Col 2: Nível Chegada
-            item_ch = QTableWidgetItem(row['chegada'])
-            item_ch.setForeground(
-                _QColor(Contextual.GOLD) if row['chegada'] != '?' else _QColor(Colors.TEXT_DIM)
-            )
-            tbl.setItem(ri, 2, item_ch)
-
-            # Col 3: Nível Saída
-            item_sa_v = QTableWidgetItem(row['saida'])
-            item_sa_v.setForeground(
-                _QColor(Contextual.GOLD) if row['saida'] != '?' else _QColor(Colors.TEXT_DIM)
-            )
-            tbl.setItem(ri, 3, item_sa_v)
-
-            # Col 4: Altura
-            item_al = QTableWidgetItem(row['altura'])
-            item_al.setForeground(
-                _QColor(Colors.ACCENT_MINT) if row['altura'] != '?' else _QColor(Colors.TEXT_DIM)
-            )
-            tbl.setItem(ri, 4, item_al)
-
-            def _filtered_col(item_list, chegada, saida):
-                if not item_list:
-                    return '—'
-                vl, sp = filter_laje_niveis(item_list, chegada, saida)
-                txt = lajes_by_nivel(vl) if vl else '—'
-                if sp:
-                    txt += f'\n⚠ {len(sp)} suspeito(s) filtrado(s)'
-                return txt
-
-            # Col 5: Lajes
-            item_laj = QTableWidgetItem(
-                _filtered_col(row['laje_list'], row['chegada'], row['saida'])
-            )
-            tbl.setItem(ri, 5, item_laj)
-
-            # Col 6: Pilares
-            item_pil = QTableWidgetItem(
-                _filtered_col(row.get('pilar_list', []), row['chegada'], row['saida'])
-            )
-            if not row.get('pilar_list'):
-                item_pil.setForeground(_QColor(Colors.TEXT_DIM))
-            tbl.setItem(ri, 6, item_pil)
-
-            # Col 7: Vigas
-            item_vig = QTableWidgetItem(
-                _filtered_col(row.get('viga_list', []), row['chegada'], row['saida'])
-            )
-            if not row.get('viga_list'):
-                item_vig.setForeground(_QColor(Colors.TEXT_DIM))
-            tbl.setItem(ri, 7, item_vig)
-
-        tbl.resizeRowsToContents()
-
-        # ── Status e rodapé ───────────────────────────────────────────────────
-        n_et   = len(elevacao_tipica)
-        n_rows = len(rows)
-        n_cota = sum(1 for r in rows if r['chegada'] != '?')
-
-        if recorte_path:
-            fonte = f"Elevação Típica: {n_et} pav. extraídos  |  {n_cota}/{n_rows} com cotas"
-            status_color = Semantic.SUCCESS
-        else:
-            fonte = "pré-análise SA (sem recorte Conv. Nív.)"
-            status_color = Contextual.GOLD
-
-        self._niveis_status_lbl.setText(f"✅  {n_rows} pavimento(s) — {fonte}")
-        self._niveis_status_lbl.setStyleSheet(
-            f"color: {status_color}; font-size: 11px; background: transparent;"
-        )
-        ts = _dt.now().strftime("%d/%m/%Y %H:%M")
-        footer_txt = f"Última geração: {ts}"
-        if not recorte_path:
-            footer_txt += "  |  ⚠ Adicione recorte 'Conv. Nív.' (Elevação Típica) para cotas absolutas"
-        self._niveis_footer_lbl.setText(footer_txt)
 
     def _on_work_changed_hub(self, _):
         """Atualiza ComboBox quando obra ativa muda no coordinator."""
@@ -3874,20 +3192,20 @@ class DiagnosticHubModule(QWidget):
                 background: {Colors.BG_SECONDARY};
                 border-top: 1px solid {Colors.ACCENT_BLUE};
             }}
-            QLabel {{ color: white; font-size: {Fonts.SIZE_MD}; }}
-            QPushButton {{ color: white;
-                background: {Colors.ACCENT_BLUE}; color: white;
+            QLabel {{ color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_MD}; }}
+            QPushButton {{
+                background: {Colors.ACCENT_BLUE}; color: {Colors.TEXT_BRIGHT};
                 border-radius: {Radius.MD}; padding: 4px 14px;
                 font-weight: bold; font-size: {Fonts.SIZE_MD};
             }}
             QPushButton:hover {{ background: {Colors.ACCENT_BLUE_HOVER}; }}
-            QPushButton:disabled {{ background: {Colors.BORDER_DEFAULT}; color: white; }}
+            QPushButton:disabled {{ background: {Colors.BORDER_DEFAULT}; color: {Colors.TEXT_DIM}; }}
             QPushButton#pipeline_btn {{
                 background: rgba(26, 74, 26, 1); border: 1px solid {Colors.ACCENT_SUCCESS};
                 font-size: {Fonts.SIZE_MD}; padding: 3px 12px;
             }}
             QPushButton#pipeline_btn:hover {{ background: {Colors.ACCENT_SUCCESS}; }}
-            QCheckBox {{ color: white; font-size: {Fonts.SIZE_MD}; }}
+            QCheckBox {{ color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_MD}; }}
             QProgressBar {{
                 border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: {Radius.SM};
                 background: {Colors.BG_PANEL}; height: 7px;
@@ -3911,7 +3229,7 @@ class DiagnosticHubModule(QWidget):
         r1.addWidget(lbl_title)
 
         self._lbl_fase3_obra = QLabel("Nenhuma obra selecionada")
-        self._lbl_fase3_obra.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_MD};")
+        self._lbl_fase3_obra.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_MD};")
         r1.addWidget(self._lbl_fase3_obra)
 
         r1.addStretch()
@@ -3925,7 +3243,7 @@ class DiagnosticHubModule(QWidget):
 
         self._lbl_fase3_status = QLabel("")
         self._lbl_fase3_status.setFixedWidth(160)
-        self._lbl_fase3_status.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_SM};")
+        self._lbl_fase3_status.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM};")
         r1.addWidget(self._lbl_fase3_status)
 
         self._chk_fase3_force = QCheckBox("Forçar")
@@ -3959,7 +3277,7 @@ class DiagnosticHubModule(QWidget):
         r2.addWidget(self._pipeline_progress)
 
         self._lbl_pipeline_status = QLabel("")
-        self._lbl_pipeline_status.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_SM};")
+        self._lbl_pipeline_status.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM};")
         r2.addWidget(self._lbl_pipeline_status)
 
         r2.addStretch()
@@ -3984,20 +3302,20 @@ class DiagnosticHubModule(QWidget):
         r3.setSpacing(6)
 
         lbl_r3 = QLabel("CAD:")
-        lbl_r3.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_SM}; font-weight: bold; min-width: 30px;")
+        lbl_r3.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM}; font-weight: bold; min-width: 30px;")
         r3.addWidget(lbl_r3)
 
         self._lbl_dxf_status = QLabel("Pronto para gerar DXF")
-        self._lbl_dxf_status.setStyleSheet(f"color: white; font-size: {Fonts.SIZE_SM};")
+        self._lbl_dxf_status.setStyleSheet(f"color: {Colors.TEXT_SECONDARY}; font-size: {Fonts.SIZE_SM};")
         r3.addWidget(self._lbl_dxf_status)
         r3.addStretch()
 
         self._btn_gerar_dxf = QPushButton("Gerar DXF STOG (Obra)")
         self._btn_gerar_dxf.setStyleSheet(
-            f"QPushButton {{ color: white; background: {Surface.RAISED}; color: white; border: 1px solid {Accent.PRIMARY}; "
-            f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
-            f"QPushButton:hover {{ background: {Surface.BASE}; }} "
-            f"QPushButton:disabled {{ color: white; border-color: white; }}"
+            f"QPushButton {{ background: #1a3a5c; color: {Colors.ACCENT_TEAL}; border: 1px solid {Colors.ACCENT_TEAL}; "
+            "border-radius: 4px; font-weight: bold; padding: 4px 10px; } "
+            "QPushButton:hover { background: #1e4a7a; } "
+            f"QPushButton:disabled {{ color: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}"
         )
         self._btn_gerar_dxf.setToolTip(
             "Gera DXFs STOG de toda a obra (PL+LV+FV+LJ) a partir dos JSONs de Fase-4.\n"
@@ -4009,10 +3327,10 @@ class DiagnosticHubModule(QWidget):
         # CAD-12: Entregar Obra
         self._btn_entregar = QPushButton("Entregar Obra")
         self._btn_entregar.setStyleSheet(
-            f"QPushButton {{ color: white; background: {Contextual.FOREST}; color: white; border: 1px solid {Semantic.SUCCESS}; "
-            f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
-            f"QPushButton:hover {{ background: rgba(30, 106, 30, 1); }} "
-            f"QPushButton:disabled {{ color: white; border-color: white; }}"
+            f"QPushButton {{ background: #1a4a1a; color: {Colors.ACCENT_SUCCESS}; border: 1px solid {Colors.ACCENT_SUCCESS}; "
+            "border-radius: 4px; font-weight: bold; padding: 4px 10px; } "
+            "QPushButton:hover { background: #1e6a1e; } "
+            f"QPushButton:disabled {{ color: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}"
         )
         self._btn_entregar.setToolTip("CAD-12: Gera DXFs + converte para DWG via ODA (1 clique)")
         self._btn_entregar.clicked.connect(self._on_entregar_obra)
@@ -4021,10 +3339,10 @@ class DiagnosticHubModule(QWidget):
         # CAD-13: Exportar Dados Treino
         self._btn_ml_export = QPushButton("Exportar Dados Treino")
         self._btn_ml_export.setStyleSheet(
-            f"QPushButton {{ color: white; background: rgba(160, 112, 255, 0.18); color: white; border: 1px solid {Contextual.PURPLE}; "
-            f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
-            f"QPushButton:hover {{ background: rgba(160, 112, 255, 0.28); }} "
-            f"QPushButton:disabled {{ color: white; border-color: white; }}"
+            f"QPushButton {{ background: #3a1a5c; color: {Colors.ACCENT_PURPLE}; border: 1px solid {Colors.ACCENT_PURPLE}; "
+            "border-radius: 4px; font-weight: bold; padding: 4px 10px; } "
+            "QPushButton:hover { background: #4a1a7a; } "
+            f"QPushButton:disabled {{ color: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}"
         )
         self._btn_ml_export.setToolTip("CAD-13: Exporta training_data.json + insights do correction_log")
         self._btn_ml_export.clicked.connect(self._on_ml_export)
@@ -4033,10 +3351,10 @@ class DiagnosticHubModule(QWidget):
         # CAD-14: Importar Todos Pavimentos
         self._btn_multi_pav = QPushButton("Importar Pavimentos")
         self._btn_multi_pav.setStyleSheet(
-            f"QPushButton {{ color: white; background: {Semantic.WARNING_BG_DARK}; color: white; border: 1px solid {Semantic.WARNING}; "
-            f"border-radius: 4px; font-weight: bold; padding: 4px 10px; }} "
-            f"QPushButton:hover {{ background: rgba(90, 58, 26, 1); }} "
-            f"QPushButton:disabled {{ color: white; border-color: white; }}"
+            f"QPushButton {{ background: #3a2a1a; color: {Colors.ACCENT_WARNING_ALT}; border: 1px solid {Colors.ACCENT_WARNING_ALT}; "
+            "border-radius: 4px; font-weight: bold; padding: 4px 10px; } "
+            "QPushButton:hover { background: #5a3a1a; } "
+            f"QPushButton:disabled {{ color: {Colors.TEXT_MUTED}; border-color: {Colors.TEXT_MUTED}; }}"
         )
         self._btn_multi_pav.setToolTip("CAD-14: Importa todos os pavimentos da obra via Fase4Importer")
         self._btn_multi_pav.clicked.connect(self._on_multi_pav_import)
@@ -4830,7 +4148,7 @@ class DiagnosticHubModule(QWidget):
             self.canvas.set_loading(True, f"⌛ Renderizando {n_total:,} entidades...")
             _t_render = _time.monotonic()
             self.canvas.add_dxf_entities(
-                dxf_data, render_mode=render_mode, compute_snaps=False, source_dxf_path=doc_data.get('source_path'),
+                dxf_data, render_mode=render_mode, compute_snaps=False,
                 progress_callback=lambda pct: self.canvas.update_loading_progress(pct, "Renderizando"),
             )
             _render_ms = int((_time.monotonic() - _t_render) * 1000)
@@ -4901,7 +4219,7 @@ class DiagnosticHubModule(QWidget):
         self._current_doc_data = doc_data
 
         if dxf_data:
-            self.canvas.add_dxf_entities(dxf_data, render_mode=render_mode, compute_snaps=False, source_dxf_path=doc_data.get('source_path'))
+            self.canvas.add_dxf_entities(dxf_data, render_mode=render_mode, compute_snaps=False)
 
         self.canvas.set_loading(False)
 
@@ -5056,153 +4374,3 @@ class DiagnosticHubModule(QWidget):
     def _on_project_changed(self, pid, pname):
         print(f"[DiagnosticHub] Project Switched: {pname}")
         self.sidebar.refresh()
-
-
-
-    def _run_crop_engine_all(self):
-        """Roda obra_crop_engine para TODOS os brutos da obra (em QThread). Pula manuais/aprovados."""
-        if not self._current_obra:
-            QMessageBox.warning(self, "Crop", "Selecione uma obra primeiro.")
-            return
-
-        obra_name = self._current_obra
-        from src.core.config import DADOS_ROOT
-        brutos_dir = DADOS_ROOT / obra_name / "Fase-1_Ingestao" / "Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF"
-        if not brutos_dir.exists():
-            QMessageBox.warning(self, "Crop", "Nenhum pavimento bruto encontrado na obra.")
-            return
-
-        all_dxf_paths = list(brutos_dir.glob("*.dxf")) + list(brutos_dir.glob("*.dwg"))
-        if not all_dxf_paths:
-            QMessageBox.warning(self, "Crop", "Nenhum arquivo DXF/DWG encontrado.")
-            return
-
-        # Obter lista de pavimentos que já tem recortes manuais ou aprovados
-        import sqlite3
-        from src.core.config import DB_SQLITE
-        manual_pavs = set()
-        if DB_SQLITE.exists():
-            try:
-                conn = sqlite3.connect(str(DB_SQLITE))
-                cur = conn.cursor()
-                cur.execute("SELECT DISTINCT pavimento_name FROM obra_recortes WHERE obra_name=? AND status IN ('manual', 'approved')", (obra_name,))
-                for row in cur.fetchall():
-                    manual_pavs.add(row[0])
-                conn.close()
-            except Exception as e:
-                print("Erro ao ler DB manual_pavs:", e)
-
-        to_process = []
-        for path in all_dxf_paths:
-            if path.stem not in manual_pavs:
-                to_process.append(path)
-
-        if not to_process:
-            QMessageBox.information(self, "Crop All", "Todos os pavimentos já possuem validações humanas. Nenhum pavimento será sobrescrito.")
-            return
-
-        reply = QMessageBox.question(
-            self, "Processar Todos", 
-            f"Deseja iniciar o processamento de recortes para {len(to_process)} pavimento(s)?\n(Pavimentos com recortes validados por humanos serão pulados).",
-            QMessageBox.Yes | QMessageBox.No
-        )
-        if reply != QMessageBox.Yes:
-            return
-
-        self._btn_process_crops.setEnabled(False)
-        self._btn_process_all_crops.setEnabled(False)
-        self._crop_progress.setVisible(True)
-        self._crop_progress.setValue(0)
-        self._lbl_recortes_status.setText(f"⚙ Processando {len(to_process)} pavimentos...")
-
-        from PySide6.QtCore import QObject, Signal as QSignal
-
-        class _CropAllWorker(QObject):
-            finished = QSignal(dict)
-            progress = QSignal(int, str)
-            error    = QSignal(str)
-
-            def __init__(self, obra, paths):
-                super().__init__()
-                self._obra = obra
-                self._paths = paths
-
-            def run(self):
-                try:
-                    import sys
-                    scripts_dir = Path(__file__).parent.parent.parent.parent / "scripts"
-                    if str(scripts_dir.parent) not in sys.path:
-                        sys.path.insert(0, str(scripts_dir.parent))
-                    from scripts.obra_crop_engine import process_pavimento_crops, ensure_recortes_in_db
-                    
-                    results = []
-                    total = len(self._paths)
-                    for i, path in enumerate(self._paths):
-                        self.progress.emit(int((i / total) * 100), f"Processando {path.stem}...")
-                        res = process_pavimento_crops(
-                            obra_name=self._obra,
-                            pavimento_name=path.stem,
-                            dxf_bruto_path=str(path),
-                            n_torres=1,
-                            force=True,
-                        )
-                        try:
-                            ensure_recortes_in_db(self._obra, path.stem, str(path), res)
-                        except Exception as ex:
-                            print(f"[crop_all] Erro DB {path.stem}: {ex}")
-                        results.append(res)
-                    
-                    self.progress.emit(100, "Concluído")
-                    self.finished.emit({"total": total, "results": results})
-                except Exception as e:
-                    import traceback
-                    traceback.print_exc()
-                    self.error.emit(str(e))
-
-        class _CropAllProxy(QObject):
-            def __init__(self, hub, thread, parent=None):
-                super().__init__(parent)
-                self._hub = hub
-                self._thread = thread
-            
-            def on_progress(self, val: int, msg: str):
-                hub = self._hub
-                hub._crop_progress.setValue(val)
-                hub._lbl_recortes_status.setText(f"⚙ {msg}")
-
-            def on_done(self, result: dict):
-                hub = self._hub
-                hub._crop_progress.setVisible(False)
-                total = result.get("total", 0)
-                hub._lbl_recortes_status.setText(f"✅ {total} pavimentos processados.")
-                if hub._current_bruto_path:
-                    hub._refresh_recortes_list(hub._current_bruto_path)
-                hub._refresh_brutos_list(hub._current_obra)
-                hub._btn_process_crops.setEnabled(True)
-                hub._btn_process_all_crops.setEnabled(True)
-                self._thread.quit()
-
-            def on_error(self, msg: str):
-                hub = self._hub
-                hub._crop_progress.setVisible(False)
-                hub._lbl_recortes_status.setText(f"❌ Erro: {msg}")
-                QMessageBox.critical(hub, "Crop All Engine", f"Erro ao processar recortes:\n{msg}")
-                hub._btn_process_crops.setEnabled(True)
-                hub._btn_process_all_crops.setEnabled(True)
-                self._thread.quit()
-
-        thread = QThread(self)
-        worker = _CropAllWorker(obra_name, to_process)
-        worker.moveToThread(thread)
-        thread.started.connect(worker.run)
-
-        proxy = _CropAllProxy(self, thread, parent=self)
-        worker.progress.connect(proxy.on_progress)
-        worker.finished.connect(proxy.on_done)
-        worker.error.connect(proxy.on_error)
-
-        worker.setParent(None)
-        self._retiring_crop_workers.append((thread, worker, proxy))
-        thread.finished.connect(lambda: self._retiring_crop_workers.remove((thread, worker, proxy)) if (thread, worker, proxy) in self._retiring_crop_workers else None)
-        
-        thread.start()

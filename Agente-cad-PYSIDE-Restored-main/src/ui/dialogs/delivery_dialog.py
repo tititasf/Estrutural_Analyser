@@ -21,7 +21,16 @@ except ImportError:
     _QT_AVAILABLE = False
 
 if _QT_AVAILABLE:
-    from src.ui.theme import Colors, Accent, Semantic, Text, Border, Surface
+    try:
+        from src.ui.theme import Colors
+    except ImportError:
+        class Colors:
+            ACCENT_MINT = '#00e5cc'
+            SUCCESS = '#4caf50'
+            DANGER = '#f44336'
+            BG_CARD = '#1a1a2e'
+            TEXT_PRIMARY = '#e0e0e0'
+            BORDER_DEFAULT = '#333355'
 
 
 if _QT_AVAILABLE:
@@ -86,9 +95,9 @@ if _QT_AVAILABLE:
             self._log.setReadOnly(True)
             self._log.setMinimumHeight(180)
             self._log.setStyleSheet(
-                f"background: {Surface.DEEP}; color: {Text.PRIMARY}; "
+                f"background: #0d0d1a; color: {Colors.TEXT_PRIMARY}; "
                 f"font-family: Consolas, monospace; font-size: 10px; "
-                f"border: 1px solid {Border.DEFAULT};"
+                f"border: 1px solid {Colors.BORDER_DEFAULT};"
             )
             layout.addWidget(self._log)
 

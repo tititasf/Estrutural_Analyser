@@ -1,3 +1,153 @@
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str("script.google.com"): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str("macros/s/"): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str("AKfycbz"): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str("credit"): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str("saldo"): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str("consumo"): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str("api_key"): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str("user_id"): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str("calcular_creditos"): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str("confirmar_consumo"): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str("consultar_saldo"): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str("debitar_creditos"): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str("CreditManager"): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str("obter_hwid"): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str("generate_signature"): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str("encrypt_string"): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str("decrypt_string"): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str("integrity_check"): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str("security_utils"): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str("https://"): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str("google.com"): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str("apps.script"): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str("script.google.com")): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("macros/s/")): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("AKfycbz")): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("credit")): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("saldo")): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("consumo")): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("api_key")): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("user_id")): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("calcular_creditos")): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("confirmar_consumo")): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("consultar_saldo")): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("debitar_creditos")): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("CreditManager")): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("obter_hwid")): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("generate_signature")): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("encrypt_string")): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("decrypt_string")): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("integrity_check")): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("security_utils")): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("https://")): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("google.com")): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("apps.script")): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("credit"))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("saldo"))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("consumo"))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("api_key"))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("user_id"))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("security_utils"))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("https://"))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("google.com"))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("apps.script"))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com")))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/")))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz")))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit")))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo")))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo")))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key")))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id")))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos")))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo")))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo")))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos")))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager")))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid")))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature")))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string")))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string")))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check")))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils")))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://")))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com")))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script")))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit"))))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo"))))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo"))))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key"))))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id"))))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils"))))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://"))))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com"))))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script"))))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
 import uuid
 import math
 import re
@@ -9,7 +159,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
 from PySide6.QtCore import Qt, Signal
 from .link_manager import LinkManager
 from src.ui.widgets.interpretation_dialog import InterpretationDialog
-from src.ui.theme import Colors, Fonts, Radius, Semantic, Text, Surface, Border, Accent
+from src.ui.theme import Colors, Fonts, Radius
 
 try:
     from src.ui.widgets.comparison_tab import ComparisonTab
@@ -47,33 +197,11 @@ class DetailCard(QWidget):
     data_changed = Signal(dict)           # (dict) disparado quando qualquer dado muda (nome, dim, etc)
     validation_changed = Signal(dict)     # (dict) mudanca leve: somente estado de validacao/treino
     log_requested = Signal(str)           # (str) pedido de log no console principal
-
-    # Deve permanecer em paridade com MainWindow._calculate_completion().
-    _LAJE_REQUIRED_VALIDATION_FIELDS = frozenset({
-        'name', 'laje_dim', 'laje_visao_corte', 'laje_vizinhas_niveis',
-        'laje_pilares_apoio', 'laje_nivel', 'laje_outline_segs', 'laje_islands',
-    })
     
     # Estilos CSS Reutilizáveis — usando tokens do design system
-    # [2026-07-13] Campo validado por humano no app desktop é AZUL (era
-    # verde) — harmoniza com o modelo de 3 origens de campo (azul=app,
-    # rosa=Portal, laranja=agente QA), ver `src/core/validation_model.py`.
-    STYLE_DEFAULT        = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL};"
-    STYLE_VALID          = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_PRIMARY}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
-    STYLE_VALID_ROSA     = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_ROSA}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
-    STYLE_VALID_LARANJA  = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_WARNING}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
-    STYLE_NA             = f"background: rgba(51, 51, 17, 230); border: 1px solid {Colors.ACCENT_INFO}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_INFO}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
-    # [2026-07-17] N/A decidido pelo agente QA fica laranja (mesma cor de
-    # STYLE_VALID_LARANJA) em vez do azul-info padrão de STYLE_NA — o dono
-    # quer distinguir visualmente "agente disse que não se aplica" de N/A
-    # marcado manualmente por um humano. Ver ORIGEM_NA_AGENTE_MARCADOR em
-    # src/core/validation_model.py.
-    STYLE_NA_AGENTE      = f"background: rgba(51, 51, 17, 230); border: 1px solid {Colors.ACCENT_WARNING}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_WARNING}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
-    # [2026-07-17] Campo que o agente QA tentou resolver e concluiu que
-    # precisa de humano (não é N/A — precisa de valor real). Roxo pra não
-    # ser confundido com "ninguém olhou ainda" (STYLE_DEFAULT). Ver
-    # AGENT_PENDING_KEY em src/core/validation_model.py.
-    STYLE_PENDENTE_AGENTE = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_PURPLE}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL};"
+    STYLE_DEFAULT = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL};"
+    STYLE_VALID   = f"background: {Colors.BG_CARD}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.TEXT_PRIMARY}; font-size: {Fonts.SIZE_XL}; font-weight: bold;"
+    STYLE_NA      = f"background: rgba(51, 51, 17, 230); border: 1px solid {Colors.ACCENT_INFO}; padding: 4px 6px; border-radius: {Radius.MD}; color: {Colors.ACCENT_INFO}; font-size: {Fonts.SIZE_XL}; font-style: italic;"
 
     def __init__(self, item_data: dict, parent=None,
                  obra_path=None, db=None, project_id: str = ''):
@@ -101,37 +229,11 @@ class DetailCard(QWidget):
         self.embedded_managers = {}
         self._tipo_comp_buttons = {}  # Armazena referências aos round buttons de tipo comprimento
         self._link_conf_badges  = {}  # field_id -> QLabel do badge XX% de confiança vínculos
-
-        # PERFORMANCE: data_changed era emitido a cada TECLA (textChanged em
-        # todo QLineEdit via _on_field_changed) — o handler em main.py
-        # (on_detail_data_changed) faz save_pillar/save_beam/save_slab (DB) +
-        # vários redraws de canvas inteiro por chamada. Digitar qualquer coisa
-        # travava a UI. Debounce: só emite 400ms depois que o usuário para de
-        # digitar. flush_pending_changes() garante que nada se perde ao trocar
-        # de item (chamado por main.py antes de destruir o card atual).
-        from PySide6.QtCore import QTimer
-        self._data_changed_timer = QTimer(self)
-        self._data_changed_timer.setSingleShot(True)
-        self._data_changed_timer.setInterval(400)
-        self._data_changed_timer.timeout.connect(
-            lambda: self.data_changed.emit(self.item_data)
-        )
-
         self.init_ui()
-
+        
         # Conectar sinal interno para auto-atualização do cabeçalho
         self.data_changed.connect(self._update_header_counts)
         self.validation_changed.connect(self._update_header_counts)
-
-    def flush_pending_changes(self):
-        """Emite data_changed imediatamente se houver debounce pendente.
-
-        Chamar antes de destruir/trocar o card (ex: show_detail) para não
-        perder a última edição feita a menos de 400ms da troca de item.
-        """
-        if self._data_changed_timer.isActive():
-            self._data_changed_timer.stop()
-            self.data_changed.emit(self.item_data)
 
     def _scan_local_segments(self):
         """Conta segmentos locais (A, B, C) para exibicao no cabecalho"""
@@ -167,33 +269,6 @@ class DetailCard(QWidget):
                 self.fields['viga_count_c'].setStyleSheet(f"background: {Colors.BG_CARD}; color: {Colors.ACCENT_PRIMARY}; font-weight: bold; border: none;")
 
 
-    def _add_info_row(self, layout, label_text, field_id, is_combo=False, combo_items=None):
-        if is_combo:
-            w = QComboBox()
-            w.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
-            if combo_items:
-                w.addItems(combo_items)
-            w.currentTextChanged.connect(lambda txt: self._on_field_changed(field_id, txt))
-        else:
-            w = QLineEdit()
-            w.setStyleSheet(f"background: {Colors.BG_CARD}; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 3px; color: {Colors.TEXT_BRIGHT};")
-            w.textChanged.connect(lambda txt: self._on_field_changed(field_id, txt))
-        
-        w.setFixedHeight(24)
-        
-        # Populate initial value
-        initial_val = str(self.item_data.get('fields', {}).get(field_id, self.item_data.get(field_id, '')))
-        if initial_val and initial_val != 'None':
-            if is_combo:
-                idx = w.findText(initial_val)
-                if idx >= 0:
-                    w.setCurrentIndex(idx)
-            else:
-                w.setText(initial_val)
-                
-        self.fields[field_id] = w
-        layout.addRow(label_text, w)
-
     def _add_linked_row(self, layout, label_text, field_id, pick_type='text', is_combo=False, combo_items=None, 
                         show_links=True, show_focus=True, hide_input=False, show_validate=True, show_na=True):
         
@@ -215,9 +290,7 @@ class DetailCard(QWidget):
                 w.setMinimumWidth(20)
                 w.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
                 
-            w.setStyleSheet(
-                self.STYLE_VALID if self._field_has_human_validation(field_id) else self.STYLE_DEFAULT
-            )
+            w.setStyleSheet(self.STYLE_DEFAULT if field_id not in self.item_data.get('validated_fields', []) else self.STYLE_VALID)
             self.fields[field_id] = w
             
             # Conectar mudança imediata para refletir nas listas do MainWindow
@@ -249,10 +322,7 @@ class DetailCard(QWidget):
                 count = len(links)
                 
             if initial_val:
-                if 'dim' in field_id.lower():
-                    w.setText(f"Dim: {initial_val}")
-                else:
-                    w.setText(f"{initial_val}")
+                w.setText(f"Dim: {initial_val}")
                 w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 10px;")
             elif count > 0 and isinstance(w, QLabel):
                 w.setText(f"{count} Vínculo(s) Ok")
@@ -347,13 +417,13 @@ class DetailCard(QWidget):
             _lc = self._calc_field_links_confidence(field_id)
             _lc_pct = int(_lc * 100)
             if _lc_pct > 80:
-                _lc_color = Semantic.SUCCESS
+                _lc_color = '#66bb6a'   # verde
                 _lc_tip   = 'Alta confiança'
             elif _lc_pct > 40:
-                _lc_color = Semantic.WARNING
+                _lc_color = '#ffa726'   # amarelo/laranja
                 _lc_tip   = 'Confiança média — revisar'
             else:
-                _lc_color = Semantic.DANGER
+                _lc_color = '#ef5350'   # vermelho
                 _lc_tip   = 'Baixa confiança — verificar vínculos'
             _lc_lbl = QLabel(f'{_lc_pct}%')
             _lc_lbl.setFixedHeight(22)
@@ -371,7 +441,7 @@ class DetailCard(QWidget):
             btn_express.setFixedHeight(22)
             btn_express.setToolTip("Validação Express (Clique para desfazer)")
             btn_express.setCheckable(True)
-            btn_express.setChecked(self._field_has_human_validation(field_id))
+            btn_express.setChecked(field_id in self.item_data.get('validated_fields', []))
             btn_express.setProperty("class", "FieldBtn")
             btn_express.setCursor(Qt.PointingHandCursor)
             
@@ -401,7 +471,11 @@ class DetailCard(QWidget):
             btn_na.setChecked(field_id in self.item_data.get('na_fields', []))
             btn_na.setProperty("class", "FieldBtn")
             btn_na.setCursor(Qt.PointingHandCursor)
-            btn_na.setStyleSheet(self._na_button_qss(field_id))
+            btn_na.setStyleSheet(f"""
+                QPushButton {{ color: {Colors.TEXT_MUTED}; background: transparent; border: 1px solid transparent; border-radius: 4px; font-size: 10px; font-weight: bold; padding: 0 4px;}}
+                QPushButton:hover {{ background: rgba(244, 67, 54, int(1/100*255)); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER}; }}
+                QPushButton:checked {{ background: rgba(244, 67, 54, int(2/100*255)); color: {Colors.ACCENT_DANGER}; border: 1px solid {Colors.ACCENT_DANGER}; }}
+            """)
             btn_na.clicked.connect(lambda chk, f_id=field_id: self._on_na_clicked(f_id, chk))
             actions_layout.addWidget(btn_na)
         else:
@@ -495,7 +569,6 @@ class DetailCard(QWidget):
         lm.config_changed.connect(lambda k, v: self.config_updated.emit(k, v))
         lm.link_data_changed.connect(lambda f=field_id: (
             self._refresh_link_conf_badge(f),
-            self._refresh_text_field_from_link(f),
             self.data_changed.emit(self.item_data),
         ))
         
@@ -581,13 +654,12 @@ class DetailCard(QWidget):
                 
             # Verificar se restaram vínculos validados no campo. Se não, desvalida o campo inteiro.
             has_validated_links = False
-            field_links = self._ensure_field_links_dict(self.item_data, field_id)
-            for _s_id, s_links in field_links.items():
-                if any(isinstance(l, dict) and l.get('validated') for l in s_links):
+            for s_id, s_links in field_links.items():
+                if any(l.get('validated') for l in s_links):
                     has_validated_links = True
                     break
                     
-            if not has_validated_links and self._field_has_human_validation(field_id):
+            if not has_validated_links and field_id in self.item_data.get('validated_fields', []):
                 self.undo_field_validation(field_id)
             
             # Recalcular is_validated da Ficha inteira
@@ -650,277 +722,42 @@ class DetailCard(QWidget):
         if self.item_data.get('is_validated'):
             self.item_data['is_validated'] = False
 
-    def _campos_obrigatorios_do_item(self) -> set:
-        item_type = str(self.item_data.get('type') or '').lower()
-        if 'laje' in item_type:
-            return set(self._LAJE_REQUIRED_VALIDATION_FIELDS)
-        # Fora de LAJ, sela somente quando cada campo que a UI oferece
-        # para Validar/N/A foi resolvido pelo usuario.
-        return set(self.action_btns)
-
-    def _auto_seal_completed_item(self) -> bool:
-        """Recalcula os 3 selos de campo (azul/rosa/laranja,
-        `src/core/validation_model.calcular_selos_item`) sempre que os
-        campos mudam, e concede — sem diálogo — o selo azul + o selo verde
-        (cascata já existente) na primeira vez que os campos completam
-        100% via `humano_app` [2026-07-13, modelo de 4 selos]."""
-        from src.core.validation_model import calcular_selos_item
-
-        na_fields = self.item_data.get('na_fields', [])
-        na_fields = set(na_fields.keys()) if isinstance(na_fields, dict) else set(na_fields)
-        selos = calcular_selos_item(
-            self.item_data.get('validated_fields', {}), na_fields, self._campos_obrigatorios_do_item(),
-        )
-        self.item_data['selo_rosa'] = selos['rosa']
-        self.item_data['selo_laranja'] = selos['laranja']
-
-        if self.item_data.get('is_fully_validated') or not selos['azul']:
-            self.item_data['selo_azul'] = selos['azul']
-            return False
-
-        # Azul = todos os campos resolvidos por humano no app + validacao
-        # do item. O verde permanece reservado ao fluxo manual de
-        # validacao simples, mas a cascata já existente se mantém:
-        # atingir azul também liga verde.
-        self.item_data['selo_azul'] = True
-        self.item_data['is_fully_validated'] = True  # alias de compat (nome antigo)
-        self.item_data['is_validated'] = True
-        self.refresh_validation_styles()
-        self.validation_changed.emit({
-            'item': self.item_data,
-            'is_valid': True,
-            'scope': 'item_auto_complete',
-        })
-        self.data_validated.emit(self.item_data)
-        self.log_requested.emit('Item certificado automaticamente: 100% dos campos validados/N/A (selo azul).')
-        return True
-
-    # ── Validação individual por segmento (FV/LV) ──────────────────────────
-    # Espelha o par selo verde/azul do item, mas escopado a 1 segmento
-    # (`{prefix}_seg_{idx}`). Campos validam o segmento (auto, via
-    # `_sync_segment_flag_from_fields`), mas validar um segmento manualmente
-    # NUNCA valida seus campos — só quando TODOS os segmentos ativos do item
-    # estão validados (manual ou por campo) o item ganha selo verde; o selo
-    # azul do item continua exigindo 100% dos campos do item inteiro.
-    _SEG_FIELD_RE = re.compile(r'^(viga_(?:a|b|fundo))_seg_(\d+)_')
-
-    def _extract_segment_from_field(self, field_id: str):
-        match = self._SEG_FIELD_RE.match(str(field_id))
-        if not match:
-            return None
-        return match.group(1), int(match.group(2))
-
-    def _segment_key(self, prefix: str, idx: int) -> str:
-        return f'{prefix}_seg_{idx}'
-
-    def _segment_required_fields(self, prefix: str, idx: int) -> set:
-        seg_uid = self._segment_key(prefix, idx)
-        return {fid for fid in self.action_btns if str(fid).startswith(f'{seg_uid}_')}
-
-    def _segment_reaches_full_validation(self, prefix: str, idx: int) -> bool:
-        validated = self.item_data.get('validated_fields', [])
-        na_fields = self.item_data.get('na_fields', [])
-        validated = set(validated.keys()) if isinstance(validated, dict) else set(validated)
-        na_fields = set(na_fields.keys()) if isinstance(na_fields, dict) else set(na_fields)
-        completed = validated | na_fields
-        required = self._segment_required_fields(prefix, idx)
-        return bool(required) and required.issubset(completed)
-
-    def _all_active_segment_keys(self) -> set:
-        """Todas as chaves de segmento ativas neste item — FV usa só
-        `viga_fundo`; LV usa `viga_a`/`viga_b` conforme o tipo do item."""
-        itype = str(self.item_data.get('type') or '').lower()
-        keys: set = set()
-        if itype in ('viga_fundo', 'viga_fundo_c'):
-            for idx in self._existing_beam_segment_indices('viga_fundo', is_fundo=True):
-                keys.add(self._segment_key('viga_fundo', idx))
-            return keys
-        prefixes = []
-        if itype in ('viga_lateral', 'viga_lateral_a'):
-            prefixes.append('viga_a')
-        if itype in ('viga_lateral', 'viga_lateral_b'):
-            prefixes.append('viga_b')
-        for prefix in prefixes:
-            for idx in self._existing_beam_segment_indices(prefix, is_fundo=False):
-                keys.add(self._segment_key(prefix, idx))
-        return keys
-
-    def _maybe_cascade_segments_to_item(self):
-        """Quando TODOS os segmentos ativos estão validados (manual ou via
-        campo), o item ganha selo verde — nunca inventa o selo azul a partir
-        disso, que continua exigindo 100% dos campos do item inteiro."""
-        active = self._all_active_segment_keys()
-        if not active:
-            return
-        segs = self.item_data.get('validated_segments') or {}
-        if all(segs.get(k) for k in active) and not self.item_data.get('is_validated'):
-            self.item_data['is_validated'] = True
-            self.refresh_validation_styles()
-            self.validation_changed.emit({
-                'item': self.item_data,
-                'is_valid': True,
-                'scope': 'all_segments_complete',
-            })
-
-    def _sync_segment_flag_from_fields(self, prefix: str, idx: int):
-        """Chamado após validar/desfazer um campo — emite o selo automático
-        do SEGMENTO quando os campos DELE (só dele) chegam a 100%, espelhando
-        `_auto_seal_completed_item` mas escopado. Não mexe no selo manual de
-        outros segmentos nem desliga um selo manual já dado a este."""
-        key = self._segment_key(prefix, idx)
-        segs = self.item_data.setdefault('validated_segments', {})
-        if self._segment_reaches_full_validation(prefix, idx):
-            if not segs.get(key):
-                segs[key] = True
-                self._maybe_cascade_segments_to_item()
-
-    def toggle_segment_validated_manual(self, prefix: str, idx: int):
-        """Selo verde MANUAL de 1 segmento — ação do usuário, independente
-        dos campos (o inverso é automático: campos validam o segmento, ver
-        `_sync_segment_flag_from_fields`; validar o segmento não valida os
-        campos dele)."""
-        key = self._segment_key(prefix, idx)
-        segs = self.item_data.setdefault('validated_segments', {})
-        segs[key] = not segs.get(key, False)
-        if segs[key]:
-            self._maybe_cascade_segments_to_item()
-        self.refresh_validation_styles()
-        self.data_changed.emit(self.item_data)
-
-    def _build_segment_validate_button(self, prefix: str, idx: int) -> QPushButton:
-        """Botão checável de validação individual do segmento (FV/LV) — usado
-        no cabeçalho do card de segmento em `_add_rich_segment_pack`/
-        `_add_fundo_segment_pack`."""
-        key = self._segment_key(prefix, idx)
-        segs = self.item_data.get('validated_segments') or {}
-        btn = QPushButton("✓ Segmento validado")
-        btn.setCheckable(True)
-        btn.setChecked(bool(segs.get(key)))
-        btn.setCursor(Qt.PointingHandCursor)
-        btn.setFixedHeight(28)
-
-        def _style(checked: bool):
-            if checked:
-                btn.setStyleSheet(
-                    f"font-size: 11px; font-weight: bold; padding: 4px 10px; "
-                    f"background: {Colors.ACCENT_MINT}; color: #05261f; "
-                    f"border: 1px solid {Colors.ACCENT_MINT}; border-radius: 4px;"
-                )
-            else:
-                btn.setStyleSheet(
-                    f"font-size: 11px; padding: 4px 10px; background: {Colors.BG_CARD}; "
-                    f"color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_INPUT}; "
-                    f"border-radius: 4px;"
-                )
-
-        _style(btn.isChecked())
-
-        def _on_click(checked, p=prefix, i=idx, b=btn):
-            self.toggle_segment_validated_manual(p, i)
-            _style(b.isChecked())
-
-        btn.clicked.connect(_on_click)
-        return btn
-
-    @staticmethod
-    def _normalize_slot_link_list(slot_value) -> list:
-        """Normaliza payload de um slot de vínculos para ``list[dict]``.
-
-        Em pilares/lados, o SA às vezes grava string crua (``\"19/55\"``) ou um
-        dict solto em vez de lista de links. Iterar string e fazer
-        ``link['validated']=True`` quebra com TypeError.
-        """
-        if slot_value is None:
-            return []
-        if isinstance(slot_value, str):
-            text = slot_value.strip()
-            return [{'text': text, 'type': 'text'}] if text else []
-        if isinstance(slot_value, dict):
-            if any(key in slot_value for key in ('text', 'type', 'points', 'pos', 'len')):
-                return [slot_value]
-            return []
-        if isinstance(slot_value, (list, tuple)):
-            normalized: list = []
-            for item in slot_value:
-                if isinstance(item, dict):
-                    normalized.append(item)
-                elif isinstance(item, str) and item.strip():
-                    normalized.append({'text': item.strip(), 'type': 'text'})
-            return normalized
-        return []
-
-    @classmethod
-    def _ensure_field_links_dict(cls, item_data: dict, field_id: str) -> dict:
-        """Garante ``item_data['links'][field_id]`` como ``dict[slot, list[dict]]``."""
-        links_root = item_data.setdefault('links', {})
-        raw = links_root.get(field_id, {})
-        if isinstance(raw, list):
-            raw = {'label': raw}
-        elif isinstance(raw, str):
-            text = raw.strip()
-            raw = {'label': [{'text': text, 'type': 'text'}]} if text else {}
-        elif not isinstance(raw, dict):
-            raw = {}
-        links_root[field_id] = raw
-        for slot_id, slot_val in list(raw.items()):
-            if isinstance(slot_val, list) and all(isinstance(item, dict) for item in slot_val):
-                continue
-            raw[slot_id] = cls._normalize_slot_link_list(slot_val)
-        return raw
-
-    def _field_has_human_validation(self, field_id: str) -> bool:
-        from src.core.validation_model import ORIGEM_HUMANO_APP, origens_do_campo
-        return ORIGEM_HUMANO_APP in origens_do_campo(
-            self.item_data.get('validated_fields'), field_id
-        )
-
     def mark_field_validated(self, field_id, is_valid=True, emit_data_changed=True):
-        """Aplica estilo visual de validação no widget do campo de forma
-        otimizada — validação humana feita aqui no app desktop é sempre
-        origem `humano_app` (selo azul), ver `src/core/validation_model.py`."""
-        from src.core.validation_model import (
-            ORIGEM_HUMANO_APP, adicionar_validacao_campo, origens_do_campo, remover_validacao_campo,
-        )
-        validated = self.item_data.get('validated_fields')
-
+        """Aplica estilo visual de validação no widget do campo de forma otimizada"""
+        validated = self.item_data.setdefault('validated_fields', [])
+        
         # Otimização: Se já estiver no estado desejado, não faz nada
-        ja_validado_humano = ORIGEM_HUMANO_APP in origens_do_campo(validated, field_id)
-        if is_valid and ja_validado_humano: return
-        if not is_valid and not ja_validado_humano: return
+        if is_valid and field_id in validated: return
+        if not is_valid and field_id not in validated: return
 
         if is_valid:
-            self.item_data['validated_fields'] = adicionar_validacao_campo(validated, field_id, ORIGEM_HUMANO_APP)
-
+            validated.append(field_id)
+            
             # --- CASCADE VALIDATION TO LINKS ---
             if 'links' in self.item_data and field_id in self.item_data['links']:
-                links_data = self._ensure_field_links_dict(self.item_data, field_id)
+                links_data = self.item_data['links'][field_id]
                 if isinstance(links_data, dict):
                     valid_map = self.item_data.setdefault('validated_link_classes', {})
                     valid_map[field_id] = list(links_data.keys())
-
-                    for _slot_id, link_list in links_data.items():
+                    
+                    for slot_id, link_list in links_data.items():
                         for link in link_list:
-                            if isinstance(link, dict):
-                                link['validated'] = True
-
+                            link['validated'] = True
+            
             if field_id in self.embedded_managers:
                 lm = self.embedded_managers[field_id]
                 lm.links = self.item_data['links'].get(field_id, {})
                 lm.validated_slots = set(self.item_data.get('validated_link_classes', {}).get(field_id, []))
                 lm.refresh_list()
         else:
-            self.item_data['validated_fields'] = remover_validacao_campo(validated, field_id, origem=ORIGEM_HUMANO_APP)
+            validated.remove(field_id)
             self._clear_full_validation_state()
-
+            
         self._refresh_link_conf_badge(field_id)
-        seg = self._extract_segment_from_field(field_id) if is_valid else None
-        if seg:
-            self._sync_segment_flag_from_fields(*seg)
         self.refresh_validation_styles()
-        auto_sealed = is_valid and self._auto_seal_completed_item()
         if emit_data_changed:
             self.data_changed.emit(self.item_data)
-        elif not auto_sealed:
+        else:
             self.validation_changed.emit({
                 'item': self.item_data,
                 'field_id': field_id,
@@ -1011,7 +848,9 @@ class DetailCard(QWidget):
 
     def _on_express_validate(self, field_id):
         """Valida o campo imediatamente ou Desfaz (Undo) se já estava validado"""
-        if self._field_has_human_validation(field_id):
+        is_already_validated = field_id in self.item_data.get('validated_fields', [])
+        
+        if is_already_validated:
              self.undo_field_validation(field_id)
              return
              
@@ -1022,8 +861,9 @@ class DetailCard(QWidget):
         if isinstance(widget, QLineEdit): val = widget.text()
         elif isinstance(widget, QComboBox): val = widget.currentText()
         
-        # Recuperar links existentes para treino (normaliza string/dict legado)
-        links = self._ensure_field_links_dict(self.item_data, field_id)
+        # Recuperar links existentes para treino
+        links = self.item_data.get('links', {}).get(field_id, {})
+        if isinstance(links, list): links = {'label': links}
         
         target_link = None
         target_slot = 'default'
@@ -1031,11 +871,9 @@ class DetailCard(QWidget):
         # Busca primeiro link disponível
         for slot, link_list in links.items():
             if link_list:
-                candidate = link_list[0]
-                if isinstance(candidate, dict):
-                    target_link = candidate
-                    target_slot = slot
-                    break
+                target_link = link_list[0]
+                target_slot = slot
+                break
         
         if not target_link:
             # Cria synthetic link se não houver
@@ -1068,7 +906,7 @@ class DetailCard(QWidget):
                  tmp = LinkManager(field_id, {}, parent=None)
                  expected_slots = [s['id'] for s in tmp._get_slots(field_id)]
                  tmp.deleteLater()
-             except Exception:
+             except:
                  expected_slots = []
 
         # 2. Verificar conteúdo e distribuir status
@@ -1080,11 +918,11 @@ class DetailCard(QWidget):
              if field_id not in valid_map: valid_map[field_id] = []
              if field_id not in na_map: na_map[field_id] = []
              
-             current_links = self._ensure_field_links_dict(self.item_data, field_id)
+             current_links = self.item_data.get('links', {}).get(field_id, {})
+             if isinstance(current_links, list): current_links = {'label': current_links} # Normalize
              
              for slot_id in expected_slots:
-                 slot_links = current_links.get(slot_id) or []
-                 has_links = len(slot_links) > 0
+                 has_links = slot_id in current_links and len(current_links[slot_id]) > 0
                  
                  if has_links:
                      # Tem links -> Valida
@@ -1093,13 +931,10 @@ class DetailCard(QWidget):
                      if slot_id in na_map[field_id]:
                          na_map[field_id].remove(slot_id)
                          
-                     example = slot_links[0] if isinstance(slot_links[0], dict) else {
-                         'text': str(slot_links[0]), 'type': 'text'
-                     }
                      # Treinar este slot como valido
                      self.training_requested.emit(field_id, {
                          'slot': slot_id,
-                         'link': example,
+                         'link': current_links[slot_id][0], # Usa o primeiro link como exemplo
                          'comment': f"Smart Validation: Slot {slot_id} validado.",
                          'status': "valid",
                          'propagate': False,
@@ -1296,12 +1131,10 @@ class DetailCard(QWidget):
         return f
 
     def _on_field_changed(self, key, value):
-        """Atualiza item_data imediatamente ao digitar; data_changed (caro:
-        DB save + redraw de canvas nos listeners) sai debounced — ver
-        _data_changed_timer no __init__."""
+        """Atualiza item_data imediatamente ao digitar"""
         self.item_data[key] = value
-        self._data_changed_timer.start()
-
+        self.data_changed.emit(self.item_data)
+        
         # Sincronização especial para Marco DXF
         if key.startswith('ext_viga_') and 'vigas_individuais' in self.item_data:
             v_id = key.replace('ext_viga_', '')
@@ -1313,81 +1146,18 @@ class DetailCard(QWidget):
                     except: pass
                     break
 
-    # [2026-07-13] Rótulo + emoji de cada origem, pra tooltip "quem validou".
-    _ORIGEM_ROTULO = {
-        'humano_app': ('🔵', 'App Desktop (humano)'),
-        'humano_portal': ('🌸', 'Portal de Formas (humano)'),
-        'qa_agente': ('🟠', 'Agente QA-Global-Evidências'),
-    }
-
-    def _estilo_e_tooltip_por_origem(self, fid: str):
-        """Escolhe a cor de borda (prioridade azul > laranja > rosa quando
-        o campo tem mais de 1 origem — só pra escolha visual da ÚNICA
-        borda possível, não é peso/hierarquia de confiança) e monta o
-        tooltip listando TODAS as origens presentes (pode ter até 3)."""
-        from src.core.validation_model import origens_do_campo
-        origens = origens_do_campo(self.item_data.get('validated_fields'), fid)
-        if 'humano_app' in origens:
-            estilo = self.STYLE_VALID
-        elif 'qa_agente' in origens:
-            estilo = self.STYLE_VALID_LARANJA
-        elif 'humano_portal' in origens:
-            estilo = self.STYLE_VALID_ROSA
-        else:
-            estilo = None
-        if origens:
-            partes = [self._ORIGEM_ROTULO[o][0] + ' ' + self._ORIGEM_ROTULO[o][1] for o in origens if o in self._ORIGEM_ROTULO]
-            tooltip = 'Validado por:\n' + '\n'.join(partes)
-        else:
-            tooltip = ''
-        return estilo, tooltip
-
-    def _na_button_qss(self, fid: str) -> str:
-        """[2026-07-17] QSS do botão N/A — vermelho (padrão, N/A humano) ou
-        laranja quando este campo foi marcado N/A pelo agente QA. Chamado na
-        criação do botão e de novo em `refresh_validation_styles` (o botão
-        não recria o widget, só troca a stylesheet quando a origem muda)."""
-        na_e_agente, _ = self._na_agente_e_tooltip(fid)
-        cor = Colors.ACCENT_WARNING if na_e_agente else Colors.ACCENT_DANGER
-        return f"""
-            QPushButton {{ color: {Colors.TEXT_MUTED}; background: transparent; border: 1px solid transparent; border-radius: 4px; font-size: 10px; font-weight: bold; padding: 0 4px;}}
-            QPushButton:hover {{ color: {cor}; border: 1px solid {cor}; }}
-            QPushButton:checked {{ color: {cor}; border: 1px solid {cor}; }}
-        """
-
-    def _na_agente_e_tooltip(self, fid: str):
-        """[2026-07-17] True + tooltip se o N/A deste campo foi decidido
-        pelo agente QA (não por um humano clicando o botão N/A)."""
-        from src.core.validation_model import na_motivo_exibicao, na_tem_origem_agente
-        motivo = (self.item_data.get('na_reasons') or {}).get(fid)
-        if na_tem_origem_agente(motivo):
-            return True, f'🟠 N/A decidido pelo Agente QA:\n{na_motivo_exibicao(motivo)}'
-        return False, (f'N/A: {motivo}' if motivo else '')
-
-    def _pendente_agente_e_tooltip(self, fid: str):
-        """[2026-07-17] True + tooltip se o agente QA tentou resolver este
-        campo e concluiu que precisa de humano — nunca para campo já
-        validado ou N/A, só pra distinguir "agente tentou e não conseguiu"
-        de "ninguém olhou ainda"."""
-        from src.core.validation_model import campo_pendente_do_agente
-        motivo = campo_pendente_do_agente(self.item_data, fid)
-        if motivo:
-            return True, f'🟣 Agente QA não conseguiu resolver — precisa de revisão humana:\n{motivo}'
-        return False, ''
-
     def refresh_validation_styles(self):
         """Otimizado: Varre campos e aplica estilos apenas em mudanças de estado"""
-        validated_fields_raw = self.item_data.get('validated_fields', [])
-        validated_fields = set(validated_fields_raw.keys()) if isinstance(validated_fields_raw, dict) else set(validated_fields_raw)
+        validated_fields = set(self.item_data.get('validated_fields', []))
         na_fields = set(self.item_data.get('na_fields', []))
-
+        
         for fid, w in list(self.fields.items()):
             try:
                 if isinstance(w, QButtonGroup): continue
-
+                
                 is_valid = fid in validated_fields
                 is_na = fid in na_fields
-
+                
                 # 1. Input Fields (Optimized Stylesheet)
                 if isinstance(w, (QLineEdit, QComboBox)):
                     if not is_na and fid.endswith(('_prof', '_boca', '_dist', '_larg', '_h_sel')):
@@ -1401,23 +1171,11 @@ class DetailCard(QWidget):
                                      is_na = True
                                      parent_na = True
                                      break
-
-                    estilo_origem, tooltip_origem = self._estilo_e_tooltip_por_origem(fid)
-                    if is_na:
-                        na_e_agente, tooltip_na = self._na_agente_e_tooltip(fid)
-                        target_style = self.STYLE_NA_AGENTE if na_e_agente else self.STYLE_NA
-                    elif is_valid:
-                        target_style = estilo_origem or self.STYLE_DEFAULT
-                        tooltip_na = tooltip_origem
-                    else:
-                        pendente_agente, tooltip_pendente = self._pendente_agente_e_tooltip(fid)
-                        target_style = self.STYLE_PENDENTE_AGENTE if pendente_agente else self.STYLE_DEFAULT
-                        tooltip_na = tooltip_pendente
+                    
+                    target_style = self.STYLE_NA if is_na else (self.STYLE_VALID if is_valid else self.STYLE_DEFAULT)
                     if w.styleSheet() != target_style:
                         w.setStyleSheet(target_style)
-                    if w.toolTip() != tooltip_na:
-                        w.setToolTip(tooltip_na)
-
+                    
                     target_enabled = not is_na
                     if w.isEnabled() != target_enabled:
                         w.setEnabled(target_enabled)
@@ -1443,12 +1201,6 @@ class DetailCard(QWidget):
                             b_na.blockSignals(True)
                             b_na.setChecked(is_na)
                             b_na.blockSignals(False)
-                        na_e_agente, tooltip_btn_na = self._na_agente_e_tooltip(fid)
-                        new_qss = self._na_button_qss(fid)
-                        if b_na.styleSheet() != new_qss:
-                            b_na.setStyleSheet(new_qss)
-                        if na_e_agente and b_na.toolTip() != tooltip_btn_na:
-                            b_na.setToolTip(tooltip_btn_na)
                 
                 # 3. Linked Labels (hide_input=True)
                 if isinstance(w, QLabel):
@@ -1466,22 +1218,10 @@ class DetailCard(QWidget):
                             count = len(links)
                         
                         if is_valid:
-                            from src.core.validation_model import origens_do_campo
-                            origens = origens_do_campo(self.item_data.get('validated_fields'), fid)
-                            if 'humano_app' in origens:
-                                cor_link, icone_link = Colors.ACCENT_PRIMARY, '🔵'
-                            elif 'qa_agente' in origens:
-                                cor_link, icone_link = Colors.ACCENT_WARNING, '🟠'
-                            elif 'humano_portal' in origens:
-                                cor_link, icone_link = Colors.ACCENT_ROSA, '🌸'
-                            else:
-                                cor_link, icone_link = Colors.ACCENT_SUCCESS_ALT, '✅'
-                            txt = f"{count} Vínculo(s) {icone_link}" if count > 0 else f"Validado {icone_link}"
+                            txt = f"{count} Vínculo(s) ✅" if count > 0 else "Validado ✅"
                             if w.text() != txt:
                                 w.setText(txt)
-                                w.setStyleSheet(f"color: {cor_link}; font-weight: bold; font-size: 11px; background: rgba(0, 204, 102, 26); border: 1px solid {cor_link}; border-radius: 4px; padding: 2px;")
-                                _, tooltip_link = self._estilo_e_tooltip_por_origem(fid)
-                                w.setToolTip(tooltip_link or '')
+                                w.setStyleSheet(f"color: {Colors.ACCENT_SUCCESS_ALT}; font-weight: bold; font-size: 11px; background: rgba(0, 204, 102, 26); border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; padding: 2px;")
                         elif count > 0:
                             txt = f"{count} Vínculo(s) Ok"
                             if w.text() != txt:
@@ -1503,17 +1243,7 @@ class DetailCard(QWidget):
                 if is_na:
                     st = f"color: {Colors.ACCENT_INFO}; font-size: 14px; margin-right: 5px;"
                 elif is_valid:
-                    from src.core.validation_model import origens_do_campo
-                    origens = origens_do_campo(self.item_data.get('validated_fields'), fid)
-                    if 'humano_app' in origens:
-                        cor_ind = Colors.ACCENT_PRIMARY
-                    elif 'qa_agente' in origens:
-                        cor_ind = Colors.ACCENT_WARNING
-                    elif 'humano_portal' in origens:
-                        cor_ind = Colors.ACCENT_ROSA
-                    else:
-                        cor_ind = Colors.ACCENT_SUCCESS_ALT
-                    st = f"color: {cor_ind}; font-size: 14px; margin-right: 5px;"
+                    st = f"color: {Colors.ACCENT_SUCCESS_ALT}; font-size: 14px; margin-right: 5px;"
                 else:
                     conf = self.item_data.get('confidence_map', {}).get(fid, 0.0)
                     clr = Colors.ACCENT_DANGER if conf <= 0.4 else (Colors.ACCENT_INFO if conf <= 0.8 else Colors.ACCENT_SUCCESS_ALT)
@@ -1594,7 +1324,7 @@ class DetailCard(QWidget):
                  
             else: # Pilar (default)
                 self._add_linked_row(h_layout, "Dimensão B×H [dim]:", "dim", "text")
-                self._add_linked_row(h_layout, "Segmentos Geometria [pilar_segs]:", "pilar_segs", "text")
+                self._add_linked_row(h_layout, "Segmentos Geometria [pilar_segs]:", "pilar_segs", "poly", hide_input=True)
 
                 # Formato (Apenas Pilar)
                 self.fields['format'] = QComboBox()
@@ -1605,24 +1335,6 @@ class DetailCard(QWidget):
                 self.fields['format'].currentTextChanged.connect(lambda txt: self._on_field_changed('format', txt))
                 h_layout.addRow("Formato da Seção [format]:", self.fields['format'])
 
-                # Classificação (Apenas Pilar) — [2026-07-13, Fase 3.2] vira
-                # campo validável de verdade (_add_linked_row com combo),
-                # antes era um QComboBox solto fora do sistema de selos.
-                _classif_raw = (
-                    self.item_data.get('classification')
-                    or (self.item_data.get('fields') or {}).get('Classificação')
-                    or 'INDETERMINADO'
-                )
-                _classif_val = str(_classif_raw).strip().upper() or 'INDETERMINADO'
-                _CLASSIF_ITEMS = ["INDETERMINADO", "NASCE", "SEGUE", "MORRE", "PASSA", "CONTINUA"]
-                self._add_linked_row(
-                    h_layout, "Classificação [classification]:", "classification", "text",
-                    is_combo=True, combo_items=_CLASSIF_ITEMS,
-                )
-                self.fields['classification'].setCurrentText(
-                    _classif_val if _classif_val in _CLASSIF_ITEMS else "INDETERMINADO"
-                )
-
             layout.addWidget(header)
 
             # ── GRUPO: Dimensional / Geometria Global (Pilares) ──────────────────
@@ -1632,10 +1344,33 @@ class DetailCard(QWidget):
                 f_dim = QFormLayout(grp_dim)
                 f_dim.setContentsMargins(2, 4, 2, 4)
                 f_dim.setSpacing(1)
-                self._add_info_row(f_dim, "Altura Total do Pilar cm [altura]:", "altura")
-                self._add_info_row(f_dim, "Nível de Chegada cm [nivel_chegada]:", "nivel_chegada")
-                self._add_info_row(f_dim, "Nível de Saída cm [nivel_saida]:", "nivel_saida")
+                self._add_linked_row(f_dim, "Altura Total do Pilar cm [altura]:", "altura", "text")
+                self._add_linked_row(f_dim, "Nível de Chegada cm [nivel_chegada]:", "nivel_chegada", "text")
+                self._add_linked_row(f_dim, "Nível de Saída cm [nivel_saida]:", "nivel_saida", "text")
+                self._add_linked_row(f_dim, "Pavimento [pavimento]:", "pavimento", "text")
+                self._add_linked_row(f_dim, "Modo de Distribuição Hachuras [modo_distribuicao]:", "modo_distribuicao", "text")
                 layout.addWidget(grp_dim)
+
+                # ── GRUPO: Assembly / Grades e Parafusos ─────────────────────────
+                grp_asm = QGroupBox("Assembly — Grades, Distâncias e Parafusos")
+                grp_asm.setStyleSheet(f"QGroupBox {{ font-size: 10px; font-weight: bold; color: {Colors.TEXT_SECONDARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 4px; padding-top: 8px; }}")
+                f_asm = QFormLayout(grp_asm)
+                f_asm.setContentsMargins(2, 4, 2, 4)
+                f_asm.setSpacing(1)
+                self._add_linked_row(f_asm, "Grade Principal 1 mm [grade_1]:", "grade_1", "text")
+                self._add_linked_row(f_asm, "Grade Secundária 2 mm [grade_2]:", "grade_2", "text")
+                self._add_linked_row(f_asm, "Grade Terciária 3 mm [grade_3]:", "grade_3", "text")
+                self._add_linked_row(f_asm, "Distância entre Grades 1 mm [distancia_1]:", "distancia_1", "text")
+                self._add_linked_row(f_asm, "Distância entre Grades 2 mm [distancia_2]:", "distancia_2", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 1-2 mm [par_1_2]:", "par_1_2", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 2-3 mm [par_2_3]:", "par_2_3", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 3-4 mm [par_3_4]:", "par_3_4", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 4-5 mm [par_4_5]:", "par_4_5", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 5-6 mm [par_5_6]:", "par_5_6", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 6-7 mm [par_6_7]:", "par_6_7", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 7-8 mm [par_7_8]:", "par_7_8", "text")
+                self._add_linked_row(f_asm, "Parafuso entre Hachuras 8-9 mm [par_8_9]:", "par_8_9", "text")
+                layout.addWidget(grp_asm)
 
         # Container para conteúdo dinâmico (Abas que mudam com o formato)
         self.dynamic_container = QWidget()
@@ -1656,155 +1391,6 @@ class DetailCard(QWidget):
         
         # Garante aplicação de estilos de validação após toda UI estar pronta
         self.refresh_validation_styles()
-        
-        # Conecta os signals para cálculo dinâmico (Grades, Parafusos, Chapas)
-        if 'dim' in self.fields:
-            self.fields['dim'].textChanged.connect(lambda _: self._recalc_pilar_geometry_if_needed())
-        if 'altura' in self.fields:
-            self.fields['altura'].textChanged.connect(lambda _: self._recalc_pilar_geometry_if_needed())
-            
-        # Trigger initial calculation
-        self._recalc_pilar_geometry_if_needed()
-
-    def _recalc_pilar_geometry_if_needed(self):
-        import re, math
-        if 'dim' not in self.fields or 'altura' not in self.fields:
-            return
-            
-        dim_str = self.fields['dim'].text()
-        alt_str = self.fields['altura'].text()
-        if not dim_str or not alt_str: return
-        
-        nums = [float(n.replace(',', '.')) for n in re.findall(r'\d+[.,]?\d*', dim_str)]
-        if len(nums) < 2: return
-        comp = max(nums)
-        larg = min(nums)
-        
-        try:
-            alt = float(alt_str.replace(',', '.'))
-        except Exception:
-            return
-            
-        # 1. Calc Parafusos
-        comp_adj = comp + 24.0
-        qtd_par = int(math.ceil(comp_adj / 72.0))
-        if qtd_par > 8: qtd_par = 8
-        
-        if qtd_par == 2:
-            val = round(comp_adj / 2.0, 1)
-            parafusos = [val, val] + [0]*(8-2)
-        elif qtd_par > 2:
-            base = int(math.floor(comp_adj / qtd_par))
-            resto = int(round(comp_adj - (base * qtd_par)))
-            par = [base] * qtd_par
-            l, r = 0, qtd_par - 1
-            for i in range(resto):
-                if i % 2 == 0:
-                    par[l] += 1
-                    l += 1
-                else:
-                    par[r] += 1
-                    r -= 1
-            parafusos = par + [0]*(8-qtd_par)
-        else:
-            parafusos = [0]*8
-            
-        for i in range(8):
-            fname = f"par_{i+1}_{i+2}"
-            if fname in self.fields and not self.fields[fname].hasFocus():
-                self.fields[fname].setText(str(float(parafusos[i])))
-                self.item_data.setdefault('fields', {})[fname] = float(parafusos[i])
-                
-        # 2. Calc Grades
-        comp_grade = comp + 22.0
-        grades, dists = [0]*3, [0]*2
-        if comp_grade <= 106:
-            grades[0] = comp_grade
-        elif comp_grade <= 259:
-            tg = min(106, comp_grade/2)
-            tg_menor = int(tg/5)*5
-            tg_maior = tg_menor + 5
-            d_menor = comp_grade - 2*tg_menor
-            d_maior = comp_grade - 2*tg_maior
-            if tg_maior <= 106 and 1 <= d_maior <= 15:
-                t, d = tg_maior, d_maior
-            elif 1 <= d_menor <= 15:
-                t, d = tg_menor, d_menor
-            else:
-                d = max(1, min(15, d_menor))
-                t = (comp_grade - d)/2
-            t = round(t)
-            d = comp_grade - 2*t
-            if d < 1: d = 1
-            elif d > 15: d = 15
-            grades[0] = grades[1] = t
-            dists[0] = d
-        else:
-            tg = min(106, comp_grade/3)
-            tg_menor = int(tg/5)*5
-            tg_maior = tg_menor + 5
-            d_menor = (comp_grade - 3*tg_menor)/2
-            d_maior = (comp_grade - 3*tg_maior)/2
-            if tg_maior <= 106 and 1 <= d_maior <= 15:
-                t, d = tg_maior, d_maior
-            elif 1 <= d_menor <= 15:
-                t, d = tg_menor, d_menor
-            else:
-                d = max(1, min(15, d_menor))
-                t = (comp_grade - 2*d)/3
-            t = round(t)
-            d = (comp_grade - 3*t)/2
-            if d < 1: d = 1
-            elif d > 15: d = 15
-            grades = [t, t, t]
-            dists = [d, d]
-            
-        for i, val in enumerate(grades):
-            f = f"grade_{i+1}"
-            if f in self.fields and not self.fields[f].hasFocus():
-                self.fields[f].setText(str(float(val)))
-                self.item_data.setdefault('fields', {})[f] = float(val)
-                
-        for i, val in enumerate(dists):
-            f = f"distancia_{i+1}"
-            if f in self.fields and not self.fields[f].hasFocus():
-                self.fields[f].setText(str(float(val)))
-                self.item_data.setdefault('fields', {})[f] = float(val)
-                
-        # 3. Calc Chapa/Forma
-        shape = self.item_data.get('format', 'Retangular')
-        sides = ['A', 'B', 'C', 'D']
-        if shape == "Circular": sides = ["Superior", "Inferior"]
-        elif shape == "Em L": sides = ['A', 'B', 'C', 'D', 'E', 'F']
-        elif shape in ["Em T", "Em U"]: sides = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
-        
-        for side in sides:
-            h1 = 2.0
-            laje_h = 0.0
-            if f"p_s{side}_l1_h" in self.fields:
-                try: laje_h = float(self.fields[f"p_s{side}_l1_h"].text().replace(',', '.'))
-                except: pass
-            
-            alt_util = alt - laje_h - h1
-            if alt_util > 244:
-                h2 = 244.0
-                h3 = max(0.0, alt_util - h2)
-            else:
-                h2 = max(0.0, alt_util)
-                h3 = 0.0
-                
-            for h_idx, h_val in enumerate([h1, h2, h3, 0.0, 0.0]):
-                f = f"p_s{side}_c_h{h_idx+1}"
-                if f in self.fields and not self.fields[f].hasFocus():
-                    self.fields[f].setText(str(float(h_val)))
-                    self.item_data.setdefault('fields', {})[f] = float(h_val)
-                    
-            larg_val = comp if side in ['A', 'B'] else larg
-            for larg_idx, l_val in enumerate([larg_val, 0.0, 0.0]):
-                f = f"p_s{side}_c_larg{larg_idx+1}"
-                if f in self.fields and not self.fields[f].hasFocus():
-                    self.fields[f].setText(str(float(l_val)))
-                    self.item_data.setdefault('fields', {})[f] = float(l_val)
 
     # ... (keeps existing helper methods until _setup_laje_complex_view)
 
@@ -2004,6 +1590,23 @@ class DetailCard(QWidget):
             tab_l.setContentsMargins(5, 5, 5, 5)
             tab_l.setSpacing(2)
 
+            # ── GRUPO: Chapa / Forma da Peça (dados do robô / motor_fase4) ──────
+            grp_chapa = QGroupBox(f"Chapa / Forma da Peça — Lado {side}")
+            grp_chapa.setStyleSheet(f"QGroupBox {{ font-size: {Fonts.SIZE_SM}; font-weight: bold; color: {Colors.ACCENT_PRIMARY}; border: 1px solid {Colors.BORDER_DEFAULT}; margin-top: 5px; padding-top: 6px; }}")
+            f_chapa = QFormLayout(grp_chapa)
+            f_chapa.setContentsMargins(2, 4, 2, 4)
+            f_chapa.setSpacing(1)
+            # H1..H5: alturas das seções da chapa de forma (barriga superior/medio/inferior etc.)
+            self._add_linked_row(f_chapa, f"H1 Altura Seção Superior Chapa cm [p_s{side}_c_h1]:", f'p_s{side}_c_h1', "text")
+            self._add_linked_row(f_chapa, f"H2 Altura Seção Principal Chapa cm [p_s{side}_c_h2]:", f'p_s{side}_c_h2', "text")
+            self._add_linked_row(f_chapa, f"H3 Altura Seção Inferior Chapa cm [p_s{side}_c_h3]:", f'p_s{side}_c_h3', "text")
+            self._add_linked_row(f_chapa, f"H4 Altura Seção Extra 4 Chapa cm [p_s{side}_c_h4]:", f'p_s{side}_c_h4', "text")
+            self._add_linked_row(f_chapa, f"H5 Altura Seção Extra 5 Chapa cm [p_s{side}_c_h5]:", f'p_s{side}_c_h5', "text")
+            # Larg1..3: larguras das chapas de forma
+            self._add_linked_row(f_chapa, f"Larg1 Largura Principal Chapa mm [p_s{side}_c_larg1]:", f'p_s{side}_c_larg1', "text")
+            self._add_linked_row(f_chapa, f"Larg2 Largura Secundária Chapa mm [p_s{side}_c_larg2]:", f'p_s{side}_c_larg2', "text")
+            self._add_linked_row(f_chapa, f"Larg3 Largura Terciária Chapa mm [p_s{side}_c_larg3]:", f'p_s{side}_c_larg3', "text")
+            tab_l.addWidget(grp_chapa)
 
             # Lajes - Layout Vertical (Laje 2 abaixo da Laje 1) para compactar largura
             for i in [1, 2]:
@@ -2013,91 +1616,33 @@ class DetailCard(QWidget):
                 f.setSpacing(1)
                 f.setContentsMargins(2, 5, 2, 2)
                 self._add_linked_row(f, "Nome da Laje:", f'p_s{side}_l{i}_n', "text")
-                # Auto-preenchimento de H e Nível ao vincular o nome da laje
-                _n_fid = f'p_s{side}_l{i}_n'
-                _n_w = self.fields.get(_n_fid)
-                if _n_w and hasattr(_n_w, 'textChanged'):
-                    _n_w.textChanged.connect(
-                        lambda txt, _s=side, _li=i: self._on_panel_slab_name_changed(_s, _li, txt)
-                    )
                 self._add_linked_row(f, "Altura / Espessura (H):", f'p_s{side}_l{i}_h', "text")
                 self._add_linked_row(f, "Nível da Laje:", f'p_s{side}_l{i}_v', "text")
-
+                
                 # Ajuste Laje 2: Pos. -> Laje central e opções Esquerda/Direita
                 if i == 2:
-                    self._add_info_row(f, "Posição da Laje C:", f'p_s{side}_l{i}_p', is_combo=True, combo_items=["Esquerda", "Direita"])
+                    self._add_linked_row(f, "Posição da Laje C:", f'p_s{side}_l{i}_p', "text", is_combo=True, combo_items=["Esquerda", "Direita"])
                 else:
-                    self._add_info_row(f, "Posição da Laje:", f'p_s{side}_l{i}_p', is_combo=True, combo_items=["Topo", "Centro", "Fundo"])
-
-                self._add_info_row(f, "Distância ao Topo:", f'p_s{side}_l{i}_dist_t')
-                self._add_info_row(f, "Distância Parede Esquerda:", f'p_s{side}_l{i}_dist_esq')
-                self._add_info_row(f, "Distância Parede Direita:", f'p_s{side}_l{i}_dist_dir')
+                    self._add_linked_row(f, "Posição da Laje:", f'p_s{side}_l{i}_p', "text", is_combo=True, combo_items=["Topo", "Centro", "Fundo"])
                 
-                # Inicialização de valores padrão se vazio
-                for fd in ['dist_esq', 'dist_dir']:
-                    fw = self.fields.get(f'p_s{side}_l{i}_{fd}')
-                    if fw and fw.text() == "":
-                        fw.setText("0")
-
-                # Auto-fill inicial: H e Nível se nome da laje já está preenchido
-                # (usa singleShot 0 para rodar após a UI estar completamente construída)
-                _init_n = (self.fields[f'p_s{side}_l{i}_n'].text().strip()
-                           if f'p_s{side}_l{i}_n' in self.fields else '')
-                if _init_n:
-                    from PySide6.QtCore import QTimer as _QT
-                    _QT.singleShot(0, lambda _s=side, _li=i, _nm=_init_n:
-                                   self._on_panel_slab_name_changed(_s, _li, _nm))
-
+                self._add_linked_row(f, "Distância ao Centro:", f'p_s{side}_l{i}_dist_c', "poly")
+                
+                # Novo Campo Laje 2: Dist. do Topo
+                if i == 2:
+                    self._add_linked_row(f, "Distância ao Topo:", f'p_s{side}_l{i}_dist_t', "poly") 
+                
+                # Inicialização de visibilidade
+                self._on_position_changed(f'p_s{side}_l{i}_p', self.fields[f'p_s{side}_l{i}_p'].currentText())
+                
                 tab_l.addWidget(grp)
 
-            # ── Vigas que passam: 2 slots por face (esquina esq / dir) ──
-            # Contorno esq/dir REMOVIDO — não é usado no fluxo N1/N3.
-            # Cantos canônicos (INTERPRETACAO-PILARES-ABCD + aberturas NOVA):
-            #   A: AC|AD  B: BD|BC  C: CA|CB  D: DA|DB
-            _FACE_PASS_CORNERS = {
-                'A': ('AC', 'AD'),
-                'B': ('BD', 'BC'),
-                'C': ('CA', 'CB'),
-                'D': ('DA', 'DB'),
-            }
-            _c_esq, _c_dir = _FACE_PASS_CORNERS.get(side, ('ESQ', 'DIR'))
-            for _slot, _corner, _title_side in (
-                ('passa_esq', _c_esq, 'Esquerda'),
-                ('passa_dir', _c_dir, 'Direita'),
-            ):
-                v_pass_grp = QGroupBox(
-                    f"Vigas que Passam — Esquina {_corner} "
-                    f"({_title_side} · Lado {side})"
-                )
-                v_pass_grp.setStyleSheet(
-                    f"QGroupBox {{ font-size: 10px; font-weight: bold; "
-                    f"color: {Colors.ACCENT_MINT}; border: 1px solid "
-                    f"{Colors.BORDER_DEFAULT}; margin-top: 10px; padding-top: 5px; }}"
-                )
-                f_vp = QFormLayout(v_pass_grp)
-                f_vp.setSpacing(1)
-                f_vp.setContentsMargins(2, 5, 2, 2)
-                id_vp = f'p_s{side}_v_{_slot}'
-                self._add_linked_row(f_vp, "Nome da Viga:", f'{id_vp}_n', "text")
-                self._add_linked_row(f_vp, "Dimensão (B x H):", f'{id_vp}_d', "text")
-                self._add_linked_row(f_vp, "Nível da Viga:", f'{id_vp}_v', "text")
-                self._add_info_row(f_vp, "Distância ao Topo:", f'{id_vp}_dist_t')
-                self._add_info_row(f_vp, "Distância Parede Esquerda:", f'{id_vp}_dist_esq')
-                self._add_info_row(f_vp, "Distância Parede Direita:", f'{id_vp}_dist_dir')
-                # Legado v_int → migra para passa_esq se o novo slot estiver vazio
-                if _slot == 'passa_esq':
-                    self._migrate_legacy_v_int_to_passa_esq(side)
-                tab_l.addWidget(v_pass_grp)
-
-            # Pre-fill N/A: Laje 2 e Vigas Passam vazios → N/A (após UI construída)
-            from PySide6.QtCore import QTimer as _QTna
-            _QTna.singleShot(10, lambda _s=side: self._init_side_na_defaults(_s))
-
-            # Chegadas: até 3 vigas que param / chegam no pilar por face
+            # Categorias de Vigas
             beam_categories = [
+                ("Viga de Contorno Esquerda", "esq", False),
+                ("Viga de Contorno Direita", "dir", False),
                 ("Viga de Chegada 1", "ch1", True),
                 ("Viga de Chegada 2", "ch2", True),
-                ("Viga de Chegada 3", "ch3", True),
+                ("Viga de Chegada 3", "ch3", True)
             ]
             
             for cat_name, cat_id, is_arrival in beam_categories:
@@ -2111,20 +1656,18 @@ class DetailCard(QWidget):
                 self._add_linked_row(vf, "Nome da Viga:", f'{id_pref}_n', "text")
                 self._add_linked_row(vf, "Dimensão (B x H):", f'{id_pref}_d', "text")
                 self._add_linked_row(vf, "Segmentos Geometria:", f'{id_pref}_segs', "poly", hide_input=True)
-                
                 if is_arrival:
-                    self._add_info_row(vf, "Distância Parede Esquerda:", f'{id_pref}_dist_esq')
-                    self._add_info_row(vf, "Distância Parede Direita:", f'{id_pref}_dist_dir')
+                    self._add_linked_row(vf, "Distância Face:", f'{id_pref}_dist', "poly")
                 
-                # Distância Topo sem link, auto-calculado
-                self._add_info_row(vf, "Distância Topo (Auto):", f'{id_pref}_prof')
+                # Profundidade sem link, auto-calculado
+                self._add_linked_row(vf, "Profundidade (Auto):", f'{id_pref}_prof', "text", show_links=False)
                 
                 # Auto-update logic
                 dim_widget = self.fields[f'{id_pref}_d']
                 prof_widget = self.fields[f'{id_pref}_prof']
                 dim_widget.textChanged.connect(lambda t, w=prof_widget: self._update_depth_from_dim(t, w))
                 
-                self._add_linked_row(vf, "Nível Viga:", f'{id_pref}_diff_v', "text")
+                self._add_linked_row(vf, "Dif. Nível:", f'{id_pref}_diff_v', "text")
                 tab_l.addWidget(v_grp)
                 
             tabs.addTab(tab, f"Lado {side}")
@@ -2191,12 +1734,22 @@ class DetailCard(QWidget):
                 segs_layout.setSpacing(15)
                 tab_l.addWidget(segs_container)
                 
-                # A sublista Para/Passa usa somente os segmentos cujo vínculo
-                # específico continua ativo. Chaves vazias ignoradas na
-                # pré-ficha não geram cartões fantasmas.
-                existing_indices = self._existing_beam_segment_indices(
-                    prefix, is_fundo=False
-                )
+                # Lógica de Carga:
+                existing_indices = set([1]) # Sempre garanta pelo menos o 1
+                all_keys = list(self.item_data.keys())
+                if 'fields' in self.item_data and isinstance(self.item_data['fields'], dict):
+                    all_keys.extend(self.item_data['fields'].keys())
+                if 'links' in self.item_data and isinstance(self.item_data['links'], dict):
+                    all_keys.extend(self.item_data['links'].keys())
+                if 'validated_fields' in self.item_data and isinstance(self.item_data['validated_fields'], list):
+                    all_keys.extend(self.item_data['validated_fields'])
+                    
+                for key in all_keys:
+                    if f"{prefix}_seg_" in key:
+                        try:
+                            idx_str = key.split(f"{prefix}_seg_")[1].split('_')[0]
+                            existing_indices.add(int(idx_str))
+                        except: pass
                 
                 for i in sorted(list(existing_indices)):
                     self._add_rich_segment_pack(segs_layout, prefix, i)
@@ -2217,11 +1770,22 @@ class DetailCard(QWidget):
                 segs_layout.setSpacing(15)
                 tab_l.addWidget(segs_container)
                 
-                # Fundos ignorados permanecem com a chave para rastreabilidade,
-                # mas contour vazio não deve criar um cartão de segmento.
-                existing_indices = self._existing_beam_segment_indices(
-                    prefix, is_fundo=True
-                )
+                # Carga de Segmentos Existentes
+                existing_indices = set([1]) # Sempre garanta pelo menos o 1
+                all_keys = list(self.item_data.keys())
+                if 'fields' in self.item_data and isinstance(self.item_data['fields'], dict):
+                    all_keys.extend(self.item_data['fields'].keys())
+                if 'links' in self.item_data and isinstance(self.item_data['links'], dict):
+                    all_keys.extend(self.item_data['links'].keys())
+                if 'validated_fields' in self.item_data and isinstance(self.item_data['validated_fields'], list):
+                    all_keys.extend(self.item_data['validated_fields'])
+                    
+                for key in all_keys:
+                    if f"{prefix}_seg_" in key:
+                        try:
+                            idx_str = key.split(f"{prefix}_seg_")[1].split('_')[0]
+                            existing_indices.add(int(idx_str))
+                        except: pass
                 
                 for i in sorted(list(existing_indices)):
                     self._add_fundo_segment_pack(segs_layout, prefix, i)
@@ -2251,57 +1815,6 @@ class DetailCard(QWidget):
 
         layout.addWidget(tabs)
 
-    def _existing_beam_segment_indices(self, prefix: str, is_fundo: bool) -> set[int]:
-        """Lista somente segmentos ativos no contexto FV ou LV Para/Passa atual."""
-        links = self.item_data.get('links') or {}
-        if not isinstance(links, dict):
-            links = {}
-
-        active: set[int] = set()
-        source_seen = False
-        if is_fundo:
-            pattern = re.compile(rf'^{re.escape(prefix)}_seg_(\d+)_area_segs$')
-            slot_name = 'contour'
-        else:
-            tipo_comp = str(self.item_data.get('_tipo_comp') or 'passa').lower()
-            suffix = 'comprimento_total' if tipo_comp == 'para' else 'comp_total_passa'
-            pattern = re.compile(rf'^{re.escape(prefix)}_seg_(\d+)_{suffix}$')
-            slot_name = 'seg_side_a' if prefix == 'viga_a' else 'seg_side_b'
-
-        for field_id, slots in links.items():
-            match = pattern.match(str(field_id))
-            if not match:
-                continue
-            source_seen = True
-            values = slots.get(slot_name) if isinstance(slots, dict) else []
-            if any(
-                isinstance(link, dict) and bool(link.get('points'))
-                for link in (values or [])
-            ):
-                active.add(int(match.group(1)))
-
-        # Quando o contrato novo existe, inclusive vazio por decisão de ignorar,
-        # ele é a fonte autoritativa. O botão "Adicionar" continua disponível.
-        if source_seen:
-            return active
-
-        # Compatibilidade para fichas antigas que ainda não possuem as chaves
-        # geométricas novas, mas têm campos/markers de segmentos.
-        legacy: set[int] = set()
-        all_keys = list(self.item_data)
-        fields = self.item_data.get('fields')
-        if isinstance(fields, dict):
-            all_keys.extend(fields)
-        for key in all_keys:
-            match = re.match(rf'^{re.escape(prefix)}_seg_(\d+)', str(key))
-            if not match:
-                continue
-            index = int(match.group(1))
-            marker = self.item_data.get(f'{prefix}_seg_{index}_exists')
-            if marker is not False:
-                legacy.add(index)
-        return legacy or {1}
-
     def _add_rich_segment_pack(self, layout, prefix, idx_override=None):
         """Cria um Box Completo de Segmento com todos os campos de engenharia"""
         
@@ -2330,16 +1843,11 @@ class DetailCard(QWidget):
         btn_toggle = QPushButton(f"▼ Segmento {idx}")
         btn_toggle.setStyleSheet(f"text-align: left; font-size: 13px; font-weight: bold; color: {Colors.ACCENT_MINT}; background: {Colors.BG_CARD}; padding: 8px; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px;")
         btn_toggle.setCursor(Qt.PointingHandCursor)
-
-        header_row = QHBoxLayout()
-        header_row.setSpacing(4)
-        header_row.addWidget(btn_toggle, 1)
-        header_row.addWidget(self._build_segment_validate_button(prefix, idx))
-
+        
         content_frame = QFrame()
         content_frame.setStyleSheet(f"border: 1px solid {Colors.BORDER_INPUT}; border-top: none; background: {Colors.BG_PANEL};")
-
-        pack_layout.addLayout(header_row)
+        
+        pack_layout.addWidget(btn_toggle)
         pack_layout.addWidget(content_frame)
         
         btn_toggle.clicked.connect(lambda checked=False, cf=content_frame, btn=btn_toggle, i=idx: (
@@ -2367,76 +1875,71 @@ class DetailCard(QWidget):
         else:
             side_label = ""  # Fallback (não deveria acontecer neste método)
         
-        # Ordem de curadoria SA (pedido dono 2026-07):
-        # 1. Linha Comprimento
-        # 2. Ajuste Comprimento
-        # 3. Dimensão B×H  (logo abaixo do ajuste)
-        # 4. Visão de Corte (acima do Nível)
-        # 5. Apoios
-        # 6. Nível da Viga
-        # 7. Lajes 1/2/3
+        # Campo "Linha Comprimento" — substitui os dois campos separados (Para/Passa)
+        # A chave usada depende do tipo_comp do contexto (subpasta "Vigas Param." ou "Vigas Passam.")
         _tipo_comp = self.item_data.get('_tipo_comp', 'passa')
         if _tipo_comp == 'para':
             linha_comp_key = f'{seg_uid}_comprimento_total'
         else:
             linha_comp_key = f'{seg_uid}_comp_total_passa'
         self._add_linked_row(form, "Linha Comprimento:", linha_comp_key, "poly")
-
-        self._add_linked_row(form, "Ajuste Comprimento:", f'{seg_uid}_ajuste_comprimento', "text",
+        
+        # 4. Campo "Ajuste Comprimento"
+        # Agora puramente manual, sem botões de ação (Task_02)
+        self._add_linked_row(form, "Ajuste Comprimento:", f'{seg_uid}_ajuste_comprimento', "text", 
                              show_links=False, show_focus=False, show_validate=False, show_na=False)
-
-        self._add_linked_row(form, "Dimensão da Viga (B x H):", f'{seg_uid}_dim', "text")
-
+        
+        # 5. Visão de Corte
         self._add_linked_row(form, "Visão de Corte (Seção Transversal):", f'{seg_uid}_visao_corte', "group", hide_input=True)
-
+        
+        # 3. Campos de Apoio
         self._add_linked_row(form, "Apoio Inicial (Viga/Pilar):", f'{seg_uid}_ini_name', "text")
         self._add_linked_row(form, "Apoio Final (Viga/Pilar):", f'{seg_uid}_end_name', "text")
+        
+        # 4. Campos Principais
+        self._add_linked_row(form, "Nível da Viga (Este Lado):", f'{seg_uid}_nivel_viga', "text")
+        self._add_linked_row(form, "Nível da Viga (Lado Oposto):", f'{seg_uid}_nivel_oposto', "text")
+        
+        # Lajes
+        self._add_linked_row(form, "Laje Superior (Adjacente):", f'{seg_uid}_laje_sup', "text")
+        self._add_linked_row(form, "Laje Central (Recorte):", f'{seg_uid}_laje_cen', "text")
+        self._add_linked_row(form, "Laje Inferior (Adjacente):", f'{seg_uid}_laje_inf', "text")
+        
+        # Dimensão da Viga (B x H) - Movido para acima das Alturas
+        self._add_linked_row(form, "Dimensão da Viga (B x H):", f'{seg_uid}_dim', "text")
 
-        # Nível único da viga (interpretação: laje mais alta deste lado / oposto)
-        self._add_linked_row(
-            form,
-            "Nível da Viga:",
-            f'{seg_uid}_nivel_viga',
-            "text",
-        )
-        _nivel_hint = QLabel(
-            "Interpretação: use o nível da laje mais alta em contato com esta face "
-            "(ou a do lado oposto quando for a referência de cota do desenho)."
-        )
-        _nivel_hint.setWordWrap(True)
-        _nivel_hint.setStyleSheet(
-            f"font-size: 9px; color: {Colors.TEXT_DIM}; font-style: italic; padding: 0 2px 4px 2px;"
-        )
-        form.addRow("", _nivel_hint)
-
-        # Lajes 1/2/3 — multi-vínculo com ficha por laje
-        self._migrate_legacy_lv_lajes(seg_uid)
-        self._add_linked_row(
-            form,
-            "Lajes (1 / 2 / 3):",
-            f'{seg_uid}_lajes',
-            "text",
-            hide_input=True,
-        )
-        _lajes_hint = QLabel(
-            "Até 3 lajes por segmento. Em cada vínculo: nível, espessura e distâncias "
-            "às pontas esquerda/direita do painel (degraus e posição X/Y na lateral)."
-        )
-        _lajes_hint.setWordWrap(True)
-        _lajes_hint.setStyleSheet(
-            f"font-size: 9px; color: {Colors.TEXT_DIM}; font-style: italic; padding: 0 2px 4px 2px;"
-        )
-        form.addRow("", _lajes_hint)
-
-        # NOTA: Modo Painel H1/H2, Continuidade, Detalhamento de Sarrafos e
-        # Alturas H1/H2 saíram do SA — ficam na ficha N3 do Comparison Engine
-        # (painel superior ao item, junto ao Modo visual). Chaves legadas no
-        # item_data continuam legíveis para não quebrar fichas já preenchidas.
+        # Alturas
+        self._add_linked_row(form, "Altura Paineis Laterais H1:", f'{seg_uid}_h1', "text")
+        self._add_linked_row(form, "Altura Paineis Laterais H2:", f'{seg_uid}_h2', "text")
+        
+        # 2. Modos de Painel (Radio Groups) - Lado a Lado
+        modes_layout = QHBoxLayout()
+        modes_layout.setSpacing(5)
+        h1_opts = ["Sarrafo", "Garfo", "Grade"]
+        modes_layout.addWidget(self._create_radio_group("Modo Painel H1", h1_opts, f"{seg_uid}_mode_h1", has_grade_input=True))
+        
+        h2_opts = ["Sarrafo", "Garfo", "Grade"]
+        modes_layout.addWidget(self._create_radio_group("Modo Painel H2", h2_opts, f"{seg_uid}_mode_h2", has_grade_input=True))
+        main_v.addLayout(modes_layout)
+        
+        # 3. Continuidade (Radio)
+        cont_opts = ["Obstáculo", "Viga", "Último Seg."]
+        main_v.addWidget(self._create_radio_group("Configuração de Continuidade", cont_opts, f"{seg_uid}_continuidade"))
+        
+        # 4. Sarrafos (Checkbox Grid)
+        sarrafos_opts = [
+            ("Vertical Esq H1", "v_e_h1"), ("Pressão Esq H1", "p_e_h1"),
+            ("Vertical Esq H2", "v_e_h2"), ("Pressão Esq H2", "p_e_h2"),
+            ("Vertical Dir H1", "v_d_h1"), ("Pressão Dir H1", "p_d_h1"),
+            ("Vertical Dir H2", "v_d_h2"), ("Pressão Dir H2", "p_d_h2")
+        ]
+        cb_group = self._create_checkbox_group("Detalhamento de Sarrafos e Travamento", sarrafos_opts, seg_uid)
+        main_v.addWidget(cb_group)
 
         # 1. Campos de Engenharia (FormLayout)
         main_v.addWidget(form_w)
         
-        # Aberturas: pilares sarrafeados que atravessam + pontas de viga que passam por baixo
+        # Aberturas (TABELAS) - Agora abaixo de tudo
         self._add_pillar_openings_table(main_v, f'{seg_uid}_abert_pilar_esq', f'{seg_uid}_abert_pilar_dir')
         self._add_beam_openings_table(main_v, f'{seg_uid}_abert_viga_top_esq', f'{seg_uid}_abert_viga_top_dir', 
                                       f'{seg_uid}_abert_viga_fun_esq', f'{seg_uid}_abert_viga_fun_dir')
@@ -2455,57 +1958,6 @@ class DetailCard(QWidget):
     def update_all_tipo_comp_buttons(self, tipo: str):
         """Atualiza o tipo para/passa de contexto do card (substituiu os radio buttons removidos)."""
         self.item_data['_tipo_comp'] = tipo
-
-    def _migrate_legacy_lv_lajes(self, seg_uid: str) -> None:
-        """Converte laje_sup/cen/inf legados em vínculos do campo unificado `_lajes`.
-
-        Não sobrescreve se `_lajes` já tiver vínculos. Cada laje legada vira um
-        link de texto com ficha mínima (nível/espessura vazios para curadoria).
-        """
-        import uuid as _uuid
-        field_id = f'{seg_uid}_lajes'
-        links = self.item_data.setdefault('links', {})
-        existing = links.get(field_id)
-        if isinstance(existing, dict):
-            for slot_links in existing.values():
-                if isinstance(slot_links, list) and slot_links:
-                    return  # já migrado / preenchido
-        elif isinstance(existing, list) and existing:
-            return
-
-        legacy_keys = (
-            f'{seg_uid}_laje_sup',
-            f'{seg_uid}_laje_cen',
-            f'{seg_uid}_laje_inf',
-        )
-        migrated = []
-        for key in legacy_keys:
-            raw = self.item_data.get(key)
-            if raw is None:
-                fields = self.item_data.get('fields') or {}
-                raw = fields.get(key) if isinstance(fields, dict) else None
-            name = str(raw or '').strip()
-            if not name or name.upper() in ('N/A', 'N.A.', 'NULO', 'NONE', '—', '0', '-'):
-                continue
-            migrated.append({
-                'id': str(_uuid.uuid4()),
-                'type': 'text',
-                'text': name,
-                'role': 'Laje legada',
-                'ficha': {
-                    'nivel': '',
-                    'espessura': '',
-                    'dist_esq': '',
-                    'dist_dir': '',
-                },
-                'ficha_links': {},
-            })
-            if len(migrated) >= 3:
-                break
-
-        if not migrated:
-            return
-        links[field_id] = {'laje': migrated}
 
     def _add_fundo_segment_pack(self, layout, prefix, idx_override=None):
         """Cria um Box Completo de Segmento de Fundo"""
@@ -2533,16 +1985,11 @@ class DetailCard(QWidget):
         btn_toggle = QPushButton(f"▼ Segmento Fundo {idx}")
         btn_toggle.setStyleSheet(f"text-align: left; font-size: 13px; font-weight: bold; color: rgba(170, 136, 255, 1); background: {Colors.BG_CARD}; padding: 8px; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px;")
         btn_toggle.setCursor(Qt.PointingHandCursor)
-
-        header_row = QHBoxLayout()
-        header_row.setSpacing(4)
-        header_row.addWidget(btn_toggle, 1)
-        header_row.addWidget(self._build_segment_validate_button(prefix, idx))
-
+        
         content_frame = QFrame()
         content_frame.setStyleSheet(f"border: 1px solid {Colors.BORDER_INPUT}; border-top: none; background: {Colors.BG_PANEL};")
-
-        pack_layout.addLayout(header_row)
+        
+        pack_layout.addWidget(btn_toggle)
         pack_layout.addWidget(content_frame)
         
         btn_toggle.clicked.connect(lambda checked=False, cf=content_frame, btn=btn_toggle, i=idx: (
@@ -2567,8 +2014,8 @@ class DetailCard(QWidget):
         self._add_linked_row(form, "Dimensão:", f'{seg_uid}_dim', "text")
         form.addRow("", self._create_fundo_metric_tags(seg_uid))
 
-        self._add_linked_row(form, "Apoio Inicial:", f'{seg_uid}_local_ini', "text")
-        self._add_linked_row(form, "Apoio Final:", f'{seg_uid}_local_fim', "text")
+        self._add_linked_row(form, "Apoio Inicial:", f'{seg_uid}_local_ini', "text", hide_input=True)
+        self._add_linked_row(form, "Apoio Final:", f'{seg_uid}_local_fim', "text", hide_input=True)
         
         info = QLabel("Largura, comprimento, chanfros e aberturas sao ficha do vinculo geometrico.")
         info.setWordWrap(True)
@@ -2790,24 +2237,19 @@ class DetailCard(QWidget):
                                  return f"{length:.0f}"
                  
                  # Lógica padrão para outros campos
-                 # Nem todo valor em `slots` é uma lista de vínculos: o payload
-                 # do motor de faces (pillar_face_beams._face_beam_link_payload)
-                 # grava metadados irmãos de "label" no mesmo dict (`geometry`,
-                 # `evidence_source` — string), então filtra pra pegar só listas
-                 # de dict reais.
                  for s_list in slots.values():
-                     if s_list and isinstance(s_list, list) and isinstance(s_list[0], dict):
+                     if s_list and len(s_list) > 0:
                          txt = str(s_list[0].get('text', ''))
-                         if txt.strip():
+                         if txt.strip(): 
                              # Somente extrair número se NÃO for campo de nome ou dimensão
-                             is_dim_or_name = "dim" in field_id or "name" in field_id or "local" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
+                             is_dim_or_name = "dim" in field_id or "name" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
                              if not is_dim_or_name:
                                  import re
                                  nums = re.findall(r'\d+[.,]?\d*', txt)
                                  if nums:
                                      return nums[0].replace(',', '.')
                              return txt
-            elif isinstance(slots, list) and len(slots) > 0 and isinstance(slots[0], dict):
+            elif isinstance(slots, list) and len(slots) > 0:
                  # Lógica especial para campos de comprimento (polyline)
                  if 'comp_total_passa' in field_id or '_comprimento_total' in field_id:
                      link_obj = slots[0]
@@ -2816,10 +2258,10 @@ class DetailCard(QWidget):
                          length = sum(((pts[i][0]-pts[i+1][0])**2 + (pts[i][1]-pts[i+1][1])**2)**0.5 for i in range(len(pts)-1))
                          self.item_data[field_id] = f"{length:.0f}"
                          return f"{length:.0f}"
-
+                 
                  txt = str(slots[0].get('text', ''))
-                 if txt.strip():
-                     is_dim_or_name = "dim" in field_id or "name" in field_id or "local" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
+                 if txt.strip(): 
+                     is_dim_or_name = "dim" in field_id or "name" in field_id or field_id.endswith("_n") or field_id.endswith("_d")
                      if not is_dim_or_name:
                          import re
                          nums = re.findall(r'\d+[.,]?\d*', txt)
@@ -2844,186 +2286,6 @@ class DetailCard(QWidget):
             except Exception: pass
             
         return None
-
-    def _migrate_legacy_v_int_to_passa_esq(self, side: str) -> None:
-        """Copia p_sX_v_int_* → p_sX_v_passa_esq_* se o slot novo estiver vazio."""
-        legacy_n = str(self.item_data.get(f'p_s{side}_v_int_n') or '').strip()
-        new_n = str(self.item_data.get(f'p_s{side}_v_passa_esq_n') or '').strip()
-        empty = ('', 'N/A', 'N.A.', 'NONE', '—')
-        if legacy_n.upper() in empty or new_n.upper() not in empty:
-            return
-        for sfx in ('_n', '_d', '_v', '_dist_t', '_dist_esq', '_dist_dir'):
-            src = f'p_s{side}_v_int{sfx}'
-            dst = f'p_s{side}_v_passa_esq{sfx}'
-            val = self.item_data.get(src)
-            if val in (None, ''):
-                continue
-            self.item_data[dst] = val
-            w = self.fields.get(dst)
-            if w and hasattr(w, 'setText') and not str(w.text() or '').strip():
-                w.blockSignals(True)
-                w.setText(str(val))
-                w.blockSignals(False)
-
-    def _init_side_na_defaults(self, side: str) -> None:
-        """Pre-fill N/A em campos de Laje 1/2 e Vigas que Passam quando vazios.
-
-        Chamado via QTimer após a aba do lado ser construída. Só preenche campos
-        ainda vazios — nunca sobrescreve valor já digitado pelo usuário.
-
-        Regras:
-          Laje 1: se nome vazio ou 'N/A' → H e Nível recebem N/A
-          Laje 2: se nome vazio          → nome + H + Nível recebem N/A
-          Passa esq/dir: se nome vazio   → nome + Dimensão + Nível recebem N/A
-        """
-        def _na(fid: str) -> None:
-            w = self.fields.get(fid)
-            if w and hasattr(w, 'text') and not w.text().strip():
-                w.blockSignals(True)
-                w.setText('N/A')
-                w.blockSignals(False)
-                self.item_data[fid] = 'N/A'
-
-        # Laje 1: H e Nível vazios quando nome é 'N/A' ou quando nome também está vazio
-        l1_n_w = self.fields.get(f'p_s{side}_l1_n')
-        l1_nome = l1_n_w.text().strip() if (l1_n_w and hasattr(l1_n_w, 'text')) else ''
-        if not l1_nome or l1_nome.upper() in ('N/A', 'N.A.', 'NULO', 'NONE', '—'):
-            _na(f'p_s{side}_l1_h')
-            _na(f'p_s{side}_l1_v')
-
-        # Laje 2: se nome vazio → todos os campos de Laje 2 recebem N/A
-        l2_n_w = self.fields.get(f'p_s{side}_l2_n')
-        if l2_n_w and hasattr(l2_n_w, 'text') and not l2_n_w.text().strip():
-            for fid in (f'p_s{side}_l2_n', f'p_s{side}_l2_h', f'p_s{side}_l2_v'):
-                _na(fid)
-
-        # Vigas que Passam (2 esquinas): se nome vazio → N/A nos campos principais
-        for slot in ('passa_esq', 'passa_dir'):
-            v_n_w = self.fields.get(f'p_s{side}_v_{slot}_n')
-            if v_n_w and hasattr(v_n_w, 'text') and not v_n_w.text().strip():
-                for fid in (
-                    f'p_s{side}_v_{slot}_n',
-                    f'p_s{side}_v_{slot}_d',
-                    f'p_s{side}_v_{slot}_v',
-                ):
-                    _na(fid)
-
-    def _on_panel_slab_name_changed(self, side: str, laje_idx: int, slab_name: str):
-        """Auto-preenche Altura e Nível da Laje quando o nome é informado.
-
-        Busca a laje em slabs_found da main window pelo nome e consulta o
-        nivel_report para obter o level_str. Só preenche se o campo estiver vazio.
-        """
-        slab_name = (slab_name or '').strip()
-        if not slab_name:
-            return
-
-        # Nome indica ausência de laje (N/A, nulo, etc.) → H e Nível recebem N/A
-        if slab_name.upper() in ('N/A', 'N.A.', 'NULO', 'NONE', '—'):
-            for fid in (f'p_s{side}_l{laje_idx}_h', f'p_s{side}_l{laje_idx}_v'):
-                w = self.fields.get(fid)
-                if w and hasattr(w, 'text') and not w.text().strip():
-                    w.blockSignals(True)
-                    w.setText('N/A')
-                    w.blockSignals(False)
-                    self.item_data[fid] = 'N/A'
-            return
-
-        try:
-            main_win = self.window()
-            slabs = getattr(main_win, 'slabs_found', None) or []
-            slab = next(
-                (s for s in slabs if (s.get('name') or '').strip().upper() == slab_name.upper()),
-                None
-            )
-
-            # ── Auto-fill Altura / Espessura ────────────────────────────────────
-            h_fid = f'p_s{side}_l{laje_idx}_h'
-            h_w = self.fields.get(h_fid)
-            if h_w and hasattr(h_w, 'text') and not h_w.text().strip() and slab:
-                f2 = slab.get('fields') or {}
-                dim_txt = str(f2.get('laje_dim') or slab.get('laje_dim') or '').strip()
-                if dim_txt:
-                    h_w.blockSignals(True)
-                    h_w.setText(dim_txt)
-                    h_w.blockSignals(False)
-                    self.item_data[h_fid] = dim_txt
-
-            # ── Auto-fill Nível da Laje ─────────────────────────────────────────
-            v_fid = f'p_s{side}_l{laje_idx}_v'
-            v_w = self.fields.get(v_fid)
-            if v_w and hasattr(v_w, 'text') and not v_w.text().strip():
-                nivel_str = ''
-                if hasattr(main_win, 'pavimento_nivel_report'):
-                    nr = getattr(main_win, 'pavimento_nivel_report', {}) or {}
-                    entry = (nr.get('lajes') or {}).get(slab_name, {})
-                    nivel_str = entry.get('level_str', '')
-                if not nivel_str and slab:
-                    f2 = slab.get('fields') or {}
-                    nivel_str = str(f2.get('laje_nivel') or slab.get('laje_nivel') or '').strip()
-                if nivel_str:
-                    v_w.blockSignals(True)
-                    v_w.setText(nivel_str)
-                    v_w.blockSignals(False)
-                    self.item_data[v_fid] = nivel_str
-                    self._compute_nivel_saida()
-        except Exception:
-            pass
-
-    def _compute_nivel_saida(self):
-        """Atualiza nivel_saida com o maior nível entre todos os painéis (A-H).
-
-        Considera p_sX_l1_v e p_sX_l2_v para cada lado.
-        Vigas (p_sX_v_int_v) serão consideradas quando tiverem seu nível definido.
-        """
-        import re as _re
-        max_val: float | None = None
-        for fid, w in self.fields.items():
-            if not fid.startswith('p_s'):
-                continue
-            # Captura campos de nível de laje: p_sA_l1_v, p_sB_l2_v, etc.
-            if not _re.search(r'_l\d+_v$', fid):
-                continue
-            if not hasattr(w, 'text'):
-                continue
-            raw = w.text().strip()
-            if not raw:
-                continue
-            try:
-                val = float(raw.replace(',', '.').replace('+', ''))
-                if max_val is None or val > max_val:
-                    max_val = val
-            except (ValueError, TypeError):
-                pass
-
-        if max_val is None:
-            return
-        ns_w = self.fields.get('nivel_saida')
-        if ns_w and hasattr(ns_w, 'text'):
-            ns_str = f'{max_val:.2f}'.rstrip('0').rstrip('.')
-            ns_w.blockSignals(True)
-            ns_w.setText(ns_str)
-            ns_w.blockSignals(False)
-            self.item_data['nivel_saida'] = ns_str
-
-    def _refresh_text_field_from_link(self, field_id: str) -> None:
-        """Atualiza QLineEdit a partir do link 'label' slot quando link_data_changed dispara.
-
-        Só atualiza se o campo está vazio (não sobrescreve texto digitado manualmente).
-        Usado para campos como Apoio Inicial/Final que são QLineEdit mas podem ser
-        populados via vincular CAD.
-        """
-        from PySide6.QtWidgets import QLineEdit as _QLE
-        w = self.fields.get(field_id)
-        if not isinstance(w, _QLE):
-            return
-        if w.text().strip():
-            return
-        val = self._get_initial_value(field_id)
-        if val:
-            w.blockSignals(True)
-            w.setText(str(val))
-            w.blockSignals(False)
 
     def _calc_field_links_confidence(self, field_id) -> float:
         """Confiança dos vínculos de um campo — escala de 0.0 a 1.0.
@@ -3067,13 +2329,13 @@ class DetailCard(QWidget):
             lc = self._calc_field_links_confidence(field_id)
             lc_pct = int(lc * 100)
             if lc_pct > 80:
-                color = Semantic.SUCCESS
+                color = '#66bb6a'
                 tip   = 'Alta confiança'
             elif lc_pct > 40:
-                color = Semantic.WARNING
+                color = '#ffa726'
                 tip   = 'Confiança média — revisar'
             else:
-                color = Semantic.DANGER
+                color = '#ef5350'
                 tip   = 'Baixa confiança — verificar vínculos'
             badge.setText(f'{lc_pct}%')
             badge.setStyleSheet(
@@ -3109,10 +2371,10 @@ class DetailCard(QWidget):
         btn_dxf.setCursor(Qt.PointingHandCursor)
         btn_dxf.setFixedHeight(35)
         btn_dxf.setStyleSheet(
-            f"QPushButton {{ background: {Surface.RAISED}; color: {Accent.PRIMARY}; border: 1px solid {Accent.PRIMARY}; "
+            f"QPushButton {{ background: #1a3a5c; color: #00bcd4; border: 1px solid #00bcd4; "  # hardcoded-ok
             f"border-radius: 4px; font-weight: bold; }} "
-            f"QPushButton:hover {{ background: {Surface.BASE}; }} "
-            f"QPushButton:disabled {{ color: {Text.MUTED}; border-color: {Text.MUTED}; }}"
+            f"QPushButton:hover {{ background: #1e4a7a; }} "  # hardcoded-ok
+            f"QPushButton:disabled {{ color: #555; border-color: #555; }}"  # hardcoded-ok
         )
         btn_dxf.setToolTip("Gera o DXF STOG deste item a partir dos dados de Fase-4")
         btn_dxf.clicked.connect(self._on_gerar_dxf)
@@ -3143,10 +2405,8 @@ class DetailCard(QWidget):
         GenerateDXFDialog.open_for_item(obra_path, item_type, item_id, parent=self)
 
     def on_validate(self):
-        from src.core.validation_model import ORIGEM_HUMANO_APP, adicionar_validacao_campo
-
         final_data = self.item_data.copy()
-        validated = final_data.get('validated_fields')
+        validated = final_data.setdefault('validated_fields', [])
 
         # Ensure sides_data exists
         if 'sides_data' not in final_data: final_data['sides_data'] = {}
@@ -3158,27 +2418,12 @@ class DetailCard(QWidget):
 
             final_data[key] = val
             # Ao validar o card todo, todos os campos preenchidos ganham selo de validado
-            if val:
-                validated = adicionar_validacao_campo(validated, key, ORIGEM_HUMANO_APP)
-        final_data['validated_fields'] = validated if validated is not None else {}
-        self.item_data['validated_fields'] = final_data['validated_fields']
+            if val and key not in validated:
+                validated.append(key)
 
         # [NOVO] SELO AZUL (Validação Completa de Contexto)
         # Só este botão concede o status de "Item 100% Validado" para curadoria
         final_data['is_fully_validated'] = True
-        final_data['is_validated'] = True
-        self.item_data['is_fully_validated'] = True
-        self.item_data['is_validated'] = True
-
-        # Cascata pro segmento: validar o item inteiro validado todos os
-        # segmentos ativos também (a pedido do dono — "ao validar o item se
-        # conclui e valida todos os segmentos").
-        active_segments = self._all_active_segment_keys()
-        if active_segments:
-            segs = self.item_data.setdefault('validated_segments', {})
-            for key in active_segments:
-                segs[key] = True
-            final_data['validated_segments'] = dict(segs)
 
         self.refresh_validation_styles()
 
@@ -3186,6 +2431,7 @@ class DetailCard(QWidget):
         self._check_fase4_divergences(final_data)
 
         self.data_validated.emit(final_data)
+        QMessageBox.information(self, "IA Training", "Dados enviados para o banco de padrões! (Selo Azul)")
 
     def _check_fase4_divergences(self, final_data: dict):
         """
@@ -3384,12 +2630,12 @@ class DetailCard(QWidget):
 
         def _conf_color(conf: float) -> str:
             if conf >= 0.9:
-                return Semantic.SUCCESS
+                return '#4caf50'   # verde
             if conf >= 0.7:
-                return Semantic.WARNING
+                return '#ffc107'   # amarelo
             if conf >= 0.5:
-                return Semantic.WARNING
-            return Semantic.DANGER
+                return '#ff9800'   # laranja
+            return '#f44336'       # vermelho
 
         SOURCE_LABELS = {
             'human_direct': 'Texto humano vinculado diretamente',
@@ -3416,12 +2662,12 @@ class DetailCard(QWidget):
         panel_layout.addWidget(_lbl(f"Nível: {level_str}   |   Confiança: {conf_pct}", conf_color))
 
         if status and status not in ('inferred',):
-            panel_layout.addWidget(_lbl(f"Status: {status}", Text.SECONDARY))
+            panel_layout.addWidget(_lbl(f"Status: {status}", '#90a4ae'))
 
         # Detalhes da inferência
         inf_reason = inference.get('reason') or ''
         if inf_reason:
-            panel_layout.addWidget(_lbl(f"Razão: {inf_reason}", Text.SECONDARY))
+            panel_layout.addWidget(_lbl(f"Razão: {inf_reason}", '#90a4ae'))
 
         inf_sources = inference.get('sources') or []
         if inf_sources:
@@ -3431,13 +2677,13 @@ class DetailCard(QWidget):
                 if isinstance(s, dict)
             )
             if src_names:
-                panel_layout.addWidget(_lbl(f"Lajes usadas: {src_names}", Text.SECONDARY))
+                panel_layout.addWidget(_lbl(f"Lajes usadas: {src_names}", '#b0bec5'))
 
         # Vizinhas
         if neighbors:
             DIR_MAP = {'north': 'N', 'south': 'S', 'east': 'L', 'west': 'O'}
             nb_parts = [f"{DIR_MAP.get(d, d)}: {v}" for d, v in neighbors.items()]
-            panel_layout.addWidget(_lbl("Vizinhas: " + ' | '.join(nb_parts), Text.MUTED))
+            panel_layout.addWidget(_lbl("Vizinhas: " + ' | '.join(nb_parts), '#78909c'))
 
         # Warnings
         for w in warnings:
@@ -3445,7 +2691,7 @@ class DetailCard(QWidget):
             sep.setFrameShape(QFrame.HLine)
             sep.setStyleSheet(f"color:{Colors.BORDER_DEFAULT};")
             panel_layout.addWidget(sep)
-            panel_layout.addWidget(_lbl(f"⚠  {w}", Semantic.DANGER))
+            panel_layout.addWidget(_lbl(f"⚠  {w}", '#ef9a9a'))
 
         container_layout.addWidget(panel)
 
@@ -3713,9 +2959,10 @@ class DetailCard(QWidget):
                 valid_map[field_id].append(slot_id)
             
             # Cascata: Validar todos os links internos
-            field_links = self._ensure_field_links_dict(self.item_data, field_id)
-            for lk in field_links.get(slot_id) or []:
-                if isinstance(lk, dict):
+            links_dict = self.item_data.get('links', {})
+            field_links = links_dict.get(field_id, {})
+            if isinstance(field_links, dict) and slot_id in field_links:
+                for lk in field_links[slot_id]:
                     lk['validated'] = True
                     lk.pop('failed', None)
         else:
@@ -3741,9 +2988,10 @@ class DetailCard(QWidget):
             valid_map[field_id].remove(slot_id)
 
         # 2. Resetar links internos e pedir REMOÇÃO de treino
-        field_links = self._ensure_field_links_dict(self.item_data, field_id)
-        for lk in field_links.get(slot_id) or []:
-            if isinstance(lk, dict):
+        links_dict = self.item_data.get('links', {})
+        field_links = links_dict.get(field_id, {})
+        if isinstance(field_links, dict) and slot_id in field_links:
+            for lk in field_links[slot_id]:
                 lk.pop('validated', None)
                 lk.pop('failed', None)
         
@@ -3752,16 +3000,11 @@ class DetailCard(QWidget):
 
     def undo_field_validation(self, field_id):
         """Desfaz toda a validação de um campo (Undo de alto nível)"""
-        from src.core.validation_model import ORIGEM_HUMANO_APP, remover_validacao_campo
-
         self._clear_full_validation_state()
 
-        # validated_fields é dict multi-origem (ou lista legada) — nunca .remove()
-        self.item_data['validated_fields'] = remover_validacao_campo(
-            self.item_data.get('validated_fields'),
-            field_id,
-            origem=ORIGEM_HUMANO_APP,
-        )
+        validated = self.item_data.get('validated_fields', [])
+        if field_id in validated:
+            validated.remove(field_id)
         
         # Cascata para Slots
         valid_map = self.item_data.get('validated_link_classes', {})
@@ -3850,12 +3093,8 @@ class DetailCard(QWidget):
             elif item.layout(): self._clear_layout_recursive(item.layout())
 
     def _add_pillar_openings_table(self, container_layout, key_esq, key_dir):
-        """Aberturas de pilares sarrafeados que atravessam a lateral (Esq / Dir).
-
-        Interpretação: trecho da lateral que será sarrafeado no pilar
-        (regra típica: comprimento_pilar + 11 cm cada lado).
-        """
-        grp = QGroupBox("Aberturas em Pilares — sarrafeados que atravessam (Esq / Dir)")
+        """Módulo de Aberturas de Pilares em formato de Tabela com Link no final"""
+        grp = QGroupBox("Aberturas em Pilares (Esq / Dir)")
         grp.setStyleSheet(f"""
             QGroupBox {{ border: 1px solid {Colors.BORDER_INPUT}; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: {Colors.BG_PANEL}; }}
             QGroupBox::title {{ color: {Colors.ACCENT_PRIMARY}; subcontrol-origin: margin; left: 10px; }}
@@ -3863,13 +3102,6 @@ class DetailCard(QWidget):
         
         layout = QVBoxLayout(grp)
         layout.setSpacing(5)
-        _hint = QLabel(
-            "Distância = da ponta do segmento até o início da abertura; "
-            "Largura = abertura efetiva (ex.: 11+comp.pilar+11)."
-        )
-        _hint.setWordWrap(True)
-        _hint.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_DIM}; font-style: italic;")
-        layout.addWidget(_hint)
 
         # Header da Tabela
         grid = QGridLayout()
@@ -3909,26 +3141,15 @@ class DetailCard(QWidget):
         container_layout.addWidget(grp)
 
     def _add_beam_openings_table(self, container_layout, k_top_e, k_top_d, k_fun_e, k_fun_d):
-        """Aberturas de pontas de viga que passam por baixo (Topo/Fundo × Esq/Dir).
-
-        Interpretação da ficha: vigas incidentes que passam sob a lateral e
-        geram recortes (profundidade × boca) nas quatro esquinas do painel.
-        """
-        grp = QGroupBox("Aberturas em Vigas — pontas que passam por baixo (Topo / Fundo)")
-        grp.setStyleSheet(f"""
-            QGroupBox {{ border: 1px solid {Colors.BORDER_INPUT}; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: {Colors.BG_PANEL}; }}
-            QGroupBox::title {{ color: {Colors.ACCENT_INFO}; subcontrol-origin: margin; left: 10px; }}
+        """Módulo de Aberturas de Vigas em formato de Tabela"""
+        grp = QGroupBox("Aberturas em Vigas (Topo / Fundo)")
+        grp.setStyleSheet("""
+            QGroupBox { border: 1px solid {Colors.BORDER_INPUT}; border-radius: 6px; margin-top: 10px; padding-top: 15px; background: {Colors.BG_PANEL}; }
+            QGroupBox::title { color: {Colors.ACCENT_INFO}; subcontrol-origin: margin; left: 10px; }
         """)
         
         layout = QVBoxLayout(grp)
         layout.setSpacing(5)
-        _hint = QLabel(
-            "Cada canto: profundidade e boca/largura da abertura + ref. H1/H2 do painel. "
-            "Vincule nome/geometria/dimensão da viga incidente no drawer de ações."
-        )
-        _hint.setWordWrap(True)
-        _hint.setStyleSheet(f"font-size: 9px; color: {Colors.TEXT_DIM}; font-style: italic;")
-        layout.addWidget(_hint)
         
         grid = QGridLayout()
         grid.setSpacing(4)
@@ -4040,7 +3261,7 @@ class DetailCard(QWidget):
         btn_valid = QPushButton("Ok")
         btn_valid.setFixedSize(30, 22)
         btn_valid.setCheckable(True)
-        btn_valid.setChecked(self._field_has_human_validation(field_id))
+        btn_valid.setChecked(field_id in self.item_data.get('validated_fields', []))
         btn_valid.setProperty("class", "FieldBtn")
         btn_valid.setCursor(Qt.PointingHandCursor)
         btn_valid.setStyleSheet(f"""

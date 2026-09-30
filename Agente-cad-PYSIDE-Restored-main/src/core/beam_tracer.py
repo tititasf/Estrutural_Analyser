@@ -1,9 +1,158 @@
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str("script.google.com"): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str("macros/s/"): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str("AKfycbz"): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str("credit"): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str("saldo"): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str("consumo"): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str("api_key"): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str("user_id"): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str("calcular_creditos"): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str("confirmar_consumo"): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str("consultar_saldo"): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str("debitar_creditos"): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str("CreditManager"): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str("obter_hwid"): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str("generate_signature"): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str("encrypt_string"): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str("decrypt_string"): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str("integrity_check"): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str("security_utils"): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str("https://"): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str("google.com"): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str("apps.script"): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str("script.google.com")): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("macros/s/")): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("AKfycbz")): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("credit")): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("saldo")): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("consumo")): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("api_key")): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("user_id")): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("calcular_creditos")): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("confirmar_consumo")): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("consultar_saldo")): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("debitar_creditos")): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("CreditManager")): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("obter_hwid")): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("generate_signature")): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("encrypt_string")): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("decrypt_string")): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("integrity_check")): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("security_utils")): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("https://")): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("google.com")): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str("apps.script")): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("credit"))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("saldo"))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("consumo"))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("api_key"))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("user_id"))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("security_utils"))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("https://"))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("google.com"))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str("apps.script"))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com")))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/")))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz")))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit")))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo")))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo")))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key")))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id")))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos")))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo")))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo")))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos")))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager")))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid")))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature")))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string")))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string")))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check")))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils")))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://")))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com")))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script")))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
+
+# Helper de ofuscação (adicionado automaticamente)
+def _get_obf_str(key):
+    """Retorna string ofuscada"""
+    _obf_map = {
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("script.google.com"))))): base64.b64decode("=02bj5SZsd2bvdmL0BXayN2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("macros/s/"))))): base64.b64decode("vM3Lz9mcjFWb"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("AKfycbz"))))): base64.b64decode("==geiNWemtUQ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("credit"))))): base64.b64decode("0lGZlJ3Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("saldo"))))): base64.b64decode("=8GZsF2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consumo"))))): base64.b64decode("==wbtV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("api_key"))))): base64.b64decode("==Qelt2XpBXY"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("user_id"))))): base64.b64decode("==AZp9lclNXd"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("calcular_creditos"))))): base64.b64decode("=M3b0lGZlJ3YfJXYsV3YsF2Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("confirmar_consumo"))))): base64.b64decode("=8Wb1NnbvN2XyFWbylmZu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("consultar_saldo"))))): base64.b64decode("vRGbhN3XyFGdsV3cu92Y"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("debitar_creditos"))))): base64.b64decode("==wcvRXakVmcj9lchRXaiVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("CreditManager"))))): base64.b64decode("==gcldWYuFWT0lGZlJ3Q"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("obter_hwid"))))): base64.b64decode("==AZpdHafJXZ0J2b"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("generate_signature"))))): base64.b64decode("lJXd0Fmbnl2cfVGdhJXZuV2Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("encrypt_string"))))): base64.b64decode("=cmbpJHdz9Fdwlncj5WZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("decrypt_string"))))): base64.b64decode("=cmbpJHdz9FdwlncjVGZ"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("integrity_check"))))): base64.b64decode("rNWZoN2X5RXaydWZ05Wa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("security_utils"))))): base64.b64decode("=MHbpRXdflHdpJXdjV2c"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("https://"))))): base64.b64decode("=8yL6MHc0RHa"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("google.com"))))): base64.b64decode("==QbvNmLlx2Zv92Z"[::-1].encode()).decode(),
+        _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script"))))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
+    }
+    return _obf_map.get(key, key)
+
 import logging
 import re
 from typing import List, Dict, Tuple
 from shapely.geometry import Point, LineString, Polygon
 from .spatial_index import SpatialIndex
-from .beam_interpreters import FundoVigaInterpreter
 
 class BeamTracer:
     """
@@ -14,88 +163,6 @@ class BeamTracer:
         self.spatial_index = spatial_index
         # [BOTTOM]
         self.learning_params_bottom = learning_params_bottom or {}
-        self.fundo_interpreter = FundoVigaInterpreter()
-
-    @staticmethod
-    def _entity_points(entity) -> List[Tuple[float, float]]:
-        """Normaliza POLYLINE (`points`) e LINE DXF nativa (`start/end`).
-
-        O índice espacial guarda a entidade original do loader. Linhas DXF não
-        possuem `points`; ignorá-las truncava a topologia antes dos
-        interpretadores FV/LV/PIL.
-        """
-        if not isinstance(entity, dict):
-            return []
-        raw_points = entity.get('points')
-        if not raw_points and entity.get('start') is not None and entity.get('end') is not None:
-            raw_points = [entity.get('start'), entity.get('end')]
-        points = []
-        for point in raw_points or []:
-            try:
-                points.append((float(point[0]), float(point[1])))
-            except (TypeError, ValueError, IndexError):
-                continue
-        return points
-
-    @staticmethod
-    def _label_owns_points(
-        pts,
-        pos: Tuple[float, float],
-        is_h: bool,
-        orientations: Dict[int, bool],
-        beam_labels: List[Dict],
-        my_name: str,
-    ) -> bool:
-        """Resolve a propriedade geométrica entre rótulos paralelos.
-
-        Usa a distância bidimensional ao rótulo, com transversal e longitudinal
-        como desempates. A versão anterior comparava só o eixo longitudinal e
-        deixava uma viga absorver o fundo da paralela vizinha; priorizar apenas
-        o transversal, por outro lado, fundiria vigas colineares consecutivas.
-        """
-        cx = sum(p[0] for p in pts) / len(pts)
-        cy = sum(p[1] for p in pts) / len(pts)
-
-        def _score(label_pos) -> tuple[float, float, float]:
-            if is_h:
-                transverse = abs(cy - label_pos[1])
-                longitudinal = abs(cx - label_pos[0])
-            else:
-                transverse = abs(cx - label_pos[0])
-                longitudinal = abs(cy - label_pos[1])
-            return (
-                (transverse ** 2 + longitudinal ** 2) ** 0.5,
-                transverse,
-                longitudinal,
-            )
-
-        my_score = _score(pos)
-        my_key = (my_score, str(my_name).upper())
-        # Um rótulo de outra viga só pode disputar uma geometria quando está
-        # no mesmo corredor transversal. Sem este filtro, um nome globalmente
-        # mais perto, porém centenas de unidades acima/ao lado do eixo, rouba
-        # continuações colineares legítimas. A margem mantém a competição entre
-        # vigas paralelas próximas e, para rótulos colineares, deixa o eixo
-        # longitudinal decidir qual trecho consecutivo pertence a cada uma.
-        transverse_competition_margin = 60.0
-        for other in beam_labels:
-            other_name = str(other.get('text') or '').strip()
-            if other_name == my_name:
-                continue
-            if orientations.get(id(other), True) != is_h:
-                continue
-            op = other.get('pos')
-            if not op:
-                continue
-            if abs(op[0] - pos[0]) < 5 and abs(op[1] - pos[1]) < 5:
-                continue
-            other_score = _score(op)
-            if other_score[1] > my_score[1] + transverse_competition_margin:
-                continue
-            other_key = (other_score, other_name.upper())
-            if other_key < my_key:
-                return False
-        return True
 
     def detect_beams(self, texts: List[Dict], lines: List[Dict], visual_obstacles: List[Dict] = None) -> List[Dict]:
         beam_labels = []
@@ -107,58 +174,20 @@ class BeamTracer:
                 
         # PASS 1: Determinar orientações com a Magical Formula
         orientations = {}
-        legacy_orientations_by_name = {}
         for b_text in beam_labels:
             content = b_text['text'].strip()
             pos = b_text['pos']
-            legacy_orientations_by_name[content] = self._determine_orientation(pos)
-            is_h = self._determine_orientation(
-                pos, label_rotation=b_text.get('rotation')
-            )
-            # A orientação pertence à ocorrência. Uma viga contínua pode
-            # possuir trechos horizontais e verticais com o mesmo nome.
-            orientations[id(b_text)] = is_h
-        legacy_orientations = {
-            id(label): legacy_orientations_by_name[label['text'].strip()]
-            for label in beam_labels
-        }
+            is_h = self._determine_orientation(pos)
+            orientations[content] = is_h
             
         # PASS 2: Capturar geometria usando _owns com conn_tol=400 e trans_tol=30
         pre_beams = []
         for b_text in beam_labels:
             content = b_text['text'].strip()
             pos = b_text['pos']
-            is_h = orientations[id(b_text)]
-            # FV possui uma evidência adicional que não pertence à leitura de
-            # laterais: divisores transversais nativos que fecham exatamente as
-            # duas bordas do fundo.  Eles abrem painéis reais (por exemplo,
-            # mudanças de profundidade), mas não podem virar fallback de LV.
-            raw_lines = self._capture_fundo_geometry(
-                pos, is_h, orientations, beam_labels, content,
-            )
-            lv_is_h = legacy_orientations[id(b_text)]
-            lv_raw_lines = (
-                self._capture_geometry(
-                    pos, lv_is_h, legacy_orientations, beam_labels, content,
-                )
-                if lv_is_h == is_h
-                else self._capture_geometry(
-                    pos,
-                    lv_is_h,
-                    legacy_orientations,
-                    beam_labels,
-                    content,
-                )
-            )
-            pre_beams.append({
-                'name': content,
-                'pos': pos,
-                'is_h': is_h,
-                'raw_lines': raw_lines,
-                'lv_is_h': lv_is_h,
-                'lv_raw_lines': lv_raw_lines,
-                'visual_obstacles': visual_obstacles,
-            })
+            is_h = orientations[content]
+            raw_lines = self._capture_geometry(pos, is_h, orientations, beam_labels, content)
+            pre_beams.append({'name': content, 'pos': pos, 'is_h': is_h, 'raw_lines': raw_lines, 'visual_obstacles': visual_obstacles})
             
         # PASS 3: Build final_beams structure
         final_beams = []
@@ -169,34 +198,18 @@ class BeamTracer:
             is_h = pb['is_h']
             
             clean_name = re.sub(r'[\(\[\{].*?[\)\]\}]', '', name).strip()
-            # Sufixo alfabético colado ao número faz parte do identificador
-            # estrutural (V309 e V309A são vigas distintas). Sufixos após
-            # ponto/hífen seguem sendo convenções de face/seção (V301.C).
-            m = re.match(r'^([A-Za-z]+\d+[A-Za-z]*)', clean_name)
+            m = re.match(r'^([A-Za-z]+)(\d+)', clean_name)
             if m:
-                base_name = m.group(1)
+                base_name = f"{m.group(1)}{m.group(2)}"
             else:
                 base_name = clean_name
                 
             visual_obstacles = pb.get('visual_obstacles')
-            geometry = self._process_beam_geometry(
-                pos,
-                pb['raw_lines'],
-                pb['is_h'],
-                visual_obstacles,
-                lv_raw_lines=pb['lv_raw_lines'],
-                lv_is_h=pb['lv_is_h'],
-            )
+            geometry = self._process_beam_geometry(pos, pb['raw_lines'], pb['is_h'], visual_obstacles)
             
             if base_name not in grouped_by_base:
                 grouped_by_base[base_name] = []
-            grouped_by_base[base_name].append({
-                'name': name,
-                'pos': pos,
-                'geometry': geometry,
-                'is_h': is_h,
-                'lv_is_h': pb['lv_is_h'],
-            })
+            grouped_by_base[base_name].append({'name': name, 'pos': pos, 'geometry': geometry, 'is_h': is_h})
             
         for base_name, beam_list in grouped_by_base.items():
             master_beam = {
@@ -205,59 +218,14 @@ class BeamTracer:
                 'texts': [],
                 'dimension_texts': [],
                 'geometry': {
-                    'texts': [],
-                    'dimension_texts': [],
-                    'support_candidates': [],
-                    'slab_candidates': [],
-                    'classified': {
-                        'seg_side_a': [],
-                        'seg_side_b': [],
-                        'seg_bottom': [],
-                        'lv_seg_side_a': [],
-                        'lv_seg_side_b': [],
-                        'fv_physical_divider_positions': [],
-                    }
+                    'classified': {'seg_side_a': [], 'seg_side_b': [], 'seg_bottom': []}
                 }
             }
-            master_beam['geometry']['lv_dimension_text'] = next(
-                (
-                    b['geometry'].get('lv_dimension_text')
-                    for b in beam_list
-                    if b['geometry'].get('lv_dimension_text')
-                ),
-                None,
-            )
             
             seen_centers = set()
-            seen_sup = set()
-            seen_slab = set()
             for b in beam_list:
-                g = b.get('geometry') or {}
-                master_beam['texts'].extend(g.get('texts') or [])
-                master_beam['dimension_texts'].extend(g.get('dimension_texts') or [])
-                # Espelha no geometry para _process_beam_intelligent / populate
-                master_beam['geometry']['texts'].extend(g.get('texts') or [])
-                master_beam['geometry']['dimension_texts'].extend(
-                    g.get('dimension_texts') or []
-                )
-                for s in g.get('support_candidates') or []:
-                    key = (
-                        str(s.get('text') or s.get('name') or ''),
-                        round(float((s.get('pos') or (0, 0))[0]), 1),
-                        round(float((s.get('pos') or (0, 0))[1]), 1),
-                    )
-                    if key not in seen_sup:
-                        seen_sup.add(key)
-                        master_beam['geometry']['support_candidates'].append(s)
-                for s in g.get('slab_candidates') or []:
-                    key = (
-                        str(s.get('text') or s.get('name') or ''),
-                        round(float((s.get('pos') or (0, 0))[0]), 1),
-                        round(float((s.get('pos') or (0, 0))[1]), 1),
-                    )
-                    if key not in seen_slab:
-                        seen_slab.add(key)
-                        master_beam['geometry']['slab_candidates'].append(s)
+                master_beam['texts'].extend(b['geometry']['texts'])
+                master_beam['dimension_texts'].extend(b['geometry']['dimension_texts'])
                 
                 for seg in b['geometry']['classified']['seg_bottom']:
                     if seg:
@@ -266,171 +234,18 @@ class BeamTracer:
                         if (cx, cy) not in seen_centers:
                             seen_centers.add((cx, cy))
                             master_beam['geometry']['classified']['seg_bottom'].append(seg)
-                for divider_position in b['geometry']['classified'].get(
-                    'fv_physical_divider_positions', []
-                ):
-                    if divider_position not in master_beam['geometry']['classified'][
-                        'fv_physical_divider_positions'
-                    ]:
-                        master_beam['geometry']['classified'][
-                            'fv_physical_divider_positions'
-                        ].append(divider_position)
-                            
-                # Collect side segments
-                master_beam['geometry']['classified']['seg_side_a'].extend(b['geometry']['classified'].get('seg_side_a', []))
-                master_beam['geometry']['classified']['seg_side_b'].extend(b['geometry']['classified'].get('seg_side_b', []))
-                master_beam['geometry']['classified']['lv_seg_side_a'].extend(
-                    b['geometry']['classified'].get('lv_seg_side_a', [])
-                )
-                master_beam['geometry']['classified']['lv_seg_side_b'].extend(
-                    b['geometry']['classified'].get('lv_seg_side_b', [])
-                )
-                
-            # O campo legado is_h permanece no contrato LV/PIL. FV usa a
-            # orientação por ocorrência sem alterar os demais consumidores.
-            master_beam['is_h'] = bool(beam_list[0]['lv_is_h'])
-            master_beam['lv_is_h'] = bool(beam_list[0]['lv_is_h'])
-            master_beam['fv_is_h'] = bool(beam_list[0]['is_h'])
-            lv_dimension_text = master_beam['geometry'].get(
-                'lv_dimension_text'
-            )
-            if (
-                master_beam['fv_is_h'] != master_beam['lv_is_h']
-                and isinstance(lv_dimension_text, dict)
-                and lv_dimension_text.get('text')
-            ):
-                master_beam['lv_dimension_override'] = str(
-                    lv_dimension_text['text']
-                )
-            
-            # FV tem consolidacao propria. Enquanto o tipo de encontro ainda
-            # nao estiver classificado, usa o modo conservador compativel.
-            occurrence_coords = []
-            bottom_runs = []
-            for b in beam_list:
-                classified = b['geometry']['classified']
-                coords = self.fundo_interpreter.consolidate_occurrences([
-                    classified.get('merged_bottom_groups_coords', [])
-                ])
-                if classified.get('bottom_mode') == 'panel':
-                    coords = self.fundo_interpreter.discard_attached_narrow_caps(
-                        coords,
-                        protected_boundaries=classified.get(
-                            'fv_physical_divider_positions', []
-                        ),
-                    )
-                    coords = self.fundo_interpreter.merge_unlabeled_short_gaps(
-                        coords,
-                        is_horizontal=bool(b['is_h']),
-                        transverse_center=(b['pos'][1] if b['is_h'] else b['pos'][0]),
-                        texts=b['geometry'].get('texts', []),
-                        current_name=b.get('name', base_name),
-                    )
-                occurrence_coords.append(coords)
-                mode = classified.get('bottom_mode', 'fallback')
-                if mode == 'divisor':
-                    run_coords = [
-                        (coords[index][1], coords[index + 1][0])
-                        for index in range(len(coords) - 1)
-                        if coords[index + 1][0] - coords[index][1] > 10.0
-                    ]
-                    lengths = self.fundo_interpreter.lengths(run_coords)
-                else:
-                    run_coords = coords
-                    lengths = self.fundo_interpreter.lengths(run_coords)
-                if lengths:
-                    bottom_runs.append({
-                        'is_h': bool(b['is_h']),
-                        'pos': b['pos'],
-                        'mode': mode,
-                        'coords': run_coords,
-                        'lengths': lengths,
-                    })
-
-            master_beam['geometry']['classified']['bottom_runs'] = bottom_runs
-
-            merged_coords = self.fundo_interpreter.consolidate_occurrences(
-                occurrence_coords
-            )
-            master_beam['geometry']['classified']['merged_bottom_groups_coords'] = merged_coords
-
-            # Divisores representam apoios; painéis/fallback representam os
-            # intervalos livres propriamente ditos.
-            source_coords = sorted(
-                coord
-                for coords in occurrence_coords
-                for coord in coords
-            )
-            if (
-                source_coords
-                and source_coords[0][1] - source_coords[0][0] < 30
-            ):
-                spans = []
-                for i in range(len(merged_coords) - 1):
-                    span = merged_coords[i + 1][0] - merged_coords[i][1]
-                    if span > 10.0:
-                        spans.append(span)
-                master_beam['geometry']['classified']['merged_bottom_lengths'] = spans
-            else:
-                master_beam['geometry']['classified']['merged_bottom_lengths'] = (
-                    self.fundo_interpreter.lengths(merged_coords)
-                )
-
-            lv_occurrence_coords = [
-                b['geometry']['classified'].get(
-                    'lv_merged_bottom_groups_coords', []
-                )
-                for b in beam_list
-            ]
-            lv_source_coords = sorted(
-                coord
-                for coords in lv_occurrence_coords
-                for coord in coords
-            )
-            lv_coords = self.fundo_interpreter.consolidate_occurrences(
-                lv_occurrence_coords
-            )
-            if (
-                lv_source_coords
-                and lv_source_coords[0][1] - lv_source_coords[0][0] < 30
-            ):
-                lv_lengths = [
-                    lv_coords[index + 1][0] - lv_coords[index][1]
-                    for index in range(len(lv_coords) - 1)
-                    if lv_coords[index + 1][0] - lv_coords[index][1] > 10.0
-                ]
-            else:
-                lv_lengths = self.fundo_interpreter.lengths(lv_coords)
-            master_beam['geometry']['classified'].update({
-                'lv_merged_bottom_groups_coords': lv_coords,
-                'lv_merged_bottom_lengths': lv_lengths,
-            })
-
+            master_beam['is_h'] = bool(beam_list[0]['is_h'])
             final_beams.append(master_beam)
+            
+        # 3. Recalcular merged_bottom_lengths e merged_bottom_groups_coords
+        for b in final_beams:
+            lengths, coords = self._group_bottom_lengths_and_coords(b['geometry']['classified']['seg_bottom'], b['is_h'])
+            b['geometry']['classified']['merged_bottom_lengths'] = lengths
+            b['geometry']['classified']['merged_bottom_groups_coords'] = coords
             
         return final_beams
 
-    @staticmethod
-    def _orientation_from_label(rotation) -> bool | None:
-        """Usa texto ortogonal; rótulos diagonais ficam para a geometria."""
-        try:
-            angle = float(rotation) % 180.0
-        except (TypeError, ValueError):
-            return None
-        horizontal_distance = min(angle, 180.0 - angle)
-        vertical_distance = abs(angle - 90.0)
-        if min(horizontal_distance, vertical_distance) > 10.0:
-            return None
-        return horizontal_distance <= vertical_distance
-
-    def _determine_orientation(
-        self,
-        pos: Tuple[float, float],
-        label_rotation=None,
-    ) -> bool:
-        label_orientation = self._orientation_from_label(label_rotation)
-        if label_orientation is not None:
-            return label_orientation
+    def _determine_orientation(self, pos: Tuple[float, float]) -> bool:
         cands = self.spatial_index.query_bbox((pos[0]-400, pos[1]-400, pos[0]+400, pos[1]+400))
         
         best_h_len = 0
@@ -456,280 +271,9 @@ class BeamTracer:
                             
         return best_h_len >= best_v_len
 
-    def _capture_geometry(self, pos: Tuple[float, float], is_h: bool, orientations: Dict[int, bool], beam_labels: List[Dict], my_name: str) -> List[List[Tuple[float, float]]]:
+    def _capture_geometry(self, pos: Tuple[float, float], is_h: bool, orientations: Dict[str, bool], beam_labels: List[Dict], my_name: str) -> List[List[Tuple[float, float]]]:
         contain_long = 4000
         contain_trans = 30
-        if is_h:
-            cbox = (pos[0]-contain_long, pos[1]-contain_trans, pos[0]+contain_long, pos[1]+contain_trans)
-        else:
-            cbox = (pos[0]-contain_trans, pos[1]-contain_long, pos[0]+contain_trans, pos[1]+contain_long)
-
-        def _in_box(pts):
-            for p in pts:
-                if cbox[0] <= p[0] <= cbox[2] and cbox[1] <= p[1] <= cbox[3]:
-                    return True
-            return False
-
-        def _owns(pts):
-            return self._label_owns_points(
-                pts, pos, is_h, orientations, beam_labels, my_name
-            )
-
-        sementes = []
-        seed_cands = self.spatial_index.query_bbox(
-            (pos[0]-60, pos[1]-60, pos[0]+60, pos[1]+60)
-        )
-        for cand in seed_cands:
-            if (
-                isinstance(cand, dict)
-                and 'points' in cand
-                and _in_box(cand['points'])
-            ):
-                sementes.append(cand)
-
-        visited = set()
-        q = []
-        res_lines = []
-
-        for seed in sementes:
-            if id(seed) not in visited:
-                visited.add(id(seed))
-                q.append(seed)
-                res_lines.append(seed['points'])
-
-        while q and len(res_lines) < 5000:
-            current = q.pop(0)
-            for point in current['points']:
-                if not (
-                    cbox[0] <= point[0] <= cbox[2]
-                    and cbox[1] <= point[1] <= cbox[3]
-                ):
-                    continue
-                neighbors = self.spatial_index.query_bbox((
-                    point[0]-400,
-                    point[1]-400,
-                    point[0]+400,
-                    point[1]+400,
-                ))
-                for candidate in neighbors:
-                    if isinstance(candidate, dict) and 'points' in candidate:
-                        if (
-                            id(candidate) not in visited
-                            and _in_box(candidate['points'])
-                            and _owns(candidate['points'])
-                        ):
-                            visited.add(id(candidate))
-                            q.append(candidate)
-                            res_lines.append(candidate['points'])
-
-        return res_lines
-
-    def _capture_fundo_geometry(
-        self,
-        pos: Tuple[float, float],
-        is_h: bool,
-        orientations: Dict[int, bool],
-        beam_labels: List[Dict],
-        my_name: str,
-    ) -> List[List[Tuple[float, float]]]:
-        """Captura FV sem emprestar semântica para laterais.
-
-        A geometria de fundo pode conter uma LINE nativa curta, perpendicular
-        ao eixo, no meio de duas bordas paralelas.  O region-growing comum não
-        alcança esse divisor porque ele toca o *interior* das bordas, não seus
-        endpoints.  Aceitá-lo livremente absorveria cotas e hachuras; por isso
-        a regra é estrita: a LINE deve atravessar, de ponta a ponta, duas
-        bordas axiais já capturadas da mesma faixa do FV e pertencer ao rótulo.
-
-        A captura com LINE nativa também preserva continuações axiais reais
-        que terminam em um apoio.  Esta lista é exclusiva de FV; LV recebe sua
-        própria captura em :meth:`detect_beams`.
-        """
-        captured = self._capture_geometry_with_native_lines_experimental(
-            pos, is_h, orientations, beam_labels, my_name,
-        )
-        if not captured:
-            return captured
-
-        axis = 0 if is_h else 1
-        transverse = 1 - axis
-        edge_tolerance = 5.0
-        min_width = 10.0
-        max_width = 80.0
-
-        # Bordas axiais já comprovadas pela classificação FV da captura
-        # topológica. Não basta uma linha paralela no corredor: cotas e
-        # detalhes de vigas vizinhas também podem ser paralelos.  Usar somente
-        # seg_bottom fixa a evidência na faixa de fundo já reconhecida, sem
-        # usar N2/N4, cotas ou texto como fonte de uma fronteira nova.
-        baseline_classified = self._classify_lines(
-            pos, captured, is_h, label_pos=pos,
-        )
-        axial_edges = []
-        for points in baseline_classified.get('seg_bottom') or []:
-            if len(points) < 2:
-                continue
-            axis_values = [point[axis] for point in points]
-            transverse_values = [point[transverse] for point in points]
-            axis_span = max(axis_values) - min(axis_values)
-            transverse_span = max(transverse_values) - min(transverse_values)
-            if axis_span < 30.0 or transverse_span > edge_tolerance:
-                continue
-            axial_edges.append([
-                min(axis_values),
-                max(axis_values),
-                sum(transverse_values) / len(transverse_values),
-                set(),
-            ])
-
-        if len(axial_edges) < 2:
-            return captured
-
-        axis_values = [
-            point[axis]
-            for line in (baseline_classified.get('seg_bottom') or [])
-            for point in line
-        ]
-        transverse_values = [
-            point[transverse]
-            for line in (baseline_classified.get('seg_bottom') or [])
-            for point in line
-        ]
-        search_box = (
-            min(axis_values) - 5.0,
-            min(transverse_values) - 5.0,
-            max(axis_values) + 5.0,
-            max(transverse_values) + 5.0,
-        )
-        # SpatialIndex sempre usa x/y; reconstrói a caixa nessa ordem para
-        # vigas verticais sem inverter os eixos semânticos acima.
-        if is_h:
-            bbox = search_box
-        else:
-            bbox = (
-                search_box[1], search_box[0], search_box[3], search_box[2],
-            )
-
-        # A coincidência geométrica não basta: uma cota pode atravessar uma
-        # faixa do fundo.  Cada borda traz os layers das entidades axiais que
-        # a provaram; o divisor nativo só é aceito se tiver o mesmo layer nas
-        # duas bordas que fecha.  Assim a regra funciona com qualquer layer
-        # estrutural, sem enumerar nomes, e rejeita linhas de dimensão.
-        for edge in axial_edges:
-            edge_axis_min, edge_axis_max, edge_transverse, edge_layers = edge
-            if is_h:
-                edge_bbox = (
-                    edge_axis_min - edge_tolerance,
-                    edge_transverse - edge_tolerance,
-                    edge_axis_max + edge_tolerance,
-                    edge_transverse + edge_tolerance,
-                )
-            else:
-                edge_bbox = (
-                    edge_transverse - edge_tolerance,
-                    edge_axis_min - edge_tolerance,
-                    edge_transverse + edge_tolerance,
-                    edge_axis_max + edge_tolerance,
-                )
-            for source in self.spatial_index.query_bbox(edge_bbox):
-                if not isinstance(source, dict):
-                    continue
-                source_points = self._entity_points(source)
-                if len(source_points) < 2:
-                    continue
-                source_axis = [point[axis] for point in source_points]
-                source_transverse = [point[transverse] for point in source_points]
-                source_axis_span = max(source_axis) - min(source_axis)
-                source_transverse_span = max(source_transverse) - min(source_transverse)
-                overlaps_edge = min(edge_axis_max, max(source_axis)) - max(
-                    edge_axis_min, min(source_axis)
-                )
-                min_structural_overlap = max(
-                    30.0,
-                    min(100.0, (edge_axis_max - edge_axis_min) * 0.5),
-                )
-                if (
-                    source_axis_span >= 30.0
-                    and source_transverse_span <= edge_tolerance
-                    and overlaps_edge >= min_structural_overlap
-                    and abs(
-                        (sum(source_transverse) / len(source_transverse))
-                        - edge_transverse
-                    ) <= edge_tolerance
-                ):
-                    edge_layers.add(str(source.get('layer') or ''))
-
-        def _is_native_line(candidate: Dict) -> bool:
-            return (
-                isinstance(candidate, dict)
-                and not candidate.get('points')
-                and candidate.get('start') is not None
-                and candidate.get('end') is not None
-            )
-
-        def _bridges_existing_fv_strip(
-            points: List[Tuple[float, float]],
-            native_layer: str,
-        ) -> bool:
-            if len(points) != 2:
-                return False
-            candidate_axis = [point[axis] for point in points]
-            candidate_transverse = [point[transverse] for point in points]
-            axis_span = max(candidate_axis) - min(candidate_axis)
-            width = max(candidate_transverse) - min(candidate_transverse)
-            if axis_span > edge_tolerance or not (min_width <= width <= max_width):
-                return False
-
-            axis_position = sum(candidate_axis) / 2.0
-            low, high = min(candidate_transverse), max(candidate_transverse)
-            low_matches = [
-                edge for edge in axial_edges
-                if edge[0] - edge_tolerance <= axis_position <= edge[1] + edge_tolerance
-                and abs(edge[2] - low) <= edge_tolerance
-            ]
-            high_matches = [
-                edge for edge in axial_edges
-                if edge[0] - edge_tolerance <= axis_position <= edge[1] + edge_tolerance
-                and abs(edge[2] - high) <= edge_tolerance
-            ]
-            return any(
-                native_layer in (low_edge[3] & high_edge[3])
-                for low_edge in low_matches
-                for high_edge in high_matches
-            )
-
-        def _already_captured(points: List[Tuple[float, float]]) -> bool:
-            for existing in captured:
-                if len(existing) != len(points):
-                    continue
-                if all(
-                    self._point_dist(first, second) <= 0.05
-                    for first, second in zip(existing, points)
-                ):
-                    return True
-            return False
-
-        for candidate in self.spatial_index.query_bbox(bbox):
-            if not _is_native_line(candidate):
-                continue
-            points = self._entity_points(candidate)
-            if (
-                _bridges_existing_fv_strip(
-                    points, str(candidate.get('layer') or ''),
-                )
-                and self._label_owns_points(
-                    points, pos, is_h, orientations, beam_labels, my_name,
-                )
-                and not _already_captured(points)
-            ):
-                captured.append(points)
-
-        return captured
-
-    def _capture_geometry_with_native_lines_experimental(self, pos: Tuple[float, float], is_h: bool, orientations: Dict[int, bool], beam_labels: List[Dict], my_name: str) -> List[List[Tuple[float, float]]]:
-        contain_long = 4000
-        contain_trans = 30
-        connection_tolerance = 80.0
         if is_h:
             cbox = (pos[0]-contain_long, pos[1]-contain_trans, pos[0]+contain_long, pos[1]+contain_trans)
         else:
@@ -742,265 +286,62 @@ class BeamTracer:
             return False
 
         def _owns(pts):
-            return self._label_owns_points(
-                pts, pos, is_h, orientations, beam_labels, my_name
-            )
-
-        seed_cands = self.spatial_index.query_bbox((pos[0]-60, pos[1]-60, pos[0]+60, pos[1]+60))
-        layer_scores = {}
-        for cand in seed_cands:
-            # As POLYLINEs já eram a fonte confiável do tracer. Elas definem
-            # quais layers de LINE nativa pertencem à geometria estrutural,
-            # evitando absorver cotas/hachuras de outros layers.
-            if not isinstance(cand, dict) or not cand.get('points'):
-                continue
-            cand_points = self._entity_points(cand)
-            if len(cand_points) < 2 or not _in_box(cand_points):
-                continue
-            xs = [point[0] for point in cand_points]
-            ys = [point[1] for point in cand_points]
-            axis_extent = (
-                max(xs) - min(xs)
-                if is_h
-                else max(ys) - min(ys)
-            )
-            transverse_extent = (
-                max(ys) - min(ys)
-                if is_h
-                else max(xs) - min(xs)
-            )
-            if axis_extent < 10 or transverse_extent > 80:
-                continue
-            layer = str(cand.get('layer') or '')
-            layer_scores[layer] = layer_scores.get(layer, 0.0) + axis_extent
-
-        if not layer_scores:
-            # Suporte a desenhos compostos somente por LINE: escolhe o layer
-            # axial dominante junto ao rótulo, sem liberar todos os layers.
-            for cand in seed_cands:
-                if not isinstance(cand, dict) or cand.get('points'):
+            cx = sum(p[0] for p in pts) / len(pts)
+            cy = sum(p[1] for p in pts) / len(pts)
+            my_dist = abs(cx - pos[0]) if is_h else abs(cy - pos[1])
+            
+            for other in beam_labels:
+                other_name = other['text'].strip()
+                if other_name == my_name: continue
+                # Somente compite com labels da mesma orientação
+                if orientations.get(other_name, True) != is_h: continue
+                
+                op = other['pos']
+                if abs(op[0] - pos[0]) < 5 and abs(op[1] - pos[1]) < 5:
                     continue
-                cand_points = self._entity_points(cand)
-                if len(cand_points) < 2 or not _in_box(cand_points):
-                    continue
-                xs = [point[0] for point in cand_points]
-                ys = [point[1] for point in cand_points]
-                axis_extent = (
-                    max(xs) - min(xs)
-                    if is_h
-                    else max(ys) - min(ys)
-                )
-                transverse_extent = (
-                    max(ys) - min(ys)
-                    if is_h
-                    else max(xs) - min(xs)
-                )
-                if axis_extent < 10 or transverse_extent > 80:
-                    continue
-                layer = str(cand.get('layer') or '')
-                layer_scores[layer] = layer_scores.get(layer, 0.0) + axis_extent
-
-        structural_native_layers = set()
-        if layer_scores:
-            best_layer_score = max(layer_scores.values())
-            structural_native_layers = {
-                layer
-                for layer, score in layer_scores.items()
-                if score >= best_layer_score * 0.75
-            }
-
-        def _is_native_line(cand):
-            return (
-                isinstance(cand, dict)
-                and not cand.get('points')
-                and cand.get('start') is not None
-                and cand.get('end') is not None
-            )
-
-        def _capture_points(cand):
-            if _is_native_line(cand):
-                if (
-                    structural_native_layers
-                    and str(cand.get('layer') or '') not in structural_native_layers
-                ):
-                    return []
-                native_points = self._entity_points(cand)
-                if len(native_points) < 2:
-                    return []
-                xs = [point[0] for point in native_points]
-                ys = [point[1] for point in native_points]
-                dx = max(xs) - min(xs)
-                dy = max(ys) - min(ys)
-                if max(dx, dy) <= 30.0:
-                    # Traços curtos repetidos são tipicamente hachura, marcas
-                    # ou símbolos; não podem formar uma ponte topológica.
-                    return []
-                # LINEs estritamente perpendiculares incluem divisores de
-                # modulação e cotas. Mudança de profundidade será classificada
-                # pela topologia B/H, não por toda linha transversal encontrada.
-                if (is_h and dy > dx * 3.0) or (
-                    not is_h and dx > dy * 3.0
-                ):
-                    return []
-                return native_points
-            return self._entity_points(cand)
-
-        def _is_compact_support(points):
-            if len(points) < 4 or self._point_dist(points[0], points[-1]) >= 5.0:
-                return False
-            xs = [point[0] for point in points]
-            ys = [point[1] for point in points]
-            dx = max(xs) - min(xs)
-            dy = max(ys) - min(ys)
-            narrow = min(dx, dy)
-            long = max(dx, dy)
-            return (
-                narrow >= 10.0
-                and long < 250.0
-                and long / max(narrow, 1e-9) < 7.0
-            )
-
-        def _endpoint_connected(points, existing_lines, tolerance=40.0):
-            if len(points) < 2:
-                return False
-            endpoints = (points[0], points[-1])
-            for existing in existing_lines:
-                if len(existing) < 2:
-                    continue
-                # Uma LINE nativa não pode usar um apoio compacto como ponte
-                # para capturar o vão estrutural do outro lado.
-                if _is_compact_support(existing):
-                    continue
-                existing_endpoints = (existing[0], existing[-1])
-                if any(
-                    self._point_dist(first, second) <= tolerance
-                    for first in endpoints
-                    for second in existing_endpoints
-                ):
-                    return True
-            return False
-
-        def _adds_axis_coverage(points, existing_lines, tolerance=5.0):
-            if len(points) < 2:
-                return False
-            axis = 0 if is_h else 1
-            transverse = 1 - axis
-            cand_min = min(point[axis] for point in points)
-            cand_max = max(point[axis] for point in points)
-            cand_transverse = sum(point[transverse] for point in points) / len(points)
-            for existing in existing_lines:
-                if len(existing) < 2:
-                    continue
-                existing_transverse = (
-                    sum(point[transverse] for point in existing) / len(existing)
-                )
-                if abs(existing_transverse - cand_transverse) > 5.0:
-                    continue
-                existing_min = min(point[axis] for point in existing)
-                existing_max = max(point[axis] for point in existing)
-                if (
-                    cand_min >= existing_min - tolerance
-                    and cand_max <= existing_max + tolerance
-                ):
-                    return False
+                # CRITICAL FIX: use 30 instead of 80 to isolate parallel beams
+                if is_h and abs(op[1] - pos[1]) < 30:
+                    if abs(cx - op[0]) < my_dist: return False
+                elif not is_h and abs(op[0] - pos[0]) < 30:
+                    if abs(cy - op[1]) < my_dist: return False
             return True
 
-        def _is_traversable(points):
-            if len(points) < 2:
-                return False
-            xs = [point[0] for point in points]
-            ys = [point[1] for point in points]
-            dx = max(xs) - min(xs)
-            dy = max(ys) - min(ys)
-            # Elementos perpendiculares podem ser evidência/divisor do fundo,
-            # mas não são caminho para saltar à viga vizinha.
-            return not (
-                (is_h and dy > dx * 3.0)
-                or (not is_h and dx > dy * 3.0)
-            )
-
-        polyline_seed_lines = [
-            self._entity_points(cand)
-            for cand in seed_cands
-            if isinstance(cand, dict) and cand.get('points')
-        ]
-        polyline_seed_lines = [
-            points for points in polyline_seed_lines if len(points) >= 2
-        ]
-
         sementes = []
+        seed_cands = self.spatial_index.query_bbox((pos[0]-60, pos[1]-60, pos[0]+60, pos[1]+60))
         for cand in seed_cands:
-            cand_points = _capture_points(cand)
-            if not cand_points or not _in_box(cand_points):
-                continue
-            if (
-                _is_native_line(cand)
-                and polyline_seed_lines
-                and (
-                    not _endpoint_connected(cand_points, polyline_seed_lines)
-                    or not _adds_axis_coverage(cand_points, polyline_seed_lines)
-                )
-            ):
-                continue
-            if cand_points:
-                sementes.append((cand, cand_points))
+            if isinstance(cand, dict) and 'points' in cand and _in_box(cand['points']):
+                sementes.append(cand)
                 
         visited = set()
         q = []
         res_lines = []
         
-        for s, points in sementes:
+        for s in sementes:
             if id(s) not in visited:
                 visited.add(id(s))
-                if _is_traversable(points):
-                    q.append(s)
-                res_lines.append(points)
+                q.append(s)
+                res_lines.append(s['points'])
                 
-        while q and len(res_lines) < 5000:
+        while q and len(res_lines) < 2000:
             curr = q.pop(0)
-            for pt in _capture_points(curr):
+            for pt in curr['points']:
                 if not (cbox[0] <= pt[0] <= cbox[2] and cbox[1] <= pt[1] <= cbox[3]):
                     continue
-                vizinhos = self.spatial_index.query_bbox((
-                    pt[0] - connection_tolerance,
-                    pt[1] - connection_tolerance,
-                    pt[0] + connection_tolerance,
-                    pt[1] + connection_tolerance,
-                ))
+                vizinhos = self.spatial_index.query_bbox((pt[0]-400, pt[1]-400, pt[0]+400, pt[1]+400))
                 for cand in vizinhos:
-                    cand_points = _capture_points(cand)
-                    if cand_points:
-                        if (
-                            _is_native_line(cand)
-                            and (
-                                not _endpoint_connected(cand_points, res_lines)
-                                or not _adds_axis_coverage(cand_points, res_lines)
-                            )
-                        ):
-                            continue
-                        if id(cand) not in visited and _in_box(cand_points) and _owns(cand_points):
+                    if isinstance(cand, dict) and 'points' in cand:
+                        if id(cand) not in visited and _in_box(cand['points']) and _owns(cand['points']):
                             visited.add(id(cand))
-                            if _is_traversable(cand_points):
-                                q.append(cand)
-                            res_lines.append(cand_points)
+                            q.append(cand)
+                            res_lines.append(cand['points'])
                             
         return res_lines
 
-    def _process_beam_geometry(
-        self,
-        pos: Tuple[float, float],
-        raw_lines: List[Dict],
-        is_h: bool,
-        visual_obstacles: List[Dict] = None,
-        lv_raw_lines: List[Dict] | None = None,
-        lv_is_h: bool | None = None,
-    ) -> Dict:
+    def _process_beam_geometry(self, pos: Tuple[float, float], raw_lines: List[Dict], is_h: bool, visual_obstacles: List[Dict] = None) -> Dict:
         beam_geometry = {
             'lines': raw_lines,
             'texts': [],
             'dimension_texts': [],
-            'support_candidates': [],
-            'slab_candidates': [],
             'classified': {'seg_side_a': [], 'seg_side_b': [], 'seg_bottom': []}
         }
         
@@ -1011,175 +352,18 @@ class BeamTracer:
         min_x, max_x = min(all_x), max(all_x)
         min_y, max_y = min(all_y), max(all_y)
         
-        # Caixa generosa: cotas, nível e rótulos P/L/h= ficam próximos da viga
-        # (400 cobre lajes laterais e seções H/B invertidas tipo 100/19).
-        search_box = (min_x - 400, min_y - 400, max_x + 400, max_y + 400)
+        search_box = (min_x-50, min_y-50, max_x+50, max_y+50)
         cands = self.spatial_index.query_bbox(search_box)
-        seen_support = set()
-        seen_slab = set()
         for c in cands:
-            if not isinstance(c, dict):
-                continue
-            # Geometria de apoio (polylines com type pilar/pilar-like ou tags)
-            etype = str(c.get('type') or c.get('entity_type') or '').upper()
-            layer = str(c.get('layer') or '').upper()
-            pts = c.get('points')
-            if pts and len(pts) >= 2 and not c.get('text'):
-                # Candidato geométrico próximo (pilar contorno) — só se layer/tipo sugerir
-                if any(tok in layer for tok in ('PIL', 'PILA', 'COL', 'ESTR')) or 'PIL' in etype:
-                    key = ('geom', round(pts[0][0], 1), round(pts[0][1], 1), len(pts))
-                    if key not in seen_support:
-                        seen_support.add(key)
-                        beam_geometry['support_candidates'].append(dict(c, role='geometry'))
-                continue
-            if 'text' not in c:
-                continue
-            txt = str(c.get('text') or '').strip()
-            if not txt:
-                continue
-            # Dimensão numérica pura ou seção B/H
-            if re.fullmatch(r'\d+(?:[.,]\d+)?', txt):
-                beam_geometry['dimension_texts'].append(c)
-            elif re.fullmatch(r'\d+(?:[.,]\d+)?\s*[/xX]\s*\d+(?:[.,]\d+)?', txt):
-                beam_geometry['dimension_texts'].append(c)
-            else:
-                beam_geometry['texts'].append(c)
-            # Apoios: Pxx, VFxx, Vxx (textos de pilar/viga de apoio)
-            if re.match(r'^(?:P|VF|V)\d+[A-Za-z]?$', txt, re.I):
-                key = ('t', txt.upper(), round(float((c.get('pos') or (0, 0))[0]), 1),
-                       round(float((c.get('pos') or (0, 0))[1]), 1))
-                if key not in seen_support:
-                    seen_support.add(key)
-                    beam_geometry['support_candidates'].append(dict(c, name=txt, text=txt))
-            # Lajes: Lxx
-            if re.match(r'^L\d+[A-Za-z]?$', txt, re.I):
-                key = ('l', txt.upper(), round(float((c.get('pos') or (0, 0))[0]), 1),
-                       round(float((c.get('pos') or (0, 0))[1]), 1))
-                if key not in seen_slab:
-                    seen_slab.add(key)
-                    beam_geometry['slab_candidates'].append(dict(c, name=txt, text=txt))
+            if isinstance(c, dict) and 'text' in c:
+                if re.match(r'^\d+([.,]\d+)?$', c['text'].strip()):
+                    beam_geometry['dimension_texts'].append(c)
+                else:
+                    beam_geometry['texts'].append(c)
                         
-        # Pilar NASCE é semântica exclusiva do fundo: ele atravessa a área FV,
-        # mas não pode alterar a leitura de laterais da mesma viga.
-        beam_geometry['classified'] = self._classify_lines(
-            pos, raw_lines, is_h, label_pos=pos, visual_obstacles=visual_obstacles,
-        )
-        lv_visual_obstacles = [
-            obstacle for obstacle in (visual_obstacles or [])
-            if str((obstacle or {}).get('type') or '').upper() != 'PILAR_NASCENTE'
-        ]
-        lv_classified = self._classify_lines(
-            pos,
-            lv_raw_lines if lv_raw_lines is not None else raw_lines,
-            is_h if lv_is_h is None else lv_is_h,
-            label_pos=pos,
-            visual_obstacles=lv_visual_obstacles,
-        )
-        # A nuvem bruta inclui cruzamentos e cotas vizinhas alcançados pelo
-        # region-growing. Para vincular a seção B/H, use primeiro o fundo já
-        # classificado da própria viga; só recorra à nuvem quando não houver
-        # eixo/fundo utilizável.
-        dimension_geometry = (
-            lv_classified.get('seg_bottom')
-            or (lv_raw_lines if lv_raw_lines is not None else raw_lines)
-        )
-        beam_geometry['lv_dimension_text'] = self._nearest_beam_dimension(
-            pos,
-            dimension_geometry,
-            is_h if lv_is_h is None else lv_is_h,
-        )
-        beam_geometry['classified'].update({
-            'lv_seg_side_a': lv_classified.get('seg_side_a', []),
-            'lv_seg_side_b': lv_classified.get('seg_side_b', []),
-            'lv_merged_bottom_groups_coords': lv_classified.get(
-                'merged_bottom_groups_coords', []
-            ),
-            'lv_bottom_mode': lv_classified.get('bottom_mode', 'fallback'),
-        })
+        beam_geometry['classified'] = self._classify_lines(pos, raw_lines, is_h, label_pos=pos, visual_obstacles=visual_obstacles)
         beam_geometry['classified']['merged_bottom_lengths'] = []
         return beam_geometry
-
-    def _nearest_beam_dimension(
-        self,
-        pos: Tuple[float, float],
-        raw_lines: List[Dict],
-        is_h: bool,
-    ) -> Dict | None:
-        """Dimensão B/H alinhada ao contrato LV, sem reutilizar a ficha FV."""
-        if not raw_lines:
-            return None
-        all_x = [point[0] for line in raw_lines for point in line]
-        all_y = [point[1] for line in raw_lines for point in line]
-        search_box = (
-            min(all_x) - 160,
-            min(all_y) - 160,
-            max(all_x) + 160,
-            max(all_y) + 160,
-        )
-        preferred = []  # B/H com B <= H (contrato LV clássico)
-        fallback = []   # H/B (ex. 100/19 de viga larga / parede)
-
-        def _geometry_score(point) -> tuple[float, float, float]:
-            """Prioriza a seção que pertence ao trecho geométrico capturado.
-
-            Distância ao rótulo da viga é apenas desempate. Em plantas com
-            trechos colineares consecutivos (por exemplo, uma viga termina e
-            outra começa no mesmo eixo), o rótulo pode ficar junto da emenda e
-            mais perto da seção do trecho vizinho. O vínculo correto é:
-            coordenada longitudinal dentro do bbox do trecho, depois distância
-            transversal ao seu eixo, só então proximidade ao nome.
-            """
-            px, py = float(point[0]), float(point[1])
-            if is_h:
-                longitudinal = px
-                lo, hi = min(all_x), max(all_x)
-                transverse = py
-                transverse_center = (min(all_y) + max(all_y)) / 2.0
-            else:
-                longitudinal = py
-                lo, hi = min(all_y), max(all_y)
-                transverse = px
-                transverse_center = (min(all_x) + max(all_x)) / 2.0
-            if longitudinal < lo:
-                longitudinal_gap = lo - longitudinal
-            elif longitudinal > hi:
-                longitudinal_gap = longitudinal - hi
-            else:
-                longitudinal_gap = 0.0
-            transverse_gap = abs(transverse - transverse_center)
-            label_distance = (
-                (px - float(pos[0])) ** 2 + (py - float(pos[1])) ** 2
-            ) ** 0.5
-            return (longitudinal_gap, transverse_gap, label_distance)
-
-        for candidate in self.spatial_index.query_bbox(search_box):
-            if not isinstance(candidate, dict) or 'text' not in candidate:
-                continue
-            text = str(candidate.get('text') or '').strip()
-            if not re.fullmatch(r'\d+(?:[.,]\d+)?\s*[/xX]\s*\d+(?:[.,]\d+)?', text):
-                continue
-            dimensions = [
-                float(value.replace(',', '.'))
-                for value in re.findall(r'\d+(?:[.,]\d+)?', text)
-            ]
-            if len(dimensions) < 2:
-                continue
-            text_orientation = self._orientation_from_label(
-                candidate.get('rotation')
-            )
-            if text_orientation is not None and text_orientation != is_h:
-                continue
-            point = candidate.get('pos') or pos
-            score = _geometry_score(point)
-            label_distance_sq = score[2] ** 2
-            # Preferir B/H; aceitar H/B só se bem perto do rótulo da viga
-            # (vigas largas tipo 100/19; cotas de pilar 120/19 ficam mais longe).
-            if dimensions[0] <= dimensions[1]:
-                preferred.append((score, candidate))
-            elif label_distance_sq <= (120.0 ** 2):
-                fallback.append((score, candidate))
-        pool = preferred or fallback
-        return min(pool, key=lambda item: item[0])[1] if pool else None
 
     def _group_bottom_lengths_and_coords(self, segs: List[List[Tuple[float, float]]], is_h: bool) -> Tuple[List[float], List[Tuple[float, float]]]:
         # Merge collinear segments and return their lengths and coords
@@ -1193,19 +377,12 @@ class BeamTracer:
             else:
                 spans.append((min(p[1] for p in s), max(p[1] for p in s)))
                 
-        # Merge overlapping spans, but preserve distinct adjacent panels
+        # Merge overlapping or close spans (gap <= 50)
         spans.sort(key=lambda x: x[0])
         merged = []
         cur_min, cur_max = spans[0]
         for start, end in spans[1:]:
-            is_narrow_1 = (cur_max - cur_min) < 30
-            is_narrow_2 = (end - start) < 30
-            
-            if start <= cur_max - 5:
-                # Signficant overlap (same panel captured multiple times)
-                cur_max = max(cur_max, end)
-            elif is_narrow_1 and is_narrow_2 and (start - cur_max) <= 30:
-                # Close divisores (pillars/obstacles) -> merge
+            if start - cur_max <= 30:
                 cur_max = max(cur_max, end)
             else:
                 merged.append((cur_min, cur_max))
@@ -1225,14 +402,7 @@ class BeamTracer:
         Classifica linhas em Lado A, Lado B e Fundo baseado na posicao relativa ao centro.
         Assumes horizontal or vertical beams mostly.
         """
-        classified = {
-            'seg_side_a': [],
-            'seg_side_b': [],
-            'seg_bottom': [],
-            # Exclusivo FV: divisores nativos que fecham as duas bordas
-            # locais. Não alimentam a leitura de LV.
-            'fv_physical_divider_positions': [],
-        }
+        classified = {'seg_side_a': [], 'seg_side_b': [], 'seg_bottom': []}
         valid_lines = []
         horizontal_weight = 0
         vertical_weight = 0
@@ -1330,20 +500,14 @@ class BeamTracer:
                 # Tolerância apertada (25u) para não capturar vigas vizinhas.
                 # A largura transversal deve ser < 5u (linha realmente reta, não diagonal).
                 label_ref = label_pos or center
-                if is_horizontal:
-                    if dx > dy and dy < 5:  # horizontal panel
-                        if abs(lc[1] - label_ref[1]) < 25.0:
-                            is_valid_bottom = True
-                    elif dy > dx and dx < 5:  # vertical height step
-                        if abs(lc[1] - label_ref[1]) < 25.0:
-                            is_valid_bottom = True
-                else:
-                    if dy > dx and dx < 5:  # vertical panel
-                        if abs(lc[0] - label_ref[0]) < 25.0:
-                            is_valid_bottom = True
-                    elif dx > dy and dy < 5:  # horizontal height step
-                        if abs(lc[0] - label_ref[0]) < 25.0:
-                            is_valid_bottom = True
+                if dx > dy and dy < 5:  # linha horizontal reta
+                    dist_to_label = abs(lc[1] - label_ref[1])
+                    if dist_to_label < 25.0:
+                        is_valid_bottom = True
+                elif dy > dx and dx < 5:  # linha vertical reta
+                    dist_to_label = abs(lc[0] - label_ref[0])
+                    if dist_to_label < 25.0:
+                        is_valid_bottom = True
             
             if is_valid_bottom:
                 bottom_candidates.append(item)
@@ -1401,45 +565,6 @@ class BeamTracer:
             """Retorna larguras internas de cada grupo (modo painel)."""
             return [g[1] - g[0] for g in groups if g[1] - g[0] > min_width]
 
-        def _is_solid_pillar(obstacle):
-            """Somente pilar existente neste pavimento interrompe um FV."""
-            return str((obstacle or {}).get('type') or '').upper() == 'PILAR_SOLIDO'
-
-        def _is_nascent_gap(start, end):
-            """Verifica se uma lacuna axial pertence a um pilar que NASCE."""
-            gap_min, gap_max = min(start, end), max(start, end)
-            for obstacle in visual_obstacles or []:
-                if str((obstacle or {}).get('type') or '').upper() != 'PILAR_NASCENTE':
-                    continue
-                try:
-                    minx, miny, maxx, maxy = obstacle['bbox']
-                except (KeyError, TypeError, ValueError):
-                    continue
-                axis_min, axis_max = (minx, maxx) if is_horizontal else (miny, maxy)
-                trans_min, trans_max = (miny, maxy) if is_horizontal else (minx, maxx)
-                if (
-                    trans_min - 20.0 <= geo_center[1 if is_horizontal else 0] <= trans_max + 20.0
-                    and gap_min >= axis_min - 5.0
-                    and gap_max <= axis_max + 5.0
-                ):
-                    return True
-            return False
-
-        def _bridge_nascent_pillars(panels):
-            """Une painéis separados somente por um pilar NASCE."""
-            if len(panels) < 2:
-                return panels
-            bridged = []
-            current_min, current_max = panels[0]
-            for next_min, next_max in panels[1:]:
-                if next_min > current_max and _is_nascent_gap(current_max, next_min):
-                    current_max = max(current_max, next_max)
-                    continue
-                bridged.append((current_min, current_max))
-                current_min, current_max = next_min, next_max
-            bridged.append((current_min, current_max))
-            return bridged
-
         # --- APPLY VISUAL OBSTACLES ---
         def _apply_obstacles_to_panels(panels, obs_list):
             if not obs_list: return panels
@@ -1447,8 +572,7 @@ class BeamTracer:
             for p_min, p_max in panels:
                 cuts = []
                 for obs in obs_list:
-                    if not _is_solid_pillar(obs):
-                        continue
+                    if obs.get('type') == 'VISAO_CORTE': continue
                     minx, miny, maxx, maxy = obs['bbox']
                     if is_horizontal:
                         if miny - 20 <= geo_center[1] <= maxy + 20:
@@ -1488,8 +612,7 @@ class BeamTracer:
                 # Adicionar obstáculos como divisores extras antes de gerar spans
                 if visual_obstacles:
                     for obs in visual_obstacles:
-                        if not _is_solid_pillar(obs):
-                            continue
+                        if obs.get('type') == 'VISAO_CORTE': continue
                         minx, miny, maxx, maxy = obs['bbox']
                         if is_horizontal:
                             if miny - 20 <= geo_center[1] <= maxy + 20:
@@ -1513,105 +636,11 @@ class BeamTracer:
 
                 classified['merged_bottom_lengths'] = _spans_from_groups(groups)
                 classified['merged_bottom_groups_coords'] = groups
-                classified['bottom_mode'] = 'divisor'
             else:
-                # MODO PAINEL: largura de cada grupo
-                # O painel contém divisores internos (linhas perpendiculares curtas) que representam degraus de altura (Caso 2).
-                # Eles DEVEM quebrar os painéis contínuos!
-                
-                painel_items = [it for it in raw_bottoms if ax_max(it) - ax_min(it) > 30]
-                divisor_items = [it for it in raw_bottoms if ax_max(it) - ax_min(it) <= 30]
-                
-                if not painel_items:
-                    painel_items = raw_bottoms
-                
-                # Paineis separados por um apoio curto continuam sendo
-                # segmentos distintos. O merge antigo (gap <= 30) atravessava
-                # esses apoios e colapsava vigas continuas como V301.
-                base_panels = self.fundo_interpreter.panel_groups(
-                    painel_items,
-                    ax_min,
-                    ax_max,
-                    split_support_gaps=True,
-                )
-                base_panels = _bridge_nascent_pillars(base_panels)
-                # O extremo de uma linha axial pode cair na borda externa de
-                # uma chapa curta de encontro. FV deve encostar na face
-                # estrutural interna quando ela existe no próprio DXF; sem
-                # essa prova, inclusive diante de um pilar sólido, o intervalo
-                # original permanece. A regra e os dados são exclusivos da
-                # interpretação de fundo e não alimentam LV.
-                transverse_center = sum(
-                    item['center'][1 if is_horizontal else 0]
-                    for item in painel_items
-                ) / len(painel_items)
-                base_panels = self.fundo_interpreter.resolve_attached_support_faces(
-                    base_panels,
-                    [item['line'] for item in valid_lines],
-                    is_horizontal=is_horizontal,
-                    transverse_center=transverse_center,
-                )
-                
-                div_pos = []
-                for d in divisor_items:
-                    pos = (ax_min(d) + ax_max(d)) / 2.0
-                    if not _is_nascent_gap(pos - 0.05, pos + 0.05):
-                        div_pos.append(pos)
-                div_pos.sort()
-                classified['fv_physical_divider_positions'] = list(div_pos)
-                
-                split_panels = []
-                for p_min, p_max in base_panels:
-                    curr_min = p_min
-                    for d_p in div_pos:
-                        if curr_min + 5 < d_p < p_max - 5:
-                            split_panels.append((curr_min, d_p))
-                            curr_min = d_p
-                    if curr_min < p_max:
-                        split_panels.append((curr_min, p_max))
-
-                # Um divisor real (apoio/mudança de altura) às vezes cai a
-                # poucos cm de uma extremidade e produz um fragmento residual
-                # do tamanho da largura da própria viga, não um segmento
-                # estrutural — achado real V310/V331 (2026-07-20): quina
-                # chanfrada, a borda mais longa de um lado do fundo gera uma
-                # lasca de ~19cm colada ao painel principal quando o divisor
-                # bate exatamente onde a borda mais curta começa. N2 não conta
-                # essa lasca como segmento próprio nem soma seu comprimento ao
-                # painel vizinho. O limiar (30cm) fica bem abaixo do menor
-                # painel real confirmado no 13_PAV (41.5cm, V301) e bem acima
-                # da lasca observada (19cm nos dois casos reais), então só
-                # afeta esse padrão específico de fragmento residual.
-                _notch_fragment_max_length = 30.0
-                cleaned_panels = []
-                for idx, (p_min, p_max) in enumerate(split_panels):
-                    length = p_max - p_min
-                    if length > _notch_fragment_max_length:
-                        cleaned_panels.append((p_min, p_max))
-                        continue
-                    touches_larger_neighbor = False
-                    if idx > 0:
-                        prev_min, prev_max = split_panels[idx - 1]
-                        if (
-                            abs(prev_max - p_min) <= 0.5
-                            and (prev_max - prev_min) > _notch_fragment_max_length
-                        ):
-                            touches_larger_neighbor = True
-                    if idx < len(split_panels) - 1:
-                        next_min, next_max = split_panels[idx + 1]
-                        if (
-                            abs(next_min - p_max) <= 0.5
-                            and (next_max - next_min) > _notch_fragment_max_length
-                        ):
-                            touches_larger_neighbor = True
-                    if not touches_larger_neighbor:
-                        cleaned_panels.append((p_min, p_max))
-                split_panels = cleaned_panels
-
-                final_groups = _apply_obstacles_to_panels(split_panels, visual_obstacles)
+                # MODO PAINEL: largura de cada grupo (comportamento original)
+                final_groups = _apply_obstacles_to_panels(groups, visual_obstacles)
                 classified['merged_bottom_lengths'] = _widths_from_groups(final_groups)
                 classified['merged_bottom_groups_coords'] = final_groups
-                classified['bottom_mode'] = 'panel'
         else:
             # Se não houver raw_bottoms (viga vazia/sem linhas), a viga toda é o fundo.
             all_side_pts = []
@@ -1633,6 +662,5 @@ class BeamTracer:
             final_groups = _apply_obstacles_to_panels(base_panel, visual_obstacles)
             classified['merged_bottom_lengths'] = _widths_from_groups(final_groups)
             classified['merged_bottom_groups_coords'] = final_groups
-            classified['bottom_mode'] = 'fallback'
             
         return classified

@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
-from rag_tier import get_tier, is_indexable, load_tombstones
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
@@ -206,8 +205,7 @@ def coletar_elementos_obra(obra_path, obra_nome):
 # ── INGESTÃO ────────────────────────────────────────────────────────────────
 
 def ingerir_obras(obras=None, rebuild=False):
-    model = None
-    tombstones = load_tombstones()
+    model = load_model()
 
     # Carregar índices existentes ou criar novos
     index_path  = FAISS_DIR / 'estruturais.index'
@@ -248,25 +246,6 @@ def ingerir_obras(obras=None, rebuild=False):
             print(f'    [WARN] Nenhum elemento encontrado em {obra_nome}')
             continue
 
-        indexaveis = []
-        quarantined = {}
-        for elem in elementos:
-            tier = get_tier(elem, tombstones=tombstones)
-            elem['tier'] = tier
-            if is_indexable(elem, tombstones=tombstones):
-                indexaveis.append(elem)
-            else:
-                quarantined[tier] = quarantined.get(tier, 0) + 1
-
-        if quarantined:
-            print(f'    [GUARD] {sum(quarantined.values())} elemento(s) recusados pelo tier: {quarantined}')
-        if not indexaveis:
-            print('    [SKIP] Nenhum elemento T1+ para indexar (quarentena preservada)')
-            continue
-        elementos = indexaveis
-
-        if model is None:
-            model = load_model()
         textos = [e['text'] for e in elementos]
         vecs   = model.encode(textos, show_progress_bar=False, batch_size=64)
         vecs   = normalize(vecs)
@@ -314,8 +293,6 @@ def ingerir_obras(obras=None, rebuild=False):
         tipo_meta = [m for m in all_meta if m['tipo'] == tipo]
         if not tipo_meta:
             continue
-        if model is None:
-            model = load_model()
         nome = PLURAL[tipo]
         tipo_idx   = faiss.IndexFlatIP(EMBED_DIM)
         tipo_texts = [m['text'] for m in tipo_meta]

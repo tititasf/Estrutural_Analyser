@@ -1,7 +1,7 @@
 {
   "g1": {
     "resultado": "PASS",
-    "campos_comparados": 21,
+    "campos_comparados": 340,
     "n_diffs": 0
   },
   "g2": {
@@ -12,13 +12,13 @@
       "textos_ok": true,
       "hatches_ok": true,
       "total_ref": 62,
-      "total_n4": 11
+      "total_n4": 18
     },
     "n_diffs_ent": 0,
     "n_diffs_geom": 0,
     "n_diffs_txt": 0
   },
-  "n4_sha256": "e0acc1222740a782cd0a4c8cf250b0c5cd090a6787ff05edc46978e765ce500b",
-  "selado_em": "2026-07-06T16:32:39.825259",
+  "n4_sha256": "44fcb0368e410a236f5f7287b7c4df5ff92fa9f1fe02d976a42baeef851421e9",
+  "selado_em": "2026-06-24T20:18:33.842076",
   "proveniencia": "draft"
 }

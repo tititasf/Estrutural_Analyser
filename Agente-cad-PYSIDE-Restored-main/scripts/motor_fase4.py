@@ -27,14 +27,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from dataclasses import dataclass, field, asdict
 
-# Execucao direta por caminho coloca apenas ``scripts/`` no sys.path. Os
-# contratos canonicos vivem em ``src/`` e precisam do root do repo.
-_REPO_ROOT = Path(__file__).resolve().parents[1]
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
-
 import io as _io
-from src.core import pillar_n3_ficha
 # Fix stdout encoding only when running as script (not when imported by pytest)
 if __name__ == "__main__" and hasattr(sys.stdout, 'buffer'):
     sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -652,15 +645,9 @@ class MotorFase4:
     """
 
     def __init__(self, obra_path: str, pavimento: Optional[str] = None,
-                 nivel_chegada: float = 0.0, nivel_saida: float = 280.0,
-                 project_id: Optional[str] = None,
-                 db_path: Optional[str] = None):
+                 nivel_chegada: float = 0.0, nivel_saida: float = 280.0):
         self.obra_path = Path(obra_path)
         self.pavimento = pavimento
-        self.project_id = str(project_id or "").strip() or None
-        self.db_path = Path(
-            db_path or "D:/Agente-cad-PYSIDE/project_data.vision"
-        )
         self.nivel_chegada = nivel_chegada
         self.nivel_saida = nivel_saida
         self.altura_padrao = abs(nivel_saida - nivel_chegada) or 280.0
@@ -677,8 +664,6 @@ class MotorFase4:
 
         (self.fase4_path / "JSON_Pilares").mkdir(exist_ok=True)
         (self.fase4_path / "JSON_Vigas_Laterais").mkdir(exist_ok=True)
-        (self.fase4_path / "JSON_Vigas_Laterais" / "LV-PARA").mkdir(exist_ok=True)
-        (self.fase4_path / "JSON_Vigas_Laterais" / "LV-PASSA").mkdir(exist_ok=True)
         (self.fase4_path / "JSON_Vigas_Fundo").mkdir(exist_ok=True)
         (self.fase4_path / "JSON_Lajes").mkdir(exist_ok=True)
 
@@ -800,18 +785,6 @@ class MotorFase4:
 
                 pilar_dict = pilar.to_dict()
 
-                # A ficha editada no portal e' uma sobreposicao humana
-                # persistente sobre o N1. Reaplica depois de cada regeneracao
-                # da Fase 4 para que o robo N3 receba exatamente os campos da
-                # ficha, sem alterar o estado_<pav>.json nem project_data.
-                _portal_ficha = pillar_n3_ficha.load_ficha(
-                    self.obra_path, str(self.pavimento or "Pavimento"), nome,
-                )
-                if _portal_ficha:
-                    pilar_dict = pillar_n3_ficha.apply_ficha_to_robot(pilar_dict, _portal_ficha)
-                    log.info("  [PORTAL-N3] %s: override humano rev.%s aplicado",
-                             nome, _portal_ficha.get("revision", 0))
-
                 # Rastrear quais campos foram efetivamente extraídos (não defaults)
                 _extraidos = ["numero", "nome", "comprimento", "largura", "altura", "pavimento",
                               "nivel_chegada", "nivel_saida", "modo_distribuicao",
@@ -864,51 +837,27 @@ class MotorFase4:
     def _project_id_for_beam_elements(self) -> Optional[str]:
         """Resolve o projeto atual no SQLite para ler beam_elements do SA."""
         import sqlite3
-        if not self.db_path.exists():
+        db_path = Path("D:/Agente-cad-PYSIDE/project_data.vision")
+        if not db_path.exists():
             return None
         pav = self.pavimento or ""
+        pav_digits = "".join(re.findall(r"\d+", str(pav)))
         try:
-            with sqlite3.connect(str(self.db_path)) as conn:
-                if self.project_id:
-                    row = conn.execute(
-                        "SELECT id FROM projects WHERE id=? AND work_name=? LIMIT 1",
-                        (self.project_id, self.obra_nome),
-                    ).fetchone()
-                    if row:
-                        return str(row[0])
-
-                if pav:
-                    row = conn.execute(
-                        "SELECT id FROM projects "
-                        "WHERE work_name=? AND UPPER(TRIM(pavement_name))="
-                        "UPPER(TRIM(?)) ORDER BY updated_at DESC LIMIT 1",
-                        (self.obra_nome, str(pav)),
-                    ).fetchone()
-                    if row:
-                        return str(row[0])
-
-                    # Abreviacoes como 13_PAV devem selecionar o mesmo registro
-                    # do nome CAD completo usado pelo SA, sem concatenar todos
-                    # os numeros de revisao/arquivo.
-                    from src.core.ficha_utils import canonical_pavimento
-
-                    wanted_floor = canonical_pavimento(pav)
-                    rows = conn.execute(
-                        "SELECT id, pavement_name FROM projects "
-                        "WHERE work_name=? ORDER BY updated_at DESC",
-                        (self.obra_nome,),
-                    ).fetchall()
-                    for candidate_id, pavement_name in rows:
-                        if canonical_pavimento(pavement_name) == wanted_floor:
-                            return str(candidate_id)
-                    return None
-
+            conn = sqlite3.connect(str(db_path))
+            if pav_digits:
+                row = conn.execute(
+                    "SELECT id FROM projects WHERE work_name=? AND pavement_name LIKE ? "
+                    "ORDER BY updated_at DESC LIMIT 1",
+                    (self.obra_nome, f"%{pav_digits}%"),
+                ).fetchone()
+            else:
                 row = conn.execute(
                     "SELECT id FROM projects WHERE work_name=? "
                     "ORDER BY updated_at DESC LIMIT 1",
                     (self.obra_nome,),
                 ).fetchone()
-                return str(row[0]) if row else None
+            conn.close()
+            return row[0] if row else None
         except Exception as exc:
             log.warning(f"[FV-SA] Falha resolvendo projeto beam_elements: {exc}")
             return None
@@ -943,8 +892,9 @@ class MotorFase4:
         project_id = self._project_id_for_beam_elements()
         if not project_id:
             return 0
+        db_path = Path("D:/Agente-cad-PYSIDE/project_data.vision")
         try:
-            conn = sqlite3.connect(str(self.db_path))
+            conn = sqlite3.connect(str(db_path))
             conn.row_factory = sqlite3.Row
             rows = conn.execute(
                 "SELECT viga_nome, n_segmentos, campos_json FROM beam_elements "
@@ -962,7 +912,7 @@ class MotorFase4:
         pav = self.pavimento or "Pavimento"
         for row in rows:
             nome = str(row["viga_nome"] or "").strip()
-            m_name = re.search(r"(V[F]?\d+[A-Z]?)", nome.upper())
+            m_name = re.search(r"(V\d+[A-Z]?)", nome.upper())
             if not m_name:
                 continue
             vname = m_name.group(1)
@@ -974,12 +924,67 @@ class MotorFase4:
             if not segs:
                 continue
 
-            from src.core.fv_generation_contract import build_fv_generation_contract
+            panels = []
+            dim_w, dim_h = self._parse_dim_pair(data.get("dim"))
+            apoio_ini = apoio_fim = ""
+            for seg in segs:
+                ficha = seg.get("ficha") if isinstance(seg.get("ficha"), dict) else {}
+                length = (
+                    ficha.get("comprimento_total_fundo")
+                    or seg.get("length")
+                    or self._seg_len_from_geometry(seg)
+                )
+                try:
+                    length = float(str(length).replace(",", ".") or 0)
+                except Exception:
+                    length = 0.0
+                if length <= 0:
+                    continue
+                sw = float(seg.get("dim_width") or ficha.get("largura_total_fundo") or dim_w or 0)
+                sh = float(seg.get("dim_height") or ficha.get("altura_total") or dim_h or 0)
+                dim_w = dim_w or sw
+                dim_h = dim_h or sh
+                apoio_ini = apoio_ini or str(seg.get("apoio_inicial") or "")
+                apoio_fim = apoio_fim or str(seg.get("apoio_final") or "")
+                panel = {
+                    "total_width": round(length, 1),
+                    "width": round(length, 1),
+                    "height1": round(sh or dim_h or 0, 1),
+                    "height2": round(sh or dim_h or 0, 1),
+                    "dim_text": seg.get("dim_text") or data.get("dim") or "",
+                    "largura_total_fundo": round(sw or dim_w or 0, 1),
+                    "comprimento_total_fundo": round(length, 1),
+                    "altura_total": round(sh or dim_h or 0, 1),
+                }
+                for k in (
+                    "abertura_especial", "chanfro_esq_top", "chanfro_esq_fun",
+                    "chanfro_dir_top", "chanfro_dir_fun", "abertura_topo_esq",
+                    "abertura_topo_dir", "abertura_fundo_esq", "abertura_fundo_dir",
+                ):
+                    if ficha.get(k) not in (None, ""):
+                        panel[k] = ficha.get(k)
+                panels.append(panel)
 
-            out = build_fv_generation_contract(vname, data, floor=pav)
-            panels = out["segments_rich"]
             if not panels:
                 continue
+
+            number_match = re.search(r"\d+", vname)
+            out = {
+                "number": number_match.group(0) if number_match else vname,
+                "name": vname,
+                "floor": pav,
+                "side": "C",
+                "total_width": round(dim_w or panels[0].get("largura_total_fundo") or 0, 1),
+                "total_height": str(round(dim_h or panels[0].get("altura_total") or 0, 1)),
+                "panels": panels,
+                "segments_rich": panels,
+                "holes": [],
+                "pillar_left": {"active": bool(apoio_ini), "label": apoio_ini, "width": 0.0, "length": 0.0},
+                "pillar_right": {"active": bool(apoio_fim), "label": apoio_fim, "width": 0.0, "length": 0.0},
+                "apoio_inicial": apoio_ini,
+                "apoio_final": apoio_fim,
+                "observations": "Fonte: Structural Analyzer beam_elements FV",
+            }
             out.update(_build_sa_meta(
                 "FV", out,
                 ["number", "name", "floor", "total_width", "total_height", "panels",
@@ -999,104 +1004,6 @@ class MotorFase4:
         if count:
             log.info(f"[FV-SA] JSON_Vigas_Fundo sincronizado de beam_elements: {count} fichas")
         return count
-
-    def _write_lv_json_from_sa_links(self) -> int:
-        """Grava N3 LV Para/Passa a partir dos quatro vinculos reais do SA.
-
-        ``beam_elements`` e deliberadamente evitado: ele e uma projecao para
-        consulta e pode colapsar lado/comportamento. A fonte canonica desta
-        conversao e ``beams.data_json.links``.
-        """
-        import sqlite3
-        from src.core.lv_generation_contract import build_lv_generation_contracts
-
-        project_id = self._project_id_for_beam_elements()
-        if not project_id:
-            return 0
-        try:
-            with sqlite3.connect(str(self.db_path)) as conn:
-                rows = conn.execute(
-                    "SELECT name, data_json FROM beams WHERE project_id=? "
-                    "AND data_json LIKE '%viga_a_seg_%' ORDER BY name",
-                    (project_id,),
-                ).fetchall()
-                pillar_rows = conn.execute(
-                    "SELECT name, points_json FROM pillars WHERE project_id=?",
-                    (project_id,),
-                ).fetchall()
-        except Exception as exc:
-            log.warning(f"[LV-SA] Falha lendo beams.data_json: {exc}")
-            return 0
-
-        pillar_bboxes = {}
-        for pillar_name, points_raw in pillar_rows:
-            try:
-                points = json.loads(points_raw or "[]")
-                xs = [float(point[0]) for point in points]
-                ys = [float(point[1]) for point in points]
-                if xs and ys:
-                    pillar_bboxes[str(pillar_name)] = (
-                        min(xs), min(ys), max(xs), max(ys)
-                    )
-            except Exception:
-                continue
-
-        written = 0
-        pav = self.pavimento or "Pavimento"
-        manifest = {"schema": "lv_generation_contract/v1", "items": []}
-        for stored_name, raw in rows:
-            try:
-                beam = json.loads(raw or "{}")
-            except Exception:
-                continue
-            name = str(beam.get("name") or stored_name or "").strip().upper()
-            match = re.fullmatch(r"V\d+[A-Z]?", name)
-            if not match:
-                continue
-            contracts = build_lv_generation_contracts(
-                beam, beam_name=name, floor=pav,
-                pillar_bboxes=pillar_bboxes,
-            )
-            item_manifest = {"beam": name, "contracts": {}}
-            for behavior in ("Para", "Passa"):
-                behavior_dir = (
-                    self.fase4_path / "JSON_Vigas_Laterais" /
-                    f"LV-{behavior.upper()}"
-                )
-                item_manifest["contracts"][behavior] = {}
-                for side in ("A", "B"):
-                    contract = contracts[behavior][side]
-                    if not contract["panels"]:
-                        continue
-                    out_path = behavior_dir / f"{name}_{side}.json"
-                    out_path.write_text(
-                        json.dumps(contract, ensure_ascii=False, indent=2),
-                        encoding="utf-8",
-                    )
-                    item_manifest["contracts"][behavior][side] = {
-                        "path": str(out_path),
-                        "segments": contract["segment_count"],
-                        "length": contract["total_length"],
-                        "generation_ready": contract["generation_ready"],
-                    }
-                    written += 1
-            if any(item_manifest["contracts"].values()):
-                manifest["items"].append(item_manifest)
-
-        manifest_path = (
-            self.fase4_path / "JSON_Vigas_Laterais" /
-            "lv_contracts_manifest.json"
-        )
-        manifest_path.write_text(
-            json.dumps(manifest, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-        if written:
-            log.info(
-                f"[LV-SA] {written} fichas isoladas em LV-PARA/LV-PASSA; "
-                f"manifesto={manifest_path.name}"
-            )
-        return written
 
     def process_vigas(self) -> Dict[str, Any]:
         """Cada viga Fase3 gera 2 fichas: lado A e lado B."""
@@ -1211,9 +1118,6 @@ class MotorFase4:
         # FV: quando a Analise Geral ja populou beam_elements, a ficha de fundo
         # do Robo/N3 deve vir dessa fonte N1, nao do clone simplificado da lateral.
         self._write_fv_json_from_beam_elements(vigas_salvos)
-        # LV: os quatro contratos SA sao exportados sem substituir os JSONs
-        # legados enquanto Comparison Engine e gerador migram para o novo schema.
-        self._write_lv_json_from_sa_links()
 
         # Salvar vigas_salvas.json
         salvos_path = self.fase4_path / "vigas_salvas.json"

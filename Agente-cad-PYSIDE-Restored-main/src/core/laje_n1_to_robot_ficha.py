@@ -43,69 +43,7 @@ def _normalize_points(points: Any) -> list[list[float]]:
     return out
 
 
-def n1_laje_outline_points(n1_laje: dict[str, Any]) -> list[list[float]]:
-    """Return the authoritative absolute slab contour linked by the SA."""
-    outline_links = (
-        (n1_laje.get("links") or {})
-        .get("laje_outline_segs", {})
-    )
-    if isinstance(outline_links, dict):
-        contour_links = outline_links.get("contour") or []
-    elif isinstance(outline_links, list):
-        contour_links = outline_links
-    else:
-        contour_links = []
-
-    candidates: list[list[list[float]]] = []
-    for link in contour_links:
-        if not isinstance(link, dict):
-            continue
-        for key in ("points", "coords", "coordenadas"):
-            points = _normalize_points(link.get(key))
-            if len(points) >= 3:
-                candidates.append(points)
-                break
-
-    if not candidates:
-        return []
-    return max(candidates, key=_shoelace_area)
-
-
-def apply_n1_outline_anchor(
-    ficha: dict[str, Any],
-    n1_laje: dict[str, Any],
-) -> dict[str, Any]:
-    """Keep robot geometry local and anchor it to the absolute SA contour."""
-    outline = n1_laje_outline_points(n1_laje)
-    coords = _normalize_points(ficha.get("coordenadas"))
-    if len(outline) < 3 or len(coords) < 3:
-        return ficha
-
-    anchor_x = min(point[0] for point in outline)
-    anchor_y = min(point[1] for point in outline)
-    local_x = min(point[0] for point in coords)
-    local_y = min(point[1] for point in coords)
-
-    out = dict(ficha)
-    out["coordenadas"] = [
-        [round(point[0] - local_x, 4), round(point[1] - local_y, 4)]
-        for point in coords
-    ]
-    out["_stog_pose"] = {
-        "x": round(anchor_x, 4),
-        "y": round(anchor_y, 4),
-    }
-    meta = dict(out.get("_sa_meta") or {})
-    meta["n3_pose_source"] = "sa_outline_anchor"
-    out["_sa_meta"] = meta
-    return out
-
-
 def _points_from_outline_links(n1_laje: dict[str, Any]) -> list[list[float]]:
-    contour = n1_laje_outline_points(n1_laje)
-    if contour:
-        return contour
-
     links = n1_laje.get("links", {}).get("laje_outline_segs", {})
     if isinstance(links, list):
         link_lists = [links]
@@ -215,7 +153,7 @@ def n1_laje_to_robot_ficha(
 
     mode = modo_selecionado
     if mode is None:
-        mode = _field(n1_laje, "modo_selecionado", None)
+        mode = _field(n1_laje, "modo_selecionado", 0)
 
     linhas_v = _normalize_lines(
         _field(n1_laje, "linhas_verticais", _field(n1_laje, "laje_linhas_v_count", [])),
@@ -225,30 +163,8 @@ def n1_laje_to_robot_ficha(
         _field(n1_laje, "linhas_horizontais", _field(n1_laje, "laje_linhas_h_count", [])),
         largura,
     )
-    hlaz = _field(n1_laje, "_hlaz", []) or []
-    if not linhas_v and not linhas_h and comprimento > 0 and largura > 0:
-        # Categoria (b) do G4: a grade é algorítmica. O N2/N4 não participa
-        # desta chamada; ele é apenas o gabarito externo do gate.
-        try:
-            from scripts.smart_panner import distribute_panels
 
-            distribution = distribute_panels(
-                comprimento,
-                largura,
-                _field(n1_laje, "obstaculos", []) or None,
-            )
-            linhas_v = _normalize_lines(distribution.get("linhas_verticais"), comprimento)
-            linhas_h = _normalize_lines(distribution.get("linhas_horizontais"), largura)
-            hlaz = distribution.get("hlaz") or hlaz
-        except (ImportError, TypeError, ValueError):
-            pass
-
-    if mode is None:
-        # Mesmo contrato semântico usado pelo comparador canônico: orientação
-        # deriva da grade calculada, não de informação do gabarito.
-        mode = 1 if len(linhas_h) > len(linhas_v) else 0
-
-    ficha = {
+    return {
         "nome": nome.upper(),
         "numero": _extract_numero(nome),
         "coordenadas": coords,
@@ -262,9 +178,6 @@ def n1_laje_to_robot_ficha(
         "unioes_nos_bordes": _field(n1_laje, "unioes_nos_bordes", []) or [],
         "observacoes": _field(n1_laje, "observacoes", "") or "",
     }
-    if hlaz:
-        ficha["_hlaz"] = hlaz
-    return ficha
 
 
 def write_n1_laje_robot_ficha(n1_laje: dict[str, Any], output_dir: str | Path) -> Path:

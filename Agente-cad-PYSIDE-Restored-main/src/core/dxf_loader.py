@@ -202,11 +202,11 @@ class DXFLoader:
             self.hidden_layers = set()
             for layer in self.doc.layers:
                 try:
-                    if self.mode != RenderMode.TRUE_GEOMETRY:
-                        if layer.is_off() or layer.is_frozen():
-                            self.hidden_layers.add(layer.dxf.name.upper())
-                        elif layer.dxf.get('plot', 1) == 0:
-                            self.hidden_layers.add(layer.dxf.name.upper())
+                    if layer.is_off() or layer.is_frozen():
+                        self.hidden_layers.add(layer.dxf.name.upper())
+                    elif self.mode != RenderMode.TRUE_GEOMETRY and layer.dxf.get('plot', 1) == 0:
+                        # Apenas em modos filtrados: esconder layers não-imprimíveis
+                        self.hidden_layers.add(layer.dxf.name.upper())
                 except Exception:
                     pass
 
@@ -382,11 +382,8 @@ class DXFLoader:
         int_grid = self.mode in [RenderMode.COLOR_BLOCKS, RenderMode.COLOR_OMEGA]
         
         # [FIX v5] Heurística de Micro-Segmentação
-        if self.mode == RenderMode.TRUE_GEOMETRY:
-            micro_threshold = 0.0
-        else:
-            micro_threshold = 0.5 if self.mode == RenderMode.EDGE_CLEANER else 0.1
-            if self.mode == RenderMode.COLOR_OMEGA: micro_threshold = 1.0 # Agressivo
+        micro_threshold = 0.5 if self.mode == RenderMode.EDGE_CLEANER else 0.1
+        if self.mode == RenderMode.COLOR_OMEGA: micro_threshold = 1.0 # Agressivo
 
         vertex_valence = {}
         if self.mode != RenderMode.TRUE_GEOMETRY:
@@ -551,8 +548,7 @@ class DXFLoader:
                 # [MOD] Ignorar Malhas 3D (Polyface/Polygon) e Polilinhas 3D
                 if target_poly.dxftype() == 'POLYLINE':
                     if target_poly.is_poly_face_mesh or target_poly.is_polygon_mesh or target_poly.is_3d_polyline:
-                        if self.mode != RenderMode.TRUE_GEOMETRY:
-                            continue
+                        continue
 
                 # Explode curves into segments for Mode 5
                 if explode_curves:
@@ -823,7 +819,7 @@ class DXFLoader:
                             
                     # Marcar quantos textos existem antes de extrair
                     _txt_before = len(self.entities['texts'])
-                    self._extract_entities(block, override_layer=dim.dxf.layer, total_matrix=total_matrix, is_block=True)
+                    self._extract_entities(block, override_layer=dim.dxf.layer, is_block=True)
 
                     # Propagar ângulo da cota para textos extraídos com rotation=0
                     # Normaliza: 0°/180° = horizontal (sem rotação)
@@ -943,8 +939,6 @@ class DXFLoader:
                         # PolylinePath ou EdgePath com vértices salvos
                         # EzDXF 1.x+: vertices são (x, y, bulge)
                         points = [(v[0], v[1]) for v in path.vertices]
-                        if points:
-                            paths_data.append(points)
                     elif hasattr(path, 'edges'):
                         # [FIX] DXF EdgePaths nem sempre são contínuos na ordem da lista.
                         # Concatenar cegamente gera "teias de aranha".

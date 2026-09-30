@@ -28,6 +28,7 @@ def _get_obf_str(key):
     }
     return _obf_map.get(key, key)
 
+
 # Helper de ofuscaÃ§Ã£o (adicionado automaticamente)
 def _get_obf_str(key):
     """Retorna string ofuscada"""
@@ -56,6 +57,7 @@ def _get_obf_str(key):
         _get_obf_str(_get_obf_str("apps.script")): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
     }
     return _obf_map.get(key, key)
+
 
 # Helper de ofuscaÃ§Ã£o (adicionado automaticamente)
 def _get_obf_str(key):
@@ -86,6 +88,7 @@ def _get_obf_str(key):
     }
     return _obf_map.get(key, key)
 
+
 # Helper de ofuscaÃ§Ã£o (adicionado automaticamente)
 def _get_obf_str(key):
     """Retorna string ofuscada"""
@@ -114,6 +117,7 @@ def _get_obf_str(key):
         _get_obf_str(_get_obf_str(_get_obf_str(_get_obf_str("apps.script")))): base64.b64decode("=QHcpJ3Yz5ycwBXY"[::-1].encode()).decode(),
     }
     return _obf_map.get(key, key)
+
 
 # Helper de ofuscaÃ§Ã£o (adicionado automaticamente)
 def _get_obf_str(key):
@@ -145,7 +149,7 @@ def _get_obf_str(key):
     return _obf_map.get(key, key)
 
 from PySide6.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsItem, QGraphicsSimpleTextItem, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QInputDialog, QLineEdit, QGraphicsLineItem, QGraphicsPathItem, QGraphicsEllipseItem, QStyle, QStyleOptionGraphicsItem, QApplication, QFrame
-from PySide6.QtCore import QTimer, Qt, Signal, QMarginsF, QRectF, QPointF, QLineF, QEventLoop
+from PySide6.QtCore import Qt, Signal, QMarginsF, QRectF, QPointF, QLineF, QEventLoop
 from PySide6.QtGui import QPainter, QWheelEvent, QTransform, QPen, QColor, QBrush, QPainterPath, QFont, QCursor
 from src.ui.overlays import PillarGraphicsItem, SlabGraphicsItem
 from src.ui.overlays_beams import BeamGraphicsItem
@@ -153,8 +157,7 @@ from src.core.dxf_loader import RenderMode
 import math
 import os
 import base64
-import re
-from src.ui.theme import Colors, Fonts, Radius, Accent, Surface, Semantic, Contextual
+from src.ui.theme import Colors, Fonts, Radius
 
 class DXFLineItem(QGraphicsLineItem):
     """Custom Line Item that disables default selection dashed line"""
@@ -283,6 +286,7 @@ class CADCanvas(QGraphicsView):
     Z_TEXT = 10
     Z_LINE = 20
 
+
     def apply_filter(self, filter_type, value):
         """Aplica filtros de seleÃ§Ã£o na cena (InstantÃ¢neo via Ãndice)."""
         # Limpar seleÃ§Ã£o atual sem disparar sinais pesados
@@ -305,7 +309,6 @@ class CADCanvas(QGraphicsView):
         for item in target_items:
             item.setSelected(True)
                 
-        self.scene.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.BspTreeIndex)
         self.scene.blockSignals(False)
         # Uma Ãºnica atualizaÃ§Ã£o de UI
         self.scene.update()
@@ -521,8 +524,6 @@ class CADCanvas(QGraphicsView):
         self.snap_markers = {}
         self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
         self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
-        self.source_dxf_path = source_dxf_path
-
         self.selected_items = []      # [Sincronização] Limpar seleção
         self._highlighted_items = set() # [Sincronização] Limpar destaque
         
@@ -552,8 +553,6 @@ class CADCanvas(QGraphicsView):
             'dxf_entities': self.dxf_entities,
             'snap_points': self.snap_points,
             'snap_segments': self.snap_segments,
-            'base_snap_points': getattr(self, 'base_snap_points', []),
-            'base_snap_segments': getattr(self, 'base_snap_segments', []),
             'persistent_links': self.persistent_links
         }
 
@@ -627,7 +626,7 @@ class CADCanvas(QGraphicsView):
                     self.setSceneRect(QRectF()) # Reset to follows-scene
 
             # Agenda para o prÃ³ximo ciclo do loop de eventos - AUMENTADO PARA 50ms
-            from PySide6.QtCore import QTimer, QTimer
+            from PySide6.QtCore import QTimer
             QTimer.singleShot(50, do_center)
             
         elif 'h_scroll' in state: # Fallback legado
@@ -644,10 +643,7 @@ class CADCanvas(QGraphicsView):
         self.dxf_entities = state['dxf_entities']
         self.snap_points = state['snap_points']
         self.snap_segments = state['snap_segments']
-        self.base_snap_points = state.get('base_snap_points', self.snap_points.copy() if self.snap_points else [])
-        self.base_snap_segments = state.get('base_snap_segments', self.snap_segments.copy() if self.snap_segments else [])
         self.persistent_links = state['persistent_links']
-        self._rebuild_snap_grid()
         
         self.viewport().update()
         
@@ -690,15 +686,9 @@ class CADCanvas(QGraphicsView):
         self.dxf_entities = []
         self.snap_points = []
         self.snap_segments = []
-        self.base_snap_points = []
-        self.base_snap_segments = []
-        self.snap_grid = {}
         self.persistent_links = {}
         self._highlighted_items = set()
-        self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
-        self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
-        self.source_dxf_path = None
-
+        
         # Re-inicializar overlays necessÃ¡rios
         self._init_osnap_markers()
         self._init_instruction_overlay()
@@ -795,91 +785,87 @@ class CADCanvas(QGraphicsView):
             font-weight: bold; font-family: 'Consolas', monospace;
         """)
         self.input_label.hide()
-        self.input_label.move(10, self.height() - 80)
+        self.input_label.move(10, self.height() - 50)
 
     def _init_cad_toolbar(self):
         """Cria barra de ferramentas superior redesenhada — ghost buttons com grupos."""
         self.toolbar = QWidget(self)
         self.toolbar.setObjectName("CADToolbar")
 
-        self.toolbar.setStyleSheet(f"""
-            QWidget#CADToolbar {{
+        self.toolbar.setStyleSheet("""
+            QWidget#CADToolbar {
                 background: qlineargradient(x1:0,y1:0,x2:0,y2:1,
                     stop:0 rgba(24, 24, 30, 255), stop:1 rgba(16, 16, 20, 255));
-                border-top: 1px solid rgba(0, 188, 212, 45);
-            }}
+                border-bottom: 1px solid rgba(0, 188, 212, 45);
+            }
 
             /* ── Base: ghost ── */
-            QPushButton {{
+            QPushButton {
                 background: transparent;
                 border: 1px solid transparent;
                 border-radius: 5px;
                 color: rgba(160, 165, 185, 255);
                 font-family: 'Segoe UI Semibold', 'Segoe UI', Arial;
-                font-size: 7px;
+                font-size: 11px;
                 font-weight: 600;
-
-                padding: 0px 1px;
-                min-width: 32px;
-                height: 26px;
-                text-align: center;
-            }}
-            QPushButton:hover {{
+                
+                padding: 0px 12px;
+                min-width: 68px;
+                height: 28px;
+            }
+            QPushButton:hover {
                 background: rgba(255, 255, 255, 18);
                 border: 1px solid rgba(255, 255, 255, 36);
                 color: rgba(230, 235, 255, 255);
-            }}
-            QPushButton:pressed {{
+            }
+            QPushButton:pressed {
                 background: rgba(255, 255, 255, 10);
-            }}
+            }
 
             /* ── Ferramenta ativa ── */
-            QPushButton[active="true"] {{
+            QPushButton[active="true"] {
                 background: rgba(0, 188, 212, 41);
                 border: 1px solid rgba(0, 188, 212, 140);
-                color: {Accent.PRIMARY};
-            }}
-            QPushButton[active="true"]:hover {{
+                color: #00d4ff;
+            }
+            QPushButton[active="true"]:hover {
                 background: rgba(0, 188, 212, 61);
                 border: 1px solid rgba(0, 188, 212, 191);
-            }}
+            }
 
             /* ── EXCLUIR (danger) ── */
-            QPushButton#danger_btn {{
+            QPushButton#danger_btn {
                 color: rgba(200, 80, 80, 200);
-            }}
-            QPushButton#danger_btn:hover {{
+            }
+            QPushButton#danger_btn:hover {
                 background: rgba(244, 67, 54, 46);
                 border: 1px solid rgba(244, 67, 54, 140);
-                color: {Semantic.DANGER};
-            }}
+                color: #ff6b6b;
+            }
 
             /* ── ORTHO ativo — roxo ── */
-            QPushButton#ortho_btn[active="true"] {{
+            QPushButton#ortho_btn[active="true"] {
                 background: rgba(160, 112, 255, 46);
                 border: 1px solid rgba(160, 112, 255, 140);
-                color: {Contextual.PURPLE};
-            }}
-            QPushButton#ortho_btn[active="true"]:hover {{
+                color: #b388ff;
+            }
+            QPushButton#ortho_btn[active="true"]:hover {
                 background: rgba(160, 112, 255, 66);
-            }}
+            }
 
             /* ── Separador vertical ── */
-            QFrame#vsep {{
+            QFrame#vsep {
                 background: rgba(255, 255, 255, 23);
                 min-width: 1px;
                 max-width: 1px;
-                min-height: 24px;
-                max-height: 24px;
-                margin-top: 5px;
-            }}
+                min-height: 18px;
+                max-height: 18px;
+            }
         """)
 
-        from PySide6.QtWidgets import QHBoxLayout
         layout = QHBoxLayout(self.toolbar)
-        layout.setContentsMargins(8, 2, 8, 2)
-        layout.setSpacing(6)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        layout.setContentsMargins(14, 0, 14, 0)
+        layout.setSpacing(3)
 
         def vsep():
             s = QFrame()
@@ -890,69 +876,23 @@ class CADCanvas(QGraphicsView):
         self.tool_buttons = {}
 
         # ── Grupo 1: Navegação ──────────────────────────────────────────────
-        from PySide6.QtWidgets import QCheckBox
-        self.performatic_mode = True
-        self.chk_perf_container = QWidget()
-        perf_layout = QHBoxLayout(self.chk_perf_container)
-        perf_layout.setContentsMargins(0, 0, 0, 0)
-        perf_layout.setSpacing(4)
-        perf_layout.setAlignment(Qt.AlignCenter)
-
-        self.chk_perf_render = QCheckBox()
-        self.chk_perf_render.setChecked(True)
-        self.chk_perf_render.setToolTip("Oculta hachuras pesadas para navegação instantânea")
-        self.chk_perf_render.setCursor(Qt.PointingHandCursor)
-        self.chk_perf_render.setStyleSheet(f"""
-            QCheckBox {{
-                spacing: 0px;
-            }}
-            QCheckBox::indicator {{ 
-                width: 14px; 
-                height: 14px; 
-                background: {Surface.RAISED}; 
-                border: 1px solid {Accent.PRIMARY}; 
-                border-radius: 3px; 
-            }}
-            QCheckBox::indicator:checked {{ 
-                background: {Accent.PRIMARY}; 
-                image: none; 
-            }}
-        """)
-        self.chk_perf_render.stateChanged.connect(lambda state: self.apply_performatic_mode(state == 2))
-        
-        lbl_perf = QLabel("LEVE")
-        lbl_perf.setAlignment(Qt.AlignCenter)
-        lbl_perf.setStyleSheet(f"color: {Accent.PRIMARY}; font-size: 8px; font-weight: bold;")
-        
-        # Centralizar a checkbox no layout
-        chk_wrapper = QHBoxLayout()
-        chk_wrapper.setContentsMargins(0, 0, 0, 0)
-        chk_wrapper.setAlignment(Qt.AlignCenter)
-        chk_wrapper.addWidget(self.chk_perf_render)
-        
-        perf_layout.addLayout(chk_wrapper)
-        perf_layout.addWidget(lbl_perf)
-
-        layout.addWidget(self.chk_perf_container)
-        layout.addWidget(vsep())
-        
-        b_select = QPushButton("SEL")
+        b_select = QPushButton("▷  SELECT")
         b_select.setToolTip("Selecionar  ·  ESC")
         b_select.setCursor(Qt.PointingHandCursor)
         b_select.clicked.connect(lambda: self.set_edit_mode("select"))
         self.tool_buttons["select"] = b_select
         layout.addWidget(b_select)
 
-        layout.addSpacing(2)
+        layout.addSpacing(4)
         layout.addWidget(vsep())
-        layout.addSpacing(2)
+        layout.addSpacing(4)
 
         # ── Grupo 2: Desenho ────────────────────────────────────────────────
         for label, mode, tip in [
-            ("LIN",  "line",   "Linha  ·  L"),
-            ("CIRC",   "circle", "Círculo  ·  C"),
-            ("TXT",  "text",   "Texto  ·  T"),
-            ("COTA",   "dim",    "Cota  ·  D"),
+            ("╱  LINHA",  "line",   "Linha  ·  L"),
+            ("○  CIRC",   "circle", "Círculo  ·  C"),
+            ("T  TEXTO",  "text",   "Texto  ·  T"),
+            ("↔  COTA",   "dim",    "Cota  ·  D"),
         ]:
             btn = QPushButton(label)
             btn.setToolTip(tip)
@@ -961,36 +901,36 @@ class CADCanvas(QGraphicsView):
             self.tool_buttons[mode] = btn
             layout.addWidget(btn)
 
-        layout.addSpacing(2)
+        layout.addSpacing(4)
         layout.addWidget(vsep())
-        layout.addSpacing(2)
+        layout.addSpacing(4)
 
         # ── Grupo 3: Transformar ────────────────────────────────────────────
-        b_move = QPushButton("MOV")
+        b_move = QPushButton("⊕  MOVER")
         b_move.setToolTip("Mover  ·  M")
         b_move.setCursor(Qt.PointingHandCursor)
         b_move.clicked.connect(lambda: self.set_edit_mode("move"))
         self.tool_buttons["move"] = b_move
         layout.addWidget(b_move)
 
-        layout.addSpacing(2)
+        layout.addSpacing(4)
         layout.addWidget(vsep())
-        layout.addSpacing(2)
+        layout.addSpacing(4)
 
         # ── Excluir (ação destrutiva) ───────────────────────────────────────
-        b_del = QPushButton("DEL")
+        b_del = QPushButton("✕  EXCLUIR")
         b_del.setObjectName("danger_btn")
         b_del.setToolTip("Excluir seleção  ·  DEL")
         b_del.setCursor(Qt.PointingHandCursor)
         b_del.clicked.connect(self._delete_selection)
         layout.addWidget(b_del)
 
-        layout.addSpacing(2)
+        layout.addSpacing(4)
         layout.addWidget(vsep())
-        layout.addSpacing(2)
+        layout.addSpacing(4)
 
         # ── Ortho (toggle) ──────────────────────────────────────────────────
-        b_ortho = QPushButton("ORT")
+        b_ortho = QPushButton("⊥  ORTHO")
         b_ortho.setObjectName("ortho_btn")
         b_ortho.setToolTip("Ortogonal  ·  F8")
         b_ortho.setCursor(Qt.PointingHandCursor)
@@ -998,27 +938,12 @@ class CADCanvas(QGraphicsView):
         self.tool_buttons["ortho"] = b_ortho
         layout.addWidget(b_ortho)
 
-        layout.addSpacing(2)
-        layout.addWidget(vsep())
-        layout.addSpacing(2)
-
-        # ── OSnap (toggle) ──────────────────────────────────────────────────
-        self.osnap_enabled = True # Initialize explicitly
-        b_osnap = QPushButton("OSN")
-        b_osnap.setObjectName("osnap_btn")
-        b_osnap.setToolTip("Object Snap  ·  F3")
-        b_osnap.setCursor(Qt.PointingHandCursor)
-        b_osnap.setProperty("active", True)
-        b_osnap.clicked.connect(self.toggle_osnap)
-        self.tool_buttons["osnap"] = b_osnap
-        layout.addWidget(b_osnap)
-
         layout.addStretch()
 
         # Modo inicial
         self.set_edit_mode('select')
 
-        self.toolbar.setGeometry(0, self.height() - 40, self.width(), 40)
+        self.toolbar.setGeometry(0, 0, self.width(), 40)
 
     def toggle_ortho(self):
         """Liga/Desliga modo ortogonal"""
@@ -1029,20 +954,6 @@ class CADCanvas(QGraphicsView):
             btn.style().unpolish(btn)
             btn.style().polish(btn)
         self.log(f"Ortho Mode: {'ON' if self.ortho_mode else 'OFF'}")
-
-    def toggle_osnap(self):
-        """Liga/Desliga modo Object Snap"""
-        self.osnap_enabled = not self.osnap_enabled
-        if "osnap" in self.tool_buttons:
-            btn = self.tool_buttons["osnap"]
-            btn.setProperty("active", self.osnap_enabled)
-            btn.style().unpolish(btn)
-            btn.style().polish(btn)
-        self.log(f"OSnap Mode: {'ON' if self.osnap_enabled else 'OFF'}")
-        
-        if not self.osnap_enabled:
-            for m in self.snap_markers.values():
-                m.hide()
 
     def set_edit_mode(self, mode):
         """Define o modo de ediÃ§Ã£o atual"""
@@ -1063,13 +974,7 @@ class CADCanvas(QGraphicsView):
 
         # Atualiza o estado visual dos botÃµes
         for m, btn in self.tool_buttons.items():
-            if m == "ortho":
-                is_active = self.ortho_mode
-            elif m == "osnap":
-                is_active = self.osnap_enabled
-            else:
-                is_active = (m == mode)
-                
+            is_active = (m == mode) or (m == "ortho" and self.ortho_mode)
             btn.setProperty("active", is_active)
             btn.style().unpolish(btn)
             btn.style().polish(btn)
@@ -1113,25 +1018,12 @@ class CADCanvas(QGraphicsView):
             curr = curr.parent()
         print(f"Canvas: {msg}")
 
-
-    def apply_performatic_mode(self, enabled):
-        self.performatic_mode = enabled
-        heavy = {'HATCH', 'SOLID', 'WIPEOUT', 'IMAGE'}
-        for item in self.scene.items():
-            ent = item.data(256)
-            if ent is not None and hasattr(ent, 'dxftype'):
-                try:
-                    if ent.dxftype() in heavy:
-                        item.setVisible(not enabled)
-                except Exception:
-                    pass
-
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if hasattr(self, 'toolbar'):
-            self.toolbar.setGeometry(0, self.height() - 40, self.width(), 40)
+            self.toolbar.setGeometry(0, 0, self.width(), 40)
         if hasattr(self, 'input_label'):
-            self.input_label.move(10, self.height() - 80)
+            self.input_label.move(10, self.height() - 50)
         if hasattr(self, 'loading_label') and self.loading_label.isVisible():
             x = (self.width() - self.loading_label.width()) // 2
             y = (self.height() - self.loading_label.height()) // 2
@@ -1223,7 +1115,6 @@ class CADCanvas(QGraphicsView):
              project_data['canvas_interactive_items'] = {}
              project_data['canvas_item_groups'] = {k: [] for k in ['pillar', 'slab', 'beam', 'link']}
              project_data['canvas_snap_points'] = []
-             project_data['canvas_snap_segments'] = []
              project_data['canvas_beam_visuals'] = []
              project_data['snap_markers'] = {}
              project_data['instruction_text'] = None
@@ -1244,13 +1135,9 @@ class CADCanvas(QGraphicsView):
         self.interactive_items = project_data['canvas_interactive_items']
         self.item_groups = project_data['canvas_item_groups']
         self.snap_points = project_data['canvas_snap_points']
-        self.snap_segments = project_data.get('canvas_snap_segments', self.snap_segments)
-        self.base_snap_points = project_data.get('canvas_base_snap_points', self.snap_points.copy() if self.snap_points else [])
-        self.base_snap_segments = project_data.get('canvas_base_snap_segments', self.snap_segments.copy() if self.snap_segments else [])
         self.beam_visuals = project_data['canvas_beam_visuals']
         self.snap_markers = project_data['snap_markers']
         self.instruction_text = project_data.get('instruction_text') # Pode ser None
-        self._rebuild_snap_grid()
         
         # Se a cena jÃ¡ foi renderizada mas faltam auxiliares, regeneramos no contexto correto
         if not self.snap_markers and project_data.get('scene_rendered'):
@@ -1269,9 +1156,6 @@ class CADCanvas(QGraphicsView):
             'canvas_interactive_items': self.interactive_items,
             'canvas_item_groups': self.item_groups,
             'canvas_snap_points': self.snap_points,
-            'canvas_snap_segments': self.snap_segments,
-            'canvas_base_snap_points': getattr(self, 'base_snap_points', []),
-            'canvas_base_snap_segments': getattr(self, 'base_snap_segments', []),
             'canvas_beam_visuals': self.beam_visuals,
             'snap_markers': self.snap_markers,
             'instruction_text': self.instruction_text
@@ -1309,157 +1193,10 @@ class CADCanvas(QGraphicsView):
             self.snap_grid[key] = []
         self.snap_grid[key].append(s_data)
 
-    def _rebuild_snap_grid(self):
-        """Reconstrói o índice espacial dos snaps ativos."""
-        self.snap_grid = {}
-        for s_data in self.snap_points or []:
-            try:
-                pt = s_data['pos']
-                gx = int(pt[0] // self.SNAP_GRID_SIZE)
-                gy = int(pt[1] // self.SNAP_GRID_SIZE)
-            except (TypeError, ValueError, KeyError, IndexError):
-                continue
-            self.snap_grid.setdefault((gx, gy), []).append(s_data)
-
-    def _ensure_osnap_markers(self):
-        """Recria marcadores OSNAP se a cena os apagou (ex.: scene.clear / render nativo)."""
-        need = not bool(self.snap_markers)
-        if not need:
-            for marker in list(self.snap_markers.values()):
-                try:
-                    if marker is None or marker.scene() is None:
-                        need = True
-                        break
-                except RuntimeError:
-                    need = True
-                    break
-        if need:
-            self.snap_markers = {}
-            try:
-                self._init_osnap_markers()
-            except Exception as exc:
-                print(f"[CADCanvas] _ensure_osnap_markers falhou: {exc}")
-
-    def _populate_base_snaps_from_entities(self, entities):
-        """Monta snap_points/segments a partir do dict DXFLoader (sem redesenhar).
-
-        Usado pelo caminho nativo ezdxf.addons.drawing, que desenha a geometria
-        mas não gera malha OSNAP. Sem isso o SA fica com OSNAP morto.
-        """
-        self.snap_points = []
-        self.snap_segments = []
-        self.snap_grid = {}
-        self.base_snap_points = []
-        self.base_snap_segments = []
-
-        if not entities or not getattr(self, 'compute_snaps', True):
-            return
-
-        calc_lines = []
-
-        for circ in entities.get('circles', []) or []:
-            try:
-                center = circ.get('center', circ.get('pos', (0, 0)))
-                cx, cy = float(center[0]), float(center[1])
-                r = float(circ.get('radius') or 0.0)
-            except (TypeError, ValueError, IndexError, KeyError):
-                continue
-            self._add_snap_point((cx, cy), 'center')
-            if r > 0:
-                self._add_snap_point((cx + r, cy), 'quadrant')
-                self._add_snap_point((cx - r, cy), 'quadrant')
-                self._add_snap_point((cx, cy + r), 'quadrant')
-                self._add_snap_point((cx, cy - r), 'quadrant')
-
-        for line in entities.get('lines', []) or []:
-            s, e = line.get('start'), line.get('end')
-            if not s or not e:
-                continue
-            try:
-                s = (float(s[0]), float(s[1]))
-                e = (float(e[0]), float(e[1]))
-            except (TypeError, ValueError, IndexError):
-                continue
-            self.snap_segments.append((s, e))
-            calc_lines.append({'start': s, 'end': e})
-            mid = ((s[0] + e[0]) / 2.0, (s[1] + e[1]) / 2.0)
-            self._add_snap_point(mid, 'midpoint')
-            self._add_snap_point(s, 'endpoint')
-            self._add_snap_point(e, 'endpoint')
-
-        for poly in entities.get('polylines', []) or []:
-            points = poly.get('points') or []
-            if len(points) < 1:
-                continue
-            try:
-                pts = [(float(p[0]), float(p[1])) for p in points]
-            except (TypeError, ValueError, IndexError):
-                continue
-            self._add_snap_point(pts[0], 'endpoint')
-            for i in range(1, len(pts)):
-                p_prev, p_curr = pts[i - 1], pts[i]
-                self.snap_segments.append((p_prev, p_curr))
-                calc_lines.append({'start': p_prev, 'end': p_curr})
-                mid = ((p_prev[0] + p_curr[0]) / 2.0, (p_prev[1] + p_curr[1]) / 2.0)
-                self._add_snap_point(mid, 'midpoint')
-                self._add_snap_point(p_curr, 'endpoint')
-            if poly.get('closed') and len(pts) >= 2:
-                p_last, p_first = pts[-1], pts[0]
-                self.snap_segments.append((p_last, p_first))
-                calc_lines.append({'start': p_last, 'end': p_first})
-                mid = ((p_last[0] + p_first[0]) / 2.0, (p_last[1] + p_first[1]) / 2.0)
-                self._add_snap_point(mid, 'midpoint')
-
-        for txt in entities.get('texts', []) or []:
-            pos = txt.get('pos')
-            if not pos:
-                continue
-            try:
-                self._add_snap_point((float(pos[0]), float(pos[1])), 'node')
-            except (TypeError, ValueError, IndexError):
-                continue
-
-        if calc_lines:
-            if len(calc_lines) < 1000:
-                self._calculate_intersections(calc_lines)
-            else:
-                print(
-                    f"[CADCanvas] Skipping intersection calc for {len(calc_lines)} "
-                    "segments (performance protection)."
-                )
-
-        self.base_snap_points = self.snap_points.copy()
-        self.base_snap_segments = self.snap_segments.copy()
-        self._rebuild_snap_grid()
-
     def _calculate_intersections(self, lines):
-        """Calcula intersecções entre segmentos (N^2 com bbox pre-filter)."""
+        """Calcula intersecÃ§Ãµes entre todas as linhas (N^2 simplificado)."""
         # Formato lines: [{'start': (x,y), 'end': (x,y)}, ...]
-        if not lines:
-            return
-        for i in range(len(lines)):
-            l1 = lines[i]
-            try:
-                s1, e1 = l1['start'], l1['end']
-                minx1, maxx1 = min(s1[0], e1[0]), max(s1[0], e1[0])
-                miny1, maxy1 = min(s1[1], e1[1]), max(s1[1], e1[1])
-            except (TypeError, ValueError, KeyError, IndexError):
-                continue
-            for j in range(i + 1, len(lines)):
-                l2 = lines[j]
-                try:
-                    s2, e2 = l2['start'], l2['end']
-                    minx2, maxx2 = min(s2[0], e2[0]), max(s2[0], e2[0])
-                    miny2, maxy2 = min(s2[1], e2[1]), max(s2[1], e2[1])
-                except (TypeError, ValueError, KeyError, IndexError):
-                    continue
-                # Bounding box check rápido
-                if maxx1 < minx2 or maxx2 < minx1 or maxy1 < miny2 or maxy2 < miny1:
-                    continue
-                pt = self._line_intersection(s1, e1, s2, e2, segment_only=True)
-                if pt:
-                    self._add_snap_point(pt, 'intersection')
-
+        
     def _line_intersection(self, p1, p2, p3, p4, segment_only=True):
         x1, y1 = p1
         x2, y2 = p2
@@ -1479,6 +1216,20 @@ class CADCanvas(QGraphicsView):
             return (x1 + ua * (x2 - x1), y1 + ua * (y2 - y1))
         return None
 
+        for i in range(len(lines)):
+            for j in range(i + 1, len(lines)):
+                l1 = lines[i]
+                l2 = lines[j]
+                
+                # Bounding box check rÃ¡pido
+                minx1, maxx1 = min(l1['start'][0], l1['end'][0]), max(l1['start'][0], l1['end'][0])
+                minx2, maxx2 = min(l2['start'][0], l2['end'][0]), max(l2['start'][0], l2['end'][0])
+                if maxx1 < minx2 or maxx2 < minx1: continue
+                
+                pt = self._line_intersection(l1['start'], l1['end'], l2['start'], l2['end'])
+                if pt:
+                    self._add_snap_point(pt, 'intersection')
+
     def switch_text_style(self, style_id=None):
         """Alterna entre as 5 'bibliotecas' de renderizaÃ§Ã£o de texto"""
         if style_id is not None:
@@ -1490,7 +1241,7 @@ class CADCanvas(QGraphicsView):
         if hasattr(self, 'last_entities') and self.last_entities:
             self.add_dxf_entities(self.last_entities, render_mode=getattr(self, 'last_render_mode', RenderMode.TRUE_GEOMETRY))
 
-    def add_dxf_entities(self, entities, progress_callback=None, render_mode=RenderMode.TRUE_GEOMETRY, compute_snaps=True, source_dxf_path=None, color_override=None):
+    def add_dxf_entities(self, entities, progress_callback=None, render_mode=RenderMode.TRUE_GEOMETRY, compute_snaps=True):
         """Renderiza geometria base (linhas, textos, etc) do DXF"""
         self.last_entities = entities # Cache para troca de estilo
         self.last_render_mode = render_mode
@@ -1510,118 +1261,12 @@ class CADCanvas(QGraphicsView):
         self.beam_visuals = []
         self.contour_visuals = []
         self.snap_points = []
+        self.snap_points = []
         self.snap_segments = []
-        self.snap_grid = {}
         
         # [NOVO] Ãndices para filtragem instantÃ¢nea
         self.filter_indices = {'layer': {}, 'color': {}, 'type': {}}
         self.dxf_metadata = {'layers': set(), 'colors': set(), 'types': set()}
-        self.source_dxf_path = source_dxf_path
-
-        if source_dxf_path and render_mode == RenderMode.TRUE_GEOMETRY:
-            print(f"[CADCanvas] Using ezdxf.addons.drawing for {source_dxf_path}")
-            try:
-                import ezdxf
-                from ezdxf.addons.drawing import RenderContext, Frontend
-                from ezdxf.addons.drawing.pyqt import PyQtBackend
-                from ezdxf.addons.drawing.config import Configuration, BackgroundPolicy, ColorPolicy
-                
-                doc = ezdxf.readfile(source_dxf_path)
-                
-                msp = doc.modelspace()
-                ctx = RenderContext(doc)
-                out = PyQtBackend(self.scene)
-                
-                if color_override:
-                    config = Configuration(
-                        background_policy=BackgroundPolicy.CUSTOM,
-                        custom_bg_color="#1A1A1A",  # hardcoded-ok — arg literal para ezdxf BackgroundPolicy
-                        color_policy=ColorPolicy.CUSTOM,
-                        custom_fg_color=color_override,
-                        pdsize=1,
-                    )
-                else:
-                    config = Configuration(
-                        background_policy=BackgroundPolicy.CUSTOM,
-                        custom_bg_color="#1A1A1A",  # hardcoded-ok — arg literal para ezdxf BackgroundPolicy
-                        color_policy=ColorPolicy.COLOR,
-                        pdsize=1,
-                    )
-                
-                # Otimizações Extremas do Scene (Impede congelamento de UI)
-                prev_update_mode = self.viewportUpdateMode()
-                self.setViewportUpdateMode(QGraphicsView.NoViewportUpdate)
-                self.scene.blockSignals(True)
-                self.scene.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.NoIndex)
-                
-                Frontend(ctx, out, config=config).draw_layout(msp)
-                
-                # [FIX] Make ezdxf items selectable and populate data(0) for cutout logic
-                import ezdxf.addons.drawing.pyqt as pyqt
-                for item in self.scene.items():
-                    ent = item.data(pyqt.CorrespondingDXFEntity)
-                    if ent is not None:
-                        item.setFlag(QGraphicsItem.ItemIsSelectable, True)
-                        data = {}
-                        if hasattr(ent, 'dxf'):
-                            lay = getattr(ent.dxf, 'layer', '0')
-                            aci = getattr(ent.dxf, 'color', 256)
-                            etype = ent.dxftype()
-                            data['layer'] = lay
-                            data['aci'] = aci
-                            data['type'] = etype
-                            
-                            self.filter_indices['layer'].setdefault(lay, []).append(item)
-                            self.filter_indices['color'].setdefault(aci, []).append(item)
-                            self.filter_indices['type'].setdefault(etype, []).append(item)
-                            self.dxf_metadata['layers'].add(lay)
-                            self.dxf_metadata['colors'].add(aci)
-                            self.dxf_metadata['types'].add(etype)
-                        item.setData(0, data)
-                
-                # Force update scene rect
-                self.scene.setSceneRect(self.scene.itemsBoundingRect())
-                rect = self.scene.sceneRect()
-                margin_x = rect.width() * 0.1
-                margin_y = rect.height() * 0.1
-                rect = rect.adjusted(-margin_x, -margin_y, margin_x, margin_y)
-                self.setSceneRect(rect)
-                self.fitInView(rect, Qt.KeepAspectRatio)
-                
-                self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
-                self.scene.setItemIndexMethod(QGraphicsScene.ItemIndexMethod.BspTreeIndex)
-                self.scene.blockSignals(False)
-
-                # OSNAP: o render nativo desenha a geometria mas NÃO gera malha de snap
-                # nem recria marcadores (scene.clear() os apagou). Reconstruir a partir
-                # do dict de entidades do DXFLoader — mesmo caminho de dados do SA.
-                try:
-                    self.dxf_entities = []
-                    if entities:
-                        self.dxf_entities = (entities.get('texts', []) or []).copy()
-                        for l in entities.get('lines', []) or []:
-                            ent = dict(l)
-                            ent['points'] = [l.get('start'), l.get('end')]
-                            self.dxf_entities.append(ent)
-                        self.dxf_entities.extend(entities.get('polylines', []) or [])
-                        self.dxf_entities.extend(entities.get('circles', []) or [])
-                    self._populate_base_snaps_from_entities(entities)
-                    self._ensure_osnap_markers()
-                    if not hasattr(self, 'osnap_enabled'):
-                        self.osnap_enabled = True
-                    print(
-                        f"[CADCanvas] OSNAP after native render: "
-                        f"{len(self.snap_points)} points, {len(self.snap_segments)} segs, "
-                        f"markers={len(self.snap_markers)}, enabled={getattr(self, 'osnap_enabled', True)}"
-                    )
-                except Exception as snap_exc:
-                    print(f"[CADCanvas] OSNAP rebuild after native render failed: {snap_exc}")
-
-                return
-            except Exception as e:
-                print(f"[CADCanvas] Native DXF render failed: {e}")
-                # Fallback to manual loading
-
 
         # -------------------------------------------------------------
         # OTIMIZAÃ‡ÃƒO DE PERFORMANCE (BATCH LOADING)
@@ -1827,7 +1472,7 @@ class CADCanvas(QGraphicsView):
                     item.setBrush(QBrush(it_color, Qt.BDiagPattern))
 
             self.scene.addItem(item)
-            item.setZValue(-25 if h.get('is_block') else self.Z_HATCH)
+            item.setZValue(self.Z_BLOCK if h.get('is_block') else self.Z_HATCH)
             item.setFlag(QGraphicsItem.ItemIsSelectable)
             _index_item(item, h, 'hatch')
             update_prog()
@@ -2046,8 +1691,8 @@ class CADCanvas(QGraphicsView):
         xs = sorted([p[0] for p in all_pts])
         ys = sorted([p[1] for p in all_pts])
         
-        p5 = 0
-        p95 = len(xs) - 1
+        p5 = int(len(xs) * 0.05)
+        p95 = int(len(xs) * 0.95)
         
         if p95 > p5:
             xmin, xmax = xs[p5], xs[p95]
@@ -2087,93 +1732,59 @@ class CADCanvas(QGraphicsView):
         self.update() # ForÃ§ar repaint final
 
     def _init_osnap_markers(self):
-        """Prepara os marcadores de snap (quadrado nas esquinas/cruzes, triângulo, etc.)."""
-        from PySide6.QtGui import QPolygonF, QBrush
-        from PySide6.QtCore import QPointF
-
-        # Endpoint / center / quadrant: quadrado verde sólido e legível
-        # (ItemIgnoresTransformations → tamanho em pixels de tela)
-        _sq_pen = QPen(QColor(0, 255, 80), 2.5)
-        _sq_pen.setCosmetic(True)
-        _sq_fill = QBrush(QColor(0, 255, 80, 45))
-        sq = self.scene.addRect(-7, -7, 14, 14, _sq_pen, _sq_fill)
-        sq.setZValue(200)
-        sq.hide()
-        sq.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        """Prepara os marcadores de snap (Quadrado, TriÃ¢ngulo, X)"""
+        # Endpoint/Center: Quadrado Verde
+        sq = self.scene.addRect(-5, -5, 10, 10, QPen(QColor(0, 255, 0), 2))
+        sq.setZValue(200); sq.hide(); sq.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['endpoint'] = sq
-        self.snap_markers['center'] = sq
-        self.snap_markers['quadrant'] = sq
-
-        # Node: círculo verde com X
+        self.snap_markers['center'] = sq # Reutiliza
+        self.snap_markers['quadrant'] = sq # Reutiliza
+        
+        # Node: CÃ­rculo Verde com X
         node_path = QPainterPath()
-        node_path.addEllipse(-5, -5, 10, 10)
-        node_path.moveTo(-3.5, -3.5)
-        node_path.lineTo(3.5, 3.5)
-        node_path.moveTo(3.5, -3.5)
-        node_path.lineTo(-3.5, 3.5)
-        node = self.scene.addPath(node_path, QPen(QColor(0, 255, 0), 1.5))
-        node.setZValue(200)
-        node.hide()
-        node.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        node_path.addEllipse(-4, -4, 8, 8)
+        node_path.moveTo(-3, -3); node_path.lineTo(3, 3)
+        node_path.moveTo(3, -3); node_path.lineTo(-3, 3)
+        node = self.scene.addPath(node_path, QPen(QColor(0, 255, 0), 1))
+        node.setZValue(200); node.hide(); node.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['node'] = node
 
-        # Midpoint: triângulo ciano
-        tri_poly = QPolygonF([QPointF(0, -7), QPointF(-6, 5), QPointF(6, 5)])
+        # Midpoint: TriÃ¢ngulo Ciano
+        from PySide6.QtGui import QPolygonF
+        from PySide6.QtCore import QPointF
+        tri_poly = QPolygonF([QPointF(0, -6), QPointF(-5, 4), QPointF(5, 4)])
         tri = self.scene.addPolygon(tri_poly, QPen(QColor(0, 255, 255), 2))
-        tri.setZValue(200)
-        tri.hide()
-        tri.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        tri.setZValue(200); tri.hide(); tri.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['midpoint'] = tri
 
-        # Intersection (cruz entre linhas): quadrado + X laranja — gravidade visual forte
-        ix_path = QPainterPath()
-        ix_path.addRect(-7, -7, 14, 14)
-        ix_path.moveTo(-5, -5)
-        ix_path.lineTo(5, 5)
-        ix_path.moveTo(5, -5)
-        ix_path.lineTo(-5, 5)
-        _ix_pen = QPen(QColor(255, 140, 0), 2.5)
-        _ix_pen.setCosmetic(True)
-        cross = self.scene.addPath(ix_path, _ix_pen, QBrush(QColor(255, 140, 0, 40)))
-        cross.setZValue(200)
-        cross.hide()
-        cross.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        # Intersection: X Vermelho/Laranja
+        path = QPainterPath()
+        path.moveTo(-5, -5); path.lineTo(5, 5)
+        path.moveTo(5, -5); path.lineTo(-5, 5)
+        cross = self.scene.addPath(path, QPen(QColor(255, 100, 0), 2))
+        cross.setZValue(200); cross.hide(); cross.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['intersection'] = cross
 
-        # Nearest: ampulheta leve (menos gravidade visual)
+        # Nearest: Ampulheta/X (Ampulheta simplificada)
         path = QPainterPath()
-        path.moveTo(-4, -4)
-        path.lineTo(4, 4)
-        path.lineTo(-4, 4)
-        path.lineTo(4, -4)
-        path.closeSubpath()
+        path.moveTo(-4, -4); path.lineTo(4, 4); path.lineTo(-4, 4); path.lineTo(4, -4); path.closeSubpath()
         near = self.scene.addPath(path, QPen(QColor(0, 255, 0), 1))
-        near.setZValue(200)
-        near.hide()
-        near.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        near.setZValue(200); near.hide(); near.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['nearest'] = near
 
-        # Perpendicular: ângulo reto
+        # Perpendicular: SÃ­mbolo de Ã¢ngulo reto
         path = QPainterPath()
-        path.moveTo(0, -6)
-        path.lineTo(0, 0)
-        path.lineTo(6, 0)
+        path.moveTo(0, -6); path.lineTo(0, 0); path.lineTo(6, 0)
         perp = self.scene.addPath(path, QPen(QColor(0, 255, 0), 2))
-        perp.setZValue(200)
-        perp.hide()
-        perp.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        perp.setZValue(200); perp.hide(); perp.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['perpendicular'] = perp
 
-        # Extension: cruz tracejada
+        # Extension: X tracejado ou pequeno circulo
         ext_path = QPainterPath()
-        ext_path.moveTo(-4, 0)
-        ext_path.lineTo(4, 0)
-        ext_path.moveTo(0, -4)
-        ext_path.lineTo(0, 4)
+        ext_path.moveTo(-4, 0); ext_path.lineTo(4, 0)
+        ext_path.moveTo(0, -4); ext_path.lineTo(0, 4)
         ext = self.scene.addPath(ext_path, QPen(QColor(0, 255, 0), 1, Qt.DashLine))
-        ext.setZValue(200)
-        ext.hide()
-        ext.setFlag(QGraphicsItem.ItemIgnoresTransformations)
+        ext.setZValue(200); ext.hide(); ext.setFlag(QGraphicsItem.ItemIgnoresTransformations)
         self.snap_markers['extension'] = ext
 
     def _init_instruction_overlay(self):
@@ -2187,7 +1798,7 @@ class CADCanvas(QGraphicsView):
             border: 1px solid {Colors.ACCENT_BLUE};
             border-radius: 6px;
             font-family: Arial;
-            font-size: 7px;
+            font-size: 11px;
         """)
         self.instruction_label.move(20, 20)
         self.instruction_label.hide()
@@ -2215,7 +1826,6 @@ class CADCanvas(QGraphicsView):
         # 4. Regenerar Snaps a partir da base (Remove fantasmas de pilares)
         self.snap_points = self.base_snap_points.copy()
         self.snap_segments = self.base_snap_segments.copy()
-        self._rebuild_snap_grid()
         # Nota: Se houver outros itens ativos (lajes/vigas), eles serÃ£o regerados pelo draw()
         
         self.scene.update()
@@ -2273,7 +1883,6 @@ class CADCanvas(QGraphicsView):
         # 4. Regenerar Snaps a partir da base (Remove fantasmas de lajes)
         self.snap_points = self.base_snap_points.copy()
         self.snap_segments = self.base_snap_segments.copy()
-        self._rebuild_snap_grid()
         
         # 5. Force Scene Update (Critical for Ghost removal)
         self.scene.update()
@@ -2322,7 +1931,6 @@ class CADCanvas(QGraphicsView):
         # por viga; sem essa restauração, snap_points cresce a cada navegação até crash
         self.snap_points = self.base_snap_points.copy()
         self.snap_segments = self.base_snap_segments.copy()
-        self._rebuild_snap_grid()
         self.scene.update()
 
     def draw_beams(self, beams_data: list):
@@ -2438,45 +2046,6 @@ class CADCanvas(QGraphicsView):
             self._draw_fundo_polys(polys, orange_pen, store_in_group=True)
         self.scene.update()
 
-    def draw_available_channel_mesh(self, mesh_slots: list):
-        """Destaca polígonos de canais estruturais disponíveis (Fase 0 - Global Beam Channels) em ciano/teal."""
-        self.clear_beam_fundos()
-        teal_pen = QPen(QColor(0, 200, 200, 240), 2)
-        teal_pen.setCosmetic(True)
-        teal_brush = QBrush(QColor(0, 220, 220))
-        _teal_font = QFont("Arial", 10)
-        _teal_font.setBold(True)
-
-        for slot in mesh_slots:
-            bbox = getattr(slot, 'bbox', None)
-            if not bbox:
-                continue
-            x1, y1, x2, y2 = bbox
-            pts = [(x1, y1), (x2, y1), (x2, y2), (x1, y2), (x1, y1)]
-            path = QPainterPath()
-            path.moveTo(pts[0][0], pts[0][1])
-            for p in pts[1:]:
-                path.lineTo(p[0], p[1])
-            item = self.scene.addPath(path, teal_pen)
-            item.setZValue(11)
-            self.item_groups.setdefault('beam_fundo', []).append(item)
-
-            # Rótulo de dimensão identificado em Fase 0
-            dim_text = getattr(slot, 'dim_text', None)
-            width_val = getattr(slot, 'width', 0.0)
-            label = dim_text if dim_text else f"b={width_val:.0f}cm"
-            if label:
-                cx = (x1 + x2) / 2.0
-                cy = (y1 + y2) / 2.0
-                t_item = self.scene.addSimpleText(label, _teal_font)
-                t_item.setPos(cx, cy)
-                t_item.setBrush(teal_brush)
-                t_item.setZValue(14)
-                t_item.setFlag(QGraphicsSimpleTextItem.ItemIgnoresTransformations)
-                self.item_groups.setdefault('beam_fundo', []).append(t_item)
-
-        self.scene.update()
-
     def draw_single_beam_fundo(self, beam_data: dict, apply_zoom: bool = True):
         """Destaca polígono de fundo de UMA viga em laranja e aplica zoom."""
         self.clear_beam_fundos()
@@ -2528,36 +2097,9 @@ class CADCanvas(QGraphicsView):
     # Vigas Laterais — coleta de segmentos e rótulos
     # ------------------------------------------------------------------
 
-    def _collect_lateral_segs(self, b_data: dict, item_data: dict | None = None) -> list:
-        """Coleta segmentos LV do lado e motor Para/Passa selecionados.
-
-        Sem ``item_data`` mantém o footprint global legado usado pelos rótulos
-        da planta inteira.
-        """
+    def _collect_lateral_segs(self, b_data: dict) -> list:
+        """Polígonos de footprint de cada segmento lateral (viga_segs.seg_bottom), 1-indexados."""
         links = b_data.get('links', {})
-        item_type = str((item_data or {}).get('type') or '').lower()
-        side_map = {'viga_lateral_a': 'a', 'viga_lateral_b': 'b'}
-        side = side_map.get(item_type)
-        if side:
-            tipo_comp = str((item_data or {}).get('_tipo_comp') or 'passa').lower()
-            suffix = 'comprimento_total' if tipo_comp == 'para' else 'comp_total_passa'
-            slot = f'seg_side_{side}'
-            pattern = re.compile(rf'^viga_{side}_seg_(\d+)_{suffix}$')
-            result = []
-            for field_id, slots in links.items():
-                match = pattern.match(str(field_id))
-                if not match or not isinstance(slots, dict):
-                    continue
-                for link in slots.get(slot, []) or []:
-                    if isinstance(link, dict) and link.get('points'):
-                        result.append({
-                            **link,
-                            '_seg_num': int(match.group(1)),
-                            '_slot_name': slot,
-                            '_field_id': field_id,
-                        })
-            return sorted(result, key=lambda link: link['_seg_num'])
-
         viga_segs = links.get('viga_segs', {})
         if not isinstance(viga_segs, dict):
             return []
@@ -2597,30 +2139,11 @@ class CADCanvas(QGraphicsView):
             created.append(t_item)
         return created
 
-    def draw_single_beam_lateral(self, item_data: dict, beam_data: dict, apply_zoom: bool = True):
-        """Destaca LV de UMA viga (lado A ou B), foca a linha de comprimento e aplica zoom.
-
-        O vínculo de comprimento (Linha Comprimento / lateral) é o foco principal:
-        só essa face fica destacada e a vista enquadra a(s) linha(s) de comprimento.
-        """
-        seg_list = self._collect_lateral_segs(beam_data, item_data)
-        if seg_list:
-            # Destaca apenas as linhas de comprimento da face (rosa) + zoom
-            self.highlight_multiple_links(seg_list, apply_zoom=apply_zoom)
-            self._add_seg_labels(seg_list, store_group='beam_visuals')
-            return
-        # Fallback: sem vínculo de comprimento, mostra links filtrados da face
-        self.draw_item_links(item_data)
-        if apply_zoom and self.beam_visuals:
-            try:
-                rect = self.beam_visuals[0].sceneBoundingRect()
-                for it in self.beam_visuals[1:]:
-                    rect = rect.united(it.sceneBoundingRect())
-                margin = 400
-                self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
-                self.centerOn(rect.center())
-            except Exception:
-                pass
+    def draw_single_beam_lateral(self, item_data: dict, beam_data: dict):
+        """Destaca LV de UMA viga (lado A ou B) com rótulos de segmento por span."""
+        self.draw_item_links(item_data)  # limpa e redesenha em beam_visuals
+        seg_list = self._collect_lateral_segs(beam_data)
+        self._add_seg_labels(seg_list, store_group='beam_visuals')
 
     def draw_focus_beams(self, beams_visual_data: list):
         """Desenha vigas APENAS para o foco atual (pilar selecionado)"""
@@ -2691,25 +2214,11 @@ class CADCanvas(QGraphicsView):
             elif (l_type in ('line', 'poly', 'geometry', 'polygon')) and 'points' in link:
                 pts = link['points']
                 if len(pts) >= 2:
-                    if pts and len(pts[0]) > 2:
-                        pts = [(p[0], p[1]) for p in pts]
                     path = QPainterPath()
                     path.moveTo(pts[0][0], pts[0][1])
                     for p in pts[1:]: path.lineTo(p[0], p[1])
                     if l_type in ('poly', 'geometry', 'polygon') or (len(pts) > 2 and pts[0] == pts[-1]):
                         path.closeSubpath()
-                        
-                    # ADD SNAP POINTS FOR THE OVERLAYS
-                    for i, pt in enumerate(pts):
-                        self._add_snap_point(pt, 'endpoint')
-                        if i < len(pts) - 1:
-                            p_next = pts[i+1]
-                            self.snap_segments.append((pt, p_next))
-                            self._add_snap_point(((pt[0]+p_next[0])/2.0, (pt[1]+p_next[1])/2.0), 'midpoint')
-                    
-                    if l_type in ('poly', 'polygon', 'geometry') and pts[0] != pts[-1]:
-                        self.snap_segments.append((pts[-1], pts[0]))
-                        self._add_snap_point(((pts[-1][0]+pts[0][0])/2.0, (pts[-1][1]+pts[0][1])/2.0), 'midpoint')
 
                     item = self.scene.addPath(path, pen)
                     item.setZValue(100)
@@ -2737,73 +2246,12 @@ class CADCanvas(QGraphicsView):
             self.fitInView(rect.adjusted(-margin, -margin, margin, margin), Qt.KeepAspectRatio)
             self.centerOn(rect.center())
             
-        self._rebuild_snap_grid()
         return items_created
 
     def highlight_link(self, link, color=None, apply_zoom=True):
         """Wrapper para Ãºnico link"""
         return self.highlight_multiple_links([link], color, apply_zoom)
 
-    @staticmethod
-    def _iter_renderable_link_slots(slots):
-        """Yield only drawable link dictionaries without mutating source data."""
-        if isinstance(slots, (list, tuple)):
-            renderable = [
-                link for link in slots
-                if isinstance(link, dict) and link.get('type')
-            ]
-            if renderable:
-                yield 'value', renderable
-            return
-
-        if not isinstance(slots, dict):
-            return
-
-        # Legacy format: the field points directly to one drawable link.
-        if slots.get('type'):
-            yield 'value', [slots]
-            return
-
-        for slot_name, payload in slots.items():
-            if isinstance(payload, dict):
-                renderable = [payload] if payload.get('type') else []
-            elif isinstance(payload, (list, tuple)):
-                renderable = [
-                    link for link in payload
-                    if isinstance(link, dict) and link.get('type')
-                ]
-            else:
-                renderable = []
-
-            if renderable:
-                yield slot_name, renderable
-
-    @staticmethod
-    def _beam_subtype_link_allowed(target: dict, field_id: str) -> bool:
-        """Filtra simultaneamente face A/B e motor LV Para/Passa."""
-        item_type = str(target.get('type') or '').lower()
-        prefix_map = {
-            'viga_lateral_a': 'viga_a_',
-            'viga_lateral_b': 'viga_b_',
-            'viga_fundo_c': 'viga_fundo_',
-        }
-        prefix = prefix_map.get(item_type)
-        if not prefix:
-            return True
-        if not str(field_id).startswith(prefix):
-            return False
-        if item_type not in {'viga_lateral_a', 'viga_lateral_b'}:
-            return True
-
-        match = re.match(
-            r'^viga_[ab]_seg_\d+_(comprimento_total|comp_total_passa)$',
-            str(field_id),
-        )
-        if not match:
-            return True
-        tipo_comp = str(target.get('_tipo_comp') or 'passa').lower()
-        desired = 'comprimento_total' if tipo_comp == 'para' else 'comp_total_passa'
-        return match.group(1) == desired
 
     def draw_item_links(self, target, destination='focus', clear=True):
         """
@@ -2840,18 +2288,18 @@ class CADCanvas(QGraphicsView):
         
         # Filtro por sub-tipo de viga (LV-A, LV-B, FV): mostrar apenas links do item selecionado
         # Mapeamento exato evita falsos positivos por substring em nomes futuros
-        _item_type = target.get('type', '').lower()
-        _lv_fv_prefix = _item_type in {
-            'viga_lateral_a', 'viga_lateral_b', 'viga_fundo_c'
+        _LV_FV_PREFIX_MAP = {
+            'viga_lateral_a': 'viga_a_',
+            'viga_lateral_b': 'viga_b_',
+            'viga_fundo_c':   'viga_fundo_',
         }
+        _item_type = target.get('type', '').lower()
+        _lv_fv_prefix = _LV_FV_PREFIX_MAP.get(_item_type)
 
         links = target.get('links', {})
-        if not isinstance(links, dict):
-            return
-
         for field_id, slots in links.items():
             # Filtrar por prefixo de sub-tipo de viga
-            if not self._beam_subtype_link_allowed(target, field_id):
+            if _lv_fv_prefix and not field_id.startswith(_lv_fv_prefix):
                 continue
             # FILTRO: Para visÃµes globais (slab/beam), focar apenas no contorno/geometria principal
             # Evita poluiÃ§Ã£o visual de textos de dimensÃ£o/nome em todos os itens
@@ -2862,7 +2310,13 @@ class CADCanvas(QGraphicsView):
             if destination == 'beam' and field_id != 'viga_segs':
                 continue
                 
-            for slot_name, link_list in self._iter_renderable_link_slots(slots):
+            # Iterate properly to log keys
+            if isinstance(slots, dict):
+                slots_to_process = list(slots.items())
+            else:
+                slots_to_process = [('value', slots)]
+            
+            for slot_name, link_list in slots_to_process:
                 # Custom Pen for specific slab slots to highlight them
                 slot_color = self._semantic_highlight_color(
                     {'_field_id': field_id, '_slot_name': slot_name},
@@ -2888,12 +2342,7 @@ class CADCanvas(QGraphicsView):
                     if not l_type:
                         # print(f"[DEBUG Canvas] Skipping link in {slot_name}: No Type")
                         continue
-                    current_pen = local_pen
-                    # [AJUSTE] Pintar de verde se o link estiver validado ou se o campo inteiro estiver validado
-                    if link.get('validated') or field_id in target.get('validated_fields', []):
-                        current_pen = QPen(QColor(76, 175, 80), 3)
-                        current_pen.setCosmetic(True)
-
+                    
                     item = None
                     # Texto
                     if l_type == 'text' and link.get('pos'):
@@ -2912,7 +2361,7 @@ class CADCanvas(QGraphicsView):
                             if len(pts[0]) > 2:
                                 pts = [(p[0], p[1]) for p in pts]
                             
-                            # [NOVO] Registrar Snaps para geometria de vínculo (Contornos, Linhas, etc)
+                            # [NOVO] Registrar Snaps para geometria de vÃ­nculo (Contornos, Linhas, etc)
                             if destination != 'focus': 
                                 for i, pt in enumerate(pts):
                                     self._add_snap_point(pt, 'endpoint')
@@ -2929,17 +2378,17 @@ class CADCanvas(QGraphicsView):
                             is_closed = l_type == 'poly' or (len(pts) > 2 and pts[0] == pts[-1])
                             
                             # Apenas o CONTORNO vira SlabGraphicsItem. 
-                            # Acréscimos e Ilhas devem ser desenhados como PATHS para respeitar cores customizadas
+                            # AcrÃ©scimos e Ilhas devem ser desenhados como PATHS para respeitar cores customizadas
                             is_main_contour = slot_name == 'contour'
                             
                             if destination == 'slab' and is_closed and is_main_contour:
                                 # print(f"[DEBUG CANVAS] Creating SlabGraphicsItem for {target.get('name')}")
                                 item = SlabGraphicsItem(pts, label=None)
                                 item.set_validated(target.get('is_validated', False))
-                                # Se não estiver validado, forçamos o pen de destaque azul (ou o especificado no loop)
+                                # Se nÃ£o estiver validado, forÃ§amos o pen de destaque azul (ou o especificado no loop)
                                 if not target.get('is_validated'):
-                                    item.setPen(current_pen)
-                                item.setZValue(100) # Fundo (atrás dos segmentos)
+                                    item.setPen(local_pen)
+                                item.setZValue(100) # Fundo (atrÃ¡s dos segmentos)
                                 item.setToolTip(f"Slab: {target.get('name')} ({slot_name})")
                                 self.scene.addItem(item)
                                 # print(f"[DEBUG CANVAS] Added SlabGraphicsItem for {target.get('name')} ({slot_name})")
@@ -2948,13 +2397,13 @@ class CADCanvas(QGraphicsView):
                                 path.moveTo(pts[0][0], pts[0][1])
                                 for p in pts[1:]: path.lineTo(p[0], p[1])
                                 if is_closed: path.closeSubpath()
-                                item = self.scene.addPath(path, current_pen)
+                                item = self.scene.addPath(path, local_pen)
                                 # FV/LV sub-itens recebem zValue mais alto para aparecer sobre linhas DXF
                                 z_val = 200 if _lv_fv_prefix else 105
                                 item.setZValue(z_val)
                                 # print(f"[DEBUG CANVAS] Added Path for {target.get('name')} ({slot_name}) | Type: {l_type}")
 
-                    # Círculos
+                    # CÃ­rculos
                     elif l_type == 'circle' and link.get('pos') and link.get('radius') is not None:
                         r = link['radius']
                         px, py = link['pos']
@@ -3129,7 +2578,7 @@ class CADCanvas(QGraphicsView):
         if not points: return
         
         from PySide6.QtGui import QPolygonF
-        from PySide6.QtCore import QTimer, QPointF
+        from PySide6.QtCore import QPointF
         
         poly = QPolygonF()
         for x, y in points: poly.append(QPointF(x, y))
@@ -3344,209 +2793,179 @@ class CADCanvas(QGraphicsView):
             for m in self.snap_markers.values(): m.hide()
 
     def get_snap(self, pos, threshold=None):
-        """Retorna o snap mais próximo {pos, type} ou None.
-
-        Esquinas (endpoint) e cruzes (intersection) têm gravidade maior:
-        raio de atração ampliado + prioridade alta + nearest não “rouba”
-        o ponto se o cursor ainda estiver na zona do hard-snap.
-        """
-        if not getattr(self, 'osnap_enabled', True):
-            return None
-
-        # 1. Threshold base em pixels de tela (escala com zoom)
+        """Retorna o dado de snap mais prÃ³ximo {pos, type} ou None usando Spatial Grid e Threshold DinÃ¢mico"""
+        best_snap = None
+        
+        # 1. CÃLCULO DE THRESHOLD DINÃ‚MICO
+        # Se threshold nÃ£o for passado, calcula baseado em pixels de tela (ex: 10px - Reduzido por solicitaÃ§Ã£o)
         view_scale = self.transform().m11()
-        if view_scale == 0:
-            view_scale = 1.0
-
-        # Base um pouco maior que o valor antigo (4px): hard-snaps usam
-        # multiplicador de gravidade por cima disto.
-        pixel_thresh = 6.0
-        scene_thresh = pixel_thresh / view_scale
-        MAX_SCENE_SEARCH_DIST = 2000.0
-        base_threshold = min(scene_thresh, MAX_SCENE_SEARCH_DIST)
-        if threshold is not None:
-            base_threshold = float(threshold)
-
-        # Gravidade (multiplicador do raio) por tipo — esquina/cruz puxam mais
-        gravity = {
-            'intersection': 2.6,
-            'endpoint': 2.2,
-            'center': 1.8,
-            'node': 1.8,
-            'quadrant': 1.6,
-            'midpoint': 1.35,
-            'perpendicular': 1.1,
-            'extension': 1.1,
-            'nearest': 1.0,
-        }
-        priority_map = {
-            'intersection': 0,
-            'endpoint': 1,
-            'center': 1,
-            'node': 1,
-            'quadrant': 2,
-            'midpoint': 3,
-            'perpendicular': 4,
-            'extension': 4,
-            'nearest': 5,
-        }
-        # Raio máximo de busca = maior gravidade (intersection)
-        max_gravity = max(gravity.values())
-        search_radius = base_threshold * max_gravity
-
-        # Score efetivo: distância “corrigida” pela gravidade + prioridade.
-        # Menor = melhor. Hard-snaps vencem nearest na mesma vizinhança.
-        def _score(dist, snap_type):
-            g = gravity.get(snap_type, 1.0)
-            prio = priority_map.get(snap_type, 99)
-            return (dist / g) + (prio * base_threshold * 0.08)
-
-        def _type_radius(snap_type):
-            return base_threshold * gravity.get(snap_type, 1.0)
-
-        # 2. Busca via spatial grid — janela cresce com o raio de gravidade
+        if view_scale == 0: view_scale = 1
+        
+        # [PERFORMANCE HACK] Limitar o raio de busca em unidades de cena
+        # Se estamos muito longe (zoom out), 10px pode virar 1000 unidades do desenho.
+        # Isso faria o bucket grid buscar 10x10 buckets, travando tudo.
+        pixel_thresh = 4.0 # Reduzido de 6.0 para 4.0 para maior "liberdade" e precisão (User Request)
+        scene_thresh = pixel_thresh / view_scale 
+        
+        # Clamp máximo: Aumentado de 50 para 2000 para desenhos grandes (User Request)
+        MAX_SCENE_SEARCH_DIST = 2000.0 
+        threshold = min(scene_thresh, MAX_SCENE_SEARCH_DIST)
+        
+        min_dist = threshold
+        
+        # 2. BUSCA OTIMIZADA VIA GRID (SPATIAL INDEX)
+        # Converter pos para chave da grid
         gx = int(pos.x() // self.SNAP_GRID_SIZE)
         gy = int(pos.y() // self.SNAP_GRID_SIZE)
-        # +1 de margem; cap 3 para não explodir em zoom-out extremo
-        cell_span = min(3, max(1, int(search_radius / self.SNAP_GRID_SIZE) + 1))
+        
+        # Em zoom muito distante, a grid pode ficar inÃºtil se uma cÃ©lula cobrir tudo.
+        # Mas o threshold clampado acima jÃ¡ ajuda a rejeitar candidatos.
+        
+        # Buscar em buckets vizinhos (3x3)
         candidate_points = []
-        for ix in range(gx - cell_span, gx + cell_span + 1):
-            for iy in range(gy - cell_span, gy + cell_span + 1):
+        # Se threshold for muito pequeno em relaÃ§Ã£o ao grid, basta 3x3.
+        # Se for grande, precisaria de mais, mas limitamos a busca a 3x3 por performance.
+        for ix in range(gx-1, gx+2):
+            for iy in range(gy-1, gy+2):
                 key = (ix, iy)
                 if key in self.snap_grid:
                     candidate_points.extend(self.snap_grid[key])
-
+        
+        # Se nÃ£o tiver grid (fallback), usa todos (lento, mas seguro)
         if not self.snap_grid and self.snap_points:
             candidate_points = self.snap_points
 
+        # [PERFORMANCE HACK 2] Se houver candidatos demais (>500 + zoom out), ignorar ou pegar subset aleatÃ³rio
         if len(candidate_points) > 500 and view_scale < 0.1:
-            return None
+             # Zoom out extremo com muitos pontos: Desativa snap ou reduz check
+             return None 
 
-        # 3. Hard snaps (endpoint / intersection / mid / center…)
+        # 3. PROCESSO DE SNAP (Mesma lÃ³gica, agora em subconjunto)
+        priority_map = {
+            'intersection': 0, 
+            'endpoint': 1, 'center': 1, 'quadrant': 1, 'node': 1,
+            'midpoint': 2,
+            'perpendicular': 3,
+            'nearest': 4
+        }
+        
         best_snap = None
-        best_score = float('inf')
-        best_dist = search_radius
-
+        
         for s in candidate_points:
             pt = s['pos']
-            stype = s.get('type', 'endpoint')
-            type_r = _type_radius(stype)
+            # DistÃ¢ncia Euclidiana Simplificada (primeiro box check)
             dx = pt[0] - pos.x()
             dy = pt[1] - pos.y()
-            # Pre-filter com o raio específico do tipo (gravidade)
-            if abs(dx) > type_r or abs(dy) > type_r:
-                continue
-            dist = (dx * dx + dy * dy) ** 0.5
-            if dist > type_r:
-                continue
-            sc = _score(dist, stype)
-            if sc < best_score:
-                best_score = sc
-                best_dist = dist
-                best_snap = s
-
-        hard_snap = best_snap  # preservar para não ser sobrescrito por nearest fraco
-        hard_score = best_score
-
-        # 4. Segmentos próximos (intersection aparente, nearest, perp, extension)
-        # PERFORMANCE: em zoom out extremo com milhares de segs, pular
-        if not (len(self.snap_segments) > 3000 and view_scale < 0.05):
-            near_segments = []
-            px, py = pos.x(), pos.y()
-            # Busca com raio de intersection (maior) para achar cruzes
-            seg_search = search_radius
-            for s, e in self.snap_segments:
-                curr_min_x = min(s[0], e[0]) - seg_search
-                curr_max_x = max(s[0], e[0]) + seg_search
-                curr_min_y = min(s[1], e[1]) - seg_search
-                curr_max_y = max(s[1], e[1]) + seg_search
-                if not (curr_min_x <= px <= curr_max_x and curr_min_y <= py <= curr_max_y):
-                    continue
-
-                sx, sy = s[0], s[1]
-                ex, ey = e[0], e[1]
-                dx, dy = ex - sx, ey - sy
-                mag_sq = dx * dx + dy * dy
-                if mag_sq == 0:
-                    continue
-
-                t = ((px - sx) * dx + (py - sy) * dy) / mag_sq
-                t_clamped = max(0.0, min(1.0, t))
-                proj = QPointF(sx + t_clamped * dx, sy + t_clamped * dy)
-                dist = ((proj.x() - px) ** 2 + (proj.y() - py) ** 2) ** 0.5
-                if dist <= seg_search:
-                    near_segments.append(((s, e), dist, t, proj))
-
-            near_segments.sort(key=lambda x: x[1])
-            # Limita candidatos dinâmicos (perf)
-            near_segments = near_segments[:12]
-
-            # 4a. Intersection aparente entre os pares de segmentos mais próximos
-            # (cruz real ou extensão de cruz — com raio de gravidade de intersection)
-            ix_radius = _type_radius('intersection')
-            n_near = len(near_segments)
-            for i in range(min(n_near, 6)):
-                for j in range(i + 1, min(n_near, 6)):
-                    s1, e1 = near_segments[i][0]
-                    s2, e2 = near_segments[j][0]
-                    # Preferir interseção no segmento; se falhar, tentar aparente
-                    pt = self._line_intersection(s1, e1, s2, e2, segment_only=True)
-                    if pt is None:
-                        pt = self._line_intersection(s1, e1, s2, e2, segment_only=False)
-                        if pt is None:
-                            continue
-                        # Interseção aparente: só aceita se o ponto estiver
-                        # perto do cursor (evita puxar para longe)
-                    dist_inter = ((pt[0] - px) ** 2 + (pt[1] - py) ** 2) ** 0.5
-                    if dist_inter > ix_radius:
-                        continue
-                    sc = _score(dist_inter, 'intersection')
-                    if sc < best_score:
-                        best_score = sc
-                        best_dist = dist_inter
-                        best_snap = {'pos': pt, 'type': 'intersection'}
-
-            # 4b. Nearest / perp / extension — só competem se NÃO houver hard-snap
-            # na zona, ou se forem claramente melhores (score).
-            nearest_radius = _type_radius('nearest')
-            for seg_data in near_segments:
-                (s, e), dist, t, proj = seg_data
-                if dist > nearest_radius and not (t < 0 or t > 1):
-                    # fora do raio de nearest (extension usa seu próprio tipo)
-                    pass
-
-                if t < 0 or t > 1:
-                    if self.edit_mode in ('line', 'dim') and dist <= _type_radius('extension'):
-                        stype = 'extension'
-                    else:
-                        continue
-                elif self.pick_start and 0 <= t <= 1 and self.edit_mode in ('line', 'dim'):
-                    if dist > _type_radius('perpendicular'):
-                        continue
-                    stype = 'perpendicular'
+            if abs(dx) > min_dist or abs(dy) > min_dist: continue # Pre-filter rÃ¡pido
+            
+            dist = (dx*dx + dy*dy)**0.5
+            
+            if dist <= min_dist:
+                if best_snap:
+                    # LÃ³gica de prioridade: Se jÃ¡ temos um snap, sÃ³ troca se distÃ¢ncia for MUITO menor
+                    # OU se a prioridade for melhor (ex: endpoint ganha de midpoint se perto)
+                    curr_prio = priority_map.get(s['type'], 99)
+                    best_prio = priority_map.get(best_snap['type'], 99)
+                    
+                    if dist < min_dist * 0.8: # Se for 20% mais perto, ganha independente
+                         best_snap = s
+                         min_dist = dist
+                    elif curr_prio < best_prio: # Se mesma distÃ¢ncia (aprox), ganha prioridade
+                         best_snap = s
+                         min_dist = dist
                 else:
-                    if dist > nearest_radius:
-                        continue
-                    stype = 'nearest'
+                    min_dist = dist
+                    best_snap = s
+                    
+        # 4. Nearest Snap (DinÃ¢mico para linhas prÃ³ximas)
+        # Se nenhum snap "hard" foi encontrado, verificar arestas prÃ³ximas
+        # Isso dÃ¡ a "autonomia" de clicar na linha sem pegar a ponta
+        if not best_snap:
+            # PERFORMANCE GUARD: Skip checking 10k segments if drawing is huge or zoomed out
+            # 60FPS target allows ~16ms. 3000 segments in Python is risky.
+            if len(self.snap_segments) > 3000 or view_scale < 0.2:
+                return None
 
-                # Hard-snap (endpoint/intersection) só “segura” o cursor se
-                # ainda estiver bem dentro da zona de gravidade (~70% do raio).
-                # Longe da esquina/cruz, nearest volta a valer (meio da linha).
-                sc = _score(dist, stype)
-                if hard_snap is not None and hard_snap.get('type') in (
-                    'intersection', 'endpoint', 'center', 'node'
-                ):
-                    hpos = hard_snap['pos']
-                    hdist = ((hpos[0] - px) ** 2 + (hpos[1] - py) ** 2) ** 0.5
-                    hold_r = _type_radius(hard_snap['type']) * 0.70
-                    if hdist <= hold_r and sc >= hard_score:
-                        continue
+            # Check nearest lines (simplified)
+            for seg in self.snap_segments:
+                p1, p2 = seg
+                # Verifica bounding box do segmento
+                if pos.x() < min(p1[0], p2[0]) - min_dist or pos.x() > max(p1[0], p2[0]) + min_dist: continue
+                if pos.y() < min(p1[1], p2[1]) - min_dist or pos.y() > max(p1[1], p2[1]) + min_dist: continue
+                
+                # Distancia ponto-segmento
+                l2 = (p1[0]-p2[0])**2 + (p1[1]-p2[1])**2
+                if l2 == 0: continue
+                t = ((pos.x()-p1[0])*(p2[0]-p1[0]) + (pos.y()-p1[1])*(p2[1]-p1[1])) / l2
+                t = max(0, min(1, t))
+                proj_x = p1[0] + t * (p2[0]-p1[0])
+                proj_y = p1[1] + t * (p2[1]-p1[1])
+                
+                dist_seg = ((pos.x()-proj_x)**2 + (pos.y()-proj_y)**2)**0.5
+                if dist_seg < min_dist:
+                    min_dist = dist_seg
+                    best_snap = {'pos': (proj_x, proj_y), 'type': 'nearest'}
 
-                if sc < best_score:
-                    best_score = sc
-                    best_dist = dist
-                    best_snap = {'pos': (proj.x(), proj.y()), 'type': stype}
+        return best_snap
+        
+        near_segments = []
+        for s, e in self.snap_segments:
+            px, py = pos.x(), pos.y()
+            # Bounding Box Check Simplificado para Segmento
+            curr_min_x = min(s[0], e[0]) - min_dist
+            curr_max_x = max(s[0], e[0]) + min_dist
+            curr_min_y = min(s[1], e[1]) - min_dist
+            curr_max_y = max(s[1], e[1]) + min_dist
+            
+            if not (curr_min_x <= px <= curr_max_x and curr_min_y <= py <= curr_max_y):
+                continue
 
+            sx, sy = s[0], s[1]
+            ex, ey = e[0], e[1]
+            dx, dy = ex - sx, ey - sy
+            mag_sq = dx*dx + dy*dy
+            if mag_sq == 0: continue
+            
+            t = ((px - sx) * dx + (py - sy) * dy) / mag_sq
+            t_clamped = max(0, min(1, t))
+            proj = QPointF(sx + t_clamped * dx, sy + t_clamped * dy)
+            dist = ((proj.x()-px)**2 + (proj.y()-py)**2)**0.5
+            
+            if dist < min_dist:
+                near_segments.append(((s, e), dist, t, proj))
+
+        # Ordenar por distÃ¢ncia
+        near_segments.sort(key=lambda x: x[1])
+
+        # Apparent Intersection (entre os 2 mais prÃ³ximos)
+        if len(near_segments) >= 2:
+            s1, e1 = near_segments[0][0]
+            s2, e2 = near_segments[1][0]
+            pt = self._line_intersection(s1, e1, s2, e2, segment_only=False)
+            if pt:
+                dist_inter = ((pt[0]-pos.x())**2 + (pt[1]-pos.y())**2)**0.5
+                if dist_inter < min_dist:
+                    best_snap = {'pos': pt, 'type': 'intersection'} # Usa marker de intersection
+                    min_dist = dist_inter
+
+        # Perpendicular e Extension
+        for seg_data in near_segments:
+            (s, e), dist, t, proj = seg_data
+            if dist < min_dist:
+                # Extension: se t < 0 ou t > 1
+                if t < 0 or t > 1:
+                     # Se estivermos em modo de desenho, mostra extensÃ£o
+                     if self.edit_mode in ('line', 'dim'):
+                         best_snap = {'pos': (proj.x(), proj.y()), 'type': 'extension'}
+                         min_dist = dist
+                elif self.pick_start and 0 <= t <= 1:
+                    if self.edit_mode in ('line', 'dim'):
+                        best_snap = {'pos': (proj.x(), proj.y()), 'type': 'perpendicular'}
+                        min_dist = dist
+                else:
+                    best_snap = {'pos': (proj.x(), proj.y()), 'type': 'nearest'}
+                    min_dist = dist
+        
         return best_snap
 
     def mousePressEvent(self, event):
@@ -3637,15 +3056,11 @@ class CADCanvas(QGraphicsView):
                 path.moveTo(*self.pick_poly_points[0])
                 for p in self.pick_poly_points[1:]: path.lineTo(*p)
             if not self.poly_visual:
-                pen = QPen(QColor(0, 255, 255), 2, Qt.DashLine)
-                pen.setCosmetic(True)
-                self.poly_visual = self.scene.addPath(path, pen)
+                self.poly_visual = self.scene.addPath(path, QPen(QColor(0, 255, 255), 0, Qt.DashLine))
                 self.poly_visual.setZValue(205)
             else:
                 self.poly_visual.setPath(path)
-                pen = QPen(QColor(0, 255, 255), 2, Qt.DashLine)
-                pen.setCosmetic(True)
-                self.poly_visual.setPen(pen)
+                self.poly_visual.setPen(QPen(QColor(0, 255, 255), 0, Qt.DashLine))
             return
 
         # --- MODOS DE EDIÃ‡ÃƒO ---
@@ -3852,18 +3267,16 @@ class CADCanvas(QGraphicsView):
             return
 
         if self.picking_mode == 'text':
-            best_ent = self._get_best_entity_under_cursor(scene_pos, mode='text')
-            if best_ent:
-                self.pick_completed.emit(best_ent)
-            self.set_picking_mode(None)
-            return
+             best_ent = self._get_best_entity_under_cursor(scene_pos, mode='text')
+             if best_ent:
+                 self.pick_completed.emit(best_ent)
+                 self.set_picking_mode(None)
 
         elif self.picking_mode == 'geometry':
-            best_ent = self._get_best_entity_under_cursor(scene_pos, mode='geometry')
-            if best_ent:
-                self.pick_completed.emit(best_ent)
-            self.set_picking_mode(None)
-            return
+             best_ent = self._get_best_entity_under_cursor(scene_pos, mode='geometry')
+             if best_ent:
+                 self.pick_completed.emit(best_ent)
+                 self.set_picking_mode(None)
 
         elif self.picking_mode == 'line':
             if self.pick_start is None:
@@ -3890,6 +3303,7 @@ class CADCanvas(QGraphicsView):
                     'points': [(self.pick_start.x(), self.pick_start.y()), final_pos]
                 })
                 self.set_picking_mode(None)
+
 
     def _apply_ortho(self, start, current):
         """Aplica restriÃ§Ã£o ortogonal se ativa"""
@@ -3946,15 +3360,9 @@ class CADCanvas(QGraphicsView):
                 best_item = item
         return best_item
 
-    def _restore_aa(self):
-        self.setRenderHint(QPainter.Antialiasing, True)
-        self.viewport().update()
-
     def mouseMoveEvent(self, event):
         # 1. Handle Pan
         if self._is_panning and self._last_pan_pos:
-            self.setRenderHint(QPainter.Antialiasing, False)
-            if hasattr(self, '_aa_timer'): self._aa_timer.start(250)
             delta = event.position().toPoint() - self._last_pan_pos
             self._last_pan_pos = event.position().toPoint()
             h_bar = self.horizontalScrollBar()
@@ -4061,8 +3469,6 @@ class CADCanvas(QGraphicsView):
 
         # OSNAP Visual
         if self.picking_mode or self.edit_mode:
-            # scene.clear / render nativo pode matar marcadores C++ — recria se preciso
-            self._ensure_osnap_markers()
             # Hide all markers safely
             for m in list(self.snap_markers.values()):
                 try:
@@ -4070,20 +3476,11 @@ class CADCanvas(QGraphicsView):
                 except RuntimeError:
                     # Object already deleted on C++ side (scene.clear)
                     pass
-            if snap_data and getattr(self, 'osnap_enabled', True):
+            if snap_data:
                 marker = self.snap_markers.get(snap_data['type'], self.snap_markers.get('endpoint'))
                 if marker:
-                    try:
-                        marker.setPos(snap_data['pos'][0], snap_data['pos'][1])
-                        marker.show()
-                    except RuntimeError:
-                        # Marcador morreu mid-frame; recria e tenta de novo
-                        self.snap_markers = {}
-                        self._ensure_osnap_markers()
-                        marker = self.snap_markers.get(snap_data['type'], self.snap_markers.get('endpoint'))
-                        if marker:
-                            marker.setPos(snap_data['pos'][0], snap_data['pos'][1])
-                            marker.show()
+                    marker.setPos(snap_data['pos'][0], snap_data['pos'][1])
+                    marker.show()
         
         # 3. Tool Previews
         if self.edit_mode == 'line' and self.pick_start:
@@ -4127,15 +3524,12 @@ class CADCanvas(QGraphicsView):
             path.lineTo(*final_snap_pos) # Rubber band to cursor
 
             if not self.poly_visual:
-                 pen = QPen(QColor(0, 255, 255), 2, Qt.DashLine)
-                 pen.setCosmetic(True)
-                 self.poly_visual = self.scene.addPath(path, pen)
+                 # Pen width 0 = Cosmetic (always 1 pixel wide regardless of zoom)
+                 self.poly_visual = self.scene.addPath(path, QPen(QColor(0, 255, 255), 0, Qt.DashLine))
                  self.poly_visual.setZValue(205)
             else:
                  self.poly_visual.setPath(path)
-                 pen = QPen(QColor(0, 255, 255), 2, Qt.DashLine)
-                 pen.setCosmetic(True)
-                 self.poly_visual.setPen(pen)
+                 self.poly_visual.setPen(QPen(QColor(0, 255, 255), 0, Qt.DashLine))
 
         # Preview da Linha
         if self.picking_mode == 'line' and self.pick_start:
@@ -4317,39 +3711,11 @@ class CADCanvas(QGraphicsView):
                     return
 
                 elif self.picking_mode in ('text', 'geometry'):
-                    # 1. Se o usuário digitou algum texto via teclado (ex: buffer)
-                    if hasattr(self, 'keyboard_buffer') and self.keyboard_buffer and self.keyboard_buffer.strip():
-                        txt = self.keyboard_buffer.strip()
-                        self.pick_completed.emit({'text': txt, 'type': 'text'})
-                        self.keyboard_buffer = ""
-                        self.set_picking_mode(None)
-                        return
-
-                    # 2. Prioriza itens selecionados se o usuário já clicou/selecionou algo
-                    selected_items = self.scene.selectedItems()
-                    if selected_items:
-                        for item in selected_items:
-                            if self.picking_mode == 'text' and isinstance(item, QGraphicsSimpleTextItem):
-                                self.pick_completed.emit({'text': item.text(), 'type': 'text', 'pos': (item.pos().x(), item.pos().y())})
-                                self.set_picking_mode(None)
-                                return
-                            elif self.picking_mode == 'geometry' and hasattr(item, 'item_data'):
-                                name = item.item_data.get('name', 'Item') if isinstance(item.item_data, dict) else 'Item'
-                                item_id = item.item_data.get('id') if isinstance(item.item_data, dict) else None
-                                self.pick_completed.emit({'text': name, 'type': 'geometry', 'id': item_id})
-                                self.set_picking_mode(None)
-                                return
-                    
-                    # 3. Busca entidade sob o cursor
                     cursor_pos = self.mapToScene(self.mapFromGlobal(QCursor.pos()))
                     best_ent = self._get_best_entity_under_cursor(cursor_pos, mode=self.picking_mode)
                     if best_ent:
-                        self.pick_completed.emit(best_ent)
-
-                    # Finalização incondicional do modo de captura ao pressionar Enter
-                    self.set_picking_mode(None)
+                        self.pick_completed.emit(best_ent); self.set_picking_mode(None)
                     return
-
 
             if self.edit_mode == 'move' and self.is_moving:
                 self.is_moving = False; self.set_edit_mode('select'); return
@@ -4384,9 +3750,6 @@ class CADCanvas(QGraphicsView):
 
         if key == Qt.Key_F8:
             self.toggle_ortho(); return
-            
-        if key == Qt.Key_F3:
-            self.toggle_osnap(); return
 
         # Atalhos de EdiÃ§Ã£o (Somente se nÃ£o estiver em picking)
         if not self.picking_mode:
@@ -4509,18 +3872,10 @@ class CADCanvas(QGraphicsView):
         else:
             print("Item selecionado nÃ£o Ã© compatÃ­vel para busca de similares.")
 
-    def scrollContentsBy(self, dx, dy):
-        self.setRenderHint(QPainter.Antialiasing, False)
-        if hasattr(self, '_aa_timer'): self._aa_timer.start(250)
-        super().scrollContentsBy(dx, dy)
-
     def wheelEvent(self, event):
         """Zoom in/out com scroll do mouse"""
         zoom_in_factor = 1.15
         zoom_out_factor = 1 / zoom_in_factor
-
-        self.setRenderHint(QPainter.Antialiasing, False)
-        if hasattr(self, '_aa_timer'): self._aa_timer.start(250)
 
         # Se houver scroll vertical
         if event.angleDelta().y() > 0:

@@ -5,7 +5,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QLabel,
                                QPushButton, QFrame, QScrollArea, QInputDialog, QMessageBox, QLineEdit)
 from PySide6.QtCore import Qt, Signal
 from src.ui.widgets.interpretation_dialog import InterpretationDialog
-from src.ui.theme import Colors, Fonts, Radius, Semantic, Text, Border, Surface, Contextual
+from src.ui.theme import Colors, Fonts, Radius
 
 class LinkManager(QWidget):
     """
@@ -29,6 +29,7 @@ class LinkManager(QWidget):
     SLOT_CONFIG = {
         '_l1_n': [
             {'id': 'label', 'name': 'Identificador Laje', 'type': 'text', 'prompt': 'Busque textos "L" + numeral próximo ao pilar.', 'help': 'Texto "Lxx". Define qual painel de laje descarrega aqui.'},
+            {'id': 'void_x', 'name': 'Vazio (X)', 'type': 'poly', 'prompt': 'Desenhe as linhas do "X" que indica vazio. [Enter] para finalizar.', 'help': 'Marca este setor como "SEM LAJE" (Vazios/Shafts).'}
         ],
         '_l1_h': [
             {'id': 'thick', 'name': 'Texto de Espessura', 'type': 'text', 'prompt': 'Busque padrões "H=" ou "d=" próximo à laje. regex: ([Hd]=?\\d+)', 'help': 'Texto "H=12" ou "d=12". Define a altura da laje.'}
@@ -100,36 +101,23 @@ class LinkManager(QWidget):
              {'id': 'dim', 'name': '2. Dimensão (Valor)', 'type': 'text', 'prompt': 'Busque o texto de dimensão (Ex: H=12).', 'help': 'Define o valor do campo.'},
              {'id': 'cut_view', 'name': '3. Visão de Corte', 'type': 'poly', 'prompt': 'Desenhe a linha de corte/T sobre a viga. [Enter] para finalizar.', 'help': 'Referência visual da posição da laje.'}
         ],
-        # Lajes unificadas do segmento LV (até 3 vínculos; ficha por laje)
-        '_seg_lajes': [
-            {
-                'id': 'laje',
-                'name': 'Laje (até 3)',
-                'type': 'text',
-                'prompt': 'Identifique o texto Lxx da laje em contato com esta face da lateral.',
-                'help': (
-                    'Até 3 lajes por segmento. Em cada vínculo preencha a ficha: '
-                    'nível, espessura, dist. ponta esquerda e dist. ponta direita do painel.'
-                ),
-            },
-        ],
         '_abert_pilar_esq': [
-             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar sarrafeado que atravessa a lateral.'},
+             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar.'},
              {'id': 'segment', 'name': '2. Segmento Pilar', 'type': 'poly', 'prompt': 'Desenhe o contorno do pilar.'},
-             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg da abertura sarrafeada (11+L+11).'},
+             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg contato.'},
              {'id': 'cont_tip_esq', 'name': '4. Cont. Esq', 'type': 'poly', 'prompt': 'Desenhe continuidade esquerda.'},
              {'id': 'cont_tip_dir', 'name': '5. Cont. Dir', 'type': 'poly', 'prompt': 'Desenhe continuidade direita.'}
         ],
         '_abert_pilar_dir': [
-             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar sarrafeado que atravessa a lateral.'},
+             {'id': 'label', 'name': '1. Texto Pilar', 'type': 'text', 'prompt': 'Identifique o nome do pilar.'},
              {'id': 'segment', 'name': '2. Segmento Pilar', 'type': 'poly', 'prompt': 'Desenhe o contorno do pilar.'},
-             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg da abertura sarrafeada (11+L+11).'},
+             {'id': 'contact_lines', 'name': '3. Linhas Contato', 'type': 'poly', 'prompt': 'Desenhe Dist + Larg contato.'},
              {'id': 'cont_tip_esq', 'name': '4. Cont. Esq', 'type': 'poly', 'prompt': 'Desenhe continuidade esquerda.'},
              {'id': 'cont_tip_dir', 'name': '5. Cont. Dir', 'type': 'poly', 'prompt': 'Desenhe continuidade direita.'}
         ],
         '_abert_viga_top_esq': [
-             {'id': 'arr_label', 'name': '1. Nome Viga', 'type': 'text', 'prompt': 'Nome da viga cuja ponta passa por baixo.'},
-             {'id': 'arr_geom', 'name': '2. Geometria', 'type': 'poly', 'prompt': 'Desenhe a viga que passa por baixo.'},
+             {'id': 'arr_label', 'name': '1. Nome Viga', 'type': 'text', 'prompt': 'Nome da viga que chega.'},
+             {'id': 'arr_geom', 'name': '2. Geometria', 'type': 'poly', 'prompt': 'Desenhe a viga que chega.'},
              {'id': 'arr_dim', 'name': '3. Dimensões', 'type': 'text', 'prompt': 'Busque texto tipo 20x60.'},
              {'id': 'adj_mouth', 'name': '4. Ajuste Boca', 'type': 'poly', 'prompt': 'Desenhe ajuste boca.'},
              {'id': 'adj_depth', 'name': '5. Ajuste Prof.', 'type': 'poly', 'prompt': 'Desenhe ajuste profundidade.'}
@@ -260,10 +248,6 @@ class LinkManager(QWidget):
         if 'laje_nivel' in field_id:
              return self.SLOT_CONFIG['_laje_level']
         
-        # Lajes unificadas do segmento LV (antes do match genérico 'laje')
-        if field_id.endswith('_lajes') or '_lajes' in field_id:
-            return self.SLOT_CONFIG['_seg_lajes']
-
         if 'laje' in field_id and ('_geom' in field_id or 'outline' in field_id):
              return self.SLOT_CONFIG['_laje_geom']
         
@@ -594,14 +578,14 @@ class LinkManager(QWidget):
             btn_val_class.setToolTip(f"Validar todo o grupo '{slot['name']}' (Clique para desfazer)")
             
             if is_class_validated:
-                btn_val_class.setStyleSheet(f"""
-                    QPushButton {{ background: {Contextual.FOREST}; color: {Semantic.SUCCESS}; border: 1px solid {Semantic.SUCCESS}; border-radius: 4px; }}
-                    QPushButton:hover {{ background: {Semantic.SUCCESS}; color: {Text.BRIGHT}; }}
+                btn_val_class.setStyleSheet("""
+                    QPushButton { background: rgba(27, 58, 36, 1); color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; border-radius: 4px; }
+                    QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.TEXT_BRIGHT}; }
                 """)
             else:
-                btn_val_class.setStyleSheet(f"""
-                    QPushButton {{ background: transparent; color: {Semantic.SUCCESS}; border: 1px solid {Border.DEFAULT}; border-radius: 4px; }}
-                    QPushButton:hover {{ background: {Semantic.SUCCESS}; color: {Surface.DEEP}; border: 1px solid {Semantic.SUCCESS}; }}
+                btn_val_class.setStyleSheet("""
+                    QPushButton { background: transparent; color: {Colors.ACCENT_SUCCESS_ALT}; border: 1px solid {Colors.BORDER_DEFAULT}; border-radius: 4px; }
+                    QPushButton:hover { background: {Colors.ACCENT_SUCCESS_ALT}; color: {Colors.BG_DEEP}; border: 1px solid {Colors.ACCENT_SUCCESS_ALT}; }
                 """)
                 
             btn_val_class.clicked.connect(lambda checked, s_id=slot_id, sf=slot_frame: self._on_slot_class_validated(s_id, checked, sf))
@@ -629,9 +613,9 @@ class LinkManager(QWidget):
             btn_interp = QPushButton("Info")
             btn_interp.setCursor(Qt.PointingHandCursor)
             btn_interp.setToolTip(f"Detalhamento e Padrões para {slot['name']}")
-            btn_interp.setStyleSheet(f"""
-                QPushButton {{ background: transparent; color: {Contextual.PURPLE}; border: 1px solid {Border.STRONG}; border-radius: 4px; }}
-                QPushButton:hover {{ background: {Contextual.PURPLE}; color: {Text.BRIGHT}; border: 1px solid {Contextual.PURPLE}; }}
+            btn_interp.setStyleSheet("""
+                QPushButton { background: transparent; color: #b388ff; border: 1px solid {Colors.BORDER_INPUT}; border-radius: 4px; }
+                QPushButton:hover { background: #b388ff; color: {Colors.TEXT_BRIGHT}; border: 1px solid #b388ff; }
             """)
             btn_interp.clicked.connect(lambda checked=False, s_id=slot_id, s_name=slot['name']: self._open_slot_interpretation(s_id, s_name))
             header_layout.addWidget(btn_interp)
@@ -677,11 +661,11 @@ class LinkManager(QWidget):
                         _lc = 0.65
                     _lc_pct = int(_lc * 100)
                     if _lc_pct > 80:
-                        _lc_col = Semantic.SUCCESS
+                        _lc_col = '#66bb6a'
                     elif _lc_pct > 40:
-                        _lc_col = Semantic.WARNING
+                        _lc_col = '#ffa726'
                     else:
-                        _lc_col = Semantic.DANGER
+                        _lc_col = '#ef5350'
                     conf_lbl = QLabel(f'{_lc_pct}%')
                     conf_lbl.setStyleSheet(
                         f'color:{_lc_col}; font-size:9px; font-weight:bold;'
@@ -785,14 +769,6 @@ class LinkManager(QWidget):
         return '•'
 
     def _ficha_fields_for_link(self, slot_id):
-        # Lajes 1/2/3 da lateral de viga — posição X/Y no painel
-        if ('_lajes' in self.field_id) and slot_id == 'laje':
-            return [
-                ('nivel', 'Nível da laje', 'ex: N 852,19 ou +0.00', True, 'text'),
-                ('espessura', 'Espessura', 'cm (H=12 / d=12)', True, 'text'),
-                ('dist_esq', 'Dist. ponta esquerda do painel', 'cm (0 = nasce na ponta)', False, 'text'),
-                ('dist_dir', 'Dist. ponta direita do painel', 'cm (0 = termina na ponta)', False, 'text'),
-            ]
         if 'viga_fundo' in self.field_id and slot_id == 'contour':
             return [
                 ('largura_total_fundo', 'Largura total do fundo', 'cm', False, 'text'),
@@ -997,11 +973,11 @@ class LinkManager(QWidget):
             # Forca o estado checked visual
             sender.setChecked(status != 'removed')
             if status == 'valid':
-                sender.setStyleSheet(f"background: {Contextual.FOREST}; color: {Semantic.SUCCESS}; border: 1px solid {Semantic.SUCCESS}; font-weight: bold;")
+                sender.setStyleSheet(f"background: rgba(27, 58, 36, 1); color: #4caf50; border: 1px solid #4caf50; font-weight: bold;")
             elif status == 'fail':
-                sender.setStyleSheet(f"background: {Contextual.DANGER_DARK}; color: {Semantic.DANGER}; border: 1px solid {Semantic.DANGER}; font-weight: bold;")
+                sender.setStyleSheet(f"background: rgba(58, 27, 27, 1); color: #f44336; border: 1px solid #f44336; font-weight: bold;")
             else:
-                sender.setStyleSheet(f"background: transparent; color: {Text.MUTED}; border: 1px solid {Border.STRONG}; font-weight: bold;")
+                sender.setStyleSheet(f"background: transparent; color: #888; border: 1px solid #444; font-weight: bold;")
         
         # ATUALIZA LINK FRAME (cor de fundo)
         parent_frame = sender.parent().parent() if sender and sender.parent() else None

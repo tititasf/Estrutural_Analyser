@@ -10,7 +10,6 @@ from pathlib import Path
 import numpy as np
 import faiss
 from sentence_transformers import SentenceTransformer
-from rag_tier import get_tier, is_indexable, load_tombstones
 
 sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 
@@ -64,18 +63,17 @@ def load_index(tipo=None):
 
 # ── QUERY ────────────────────────────────────────────────────────────────────
 
-def query(text, tipo=None, obra=None, k=5, threshold=0.3, min_tier='T1'):
+def query(text, tipo=None, obra=None, k=5, threshold=0.3):
     """Busca semântica. Retorna lista de resultados com score."""
     model = SentenceTransformer(MODEL_NAME)
     index, meta = load_index(tipo)
-    tombstones = load_tombstones()
 
     # Embed query
     vec = model.encode([text], show_progress_bar=False)
     vec = normalize(vec)
 
-    # Buscar mais resultados para filtrar por obra/tier depois
-    k_search = k * 20 if (obra or min_tier) else k
+    # Buscar mais resultados para filtrar por obra depois
+    k_search = k * 5 if obra else k
     k_search = min(k_search, index.ntotal)
 
     scores, ids = index.search(vec, k_search)
@@ -88,8 +86,6 @@ def query(text, tipo=None, obra=None, k=5, threshold=0.3, min_tier='T1'):
             continue
         m = meta[fid] if tipo else next((m for m in meta if m.get('faiss_id') == fid), None)
         if m is None:
-            continue
-        if not is_indexable(m, min_tier=min_tier, tombstones=tombstones):
             continue
         if obra and m.get('obra') != obra:
             continue
@@ -128,12 +124,11 @@ def print_result(i, r, verbose=False):
     pav   = m.get('pavimento', '?')
     score = r['score']
     dados = m.get('dados', {})
-    tier  = get_tier(m, tombstones=load_tombstones())
 
     tc = cor(tipo)
     print(f'\n  {C["bold"]}#{i+1}{C["reset"]} {tc}{tipo.upper()} {tid}{C["reset"]}  '
           f'{C["grey"]}obra={obra}  pav={pav}{C["reset"]}  '
-          f'sim={fmt_score(score)}  tier={tier}')
+          f'sim={fmt_score(score)}')
 
     # Dimensões principais
     if tipo == 'pilar':
@@ -174,13 +169,12 @@ def print_result(i, r, verbose=False):
 
 # ── FIND-ELEMENT ─────────────────────────────────────────────────────────────
 
-def find_element(element_id: str, tipo=None, obra=None, min_tier='T1'):
+def find_element(element_id: str, tipo=None, obra=None):
     """
     Busca elemento por ID exato (P17, V5, L3) nos metadados.
     Retorna lista de correspondências encontradas.
     """
     tipos = [tipo] if tipo else ['pilar', 'viga', 'laje']
-    tombstones = load_tombstones()
     found = []
     for t in tipos:
         idx_path  = FAISS_DIR / f'{t}s.index'
@@ -194,13 +188,11 @@ def find_element(element_id: str, tipo=None, obra=None, min_tier='T1'):
             if mid.upper() == element_id.upper():
                 if obra and m.get('obra') != obra:
                     continue
-                if not is_indexable(m, min_tier=min_tier, tombstones=tombstones):
-                    continue
                 found.append({'tipo': t, 'meta': m})
     return found
 
-def print_find_element(element_id, tipo=None, obra=None, min_tier='T1'):
-    results = find_element(element_id, tipo, obra, min_tier=min_tier)
+def print_find_element(element_id, tipo=None, obra=None):
+    results = find_element(element_id, tipo, obra)
     print(f'\n{C["bold"]}find-element:{C["reset"]} {C["yellow"]}{element_id}{C["reset"]}')
     if not results:
         print(f'  {C["red"]}Elemento não encontrado no corpus FAISS.{C["reset"]}')
@@ -421,20 +413,6 @@ def print_stats():
               f'{C["green"]}L={l:>3}{C["reset"]} '
               f'total={r["total"]:>3}')
 
-    print(f'\n  {C["bold"]}Tiers nos metadados:{C["reset"]}')
-    tombstones = load_tombstones()
-    for nome in ['estruturais', 'pilares', 'vigas', 'lajes']:
-        meta_path = FAISS_DIR / f'{nome}_meta.json'
-        if not meta_path.exists():
-            continue
-        with open(meta_path, encoding='utf-8') as f:
-            rows = json.load(f)
-        counts = {}
-        for row in rows:
-            tier = get_tier(row, tombstones=tombstones)
-            counts[tier] = counts.get(tier, 0) + 1
-        print(f'    {nome:<20} {counts}')
-
     # Verificar índices por tipo
     print(f'\n  {C["bold"]}Índices FAISS:{C["reset"]}')
     for nome in ['estruturais', 'pilares', 'vigas', 'lajes']:
@@ -484,8 +462,6 @@ if __name__ == '__main__':
     parser.add_argument('--obra',  help='Filtrar por obra específica')
     parser.add_argument('--k',     type=int, default=5, help='Número de resultados (default=5)')
     parser.add_argument('--threshold', type=float, default=0.20, help='Score mínimo (default=0.20)')
-    parser.add_argument('--min-tier', choices=['T0','T1','T2'], default='T1',
-                        help='Tier mínimo retornado no RAG global (default=T1)')
     parser.add_argument('--verbose', action='store_true', help='Mostrar texto embedado')
     parser.add_argument('--stats',          action='store_true', help='Mostrar estatísticas do índice')
     parser.add_argument('--examples',       action='store_true', help='Mostrar exemplos de uso')
@@ -501,8 +477,7 @@ if __name__ == '__main__':
     elif args.examples:
         print_examples()
     elif getattr(args, 'find_element', None):
-        print_find_element(args.find_element, tipo=args.tipo, obra=args.obra,
-                           min_tier=args.min_tier)
+        print_find_element(args.find_element, tipo=args.tipo, obra=args.obra)
     elif getattr(args, 'dims_report', False):
         dims_report(tipo=args.tipo, obra=args.obra)
     elif getattr(args, 'anomalies', None):
@@ -513,11 +488,10 @@ if __name__ == '__main__':
         print(f'\n{C["bold"]}Consulta:{C["reset"]} {C["yellow"]}{args.query}{C["reset"]}', end='')
         if args.tipo: print(f'  tipo={C["white"]}{args.tipo}{C["reset"]}', end='')
         if args.obra: print(f'  obra={C["white"]}{args.obra}{C["reset"]}', end='')
-        print(f'  k={args.k}  min_tier={args.min_tier}')
+        print(f'  k={args.k}')
 
         results = query(args.query, tipo=args.tipo, obra=args.obra,
-                        k=args.k, threshold=args.threshold,
-                        min_tier=args.min_tier)
+                        k=args.k, threshold=args.threshold)
 
         if not results:
             print(f'\n{C["red"]}Nenhum resultado encontrado.{C["reset"]}')

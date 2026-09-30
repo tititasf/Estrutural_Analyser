@@ -69,7 +69,7 @@ class DXFLoadWorker(QObject):
             duration = time.time() - start_time
             
             if data:
-                self.doc_data['source_path'] = self.file_path; self.finished.emit(data, duration, self.doc_data)
+                self.finished.emit(data, duration, self.doc_data)
             else:
                 self.error.emit("Falha ao carregar dados do DXF (retorno vazio).")
                 

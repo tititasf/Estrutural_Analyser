@@ -2,14 +2,6 @@
 **De:** Fable (Estrategista) | **Para:** Sessão executora Cowork (Sonnet)
 **Data:** 2026-06-12 (v1.1 — pós-incidente) | **Modo:** AUTÔNOMO (YOLO — permissões concedidas)
 
-> **⚠️ NOTA DE ESTADO (2026-07-03):** os "fatos verificados" e contagens deste doc são o
-> snapshot de 12/06 e envelheceram (ex.: recortes `aprovado` já passam de 300; contagem
-> real do 13_PAV é 124 itens com LAJ 31). **Status vivo:** rodar
-> `python scripts/arete/gerar_status.py` → `docs/STATUS.md`. O protocolo de autonomia,
-> as restrições e as regras anti-racionalização deste doc CONTINUAM VÁLIDOS.
-> Procedimento de execução atual: `ARETE-LOOP-PROCEDIMENTO-GERAL.md`. Stories prontas
-> para executor: `HANDOFF-PRODUCAO-EXECUTOR.md` + `stories/STORY-EXEC-*.md`.
-
 ---
 
 ## ⚠️ v1.2 — REMEDIAÇÃO DO OVERFIT (2026-06-13) — LEIA PRIMEIRO
@@ -89,12 +81,6 @@ no 13_PAV (dados da ficha sobrevivem ao ciclo — válido e mantido).
   hipóteses + pergunta se ambíguo.
 - PROIBIDO expandir escopo antes do step atual atingir 100%.
 - G1 PASS ≠ pronto. Arete = G1 E G2 (por parte) PASS.
-- **G2 numérico sozinho ≠ selagem (decisão do dono, 03/07 — `docs/LOOPING-CANONICO.md`
-  §1.5).** G2 é a validação de mais baixo nível: cego para cota em cima de texto, painel
-  torto, sobreposição. "100% PASS" sem veredito visual (G2-V) registrado é candidato, não
-  golden. **G2-V compara sempre o recorte N2 (humano) × o DXF N4 (robô)** — mesmo par do
-  G2 numérico, agora lido/renderizado. Selar exige G2-V no mínimo; ver hierarquia Nível
-  0–3 no doc citado.
 
 ---
 
@@ -139,17 +125,8 @@ classe a classe (AR-1 a AR-4) até 100%, selando golden set.
 ## 4. Protocolo de autonomia (ordem do usuário)
 - **Executar, validar e corrigir sem pedir permissão.** Instalar dependências que faltarem
   (pip). Criar arquivos/pastas livremente dentro de `scripts/arete/`, `GOLDEN/`, `docs/`.
-- **Visão canónica dual-mode (2026-07-17):** conteúdo = DXF full layers (CE).
-  **Agente CLI julga em PNG** (Read/vision). **SVG** no HTML com `--persist-db`,
-  app e **portal web**. Headless **sem** persist = só imagem (dinâmico).
-  Plot LINE-only **não** é N2. `docs/QA-VISAO-EVIDENCIA-CANONICA.md`.
-  Validação rasa = **ruído**.
-- **Inventário mínimo antes do veredito:** extrair LINE/cota/texto com coords e
-  status MATCH/MISSING/EXTRA; anexar `inventario.path`.
-  `docs/QA-INVENTARIO-MINIMO-VALIDACAO-VISUAL.md`. PASS por contagem ou
-  “parece igual” é inválido (`g2v_harness.validar_veredito_cli`).
-- **Validação visual é obrigatória:** agente **Read** nos PNG full-render;
-  humano/web **SVG**. FAIL + amostragem dos PASS. Scoring decide; visão diagnostica.
+- **Validação visual é obrigatória:** renderizar PNGs e LER as imagens (visão própria)
+  em todos os FAIL + amostragem dos PASS. Scoring determinístico decide; visão diagnostica.
 - **Um fix por causa, nunca hack por item.** Após cada fix, rerodar regressão do que já passou.
 - **Parar e perguntar APENAS se:** (a) decisão de produto ambígua (ex.: divergência que pode
   ser exceção legítima vs bug), (b) ação destrutiva fora do escopo, (c) bloqueio externo real.

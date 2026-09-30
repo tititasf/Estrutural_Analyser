@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import json
-import logging
 import re
-import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable
@@ -11,10 +9,6 @@ from typing import Iterable
 import ezdxf
 from ezdxf import bbox
 from ezdxf.addons import Importer
-
-from scripts.visual_modes import apply_visual_mode, normalize_visual_mode
-
-_log = logging.getLogger("src.core.n5_assembler")
 
 
 @dataclass
@@ -45,19 +39,8 @@ class N5AssemblyResult:
 
 _PREFIX = {
     "LJ": "LJ_preview_",
-    "PL": "PL_preview_",
-    "LV": "LV_preview_",
     "FV": "FV_preview_",
 }
-
-_CLASSE_DB_ALIASES = {
-    "PL": ("PIL", "PL"),
-    "LJ": ("LAJ", "LJ"),
-    "FV": ("FV", "FUNDO"),
-    "LV": ("LV",),
-}
-
-_SENTINEL_X = -5000.0
 
 
 def natural_key(value: str) -> list[object]:
@@ -70,108 +53,14 @@ def _safe_name(value: str) -> str:
     return safe.strip("_") or "GERAL"
 
 
-def _entity_extents(entity) -> tuple[float, float, float, float] | None:
+def _entity_bbox(doc) -> tuple[float, float, float, float] | None:
     try:
-        ext = bbox.extents([entity], fast=True)
-        if ext.has_data:
-            return (float(ext.extmin.x), float(ext.extmin.y), float(ext.extmax.x), float(ext.extmax.y))
-    except Exception:
-        pass
-
-    try:
-        t = entity.dxftype()
-        if t == "LINE":
-            return (
-                min(float(entity.dxf.start.x), float(entity.dxf.end.x)),
-                min(float(entity.dxf.start.y), float(entity.dxf.end.y)),
-                max(float(entity.dxf.start.x), float(entity.dxf.end.x)),
-                max(float(entity.dxf.start.y), float(entity.dxf.end.y)),
-            )
-        if t == "LWPOLYLINE":
-            pts = list(entity.vertices())
-            if pts:
-                xs = [float(p[0]) for p in pts]
-                ys = [float(p[1]) for p in pts]
-                return (min(xs), min(ys), max(xs), max(ys))
-        if t in ("TEXT", "MTEXT") and hasattr(entity.dxf, "insert"):
-            ix = float(entity.dxf.insert.x)
-            iy = float(entity.dxf.insert.y)
-            width = 50.0
-            height = 10.0
-            if t == "TEXT":
-                height = float(getattr(entity.dxf, "height", 10.0))
-                width = len(str(getattr(entity.dxf, "text", ""))) * height * 0.8
-            elif t == "MTEXT":
-                width = float(getattr(entity.dxf, "width", 50.0))
-                height = float(getattr(entity.dxf, "char_height", 10.0)) * 2
-            
-            return (
-                ix,
-                iy - height,
-                ix + width,
-                iy + height,
-            )
-        if t == "INSERT" and hasattr(entity.dxf, "insert"):
-            return (
-                float(entity.dxf.insert.x),
-                float(entity.dxf.insert.y),
-                float(entity.dxf.insert.x),
-                float(entity.dxf.insert.y),
-            )
-        if t in ("CIRCLE", "ARC") and hasattr(entity.dxf, "center"):
-            radius = float(getattr(entity.dxf, "radius", 0.0) or 0.0)
-            cx = float(entity.dxf.center.x)
-            cy = float(entity.dxf.center.y)
-            return (cx - radius, cy - radius, cx + radius, cy + radius)
-    except Exception:
-        return None
-    return None
-
-
-def _is_fv_helper_entity(entity) -> bool:
-    """FV previews may contain off-frame sentinels/boost lines used only for scoring layers."""
-    ext = _entity_extents(entity)
-    if not ext:
-        return False
-    return ext[2] < _SENTINEL_X
-
-
-def _entity_bbox(doc, skip_fv_helpers: bool = False) -> tuple[float, float, float, float] | None:
-    try:
-        boxes = []
-        for entity in doc.modelspace():
-            if skip_fv_helpers and _is_fv_helper_entity(entity):
-                continue
-            ext = _entity_extents(entity)
-            if ext:
-                boxes.append(ext)
-        if not boxes:
+        ext = bbox.extents(doc.modelspace(), fast=True)
+        if not ext.has_data:
             return None
-        return (
-            min(b[0] for b in boxes),
-            min(b[1] for b in boxes),
-            max(b[2] for b in boxes),
-            max(b[3] for b in boxes),
-        )
+        return (float(ext.extmin.x), float(ext.extmin.y), float(ext.extmax.x), float(ext.extmax.y))
     except Exception:
         return None
-
-
-def _lj_panel_bbox(doc) -> tuple[float, float, float, float] | None:
-    """Locate the slab outline, excluding dimensions that extend the item bbox."""
-    candidates: list[tuple[float, tuple[float, float, float, float]]] = []
-    for entity in doc.modelspace().query("LWPOLYLINE"):
-        layer = str(entity.dxf.get("layer", "")).casefold()
-        if layer not in {"paineis", "painéis", "3"}:
-            continue
-        ext = _entity_extents(entity)
-        if not ext:
-            continue
-        width = max(ext[2] - ext[0], 0.0)
-        height = max(ext[3] - ext[1], 0.0)
-        if width > 0 and height > 0:
-            candidates.append((width * height, ext))
-    return max(candidates, key=lambda item: item[0])[1] if candidates else None
 
 
 def _new_doc_like() -> ezdxf.EzDxf:
@@ -180,14 +69,7 @@ def _new_doc_like() -> ezdxf.EzDxf:
     return doc
 
 
-def _import_doc_entities(
-    src_doc,
-    dst_doc,
-    dx: float = 0.0,
-    dy: float = 0.0,
-    skip_fv_helpers: bool = False,
-) -> int:
-    original_count = len(src_doc.modelspace())
+def _import_doc_entities(src_doc, dst_doc, dx: float = 0.0, dy: float = 0.0) -> int:
     importer = Importer(src_doc, dst_doc)
     try:
         importer.import_tables(["layers", "linetypes", "styles", "dimstyles"], replace=False)
@@ -200,102 +82,31 @@ def _import_doc_entities(
     except Exception:
         pass
 
-    if skip_fv_helpers:
-        for entity in list(src_doc.modelspace()):
-            if _is_fv_helper_entity(entity):
-                try:
-                    src_doc.modelspace().delete_entity(entity)
-                except Exception:
-                    pass
-
-    if dx or dy:
-        for entity in src_doc.modelspace():
-            try:
-                entity.translate(dx, dy, 0)
-            except Exception:
-                pass
-
-    # ezdxf.addons.Importer ignora MLINE. Copiamos essas entidades
-    # explicitamente, junto com seus estilos, antes de importar o restante.
-    mlines = list(src_doc.modelspace().query("MLINE"))
-    for entity in mlines:
-        style_name = str(entity.dxf.get("style_name", "Standard"))
-        if style_name not in dst_doc.mline_styles:
-            try:
-                source_style = src_doc.mline_styles.get(style_name)
-                target_style = dst_doc.mline_styles.new(style_name)
-                target_style.dxf.flags = source_style.dxf.flags
-                target_style.dxf.fill_color = source_style.dxf.fill_color
-                target_style.dxf.start_angle = source_style.dxf.start_angle
-                target_style.dxf.end_angle = source_style.dxf.end_angle
-                for element in source_style.elements:
-                    target_style.elements.append(
-                        element.offset,
-                        color=element.color,
-                        linetype=element.linetype,
-                    )
-            except Exception:
-                pass
+    copies = []
+    for entity in src_doc.modelspace():
         try:
             copied = entity.copy()
-            target_style = dst_doc.mline_styles.get(style_name)
-            copied.dxf.style_handle = target_style.dxf.handle
-            dst_doc.modelspace().add_entity(copied)
-            src_doc.modelspace().delete_entity(entity)
-        except Exception:
-            pass
-
-    try:
-        importer.import_modelspace(dst_doc.modelspace())
-    except Exception:
-        pass
-    importer.finalize()
-    for dim in dst_doc.modelspace().query("DIMENSION"):
-        try:
-            if not getattr(dim.dxf, "geometry", None):
-                dim.render()
+            if dx or dy:
+                copied.translate(dx, dy, 0)
+            copies.append(copied)
         except Exception:
             continue
-    return original_count
+    if copies:
+        importer.import_entities(copies, dst_doc.modelspace())
+    importer.finalize()
+    return len(copies)
 
 
-def _fv_aliases(item_id: str) -> list[str]:
-    value = str(item_id).strip()
-    aliases = [value]
-    clean = re.sub(r"_(Para|Passa)$", "", value, flags=re.I)
-    aliases.append(clean)
-    aliases.append(re.sub(r"[_\.]([A-D])$", "", clean, flags=re.I))
-    aliases.append(re.sub(r"_fundo$", "", clean, flags=re.I))
-    aliases.append(re.sub(r"[_\.]C[-_]\d+$", "", clean, flags=re.I))
-    aliases.append(re.sub(r"[-_]\d+$", "", clean, flags=re.I))
-    for alias in list(aliases):
-        if alias and not alias.upper().endswith("_FUNDO"):
-            aliases.append(f"{alias}_fundo")
-    return aliases
-
-
-def _find_n3_previews(obra_dir: Path, classe: str, item_id: str) -> list[Path]:
+def _find_n3_preview(obra_dir: Path, classe: str, item_id: str) -> Path | None:
     fase6 = obra_dir / "Fase-6_Execucao_CAD"
     pfx = _PREFIX.get(classe)
     if not pfx:
-        return []
-
-    if classe == "PL":
-        combined = fase6 / f"PL_preview_{item_id}.dxf"
-        if combined.exists():
-            return [combined]
-        zones = [
-            fase6 / f"PL_{zone}_preview_{item_id}.dxf"
-            for zone in ("CIMA", "ABCD", "GRADES", "EFGH")
-        ]
-        zones_found = [path for path in zones if path.exists()]
-        if zones_found:
-            return zones_found
-
-    candidates = _fv_aliases(item_id) if classe == "FV" else [item_id]
-    if classe == "LV":
-        clean = re.sub(r"_(Para|Passa)$", "", str(item_id), flags=re.I)
-        candidates = [clean, clean.replace(".", "_")]
+        return None
+    candidates = [item_id]
+    if classe == "FV" and not item_id.upper().endswith("_FUNDO"):
+        candidates.append(f"{item_id}_fundo")
+    if classe == "FV":
+        candidates.append(re.sub(r"[_\.]([ABCD])$", "", item_id, flags=re.I))
     seen: set[str] = set()
     for cand in candidates:
         if not cand or cand in seen:
@@ -303,113 +114,22 @@ def _find_n3_previews(obra_dir: Path, classe: str, item_id: str) -> list[Path]:
         seen.add(cand)
         path = fase6 / f"{pfx}{cand}.dxf"
         if path.exists():
-            return [path]
-        # P5: Busca secundária em Fase-4_Detalhamento e Fase-2_Triagem/recortes_web (itens do motor / manuais)
-        fase4 = obra_dir / "Fase-4_Detalhamento" / f"{pfx}{cand}.dxf"
-        if fase4.exists():
-            return [fase4]
-        for db_cls in _CLASSE_DB_ALIASES.get(classe, (classe,)):
-            fase4_cls = obra_dir / "Fase-4_Detalhamento" / f"{db_cls}_{cand}.dxf"
-            if fase4_cls.exists():
-                return [fase4_cls]
-            recortes_dir = obra_dir / "Fase-2_Triagem" / "recortes_web"
-            if recortes_dir.exists():
-                matches = list(recortes_dir.rglob(f"{db_cls}_{cand}.dxf"))
-                if matches:
-                    return [matches[0]]
-    return []
-
-
-def _find_n3_preview(obra_dir: Path, classe: str, item_id: str) -> Path | None:
-    previews = _find_n3_previews(obra_dir, classe, item_id)
-    return previews[0] if previews else None
+            return path
+    return None
 
 
 def _discover_item_ids(obra_dir: Path, classe: str) -> list[str]:
     fase6 = obra_dir / "Fase-6_Execucao_CAD"
     pfx = _PREFIX.get(classe)
-    if not pfx:
+    if not pfx or not fase6.exists():
         return []
     ids = []
-    if fase6.exists():
-        for path in fase6.glob(f"{pfx}*.dxf"):
-            stem = path.stem.replace(pfx.rstrip("_"), "", 1).lstrip("_")
-            if stem.endswith("_detail_test"):
-                continue
-            ids.append(stem)
-
-    # P5: Descobrir também em Fase-4_Detalhamento e recortes_web (itens manuais sem N3 em fase6)
-    fase4 = obra_dir / "Fase-4_Detalhamento"
-    if fase4.exists():
-        for path in fase4.glob(f"{pfx}*.dxf"):
-            stem = path.stem.replace(pfx.rstrip("_"), "", 1).lstrip("_")
-            if not stem.endswith("_detail_test"):
-                ids.append(stem)
-    recortes_dir = obra_dir / "Fase-2_Triagem" / "recortes_web"
-    if recortes_dir.exists():
-        for db_cls in _CLASSE_DB_ALIASES.get(classe, (classe,)):
-            for path in recortes_dir.rglob(f"{db_cls}_*.dxf"):
-                stem = path.stem.replace(f"{db_cls}_", "", 1)
-                if stem and not stem.endswith("_detail_test"):
-                    ids.append(stem)
-
+    for path in fase6.glob(f"{pfx}*.dxf"):
+        stem = path.stem.replace(pfx.rstrip("_"), "", 1).lstrip("_")
+        if stem.endswith("_detail_test"):
+            continue
+        ids.append(stem)
     return sorted(set(ids), key=natural_key)
-
-
-def _get_db_expected_item_ids(obra_dir: Path, classe: str, pavimento: str, db_path: str | Path | None) -> set[str]:
-    """Elemento_ids no banco SA que o N5 DEVE incluir (escape hatch + aprovados).
-
-    Usa só `reverse_eng_fichas` — tem pavimento e é a fonte com UNIQUE por item.
-    `reverse_eng_recortes` não tem coluna pavimento no schema oficial; consultar
-    lá com SELECT pavimento quebrava a completude em silêncio (except genérico).
-
-    Status `manual` entra de propósito: item criado pelo laço web (P3) precisa
-    aparecer na prancha; se o preview N3 sumiu, vira missing_count alto (P5).
-    """
-    if db_path is None:
-        return set()
-    caminho_db = Path(db_path)
-    if not caminho_db.is_file():
-        return set()
-    obra_name = obra_dir.name
-    db_classes = _CLASSE_DB_ALIASES.get(classe, (classe,))
-    placeholders = ",".join("?" for _ in db_classes)
-    expected: set[str] = set()
-    try:
-        from src.core.obra_identity import normalizar_pavimento
-    except Exception:  # pragma: no cover - fallback se import falhar em harnesss isolados
-        normalizar_pavimento = lambda p: p  # type: ignore[assignment]
-    pav_norm = normalizar_pavimento(pavimento) or str(pavimento or "").strip()
-    status_ok = {"aprovado", "manual", "manual_sel", "auto_aprovado", "motor", "pendente", "draft"}
-    try:
-        conn = sqlite3.connect(str(caminho_db))
-        try:
-            res = conn.execute(
-                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='reverse_eng_fichas'"
-            ).fetchone()
-            if not res:
-                return set()
-            sql = (
-                "SELECT elemento_id, pavimento, status FROM reverse_eng_fichas "
-                f"WHERE obra_name=? AND UPPER(classe) IN ({placeholders})"
-            )
-            params = [obra_name] + [c.upper() for c in db_classes]
-            for row in conn.execute(sql, params).fetchall():
-                st = str(row[2] or "").lower()
-                if st not in status_ok:
-                    continue
-                if pav_norm and pav_norm not in ("GERAL", ""):
-                    row_pav = normalizar_pavimento(row[1]) or str(row[1] or "").strip()
-                    if row_pav != pav_norm:
-                        continue
-                eid = str(row[0] or "").strip()
-                if eid:
-                    expected.add(eid)
-        finally:
-            conn.close()
-    except Exception as exc:
-        _log.warning("falha ao consultar completude no banco SA %s: %s", caminho_db, exc)
-    return expected
 
 
 def assemble_n5(
@@ -418,40 +138,22 @@ def assemble_n5(
     item_ids: Iterable[str] | None = None,
     pavimento: str = "",
     row_width: float | None = None,
-    visual_mode: str = "NOVA",
-    item_positions: dict[str, tuple[float, float]] | None = None,
-    db_path: str | Path | None = None,
 ) -> N5AssemblyResult:
     """Monta um DXF N5 consolidado a partir dos previews N3.
 
-    Suporta LJ, PL, LV e FV. O modo visual e aplicado ao documento
-    consolidado; LJ permanece sempre no perfil NOVA.
+    Suportado agora:
+      - LJ: copia os N3 nas coordenadas nativas, mantendo a montagem sobre o estrutural.
+      - FV: empacota previews em grade de folhas, respeitando ordem natural dos itens.
     """
     obra_dir = Path(obra_dir)
     classe = classe.upper().strip()
-    if classe not in ("LJ", "PL", "LV", "FV"):
-        raise ValueError(f"Classe N5 invalida: {classe}")
-    visual_mode = "NOVA" if classe == "LJ" else normalize_visual_mode(visual_mode)
+    if classe not in ("LJ", "FV"):
+        raise ValueError(f"N5 suporta apenas LJ e FV neste ciclo, recebido: {classe}")
 
     ids = list(item_ids or [])
     if not ids:
         ids = _discover_item_ids(obra_dir, classe)
     ids = sorted(dict.fromkeys(str(i).strip() for i in ids if str(i).strip()), key=natural_key)
-
-    # P5: Completude DB × disco — item no banco sem preview N3 NÃO some em silêncio.
-    # Inclui ids do banco na montagem; se o arquivo não existir, vira status=missing
-    # e missing_count sobe (executar_n5 falha com missing_count > 0).
-    expected_ids = _get_db_expected_item_ids(obra_dir, classe, pavimento, db_path)
-    missing_db_ids = expected_ids - set(ids)
-    if missing_db_ids:
-        _log.error(
-            "[CRITICAL/N5] Completude: %d item(ns) no banco ausentes da descoberta em disco: %s",
-            len(missing_db_ids),
-            sorted(missing_db_ids, key=natural_key),
-        )
-        for mid in sorted(missing_db_ids, key=natural_key):
-            ids.append(mid)
-        ids = sorted(dict.fromkeys(ids), key=natural_key)
 
     out_dir = obra_dir / "Fase-6_Execucao_CAD" / "n5"
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -460,7 +162,7 @@ def assemble_n5(
     manifest_path = out_dir / f"N5_{classe}_{pav_tag}.json"
 
     dst = _new_doc_like()
-    items = []
+    items: list[N5ItemResult] = []
 
     if classe == "LJ":
         for item_id in ids:
@@ -470,64 +172,31 @@ def assemble_n5(
                 continue
             try:
                 src_doc = ezdxf.readfile(str(src_path))
-                dx = dy = 0.0
-                target = (item_positions or {}).get(item_id)
-                panel_bbox = _lj_panel_bbox(src_doc)
-                if target and panel_bbox:
-                    dx = float(target[0]) - panel_bbox[0]
-                    dy = float(target[1]) - panel_bbox[1]
-                count = _import_doc_entities(
-                    src_doc,
-                    dst,
-                    dx=dx,
-                    dy=dy,
-                    skip_fv_helpers=True,
-                )
-                pose_msg = (
-                    f"; posição SA ({target[0]:.1f}, {target[1]:.1f})"
-                    if target and panel_bbox
-                    else ""
-                )
-                items.append(N5ItemResult(
-                    item_id,
-                    str(src_path),
-                    "ok",
-                    f"{count} entidades{pose_msg}",
-                ))
+                count = _import_doc_entities(src_doc, dst)
+                items.append(N5ItemResult(item_id, str(src_path), "ok", f"{count} entidades"))
             except Exception as exc:
                 items.append(N5ItemResult(item_id, str(src_path), "error", str(exc)[:120]))
-    else:  # PL, LV e FV: empacota cada item como uma folha/grupo.
-        max_row_w = float(row_width or 2000.0)  # 20 metros
-        margin = 150.0
-        gap_x = 250.0
-        gap_y = 300.0
+
+    else:  # FV
+        max_row_w = float(row_width or 3200.0)
+        margin = 120.0
+        gap_x = 160.0
+        gap_y = 190.0
         x_cursor = margin
         y_cursor = -margin
         row_h = 0.0
         for item_id in ids:
-            src_paths = _find_n3_previews(obra_dir, classe, item_id)
-            if not src_paths:
+            src_path = _find_n3_preview(obra_dir, classe, item_id)
+            if not src_path:
                 items.append(N5ItemResult(item_id, "", "missing", "preview N3 ausente"))
                 continue
             try:
-                source_docs = [
-                    (path, ezdxf.readfile(str(path)))
-                    for path in src_paths
-                ]
-                boxes = [
-                    _entity_bbox(doc, skip_fv_helpers=(classe == "FV"))
-                    for _, doc in source_docs
-                ]
-                boxes = [box for box in boxes if box]
-                if not boxes:
-                    items.append(N5ItemResult(
-                        item_id, str(src_paths[0]), "error", "bbox vazio"
-                    ))
+                src_doc = ezdxf.readfile(str(src_path))
+                bb = _entity_bbox(src_doc)
+                if not bb:
+                    items.append(N5ItemResult(item_id, str(src_path), "error", "bbox vazio"))
                     continue
-                min_x = min(box[0] for box in boxes)
-                min_y = min(box[1] for box in boxes)
-                max_x = max(box[2] for box in boxes)
-                max_y = max(box[3] for box in boxes)
+                min_x, min_y, max_x, max_y = bb
                 width = max(max_x - min_x, 1.0)
                 height = max(max_y - min_y, 1.0)
                 if x_cursor > margin and x_cursor + width > max_row_w:
@@ -536,50 +205,30 @@ def assemble_n5(
                     row_h = 0.0
                 dx = x_cursor - min_x
                 dy = y_cursor - max_y
-                count = sum(
-                    _import_doc_entities(
-                        src_doc,
-                        dst,
-                        dx=dx,
-                        dy=dy,
-                        skip_fv_helpers=(classe == "FV"),
-                    )
-                    for _, src_doc in source_docs
-                )
+                count = _import_doc_entities(src_doc, dst, dx=dx, dy=dy)
                 items.append(
                     N5ItemResult(
                         item_id,
-                        ";".join(str(path) for path in src_paths),
+                        str(src_path),
                         "ok",
-                        f"{count} entidades em {len(src_paths)} preview(s)",
+                        f"{count} entidades em x={x_cursor:.0f} y={y_cursor:.0f}",
                     )
                 )
                 x_cursor += width + gap_x
                 row_h = max(row_h, height)
             except Exception as exc:
-                items.append(N5ItemResult(
-                    item_id,
-                    ";".join(str(path) for path in src_paths),
-                    "error",
-                    str(exc)[:120],
-                ))
+                items.append(N5ItemResult(item_id, str(src_path), "error", str(exc)[:120]))
 
-    apply_visual_mode(dst, visual_mode, classe)
     dst.saveas(str(out_path))
-    import json
     manifest = {
         "classe": classe,
         "obra": obra_dir.name,
         "pavimento": pavimento,
-        "visual_mode": visual_mode,
         "output": str(out_path),
         "ok_count": sum(1 for item in items if item.status == "ok"),
         "missing_count": sum(1 for item in items if item.status != "ok"),
         "items": [item.__dict__ for item in items],
     }
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
-    resultado = N5AssemblyResult(classe, obra_dir.name, pavimento, out_path, manifest_path, items)
-    if resultado.missing_count > 0:
-        ausentes = [i.item_id for i in resultado.items if i.status != "ok"]
-        _log.warning("[CRITICAL/N5] ALERTA DE COMPLETUDE: Prancha N5 concluída COM FALHAS/AUSÊNCIAS (%d missing): %s", resultado.missing_count, ausentes)
-    return resultado
+    return N5AssemblyResult(classe, obra_dir.name, pavimento, out_path, manifest_path, items)
+
