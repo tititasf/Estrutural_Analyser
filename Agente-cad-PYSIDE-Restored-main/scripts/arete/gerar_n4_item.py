@@ -19,7 +19,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from arete_config import DADOS_OBRAS, GERADORES, PAV_13, REPO_ROOT, get_subtipo_pil
+from arete_config import DADOS_OBRAS, GERADORES, PAV_13, REPO_ROOT
 from ficha_adapter import (
     query_fichas, query_ficha_item,
     materializar_item, rodar_gerador, get_output_dxf_path,
@@ -54,8 +54,7 @@ def _publicar_splits_pil_n4(
 
     published: dict[str, str] = {}
     logs: list[str] = []
-    zones = _PIL_ZONES + (("efgh",) if get_subtipo_pil(elemento_id) in {"L", "U"} else ())
-    for zone in zones:
+    for zone in _PIL_ZONES:
         cmd = [
             sys.executable,
             str(gerador),
@@ -104,7 +103,6 @@ def _publicar_splits_lv_n4(
     obra_dir: Path,
     obra_name: str,
     elemento_id: str,
-    pavimento: str | None = None,
 ) -> tuple[bool, dict[str, str], str]:
     """Gera e publica os trÃªs viewers LV N4 da mesma ficha N2 materializada.
 
@@ -122,10 +120,7 @@ def _publicar_splits_lv_n4(
         cmd = [
             sys.executable, str(gerador), "--obra", str(obra_dir),
             "--item", elemento_id, "--max", "1", "--view", view,
-            "--stog-obra-hint", obra_name,
         ]
-        if pavimento:
-            cmd += ["--stog-pav-hint", pavimento]
         try:
             completed = subprocess.run(
                 cmd, capture_output=True, text=True, timeout=120,
@@ -180,9 +175,7 @@ def gerar_item(classe: str, elemento_id: str,
         print(f"  Materializado: {json_path}")
 
     # 3. Rodar gerador
-    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
-                                real_obra_name=row.get("obra_name"),
-                                real_pavimento=row.get("pavimento"))
+    ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
     result["log"] = log
 
     if not ok_gen:
@@ -221,8 +214,7 @@ def gerar_item(classe: str, elemento_id: str,
 
         elif classe == "LV":
             splits_ok, split_paths, split_log = _publicar_splits_lv_n4(
-                Path(obra_dir), row["obra_name"], elemento_id,
-                pavimento=row.get("pavimento"),
+                Path(obra_dir), row["obra_name"], elemento_id
             )
             result["split_paths"] = split_paths
             result["log"] += split_log

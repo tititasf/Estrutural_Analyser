@@ -701,15 +701,9 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         merged_coords = new_coords
         merged_lengths = new_lengths
 
-    # FV possui orientação própria por ocorrência baseada em coordenadas do vão real
-    if merged_coords and beam_pos:
-        coord0 = merged_coords[0]
-        coord_mid = (float(coord0[0]) + float(coord0[1])) / 2.0
-        delta_y = abs(coord_mid - float(beam_pos[1]))
-        delta_x = abs(coord_mid - float(beam_pos[0]))
-        is_horizontal = delta_x < delta_y
-    else:
-        is_horizontal = bool(b.get('fv_is_h', b.get('is_h', True)))
+    # FV possui orientação própria por ocorrência. ``is_h`` é o contrato
+    # legado de LV e pode apontar para o eixo oposto em vigas verticais.
+    is_horizontal = bool(b.get('fv_is_h', b.get('is_h', True)))
     contour_lines = (
         list(seg_bottom_raw)
         + list(classified.get('seg_side_a') or [])
@@ -724,10 +718,6 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         segmentos_fundo = []
         for i in range(len(merged_lengths)):
             coord = merged_coords[i] if i < len(merged_coords) else None
-            if coord and not is_horizontal:
-                # EXCLUSIVO FUNDOS DE VIGA (FV): Viga vertical tem Inicio = Cima (max Y) e Fim = Baixo (min Y)
-                c0, c1 = float(coord[0]), float(coord[1])
-                coord = (max(c0, c1), min(c0, c1))
             geometry = _fundo_segment_contour(
                 coord,
                 beam_pos,
@@ -761,9 +751,8 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                     p_min = min(grp[0][0][0], grp[0][-1][0])
                     p_max = max(grp[0][0][0], grp[0][-1][0])
                 else:
-                    # EXCLUSIVO FUNDOS DE VIGA (FV): Viga vertical tem Inicio = Cima (max Y) e Fim = Baixo (min Y)
-                    p_min = max(grp[0][0][1], grp[0][-1][1])
-                    p_max = min(grp[0][0][1], grp[0][-1][1])
+                    p_min = min(grp[0][0][1], grp[0][-1][1])
+                    p_max = max(grp[0][0][1], grp[0][-1][1])
             segmentos_fundo.append({
                 "seg_index": i + 1, 
                 "geometry": grp[0] if grp else [], 
@@ -781,9 +770,8 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                     p_min = min(s[0][0], s[-1][0])
                     p_max = max(s[0][0], s[-1][0])
                 else:
-                    # EXCLUSIVO FUNDOS DE VIGA (FV): Viga vertical tem Inicio = Cima (max Y) e Fim = Baixo (min Y)
-                    p_min = max(s[0][1], s[-1][1])
-                    p_max = min(s[0][1], s[-1][1])
+                    p_min = min(s[0][1], s[-1][1])
+                    p_max = max(s[0][1], s[-1][1])
             segmentos_fundo.append({
                 "seg_index": i + 1, 
                 "geometry": s, 
@@ -817,14 +805,7 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
             s for s in supports
             if _support_label(s).strip().upper() not in ignored_support_labels
         ]
-        # EXCLUSIVO FUNDOS DE VIGA (FV):
-        # - Viga horizontal: Inicio = Esquerda (menor X) -> Fim = Direita (maior X)
-        # - Viga vertical: Inicio = Cima (maior Y) -> Fim = Baixo (menor Y)
-        if is_horizontal:
-            ordered = sorted(supports, key=_support_key)
-        else:
-            ordered = sorted(supports, key=_support_key, reverse=True)
-
+        ordered = sorted(supports, key=_support_key)
         apoio_inicial = _support_label(ordered[0]) if ordered else ""
         apoio_final = _support_label(ordered[-1]) if len(ordered) > 1 else ""
 
@@ -870,8 +851,6 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
             seg["measure_source"] = "chamfer_half_cm_snap"
             seg["measure_length"] = snapped_length
         if seg_len is not None:
-            if abs(seg_len - round(seg_len)) <= 0.15:
-                seg_len = float(round(seg_len))
             seg["length"] = seg_len
 
         seg_dim = _find_segment_dim(seg, beam_pos, is_horizontal, spatial_index) if beam_pos else None
@@ -904,8 +883,8 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         seg["dim_height"] = round(float(seg_height or 0), 1)
         if chosen_dim.get("source"):
             seg["dim_source"] = chosen_dim.get("source")
-        seg["apoio_inicial"] = (start_link or {}).get("text") or ""
-        seg["apoio_final"] = (end_link or {}).get("text") or ""
+        seg["apoio_inicial"] = (start_link or {}).get("text") or apoio_inicial
+        seg["apoio_final"] = (end_link or {}).get("text") or apoio_final
         if start_link:
             seg["apoio_inicial_link"] = start_link
         if end_link:
@@ -925,13 +904,6 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
             "abertura_fundo_dir": "N/A",
         }
         seg["ficha"].update(chamfers)
-
-    from src.core.fv_generation_contract import chain_linear_segment_apoios
-    chain_linear_segment_apoios(
-        segmentos_fundo,
-        start_key="apoio_inicial",
-        end_key="apoio_final",
-    )
 
     comprimento = sum(float(seg.get("length") or 0.0) for seg in segmentos_fundo)
 
@@ -1054,15 +1026,6 @@ def run(
             print(f"\n  [WARN] Beam '{debug_beam}' não encontrado na análise.")
 
 
-    # 4.8 Extrair Canais Globais DXF e Inicializar ChannelConfidenceScorer
-    print("  Calculando pontuacoes de confianca de canais fisicos (ChannelConfidenceScorer)...")
-    from src.core.beam_interpreters.global_channel_extractor import GlobalBeamChannelExtractor
-    from src.core.beam_interpreters.channel_confidence_scorer import ChannelConfidenceScorer
-
-    channel_extractor = GlobalBeamChannelExtractor()
-    channel_mesh = channel_extractor.extract_channel_mesh(lines + polys, raw_texts=texts)
-    confidence_scorer = ChannelConfidenceScorer()
-
     # 5. Processar cada beam FV e salvar no DB
     print("  Salvando resultados em beam_elements...")
     conn = sqlite3.connect(str(db_path))
@@ -1075,24 +1038,6 @@ def run(
                 continue
 
             fv = process_beam_fv(b, spatial_index, visual_obstacles)
-
-            # Avaliar score de confiança de cada segmento contra a malha de canais do DXF
-            for seg in fv.get("segmentos_fundo", []):
-                pts = seg.get("geometry", [])
-                if len(pts) >= 2:
-                    xs = [p[0] for p in pts]
-                    ys = [p[1] for p in pts]
-                    s_bbox = (min(xs), min(ys), max(xs), max(ys))
-                    s_width = float(seg.get("measure_width") or fv.get("h_n1") or 19.0)
-                    s_is_h = bool(fv.get("is_horizontal", True))
-                    c_res = confidence_scorer.score_segment(s_bbox, s_width, s_is_h, channel_mesh)
-                    seg["channel_confidence"] = {
-                        "score": c_res.confidence_score,
-                        "status": c_res.status_flag,
-                        "offset_cm": c_res.transverse_offset_cm,
-                        "width_delta_cm": c_res.width_delta_cm,
-                        "dim_text_dxf": c_res.dim_text_matched,
-                    }
 
             campos = {
                 "viga": name,
@@ -1111,7 +1056,7 @@ def run(
             n_saved += 1
 
         conn.commit()
-        print(f"  Beam elements FV atualizados com Telemetria de Canais: {n_saved}")
+        print(f"  Beam elements FV atualizados: {n_saved}")
     finally:
         conn.close()
 

@@ -424,9 +424,7 @@ def processar_item(row: dict, ts_dir: Path,
             if "_extracao_erro" not in n2_fb:
                 campos_fb = n2_fb
         obra_dir, _ = materializar_item(row, campos_override=campos_fb)
-        ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id,
-                                    real_obra_name=row.get("obra_name"),
-                                    real_pavimento=row.get("pavimento"))
+        ok_gen, log = rodar_gerador(obra_dir, classe, elemento_id)
         if ok_gen:
             dxf = get_output_dxf_path(obra_dir, classe, elemento_id)
             if dxf.exists():
@@ -630,11 +628,7 @@ def _gerar_relatorio_md(sumario: dict, ts_dir: Path):
                 diffs_g1 = g1.get("diffs", [])
                 linhas.append(f"- **G1 FAIL** — {len(diffs_g1)} diffs no round-trip:")
                 for d in diffs_g1[:3]:
-                    if d.get("tipo") == "list_len":
-                        n2_val, n2p_val = d.get("n2_len"), d.get("n2p_len")
-                    else:
-                        n2_val, n2p_val = d.get("n2"), d.get("n2p")
-                    linhas.append(f"  - `{d.get('campo')}`: N2={n2_val} N2′={n2p_val} [{d.get('tipo')}]")
+                    linhas.append(f"  - `{d.get('campo')}`: N2={d.get('n2')} N2′={d.get('n2p')} [{d.get('tipo')}]")
             if g2.get("resultado") == "FAIL":
                 nde = len(g2.get("diffs_entidades", []))
                 ndg = len(g2.get("diffs_geometria", []))
@@ -679,12 +673,8 @@ def _proximo_fail(fails: list) -> str:
             erro = g1.get("erro") or g1.get("log_gerador") or "falha sem diff de campo"
             return f"Atacar G1-FAIL em {eid}: {erro}."
         d = diffs[0]
-        if d.get("tipo") == "list_len":
-            n2_val, n2p_val = d.get("n2_len"), d.get("n2p_len")
-        else:
-            n2_val, n2p_val = d.get("n2"), d.get("n2p")
         return (f"Atacar G1-FAIL em {eid}: campo `{d.get('campo')}` "
-                f"diverge N2={n2_val} vs N2′={n2p_val} [{d.get('tipo')}].")
+                f"diverge N2={d.get('n2')} vs N2′={d.get('n2p')} [{d.get('tipo')}].")
     if g2.get("resultado") == "FAIL":
         dts = g2.get("diffs_textos", [])
         if dts:

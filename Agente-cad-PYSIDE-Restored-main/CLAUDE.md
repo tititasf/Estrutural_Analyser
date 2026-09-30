@@ -25,12 +25,6 @@ DXF bruto → interpretação (Structural Analyzer) → geradores STOG (robôs P
 > 4. `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` — **missão paralela de produto** (2026-07):
 >    portal da equipe, gates P0–P6, decisões DP-1..9. Intercalada com o Arete; em
 >    conflito de tempo, qualidade (Arete) vence.
-> 5. `docs/MASTERPLAN-CONSOLIDACAO-ENTREGA.md` — **trilha de ENTREGA** (2026-07-30):
->    definição de pronto (entregável = **N5**, 4 classes, web é o produto, PySide vira
->    laboratório), caminho crítico P0–P7 e o **escape hatch** (operador desenha a geometria
->    no viewer web; motor interpreta a partir dali). **Sobre o que é "pronto" e o que fazer
->    primeiro na entrega, este doc vence os demais masterplans.** Não governa qualidade de
->    motor — isso continua com o Arete e os masterplans por classe.
 
 **Escopo Fase A:** 13_PAV da Obra_TREINO_1 = **124 itens** (PIL 35, LV 32, FV 26, LAJ 31).
 Números escritos à mão envelhecem: a fonte de verdade de status é
@@ -89,39 +83,6 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 4. **JSONs Fase-4 originais são intocáveis** — N2 é caminho paralelo independente.
 5. **Um fix por causa, nunca hack por item.** Validação visual: agente lê **PNG**
    full-render; HTML persistido/portal entrega **SVG** (`QA-VISAO-EVIDENCIA-CANONICA.md`).
-5b. **SVG web pan/zoom = só viewBox (padrão FV V302).** Proibido zoom por CSS
-   `transform:scale` (pixeliza). Qualquer ficha HTML/CLI Arete (FV, PIL, LAJ, LV,
-   portal) que mostre SVG N1 deve reutilizar `initPanZoom` / `initPilPanZoom`
-   (viewBox + drag + wheel + reset). Fonte: `docs/PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md`;
-   ref código FV `src/ui/widgets/fv_hifi_n1_render.py`; PIL
-   `src/core/pil_qa_notes_chrome.py`.
-5c. **Tags destaque agêntico PIL — contrato falha-fechada:** geometria, semântica,
-   vínculo, conteúdo, ponto, legibilidade e evidência visual têm o mesmo peso.
-   Multilinha tipo+marca / nome / dim / nível; um canto por tag; `V.passa` no
-   vértice físico exato; `V.chega` no centro transversal da viga; interior no
-   centro da face; laje no centro do contato. Pilares especiais usam o contorno
-   real A–F, sem guias da caixa envolvente. Linhas de face usam offset CAD zero;
-   bolinhas usam tamanho canônico dobrado (retangular 1.4, especial r=0.8).
-   Em especiais, `V.chega` parte do canto indicado (`AC/BC/ED/...`) e avança
-   meia largura nominal da viga para dentro da face física. As paredes do DXF
-   são a verdade de terra; é proibido ancorar em `viga_fundo_seg_*`, pois esse
-   contorno pode estar deslocado uma largura inteira (caso V304). O bbox geral
-   é apenas fallback. Somente retangulares preservam o deslocamento externo.
-   Tags usam fonte `1.10×` e roteamento `non_crossing_v1`: chips separados,
-   inteiros no viewBox e zero cruzamento entre conectores (mesmo ponto final é
-   permitido). Cruzamento detectado é FAIL técnico.
-   Chip retangular pode ter contorno
-   branco fino; especial/denso usa sem contorno. PASS de sidecar sem leitura do
-   PNG não aprova. Padrão: `docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md`. CLI
-   `scripts/arete/pil_agentic_highlight_draw.py` ou export `--with-agentic`.
-5d. **Dúvida de interpretação vai ao dono como ficha visual.** Se a dúvida só
-   se decide olhando o desenho, gerar a ficha com
-   `scripts/arete/gerar_duvida_html.py`: recorte real do DXF (pan/zoom por
-   viewBox), elementos em disputa realçados, leituras lado a lado com a
-   consequência de cada uma, e **uma** pergunta respondível em uma frase.
-   Antes de perguntar, **renderizar e ler o PNG** — fato do desenho se mede,
-   só convenção se pergunta. Regras já decididas sobre chegada de viga:
-   `docs/INTERPRETACAO-VIGA-CHEGA-VAO-E-FACE.md`.
 6. **Escopo incremental rígido:** 13_PAV 100% → TREINO_1 completa → outras obras em
    steps. Nunca processar tudo de uma vez.
 7. AutoCAD batch via `accoreconsole.exe` — NUNCA pipelines em paralelo.

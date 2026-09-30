@@ -16,6 +16,17 @@ from typing import Callable
 
 from src.ui.widgets.svg_embed_utils import embed_visual as _embed_visual
 
+try:
+    from src.core.qa_presentation_notice import banner_html as _qa_presentation_banner
+except Exception:  # pragma: no cover
+    def _qa_presentation_banner(*, dossier_path=None) -> str:
+        return (
+            '<aside style="border:1px solid #b8860b;background:#2a2110;color:#f0d78c;'
+            'padding:10px;margin:0 0 12px 0;font:12px monospace">'
+            '<strong>Apresentação ≠ prova</strong> — HTML/checkbox não selam N1/Arete.'
+            '</aside>'
+        )
+
 
 def _safe_slug(value: str) -> str:
     clean = re.sub(r"[^A-Za-z0-9_.-]+", "_", str(value or ""))
@@ -605,7 +616,7 @@ def write_laje_pages(
             '<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">'
             f"<title>Laje — {html.escape(name)}</title>"
             f"<style>{page_css}</style>{javascript}</head><body>"
-            f"{sidebar}"
+            f"{_qa_presentation_banner()}{sidebar}"
             '<div class="main-wrap"><div class="main-content">'
             '<h2 style="font-size:13px;color:#7eb8f7;margin:0 0 8px">'
             f"Laje {html.escape(name)}</h2>"

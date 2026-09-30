@@ -32,14 +32,6 @@ def _hline_ys(msp, x_min, x_max, layer='SARR_2.2x7'):
 
 
 def _panel_top_bottom(msp, x_min, x_max):
-    """Linhas H que cobrem (nao so ficam contidas em) a faixa [x_min,x_max].
-
-    A borda superior do corpo agora e continua (0->body_end) numa unica
-    linha quando o material topo-alinhado chega em y_top nas duas zonas
-    (degrau + alta) — N2 real de V301.A confirma isso (linha unica de
-    405.5cm, nao 2 segmentos). Overlap em vez de contencao estrita cobre
-    tanto o caso continuo quanto o antigo caso segmentado.
-    """
     tops, bots = [], []
     for ent in msp:
         if ent.dxftype() != 'LINE' or ent.dxf.layer != 'Painéis':
@@ -48,8 +40,7 @@ def _panel_top_bottom(msp, x_min, x_max):
         x2, y2 = ent.dxf.end.x, ent.dxf.end.y
         if abs(y1 - y2) > 0.01:
             continue
-        lo, hi = min(x1, x2), max(x1, x2)
-        if hi <= x_min or lo >= x_max:
+        if not (x_min - 0.5 <= min(x1, x2) and max(x1, x2) <= x_max + 0.5):
             continue
         y = round(y1, 3)
         if abs(x1 - x2) < 0.01:

@@ -18,7 +18,6 @@ TABELAS_ESPERADAS = {
     "portal_jobs",
     "portal_drive_sync_state",
     "portal_comentarios_equipe",
-    "portal_apontamentos_ui",
     "portal_n5_releases",
     "portal_documentos",  # migration 002 (2026-07-06)
 }
@@ -50,11 +49,11 @@ def test_init_db_cria_as_6_tabelas(conn):
     ).fetchall()
     nomes = {r["name"] for r in rows}
     assert TABELAS_ESPERADAS.issubset(nomes)
-    # tabela de versão registrou as migrations 001..012 (apontamentos visuais;
-    # ver CHANGELOG das migrations
+    # tabela de versão registrou as migrations 001..009 (2026-07-13:
+    # portal_validacoes_campo, a mais recente — ver CHANGELOG das migrations
     # em portal/db/migrations/ pro histórico completo)
     ver = conn.execute("SELECT MAX(version) FROM portal_schema_version").fetchone()[0]
-    assert ver == 12
+    assert ver == 9
 
 
 def test_init_db_idempotente(tmp_path):
@@ -64,7 +63,7 @@ def test_init_db_idempotente(tmp_path):
     # rodar de novo não duplica versão nem quebra
     c2 = connection.init_db(db_path)
     n = c2.execute("SELECT COUNT(*) FROM portal_schema_version").fetchone()[0]
-    assert n == 12  # 001..012, cada migration registra 1 linha
+    assert n == 9  # 001..009, cada migration registra 1 linha
     c2.close()
 
 
@@ -179,33 +178,6 @@ def test_finalizar_job_e_historico(conn, membro_id):
     jobs = repo.listar_jobs_por_obra(conn, obra_id)
     assert jobs[0]["status"] == "concluido"
     assert jobs[0]["finalizado_em"] is not None
-
-
-def test_enfileirar_job_unico_por_meta_bloqueia_duplicata_ativa(conn, membro_id):
-    obra_id = repo.criar_obra(
-        conn, membro_id=membro_id, nome="Obra Job Unico", pasta_drive_id="pju",
-    )
-    meta = {"etapa": "sa_item", "secao": "lajes", "item": "L301", "pav": "13_PAV"}
-    primeiro, criado = repo.enfileirar_job_unico_por_meta(
-        conn, obra_id=obra_id, meta=meta,
-        chaves=("etapa", "secao", "item", "pav"),
-    )
-    repetido, criado_repetido = repo.enfileirar_job_unico_por_meta(
-        conn, obra_id=obra_id, meta=meta,
-        chaves=("etapa", "secao", "item", "pav"),
-    )
-    assert criado is True
-    assert criado_repetido is False
-    assert repetido == primeiro
-    assert repo.obter_job_meta(conn, primeiro) == meta
-
-    repo.finalizar_job(conn, primeiro, "concluido")
-    novo, criado_novo = repo.enfileirar_job_unico_por_meta(
-        conn, obra_id=obra_id, meta=meta,
-        chaves=("etapa", "secao", "item", "pav"),
-    )
-    assert criado_novo is True
-    assert novo != primeiro
 
 
 # --------------------------------------------------------------------------- #

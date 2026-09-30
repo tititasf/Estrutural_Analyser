@@ -16,12 +16,6 @@ DB_PATH = Path("D:/Agente-cad-PYSIDE/project_data.vision")
 DADOS_OBRAS_ROOT = Path("D:/Agente-cad-PYSIDE/DADOS-OBRAS")
 PROTECTED_ROOT = Path("D:/Agente-cad-PYSIDE/protected_artifacts")
 
-# PERFORMANCE: mesmo padrao/causa de item_attention_store.py — ver comentario
-# la. ensure_governance_tables() e' chamada por item ao popular listas (via
-# get_validation_policy() -> is_qa_agente_validated() -> _row_qa_validated()),
-# rodando 4 CREATE TABLE + 3 CREATE INDEX a cada chamada.
-_GOVERNANCE_ENSURED_DB_PATHS: set[str] = set()
-
 
 class ProtectedArtifactError(PermissionError):
     pass
@@ -79,9 +73,6 @@ def _readonly(path: Path) -> None:
 
 def ensure_governance_tables(db_path: Path | str = DB_PATH) -> None:
     db_path = Path(db_path)
-    cache_key = str(db_path)
-    if cache_key in _GOVERNANCE_ENSURED_DB_PATHS:
-        return
     db_path.parent.mkdir(parents=True, exist_ok=True)
     with sqlite3.connect(str(db_path)) as conn:
         conn.executescript(
@@ -148,7 +139,6 @@ def ensure_governance_tables(db_path: Path | str = DB_PATH) -> None:
                 ON motor_runs(motor_id, version_id, classe, item_id, scope, created_at);
             """
         )
-    _GOVERNANCE_ENSURED_DB_PATHS.add(cache_key)
 
 
 def _policy_id(
@@ -191,54 +181,6 @@ def _policy_row_to_dict(row: sqlite3.Row | tuple) -> dict:
         "updated_by": row[8] or "",
         "updated_at": row[9] or "",
     }
-
-
-def _policy_is_better(candidate: dict | None, current: dict | None) -> bool:
-    """Mesmo critério de `ORDER BY locked DESC, updated_at DESC LIMIT 1`."""
-    if candidate is None:
-        return False
-    if current is None:
-        return True
-    if candidate["locked"] != current["locked"]:
-        return candidate["locked"] and not current["locked"]
-    return (candidate.get("updated_at") or "") >= (current.get("updated_at") or "")
-
-
-def load_validation_policies_bulk(
-    obra: str, db_path: Path | str = DB_PATH,
-) -> tuple[dict[tuple, dict], dict[tuple, dict]]:
-    """Uma única consulta para todas as políticas de validação da obra.
-
-    Replica o fallback de 2 níveis de get_validation_policy() (par exato
-    obra+pavimento, senão qualquer pavimento da obra) sem N round-trips por
-    item — usado pela UI (Comparison Engine) ao popular listas de N itens.
-
-    Returns:
-        (por_pavimento, por_obra) — chaves (pavimento, classe, item_id, scope)
-        e (classe, item_id, scope) respectivamente; mesmo critério de escolha
-        de melhor linha (locked DESC, updated_at DESC) que a consulta original.
-    """
-    ensure_governance_tables(db_path)
-    obra_n = _norm(obra)
-    by_pav: dict[tuple, dict] = {}
-    by_obra: dict[tuple, dict] = {}
-    with sqlite3.connect(str(db_path)) as conn:
-        conn.row_factory = sqlite3.Row
-        cur = conn.execute(
-            "SELECT id, obra_name, pavimento, classe, item_id, scope, locked, "
-            "validation_origin, updated_by, updated_at "
-            "FROM artifact_validation_policies WHERE obra_name=?",
-            (obra_n,),
-        )
-        for row in cur.fetchall():
-            policy = _policy_row_to_dict(row)
-            pav_key = (policy["pavimento"], policy["classe"], policy["item_id"], policy["scope"])
-            obra_key = (policy["classe"], policy["item_id"], policy["scope"])
-            if _policy_is_better(policy, by_pav.get(pav_key)):
-                by_pav[pav_key] = policy
-            if _policy_is_better(policy, by_obra.get(obra_key)):
-                by_obra[obra_key] = policy
-    return by_pav, by_obra
 
 
 def get_validation_policy(
@@ -305,24 +247,6 @@ def is_qa_agente_validated(
     policy = get_validation_policy(
         obra, pavimento, classe, item_id, scope, db_path=db_path
     )
-    if not policy or not policy.get("locked"):
-        return False
-    origin = (policy.get("validation_origin") or "").lower()
-    return "qa_agente" in origin or origin == "qa_agent"
-
-
-def is_qa_agente_validated_bulk(
-    by_pav: dict[tuple, dict], by_obra: dict[tuple, dict],
-    pavimento: str, classe: str, item_id: str, scope: str,
-) -> bool:
-    """Mesma lógica de is_qa_agente_validated(), consultando os dicts de
-    load_validation_policies_bulk() em memória em vez do SQLite por item."""
-    classe_n = _norm_class(classe)
-    item_n = _norm_item(classe, item_id)
-    scope_n = _norm_scope(scope)
-    policy = by_pav.get((_norm(pavimento), classe_n, item_n, scope_n))
-    if policy is None:
-        policy = by_obra.get((classe_n, item_n, scope_n))
     if not policy or not policy.get("locked"):
         return False
     origin = (policy.get("validation_origin") or "").lower()

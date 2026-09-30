@@ -118,17 +118,9 @@ def _apply_na(old: dict, result: dict) -> None:
         (result.get("links") or {}).pop(field, None)
 
     result_links = result.setdefault("links", {})
-    if not isinstance(result_links, dict):
-        result_links = {}
-        result["links"] = result_links
     for field, slots in (old.get("na_link_classes") or {}).items():
-        field_links = result_links.get(field)
-        if not isinstance(field_links, dict):
-            field_links = {}
-            result_links[field] = field_links
+        field_links = result_links.setdefault(field, {})
         old_field_links = (old.get("links") or {}).get(field) or {}
-        if not isinstance(old_field_links, dict):
-            old_field_links = {}
         for slot in slots or []:
             if slot in old_field_links:
                 field_links[slot] = copy.deepcopy(old_field_links[slot])
@@ -216,51 +208,16 @@ def _topology_class(source_key: str) -> tuple[str, int] | None:
 
 
 def _validated_topology_sources(old: dict) -> dict[str, set[str]]:
-    """Fontes de topologia (FV/LV) travadas contra recomputação automática.
-
-    Selo `qa_agente` sozinho NUNCA trava (decisão do dono, 2026-07-18): o
-    agente QA ainda é `diagnostic_only` para FV/LV
-    (`docs/CONVENCAO-SELOS-VALIDACAO.md`), e travar a topologia por um selo
-    que não comparou segmentos vizinhos entre si já protegeu geometria com
-    bug (achado real: V301 sobreposto, selado `qa_agente` em 2026-07-17
-    permaneceu sobreposto mesmo após o motor ser corrigido). Origem humana
-    (`humano_app`/`humano_portal`, dado legado migrado incluso) trava; campo
-    sem nenhum rastro de origem em ``validated_fields`` (link marcado
-    ``validated`` direto, fluxo anterior a 2026-07-13) também trava, para não
-    mudar o comportamento de quem nunca passou pelo agente.
-    """
-    from src.core.validation_model import (
-        ORIGEM_QA_AGENTE,
-        migrar_validated_fields_legado,
-        origens_do_campo,
-    )
-
-    validated_fields = migrar_validated_fields_legado(old.get("validated_fields"))
-
-    def _locks(field_id: str) -> bool:
-        """Trava, a menos que a origem seja explicitamente só ``qa_agente``.
-
-        Sem rastro de origem (campo nunca passou por ``validated_fields``,
-        ex.: link marcado ``validated`` diretamente por um fluxo legado/de
-        teste) mantém o comportamento conservador anterior — trava.
-        """
-        origins = origens_do_campo(validated_fields, field_id)
-        if not origins:
-            return True
-        return bool(origins - {ORIGEM_QA_AGENTE})
-
     sources: dict[str, set[str]] = {}
-    candidates = {field_id for field_id in validated_fields if _locks(field_id)}
+    candidates = set(old.get("validated_fields") or [])
     candidates.update(
         field
         for field, slots in (old.get("validated_link_classes") or {}).items()
-        if slots and _locks(field)
+        if slots
     )
     for source_key, slots in (old.get("links") or {}).items():
         topology = _topology_class(str(source_key))
         if not topology or not isinstance(slots, dict):
-            continue
-        if not _locks(str(source_key)):
             continue
         if any(
             isinstance(link, dict) and link.get("validated")

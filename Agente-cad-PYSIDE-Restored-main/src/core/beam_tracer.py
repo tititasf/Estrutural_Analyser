@@ -1569,45 +1569,7 @@ class BeamTracer:
                             curr_min = d_p
                     if curr_min < p_max:
                         split_panels.append((curr_min, p_max))
-
-                # Um divisor real (apoio/mudança de altura) às vezes cai a
-                # poucos cm de uma extremidade e produz um fragmento residual
-                # do tamanho da largura da própria viga, não um segmento
-                # estrutural — achado real V310/V331 (2026-07-20): quina
-                # chanfrada, a borda mais longa de um lado do fundo gera uma
-                # lasca de ~19cm colada ao painel principal quando o divisor
-                # bate exatamente onde a borda mais curta começa. N2 não conta
-                # essa lasca como segmento próprio nem soma seu comprimento ao
-                # painel vizinho. O limiar (30cm) fica bem abaixo do menor
-                # painel real confirmado no 13_PAV (41.5cm, V301) e bem acima
-                # da lasca observada (19cm nos dois casos reais), então só
-                # afeta esse padrão específico de fragmento residual.
-                _notch_fragment_max_length = 30.0
-                cleaned_panels = []
-                for idx, (p_min, p_max) in enumerate(split_panels):
-                    length = p_max - p_min
-                    if length > _notch_fragment_max_length:
-                        cleaned_panels.append((p_min, p_max))
-                        continue
-                    touches_larger_neighbor = False
-                    if idx > 0:
-                        prev_min, prev_max = split_panels[idx - 1]
-                        if (
-                            abs(prev_max - p_min) <= 0.5
-                            and (prev_max - prev_min) > _notch_fragment_max_length
-                        ):
-                            touches_larger_neighbor = True
-                    if idx < len(split_panels) - 1:
-                        next_min, next_max = split_panels[idx + 1]
-                        if (
-                            abs(next_min - p_max) <= 0.5
-                            and (next_max - next_min) > _notch_fragment_max_length
-                        ):
-                            touches_larger_neighbor = True
-                    if not touches_larger_neighbor:
-                        cleaned_panels.append((p_min, p_max))
-                split_panels = cleaned_panels
-
+                
                 final_groups = _apply_obstacles_to_panels(split_panels, visual_obstacles)
                 classified['merged_bottom_lengths'] = _widths_from_groups(final_groups)
                 classified['merged_bottom_groups_coords'] = final_groups

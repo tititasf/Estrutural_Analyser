@@ -19,9 +19,8 @@ Uso:
   python scripts/gerar_lv_dxf_stog.py --obra DADOS-OBRAS/Obra_TREINO_21
   python scripts/gerar_lv_dxf_stog.py --obra D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_21
 """
-import sys
-if __name__ == '__main__' and hasattr(sys.stdout, 'reconfigure'):
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+import sys, io
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 import json, argparse, re, math
 from pathlib import Path
 import ezdxf
@@ -40,10 +39,10 @@ GAP_ROW_LV     = 100    # gap vertical entre linhas de vigas (cm)
 NOM_ABOVE      = 9      # y = painel_top + NOM_ABOVE -> NOMENCLATURA
 DIM_BELOW      = 37     # y = painel_bottom - DIM_BELOW -> cotas paineis individuais
 DIM_TOTAL_BELOW= 60     # y = painel_bottom - DIM_TOTAL_BELOW -> cota total
-DIM_H_RIGHT    = 25     # nivel 1 a direita (15 + 109); nivel 2 = 2x = 50 (124)
+DIM_H_RIGHT    = 28     # x = painel_right + DIM_H_RIGHT -> cota h_lateral vertical
 # Painéis mais estreitos que isto NÃO recebem cota individual (evita "28,721,8"
 # e "1921,2" por colisão de texto no SVG/render). Agrupam-se consecutivos.
-PANEL_DIM_MIN_W = 55.0  # multi-seg: 22.5+52.5->75
+PANEL_DIM_MIN_W = 30.0
 GAP_AB     = 200    # gap horizontal entre Face A (right) e Face B (left)
 LV_UNIT_GAP    = 200.0  # gap entre continuacoes/face_units no viewer dedicado
 NOM_H          = 16.5   # altura texto NOMENCLATURA
@@ -60,69 +59,6 @@ LV_SARR_INSET  = 15.0   # inset das bordas extremas para SARR_3.5x7 (cm)
 SARR_INSET_H   = 7.0    # inset from panel edge for horizontal sarrafos on first/last panels
 SARR_PANEL_GAP = 0.8    # gap vs divisor Painéis (evita sobreposição visual)
 SARR_MIN_PANEL_W = 28.0 # painéis estreitos (marco) sem sarrafeamento interno
-
-# Chaves globais pra desligar preenchimento de hachura no N4, separadas por
-# natureza — pedido do dono 2026-09-08: manter a hachura de LAJE/concreto
-# (AR-CONC/HACHURACONCRETO — essa extracao ja foi validada contra o N2 real
-# nesta sessao) e desligar so a de PAINEL/madeira/reaproveitamento (ANSI31
-# em Hachura — extracao ainda em ajuste). As LINHAS de contorno que cada
-# bloco desenha (limite real do vazio/reaproveitamento) continuam sendo
-# desenhadas em ambos os casos — só o preenchimento fica de fora quando
-# desligado.
-DRAW_HATCHES_LAJE = True     # AR-CONC / HACHURACONCRETO (concreto, laje)
-DRAW_HATCHES_PAINEL = False  # ANSI31 em Hachura (madeira, reaproveitamento)
-
-# Padrão de hachura AR-CONC (concreto/vazio) — extraído do próprio recorte N2 de
-# V301 (layer COTA, hatch_style=1, scale=1.0, angle=0.0) para reproduzir o
-# "vazio" (onde vai concreto, não painel) com fidelidade visual exata. Convenção
-# do projeto: vazios (laje ou viga que passa/cruza) SEMPRE usam este padrão,
-# layer COTA — nunca 'Hachura' (essa é textura de madeira/reaproveitamento).
-AR_CONC_PATTERN = [
-    (50.0, (0.0, 0.0), (182.184669, -15.939086), [19.05, -209.55]),
-    (355.0, (0.0, 0.0), (-35.243421, 191.056845), [15.24, -167.640584]),
-    (100.451445, (15.182007, -1.328253), (146.941247, 175.117752), [16.190009, -178.090245]),
-    (46.1842, (0.0, 50.8), (271.079041, -42.042328), [28.575, -314.325]),
-    (96.635558, (22.5899, 47.2965), (237.404134, 247.426125), [24.285023, -267.135608]),
-    (351.184151, (0.0, 50.8), (237.404134, 247.426125), [22.859967, -251.459732]),
-    (21.0, (25.4, 38.1), (151.614391, -102.265198), [19.05, -209.55]),
-    (326.0, (25.4, 38.1), (61.802028, 184.187966), [15.24, -167.64]),
-    (71.451445, (38.034533, 29.5779), (213.416419, 81.922769), [16.190009, -178.089938]),
-    (37.5, (0.0, 0.0), (3.088603, 84.555039), [0.0, -165.608, 0.0, -170.18, 0.0, -168.275]),
-    (7.5, (0.0, 0.0), (66.819663, 100.180575), [0.0, -97.028, 0.0, -161.798, 0.0, -64.135]),
-    (-32.5, (-56.642, 0.0), (135.590595, -5.728744), [0.0, -63.5, 0.0, -198.12, 0.0, -262.89]),
-    (-42.5, (-82.042, 0.0), (148.129181, 25.426491), [0.0, -82.55, 0.0, -131.572, 0.0, -186.69]),
-]
-
-
-def _draw_vazio_concreto(msp, x_left, y_bot, x_right, y_top):
-    """Vazio/laje de concreto (AR-CONC) com retangulo visual fechado.
-
-    A parede direita pertence ao retangulo do vazio e fica em COTA; nunca em
-    Painéis. Assim a laje fecha sem recriar um divisor vertical de painel.
-    """
-    if x_right <= x_left + 0.5 or y_top <= y_bot + 0.5:
-        return
-    a_cota = {'layer': 'COTA'}
-    # Encosta na borda real (x_right) — o inset de 0.8cm de uma sessao
-    # anterior deixava uma folga visivel sem hachura entre o vazio e a
-    # parede/laje real (achado 2026-09-10, V301.B: hachura parava em
-    # x=7071.3, 0.8cm antes do limite real em 7072.1, deveria encostar).
-    x_hatch_r = float(x_right)
-    # So a tampa. Laterais nas paredes externas colam nas cotas 15/7 e
-    # parecem "linha de painel extra gerada pela cota".
-    msp.add_line((x_left, y_top), (x_hatch_r, y_top), dxfattribs=a_cota)
-    # path fechado so para o fill; direita inset (nao colada no body_end)
-    pts = [
-        (x_left, y_bot), (x_hatch_r, y_bot),
-        (x_hatch_r, y_top), (x_left, y_top),
-    ]
-    if DRAW_HATCHES_LAJE:
-        ht = msp.add_hatch(dxfattribs={'layer': 'COTA', 'color': 7})
-        ht.paths.add_polyline_path(pts, is_closed=True)
-        ht.set_pattern_fill(
-            'AR-CONC', color=7, angle=0.0, scale=1.0, style=1, pattern_type=0,
-            definition=AR_CONC_PATTERN,
-        )
 
 # ── Detalhe de secao transversal ─────────────────────────────────────────────
 SECT_W         = 160    # largura reservada para o detalhe de secao (cm)
@@ -196,8 +132,7 @@ def setup_doc():
     ds.dxf.dimtxt  = 10.0
     ds.dxf.dimgap  = 3.0
     ds.dxf.dimexe  = 3.0
-    # dimexo=0: patas (linhas de extensao) chegam ate o painel, sem gap
-    ds.dxf.dimexo  = 0.0
+    ds.dxf.dimexo  = 3.0
     ds.dxf.dimclrd = 4
     ds.dxf.dimclrt = 240
     ds.dxf.dimclre = 4
@@ -272,7 +207,6 @@ def extract_panels_from_json(panels_json, laje_central_alt_global=0.0):
             'laje_inf_local':   float(p.get('laje_inf_local', p.get('slab_bottom', 0)) or 0),
             'slab_top':         float(p.get('slab_top', p.get('laje_sup_local', 0)) or 0),
             'slab_bottom':      float(p.get('slab_bottom', p.get('laje_inf_local', 0)) or 0),
-            'vazio_base_local': float(p.get('vazio_base_local', 0) or 0),
             'holes':            p.get('holes', []),
             'reuse':            bool(p.get('reuse', False)),
             'reuse_regions':    p.get('reuse_regions', []),
@@ -340,16 +274,13 @@ def auto_distribute_panels(comprimento, panels_json, laje_central_alt_global=0.0
 # Primitivos de desenho
 # ──────────────────────────────────────────────────────────────────────────────
 
-def add_text(msp, x, y, text, height, layer, halign=0, valign=0, color=None,
-             rotation=0.0):
+def add_text(msp, x, y, text, height, layer, halign=0, valign=0, color=None):
     attribs = {'insert': (x, y), 'height': height, 'layer': layer}
     if color not in (None, 256):
         try:
             attribs['color'] = int(color)
         except Exception:
             pass
-    if rotation:
-        attribs['rotation'] = float(rotation)
     if halign or valign:
         attribs['halign'] = halign
         attribs['valign'] = valign
@@ -402,24 +333,15 @@ def _panel_y_base(y0, h_face, p):
     """Base Y do painel na face: degrau sobe para alinhar o topo à face."""
     if not _is_degrau_panel(p, h_face):
         return y0
-    h1 = float(p.get('height1', 0) or 0)
     regions = p.get('reuse_regions') or []
     if regions:
         y_off = float(regions[0].get('y_offset', 0) or 0)
-        r_h = float(regions[0].get('height', 0) or 0)
-        # Confia no y_offset da hachura real (extracao independente do N2)
-        # quando a altura da regiao bate com height1 do painel — mesma
-        # faixa fisica, mesmo quando y_offset cai acima do h_face refinado
-        # (achado 2026-08-31, V301.B#1: hachura real fica em y=98.4, 10cm
-        # acima de h_face=108.6, porque o bloco de reaproveitamento vive na
-        # faixa do marco, nao do corpo; region height=44.0 ~ height1=43.6
-        # confirma mesmo degrau — so' fora do range do guard antigo).
-        if r_h > 0 and abs(r_h - h1) <= 3.0 and y_off > 5.0:
-            return y0 + y_off
-        # Sem 'height' confiavel na regiao: guard antigo (evita faixa de
-        # laje de ~6cm no topo sendo lida como se fosse ombro de degrau).
+        # Só confia em y_offset de reuse se for ombro plausível de degrau
+        # (não a faixa de laje de ~6 cm no topo).
+        h1 = float(p.get('height1', 0) or 0)
         if 5.0 < y_off < h_face - 12.0 and h1 >= 12.0:
             return y0 + y_off
+    h1 = float(p.get('height1', 0) or 0)
     return y0 + (h_face - h1)
 
 
@@ -609,51 +531,14 @@ def merge_sarrafos_verticais_extremidades(
 
 
 def draw_sarr_lv_horizontal_from_n2(msp, x0, y0, sarrafos_horizontais,
-                                    *, frame_ys=None, h_face=None,
-                                    degrau_start=None, degrau_end=None,
-                                    y_shoulder=None, panel_div_xs=None,
-                                    left_sarr_x=None, right_sarr_x=None,
-                                    vertical_specs=None):
+                                    *, frame_ys=None):
     """Replay fiel dos sarrafos horizontais capturados no N2.
 
     ``frame_ys``: Y de contorno Painéis (ombro/topo/base) — não redesenhar
     sarrafo em cima da linha de painel (conflito visual).
-    y_offset acima do corpo (laje / painel de 7) nao e sarrafo de painel.
-
-    ``degrau_start``/``degrau_end``/``y_shoulder``: um sarrafo horizontal
-    que cruza a fronteira degrau<->zona alta EXATAMENTE na altura do ombro
-    nao pode atravessar pro outro lado — nesse ponto especifico o N2
-    desenha uma unica LINE sem quebra ate o proximo divisor de painel, mas
-    nao ha parede continua ali e o sarrafo fica sem apoio visual do outro
-    lado (achado 2026-09-09, V301.B#1/B#2: pontos do dono — sarrafo deveria
-    fechar no proprio limite do degrau). Dois casos simetricos conforme o
-    lado que a zona alta fica:
-    - Zona alta ANTES do degrau (degrau_start > x0): corta o sarrafo que
-      NASCE antes do limite e cruza pra dentro do degrau — mantem a ponta
-      da zona alta, remove a ponta do degrau (acha 2026-09-09, UNIT.B#8).
-    - Zona alta DEPOIS do degrau (degrau_end < body_end): corta o sarrafo
-      que NASCE dentro do degrau e cruza pra fora, pra zona alta — mantem
-      a ponta da zona alta, remove a ponta do degrau (achado 2026-09-09,
-      CONT.V301.B x0=11148.6: sarrafo 244->411 devia ser so 307->411).
-    Sarrafos que já nascem dentro da MESMA zona (ex. N2 real 244–398.5 @
-    ombro, dentro do proprio degrau) continuam intactos, sem essa regra.
     """
     attrs = {'layer': 'SARR_2.2x7'}
     ban = [float(y) for y in (frame_ys or [])]
-    y_max = None if h_face is None else float(y0) + float(h_face) + 0.5
-    _div_xs = [float(v) for v in (panel_div_xs or [])]
-
-    def _snap_to_div(x):
-        # Encosta a ponta do sarrafo na uniao real do painel quando cai
-        # perto mas nao exata — mesma logica do encosto de ombro, so' que
-        # no eixo X (achado 2026-09-09, SEGMENTO 2B: uniao do sarrafo em
-        # 256.5 vs uniao real do painel em 244, 12.5cm sem motivo — o
-        # dono: "deve ser a uniao identica a posicao da uniao do painel").
-        if not _div_xs:
-            return x
-        best = min(_div_xs, key=lambda d: abs(d - x))
-        return best if abs(best - x) < 13.0 else x
-
     n = 0
     for spec in sarrafos_horizontais or []:
         try:
@@ -662,164 +547,20 @@ def draw_sarr_lv_horizontal_from_n2(msp, x0, y0, sarrafos_horizontais,
             x2 = x0 + float(spec.get('x_right', 0) or 0)
         except Exception:
             continue
-        x1 = _snap_to_div(x1)
-        x2 = _snap_to_div(x2)
-        # Encosta no ombro real (linha Painéis do degrau, calculada por
-        # geometria) quando o sarrafo extraido do N2 cai perto mas nao
-        # exato — o motor nao deve reproduzir milimetros de imprecisao
-        # do traco humano quando ja tem a altura certa calculada em
-        # outro lugar (achado 2026-09-09, dono: sarrafo e linha do
-        # painel do mesmo ombro saiam 0.4-1.4cm desalinhados um do
-        # outro sem motivo nenhum).
-        if y_shoulder is not None and abs(y - float(y_shoulder)) < 2.0:
-            y = float(y_shoulder)
-        if (
-            degrau_start is not None and y_shoulder is not None
-            and x1 < degrau_start - 0.5 and x2 > degrau_start + 0.5
-            and abs(y - float(y_shoulder)) < 1.1
-        ):
-            x2 = float(degrau_start)
-        if (
-            degrau_end is not None and y_shoulder is not None
-            and x1 < degrau_end - 0.5 and x2 > degrau_end + 0.5
-            and abs(y - float(y_shoulder)) < 1.1
-        ):
-            x1 = float(degrau_end)
-        # Sarrafo horizontal nao pode passar do sarrafo vertical de
-        # extremidade rumo a parede — o corner sarrafo ja fecha o vao com
-        # o inset padrao (SARR_INSET_H), continuar ate a parede so cria
-        # sobreposicao visual sem função nenhuma (achado 2026-09-10,
-        # UNIT.A#4/V301.A#6: 4 sarrafos horizontais indo ate a parede em
-        # vez de parar no sarrafo vertical direito, 7cm antes — pedido do
-        # dono: "devem ir ate o sarrafo vertical das extremidades e nao
-        # ate as paredes", regra universal pros dois lados).
-        if left_sarr_x is not None and x1 < float(left_sarr_x) - 0.5:
-            x1 = float(left_sarr_x)
-        if right_sarr_x is not None and x2 > float(right_sarr_x) + 0.5:
-            x2 = float(right_sarr_x)
-        # Mesma regra, generalizada: qualquer sarrafo vertical INTERNO (nao
-        # so as extremidades) que cubra esta altura e fique estritamente
-        # dentro do vao atual tambem e um limite — o horizontal para no
-        # primeiro que encontrar, nao atravessa (achado 2026-09-10,
-        # UNIT.A#1/V301.A#2 e V301.A: dono confirmou "mesma relacao... so
-        # que do outro lado", regra universal, nao so extremidade).
-        for _vx, _vyb, _vyt in (vertical_specs or []):
-            # Cobertura estrita: um sarrafo EXATAMENTE na altura do topo do
-            # vertical (nao alguns cm abaixo) esta na transicao pro proximo
-            # vertical mais alto, nao "coberto" por este — sem essa
-            # margem, o 4o sarrafo (na mesma altura que o topo do vertical
-            # curto) tambem seria cortado por engano (achado 2026-09-10,
-            # V301.A: handle 33F em y=65 = topo exato do vertical 301.5,
-            # nao deveria parar nele, e sim continuar ate o vertical
-            # 398.5, mais alto).
-            if not (_vyb - 1.0 <= y < _vyt - 0.5):
-                continue
-            if x1 < _vx < x2:
-                # Mantem o lado LONGO (o vao real do sarrafo), apara so o
-                # pedaco curto que ultrapassa o vertical — inverti isso
-                # antes e ficava com o cotoco de 7cm errado em vez do vao
-                # certo (achado 2026-09-10, dono: "manteve a parte de 7cm
-                # ao inves da parte correta"). Vertical mais perto do
-                # inicio (x1) => o pedaco curto e o INICIO, entao avanca
-                # x1 ate o vertical. Mais perto do fim (x2) => o pedaco
-                # curto e o FIM, entao recua x2 ate o vertical.
-                if (_vx - x1) <= (x2 - _vx):
-                    x1 = _vx
-                else:
-                    x2 = _vx
         if x2 - x1 < 4.0:
-            continue
-        if y_max is not None and y > y_max:
             continue
         if any(abs(y - yb) < 1.1 for yb in ban):
             continue
         msp.add_line((x1, y), (x2, y), dxfattribs=attrs)
         n += 1
-
-    # ── Tampa de ponta em abertura de pilar ────────────────────────────────
-    # Em painel SARRAFEADO a passagem do pilar nao e' desenhada como retangulo
-    # tracejado (esse e' o outro modo, ver `holes`): ela aparece como a
-    # INTERRUPCAO da corrida de sarrafos, e cada sarrafo interrompido leva uma
-    # tampa vertical de 7cm na ponta. A interrupcao ja' vinha da ficha
-    # (`x_left` > 0) e o N4 ja' respeitava, mas desenhava a corrida sem tampa
-    # (achado 2026-09-11, V13 face A: abertura de 78, handles 53 e 54 do N2).
-    #
-    # A tampa e' por SARRAFO (banda de 7cm), nao por linha: as linhas a ate'
-    # 7.5 uma da outra sao as duas bordas do mesmo sarrafo e dividem a tampa.
-    # Linha solta ganha os 7cm medidos para o lado da face mais proxima.
-    #
-    # NOTA: painel GRADEADO tem comportamento proprio para a mesma abertura —
-    # ainda sem caso observado (o 13_PAV inteiro e' Sarrafeado). Quando
-    # aparecer, registrar o segundo modo aqui.
-    por_y: dict = {}
-    for spec in sarrafos_horizontais or []:
-        try:
-            yo = float(spec.get('y_offset', 0) or 0)
-            xl = float(spec.get('x_left', 0) or 0)
-            xr = float(spec.get('x_right', 0) or 0)
-        except Exception:
-            continue
-        a, b = por_y.get(yo, (xl, xr))
-        por_y[yo] = (min(a, xl), max(b, xr))
-
-    if por_y:
-        # So' a ponta ESQUERDA. Inferir interrupcao a direita por "terminou
-        # antes da corrida mais longa" gera tampa inventada: o sarrafo do
-        # painel de fechamento fino acaba em 200 porque o painel tem 200 de
-        # largura, nao porque foi interrompido — e o N2 nao tem vertical ali
-        # (medido na V13). Abertura encostada na ponta direita fica pendente
-        # de um caso real que mostre como ela e' desenhada.
-        # Sarrafo ja' comeca afastado da borda por causa do inset de canto
-        # (SARR_INSET_H). Tratar esse recuo normal como interrupcao gerava
-        # tampa em quase toda viga (medido: 601 tampas inventadas nas 32).
-        # Interrupcao e' a corrida que comeca MUITO depois das outras da
-        # mesma face — a referencia e' o inicio natural da face.
-        base = min(a for a, _b in por_y.values())
-        for lado in ('esq',):
-            cortados = sorted(y for y, (a, _b) in por_y.items()
-                              if a > base + 10.0)
-            bandas: list = []
-            for yo in cortados:
-                if bandas and yo - bandas[-1][-1] <= 7.5:
-                    bandas[-1].append(yo)
-                else:
-                    bandas.append([yo])
-            for banda in bandas:
-                ref = por_y[banda[0]]
-                x_cap = x0 + (ref[0] if lado == 'esq' else por_y[banda[0]][1])
-                if len(banda) >= 2:
-                    yb, yt = y0 + banda[0], y0 + banda[-1]
-                else:
-                    unico = banda[0]
-                    if unico <= 7.5:
-                        yb, yt = y0 + unico - 7.0, y0 + unico
-                    else:
-                        yb, yt = y0 + unico, y0 + unico + 7.0
-                # A tampa fecha a ponta de UM sarrafo, entao tem a espessura
-                # dele (2.2x7 -> 7). Banda fora dessa faixa e' agrupamento
-                # errado, nao abertura: sem esse guarda saiam tampas de 1.0 e
-                # 2.0 na V302, alturas que nao existem no N2 dela (so' ha'
-                # vertical de 7/43/44/45/59). Melhor nao desenhar do que
-                # inventar.
-                if not (5.0 <= yt - yb <= 9.0):
-                    continue
-                msp.add_line((x_cap, yb), (x_cap, yt), dxfattribs=attrs)
-                n += 1
     return n
 
 
 def draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths,
                                 draw_left=False, draw_right=False,
                                 sarrafos_verticais=None,
-                                ensure_extremities=False,
-                                y_shoulder=None):
-    """Sarrafo vertical 2.2x7 — reproduz o N2; extremidades só se a ficha pedir.
-
-    ``y_shoulder``: mesma logica de encosto de `draw_sarr_lv_horizontal_from_n2`
-    — quando y1/y2 extraidos do N2 caem perto do ombro real (calculado por
-    geometria) mas nao exatos, encosta neles em vez de reproduzir milimetros
-    de imprecisao do traco humano (achado 2026-09-09).
-    """
+                                ensure_extremities=False):
+    """Sarrafo vertical 2.2x7 — reproduz o N2; extremidades só se a ficha pedir."""
     attrs = {'layer': 'SARR_2.2x7'}
     L = sum(panel_widths)
     if L < 2 * SARR_INSET_H:
@@ -853,20 +594,6 @@ def draw_sarr_lv_vertical_pairs(msp, x0, y0, h, panel_widths,
                 y2 = y0 + float(spec.get('y_top', h) or h)
             except Exception:
                 continue
-            if y_shoulder is not None:
-                if abs(y1 - float(y_shoulder)) < 2.0:
-                    y1 = float(y_shoulder)
-                if abs(y2 - float(y_shoulder)) < 2.0:
-                    y2 = float(y_shoulder)
-            # Mesmo encosto no topo real do corpo (y0+h): o sarrafo
-            # vertical extraido do N2 as vezes fica 1cm curto do topo
-            # verdadeiro por imprecisao do traco humano — o motor conhece
-            # a altura certa, nao reproduz o milimetro perdido (achado
-            # 2026-09-10, V301.B: sarrafos internos e da extremidade
-            # esquerda paravam em y_top-1, nao no P3/topo real).
-            _y_top_real = float(y0) + float(h)
-            if abs(y2 - _y_top_real) < 2.0:
-                y2 = _y_top_real
             if y2 - y1 < 8.0:
                 continue
             if _near_panel_div(x):
@@ -895,122 +622,41 @@ def _degrau_shoulder_y(y0, h, panels):
     return y_degrau
 
 
-def _degrau_zone_bounds_x(x0, h, panels):
-    """Intervalo X ocupado pelos painéis curtos alinhados pelo topo."""
-    x = float(x0)
-    spans = []
-    for panel in panels:
-        width = float(panel.get('width', 0) or 0)
-        if _is_degrau_panel(panel, h):
-            spans.append((x, x + width))
-        x += width
-    if not spans:
-        return None
-    return min(a for a, _b in spans), max(b for _a, b in spans)
-
-
 def _degrau_zone_end_x(x0, h, panels):
-    bounds = _degrau_zone_bounds_x(x0, h, panels)
-    return bounds[1] if bounds else float(x0)
+    x = float(x0)
+    for panel in panels:
+        if not _is_degrau_panel(panel, h):
+            break
+        x += float(panel.get('width', 0) or 0)
+    return x
 
 
-def _small_panel_start_x(x0, h, panels, threshold=28.0):
-    """Inicio da faixa de marco (estreitos finais apos bay util).
-
-    Nao corta no meio: 22.5 apos 244 (B) nao e marco.
-    Marco apos bay >=50 (A: 111|19|21.2; B: 52.5|21.7|26.2).
-    """
-    plist = list(panels or [])
-    if not plist:
-        return None
-    widths = [float(p.get('width', 0) or 0) for p in plist]
-    n = len(widths)
-    i1 = n
-    while i1 > 0:
-        pw = widths[i1 - 1]
-        if pw <= 0:
-            i1 -= 1
-            continue
-        if pw < threshold and not _is_degrau_panel(plist[i1 - 1], h):
-            i1 -= 1
-            continue
-        break
-    if i1 <= 0 or i1 >= n:
-        return None
-    if widths[i1 - 1] < 50.0:
-        return None
-    return float(x0) + sum(widths[:i1])
+def _small_panel_start_x(x0, h, panels, threshold=25.0):
+    x = float(x0)
+    for panel in panels:
+        pw = float(panel.get('width', 0) or 0)
+        if not _is_degrau_panel(panel, h) and pw < threshold:
+            return x
+        x += pw
+    return None
 
 
-def _leading_marco_end_x(x0, h, panels, threshold=28.0):
-    """Fim da faixa de marco a ESQUERDA (espelho: 21.2|19|111|…|244).
-
-    Simetrico de `_small_panel_start_x`. Evita V full nos estreitos iniciais
-    (MARCO_MID_V / extra_g em UNITs espelho).
-    """
-    plist = list(panels or [])
-    if not plist:
-        return None
-    widths = [float(p.get('width', 0) or 0) for p in plist]
-    n = len(widths)
-    i0 = 0
-    while i0 < n:
-        pw = widths[i0]
-        if pw <= 0:
-            i0 += 1
-            continue
-        if pw < threshold and not _is_degrau_panel(plist[i0], h):
-            i0 += 1
-            continue
-        break
-    if i0 <= 0 or i0 >= n:
-        return None
-    # bay util apos o marco deve ser robusto (>=50), senao e so painel curto
-    if widths[i0] < 50.0:
-        return None
-    return float(x0) + sum(widths[:i0])
-
-
-def _marco_extension_cm(marco_laje_sup, laje_sup, *, has_marco_strip=None):
-    """Altura do marco acima do corpo.
-
-    laje_sup>=12: real. Residual 15 (laje_sup=7 + flag) so se ha strip de
-    paineis estreitos (trailing/leading). Sem strip, residual inventava
-    15/157 em faces altas UNIT (h=142, marco flag sem geometria).
-    """
+def _marco_extension_cm(marco_laje_sup, laje_sup):
     if not marco_laje_sup:
         return 0.0
     ls = float(laje_sup or 0)
-    if ls >= 12.0:
-        return ls
-    if has_marco_strip is False:
-        return 0.0
-    return 15.0
+    return ls if ls >= 12.0 else 15.0
 
 
 def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
-                          marco_laje_sup=False, laje_sup=0.0,
-                          marco_h_min=0.0):
-    """Contorno Painéis fiel ao N2 — G honest (miss→0, extra→0).
+                          marco_laje_sup=False, laje_sup=0.0):
+    """Contorno Painéis espelhando o N2: ombro do degrau, topo contínuo e marco final.
 
-    Regras anti-phantom (ShareX + ledger V301 A/B):
-    - A: 1º divisor (244) SO faixa alta. NUNCA V65 no vão.
-    - B: 1º divisor + 2º painel estreito (<25): N2 TEM V65 em ~244.7
-      (recesso real) — so nesse caso desenha base→ombro.
-    - H curtas so entre divisores BAIXOS consecutivos (272.7–294.5 / 244–266),
-      nunca sob o vao vazio A entre 0 e 244.
-    - body_end (small_x): V so y0→y_top (N2). NUNCA sobe ao y_marco —
-      isso inventava parede cheia na junção corpo|marco (extra direita).
-    - Marco: H no 1º painel + continuous strip y0/y_marco; SEM H multi-nivel
-      no corpo 0→body_end (N2 B nao tem H@y_m15/@y_marco no corpo).
-    - V7 residual so no divisor ~244 (degrau) e na borda do 1º marco —
-      NUNCA em body_end (N2 nao tem).
+    Degrau (ex. V301.A): o vazio sob o ombro NÃO tem parede esquerda/direita
+    inventadas — só faixa superior (ombro→topo) no 1º divisor e faixas
+    inferiores (base→ombro) nos divisores do degrau; fundo só após o ombro.
     """
     a = {'layer': 'Painéis'}
-    # layer semantico = laje (SCO-___-LAJ), mas cor visual = a mesma rosa/
-    # crimson do COTA (241) que ja marca a faixa do marco no desenho — pedido
-    # do dono ao apontar a cota vizinha como referencia (2026-08-29).
-    a_laje = {'layer': 'SCO-___-LAJ', 'color': 241}
     if not panels:
         return
     comprimento = sum(float(p.get('width', 0) or 0) for p in panels)
@@ -1018,152 +664,18 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
         return
     y_top = y0 + h
     y_shoulder = _degrau_shoulder_y(y0, h, panels)
-    degrau_bounds = _degrau_zone_bounds_x(x0, h, panels)
-    degrau_start = degrau_bounds[0] if degrau_bounds else float(x0)
-    degrau_end = degrau_bounds[1] if degrau_bounds else float(x0)
+    degrau_end = _degrau_zone_end_x(x0, h, panels)
     has_degrau = y_shoulder is not None and degrau_end > x0 + 0.5
-    # Ombro que passa de y_top: o proprio degrau tem materia real acima de
-    # h_face (achado 2026-08-31, V301.B#1 — hachura de reaproveitamento na
-    # faixa do marco). A borda unica em y_top nao pode atravessar essa
-    # zona, senao corta a hachura no meio (linha fantasma).
-    _degrau_h1 = 0.0
-    if has_degrau:
-        _deg0 = next((pp for pp in panels if _is_degrau_panel(pp, h)), None)
-        if _deg0 is not None:
-            _degrau_h1 = float(_deg0.get('height1', 0) or 0)
-    _degrau_tall = bool(
-        has_degrau and y_shoulder is not None
-        and y_shoulder + _degrau_h1 > y_top + 0.5
-    )
     small_x = _small_panel_start_x(x0, h, panels)
-    lead_x = _leading_marco_end_x(x0, h, panels)
-    # has_strip: trailing OU leading — so residual marco 15 / cotas
-    has_strip = small_x is not None or lead_x is not None
-    marco_h_base = _marco_extension_cm(
-        marco_laje_sup, laje_sup, has_marco_strip=has_strip,
-    )
-    marco_h = marco_h_base
-    # Piso de altura vindo dos proprios dados de sarrafo/vertical (replay N2):
-    # quando o N2 real tem sarrafo/vertical mais alto que laje_sup capturou,
-    # a parede tem que fechar ate la — nunca inventa acima do que os dados
-    # trazem (achado 2026-08-29, UNIT.B#7: marco real ate +33.8, laje_sup so
-    # registrava 15, parede/H de topo ficavam faltando no gate).
-    # Quando o piso do sarrafo VENCE o laje_sup capturado, marco_h_base nao
-    # e' descartado — ele passa a descrever uma faixa SEPARADA e mais alta
-    # (achado 2026-08-31, V301.B#1: N2 real tem 2 hachuras distintas, nao 1:
-    # REAPROVEITAMENTO em 98.4-142.4 [painel] e AR-CONC em 142.4-157.4
-    # [laje_sup, LARGURA CHEIA] — o vazio de concreto vive ACIMA do marco
-    # real, nao entre h_face e o marco; usar y_top->y_marco aqui juntava as
-    # duas faixas erradas, sinalizando "vazio maior que a laje").
-    # So' trata como faixa SEPARADA (aditiva) quando marco_h_min vence
-    # marco_h_base por uma margem real (>8cm) — perto disso e' RUIDO da
-    # mesma faixa (sarrafo real bate perto de onde a laje_sup ja' coloca o
-    # topo), nao uma parede extra abaixo de uma laje adicional. Tomar o
-    # maximo mesmo fora do modo aditivo (tentativa anterior) empurrava a
-    # faixa de concreto ~4-14cm alem do y real da laje no N2 (achado
-    # 2026-09-08, V301.B nominal 5-segmentos: marco_h_min so' ~4cm acima de
-    # marco_h_base=15, mas virava marco_h=18.9 e deslocava a hachura).
-    _marco_overridden = float(marco_h_min or 0) > marco_h + 8.0
-    if _marco_overridden:
-        marco_h = float(marco_h_min)
-    y_marco = y_top + marco_h if marco_h > 0.5 else y_top
-    y_m15 = y_top + 15.0 if marco_h >= 15.0 else y_marco
-    thick_marco = marco_h >= 18.0  # B-style multi-level
+    marco_h = _marco_extension_cm(marco_laje_sup, laje_sup)
+    cap_inset = 3.0
 
-    def _close_wall_to_marco(x, y_from):
-        """Fecha a parede em x: y_from->y_top no layer do painel; y_top->y_marco
-        (se houver marco) no layer da laje — o trecho acima do corpo do painel
-        pertence estruturalmente ao marco da laje superior, nao ao painel
-        (2026-08-29, correcao de layer pedida pelo dono via pontos no N4)."""
-        y_from = min(float(y_from), y_top)
-        msp.add_line((x, y_from), (x, y_top), dxfattribs=a)
-        if y_marco > y_top + 0.01:
-            msp.add_line((x, y_top), (x, y_marco), dxfattribs=a_laje)
+    if has_degrau:
+        # N2: parede esquerda só na faixa alta (não fecha o vão do degrau).
+        msp.add_line((x0, y_shoulder), (x0, y_top), dxfattribs=a)
+    else:
+        msp.add_line((x0, y0), (x0, y_top), dxfattribs=a)
 
-    # Parede esquerda em x0. No ramo espelhado (degrau a direita) o bloco
-    # abaixo desenha a parede cheia — nao duplicar aqui (vira V extra na
-    # esquerda, colada nas cotas).
-    _mirrored = has_degrau and degrau_start > x0 + 0.5
-    if not _mirrored:
-        if has_degrau:
-            # Mesmo raciocinio do ramo sem degrau: a parede real fecha ate
-            # y_marco, nao so y_top (achado validado em CONT.V301.A,
-            # 2026-08-28 — o degrau muda so onde a parede COMECA, y_shoulder,
-            # nao onde ela deveria fechar em cima).
-            _close_wall_to_marco(x0, y_shoulder)
-        else:
-            # Fecha ate y_marco (nao so y_top): a parede lateral real do N2
-            # continua ate a linha de topo do marco/laje_sup — parar em y_top
-            # deixa o vao y_top->y_marco aberto (achado validado ponto-a-
-            # ponto em V301.A e CONT.V301.A, 2026-08-27/28).
-            _close_wall_to_marco(x0, y0)
-
-    body_end = float(small_x) if small_x is not None else float(x0 + comprimento)
-    full_end = float(x0 + comprimento)
-
-    # Degrau espelhado: corpo cheio à esquerda e painéis curtos à direita.
-    # O motor antigo assumia sempre degrau começando em x0 e, por isso,
-    # fechava o vazio com fundo/verticais de painel indevidos.
-    if has_degrau and degrau_start > x0 + 0.5:
-        # Com marco a esquerda, a parede util e lead_x (N2). V em x0 cola
-        # nas cotas 14/7 e vira "linha de painel extra na esquerda".
-        if lead_x is None:
-            # Fecha ate y_marco pelo mesmo motivo do ramo principal: e a
-            # parede real do corpo (2026-08-28).
-            _close_wall_to_marco(x0, y0)
-        x_cur = float(x0)
-        for idx, panel in enumerate(panels):
-            pw = float(panel.get('width', 0) or 0)
-            x_right = x_cur + pw
-            if x_right >= body_end - 0.1:
-                break
-            cur_deg = _is_degrau_panel(panel, h)
-            next_deg = _is_degrau_panel(panels[idx + 1], h)
-            if lead_x is not None and x_right < lead_x - 0.1:
-                x_cur = x_right
-                continue
-            if cur_deg and next_deg:
-                # Divisao real entre paineis coplanares: somente dentro da
-                # altura do painel elevado, nunca atravessando o vazio.
-                msp.add_line((x_right, y_shoulder), (x_right, y_top), dxfattribs=a)
-            elif (not cur_deg) and next_deg:
-                # Interface corpo-alto | faixa-curta: divisor para no ombro
-                # e nao atravessa os sarrafos internos do painel alto.
-                msp.add_line((x_right, y0), (x_right, y_shoulder), dxfattribs=a)
-            else:
-                msp.add_line((x_right, y0), (x_right, y_top), dxfattribs=a)
-            x_cur = x_right
-        last_body_deg = any(
-            _is_degrau_panel(panel, h)
-            and abs(
-                float(x0)
-                + sum(float(p.get('width', 0) or 0) for p in panels[:idx + 1])
-                - body_end
-            ) < 0.2
-            for idx, panel in enumerate(panels)
-        )
-        _close_wall_to_marco(body_end, y_shoulder if last_body_deg else y0)
-        msp.add_line((x0, y_top), (body_end, y_top), dxfattribs=a)
-        msp.add_line((x0, y0), (degrau_start, y0), dxfattribs=a)
-        msp.add_line((degrau_start, y_shoulder), (degrau_end, y_shoulder), dxfattribs=a)
-        if degrau_end < body_end - 0.5:
-            msp.add_line((degrau_end, y0), (body_end, y0), dxfattribs=a)
-        if _marco_overridden and marco_h_base > 0.5:
-            # Largura = body_end (fechamento estrutural real), NUNCA
-            # comprimento total — a faixa de laje_sup pode cobrir só os
-            # segmentos ate' o corpo (ex. 3 dos 5 numa ocorrencia com faixa
-            # de marco estreita no final); comprimento inventava hachura
-            # alem da propria laje real do N2 (achado 2026-09-08, dono
-            # apontou "hatch maior que a area da laje" com pontos exatos
-            # nas linhas SCO-___-LAJ/Painéis que marcam o corte real).
-            _draw_vazio_concreto(
-                msp, x0, y_marco, body_end, y_marco + marco_h_base,
-            )
-        elif marco_h > 0.5:
-            _draw_vazio_concreto(msp, x0, y_top, body_end, y_marco)
-        return
-
-    low_div_xs = []  # so divisores com V base→ombro (nao o phantom A@244)
     x_cur = float(x0)
     for idx, panel in enumerate(panels):
         pw = float(panel.get('width', 0) or 0)
@@ -1171,155 +683,83 @@ def _draw_panel_frame_n2(msp, x0, y0, h, panels, *,
         is_last = idx >= len(panels) - 1
         cur_deg = _is_degrau_panel(panel, h)
         next_deg = (not is_last) and _is_degrau_panel(panels[idx + 1], h)
-        next_pw = float(panels[idx + 1].get('width', 0) or 0) if not is_last else 0.0
         in_small = small_x is not None and x_cur >= small_x - 0.1
 
-        if in_small:
-            x_cur = x_right
-            continue
-
-        is_body_end = abs(x_right - body_end) < 0.15
-
-        if is_body_end:
-            # Fecha ate y_marco pelo mesmo motivo da parede esquerda: e a
-            # parede real do corpo, precisa fechar contra a linha de topo
-            # do marco/laje_sup (nao e "V extra do vazio").
-            _close_wall_to_marco(x_right, y0)
+        if is_last:
+            # N2: vertical final do 2º marco em um só trecho corpo+marco.
+            y_hi = y_top + (marco_h if in_small or small_x is not None else 0.0)
+            msp.add_line((x_right, y0), (x_right, y_hi), dxfattribs=a)
         elif has_degrau and cur_deg and next_deg:
-            # Divisor entre paineis elevados: existe na materia do painel
-            # (ombro->topo), mas nao e parede do vazio (base->ombro).
-            h1_cur = float(panel.get('height1', 0) or 0)
-            # Direcao do divisor: so' o 1o painel da unidade (idx==0) fecha
-            # ombro->topo (mesmo padrao ja usado no ramo "cur_deg and not
-            # next_deg" logo abaixo, `y_shoulder if idx==0 else y0`) —
-            # divisores seguintes fecham base->ombro. Tentativa anterior
-            # usava presenca de reuse_regions no painel atual pra decidir a
-            # direcao, mas isso quebrou o caso oposto: CONT.V301.B h=104.3
-            # (N2 handle "13B", painel0->painel1) vai ombro->topo mesmo com
-            # o painel0 NAO tendo reuse_region na faixa do ombro (so' no
-            # marco-cap) — a regra certa e' por POSICAO (1o divisor), nao
-            # por hachura (achado 2026-09-10, dono: linha do N2 sumiu do
-            # N4 depois do fix anterior).
+            # 1º divisor (ex. x=244): só faixa alta. Demais no degrau: só baixa.
             if idx == 0:
-                if y_shoulder + h1_cur > y_top + 0.5:
-                    # O proprio painel (ombro acima de h_face, achado
-                    # 2026-08-31 V301.B#1) tem materia real que passa de
-                    # y_top — fecha ate o topo verdadeiro (y_marco), nao so
-                    # ate y_top, senao a parede fica curta contra a propria
-                    # hachura do painel.
-                    _close_wall_to_marco(x_right, y_shoulder)
-                else:
-                    msp.add_line((x_right, y_shoulder), (x_right, y_top), dxfattribs=a)
+                msp.add_line((x_right, y_shoulder), (x_right, y_top), dxfattribs=a)
             else:
                 msp.add_line((x_right, y0), (x_right, y_shoulder), dxfattribs=a)
-                low_div_xs.append(x_right)
         elif has_degrau and cur_deg and not next_deg:
-            msp.add_line(
-                (x_right, y_shoulder if idx == 0 else y0),
-                (x_right, y_top if idx == 0 else y_shoulder), dxfattribs=a,
-            )
-            low_div_xs.append(x_right)
+            # Fim da zona de degrau (ex. x=294.5): só base→ombro.
+            msp.add_line((x_right, y0), (x_right, y_shoulder), dxfattribs=a)
         elif has_degrau and (not cur_deg) and next_deg:
             msp.add_line((x_right, y0), (x_right, y_shoulder), dxfattribs=a)
-            low_div_xs.append(x_right)
+        elif in_small and marco_h > 0:
+            # 1º marco: um vertical corpo+marco (sem stub acima da tampa).
+            msp.add_line((x_right, y0), (x_right, y_top + marco_h), dxfattribs=a)
         else:
             msp.add_line((x_right, y0), (x_right, y_top), dxfattribs=a)
         x_cur = x_right
 
-    # H curtas entre divisores baixos consecutivos (N2 A: 21.8 @280; B: 22.5 @252)
-    if has_degrau and len(low_div_xs) >= 2:
-        xs = sorted(low_div_xs)
-        for xa, xb in zip(xs, xs[1:]):
-            span = xb - xa
-            if 15.0 <= span <= 35.0:
-                msp.add_line((xa, y0), (xb, y0), dxfattribs=a)
-                msp.add_line((xa, y_shoulder), (xb, y_shoulder), dxfattribs=a)
-
     if has_degrau:
         msp.add_line((x0, y_shoulder), (degrau_end, y_shoulder), dxfattribs=a)
 
-    # Borda superior continua (0->body_end) numa linha so — N2 nao quebra
-    # essa borda no limite do degrau (material topo-alinhado chega em
-    # y_top tanto na zona baixa quanto na alta). Desenhar em 2 segmentos
-    # (0->degrau_end + degrau_end->body_end) produzia 2 pedacos que nao
-    # batiam com a linha unica do N2 (294.5+111 vs 405.5 real), sinalizando
-    # "EXTRA estrutural" falso em V301.A/B mesmo com a soma identica.
-    # Excecao: ombro que passa de y_top (_degrau_tall) — aqui a zona do
-    # degrau NAO tem materia em y_top (ela esta mais acima, no marco), e
-    # uma linha atravessando cortaria a propria hachura do painel ao meio.
-    if _degrau_tall:
-        if degrau_start > x0 + 0.5:
-            msp.add_line((x0, y_top), (degrau_start, y_top), dxfattribs=a)
-        if body_end > degrau_end + 0.5:
-            msp.add_line((degrau_end, y_top), (body_end, y_top), dxfattribs=a)
+    x_end = x0 + comprimento
+    if small_x is not None:
+        # Marcos: gap 3 cm, topo de corpo só no 1º marco, tampa/fundo com
+        # overshoot +3 cm — SEM duplicar H parciais nem ticks em X (ruído).
+        first_small_w = 0.0
+        x_scan = float(x0)
+        for panel in panels:
+            pw = float(panel.get('width', 0) or 0)
+            if x_scan >= small_x - 0.1 and not _is_degrau_panel(panel, h):
+                first_small_w = pw
+                break
+            x_scan += pw
+        if first_small_w <= 0:
+            first_small_w = 19.0
+        x_ml = small_x + cap_inset
+        x_m1 = x_ml + first_small_w          # 427.5
+        x_mr = x_end + cap_inset             # 448.7
+
+        msp.add_line((x0, y_top), (small_x, y_top), dxfattribs=a)
+        # Topo corpo só no 1º marco (não atravessa o 2º)
+        msp.add_line((x_ml, y_top), (x_m1, y_top), dxfattribs=a)
+        if marco_h > 0:
+            y_marco = y_top + marco_h
+            # Uma tampa contínua com overshoot (sem H parcial duplicada)
+            msp.add_line((x_ml, y_marco), (x_mr, y_marco), dxfattribs=a)
     else:
-        msp.add_line((x0, y_top), (body_end, y_top), dxfattribs=a)
-    if has_degrau and degrau_end < body_end - 0.5:
-        msp.add_line((degrau_end, y0), (body_end, y0), dxfattribs=a)
+        msp.add_line((x0, y_top), (x_end, y_top), dxfattribs=a)
+
+    if has_degrau and degrau_end < x_end - 0.5:
+        # Fundo só sob a parte alta (não sob o vão do degrau).
+        if small_x is not None:
+            first_small_w = 0.0
+            x_scan = float(x0)
+            for panel in panels:
+                pw = float(panel.get('width', 0) or 0)
+                if x_scan >= small_x - 0.1 and not _is_degrau_panel(panel, h):
+                    first_small_w = pw
+                    break
+                x_scan += pw
+            if first_small_w <= 0:
+                first_small_w = 19.0
+            x_ml = small_x + cap_inset
+            x_mr = x_end + cap_inset
+            msp.add_line((degrau_end, y0), (small_x, y0), dxfattribs=a)
+            # Um fundo contínuo com overshoot (sem H parcial duplicada)
+            msp.add_line((x_ml, y0), (x_mr, y0), dxfattribs=a)
+        else:
+            msp.add_line((degrau_end, y0), (x_end, y0), dxfattribs=a)
     elif not has_degrau:
-        msp.add_line((x0, y0), (body_end, y0), dxfattribs=a)
-
-    # N2 A/B: SEM H de marco no corpo 0→body_end.
-
-    if _marco_overridden and marco_h_base > 0.5:
-        # body_end, nao comprimento — ver comentario no ramo espelhado acima.
-        _draw_vazio_concreto(
-            msp, x0, y_marco, body_end, y_marco + marco_h_base,
-        )
-    elif marco_h > 0.5:
-        _draw_vazio_concreto(msp, x0, y_top, body_end, y_marco)
-
-    # ── marco strip DIR (trailing) — V7 stub so (degrau grosso) ──
-    # A tampa H solta (body_end+3 -> full_end em y_marco) foi removida
-    # (2026-08-27/28, validado ponto-a-ponto em V301.A e CONT.V301.A): o N2
-    # nao tem parede nesse vao, so cota — a parede real do corpo ja fecha
-    # ate y_marco via `is_body_end` acima.
-    if small_x is not None and full_end > body_end + 0.5 and marco_h > 0.5:
-        # B: V7 so no divisor ~244 (degrau). NUNCA body_end / full_end.
-        if thick_marco and has_degrau:
-            y_v7_bot = float(y_marco) - 7.0
-            pw0 = float(panels[0].get('width', 0) or 0)
-            if pw0 >= 150.0:
-                vx = float(x0) + pw0
-                msp.add_line((vx, y_v7_bot), (vx, y_marco), dxfattribs=a)
-
-
-
-
-def _draw_degrau_top_hatch(msp, x0, y0, h, panels):
-    """ANSI31: faixa ombro->topo do degrau + faixa topo do corpo (N2)."""
-    y_shoulder = _degrau_shoulder_y(y0, h, panels)
-    degrau_end = _degrau_zone_end_x(x0, h, panels)
-    y_top = y0 + h
-    small_x = _small_panel_start_x(x0, h, panels)
-    body_end = float(small_x) if small_x is not None else float(
-        x0 + sum(float(p.get("width", 0) or 0) for p in (panels or []))
-    )
-
-    def _hatch(pts):
-        if not DRAW_HATCHES_PAINEL:
-            return
-        try:
-            ht = msp.add_hatch(dxfattribs={"layer": "Hachura", "color": 8})
-            ht.set_pattern_fill("ANSI31", scale=0.4)
-            ht.paths.add_polyline_path(pts, is_closed=True)
-        except Exception:
-            pass
-
-    if y_shoulder is not None and degrau_end > x0 + 1.0 and y_top - y_shoulder >= 2.0:
-        _hatch([
-            (x0, y_shoulder), (degrau_end, y_shoulder),
-            (degrau_end, y_top), (x0, y_top),
-        ])
-    # faixa topo pos-degrau (densifica B / corpo cheio)
-    if degrau_end is not None and body_end > degrau_end + 5.0:
-        y1 = y_top - min(18.0, h * 0.25)
-        if y1 < y_top - 1.0:
-            _hatch([
-                (degrau_end, y1), (body_end, y1),
-                (body_end, y_top), (degrau_end, y_top),
-            ])
-
+        msp.add_line((x0, y0), (x_end, y0), dxfattribs=a)
 
 
 def _draw_degrau_step_verticals(msp, x0, y0, h, panels):
@@ -1353,7 +793,9 @@ def _draw_marco_laje_sup(msp, x0, y0, h, panels, laje_sup, skip_layers=None):
         ]
         msp.add_lwpolyline(pts, close=True, dxfattribs=a)
         if hatch_ok:
-            pass  # N4: hachura somente em vazios; laje permanece como contorno.
+            ht = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
+            ht.set_pattern_fill('ANSI31', scale=0.5)
+            ht.paths.add_polyline_path(pts, is_closed=True)
         x_cur += pw
 
 
@@ -1416,20 +858,8 @@ def draw_grade_mode(msp, x_cur, y_grade_top, pw, grade_h,
 # ──────────────────────────────────────────────────────────────────────────────
 
 def _fmt_dim_cm(val: float) -> str:
-    """Texto de cota: inteiro se perto; senao 0.5; senao 1 casa.
-
-    Preferir inteiro ate 0.45 (65.4→65, 103.4→103) sem engolir 50.5.
-    """
-    x = float(val)
-    r0 = round(x)
-    if x >= 40.0 and abs(x - r0) < 0.45:
-        return str(int(r0))
-    r5 = round(x * 2.0) / 2.0
-    if abs(x - r5) < 0.12:
-        if abs(r5 - round(r5)) < 0.01:
-            return str(int(round(r5)))
-        return f"{r5:.1f}".replace(".", ",")
-    v = round(x, 1)
+    """Texto de cota legível (1 casa, vírgula BR)."""
+    v = round(float(val), 1)
     if abs(v - round(v)) < 0.05:
         return str(int(round(v)))
     return f"{v:.1f}".replace(".", ",")
@@ -1439,12 +869,8 @@ def group_panel_dims(panel_widths, min_w: float = PANEL_DIM_MIN_W):
     """Agrupa painéis estreitos consecutivos para uma cota só.
 
     Retorna lista de (x_offset_start, width_sum, n_panels).
-    Ex.: [244, 28.7, 21.8, 111] →
-         [(0, 244, 1), (244, 50.5, 2), (294.5, 111, 1)]
-
-    Não inventa cota de zona de marco: quem chama deve excluir os painéis
-    estreitos finais (marco) antes de chamar — ver
-    ``_panel_widths_for_horizontal_dims``.
+    Ex.: [244, 28.7, 21.8, 111, 19, 21.2] →
+         [(0, 244, 1), (244, 50.5, 2), (294.5, 111, 1), (405.5, 40.2, 2)]
     """
     widths = [float(w or 0) for w in (panel_widths or [])]
     groups = []
@@ -1461,10 +887,9 @@ def group_panel_dims(panel_widths, min_w: float = PANEL_DIM_MIN_W):
             i += 1
             continue
         # estreitos consecutivos → uma cota do somatório (estilo N2: 50.5)
-        # no max 2 paineis (evita 22.5+52.5+21.7+26.2=123 inventado)
         j = i
         s = 0.0
-        while j < len(widths) and 0 < widths[j] < min_w and (j - i) < 2:
+        while j < len(widths) and 0 < widths[j] < min_w:
             s += widths[j]
             j += 1
         if s > 0:
@@ -1472,39 +897,6 @@ def group_panel_dims(panel_widths, min_w: float = PANEL_DIM_MIN_W):
             x += s
         i = j
     return groups
-
-
-def _panel_widths_for_horizontal_dims(x0, h, panels, panel_widths):
-    """Larguras cotaveis no eixo X - exclui zona de marco (estreitos).
-
-    Multi-segmento: marco no inicio ou fim da cadeia (19+21.2 vira 40,2).
-    Strip leading + trailing estreitos nao-degrau (lt 25 cm).
-    """
-    del x0
-    widths = [float(w or 0) for w in (panel_widths or [])]
-    plist = list(panels or [])
-    if not widths or not plist:
-        return widths
-    n = min(len(widths), len(plist))
-    widths = widths[:n]
-    plist = plist[:n]
-
-    def _is_marco_strip(i: int) -> bool:
-        pw = widths[i]
-        if pw <= 0 or pw >= 28.0:
-            return False
-        return not _is_degrau_panel(plist[i], h)
-
-    i0 = 0
-    while i0 < n and _is_marco_strip(i0):
-        i0 += 1
-    i1 = n
-    while i1 > i0 and _is_marco_strip(i1 - 1):
-        i1 -= 1
-    # Cotas: strip estreitos finais (evita 22.5+52.5+21.7+26.2=123).
-    # Geometria/body_end usa _small_panel_start_x (so corta apos bay>=55).
-    kept = widths[i0:i1]
-    return kept if kept else widths
 
 
 def _apply_dim_text(dimstyle_override, text: str, mid_xy: tuple[float, float]):
@@ -1518,41 +910,14 @@ def _apply_dim_text(dimstyle_override, text: str, mid_xy: tuple[float, float]):
         pass
 
 
-def _panel_attach_y(x, y0, y_shoulder, degrau_end, degrau_start=None):
-    """Y onde a pata da cota H encontra o painel.
-
-    No vao do degrau (x < degrau_end) o fundo real e o ombro recuado —
-    a pata sobe ate la; apos o degrau (ou sem degrau) usa y0.
-    """
-    if (
-        y_shoulder is not None
-        and degrau_end is not None
-        and float(x) < float(degrau_end) - 0.05
-        and (
-            degrau_start is None
-            or float(x) > float(degrau_start) + 0.05
-        )
-    ):
-        return float(y_shoulder)
-    return float(y0)
-
-
 def dim_panel_lv(msp, x0, x1, y_base, *, text_override: str | None = None,
-                 level: int = 0, y_p1: float | None = None,
-                 y_p2: float | None = None):
-    """Cota horizontal de painel/grupo.
-
-    Niveis H: nivel 0 = 25 cm (cadeia), nivel 1 = 50 cm (244 / 161,5).
-    y_p1/y_p2: onde as patas tocam o painel (ombro no vao recuado).
-    """
+                 level: int = 0):
+    """Cota horizontal de painel (ou grupo) — 1o nível (+ stagger se level>0)."""
     try:
-        # Niveis H: nivel 0 = 25 cm (cadeia), nivel 1 = 50 cm (244 / 161,5)
-        y_off = 25.0 if int(level) <= 0 else 50.0
-        yp1 = float(y_base if y_p1 is None else y_p1)
-        yp2 = float(y_base if y_p2 is None else y_p2)
+        y_off = DIM_BELOW + (12.0 * max(0, int(level)))
         d = msp.add_linear_dim(
             base=(x0, y_base - y_off),
-            p1=(x0, yp1), p2=(x1, yp2),
+            p1=(x0, y_base), p2=(x1, y_base),
             angle=0, dimstyle='PAINEL',
             dxfattribs={'layer': 'COTA'},
         )
@@ -1564,6 +929,7 @@ def dim_panel_lv(msp, x0, x1, y_base, *, text_override: str | None = None,
             _apply_dim_text(d, text_override, mid)
     except Exception:
         pass
+
 
 def dim_total_lv(msp, x0, x1, y_base):
     """Cota horizontal total da face -- 2o nivel."""
@@ -1580,17 +946,13 @@ def dim_total_lv(msp, x0, x1, y_base):
     except Exception:
         pass
 
-def dim_h_lateral(msp, x_right, y0, h, *, offset: float | None = None,
-                  text_override: str | None = None):
-    """Cota vertical de h_lateral -- lado direito.
 
-    Niveis (pedido visual): nivel 1 = +25 cm, nivel 2 = +50 cm.
-    """
+def dim_h_lateral(msp, x_right, y0, h):
+    """Cota vertical de h_lateral -- lado direito."""
     if h <= 0:
         return
     try:
-        off = float(DIM_H_RIGHT if offset is None else offset)
-        x_base = x_right + off
+        x_base = x_right + DIM_H_RIGHT
         d = msp.add_linear_dim(
             base=(x_base, y0),
             p1=(x_right, y0), p2=(x_right, y0 + h),
@@ -1598,12 +960,6 @@ def dim_h_lateral(msp, x_right, y0, h, *, offset: float | None = None,
             dxfattribs={'layer': 'COTA'},
         )
         d.render()
-        if text_override:
-            _apply_dim_text(
-                d, text_override,
-                (x_base + (4.0 if off >= 0 else -4.0),
-                 float(y0) + float(h) / 2.0),
-            )
     except Exception:
         pass
 
@@ -1611,6 +967,7 @@ def dim_h_lateral(msp, x_right, y0, h, *, offset: float | None = None,
 # ──────────────────────────────────────────────────────────────────────────────
 # Detalhe de secao transversal (Visao de Corte)
 # ──────────────────────────────────────────────────────────────────────────────
+
 def add_plain_dim_v(msp, x, y1, y2, label, *, extension_from_x=None,
                     layer='Cota Seção (2x)'):
     """Cota interna sem os quadrados que o dimstyle PAINEL materializa."""
@@ -1646,9 +1003,7 @@ def add_plain_dim_h(msp, x1, x2, y, label, *, extension_to_y=None,
              layer, halign=1, valign=2)
 
 def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
-                        h_A=None, h_B=None, skip_layers=None,
-                        extension_left_cm=None, extension_right_cm=None,
-                        laje_sup_A=None, laje_sup_B=None):
+                        h_A=None, h_B=None, skip_layers=None):
     """Detalhe de secao transversal -- ALL STOG elements (eng. reversa DXF V22).
 
     skip_layers: set of layer names to NOT draw (computed from STOG presence check).
@@ -1774,48 +1129,16 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     # ═══════════════════════════════════════════════════════════════════════
     # 5. CONCRETO em L (layer 'CONCRETO') -- 6-vertex polygon
     # ═══════════════════════════════════════════════════════════════════════
-    # Flange/laje real do contrato N1 (topology bilateral): quando a ficha
-    # informa extensao lateral da mesa (extension_left_cm/right_cm) e a
-    # espessura da laje que a sustenta (laje_sup_A/B), o perfil em T real
-    # substitui o notch generico fixo (24/b de largura, h-16 de altura) que
-    # so cobria o lado direito -- sem isso a viga vira caixa retangular e
-    # perde o formato de T verificado no N2 (achado 2026-09-10, V301 corte 2).
-    _ext_l = max(float(extension_left_cm or 0.0), 0.0)
-    _ext_r = max(float(extension_right_cm or 0.0), 0.0)
-    if _ext_l > 0 or _ext_r > 0:
-        y_top_conc = y0 + h + 8
-        _flange_h_l = float(laje_sup_A) if laje_sup_A else max(h - 16, CAP_H + 5)
-        _flange_h_r = float(laje_sup_B) if laje_sup_B else max(h - 16, CAP_H + 5)
-        y_flange_bot_l = y_top_conc - _flange_h_l
-        y_flange_bot_r = y_top_conc - _flange_h_r
-        conc_pts = [(x_cl, y0 + 8)]
-        if _ext_l > 0:
-            conc_pts += [
-                (x_cl, y_flange_bot_l),
-                (x_cl - _ext_l, y_flange_bot_l),
-                (x_cl - _ext_l, y_top_conc),
-            ]
-        else:
-            conc_pts.append((x_cl, y_top_conc))
-        if _ext_r > 0:
-            conc_pts += [
-                (x_wr + _ext_r, y_top_conc),
-                (x_wr + _ext_r, y_flange_bot_r),
-                (x_wr, y_flange_bot_r),
-                (x_wr, y0 + 8),
-            ]
-        else:
-            conc_pts += [(x_wr, y_top_conc), (x_wr, y0 + 8)]
-    else:
-        conc_pts = [
-            (x_cl, y0+8),             (x_cl, y0+h+8),
-            (x_fr, y0+h+8),           (x_fr, y0+h_flange_bot),
-            (x_wr, y0+h_flange_bot),  (x_wr, y0+8),
-        ]
+    conc_pts = [
+        (x_cl, y0+8),             (x_cl, y0+h+8),
+        (x_fr, y0+h+8),           (x_fr, y0+h_flange_bot),
+        (x_wr, y0+h_flange_bot),  (x_wr, y0+8),
+    ]
     msp.add_lwpolyline(conc_pts, close=True, dxfattribs={'layer': 'CONCRETO'})
-    # Sem hachura de preenchimento aqui: o N2 real do corte nao tem esse
-    # HATCH ANSI31 na layer COTA sobre o concreto -- so' o contorno acima
-    # (achado 2026-09-10, V301 CORTE 1, handle=79).
+    # Hachura concreto
+    hatch = msp.add_hatch(dxfattribs={'layer': 'COTA'})
+    hatch.set_pattern_fill('ANSI31', scale=0.4)
+    hatch.paths.add_polyline_path(conc_pts, is_closed=True)
 
     # ═══════════════════════════════════════════════════════════════════════
     # 6. TENSOR + holders (layer 'TENSOR' / '0')
@@ -1859,8 +1182,6 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     # ═══════════════════════════════════════════════════════════════════════
     def _hatch_rect(x1, y1, x2, y2, pattern='ANSI31', scale=0.5,
                     layer='Hachura', color=None):
-        if not DRAW_HATCHES_PAINEL:
-            return
         att = {'layer': layer}
         if color is not None:
             att['color'] = color
@@ -1952,9 +1273,9 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
     hc_pts = [(x_pl_r, y0+CAP_H), (x_wr, y0+CAP_H),
               (x_wr, y0+h_min), (x_pl_r, y0+h_min)]
     msp.add_lwpolyline(hc_pts, close=True, dxfattribs={'layer': 'HACHURACONCRETO'})
-    # Sem preenchimento: o N2 real do corte nao tem esse HATCH ANSI31 sobre
-    # a faixa entre faces -- so' o contorno acima (achado 2026-09-10, V301
-    # CORTE 1, handle=AD).
+    ht_hc = msp.add_hatch(dxfattribs={'layer': 'HACHURACONCRETO'})
+    ht_hc.set_pattern_fill('ANSI31', scale=0.3)
+    ht_hc.paths.add_polyline_path(hc_pts, is_closed=True)
 
     # ═══════════════════════════════════════════════════════════════════════
     # 12. TEXTOS 'detalhes' (layer 'detalhes') + pontalete em ESTRUTURACAO
@@ -2022,64 +1343,6 @@ def draw_section_detail(msp, x_center, y0, b, h, viga_nome='', b_alma=19,
 # Face da viga (A ou B)
 # ──────────────────────────────────────────────────────────────────────────────
 
-
-def _lv_stack_rank(entity) -> int:
-    """0 fundo, 1 cota, 2 paineis, 3 sarrafo (maior = mais acima)."""
-    layer = str(entity.dxf.get("layer", "") or "")
-    lu = layer.upper().replace("É", "E")
-    if "SARR" in lu:
-        return 3
-    if lu in ("PAINEIS",) or layer == "Painéis":
-        return 2
-    if "COTA" in lu:
-        return 1
-    return 0
-
-
-def restack_lv_draw_order(msp) -> None:
-    """Cotas embaixo, Painéis no meio, sarrafos em cima.
-
-    O frontend ezdxf/matplotlib desenha por redraw-order (handle crescente).
-    """
-    mapping = []
-    for i, entity in enumerate(msp):
-        try:
-            handle = entity.dxf.handle
-        except Exception:
-            continue
-        rank = _lv_stack_rank(entity)
-        mapping.append((handle, f"{rank + 1:X}{i + 1:05X}"))
-    if mapping:
-        msp.set_redraw_order(mapping)
-
-
-def _wide_bay_split_xs(x0, panels, body_end, min_w=150.0):
-    """X interior da junta do vao largo (>=150, ex. 244) com o restante do corpo.
-
-    O painel de 7 acima da laje segue a mesma separacao dos paineis de baixo:
-    244 | 75 ou 244 | 174.
-    """
-    acc = float(x0)
-    end = float(body_end)
-    xs = []
-    for panel in panels or []:
-        pw = float(panel.get("width", 0) or 0)
-        left, right = acc, acc + pw
-        if pw >= float(min_w):
-            if left > float(x0) + 1.0 and left < end - 1.0:
-                xs.append(left)
-            if right > float(x0) + 1.0 and right < end - 1.0:
-                xs.append(right)
-        acc = right
-        if acc >= end - 0.1:
-            break
-    out = []
-    for x in sorted(xs):
-        if not out or abs(x - out[-1]) > 0.5:
-            out.append(x)
-    return out
-
-
 def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  holes=None, pillar_left=None, pillar_right=None,
                  laje_sup=7.0, laje_inf=7.0, border_strip_width=0.0,
@@ -2088,10 +1351,8 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                  reverse_grade_style=False, suppress_sarrafo_spans=True,
                  sarrafo_vertical_esquerdo=False, sarrafo_vertical_direito=False,
                  sarrafos_verticais=None, sarrafos_horizontais=None,
-                 marco_laje_sup=False, painel_sup_alt=0.0,
-                 painel_sup_width=0.0, painel_sup_x_offset=0.0,
-                 endpoint_start_label=None, endpoint_end_label=None,
-                 edge_span_candidates=None):
+                 marco_laje_sup=False,
+                 endpoint_start_label=None, endpoint_end_label=None):
     """Desenha uma face (A ou B) da viga lateral -- todos elementos visuais.
     panels: lista de dicts [{width, height1, height2, grade_h1, grade_h2, reuse, panel_type}, ...]
     holes: lista de aberturas [{active, width, height, position}, ...]
@@ -2130,7 +1391,9 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                    (x_cur+pw, y0), (x_cur, y0)]
             msp.add_lwpolyline(pts, close=True,
                                dxfattribs={'layer': 'SCO-___-LAJ'})
-            # N4: hachura somente em vazios; laje permanece como contorno.
+            ht = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
+            ht.set_pattern_fill('ANSI31', scale=0.5)
+            ht.paths.add_polyline_path(pts, is_closed=True)
             x_cur += pw
 
     # ── 2. LAJE SUPERIOR -- retangulo fechado com hachura POR PAINEL ─────
@@ -2140,113 +1403,27 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     )
     has_laje_sup = has_local_sup or laje_sup > 0
     if has_laje_sup and 'SCO-___-LAJ' not in skip_layers:
-        # Uma faixa continua 0→body_end. Caixinhas por painel inventavam V
-        # interior atraves da laje (244 seccionado no 7 mas a laje ainda
-        # ganhava aresta no mesmo X).
-        _small_x_laje = _small_panel_start_x(x0, h, panels)
-        _laje_right = (
-            float(_small_x_laje) if _small_x_laje is not None
-            else float(x0) + float(comprimento)
-        )
-        if has_local_sup:
-            ls = max(
-                (
-                    float(p.get('laje_sup_local', p.get('slab_top', 0)) or 0)
-                    for p in panels
-                ),
-                default=float(laje_sup or 0),
-            ) or float(laje_sup or 0)
-        else:
-            ls = float(laje_sup or 0)
-        if ls > 0 and _laje_right > float(x0) + 0.5:
-            pts = [
-                (x0, y0 + h), (_laje_right, y0 + h),
-                (_laje_right, y0 + h + ls), (x0, y0 + h + ls),
-            ]
+        x_cur = x0
+        for p in panels:
+            pw = p['width']
+            ls = (
+                float(p.get('laje_sup_local', p.get('slab_top', 0)) or 0)
+                if has_local_sup else float(laje_sup or 0)
+            )
+            # Painéis de degrau (P1) são mais baixos que h_face: sem laje acima
+            _ph1 = float(p.get('height1', 0) or 0)
+            if ls <= 0 or (0 < _ph1 < h - 5.0 and
+                           float(p.get('laje_central_alt', 0) or 0) == 0):
+                x_cur += pw
+                continue
+            pts = [(x_cur, y0+h), (x_cur+pw, y0+h),
+                   (x_cur+pw, y0+h+ls), (x_cur, y0+h+ls)]
             msp.add_lwpolyline(pts, close=True,
                                dxfattribs={'layer': 'SCO-___-LAJ'})
-
-    # Painel de fechamento acima da laje: contrato separado da laje/marco.
-    _top_panel_h = float(painel_sup_alt or 0)
-    _top_panel_w = float(painel_sup_width or 0)
-    _top_panel_x = float(x0) + float(painel_sup_x_offset or 0)
-    _small_x_top = _small_panel_start_x(x0, h, panels)
-    _body_end_top = (
-        float(_small_x_top) if _small_x_top is not None
-        else float(x0) + float(sum(float(pp.get('width', 0) or 0) for pp in panels))
-    )
-    _top_panel_x = min(max(_top_panel_x, float(x0)), _body_end_top)
-    _top_panel_right = min(_top_panel_x + _top_panel_w, _body_end_top)
-    if _top_panel_h > 0.5 and (_top_panel_right - _top_panel_x) > 0.5:
-        _top_panel_y = float(y0) + float(h) + float(laje_sup or 0)
-        _split_xs = [
-            x for x in _wide_bay_split_xs(x0, panels, _body_end_top)
-            if _top_panel_x + 1.0 < x < _top_panel_right - 1.0
-        ]
-        _xs7 = [_top_panel_x] + _split_xs + [_top_panel_right]
-        # Contorno UNICO do painel de fechamento (nao um retangulo fechado
-        # por segmento): dois segmentos adjacentes desenhados como
-        # LWPOLYLINE fechada independente duplicam a aresta que
-        # compartilham (a borda direita de um = a borda esquerda do
-        # proximo, ambas desenhadas), virando linha dupla visivel bem em
-        # cima do proprio divisor interno (achado 2026-09-09, dono: "cada
-        # linha deve ser um elemento", handles A18/A19 SEGMENTO 2B). Topo/
-        # base/laterais como LINE simples, igual ao resto do arquivo;
-        # divisores internos ja saem certos no loop seguinte, uma vez so.
-        msp.add_line((_top_panel_x, _top_panel_y), (_top_panel_right, _top_panel_y),
-                     dxfattribs={'layer': 'Painéis'})
-        msp.add_line((_top_panel_x, _top_panel_y + _top_panel_h),
-                     (_top_panel_right, _top_panel_y + _top_panel_h),
-                     dxfattribs={'layer': 'Painéis'})
-        msp.add_line((_top_panel_x, _top_panel_y), (_top_panel_x, _top_panel_y + _top_panel_h),
-                     dxfattribs={'layer': 'Painéis'})
-        msp.add_line((_top_panel_right, _top_panel_y), (_top_panel_right, _top_panel_y + _top_panel_h),
-                     dxfattribs={'layer': 'Painéis'})
-        # Vertical so no painel de 7 — nao atravessa a laje (secciona).
-        for _xv in _split_xs:
-            msp.add_line(
-                (_xv, _top_panel_y),
-                (_xv, _top_panel_y + _top_panel_h),
-                dxfattribs={'layer': 'Painéis'},
-            )
-        # Sarrafo do painel de fechamento: mesma referencia do corpo (7cm
-        # abaixo do topo real do painel) — como esse painel e' de 7cm, cai
-        # exatamente na borda de baixo (linha fucsia da caixa), sobrepondo
-        # 2 linhas ali (achado ponto-a-ponto em V301.B, 2026-08-29).
-        _y_sarr_topo = max(_top_panel_y, _top_panel_y + _top_panel_h - 7.0)
-        for _i7, (_xa, _xb) in enumerate(zip(_xs7, _xs7[1:])):
-            if _xb - _xa < 0.5:
-                continue
-            # Mesmo inset dos sarrafos do corpo: nao encosta no divisor
-            # Painéis interno (SARR_PANEL_GAP), so nas pontas do vao inteiro
-            # (SARR_INSET_H) — sem isso o sarrafo "tocava a parede" no meio
-            # (achado ponto-a-ponto em V301.B/CONT.V301.B, 2026-08-29).
-            _is_first7 = _i7 == 0
-            _is_last7 = _i7 == len(_xs7) - 2
-            _lin7, _rin7 = _sarrafo_h_insets(_xb - _xa, _is_first7, _is_last7)
-            _sxa, _sxb = _xa + _lin7, _xb - _rin7
-            if _sxb - _sxa < 0.5:
-                continue
-            msp.add_line(
-                (_sxa, _y_sarr_topo), (_sxb, _y_sarr_topo),
-                dxfattribs={'layer': 'SARR_2.2x7'},
-            )
-        # Sarrafos verticais de extremidade do painel de fechamento —
-        # SEMPRE nos dois lados, incondicional (nao usa mais a flag do
-        # corpo principal). Achado 2026-09-10, dono: "falta os sarrafos
-        # verticais das extremidades das paredes dos paineis acima da
-        # laje... para ambos os lados e todos os itens" — e depois, sobre
-        # o lado direito especifico nao existir no N2 real: "nao importa
-        # se to pedindo e' que tem que ter". Decisao deliberada de produto:
-        # este painel e' uma parede separada do corpo e sempre fecha nas
-        # duas pontas, independente do N2 ter ou nao o sarrafo ali.
-        if _top_panel_right - _top_panel_x > 2 * SARR_INSET_H:
-            _xvl = _top_panel_x + SARR_INSET_H
-            msp.add_line((_xvl, _top_panel_y), (_xvl, _top_panel_y + _top_panel_h),
-                         dxfattribs={'layer': 'SARR_2.2x7'})
-            _xvr = _top_panel_right - SARR_INSET_H
-            msp.add_line((_xvr, _top_panel_y), (_xvr, _top_panel_y + _top_panel_h),
-                         dxfattribs={'layer': 'SARR_2.2x7'})
+            ht = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
+            ht.set_pattern_fill('ANSI31', scale=0.5)
+            ht.paths.add_polyline_path(pts, is_closed=True)
+            x_cur += pw
 
     # ── 3. Contornos dos paineis + lajes centrais + grades + sarrafos ───
     x_cur = x0
@@ -2282,67 +1459,21 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         h_draw = _panel_draw_height(p, h)
         y_panel = _panel_y_base(y0, h, p)
 
-        # Vazio na base do painel: o proprio painel (nao degrau, height1
-        # cheio) tem um vao vazio real entre y0 e sua base fisica — a linha
-        # de topo do vao (Painéis, largura do painel) sempre falta se so
-        # confiarmos no contorno padrao (achado 2026-08-29/30, V301.B#1/#2/
-        # #4/#5: painel de 111cm com vazio 0->33.4, sem cota de texto no N2,
-        # so a geometria do proprio painel revela). As laterais do vao ja
-        # ficam cobertas pelo contorno normal (divisor interno / borda
-        # direita do corpo), entao so falta o fechamento de cima.
-        _vazio_base = float(p.get('vazio_base_local', 0) or 0)
-        if _vazio_base > 0.5:
-            msp.add_line(
-                (x_cur, y0 + _vazio_base), (x_cur + pw, y0 + _vazio_base),
-                dxfattribs={'layer': 'Painéis'},
-            )
-
         # Reaproveitamento: hatch ANSI31 na faixa do painel (N2 CE / recorte).
-        # Sem isto o N4 parece "oco" na zona de degrau e falha a visão canónica.
-        # `is_reuse` ficava calculado e nunca usado (achado 2026-07-28,
-        # validacao visual direta: N2 real de V301.A mostra hachura cruzada
-        # cobrindo o painel de 244 inteiro, N4 so tinha as linhas de
-        # sarrafo, sem hachura nenhuma).
-        if is_reuse and 'Hachura' not in skip_layers:
-            _reuse_regions = p.get('reuse_regions') or []
-            # y_offset/height vem da propria hachura real do N2 (layer
-            # REAPROVEITAMENTO, extracao independente do contorno do
-            # painel) — replay fiel usa a posicao dela tal como capturada,
-            # mesmo quando nao cobre a faixa onde o painel foi desenhado
-            # (achado 2026-08-31, V301.B#1: hachura real do N2 fica em
-            # y=98.4-142.4, fora de [y_panel, y_panel+h_draw]=[65,108.6];
-            # um fallback por overlap tentado antes forcava a hachura pra
-            # 65-108.6, o que CONTRARIA o proprio DXF do N2 — revertido).
-            _reuse_rects = (
-                [
-                    (
-                        x_cur + float(_rr.get('x_offset', 0) or 0),
-                        y0 + float(_rr.get('y_offset', 0) or 0),
-                        float(_rr.get('width', pw) or pw),
-                        float(_rr.get('height', h_draw) or h_draw),
-                    )
-                    for _rr in _reuse_regions
-                ]
-                if _reuse_regions
-                else [(x_cur, y_panel, pw, h_draw)]
-            )
-            for _rx0, _ry0, _rw, _rh in _reuse_rects:
-                if _rw <= 0.5 or _rh <= 0.5 or not DRAW_HATCHES_PAINEL:
-                    continue
-                try:
-                    ht_reuse = msp.add_hatch(
-                        dxfattribs={'layer': 'Hachura', 'color': 8}
-                    )
-                    ht_reuse.paths.add_polyline_path(
-                        [
-                            (_rx0, _ry0), (_rx0 + _rw, _ry0),
-                            (_rx0 + _rw, _ry0 + _rh), (_rx0, _ry0 + _rh),
-                        ],
-                        is_closed=True,
-                    )
-                    ht_reuse.set_pattern_fill('ANSI31', scale=0.4)
-                except Exception:
-                    pass
+        # Sem isto o N4 parece “oco” na zona de degrau e falha a visão canónica.
+        if is_reuse and h_draw > 2.0 and pw > 2.0:
+            pts_reuse = [
+                (x_cur, y_panel),
+                (x_cur + pw, y_panel),
+                (x_cur + pw, y_panel + h_draw),
+                (x_cur, y_panel + h_draw),
+            ]
+            try:
+                ht_r = msp.add_hatch(dxfattribs={'layer': 'REAPROVEITAMENTO'})
+                ht_r.set_pattern_fill('ANSI31', scale=0.5)
+                ht_r.paths.add_polyline_path(pts_reuse, is_closed=True)
+            except Exception:
+                pass
 
         if has_laje_central and lc_h_d > 0.5 and 'SCO-___-LAJ' not in skip_layers:
             # Laje central: retangulo fechado + hachura ANSI31
@@ -2351,6 +1482,9 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
                       (x_cur+pw, laje_y+lc_h_d), (x_cur, laje_y+lc_h_d)]
             msp.add_lwpolyline(pts_lc, close=True,
                                dxfattribs={'layer': 'SCO-___-LAJ'})
+            ht = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
+            ht.set_pattern_fill('ANSI31', scale=0.5)
+            ht.paths.add_polyline_path(pts_lc, is_closed=True)
 
         # ── Sarrafos / Grades for H1 zone ──────────────────────────────
         # Se o N2 trouxe sarrafos_horizontais, o replay global substitui o
@@ -2373,7 +1507,8 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             pass
         elif (
             not use_n2_horiz
-            and not bool(p.get('suppress_auto_sarrafos', False))
+            and not is_reuse
+            and not _is_degrau_panel(p, h)
         ):
             # Fallback SCR só sem geometria N2 de sarrafo horizontal.
             sarr_layer, sarr_w, positions = _get_sarrafo_positions(h1_zone)
@@ -2397,22 +1532,11 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
 
         x_cur += pw
 
-    _marco_h_min_data = 0.0
-    for _sh in (sarrafos_horizontais or []):
-        _marco_h_min_data = max(
-            _marco_h_min_data, float(_sh.get('y_offset', 0) or 0) - h,
-        )
-    for _sv in (sarrafos_verticais or []):
-        _marco_h_min_data = max(
-            _marco_h_min_data, float(_sv.get('y_top', 0) or 0) - h,
-        )
     _draw_panel_frame_n2(
         msp, x0, y0, h, panels,
         marco_laje_sup=marco_laje_sup,
         laje_sup=laje_sup,
-        marco_h_min=_marco_h_min_data,
     )
-    # Hachura ANSI31 na faixa superior do degrau (N2 V301) — densifica visao.
 
     # ── 3b. BORDER STRIP — contorno do painel de borda filtrado (<PAINEL_MIN_LV)
     # Reverso desenha o contorno mesmo para strips menores que PAINEL_MIN_LV.
@@ -2449,96 +1573,9 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     # além da linha Painéis curta do ombro (0–fim_degrau).
     if sarrafos_horizontais:
         _ys_frame = [y0, y0 + h]
-        # Cap generoso: nao usar so h (corpo) — o N2 as vezes tem marco real
-        # bem mais alto que laje_sup+painel_sup_alt capturam (achado
-        # 2026-08-29, UNIT.B#7: sarrafos H reais ate +33.8 acima do corpo,
-        # y_max=h cortava 4 linhas legitimas). frame_ys ja protege contra
-        # sobrepor as bordas Painéis reais.
-        _max_sarr_offset = max(
-            (float(_s.get('y_offset', 0) or 0) for _s in sarrafos_horizontais),
-            default=h,
-        )
-        _h_face_cap = max(h, _max_sarr_offset + 1.0)
-        _ysh_pre = _degrau_shoulder_y(y0, h, panels)
-        _dbounds_pre = _degrau_zone_bounds_x(x0, h, panels)
-        _dstart_pre = _dbounds_pre[0] if _dbounds_pre else None
-        _dend_pre = _dbounds_pre[1] if _dbounds_pre else None
-        _pdiv_acc = float(x0)
-        _pdiv_xs = [_pdiv_acc]
-        for _pw in panel_widths:
-            _pdiv_acc += float(_pw or 0)
-            _pdiv_xs.append(_pdiv_acc)
-        # Extremidade real = pela POSICAO (perto de SARR_INSET_H de cada
-        # borda), nao pelo rotulo 'side' — a extracao as vezes marca o
-        # sarrafo da ponta direita como 'internal' em vez de 'right' (achado
-        # 2026-09-10, V301.A: sarrafo em x_offset=398.5, y_bot=0/y_top=h
-        # inteiro, rotulado 'internal', mas fisicamente E a extremidade —
-        # 8 sarrafos horizontais ficavam indo ate a parede real por causa
-        # disso, o filtro por 'side'=='right' nunca achava esse sarrafo).
-        # body_end real (nao a soma ingenua de TODOS os paineis): paineis
-        # residuais de marco/cota no fim (ex. 19.0/21.2) nao fazem parte do
-        # corpo onde os sarrafos realmente terminam — usar a soma inteira
-        # aqui dava _total_w=445.7 num corpo cujo sarrafo direito real
-        # esta em 398.5 (corpo=405.5), nunca batendo a tolerancia (achado
-        # 2026-09-10, V301.A).
-        _small_x_body = _small_panel_start_x(x0, h, panels)
-        _total_w = (
-            float(_small_x_body) - float(x0) if _small_x_body is not None
-            else sum(float(w or 0) for w in panel_widths)
-        )
-        _left_sarr_x = None
-        _right_sarr_x = None
-        _vertical_specs = []
-        for _sv in (sarrafos_verticais or []):
-            _xoff = float(_sv.get('x_offset', 0) or 0)
-            _vx_abs = float(x0) + _xoff
-            _vyb_abs = float(y0) + float(_sv.get('y_bot', 0) or 0)
-            _vyt_abs = float(y0) + float(_sv.get('y_top', h) or h)
-            _vertical_specs.append((_vx_abs, _vyb_abs, _vyt_abs))
-            if abs(_xoff - SARR_INSET_H) < 3.0:
-                _left_sarr_x = _vx_abs
-            elif abs(_xoff - (_total_w - SARR_INSET_H)) < 3.0:
-                _right_sarr_x = _vx_abs
         draw_sarr_lv_horizontal_from_n2(
             msp, x0, y0, sarrafos_horizontais, frame_ys=_ys_frame,
-            h_face=_h_face_cap,
-            degrau_start=_dstart_pre, degrau_end=_dend_pre, y_shoulder=_ysh_pre,
-            left_sarr_x=_left_sarr_x, right_sarr_x=_right_sarr_x,
-            panel_div_xs=_pdiv_xs, vertical_specs=_vertical_specs,
         )
-
-    # Recipe N2: SARR H 7cm no ombro na borda do degrau (294,5→301,5 @ y=65).
-    # Se o N2 trouxe sarrafos longos cobrindo isso, o inventário casa o longo;
-    # o stub garante o trecho local quando o matching e 1:1.
-    _ysh = _degrau_shoulder_y(y0, h, panels)
-    _dbounds = _degrau_zone_bounds_x(x0, h, panels)
-    _dstart = _dbounds[0] if _dbounds else x0
-    _dend = _dbounds[1] if _dbounds else x0
-    if _ysh is not None and _dend > _dstart + 1.0:
-        try:
-            _trailing_step = _dstart > x0 + 0.5
-            _sx0 = _dstart - SARR_INSET_H if _trailing_step else _dend
-            _sx1 = _dstart if _trailing_step else _dend + SARR_INSET_H
-            # O sarrafo longo do proprio N2 (acima, ja cortado na fronteira
-            # do degrau) pode ja cobrir esse trecho local — nesse caso o
-            # stub vira duplicata (mesma camada/altura, sub-segmento contido
-            # no que ja foi desenhado). So desenha quando NENHUM sarrafo do
-            # inventario cobre esse intervalo (achado 2026-09-09: apos
-            # cortar o sarrafo longo na fronteira do degrau, o stub sobrava
-            # redundante em cima do inicio dele).
-            _covered = any(
-                abs(float(_s.get('y_offset', 0) or 0) - (_ysh - y0)) < 2.0
-                and x0 + float(_s.get('x_left', 0) or 0) <= _sx0 + 0.5
-                and x0 + float(_s.get('x_right', 0) or 0) >= _sx1 - 0.5
-                for _s in (sarrafos_horizontais or [])
-            )
-            if not _covered:
-                msp.add_line(
-                    (_sx0, _ysh), (_sx1, _ysh),
-                    dxfattribs={'layer': 'SARR_2.2x7'},
-                )
-        except Exception:
-            pass
 
     # A ficha N2 define se há sarrafo vertical em cada extremidade. Não
     # inferir por default: reproduzir somente os lados detectados pelo reverso.
@@ -2547,7 +1584,6 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         draw_left=bool(sarrafo_vertical_esquerdo),
         draw_right=bool(sarrafo_vertical_direito),
         sarrafos_verticais=sarrafos_verticais,
-        y_shoulder=_ysh,
     )
 
     # ── 5. PILARES/OBSTACULOS -- retangulos hachurados nas bordas ─────────
@@ -2555,6 +1591,9 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         pts = [(px, py), (px+pw_p, py), (px+pw_p, py+ph_p), (px, py+ph_p)]
         msp.add_lwpolyline(pts, close=True,
                            dxfattribs={'layer': 'Painéis', 'linetype': 'DASHED'})
+        ht = msp.add_hatch(dxfattribs={'layer': 'COTA'})
+        ht.set_pattern_fill('ANSI31', scale=0.5)
+        ht.paths.add_polyline_path(pts, is_closed=True)
         add_text(msp, px + pw_p/2, py + ph_p/2, 'PILAR',
                  5.0, '5', halign=1, valign=2)
 
@@ -2651,145 +1690,21 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
         cy_face = y0 + h / 2
         add_text(msp, cx_face, cy_face + 10, nota_face, 10.0, '5', halign=1, valign=2)
 
-    # ── 8. Cotas horizontais — fidelidade de RÓTULO ao N2 ────────────────
-    # G geometria ≠ R rótulo ≠ P política. Regra: R_N4 ⊆ R_N2 (nunca inventar).
-    # N2 CE (V301.A): 244 | 50,5 | 111 + resto 161,5 — sem marco, sem total.
-    # Patas: no vao recuado do degrau sobem ate o ombro (fundo real do painel),
-    # nao param no y0 vazio (print ShareX zona 244/50,5).
-    _ysh_h = _degrau_shoulder_y(y0, h, panels)
-    _dbounds_h = _degrau_zone_bounds_x(x0, h, panels)
-    _dstart_h = _dbounds_h[0] if _dbounds_h else x0
-    _dend_h = _dbounds_h[1] if _dbounds_h else x0
-
-    def _span_panel_attachments(xa, xb):
-        """Return the real panel-bottom Y for both dimension witnesses."""
-        mid = (float(xa) + float(xb)) / 2.0
-        if (
-            _ysh_h is not None
-            and float(_dstart_h) - 0.1 <= mid <= float(_dend_h) + 0.1
-        ):
-            return float(_ysh_h), float(_ysh_h)
-        return (
-            _panel_attach_y(xa, y0, _ysh_h, _dend_h, _dstart_h),
-            _panel_attach_y(xb, y0, _ysh_h, _dend_h, _dstart_h),
-        )
-
-    dim_widths = _panel_widths_for_horizontal_dims(x0, h, panels, panel_widths)
-    groups = group_panel_dims(dim_widths, PANEL_DIM_MIN_W)
-    # offsets originais para reemitir partes 22.5|52.5 (N2 B tem as duas + 75)
-    _dw_x = 0.0
-    _dw_offsets = []
-    for _w in dim_widths:
-        _dw_offsets.append(_dw_x)
-        _dw_x += float(_w or 0)
-
-    def _clean_group_parts(x_off, n_p):
-        if n_p != 2:
-            return []
-        for wi, off in enumerate(_dw_offsets):
-            if abs(float(off) - float(x_off)) < 0.15:
-                parts = dim_widths[wi: wi + 2]
-                if len(parts) == 2 and all(
-                    20.0 <= float(w) <= 55.0
-                    and abs(float(w) - round(float(w) * 2.0) / 2.0) < 0.08
-                    for w in parts
-                ):
-                    return parts
-        return []
-
+    # ── 8. Cotas horizontais (agrupa estreitos) + total ─────────────────
+    # N2 CE: 244 | 50.5 | 111 | … — NÃO 28.7 e 21.8 colados virando "28,721,8".
+    groups = group_panel_dims(panel_widths, PANEL_DIM_MIN_W)
     for gi, (x_off, w_sum, n_p) in enumerate(groups):
         if w_sum < 5.0:
             continue
-        # Painel principal largo de qualquer extremidade ocupa o nivel externo;
-        # a cadeia de paineis menores permanece no nivel interno.
-        if ((w_sum >= 150.0 and len(groups) >= 2)
-                or _clean_group_parts(x_off, n_p)):
-            level = 1
-        else:
-            level = 0
-        xa = float(x0 + x_off)
-        xb = float(x0 + x_off + w_sum)
-        yp1, yp2 = _span_panel_attachments(xa, xb)
+        # stagger leve em grupos ainda estreitos (texto não cabe no vão)
+        level = 1 if w_sum < 40.0 else 0
         dim_panel_lv(
-            msp, xa, xb, y0,
+            msp, x0 + x_off, x0 + x_off + w_sum, y0,
             text_override=_fmt_dim_cm(w_sum),
             level=level,
-            y_p1=yp1,
-            y_p2=yp2,
         )
-        # Partes do grupo so se forem cotas limpas (.0/.5) — N2 B: 22.5|52.5
-        # alem do 75. Nao reemitir 28.7+21.8 (vira 29 inventada no A).
-        if n_p == 2:
-            acc = 0.0
-            parts = []
-            for wi, ww in enumerate(dim_widths):
-                if abs(acc - float(x_off)) < 0.15:
-                    parts = dim_widths[wi: wi + 2]
-                    break
-                acc += float(ww or 0)
-
-            def _clean_half(w):
-                w = float(w)
-                if not (20.0 <= w <= 55.0):
-                    return False
-                r5 = round(w * 2.0) / 2.0
-                return abs(w - r5) < 0.08
-
-            if len(parts) == 2 and all(_clean_half(p) for p in parts):
-                px = float(x0 + x_off)
-                for pw in parts:
-                    pw = float(pw)
-                    pyp1, pyp2 = _span_panel_attachments(px, px + pw)
-                    dim_panel_lv(
-                        msp, px, px + pw, y0,
-                        text_override=_fmt_dim_cm(pw),
-                        level=0,
-                        y_p1=pyp1,
-                        y_p2=pyp2,
-                    )
-                    px += pw
-    # Complemento da cadeia no segundo nivel: funciona tanto para degrau
-    # inicial (244 | 63+111 = 174) quanto espelhado (52,5+22,5 = 75 | 244).
-    if len(groups) >= 3:
-        edge_span = None
-        if float(groups[0][1]) >= 150.0:
-            edge_span = (
-                float(x0 + groups[1][0]),
-                float(x0 + groups[-1][0] + groups[-1][1]),
-            )
-        elif float(groups[-1][1]) >= 150.0:
-            edge_span = (
-                float(x0 + groups[0][0]),
-                float(x0 + groups[-1][0]),
-            )
-        if edge_span:
-            x_a, x_b = edge_span
-            span = x_b - x_a
-            # So desenha se o N2 REALMENTE mostra esse valor nesta ocorrencia
-            # especifica. Repeticoes idênticas do mesmo painel nem sempre
-            # repetem esse label auxiliar (achado real: V301.B#5 tem "174"
-            # no papel; o vizinho V301.B#7, mesma fileira, mesma geometria,
-            # nao tem). Sem candidatos informados (ex. testes sinteticos
-            # antigos, sem esse parametro), mantem o comportamento historico.
-            _is_repeat = '#' in str(nome_face or '')
-            _span_ok = (
-                (not _is_repeat)
-                or edge_span_candidates is None
-                or any(
-                    abs(float(v) - span) <= 1.0 for v in edge_span_candidates
-                )
-            )
-            if span >= PANEL_DIM_MIN_W and _span_ok:
-                yp1, yp2 = _span_panel_attachments(x_a, x_b)
-                dim_panel_lv(
-                    msp, x_a, x_b, y0,
-                    text_override=_fmt_dim_cm(span),
-                    level=1,
-                    y_p1=yp1,
-                    y_p2=yp2,
-                )
-
-    # Sem dim_total cego da face (N2 LV face unit costuma não ter total).
+    if len(panel_widths) > 1:
+        dim_total_lv(msp, x0, x0 + comprimento, y0)
 
     # Apoios/limites capturados no N1: deixam explícito o ponto inicial e o
     # ponto final da lateral sem inventar referências a partir do N2.
@@ -2846,241 +1761,48 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
     if has_left_opening:
         _dim_seg_v(x0, seg_left, 'left')
 
-    # body_end / leading: ancora de cota na parede do CORPO util.
-    _small_x_dim = _small_panel_start_x(x0, h, panels)
-    _lead_x_dim = _leading_marco_end_x(x0, h, panels)
-    _has_strip_dim = _small_x_dim is not None or _lead_x_dim is not None
-    # Altura do marco: residual 15 so com strip real (evita 157 inventado em h=142).
+    # Altura total lateral = corpo + lajes; com marco usar a extensão real do marco.
     _marco_h = (
-        _marco_extension_cm(
-            marco_laje_sup, laje_sup, has_marco_strip=_has_strip_dim,
-        )
-        if marco_laje_sup
-        else 0.0
+        _marco_extension_cm(marco_laje_sup, laje_sup) if marco_laje_sup else laje_sup
     )
-    # Cotas: so marco real. Nunca laje_sup=7 residual como cota (109+7=116 inventado).
-    _cota_marco = float(_marco_h) if float(_marco_h) >= 0.5 else 0.0
-    # Rotulo de marco no papel LV e tipicamente 15 mesmo quando a extracao
-    # geometrica devolve 20-21 (V301.B). Geometria/_h_total mantem o real.
-    _cota_marco_label = (
-        15.0 if 17.5 <= float(_cota_marco) <= 24.0 else float(_cota_marco)
-    )
-    _h_total = h + laje_inf + _cota_marco + _top_panel_h
+    _h_total = h + laje_inf + _marco_h
     y_shoulder = _degrau_shoulder_y(y0, h, panels)
-    _body_end = (
-        float(_small_x_dim) if _small_x_dim is not None
-        else float(x0 + comprimento)
-    )
-    _body_bounds = _degrau_zone_bounds_x(x0, h, panels) if panels else None
-    _body_step_trailing = bool(
-        _body_bounds and float(_body_bounds[0]) > float(x0) + 0.5
-    )
-    # A altura total pertence a parede alta da ficha.
-    _dim_right = float(x0) if _body_step_trailing else _body_end
-    _body_dim_side = -1.0 if _body_step_trailing else 1.0
-    # Niveis de cota (simetricos ESQ/DIR — pedido visual):
-    #   nivel 1 = 25 cm  → 15, 44/109, 65 (ombro)
-    #   nivel 2 = 50 cm  → 59/124
-    _DIM_L1 = 25.0
-    _DIM_L2 = 50.0
-    # Faces altas (h>=130) sem strip de marco: N2 nao emite 142/157
-    # (UNIT.B h=142 inventava). So cota h se h em faixa tipica ou ha strip.
-    _emit_h_dim = bool(_has_strip_dim) or float(h) <= 125.0
-    if _emit_h_dim:
-        dim_h_lateral(
-            msp, _dim_right, y0 - laje_inf, h,
-            offset=_body_dim_side * _DIM_L1, text_override=_fmt_dim_cm(h),
-        )
-    if _cota_marco > 0.5 and _emit_h_dim:
-        dim_h_lateral(
-            msp, _dim_right, y0 - laje_inf, _h_total,
-            offset=_body_dim_side * _DIM_L2, text_override=_fmt_dim_cm(_h_total),
-        )
-        # A cota da laje pertence às extremidades do contorno superior, não à
-        # parede interna do degrau. Usar _dim_right criava 14/15 no centro e
-        # deixava as patas direitas fora do retângulo.
-        # Em ocorrencias REPETIDAS (label "V301.B#N", varias copias da mesma
-        # face ao longo da viga), o N2 so rotula a cota da laje no(s) lado(s)
-        # onde a copia realmente tem faixa de marco (leading/trailing) —
-        # sem faixa nenhuma, o papel nao repete a anotacao, mesmo com
-        # laje_sup>=12 real. Ocorrencia PRIMARIA (label sem "#") mantem o
-        # comportamento historico dos dois lados. NOTA (achado 2026-07-27,
-        # ainda sem fix seguro): esta regra geometrica nao vale para TODAS
-        # as ocorrencias — UNIT.A#3/#4 (mesmos paineis [111,63,244] do lado
-        # B que fica sem cota) TEM cota de marco dos dois lados no N2 real.
-        # Tentativa de detectar por texto local (janela x_ref+-20/60,
-        # valor~laje_sup) gerou falso-positivo por vizinho de fileira; nao
-        # ha sinal geometrico ou textual confiavel encontrado ainda — ver
-        # RELATORIO 20260727 (2a parte). Mantido o heuristico por faixa,
-        # que acerta a maioria (B) mas erra esse caso A especifico.
-        _nu = str(nome_face or '').upper()
-        _is_repeated_unit = '#' in _nu
-        _is_a_face = ('.A' in _nu) or ('UNIT.A' in _nu)
-        _is_b_face = ('.B' in _nu) or ('UNIT.B' in _nu)
-        if _is_a_face and not _is_b_face:
-            _want_left = True
-            _want_right = True
-        else:
-            _want_left = (not _is_repeated_unit) or (_lead_x_dim is not None)
-            _want_right = (not _is_repeated_unit) or (_small_x_dim is not None)
-        # Ancora direita = _body_end (para na faixa de marco final, quando
-        # existe), nao x0+comprimento (comprimento total). A cota de altura
-        # (h_total) ja usa _body_end corretamente; esta cota de laje usava
-        # o comprimento cheio, ficando deslocada para fora sempre que a
-        # unidade tem faixa de marco final (small_x definido) — achado do
-        # dono: "cota da laje direita sempre fora de posicao".
-        _marco_right_x = _body_end
-        _left_wall = (
-            float(_lead_x_dim) if _lead_x_dim is not None else float(x0)
-        )
-        _marco_label_sides = [
-            (_vx, _side)
-            for _vx, _side, _want in (
-                (_left_wall, -1.0, _want_left),
-                (_marco_right_x, 1.0, _want_right),
+    # N2 CE: cota do CORPO (109) + cota TOTAL com marco (124) — não só o total.
+    dim_h_lateral(msp, x0 + comprimento, y0 - laje_inf, h)
+    if _marco_h > 0.5:
+        try:
+            x_dim = x0 + comprimento + DIM_H_RIGHT + 18.0
+            d = msp.add_linear_dim(
+                base=(x_dim, y0 - laje_inf),
+                p1=(x0 + comprimento, y0 - laje_inf),
+                p2=(x0 + comprimento, y0 - laje_inf + _h_total),
+                angle=90, dimstyle='PAINEL',
+                dxfattribs={'layer': 'COTA'},
             )
-            if _want
-        ]
-        for _vx, _side in _marco_label_sides:
-            try:
-                x_base15 = _vx + _side * _DIM_L1
-                d2 = msp.add_linear_dim(
-                    base=(x_base15, y0 + h),
-                    p1=(_vx, y0 + h), p2=(_vx, y0 + h + _cota_marco),
-                    angle=90, dimstyle='PAINEL',
-                    dxfattribs={'layer': 'COTA'},
-                )
-                d2.render()
-                _apply_dim_text(
-                    d2, _fmt_dim_cm(_cota_marco_label),
-                    (x_base15 + _side * 4.0,
-                     y0 + h + _marco_h / 2.0),
-                )
-            except Exception:
-                pass
-        if _top_panel_h > 0.5:
-            y7_bot = float(y0) + float(h) + float(_cota_marco)
-            y7_top = y7_bot + float(_top_panel_h)
-            _left7 = float(_top_panel_x)
-            _top_right_x = min(float(_top_panel_right), float(_body_end) + 0.01)
-            for _vx7, _side7 in ((_left7, -1.0), (_top_right_x, 1.0)):
-                try:
-                    x_base7 = _vx7 + _side7 * _DIM_L1
-                    d7 = msp.add_linear_dim(
-                        base=(x_base7, y7_bot),
-                        p1=(_vx7, y7_bot), p2=(_vx7, y7_top),
-                        angle=90, dimstyle='PAINEL',
-                        dxfattribs={'layer': 'COTA'},
-                    )
-                    d7.render()
-                    _apply_dim_text(
-                        d7, _fmt_dim_cm(_top_panel_h),
-                        (x_base7 + _side7 * 4.0, (y7_bot + y7_top) / 2.0),
-                    )
-                except Exception:
-                    pass
-    # Degrau classico: 1o vao longo (ex. 244) ate degrau_end. Espelho 111|63|244
-    # nao deve emitir 44/59/65 inventados no ombro falso.
-    _dbounds_chk = _degrau_zone_bounds_x(x0, h, panels) if panels else None
-    _dstart_chk = _dbounds_chk[0] if _dbounds_chk else x0
-    _dend_chk = _dbounds_chk[1] if _dbounds_chk else x0
-    _step_trailing = _dstart_chk > x0 + 0.5
-    _pw0 = float((panels[0].get('width') if panels else 0) or 0)
-    _is_cont_face = 'CONT' in str(nome_face or '').upper()
-    _h_ombro_chk = float(y_shoulder - y0) if y_shoulder is not None else 0.0
-    # Degrau util (65): ombro na faixa 50-80 cm e vao ate a parede do degrau.
-    _has_step = (
-        y_shoulder is not None
-        and 50.0 <= _h_ombro_chk <= 80.0
-        and (_dend_chk - _dstart_chk) >= 150.0
-        and h <= 125.0
-    )
-    # Cotas esq 44/59 so no padrao V301.A (1o painel longo + faixa ~44).
-    # Face B (h_deg~38 + marco 20→58,5) inventava 58,5 fora do N2.
-    _classic_deg = (
-        _has_step
-        and (
-            (_pw0 >= 200.0 and _is_degrau_panel(panels[0], h))
-            or _step_trailing
-        )
-    )
-    if _classic_deg:
+            d.render()
+            _apply_dim_text(
+                d, _fmt_dim_cm(_h_total),
+                (x_dim + 6.0, y0 - laje_inf + _h_total / 2.0),
+            )
+        except Exception:
+            dim_h_lateral(msp, x0 + comprimento + 12.0, y0 - laje_inf, _h_total)
+    # Degrau: cota da faixa superior (height1) à esquerda — N2 mostra 44.
+    if y_shoulder is not None and y_shoulder > y0 + 5:
         h_deg = float(y0 + h - y_shoulder)
         if 12.0 < h_deg < h - 5.0:
             try:
-                x_anchor = _dend_chk if _step_trailing else x0
-                dim_side = 1.0 if _step_trailing else -1.0
-                x_dim_l = x_anchor + dim_side * _DIM_L1
+                x_dim_l = x0 - DIM_H_RIGHT
                 d = msp.add_linear_dim(
                     base=(x_dim_l, y_shoulder),
-                    p1=(x_anchor, y_shoulder), p2=(x_anchor, y0 + h),
+                    p1=(x0, y_shoulder), p2=(x0, y0 + h),
                     angle=90, dimstyle='PAINEL',
                     dxfattribs={'layer': 'COTA'},
                 )
                 d.render()
                 _apply_dim_text(
                     d, _fmt_dim_cm(h_deg),
-                    (x_dim_l + dim_side * 4.0, y_shoulder + h_deg / 2.0),
+                    (x_dim_l - 6.0, y_shoulder + h_deg / 2.0),
                 )
-            except Exception:
-                pass
-            # 59 = faixa superior ~44 + marco ~15 (padrao A). Nao emitir se
-            # marco grosso (>16) ou faixa fora de 40-48 (vira 58,5 inventada).
-            h_outer = h_deg + float(_marco_h) + float(_top_panel_h)
-            if 50.0 <= h_outer <= 62.0 and 12.0 <= float(_marco_h) <= 16.5:
-                try:
-                    x_dim_o = x_anchor + dim_side * _DIM_L2
-                    d59 = msp.add_linear_dim(
-                        base=(x_dim_o, y_shoulder),
-                        p1=(x_anchor, y_shoulder),
-                        p2=(x_anchor, y0 + h + _marco_h + _top_panel_h),
-                        angle=90, dimstyle='PAINEL',
-                        dxfattribs={'layer': 'COTA'},
-                    )
-                    d59.render()
-                    _apply_dim_text(
-                        d59, _fmt_dim_cm(h_outer),
-                        (x_dim_o + dim_side * 4.0, y_shoulder + h_outer / 2.0),
-                    )
-                except Exception:
-                    pass
-    # Cotas internas do recorte/degrau pertencem ao perfil N4 e ficam na layer
-    # COTA. Elas não podem ser reaproveitadas como divisor de painel.
-    if _has_step:
-        degrau_end = _dend_chk
-        step_wall = _dstart_chk if _step_trailing else _dend_chk
-        step_side = 1.0 if _step_trailing else -1.0
-        h_ombro = _h_ombro_chk
-        if degrau_end > x0 + 0.5 and 12.0 < h_ombro < h - 5.0:
-            try:
-                x_dim_65 = step_wall + step_side * _DIM_L1
-                d65 = msp.add_linear_dim(
-                    base=(x_dim_65, y0),
-                    p1=(step_wall, y0), p2=(step_wall, y_shoulder),
-                    angle=90, dimstyle='PAINEL',
-                    dxfattribs={'layer': 'COTA'},
-                )
-                d65.render()
-                _apply_dim_text(
-                    d65, _fmt_dim_cm(h_ombro),
-                    (x_dim_65 + step_side * 4.0, (y0 + y_shoulder) / 2.0),
-                )
-            except Exception:
-                pass
-            try:
-                if _step_trailing:
-                    x_sarr_l = step_wall - SARR_INSET_H
-                    x_sarr_r = step_wall
-                else:
-                    x_sarr_l = step_wall
-                    x_sarr_r = step_wall + SARR_INSET_H
-                d4 = msp.add_linear_dim(
-                    base=(x_sarr_l, y0 - 10.0),
-                    p1=(x_sarr_l, y0), p2=(x_sarr_r, y0),
-                    angle=0, dimstyle='PAINEL',
-                    dxfattribs={'layer': 'COTA'},
-                )
-                d4.render()
             except Exception:
                 pass
     if has_left_opening:
@@ -3098,16 +1820,7 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             hdist = float(hole.get('position', 0))
             if hw <= 0 or hh <= 0:
                 continue
-            if 'panel_offset' in hole:
-                panel_x0 = x0 + float(hole.get('panel_offset', 0) or 0)
-                panel_w = float(hole.get('panel_width', 0) or 0)
-                corner = str(hole.get('corner') or 'TL').upper()
-                hx = panel_x0 if corner.endswith('L') else panel_x0 + panel_w - hw
-                hy = (
-                    y0 + h - hdist - hh
-                    if corner.startswith('T') else y0 + hdist
-                )
-            elif i == 0:  hx, hy = x0, y0 + h - hdist - hh
+            if i == 0:    hx, hy = x0, y0 + h - hdist - hh
             elif i == 1:  hx, hy = x0, y0 + hdist
             elif i == 2:  hx, hy = xr - hw, y0 + h - hdist - hh
             elif i == 3:  hx, hy = xr - hw, y0 + hdist
@@ -3115,14 +1828,12 @@ def draw_lv_face(msp, x0, y0, panels, h, nome_face,
             pts = [(hx, hy), (hx+hw, hy), (hx+hw, hy+hh), (hx, hy+hh)]
             msp.add_lwpolyline(pts, close=True,
                                dxfattribs={'layer': 'Painéis', 'linetype': 'DASHED'})
-            if DRAW_HATCHES_PAINEL:
-                ht = msp.add_hatch(dxfattribs={'layer': 'Hachura'})
-                ht.set_pattern_fill('ANSI31', scale=0.5)
-                ht.paths.add_polyline_path(pts, is_closed=True)
+            ht = msp.add_hatch(dxfattribs={'layer': 'COTA'})
+            ht.set_pattern_fill('ANSI31', scale=0.5)
+            ht.paths.add_polyline_path(pts, is_closed=True)
             add_text(msp, hx + hw/2, hy + hh/2, f'{hw:.0f}x{hh:.0f}',
                      7.0, '5', halign=1, valign=2)
 
-    restack_lv_draw_order(msp)
     return comprimento
 
 
@@ -3157,41 +1868,6 @@ def _section_visual_attribs(primitive):
     if linetype and linetype != 'BYLAYER':
         attribs['linetype'] = linetype
     return attribs
-
-
-def _section_rel_span(section_view, h_sec):
-    """Extensao vertical REAL da secao, relativa ao seu centro de desenho.
-
-    O empilhamento antigo assumia que uma secao ocupa ~``h_sec`` e andava
-    ``max(h_sec + 90, 180)``. Isso vale para o detalhe procedural (1x), mas as
-    primitivas do recorte N2 vem em escala 2x (layer "Cota Secao (2x)"): a
-    secao ocupa o dobro do previsto e invade a de baixo — no V301 o Corte 2
-    entrava 76 unidades dentro do Corte 1 (achado 2026-09-10, reportado pelo
-    dono como "visao corte sobrepostos"). Medir em vez de estimar resolve
-    qualquer escala e qualquer assimetria (o Corte 2 sobe 178.8 acima do
-    centro e desce so' 61.2).
-    """
-    rel_y = []
-    raw = section_view.get('raw') or {}
-    primitives = (
-        raw.get('visual_primitives')
-        or section_view.get('visual_primitives')
-        or []
-    )
-    for prim in primitives:
-        for key in ('points', 'insert', 'align_point'):
-            val = prim.get(key)
-            if not val:
-                continue
-            seq = val if isinstance(val[0], (list, tuple)) else [val]
-            rel_y += [float(p[1]) for p in seq if len(p) >= 2]
-        for sub in (prim.get('paths') or []):
-            rel_y += [float(p[1]) for p in sub if len(p) >= 2]
-    if rel_y:
-        return min(rel_y), max(rel_y)
-    # Sem primitivas: o detalhe procedural desenha de y0 (=centro - h/2) para
-    # cima, mais cotas/titulo acima e pontalete abaixo.
-    return -h_sec / 2.0 - 30.0, h_sec / 2.0 + 45.0
 
 
 def draw_section_visual_primitives(msp, section_view, x_center, y_center):
@@ -3260,17 +1936,6 @@ def draw_section_visual_primitives(msp, section_view, x_center, y_center):
                     )
                 drew = True
             elif kind == 'hatch':
-                # replay generico mistura primitivas de layers diferentes —
-                # decide pela natureza da propria layer (madeira/painel vs
-                # concreto/laje), nao por uma flag unica.
-                _hatch_layer_u = str(primitive.get('layer') or '').strip().upper()
-                _is_painel_hatch = _hatch_layer_u in (
-                    'PAINÉIS', 'PAINEIS', 'HACHURA',
-                )
-                if _is_painel_hatch and not DRAW_HATCHES_PAINEL:
-                    continue
-                if not _is_painel_hatch and not DRAW_HATCHES_LAJE:
-                    continue
                 if _skip_n2_panel_solid_hatch(primitive):
                     continue
                 paths = primitive.get('paths') or []
@@ -3495,11 +2160,7 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
         ):
             draw_section_detail(msp, x_sect_center, y0_sect, b, h_sect,
                                 viga_nome=viga_nome, b_alma=b_alma,
-                                h_A=h_A, h_B=h_B, skip_layers=skip_layers,
-                                extension_left_cm=(section_view or {}).get('extension_left_cm'),
-                                extension_right_cm=(section_view or {}).get('extension_right_cm'),
-                                laje_sup_A=(section_view or {}).get('laje_sup_A'),
-                                laje_sup_B=(section_view or {}).get('laje_sup_B'))
+                                h_A=h_A, h_B=h_B, skip_layers=skip_layers)
 
     if view == 'CORTE':
         return x_sect_center + max(140.0 + b, 220.0), y0_sect - 40.0
@@ -3553,13 +2214,10 @@ def _face_unit_width_sum(unit: dict) -> float:
 
 
 def _score_face_unit_variant(unit: dict) -> float:
-    """Ranqueia variantes duplicadas da mesma geometria no recorte N2.
-
-    Unidades sem label NÃO são descartadas (score -1e9): no multi-segmento
-    LV muitas CONTINUACOES/espelhos vêm sem texto e ainda assim são faces
-    reais (ex. h=142, cadeia 244|41,2|21,8|111). Preferência de label fica
-    no desempate do select_canonical, não aqui.
-    """
+    """Ranqueia variantes duplicadas do mesmo label no recorte N2."""
+    label = str(unit.get('label') or '').strip()
+    if not label:
+        return -1e9
     segs = [
         seg for seg in _face_unit_segments(unit)
         if float(seg.get('largura_cm', seg.get('width', 0)) or 0) > 0
@@ -3568,9 +2226,6 @@ def _score_face_unit_variant(unit: dict) -> float:
         return -1e9
 
     score = 0.0
-    label = str(unit.get('label') or '').strip()
-    if label:
-        score += 15.0
     if unit.get('label_source') == 'text':
         score += 20.0
 
@@ -3621,48 +2276,18 @@ def _face_unit_base_label(label: str) -> str:
     return text
 
 
-def _face_unit_geom_key(unit) -> tuple:
-    """Assinatura geométrica da unidade (lado + h + cadeia de larguras).
-
-    CONT com larguras diferentes NÃO colapsam: são segmentos distintos da viga.
-    Só gémeos exactos (espelho/duplicata do motor) partilham a mesma chave.
-    """
-    side = str(unit.get('side') or '').upper() or '?'
-    h = float(unit.get('h_body', unit.get('h_total', unit.get('h', 0))) or 0)
-    segs = _face_unit_segments(unit)
-    widths = tuple(
-        round(float(s.get('largura_cm', s.get('width', 0)) or 0), 1)
-        for s in segs
-        if float(s.get('largura_cm', s.get('width', 0)) or 0) > 0
-    )
-    # A leitura geométrica oscila subcentimetricamente entre ocorrências
-    # equivalentes (108,6/109,3). Agrupar pela altura inteira evita duplicar a
-    # mesma ficha; ocorrências com painel superior continuam separadas no
-    # adaptador N4 pela bbox explícita.
-    return (side, round(h), widths)
-
-
 def select_canonical_face_units(face_units, viga_nome=None):
-    """Seleciona unidades de face para desenhar no N4.
-
-    Antes: 1 variante por (lado, label-base) — colapsava todos os CONT. V301.A
-    com geometrias diferentes em um só (20→2). Errado para viga multi-segmento.
-
-    Agora: mantém **todas as geometrias distintas** (lado+h+widths). Duplicatas
-    exactas do motor (mesmo layout, label vazio vs CONT) ficam 1 — prefere
-    rótulo nominal e score estrutural.
-    """
+    """Mantém uma variante por (lado, label-base); descarta CONT espelhado."""
     del viga_nome  # reservado para heurísticas futuras por elemento
     from collections import defaultdict
 
     groups = defaultdict(list)
     for unit in face_units or []:
-        if not _face_unit_segments(unit):
+        label = str(unit.get('label') or '').strip()
+        if not label:
             continue
-        key = _face_unit_geom_key(unit)
-        if key[2] == ():  # sem larguras
-            continue
-        groups[key].append(unit)
+        side = str(unit.get('side') or '').upper() or '?'
+        groups[(side, _face_unit_base_label(label))].append(unit)
 
     if not groups:
         return [
@@ -3672,10 +2297,10 @@ def select_canonical_face_units(face_units, viga_nome=None):
 
     selected = []
     for variants in groups.values():
+        # Prefere rótulo nominal (sem CONT) e, em empate, o score estrutural.
         best = max(
             variants,
             key=lambda u: (
-                1 if str(u.get('label') or '').strip() else 0,
                 0 if 'CONT' in str(u.get('label') or '').upper() else 1,
                 _score_face_unit_variant(u),
             ),
@@ -3695,7 +2320,6 @@ def select_canonical_face_units(face_units, viga_nome=None):
             1 if is_cont else 0,
             -float(bbox.get('y_top', 0) or 0),
             float(bbox.get('x_left', 0) or 0),
-            -_face_unit_width_sum(unit),
         )
 
     selected.sort(key=_sort_key)
@@ -3706,17 +2330,6 @@ def layout_lv_face_unit_bboxes(face_units, x_origin=0.0, y_top=0.0, view='A'):
     """Espelha o posicionamento horizontal de draw_viga_lateral_face_units."""
     view = str(view or 'A').upper()
     canonical = select_canonical_face_units(face_units)
-    # Espelha a segunda ordenacao espacial feita pelo desenhador. Sem isto, o
-    # pos-processador aplicava os detalhes de uma ficha sobre a ocorrencia
-    # seguinte quando CONT. e unidades sem rotulo se intercalavam.
-    canonical = sorted(
-        canonical,
-        key=lambda unit: (
-            {'A': 0, 'B': 1}.get(str(unit.get('side') or '').upper(), 2),
-            -float((unit.get('bbox') or {}).get('y_top', 0) or 0),
-            float((unit.get('bbox') or {}).get('x_left', 0) or 0),
-        ),
-    )
     section_col_w = 210.0
     face_x0 = (
         x_origin + max(section_col_w + 60.0, LV_FACE_X0_MIN)
@@ -3789,10 +2402,8 @@ def _panel_from_face_unit_segment(seg: dict, h_face: float) -> dict:
         'laje_inf_local':   float(seg.get('laje_inf_local', seg.get('slab_bottom', 0)) or 0),
         'slab_top':         float(seg.get('slab_top', seg.get('laje_sup_local', 0)) or 0),
         'slab_bottom':      float(seg.get('slab_bottom', seg.get('laje_inf_local', 0)) or 0),
-        'vazio_base_local': float(seg.get('vazio_base_local', 0) or 0),
         'reuse':            bool(seg.get('reuse', False)),
         'reuse_regions':    seg.get('reuse_regions', []),
-        'holes':            seg.get('holes', []),
         'panel_type':       ptype,
         'codigos':          seg.get('codigos_forma', []),
     }
@@ -3824,8 +2435,6 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
     )
 
     y_section = y_top - 150.0
-    _prev_bottom = None       # fundo real (medido) da secao anterior
-    LV_SECTION_GAP = 90.0     # folga vertical entre duas visoes de corte
     visible_sections = (section_views or []) if view in {'ALL', 'CORTE'} else []
     for idx, sv in enumerate(visible_sections):
         h_sec = float(sv.get('h_section', 0) or sv.get('h_section_cm', 0) or 0)
@@ -3834,52 +2443,34 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
         h_a = float(sv.get('h_A', h_sec) or h_sec)
         h_b = float(sv.get('h_B', h_sec) or h_sec)
         label = viga_nome if idx == 0 else f'{viga_nome}-{idx + 1}'
-        # Posiciona pela extensao medida: o topo desta secao fica LV_SECTION_GAP
-        # abaixo do fundo real da anterior. A primeira mantem a posicao
-        # historica (y_top - 150) para nao deslocar quem so' tem uma secao.
-        _span_lo, _span_hi = _section_rel_span(sv, h_sec)
-        if _prev_bottom is not None:
-            _center = _prev_bottom - LV_SECTION_GAP - _span_hi
-            y_section = _center - h_sec / 2.0
         # Mesmo princípio da rota sem face_units: a marca explícita de
         # contrato N1 é autoritativa e vence qualquer primitiva residual.
         # O Corte usa uma anatomia limpa comum, mas sem cruzar proveniÃªncia:
         # N3 pode usar somente o contrato N1; N4 usa apenas valores da ficha N2.
         # Primitivas DXF antigas nÃ£o entram como fallback: elas introduzem os
         # blocos/quadrados de cota que este viewer substitui por linhas/ticks.
-        # Cadeia de 3 níveis, igual à rota sem face_units (harmonizado em
-        # 2026-09-10, decisão do dono): a proveniência quem decide é a
-        # PRÓPRIA seção, não a flag de CLI.
-        #   1) seção marcada como contrato N1 (N3 isolado) -> anatomia limpa,
-        #      nunca lê N2;
-        #   2) seção vinda da ficha N2 (N4) -> replica a geometria real do
-        #      recorte (perfil de concreto, painéis, cotas e desníveis que o
-        #      template procedural não sabe reproduzir — ex.: no V301 Corte 1
-        #      a laje da face B fica 7cm abaixo da face A);
-        #   3) sem primitivas -> detalhe procedural como último recurso.
         drawn = False
         if n1_contract:
             drawn = draw_section_n1_contract_clean(
                 msp, sv, x_origin + 95, y_section + h_sec / 2.0,
                 viga_nome=label,
             )
-        if not drawn:
+        else:
+            # N4: o recorte N2 é autoridade da geometria específica do Corte.
+            # Quando há primitivas vetoriais aprovadas, preservá-las evita que
+            # uma reconstrução apenas por B/H/h_A/h_B apague perfis e cotas
+            # próprios daquele item. O detalhe procedural abaixo permanece
+            # como fallback para fichas sem essas primitivas.
             drawn = draw_section_visual_primitives(
                 msp, sv, x_origin + 95, y_section + h_sec / 2.0,
             )
         if not drawn:
             draw_section_detail(msp, x_origin + 95, y_section, b, h_sec,
                                 viga_nome=label, b_alma=b, h_A=h_a, h_B=h_b,
-                                skip_layers=skip_layers,
-                                extension_left_cm=sv.get('extension_left_cm'),
-                                extension_right_cm=sv.get('extension_right_cm'),
-                                laje_sup_A=sv.get('laje_sup_A'),
-                                laje_sup_B=sv.get('laje_sup_B'))
-        _prev_bottom = (y_section + h_sec / 2.0) + _span_lo
+                                skip_layers=skip_layers)
+        y_section -= max(h_sec + 90.0, 180.0)
 
     if view == 'CORTE':
-        if _prev_bottom is not None:
-            return x_origin + section_col_w, _prev_bottom - LV_SECTION_GAP
         return x_origin + section_col_w, y_section
 
     prepared_units = []
@@ -3916,36 +2507,16 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
     y_baseline = y_top - 150.0
     x_max = face_x0
     y_min = y_top
-    _side_seq = {'A': 0, 'B': 0}
 
     for unit, _bbox, h_face, panels in prepared_units:
         x0 = x_cursor
         y0 = y_baseline - h_face
-        side_u = str(unit.get('side') or '').upper() or '?'
-        _side_seq[side_u] = _side_seq.get(side_u, 0) + 1
-        label = str(unit.get('label') or '').strip()
-        if not label:
-            # Unidade sem rótulo no N2: nome estável para QA multi-segmento
-            base = str(viga_nome or 'LV').replace('_A', '').replace('_B', '')
-            label = f"{base}.{side_u}#{_side_seq[side_u]}"
+        label = str(unit.get('label') or '')
         grade_layer_style = str(unit.get('grade_layer_style') or 'native')
         reverse_grade = grade_layer_style == 'paineis'
-        # Aberturas pertencem aos segmentos da ficha. Materializa-las na
-        # coordenada da face sem usar a posicao original do recorte N2.
-        unit_holes = []
-        panel_offset = 0.0
-        for panel in panels:
-            panel_width = float(panel.get('width', 0) or 0)
-            for raw_hole in panel.get('holes', []) or []:
-                hole = dict(raw_hole)
-                hole.setdefault('active', True)
-                hole['panel_offset'] = panel_offset
-                hole['panel_width'] = panel_width
-                unit_holes.append(hole)
-            panel_offset += panel_width
         draw_lv_face(
             msp, x0, y0, panels, h_face, label,
-            holes=unit_holes,
+            holes=[],
             pillar_left={'active': False, 'width': 0.0, 'length': 0.0},
             pillar_right={'active': False, 'width': 0.0, 'length': 0.0},
             laje_sup=float(unit.get('laje_sup', 0) or 0),
@@ -3961,12 +2532,8 @@ def draw_viga_lateral_face_units(msp, x_origin, y_top, viga_nome, face_units,
             sarrafos_horizontais=unit.get('sarrafos_horizontais'),
             sarrafos_verticais=unit.get('sarrafos_verticais'),
             marco_laje_sup=bool(unit.get('marco_laje_sup')),
-            painel_sup_alt=float(unit.get('painel_sup_alt', 0) or 0),
-            painel_sup_width=float(unit.get('painel_sup_width', 0) or 0),
-            painel_sup_x_offset=float(unit.get('painel_sup_x_offset', 0) or 0),
             endpoint_start_label=unit.get('endpoint_start_label'),
             endpoint_end_label=unit.get('endpoint_end_label'),
-            edge_span_candidates=unit.get('edge_span_candidates'),
         )
         unit_width = sum(p['width'] for p in panels)
         x_max = max(x_max, x0 + unit_width + DIM_H_RIGHT + 40)
@@ -4040,23 +2607,6 @@ def main():
         '--output-dir', type=str, default=None,
         help='Diretorio de saida isolado (default: Fase-6_Execucao_CAD da obra).',
     )
-    parser.add_argument(
-        '--stog-obra-hint', type=str, default=None,
-        help='Nome real da obra em dxf_discovery.json, para descoberta de '
-             'layers do STOG quando --obra aponta para uma pasta temp/isolada '
-             '(ex: materializacao N2->N4 do QA, cujo nome nao bate com a obra).',
-    )
-    parser.add_argument(
-        '--stog-pav-hint', type=str, default=None,
-        help='Pavimento real (ex: "14_PAV") para escolher o molde STOG certo '
-             'em dxf_discovery.json — moldes variam por pavimento (algumas '
-             'obras nao usam presilha/barrote/TENSOR em todo pavimento). Sem '
-             'este hint, cai no heuristico antigo (melhor pavimento da obra).',
-    )
-    parser.add_argument(
-        '--strict-contract', action='store_true',
-        help='Exige ficha N4 completa e desabilita completamentos silenciosos.',
-    )
     args = parser.parse_args()
 
     obra_path = Path(args.obra)
@@ -4090,12 +2640,6 @@ def main():
     if fichas_v2_path.exists() and not args.behavior:
         try:
             fichas_data = json.loads(fichas_v2_path.read_text(encoding='utf-8'))
-            if args.strict_contract:
-                from src.core.lv_draw_contract import validate_n4_ficha
-                fichas_data = [
-                    validate_n4_ficha(ficha, item=ficha.get('viga'))
-                    for ficha in fichas_data
-                ]
             for ficha in fichas_data:
                 vn   = ficha.get('viga')
                 face = ficha.get('face', 'A')
@@ -4175,12 +2719,6 @@ def main():
             print(f'  [fichas_lv_v2] {len(fichas_map)} vigas | h_cm={len(fichas_h_map)} | b_cm={len(fichas_b_map)} | segs_widths={len(fichas_segs_map)}')
         except Exception as _fe:
             print(f'  [fichas_lv_v2] erro ao carregar: {_fe}')
-            if args.strict_contract:
-                raise SystemExit(2) from _fe
-
-    if args.strict_contract and not args.behavior and not fichas_v2_path.exists():
-        print(f'[ERRO] Contrato N4 ausente: {fichas_v2_path}')
-        raise SystemExit(2)
 
     # Coletar arquivos V*_A.json e encontrar parceiro V*_B.json
     a_files = sorted(
@@ -4313,7 +2851,6 @@ def main():
                         'laje_inf_local':   float(seg.get('laje_inf_local', seg.get('slab_bottom', 0)) or 0),
                         'slab_top':         float(seg.get('slab_top', seg.get('laje_sup_local', 0)) or 0),
                         'slab_bottom':      float(seg.get('slab_bottom', seg.get('laje_inf_local', 0)) or 0),
-                        'vazio_base_local': float(seg.get('vazio_base_local', 0) or 0),
                         'holes':            seg.get('holes', []),
                         'reuse':            bool(seg.get('reuse', False)),
                         'reuse_regions':    seg.get('reuse_regions', []),
@@ -4370,11 +2907,6 @@ def main():
         pr_B = db.get('pillar_right', {})
 
         if comprimento > 0 and (h_A > 0 or h_B > 0) and (panels_A or panels_B):
-            if args.strict_contract and (not panels_A or not panels_B):
-                print(
-                    f'[ERRO] {vname}: contrato rigido exige paineis explicitos em A e B'
-                )
-                continue
             if not panels_A:
                 panels_A = panels_B
                 bsw_A = bsw_B
@@ -4468,90 +3000,23 @@ def main():
     }
     _stog_lv_layers: set[str] = set()
     try:
-        # --obra normalmente aponta para DADOS-OBRAS/<Obra>, então .parent já
-        # é a raiz de dxf_discovery.json. Mas quando --obra é uma pasta
-        # temp/isolada de materialização N2->N4 (QA/regressão: "LV_14_PAV_V414"),
-        # .parent não tem esse arquivo — nesse caso o --stog-obra-hint também
-        # sinaliza pra buscar na raiz real de DADOS-OBRAS.
         _disc_path = obra_path.parent / 'dxf_discovery.json'
-        if args.stog_obra_hint and not _disc_path.exists():
-            _disc_path = Path('D:/Agente-cad-PYSIDE/DADOS-OBRAS') / 'dxf_discovery.json'
         if _disc_path.exists():
             _disc = json.loads(_disc_path.read_text(encoding='utf-8'))
-            # --stog-obra-hint cobre o caso em que --obra aponta pra uma pasta
-            # temp/isolada (materializacao N2->N4 do QA: "LV_14_PAV_V414"), cujo
-            # nome nunca bate com a chave real da obra em dxf_discovery.json —
-            # sem o hint, _obra_disc ficava sempre vazio e TODOS os layers
-            # condicionais eram pulados sempre, pra qualquer item/pavimento.
-            _obra_disc = _disc.get(args.stog_obra_hint or obra_path.name, {})
+            _obra_disc = _disc.get(obra_path.name, {})
             if _obra_disc:
                 import ezdxf as _ezdxf_tmp
-
-                def _norm_pav(s: str) -> str:
-                    s = (s or '').upper()
-                    for a, b in (('É', 'E'), ('Á', 'A'), ('Ã', 'A'), ('Â', 'A'),
-                                ('Ô', 'O'), ('Ó', 'O'), ('Í', 'I'), ('Ú', 'U'),
-                                ('Ç', 'C')):
-                        s = s.replace(a, b)
-                    return ''.join(ch for ch in s if ch.isalnum())
-
-                _matched_pav = None
-                if args.stog_pav_hint:
-                    _hint_norm = _norm_pav(args.stog_pav_hint)
-                    for _pav_key in _obra_disc:
-                        if _norm_pav(_pav_key) == _hint_norm:
-                            _matched_pav = _pav_key
-                            break
-                    if _matched_pav is None:
-                        # hint dentro da chave (ex: "12PAV" dentro de
-                        # "TIPO3AO12PAV") vem antes do inverso — uma chave
-                        # curta tipo "2PAV" pode ser substring acidental de
-                        # "12PAV" e escolher o pavimento errado.
-                        _cands = [k for k in _obra_disc
-                                 if _hint_norm in _norm_pav(k)]
-                        if _cands:
-                            _matched_pav = min(_cands, key=lambda k: len(_norm_pav(k)))
-                        else:
-                            _cands = [k for k in _obra_disc
-                                     if _norm_pav(k) in _hint_norm]
-                            if _cands:
-                                _matched_pav = max(_cands, key=lambda k: len(_norm_pav(k)))
-
-                if _matched_pav is not None:
-                    # Molde do PAVIMENTO específico sendo gerado — o correto:
-                    # moldes de pavimentos diferentes legitimamente variam (ex:
-                    # 13PAV/TIPO-3-AO-12PAV não têm presilha/barrote/TENSOR,
-                    # mas 14PAV/1PAV/2PAV/TÉRREO/COBERTURA têm). Usar união
-                    # entre pavimentos (tentado antes) causou regressão: fazia
-                    # 13_PAV desenhar layers que seu próprio molde/recorte
-                    # nunca teve, gerando 'extras' falsos (golden 32/32 -> 6/32).
-                    _fp = _obra_disc[_matched_pav].get('LV')
+                _best_pav = max(_obra_disc,
+                                key=lambda p: sum(1 for t in ['PL','LV','FV','LJ']
+                                                  if _obra_disc[p].get(t)),
+                                default=None)
+                if _best_pav:
+                    _fp = _obra_disc[_best_pav].get('LV')
                     if _fp:
-                        try:
-                            _sd = _ezdxf_tmp.readfile(str(_fp))
-                            _stog_lv_layers = {e.dxf.layer
-                                               for e in _sd.modelspace()
-                                               if getattr(e.dxf, 'layer', None)}
-                        except Exception as _e_pav:
-                            print(f'  [SKIP-LAYERS] erro ao ler STOG {_fp}: {_e_pav}')
-                else:
-                    # Sem hint de pavimento (uso direto/manual do CLI):
-                    # comportamento original — um único "melhor" pavimento da
-                    # obra (maior contagem de tipos PL/LV/FV/LJ presentes).
-                    _best_pav = max(_obra_disc,
-                                    key=lambda p: sum(1 for t in ['PL', 'LV', 'FV', 'LJ']
-                                                      if _obra_disc[p].get(t)),
-                                    default=None)
-                    if _best_pav:
-                        _fp = _obra_disc[_best_pav].get('LV')
-                        if _fp:
-                            try:
-                                _sd = _ezdxf_tmp.readfile(str(_fp))
-                                _stog_lv_layers = {e.dxf.layer
-                                                   for e in _sd.modelspace()
-                                                   if getattr(e.dxf, 'layer', None)}
-                            except Exception as _e_pav:
-                                print(f'  [SKIP-LAYERS] erro ao ler STOG {_fp}: {_e_pav}')
+                        _sd = _ezdxf_tmp.readfile(str(_fp))
+                        _stog_lv_layers = {e.dxf.layer
+                                           for e in _sd.modelspace()
+                                           if getattr(e.dxf, 'layer', None)}
     except Exception as _e:
         print(f'  [SKIP-LAYERS] erro ao ler STOG: {_e}')
 
@@ -4586,9 +3051,7 @@ def main():
                 b=v['b'],
                 skip_layers=skip_layers,
                 view=args.view,
-                # N3 e N4 estrito usam o mesmo motor procedural. Primitivas
-                # do recorte ficam restritas ao modo legado/diagnostico.
-                n1_contract=bool(args.behavior or args.strict_contract),
+                n1_contract=bool(args.behavior),
             )
             h_span = abs(y_cursor - y_min)
             print(f'  {v["nome"]:8s}: face_units={len(v.get("face_units", []))}  '

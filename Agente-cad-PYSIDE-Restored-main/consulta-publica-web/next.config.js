@@ -4,8 +4,6 @@
 // por crawler/CDN). Ficha/Índice de Obra buscam dado 100% client-side.
 const nextConfig = {
   reactStrictMode: true,
-  // Produção compartilha o domínio do portal sem expor novas portas.
-  basePath: process.env.CONSULTA_PUBLICA_BASE_PATH || "",
   async headers() {
     return [
       {

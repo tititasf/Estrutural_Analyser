@@ -28,7 +28,6 @@ import sys
 if __name__ == '__main__' and hasattr(sys.stdout, 'reconfigure'):
     sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 import json, argparse, re, math
-from collections import namedtuple
 from pathlib import Path
 import ezdxf
 
@@ -609,103 +608,28 @@ def _label_position(poly_pts, v_positions, h_positions, x0, y0, comp, larg):
     # Fallback: centro do maior trecho horizontal interno, levemente fora das linhas.
     return x0 + comp / 2, y0 + larg * 0.62
 
-def _dim_candidate_text_point(cand):
-    """Posição aproximada do texto de um _DimCandidate já desenhado — usa
-    text_location quando explícito, senão o mesmo cálculo padrão que
-    add_h/add_v usam para o defpoint da cota."""
-    if cand.text_location is not None:
-        return cand.text_location
-    a, b = cand.span_raw
-    if cand.axis == 'h':
-        return ((a + b) / 2.0, cand.anchor + cand.offset)
-    return (cand.anchor + cand.offset, (a + b) / 2.0)
-
-
 def _label_position_clear_of_dimensions(
     poly_pts, v_positions, h_positions, x0, y0, comp, larg, panel_x, panel_y,
-    horizontal_dim_y=None, vertical_dim_x=None, dim_candidates=None,
 ):
-    # horizontal_dim_y/vertical_dim_x sao a posicao REAL da cota principal
-    # (calculada por _add_reference_dimensions, que sabe qual ramo/offset foi
-    # usado -- shallow_complex usa offset fixo 10.0, os demais usam
-    # DIM_HORIZONTAL_OFFSET_CM/DIM_VERTICAL_OFFSET_CM). Antes esta funcao
-    # reaproximava com um offset fixo que so batia com o ramo "else", fazendo
-    # o rotulo colidir com a cota principal em lajes shallow_complex (achado
-    # cota_sobre_rotulo_item, ex. L419/L327/L329). Fallback aos valores
-    # antigos so quando o chamador nao informa (compatibilidade).
-    horizontal_text_y = (
-        horizontal_dim_y if horizontal_dim_y is not None
-        else panel_y - DIM_HORIZONTAL_OFFSET_CM
-    ) + 8.0
-    vertical_text_x = (
-        vertical_dim_x if vertical_dim_x is not None
-        else panel_x - DIM_VERTICAL_OFFSET_CM
-    ) - 8.0
-    # dim_candidates cobre as cotas de _add_cut_edge_dimensions (bordas de
-    # recorte, degraus, chanfros) — uma fonte inteiramente separada de
-    # horizontal_dim_y/vertical_dim_x (a cota "principal"). Sem isso, o
-    # rótulo só evitava a cota principal e colidia com essas outras (achado
-    # cota_sobre_rotulo_item: "218" de uma borda completa sobrepondo "L419").
-    dim_text_points = [
-        (vertical_text_x, horizontal_text_y),
-    ] + [_dim_candidate_text_point(cand) for cand in (dim_candidates or [])]
-
-    def _too_close(center):
-        if abs(center[1] - horizontal_text_y) < 18.0:
-            return True
-        # O texto vertical ocupa largura visual maior que o seu ponto de
-        # inserção. Afastar apenas 18 cm deixava L320/L321 sobre a cota 244.
-        if abs(center[0] - vertical_text_x) < 70.0:
-            return True
-        return any(
-            abs(center[0] - tx) < 45.0 and abs(center[1] - ty) < 20.0
-            for tx, ty in dim_text_points
-        )
-
-    def _clearance(point):
-        # Distância normalizada (em "raios de colisão") ao ponto de texto
-        # conhecido mais próximo — maior é melhor. Usado quando nenhuma
-        # posição fica totalmente livre, pra escolher a menos ruim em vez de
-        # cair num fallback cego que ignora cota (achado
-        # cota_sobre_rotulo_item).
-        return min(
-            max(abs(point[0] - tx) / 45.0, abs(point[1] - ty) / 20.0)
-            for tx, ty in dim_text_points
-        )
-
+    horizontal_text_y = panel_y - DIM_HORIZONTAL_OFFSET_CM + 8.0
+    vertical_text_x = panel_x - DIM_VERTICAL_OFFSET_CM - 8.0
     xs = [x0] + [x0 + float(value) for value in v_positions] + [x0 + comp]
     ys = [y0] + [y0 + float(value) for value in h_positions] + [y0 + larg]
-    clear_cells = []
-    inside_cells = []
+    candidates = []
     for xa, xb in zip(xs, xs[1:]):
         for ya, yb in zip(ys, ys[1:]):
             center = ((xa + xb) / 2, (ya + yb) / 2)
             if not _point_in_polygon(center, poly_pts):
                 continue
-            area = (xb - xa) * (yb - ya)
-            inside_cells.append((area, xa, xb, ya, yb, center))
-            if not _too_close(center):
-                clear_cells.append((area, center))
-    if clear_cells:
-        return max(clear_cells, key=lambda item: item[0])[1]
-    if inside_cells:
-        # Nenhuma célula tem centro totalmente livre: em vez de desistir,
-        # tenta pontos internos à MAIOR célula (não só o centro geométrico)
-        # e fica com o de melhor folga real — cobre o caso comum de laje
-        # estreita onde o centro do quadrante cai perto de uma cota de
-        # borda, mas outra fração do mesmo quadrante está livre.
-        area, xa, xb, ya, yb, center = max(inside_cells, key=lambda item: item[0])
-        probe_points = [
-            (xa + (xb - xa) * fx, ya + (yb - ya) * fy)
-            for fx in (0.5, 0.3, 0.7, 0.15, 0.85)
-            for fy in (0.5, 0.25, 0.75, 0.1, 0.9)
-        ]
-        valid_probes = [
-            p for p in probe_points if _point_in_polygon(p, poly_pts)
-        ]
-        if valid_probes:
-            return max(valid_probes, key=_clearance)
-        return center
+            if abs(center[1] - horizontal_text_y) < 18.0:
+                continue
+            # O texto vertical ocupa largura visual maior que o seu ponto de
+            # inserção. Afastar apenas 18 cm deixava L320/L321 sobre a cota 244.
+            if abs(center[0] - vertical_text_x) < 70.0:
+                continue
+            candidates.append(((xb - xa) * (yb - ya), center))
+    if candidates:
+        return max(candidates, key=lambda item: item[0])[1]
     return _label_position(poly_pts, v_positions, h_positions, x0, y0, comp, larg)
 
 def _vertical_dimension_guide(poly_pts, x0, comp, v_positions):
@@ -1037,91 +961,8 @@ def _nearest_each_side(value, grid, min_dist=5.0, max_dist=260.0):
     return out
 
 
-# Candidato de cota ainda não desenhado: as regras de _add_complex_projection_
-# dimensions()/_add_cut_edge_dimensions() decidem SE uma medida é necessária,
-# mas não desenham na hora — emitem um candidato que passa por
-# _consolidate_dim_candidates() antes de ir para o DXF. Isso existe porque
-# duas regras diferentes, cada uma correta isoladamente, podem medir a MESMA
-# feição física a partir de vértices ligeiramente diferentes (ex.: os dois
-# vértices adjacentes de um degrau de borda de 2,5cm) — o dedup antigo por
-# posição exata (round(x,1) num set()) não pega isso. Consolidar pela MEDIDA
-# (span) + proximidade do anchor resolve a classe inteira do problema, não
-# só o caso que motivou o fix (ver docs/STATUS.md e triagem 14_PAV/LAJ).
-_DimCandidate = namedtuple(
-    "_DimCandidate",
-    "axis span_raw span_key anchor offset text_override text_location source",
-)
-
-# Maior que qualquer degrau/recuo conhecido nas fichas reais (shallow_side_
-# notch_total, mais abaixo, já trata como "degrau pequeno" tudo até 10cm da
-# parede); menor que a distância mínima real entre duas feições de corte
-# distintas e fabricáveis (>=30cm — mesmo corte usado em
-# _add_secondary_vertical_dimensions e nos filtros de segmento deste
-# arquivo). Única alavanca a ajustar se aparecer um degrau maior no futuro.
-DIM_CANDIDATE_CLUSTER_TOL_CM = 15.0
-
-
-def _pick_canonical_dim_candidate(cluster, x_grid, y_grid):
-    """Dentro de um cluster de candidatos que medem o mesmo span, escolhe o
-    mais "canônico": o anchor mais próximo de uma linha de grade real
-    (parede externa ou linha de painel). Em caso de empate, mantém o
-    primeiro candidato criado (ordem estável, não depende de iteração de set)."""
-    if len(cluster) == 1:
-        return cluster[0]
-    grid = x_grid if cluster[0].axis == 'v' else y_grid
-
-    def _dist_to_grid(cand):
-        return min((abs(cand.anchor - g) for g in grid), default=0.0)
-
-    return min(enumerate(cluster), key=lambda pair: (_dist_to_grid(pair[1]), pair[0]))[1]
-
-
-def _consolidate_dim_candidates(candidates, x_grid, y_grid):
-    """Agrupa candidatos por (eixo, medida); dentro de cada grupo, faz
-    clustering 1D dos anchors por proximidade (DIM_CANDIDATE_CLUSTER_TOL_CM).
-    Anchors no mesmo cluster = mesma feição física vista por regras
-    diferentes -> mantém só 1. Clusters distantes = feições distintas e
-    legítimas (ex.: o mesmo degrau espelhado nas duas pontas da laje) ->
-    mantém todas. Função pura, sem `msp`, para ser testável isoladamente."""
-    by_span = {}
-    for cand in candidates:
-        by_span.setdefault((cand.axis,) + cand.span_key, []).append(cand)
-
-    winners = []
-    for group in by_span.values():
-        ordered = sorted(group, key=lambda c: c.anchor)
-        cluster = [ordered[0]]
-        for cand in ordered[1:]:
-            if cand.anchor - cluster[-1].anchor <= DIM_CANDIDATE_CLUSTER_TOL_CM:
-                cluster.append(cand)
-            else:
-                winners.append(_pick_canonical_dim_candidate(cluster, x_grid, y_grid))
-                cluster = [cand]
-        winners.append(_pick_canonical_dim_candidate(cluster, x_grid, y_grid))
-    return winners
-
-
-def _draw_dim_candidates(msp, candidates):
-    count = 0
-    for cand in candidates:
-        a, b = cand.span_raw
-        if cand.axis == 'h':
-            add_dim_on_paineis(
-                msp, a, b, cand.anchor + cand.offset, cand.anchor,
-                text_override=cand.text_override, text_location=cand.text_location,
-            )
-        else:
-            add_dim_vertical_on_paineis(
-                msp, a, b, cand.anchor + cand.offset, cand.anchor,
-                text_override=cand.text_override, text_location=cand.text_location,
-            )
-        count += 1
-    return count
-
-
-def _add_complex_projection_dimensions(poly_pts, x0, y0, comp, larg, v_positions, h_positions):
-    """Candidatos de cota de recortes especiais por projeção até paredes/linhas
-    de painel (não desenha — ver _DimCandidate).
+def _add_complex_projection_dimensions(msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions):
+    """Cota recortes especiais por projeção até paredes/linhas de painel.
 
     Em peças com degrau/chanfro, cotar só o comprimento da aresta recortada não
     basta para fabricar o painel. O padrão útil é indicar as distâncias do
@@ -1130,7 +971,7 @@ def _add_complex_projection_dimensions(poly_pts, x0, y0, comp, larg, v_positions
     com a cotagem canônica mínima.
     """
     if not poly_pts or len(poly_pts) <= 4:
-        return []
+        return 0
 
     pts = list(poly_pts)
     if pts and pts[0] != pts[-1]:
@@ -1138,35 +979,45 @@ def _add_complex_projection_dimensions(poly_pts, x0, y0, comp, larg, v_positions
 
     x_grid = _dedupe_sorted([x0, x0 + comp] + [x0 + value for value in v_positions])
     y_grid = _dedupe_sorted([y0, y0 + larg] + [y0 + value for value in h_positions])
-    candidates = []
+    added = set()
+    count = 0
 
-    def add_h(a, b, y, offset=10.0, min_len=5.0, text_location=None, source="cpx:h"):
+    def add_h(a, b, y, offset=10.0, min_len=5.0, text_location=None):
+        nonlocal count
         length = abs(a - b)
         if length <= min_len:
             return
+        key = ("h", round(min(a, b), 1), round(max(a, b), 1), round(y, 1))
+        if key in added:
+            return
+        added.add(key)
         dim_y = y + offset
         if text_location is None and length <= 20.0:
             right_side = (a + b) / 2 >= x0 + comp / 2
             text_x = max(a, b) + 18.0 if right_side else min(a, b) - 18.0
             text_location = (text_x, dim_y)
-        candidates.append(_DimCandidate(
-            axis='h', span_raw=(a, b),
-            span_key=(round(min(a, b), 1), round(max(a, b), 1)),
-            anchor=y, offset=offset,
+        add_dim_on_paineis(
+            msp, a, b, dim_y, y,
             text_override=_format_dim_value(length),
-            text_location=text_location, source=source,
-        ))
+            text_location=text_location,
+        )
+        count += 1
 
-    def add_v(a, b, x, offset=-10.0, min_len=5.0, source="cpx:v"):
+    def add_v(a, b, x, offset=-10.0, min_len=5.0):
+        nonlocal count
         if abs(a - b) <= min_len:
             return
-        candidates.append(_DimCandidate(
-            axis='v', span_raw=(a, b),
-            span_key=(round(min(a, b), 1), round(max(a, b), 1)),
-            anchor=x, offset=offset,
+        key = ("v", round(x, 1), round(min(a, b), 1), round(max(a, b), 1))
+        if key in added:
+            return
+        added.add(key)
+        dim_x = x + offset
+        add_dim_vertical_on_paineis(
+            msp, a, b, dim_x, x,
+            text_location=(dim_x, (a + b) / 2),
             text_override=_format_dim_value(abs(b - a)),
-            text_location=(x + offset, (a + b) / 2), source=source,
-        ))
+        )
+        count += 1
 
     def is_orthogonal_corner(prev_pt, cur_pt, next_pt):
         px, py = cur_pt
@@ -1220,26 +1071,13 @@ def _add_complex_projection_dimensions(poly_pts, x0, y0, comp, larg, v_positions
         ):
             for gy in _nearest_each_side(py, y_grid, min_dist=5.0, max_dist=260.0):
                 if abs(px - x0) <= 0.6:
-                    # Canto do chanfro na parede esquerda: decisao do dono
-                    # (24/07) e' que as duas cotas ficam por DENTRO da laje
-                    # (antes o trecho de baixo saia pra fora, offset -22.0 —
-                    # ficava fora do contorno, dificil de ler/associar ao
-                    # desenho). Mesmo lado (positivo/interno) pros dois,
-                    # espacamento de 15 entre eles pra nao colidir (mesmo
-                    # padrao da branch de canto interno logo abaixo).
-                    offset = 12.0 if gy > py else 27.0
+                    # Canto do chanfro na parede esquerda:
+                    # - trecho de baixo (ate a base): fica fora da laje;
+                    # - "paredezinha" ate a linha horizontal do painel: fica
+                    #   por dentro para aparecer exatamente junto ao recorte.
+                    offset = 12.0 if gy > py else -22.0
                 else:
-                    # Canto ortogonal interno fora da parede x0 (ex.: vertice
-                    # espelhado de um degrau do lado direito). Quando os dois
-                    # lados de _nearest_each_side existem (py entre duas linhas
-                    # de grade), as duas cotas verticais nasciam com o MESMO
-                    # offset -> mesmo dim_x -> texto sobreposto (achado
-                    # cota_colisao_canto_interno). Escalona como a branch da
-                    # parede acima: mesmo lado do vertice (sinal preservado),
-                    # afastamento maior para o lado oposto a gy>py.
-                    base = 10.0 if px <= x0 + comp / 2 else -10.0
-                    far = 25.0 if px <= x0 + comp / 2 else -25.0
-                    offset = base if gy > py else far
+                    offset = 10.0 if px <= x0 + comp / 2 else -10.0
                 add_v(gy, py, px, offset=offset)
 
         if (
@@ -1318,9 +1156,9 @@ def _add_complex_projection_dimensions(poly_pts, x0, y0, comp, larg, v_positions
                         if not top_wall and ("h", round(a, 1), round(b, 1)) in central_wall_keys:
                             continue
                         offset = 12.0 if yy <= y0 + larg / 2 else -12.0
-                        add_h(a, b, yy, offset=offset, min_len=1.0, source="cpx:h_chanfro")
+                        add_h(a, b, yy, offset=offset, min_len=1.0)
 
-    return candidates
+    return count
 
 
 def _add_cut_edge_dimensions(msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions):
@@ -1328,19 +1166,9 @@ def _add_cut_edge_dimensions(msp, poly_pts, x0, y0, comp, larg, v_positions, h_p
 
     Para recortes em L ou chanfrados, o painel especial precisa levar as medidas
     das paredes de corte; bbox e cotas principais não bastam.
-
-    Coleta candidatos de duas fontes (_add_complex_projection_dimensions() e o
-    loop de arestas abaixo) e consolida ANTES de desenhar — as duas fontes
-    desenham sobre o mesmo polígono e podiam, sem essa consolidação, produzir
-    cotas duplicadas de forma cruzada (mesma classe de bug do degrau de borda,
-    não só dentro de uma única fonte).
-
-    Retorna (count, winners) — winners é a lista de _DimCandidate desenhados,
-    usada pelo chamador para o rótulo do nome não colidir com nenhuma cota
-    real (achado cota_sobre_rotulo_item).
     """
     if not poly_pts or len(poly_pts) <= 4:
-        return 0, []
+        return 0
     pts = list(poly_pts)
     if pts and pts[0] != pts[-1]:
         pts.append(pts[0])
@@ -1348,6 +1176,7 @@ def _add_cut_edge_dimensions(msp, poly_pts, x0, y0, comp, larg, v_positions, h_p
     x_grid.update(round(x0 + value, 1) for value in v_positions)
     y_grid = {round(y0, 1), round(y0 + larg, 1)}
     y_grid.update(round(y0 + value, 1) for value in h_positions)
+    count = 0
     has_diagonal = _has_diagonal_edges(poly_pts)
     x_lines = _dedupe_sorted([x0, x0 + comp] + [x0 + value for value in v_positions])
     central_h_keys = set()
@@ -1363,9 +1192,9 @@ def _add_cut_edge_dimensions(msp, poly_pts, x0, y0, comp, larg, v_positions, h_p
             ])
             for a, b in zip(local_edges, local_edges[1:]):
                 central_h_keys.add(("h", round(a, 1), round(b, 1)))
-    candidates = list(_add_complex_projection_dimensions(
-        poly_pts, x0, y0, comp, larg, v_positions, h_positions
-    ))
+    count += _add_complex_projection_dimensions(
+        msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions
+    )
     for (x1, y1), (x2, y2) in zip(pts, pts[1:]):
         length = math.hypot(x2 - x1, y2 - y1)
         if length <= 5.0:
@@ -1391,24 +1220,22 @@ def _add_cut_edge_dimensions(msp, poly_pts, x0, y0, comp, larg, v_positions, h_p
                         if ("h", round(a, 1), round(b, 1)) in central_h_keys:
                             continue
                         offset_y = 12.0 if y1 <= y0 + larg / 2 else -12.0
-                        candidates.append(_DimCandidate(
-                            axis='h', span_raw=(a, b),
-                            span_key=(round(min(a, b), 1), round(max(a, b), 1)),
-                            anchor=y1, offset=offset_y,
+                        add_dim_on_paineis(
+                            msp, a, b,
+                            y1 + offset_y, y1,
                             text_override=_format_dim_value(b - a),
-                            text_location=None, source="cut_edge:h_wall",
-                        ))
+                        )
+                        count += 1
                 continue
             if _grid_has(x1, x_grid) and _grid_has(x2, x_grid):
                 continue
             offset_y = 8.0 if y1 < y0 + larg / 2 else -8.0
-            candidates.append(_DimCandidate(
-                axis='h', span_raw=(x1, x2),
-                span_key=(round(min(x1, x2), 1), round(max(x1, x2), 1)),
-                anchor=y1, offset=offset_y,
+            add_dim_on_paineis(
+                msp, x1, x2,
+                y1 + offset_y, y1,
                 text_override=_format_dim_value(length),
-                text_location=None, source="cut_edge:h_edge",
-            ))
+            )
+            count += 1
         elif vertical:
             if has_diagonal:
                 continue
@@ -1440,22 +1267,19 @@ def _add_cut_edge_dimensions(msp, poly_pts, x0, y0, comp, larg, v_positions, h_p
             if _grid_has(y1, y_grid) and _grid_has(y2, y_grid):
                 continue
             offset_x = 8.0 if x1 < x0 + comp / 2 else -8.0
-            candidates.append(_DimCandidate(
-                axis='v', span_raw=(y1, y2),
-                span_key=(round(min(y1, y2), 1), round(max(y1, y2), 1)),
-                anchor=x1, offset=offset_x,
-                text_override=_format_dim_value(length),
+            add_dim_vertical_on_paineis(
+                msp, y1, y2,
+                x1 + offset_x, x1,
                 text_location=(x1 + offset_x, (y1 + y2) / 2),
-                source="cut_edge:v_edge",
-            ))
+                text_override=_format_dim_value(length),
+            )
+            count += 1
         else:
             # Não cotar a aresta diagonal diretamente. Em lajes, o corte é mais
             # útil com cotas ortogonais de projeção até parede/linha de painel.
             # A projeção é gerada por _add_complex_projection_dimensions().
             continue
-    winners = _consolidate_dim_candidates(candidates, sorted(x_grid), sorted(y_grid))
-    count = _draw_dim_candidates(msp, winners)
-    return count, winners
+    return count
 
 
 def _add_reference_dimensions(msp, x0, y0, comp, larg, v_positions, h_positions, h_bands, poly_pts=None):
@@ -1471,13 +1295,6 @@ def _add_reference_dimensions(msp, x0, y0, comp, larg, v_positions, h_positions,
     vertical_segments = list(reversed(list(zip(y_edges, y_edges[1:]))))
     shallow = larg <= 75.0
     shallow_complex = shallow and poly_pts and len(poly_pts) > 4
-    # A cota horizontal principal usa offset diferente por ramo (10.0 em
-    # shallow_complex, DIM_HORIZONTAL_OFFSET_CM nos demais) -- guardar o valor
-    # real usado aqui para o rotulo do nome (_label_position_clear_of_
-    # dimensions) evitar a MESMA linha, em vez de reaproximar com um offset
-    # fixo que so bate com um dos ramos (achado cota_sobre_rotulo_item).
-    horizontal_dim_offset = 10.0 if shallow_complex else DIM_HORIZONTAL_OFFSET_CM
-    horizontal_dim_y = panel_y - horizontal_dim_offset
     if shallow_complex:
         for xa, xb in _axis_segments_in_polygon(poly_pts, 'h', panel_y):
             local_edges = _dedupe_sorted([xa - x0, xb - x0] + [
@@ -1489,13 +1306,13 @@ def _add_reference_dimensions(msp, x0, y0, comp, larg, v_positions, h_positions,
                     continue
                 add_dim_on_paineis(
                     msp, x0 + start, x0 + end,
-                    horizontal_dim_y, panel_y,
+                    panel_y - 10.0, panel_y,
                 )
     else:
         for start, end in zip(x_edges, x_edges[1:]):
             add_dim_on_paineis(
                 msp, x0 + start, x0 + end,
-                horizontal_dim_y, panel_y,
+                panel_y - DIM_HORIZONTAL_OFFSET_CM, panel_y,
             )
     vertical_guide_x = guide_x
     if not shallow:
@@ -1503,20 +1320,24 @@ def _add_reference_dimensions(msp, x0, y0, comp, larg, v_positions, h_positions,
             poly_pts, x0, y0, comp, larg, x_edges, guide_x
         )
     vertical_panel_x = x0 + vertical_guide_x
-    # Faixa baixa (shallow) usa sempre o eixo interno (junta/centro mais
-    # proximo), nunca o exterior a esquerda de x0 -- achado 24/07: cotas "35"/
-    # "36" apareciam fora da laje em lajes retangulares simples (L401, L403,
-    # L404, L422) porque so o ramo shallow_complex (poly_pts > 4 pontos, i.e.
-    # contorno com degrau) usava o eixo interno; retangulo simples (4 pontos)
-    # caia no ramo antigo x0-OFFSET-14 (exterior). Nao ha mais distincao entre
-    # shallow e shallow_complex aqui -- os dois usam vertical_panel_x.
-    dimline_x = vertical_panel_x - DIM_VERTICAL_OFFSET_CM
-    extension_x = vertical_panel_x
+    dimline_x = (
+        vertical_panel_x - DIM_VERTICAL_OFFSET_CM
+        if shallow_complex else (
+            x0 - DIM_VERTICAL_OFFSET_CM - 14.0
+            if shallow else vertical_panel_x - DIM_VERTICAL_OFFSET_CM
+        )
+    )
+    extension_x = vertical_panel_x if shallow_complex else (x0 if shallow else vertical_panel_x)
     for index, (start, end) in enumerate(vertical_segments):
         text_location = None
-        if shallow:
+        if shallow_complex:
             text_location = (
                 dimline_x,
+                y0 + (start + end) / 2,
+            )
+        elif shallow:
+            text_location = (
+                dimline_x - index * 24.0,
                 y0 + (start + end) / 2,
             )
         elif index == 0:
@@ -1530,10 +1351,10 @@ def _add_reference_dimensions(msp, x0, y0, comp, larg, v_positions, h_positions,
         _add_secondary_vertical_dimensions(
             msp, poly_pts, x0, y0, comp, larg, x_edges, y_edges, vertical_guide_x
         )
-    _, cut_edge_winners = _add_cut_edge_dimensions(
+    _add_cut_edge_dimensions(
         msp, poly_pts, x0, y0, comp, larg, v_positions, h_positions
     )
-    return panel_x, panel_y, horizontal_dim_y, dimline_x, cut_edge_winners
+    return panel_x, panel_y
 
 def _add_dim_text(msp, x, y, value, rotation=0.0, height=8.0):
     add_text(msp, x, y, _format_dim_value(value), height=height, layer='Pain\u00e9is', rotation=rotation)
@@ -2090,9 +1911,6 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
     _add_union_hatches(msp, poly_pts, x0, y0, comp, larg, v_bands, global_h_bands)
     _add_explicit_hlaz(msp, x0, y0, hlaz_items)
     msp.add_lwpolyline(poly_pts, close=True, dxfattribs={'layer': 'PAINEIS'})
-    # Hachura de apoio: decisão do dono (21/07) é que o N4 NÃO precisa dela —
-    # mantém o desenho gated por include_context (False na geração por item
-    # único, que é o caminho usado pelo Arete/produção).
     if include_context:
         for line in apoios_hachurados:
             try:
@@ -2151,12 +1969,12 @@ def draw_laje_planta(msp, lj_data, distribute_panels_fn, include_context=True):
                 is_union_boundary=value in union_edges,
             )
 
-    panel_x, panel_y, horizontal_dim_y, vertical_dim_x, cut_edge_winners = _add_reference_dimensions(
+    panel_x, panel_y = _add_reference_dimensions(
         msp, x0, y0, comp, larg, v_positions, h_positions, global_h_bands, poly_pts
     )
     label_x, label_y = _label_position_clear_of_dimensions(
         poly_pts, v_positions, h_positions, x0, y0, comp, larg,
-        panel_x, panel_y, horizontal_dim_y, vertical_dim_x, cut_edge_winners,
+        panel_x, panel_y,
     )
     add_text(msp, label_x, label_y, nome, height=15.0, layer='NOMENCLATURA')
 
