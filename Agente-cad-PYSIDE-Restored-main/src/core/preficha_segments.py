@@ -159,28 +159,28 @@ def _lateral_edges_from_contour(points: Iterable[Any]) -> dict[str, list[tuple[f
 
 
 def harmonize_lateral_segment_links(beams: list[dict] | None) -> int:
-    """Repara vinculos laterais divergentes da borda real do fundo.
+    """Mede (sem alterar) a divergencia entre a lateral e a borda do fundo.
 
-    Cobre tres casos, todos com a mesma causa raiz (link lateral desatualizado
-    ou nunca preenchido): ausente, duplicado por engano sobre a linha de fundo
-    (fallback antigo), e — o gap encontrado em producao (P35/V308: lado A
-    gravado ~8,7cm fora da borda real, sem ser vazio nem duplicata de B) —
-    presente mas geometricamente divergente do contorno de fundo, a fonte mais
-    forte porque vem direto do poligono do CAD. Convergir sempre para o fundo
-    evita que qualquer um dos tres padroes escape sem reparo.
+    REGRA DO DONO (2026-09-25): o fundo (FV) serve de REFERENCIA/comparacao
+    para a lateral, NUNCA de lei. Esta funcao reescrevia o segmento lateral N
+    com a borda do segmento de fundo N — o que tornava a LV copia da topologia
+    FV (inclusive as sujeiras dela) e fixava A na borda de y MAXIMO, invertendo
+    A/B nas vigas horizontais (guia G0: B acima, A abaixo). Os segmentos
+    laterais tem segmentacao propria por celula (A/B x Para/Passa) e nao ha'
+    correspondencia 1:1 de indice com o fundo.
 
-    A alteracao e feita nos proprios objetos de link. Assim, a geometria exibida
-    na pre-ficha continua sendo exatamente a geometria consumida depois dela.
-    Decisao humana explicita (status ``valid``/``ignore``) nunca e sobrescrita.
+    Agora so' conta os vinculos laterais que divergem da borda de fundo de
+    mesmo indice e registra isso em ``beam['_lv_fv_reference_divergence']``,
+    para diagnostico. Nenhum link e' criado nem modificado.
     """
-    repaired = 0
-
+    divergent = 0
     for beam in beams or []:
         if not isinstance(beam, dict):
             continue
         links = beam.get("links") or {}
         if not isinstance(links, dict):
             continue
+        report: list[dict[str, Any]] = []
         for fundo_key, fundo_slots in list(links.items()):
             match = _FUNDO_RE.match(str(fundo_key))
             if not match or not isinstance(fundo_slots, dict):
@@ -192,61 +192,27 @@ def harmonize_lateral_segment_links(beams: list[dict] | None) -> int:
             edges = _lateral_edges_from_contour(contours[0].get("points") or [])
             if not edges:
                 continue
-
             for suffix in ("comprimento_total", "comp_total_passa"):
-                key_a = f"viga_a_seg_{segment_index}_{suffix}"
-                key_b = f"viga_b_seg_{segment_index}_{suffix}"
-                values_a = (links.get(key_a) or {}).get("seg_side_a") or []
-                values_b = (links.get(key_b) or {}).get("seg_side_b") or []
-                geometry_a = values_a[0].get("points") if values_a and isinstance(values_a[0], dict) else []
-                geometry_b = values_b[0].get("points") if values_b and isinstance(values_b[0], dict) else []
-                same_geometry = bool(geometry_a and geometry_b and _same_geometry(geometry_a, geometry_b))
-                status_a = preficha_source_status(beam, key_a)
-                status_b = preficha_source_status(beam, key_b)
-                # Decisao humana (valid/ignore) e soberana mesmo quando a
-                # geometria diverge do fundo — nunca reescreve o que foi
-                # confirmado ou explicitamente descartado por uma pessoa.
-                diverges_a = bool(geometry_a) and not _edge_matches_geometry(
-                    geometry_a, edges["a"]
-                )
-                diverges_b = bool(geometry_b) and not _edge_matches_geometry(
-                    geometry_b, edges["b"]
-                )
-                repair_a = same_geometry or (
-                    not geometry_a and status_a != "ignore"
-                ) or (
-                    diverges_a and status_a not in ("ignore", "valid")
-                )
-                repair_b = same_geometry or (
-                    not geometry_b and status_b != "ignore"
-                ) or (
-                    diverges_b and status_b not in ("ignore", "valid")
-                )
-                if not repair_a and not repair_b:
-                    continue
-
-                for side, key, slot, tag, current, should_repair in (
-                    ("a", key_a, "seg_side_a", "Lado A", values_a, repair_a),
-                    ("b", key_b, "seg_side_b", "Lado B", values_b, repair_b),
-                ):
-                    if not should_repair:
+                for side in ("a", "b"):
+                    key = f"viga_{side}_seg_{segment_index}_{suffix}"
+                    values = (links.get(key) or {}).get(f"seg_side_{side}") or []
+                    geometry = (
+                        values[0].get("points")
+                        if values and isinstance(values[0], dict) else []
+                    )
+                    if not geometry:
                         continue
-                    points_side = edges[side]
-                    if current and isinstance(current[0], dict):
-                        link = current[0]
-                    else:
-                        links.setdefault(key, {}).setdefault(slot, [])
-                        link = {"type": "poly"}
-                        links[key][slot].append(link)
-                    link.update({
-                        "points": points_side,
-                        "len": round(_polyline_length(points_side), 4),
-                        "tag": tag,
-                        "geometry_role": "lateral",
-                        "geometry_source": "fundo_edge_fallback",
-                    })
-                    repaired += 1
-    return repaired
+                    edge = edges["a"] if side == "a" else edges["b"]
+                    other = edges["b"] if side == "a" else edges["a"]
+                    if _edge_matches_geometry(geometry, edge) or _edge_matches_geometry(geometry, other):
+                        continue
+                    report.append({"source_key": key, "fundo_key": str(fundo_key)})
+        if report:
+            beam["_lv_fv_reference_divergence"] = report
+            divergent += len(report)
+        else:
+            beam.pop("_lv_fv_reference_divergence", None)
+    return divergent
 
 
 def preficha_source_status(beam: dict, source_key: str) -> str:
@@ -850,7 +816,7 @@ def _slab_info(slab: dict) -> dict[str, str]:
     }
 
 
-def _touching_slabs(points: list, side: str, slabs: list[dict] | None) -> list[dict[str, str]]:
+def _touching_slabs(points: list, side: str, slabs: list[dict] | None, limit: int | None = 3) -> list[dict[str, str]]:
     line = _clean_points(points)
     if len(line) < 2:
         return []
@@ -909,7 +875,7 @@ def _touching_slabs(points: list, side: str, slabs: list[dict] | None) -> list[d
         if key and key not in seen:
             seen.add(key)
             unique.append(info)
-        if len(unique) == 3:
+        if limit is not None and len(unique) == limit:
             break
     return unique
 
@@ -1096,19 +1062,29 @@ def collect_preficha_segments(
                 level = ""
                 level_source = "unresolved"
                 level_slabs: list[str] = []
+                cell_attention = ""
                 if kind == "fundo":
+                    # Gate D-60: fundo reparado/anulado por estar fora da
+                    # linha do estrutural aparece como atencao na ficha.
+                    from src.core.beam_interpreters.fundo_viga_linhas import gate_attention
+                    cell_attention = gate_attention(link)
                     from src.core.fundo_segment_levels import derive_fundo_segment_level
+                    # D-61: nivel de lado marcado como estimado nao passa na
+                    # frente da laje encostada ao fundo.
+                    estimados = beam.get("nivel_viga_estimado")
+                    estimados = estimados if isinstance(estimados, dict) else {}
+                    lado_keys = [f"viga_{s}_seg_{segment_index}_nivel_viga" for s in ("a", "b")]
                     level_result = derive_fundo_segment_level(
                         points,
                         slabs,
                         explicit_levels=(
                             fields.get(f"viga_fundo_seg_{segment_index}_nivel_viga"),
-                            fields.get(f"viga_a_seg_{segment_index}_nivel_viga"),
-                            fields.get(f"viga_b_seg_{segment_index}_nivel_viga"),
+                            *(fields.get(k) for k in lado_keys if k not in estimados),
                             fields.get("nivel_lado_a"),
                             fields.get("nivel_lado_b"),
                             fields.get("nivel_viga"),
                         ),
+                        estimated_levels=[fields.get(k) for k in lado_keys if k in estimados],
                     )
                     if level_result["value"] is not None:
                         level = f'{float(level_result["value"]):g}'
@@ -1142,6 +1118,10 @@ def collect_preficha_segments(
                         "beam_level": str(_first_value(
                             beam, f"{prefix}_nivel_viga", f"nivel_lado_{side_key}"
                         ) or ""),
+                        # D-61: {origem, laje|de} quando o nivel e' estimado
+                        "beam_level_estimated": dict(
+                            (beam.get("nivel_viga_estimado") or {}).get(f"{prefix}_nivel_viga") or {}
+                        ),
                         "slabs": touching_slabs[:3],
                         "continuity": str(_first_value(beam, f"{prefix}_continuidade") or ""),
                         "adjustment": {
@@ -1152,6 +1132,62 @@ def collect_preficha_segments(
                         "passing_pillars": _opening_names(beam, prefix, "pilar"),
                         "beam_openings": _opening_names(beam, prefix, "viga"),
                     }
+                    # Celula LV (A/B x Para/Passa) interpretada pelas regras do
+                    # guia: os detalhes sao DO SEGMENTO desta celula. Os campos
+                    # viga_{a|b}_seg_N_* sao por lado+indice e compartilhados
+                    # entre Para e Passa, logo nao descrevem este segmento.
+                    cell = link.get("lv_cell") if isinstance(link.get("lv_cell"), dict) else None
+                    if cell:
+                        depth = cell.get("depth")
+                        height = f"{float(depth):g}" if depth is not None else height
+                        level = str(cell.get("level") or "")
+                        # D-61: nivel sem laje encostada vem ESTIMADO e marcado
+                        level_source = (
+                            "lv_cell_estimado" if level and cell.get("level_estimado")
+                            else "lv_cell_slabs" if level else "unresolved"
+                        )
+                        level_slabs = [s.get("name", "") for s in cell.get("slabs") or []]
+
+                        def _cell_support(info: dict) -> dict[str, str]:
+                            info = info or {}
+                            return {
+                                "name": str(info.get("name") or ""),
+                                "dimension": str(info.get("dim") or ""),
+                                "level": "",
+                            }
+
+                        details.update({
+                            "support_start": _cell_support(cell.get("support_start")),
+                            "support_end": _cell_support(cell.get("support_end")),
+                            "beam_level": level,
+                            "beam_level_estimated": dict(cell.get("level_estimado") or {}),
+                            "slabs": [
+                                {"name": str(s.get("name") or ""), "level": str(s.get("level") or ""),
+                                 "height": _dimension_height(s.get("height"))}
+                                for s in (cell.get("slabs") or [])[:3]
+                            ],
+                            "adjustment": {
+                                "initial": f"{cell.get('adjustment_start') or 0:g}" if cell.get("adjustment_start") else "",
+                                "final": f"{cell.get('adjustment_end') or 0:g}" if cell.get("adjustment_end") else "",
+                                "total": "",
+                            },
+                            "passing_pillars": [p.get("name", "") for p in cell.get("pillar_openings") or []],
+                            "beam_openings": [b.get("name", "") for b in cell.get("beam_openings") or []],
+                            "lv_cell": cell,
+                        })
+                        cell_flags = cell.get("flags") or []
+                        avisos = []
+                        if "sobre_linha_de_cota" in cell_flags:
+                            avisos.append(
+                                "SA: segmento sobre LINHA DE COTA "
+                                f"({float(cell.get('sobre_cota') or 0):.0%})"
+                            )
+                        if "fora_da_linha_estrutural" in cell_flags:
+                            avisos.append(
+                                "SA: destaque fora da linha do estrutural "
+                                f"(cobertura {float(cell.get('cobertura_linha') or 0):.0%})"
+                            )
+                        cell_attention = " · ".join(avisos)
                 result[kind].append({
                     "uid": uid,
                     "kind": kind,
@@ -1178,7 +1214,7 @@ def collect_preficha_segments(
                     "ficha": ficha,
                     "details": details,
                     "status": str((previous or {}).get("status") or "valid"),
-                    "attention": str((previous or {}).get("attention") or ""),
+                    "attention": str((previous or {}).get("attention") or cell_attention or ""),
                     "source_key": str(link_key),
                     "source_slot": slot,
                     "_beam_ref": beam,

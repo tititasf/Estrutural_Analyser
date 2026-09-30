@@ -1,0 +1,132 @@
+{
+  "segmentos": {
+    "fundo": [
+      {
+        "uid": "v1-s1",
+        "beam_name": "V1",
+        "segment_label": "1",
+        "points": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            10.0,
+            0.0
+          ],
+          [
+            10.0,
+            2.0
+          ],
+          [
+            0.0,
+            2.0
+          ],
+          [
+            0.0,
+            0.0
+          ]
+        ],
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 10.0,
+        "width": 2.0,
+        "status": "valid",
+        "atencao": ""
+      },
+      {
+        "uid": "v1-s2",
+        "beam_name": "V1",
+        "segment_label": "2",
+        "points": [
+          [
+            12.0,
+            0.0
+          ],
+          [
+            22.0,
+            0.0
+          ],
+          [
+            22.0,
+            2.0
+          ],
+          [
+            12.0,
+            2.0
+          ],
+          [
+            12.0,
+            0.0
+          ]
+        ],
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 10.0,
+        "width": 2.0,
+        "status": "valid",
+        "atencao": ""
+      },
+      {
+        "uid": "fundo|web|V1|3|42e8b29f9454",
+        "beam_name": "V1",
+        "segment_label": "3",
+        "side": "Fundo",
+        "behavior": "Fundo",
+        "length": 10.0,
+        "width": 2.0,
+        "status": "valid",
+        "atencao": "",
+        "points": [
+          [
+            24.0,
+            0.0
+          ],
+          [
+            34.0,
+            0.0
+          ],
+          [
+            34.0,
+            2.0
+          ],
+          [
+            24.0,
+            2.0
+          ],
+          [
+            24.0,
+            0.0
+          ]
+        ]
+      },
+      {
+        "uid": "v2-s1",
+        "beam_name": "V2",
+        "segment_label": "1",
+        "points": [
+          [
+            0,
+            5
+          ],
+          [
+            5,
+            5
+          ],
+          [
+            5,
+            7
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            0,
+            5
+          ]
+        ]
+      }
+    ]
+  }
+}

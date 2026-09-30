@@ -172,15 +172,22 @@ def test_live_v301_bbox_height_is_reconciled_from_material_panels():
             "ORDER BY id DESC LIMIT 1"
         ).fetchone()[0]
     ficha = motor.extrair_ficha_lateral_viga(recorte, "V301_A")
+    # Esta unidade (x 6011,9) e' da coluna da face A. Ate' 2026-09-21 ela saia
+    # como B: o ancora `V301.B` puxava pares so' por alinhamento em Y e pegava
+    # desenhos da coluna A, o que inflava o lado B da V301 para 24 ocorrencias
+    # quando o dono conta 16. Com o lado corrigido a unidade fica em A — e os
+    # numeros MELHORAM: ancorada em B ela reconciliava 110,3 / 124,3; ancorada
+    # na propria face da' 110,0 / 124,0, e 124 e' exatamente o `secao + 4` da
+    # regra rigida (120 + 4).
     target = next(
         u for u in ficha.get("face_units", [])
-        if str(u.get("side", "")).upper() == "B"
+        if str(u.get("side", "")).upper() == "A"
         and [round(float(p.get("width", 0)), 1) for p in u.get("panels", [])]
         == [111.0, 63.0, 244.0]
         and round(float((u.get("bbox") or {}).get("y_top", 0)), 1) == 7778.0
     )
-    assert round(float(target.get("h_body", 0)), 1) == 110.3
-    assert round(float(target.get("h_total", 0)), 1) == 124.3
+    assert round(float(target.get("h_body", 0)), 1) == 110.0
+    assert round(float(target.get("h_total", 0)), 1) == 124.0
     assert float(target.get("laje_inf", 0)) == 0.0
 
 

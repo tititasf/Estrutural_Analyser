@@ -15,11 +15,15 @@ from portal.db import connection, repository as repo
 TABELAS_ESPERADAS = {
     "portal_membros",
     "portal_obras",
+    "portal_obra_pavimentos",
     "portal_jobs",
     "portal_drive_sync_state",
     "portal_comentarios_equipe",
     "portal_apontamentos_ui",
+    "portal_apontamento_sessoes",
+    "portal_apontamento_paginas",
     "portal_n5_releases",
+    "portal_n5_validacoes",
     "portal_documentos",  # migration 002 (2026-07-06)
 }
 
@@ -50,11 +54,11 @@ def test_init_db_cria_as_6_tabelas(conn):
     ).fetchall()
     nomes = {r["name"] for r in rows}
     assert TABELAS_ESPERADAS.issubset(nomes)
-    # tabela de versão registrou as migrations 001..012 (apontamentos visuais;
+    # tabela de versão registrou as migrations 001..017.
     # ver CHANGELOG das migrations
     # em portal/db/migrations/ pro histórico completo)
     ver = conn.execute("SELECT MAX(version) FROM portal_schema_version").fetchone()[0]
-    assert ver == 12
+    assert ver == 17
 
 
 def test_init_db_idempotente(tmp_path):
@@ -64,7 +68,7 @@ def test_init_db_idempotente(tmp_path):
     # rodar de novo não duplica versão nem quebra
     c2 = connection.init_db(db_path)
     n = c2.execute("SELECT COUNT(*) FROM portal_schema_version").fetchone()[0]
-    assert n == 12  # 001..012, cada migration registra 1 linha
+    assert n == 17  # 001..017, cada migration registra 1 linha
     c2.close()
 
 
@@ -126,6 +130,22 @@ def test_atualizar_estado_obra(conn, membro_id):
     obra = repo.obter_obra(conn, obra_id)
     assert obra["estado"] == "erro"
     assert obra["erro_msg"] == "parse falhou"
+
+
+def test_ordem_manual_inclui_pavimento_sem_dxf_e_tipo(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Ordem", pasta_drive_id="p")
+    assert repo.obter_obra(conn, obra_id)["comportamento"] == "misto"
+    rows = repo.salvar_pavimentos_obra(conn, obra_id, [
+        {"pavimento": "TERREO"}, {"pavimento": "TIPO", "tipo": {"de": 2, "ate": 10}},
+        {"pavimento": "COBERTURA"},
+    ])
+    assert [r["pavimento"] for r in rows] == ["TERREO", "TIPO", "COBERTURA"]
+    assert rows[1]["anterior"] == "TERREO" and rows[1]["proximo"] == "COBERTURA"
+    assert rows[1]["tipo"] == {"de": 2, "ate": 10}
+    assert repo.listar_pavimentos_obra(conn, obra_id) == rows
+    with pytest.raises(ValueError):
+        repo.salvar_pavimentos_obra(conn, obra_id, [{"pavimento": "TIPO", "tipo": {"de": 10, "ate": 2}}])
+    assert repo.listar_pavimentos_obra(conn, obra_id) == rows
 
 
 def test_dedup_obra_por_hash(conn, membro_id):
@@ -324,6 +344,27 @@ def test_n5_rejeita_classe_invalida(conn, membro_id):
         )
 
 
+def test_aprovacao_n5_fica_vinculada_ao_release(conn, membro_id):
+    obra_id = repo.criar_obra(
+        conn, membro_id=membro_id, nome="Obra N5 Validada", pasta_drive_id="pn5v",
+    )
+    primeiro = repo.registrar_n5_release(
+        conn, obra_id=obra_id, classe="LJ", liberado_por=membro_id,
+        status_certificacao="beta", pavimento="13_PAV",
+    )
+    repo.aprovar_n5_release(
+        conn, release_id=primeiro, obra_id=obra_id, classe="LJ",
+        pavimento="13_PAV", aprovado_por=membro_id,
+    )
+    segundo = repo.registrar_n5_release(
+        conn, obra_id=obra_id, classe="LJ", liberado_por=membro_id,
+        status_certificacao="beta", pavimento="13_PAV",
+    )
+    aprovados = repo.listar_n5_validacoes_por_obra(conn, obra_id)
+    assert {item["release_id"] for item in aprovados} == {primeiro}
+    assert segundo not in {item["release_id"] for item in aprovados}
+
+
 # --------------------------------------------------------------------------- #
 # portal_documentos — obra vira container de N documentos (2026-07-06)
 # --------------------------------------------------------------------------- #
@@ -372,6 +413,38 @@ def test_documento_mesmo_hash_em_obras_diferentes_nao_colide(conn, membro_id):
     repo.criar_documento(conn, obra_id=obra_2, arquivo_nome="a.dxf", arquivo_hash="h-comum")
     assert repo.obter_documento_por_hash(conn, obra_1, "h-comum") is not None
     assert repo.obter_documento_por_hash(conn, obra_2, "h-comum") is not None
+
+
+def test_sincronizar_dxf_convertido_cria_e_atualiza_sem_duplicar(conn, membro_id):
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome="Obra Convertida", pasta_drive_id="p")
+    origem_id = repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="14_PAV.dwg",
+        pavimento_sugerido="14_PAV", tipo_documento_confirmado="Bruto",
+        status="revisar",
+    )
+    origem = repo.obter_documento(conn, origem_id)
+
+    primeiro = repo.sincronizar_documento_dxf_convertido(
+        conn, obra_id=obra_id, documento_origem=origem,
+        arquivo_nome="14_PAV.dxf", local_path="/obra/entrada/14_PAV.dxf",
+        arquivo_hash="hash-dxf-1", status="revisar",
+        pavimento_confirmado="14_PAV",
+    )
+    segundo = repo.sincronizar_documento_dxf_convertido(
+        conn, obra_id=obra_id, documento_origem=origem,
+        arquivo_nome="14_pav.DXF", local_path="/obra/entrada/14_pav.DXF",
+        arquivo_hash="hash-dxf-2", status="classificado",
+        pavimento_confirmado="14_PAV",
+    )
+
+    assert segundo == primeiro
+    docs = repo.listar_documentos_por_obra(conn, obra_id)
+    assert len(docs) == 2
+    dxf = next(d for d in docs if d["id"] == primeiro)
+    assert dxf["status"] == "classificado"
+    assert dxf["pavimento_confirmado"] == "14_PAV"
+    assert dxf["tipo_documento_confirmado"] == "Bruto"
+    assert dxf["local_path"] == "/obra/entrada/14_pav.DXF"
 
 
 def test_atualizar_classificacao_documento_confirma_sem_apagar_o_resto(conn, membro_id):

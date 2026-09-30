@@ -9,7 +9,10 @@ recorte gerado pelo RecorteMotor).
 from __future__ import annotations
 
 import logging
+import json
 import math
+import re
+import shutil
 import sqlite3
 import time
 import uuid
@@ -295,6 +298,154 @@ class BboxPct(BaseModel):
 class ManualCropPayload(BaseModel):
     bboxes: list[BboxPct]
     classe_alvo: str
+    substituir_item_id: str | None = None
+    confirmar_limpeza_dependencias: bool = False
+
+
+def _recorte_tem_dependencias_estruturais(item_id: str | None) -> bool:
+    """Somente recortes de torre alimentam os motores SA/N3/N5.
+
+    Detalhes, convencoes e demais recortes auxiliares podem ser refeitos sem
+    consultar ou invalidar qualquer analise estrutural da torre.
+    """
+    if not item_id:
+        return False
+    return re.fullmatch(r"torre_\d+", item_id) is not None
+
+
+def _projetos_sa_que_usam_recorte(settings, recorte_path: Path) -> list[dict]:
+    """Descobre dados derivados cuja fonte e exatamente este recorte.
+
+    O modelo SA atual ainda identifica o projeto por obra+pavimento. Enquanto
+    nao houver uma dimensao de torre no contrato inteiro, nunca apagamos esses
+    dados automaticamente: sobrescrever o DXF e manter SA/N3 antigo seria
+    incoerente; limpar por pavimento poderia atingir outra torre.
+    """
+    db_path = Path(settings.sa_db_path)
+    if not db_path.is_file():
+        return []
+    alvo = str(recorte_path.resolve())
+    conn = sqlite3.connect(str(db_path))
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute(
+            "SELECT id, name, dxf_path FROM projects WHERE dxf_path = ?",
+            (alvo,),
+        ).fetchall()
+        resultado = []
+        for row in rows:
+            project_id = str(row["id"])
+            counts = {}
+            for table in ("pillars", "beams", "slabs"):
+                try:
+                    counts[table] = int(conn.execute(
+                        f"SELECT COUNT(*) FROM {table} WHERE project_id = ?",
+                        (project_id,),
+                    ).fetchone()[0])
+                except sqlite3.OperationalError:
+                    counts[table] = 0
+            if sum(counts.values()) > 0:
+                resultado.append({"project_id": project_id, "pavimento": row["name"], **counts})
+        return resultado
+    finally:
+        conn.close()
+
+
+def _limpar_projetos_sa(settings, dependencias: list[dict]) -> int:
+    project_ids = [str(item["project_id"]) for item in dependencias]
+    if not project_ids:
+        return 0
+    conn = sqlite3.connect(str(settings.sa_db_path))
+    try:
+        conn.execute("BEGIN IMMEDIATE")
+        placeholders = ",".join("?" for _ in project_ids)
+        tabelas = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name <> 'projects'"
+        ).fetchall()
+        for (tabela,) in tabelas:
+            colunas = {row[1] for row in conn.execute(f'PRAGMA table_info("{tabela}")')}
+            if "project_id" in colunas:
+                nome_seguro = tabela.replace('"', '""')
+                conn.execute(f'DELETE FROM "{nome_seguro}" WHERE project_id IN ({placeholders})', project_ids)
+        conn.execute(f"DELETE FROM projects WHERE id IN ({placeholders})", project_ids)
+        conn.commit()
+        return len(project_ids)
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def _artefatos_sa_que_usam_recorte(obra_dir: Path, recorte_path: Path) -> list[Path]:
+    """Localiza snapshots/runs cuja origem e exatamente ``recorte_path``.
+
+    O estado canônico ainda e publicado por pavimento. Por isso ele somente
+    pode ser invalidado quando a rodada mais recente daquele pavimento aponta
+    para este recorte. Rodadas de outras torres nunca entram no resultado.
+    """
+    obra_dir = Path(obra_dir).resolve()
+    alvo = Path(recorte_path).resolve()
+    production_root = obra_dir / "Fase-6_Execucao_CAD" / "production_sa"
+    manifests: list[tuple[Path, str, Path]] = []
+    if production_root.is_dir():
+        for manifest in production_root.glob("*/*/production_manifest.json"):
+            try:
+                payload = json.loads(manifest.read_text(encoding="utf-8"))
+                source = Path(str(payload.get("source_dxf") or "")).resolve()
+            except (OSError, TypeError, ValueError, json.JSONDecodeError):
+                continue
+            manifests.append((manifest.parent, manifest.parent.parent.name, source))
+
+    encontrados: list[Path] = []
+    por_pavimento: dict[str, list[tuple[Path, Path]]] = {}
+    for run, pavimento, source in manifests:
+        por_pavimento.setdefault(pavimento, []).append((run, source))
+        if source == alvo:
+            encontrados.append(run)
+
+    for pavimento, runs in por_pavimento.items():
+        latest_run, latest_source = max(runs, key=lambda item: item[0].name)
+        if latest_source != alvo:
+            continue
+        canonical = obra_dir / f"estado_{pavimento}.json"
+        if canonical.is_file():
+            encontrados.append(canonical)
+        # O snapshot isolado que originou a rodada traz o PID no nome da run.
+        pid = latest_run.name.rsplit("_", 1)[-1]
+        if pid.isdigit():
+            snapshot = obra_dir / f"estado_{pavimento}_pid{pid}.json"
+            if snapshot.is_file():
+                encontrados.append(snapshot)
+
+    # Mantém ordem estável e elimina duplicatas sem ampliar o escopo.
+    return list(dict.fromkeys(encontrados))
+
+
+def _arquivar_artefatos_sa(
+    obra_dir: Path, recorte_path: Path, artefatos: list[Path],
+) -> list[str]:
+    """Retira artefatos antigos da área ativa, mantendo cópia recuperável."""
+    if not artefatos:
+        return []
+    obra_dir = Path(obra_dir).resolve()
+    recorte_path = Path(recorte_path).resolve()
+    carimbo = time.strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:8]
+    destino = recorte_path.parent / ".historico_recortes" / "analises" / carimbo
+    movidos: list[str] = []
+    for artefato in artefatos:
+        origem = Path(artefato).resolve()
+        try:
+            relativo = origem.relative_to(obra_dir)
+        except ValueError as exc:
+            raise RuntimeError(f"artefato SA fora da obra: {origem}") from exc
+        if not origem.exists():
+            continue
+        alvo = destino / relativo
+        alvo.parent.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(origem), str(alvo))
+        movidos.append(str(alvo))
+    return movidos
 
 @router.post("/{obra_id}/recortes/brutos/{bruto_id}/manual_crop")
 def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload, request: Request,
@@ -355,15 +506,49 @@ def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload
         out_dir = torre_crop._dir_recortes_bruto(obra_dir, bruto_id)
         out_dir.mkdir(parents=True, exist_ok=True)
 
-        import re
         nome_alvo = re.sub(r'[^a-zA-Z0-9_]', '_', payload.classe_alvo)
         if not nome_alvo.strip("_"):
             raise HTTPException(status_code=422, detail="Escolha um nome valido para o recorte")
+        substituir_item_id = None
+        if payload.substituir_item_id:
+            substituir_item_id = re.sub(r'[^a-zA-Z0-9_]', '_', payload.substituir_item_id)
+            if substituir_item_id != payload.substituir_item_id or substituir_item_id != nome_alvo:
+                raise HTTPException(
+                    status_code=422,
+                    detail="O recorte de destino precisa coincidir com o item substituido",
+                )
         out_path = out_dir / f"{nome_alvo}.dxf"
+        dependencias = []
+        artefatos_sa: list[Path] = []
+        substitui_torre = _recorte_tem_dependencias_estruturais(substituir_item_id)
+        if substituir_item_id:
+            if not out_path.is_file():
+                raise HTTPException(status_code=404, detail="Recorte a substituir nao encontrado")
+            if substitui_torre:
+                dependencias = _projetos_sa_que_usam_recorte(
+                    request.app.state.settings, out_path,
+                )
+                artefatos_sa = _artefatos_sa_que_usam_recorte(obra_dir, out_path)
+                if (dependencias or artefatos_sa) and not payload.confirmar_limpeza_dependencias:
+                    raise HTTPException(
+                        status_code=409,
+                        detail=(
+                            "Esta torre possui dados SA/N3/N5 persistidos. "
+                            "Confirme a substituicao para apagar somente os dados vinculados a ela."
+                        ),
+                    )
+        elif out_path.exists():
+            raise HTTPException(
+                status_code=409,
+                detail="Este recorte ja existe. Selecione 'Substituir recorte existente'.",
+            )
         tmp_path = out_dir / f".{nome_alvo}.{uuid.uuid4().hex}.tmp.dxf"
 
         from scripts.obra_crop_engine import crop_dxf, crop_dxf_multi
         inicio_crop = time.perf_counter()
+        backup_path = None
+        projetos_sa_removidos = 0
+        artefatos_sa_arquivados: list[str] = []
         try:
             if len(dxf_bboxes) == 1:
                 crop = crop_dxf(
@@ -378,14 +563,41 @@ def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload
 
             if crop.get("error"):
                 raise HTTPException(status_code=422, detail=crop["error"])
+            if substituir_item_id:
+                historico_dir = out_dir / ".historico_recortes"
+                historico_dir.mkdir(parents=True, exist_ok=True)
+                backup_path = historico_dir / (
+                    f"{nome_alvo}_{time.strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}.dxf"
+                )
+                shutil.copy2(out_path, backup_path)
             tmp_path.replace(out_path)
+            if dependencias:
+                try:
+                    projetos_sa_removidos = _limpar_projetos_sa(
+                        request.app.state.settings, dependencias,
+                    )
+                except Exception:
+                    if backup_path:
+                        shutil.copy2(backup_path, out_path)
+                    raise
+            if artefatos_sa:
+                try:
+                    artefatos_sa_arquivados = _arquivar_artefatos_sa(
+                        obra_dir, out_path, artefatos_sa,
+                    )
+                except Exception:
+                    if backup_path:
+                        shutil.copy2(backup_path, out_path)
+                    raise
         finally:
             if tmp_path.exists():
                 tmp_path.unlink(missing_ok=True)
         duracao_ms = round((time.perf_counter() - inicio_crop) * 1000)
 
         data = torre_crop._ler_validacao(out_dir)
-        data[nome_alvo] = True
+        # Todo recorte novo/refeito volta a pendente: a geometria mudou e
+        # precisa de nova aprovacao humana antes de alimentar as etapas.
+        data[nome_alvo] = False
         torre_crop._salvar_validacao(out_dir, data)
 
         return {
@@ -395,6 +607,10 @@ def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload
             "entities_copied": crop.get("entities_copied", 0),
             "entities_skipped_outside": crop.get("entities_skipped_outside", 0),
             "duration_ms": duracao_ms,
+            "substituido": bool(substituir_item_id),
+            "backup_path": str(backup_path) if substituir_item_id and backup_path else None,
+            "projetos_sa_removidos": projetos_sa_removidos,
+            "artefatos_sa_arquivados": len(artefatos_sa_arquivados),
         }
     except HTTPException:
         raise  # 404/500 já tratados acima não viram 500 genérico com stack

@@ -45,6 +45,7 @@ def liberar_n5(
     job_id: Optional[str] = None,
     engine_version: Optional[str] = None,
     dry_run: bool = False,
+    visual_mode: str = "NOVA",
 ) -> dict:
     """Monta o N5 da classe+pav e registra a liberacao com snapshot de certificacao.
 
@@ -52,8 +53,12 @@ def liberar_n5(
     classe for invalida (repository ja valida contra PL/LV/FV/LJ).
     """
     resultado = pipeline_runner.executar_n5(
-        settings, obra, classe=classe, pavimento=pavimento, dry_run=dry_run
+        settings, obra, classe=classe, pavimento=pavimento, dry_run=dry_run,
+        visual_mode=visual_mode,
     )
+    if not resultado.ok:
+        detalhe = resultado.log_tail or "o motor N5 não concluiu o artefato"
+        raise ValueError(detalhe)
     dxf_path = resultado.artefatos.get("n5_dxf") if not dry_run else None
     dxf_hash = _hash_dxf(dxf_path) if dxf_path else None
 
@@ -77,4 +82,5 @@ def liberar_n5(
         "dxf_hash": dxf_hash,
         "ok": resultado.ok,
         "dry_run": dry_run,
+        "visual_mode": str(visual_mode or "NOVA").strip().upper(),
     }

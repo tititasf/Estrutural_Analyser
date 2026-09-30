@@ -1,0 +1,630 @@
+{
+  "faces": {
+    "A": {
+      "label": "A — esquerda (oeste) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V309A",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "AC",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "V309",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "AD",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "B": {
+      "label": "B — direita (leste) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "L319",
+          "dim": "14",
+          "nivel": "852.19cm",
+          "canto": "BD",
+          "papel": "laje",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "19cm"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V309",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "BD",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "V309A",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "BC",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V302",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "BC",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "41cm",
+          "dist_dir": "0cm"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "C": {
+      "label": "C — topo (norte) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "V309A",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "CC",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "0cm"
+        }
+      ]
+    },
+    "D": {
+      "label": "D — base (sul) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "V309",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "DD",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "7cm",
+          "dist_dir": "0cm"
+        }
+      ]
+    }
+  },
+  "orientation": "vertical",
+  "schema": "pil.abcd_tables.v2",
+  "face_ids": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "geometry_type": "rectangular",
+  "item": "P10",
+  "geometry_points": [
+    [
+      1178.8825,
+      2620.038
+    ],
+    [
+      1197.8825,
+      2620.038
+    ],
+    [
+      1197.8825,
+      2680.038
+    ],
+    [
+      1178.8825,
+      2680.038
+    ],
+    [
+      1178.8825,
+      2620.038
+    ]
+  ],
+  "face_slab_beam_violations": [],
+  "face_beam_reach": {
+    "A": [
+      "V309",
+      "V309A",
+      "V302"
+    ],
+    "B": [
+      "V309",
+      "V309A",
+      "V302"
+    ],
+    "C": [
+      "V309",
+      "V309A",
+      "V302"
+    ],
+    "D": [
+      "V309",
+      "V309A",
+      "V302"
+    ]
+  },
+  "face_beam_span_overlap": {
+    "A": [
+      "V302"
+    ],
+    "B": [
+      "V302"
+    ],
+    "C": [
+      "V309",
+      "V309A"
+    ],
+    "D": [
+      "V309",
+      "V309A"
+    ]
+  },
+  "face_beam_crosses": {
+    "A": [],
+    "B": [],
+    "C": [],
+    "D": []
+  },
+  "face_corner_reach": {
+    "AC": [
+      "V309A",
+      "V302"
+    ],
+    "AD": [
+      "V309",
+      "V309A",
+      "V302"
+    ],
+    "BC": [
+      "V309",
+      "V309A",
+      "V302"
+    ],
+    "BD": [
+      "V309",
+      "V309A",
+      "V302"
+    ],
+    "CA": [
+      "V309A",
+      "V302"
+    ],
+    "CB": [
+      "V309",
+      "V309A",
+      "V302"
+    ],
+    "DA": [
+      "V309",
+      "V309A",
+      "V302"
+    ],
+    "DB": [
+      "V309",
+      "V309A",
+      "V302"
+    ]
+  },
+  "embedded_beams": [],
+  "face_slab_touching": {
+    "A": [
+      "L319"
+    ],
+    "B": [
+      "L319"
+    ],
+    "C": [],
+    "D": []
+  },
+  "face_beam_covering": {
+    "A": [],
+    "B": [],
+    "C": [
+      "V307",
+      "V309",
+      "V309A"
+    ],
+    "D": [
+      "V307",
+      "V309",
+      "V309A"
+    ]
+  },
+  "face_beam_containing": {
+    "A": [],
+    "B": [],
+    "C": [
+      "V309A"
+    ],
+    "D": [
+      "V309"
+    ]
+  },
+  "face_beam_arrives_dying": {
+    "A": [],
+    "B": [
+      "V303",
+      "V304",
+      "V305",
+      "V306",
+      "V308",
+      "V310",
+      "V311",
+      "V312",
+      "V313",
+      "V314",
+      "V315",
+      "V316",
+      "V317",
+      "V318",
+      "V319",
+      "V320",
+      "V321",
+      "V322",
+      "V323",
+      "V324",
+      "V325",
+      "V327",
+      "V328",
+      "V329",
+      "V331",
+      "V332",
+      "VF202",
+      "VF203",
+      "V302",
+      "V330",
+      "V301",
+      "V326",
+      "VF301"
+    ],
+    "C": [
+      "V309A",
+      "V312",
+      "V314",
+      "V316",
+      "V318",
+      "V320",
+      "V322",
+      "V325",
+      "V332",
+      "V330",
+      "V301",
+      "VF301"
+    ],
+    "D": [
+      "V303",
+      "V304",
+      "V305",
+      "V306",
+      "V307",
+      "V308",
+      "V309",
+      "V310",
+      "V311",
+      "V313",
+      "V315",
+      "V317",
+      "V319",
+      "V321",
+      "V323",
+      "V324",
+      "V327",
+      "V328",
+      "V329",
+      "V331",
+      "VF202",
+      "VF203",
+      "V326"
+    ]
+  },
+  "face_geometry_span": {
+    "A": 60.0,
+    "B": 60.0,
+    "C": 19.0,
+    "D": 19.0
+  },
+  "embedded_at_start": {},
+  "beam_axis_horizontal": {
+    "V303": true,
+    "V304": true,
+    "V305": true,
+    "V306": true,
+    "V307": false,
+    "V308": true,
+    "V309": false,
+    "V309A": false,
+    "V310": false,
+    "V311": false,
+    "V312": false,
+    "V313": false,
+    "V314": false,
+    "V315": false,
+    "V316": false,
+    "V317": false,
+    "V318": false,
+    "V319": false,
+    "V320": false,
+    "V321": false,
+    "V322": false,
+    "V323": false,
+    "V324": false,
+    "V325": false,
+    "V327": false,
+    "V328": false,
+    "V329": false,
+    "V331": false,
+    "V332": false,
+    "VF202": true,
+    "VF203": true,
+    "V302": true,
+    "V330": false,
+    "V301": true,
+    "V326": false,
+    "VF301": true
+  },
+  "face_axis_horizontal": {
+    "A": false,
+    "B": false,
+    "C": true,
+    "D": true
+  },
+  "face_slab_contact": {
+    "A": {
+      "L309": [
+        0.0,
+        59.96
+      ],
+      "L310": [
+        0.0,
+        59.96
+      ],
+      "L311": [
+        0.0,
+        59.96
+      ],
+      "L312": [
+        0.0,
+        59.96
+      ],
+      "L313": [
+        0.0,
+        59.96
+      ],
+      "L314": [
+        0.0,
+        59.96
+      ],
+      "L315": [
+        0.0,
+        59.96
+      ],
+      "L316": [
+        0.0,
+        59.96
+      ],
+      "L317": [
+        0.0,
+        60.0
+      ],
+      "L318": [
+        19.04,
+        0.0
+      ],
+      "L319": [
+        19.04,
+        0.0
+      ]
+    },
+    "B": {
+      "L309": [
+        59.96,
+        0.0
+      ],
+      "L310": [
+        59.96,
+        0.0
+      ],
+      "L311": [
+        59.96,
+        0.0
+      ],
+      "L312": [
+        59.96,
+        0.0
+      ],
+      "L313": [
+        59.96,
+        0.0
+      ],
+      "L314": [
+        59.96,
+        0.0
+      ],
+      "L315": [
+        59.96,
+        0.0
+      ],
+      "L316": [
+        59.96,
+        0.0
+      ],
+      "L317": [
+        60.0,
+        0.0
+      ],
+      "L318": [
+        0.0,
+        19.04
+      ],
+      "L319": [
+        0.0,
+        19.04
+      ]
+    },
+    "C": {},
+    "D": {}
+  },
+  "beam_corridor_width": {
+    "V309": 19.0,
+    "V309A": 19.0,
+    "V302": 19.0
+  },
+  "slab_level_provenance": {
+    "L319": "contida_ambigua"
+  }
+}

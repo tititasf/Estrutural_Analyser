@@ -264,6 +264,146 @@ def test_triagem_ainda_chama_wait_for_lock_no_worker(settings, monkeypatch):
     conn.close()
 
 
+def test_triagem_reprocessa_documento_em_erro_apos_corrigir_conversor(settings, monkeypatch):
+    """Um erro antigo de conversão não pode excluir o DWG das tentativas seguintes."""
+    from portal.app import jobs as jobs_mod
+    from portal.db import connection as db_conn_mod
+
+    conn = db_conn_mod.init_db(settings.db_path)
+    membro = repo.criar_membro(
+        conn, login="ana", nome="Ana", senha_hash="h", drive_folder_id="f",
+    )
+    obra_id = repo.criar_obra(conn, membro_id=membro, nome="O", pasta_drive_id="p")
+    doc_id = repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="14P.dwg",
+        classe_sugerida="PIL", pavimento_sugerido="14_PAV", status="erro",
+    )
+    conn.execute(
+        "UPDATE portal_documentos SET erro_msg='conversor ausente' WHERE id=?",
+        (doc_id,),
+    )
+    conn.commit()
+    job_id = repo.enfileirar_job(conn, obra_id=obra_id)
+    job = repo.consumir_job(conn)
+    assert job["id"] == job_id
+
+    vistos = []
+    dxf_gerado = settings.dados_obras_dir / "O" / "entrada" / "14P.dxf"
+    dxf_gerado.parent.mkdir(parents=True, exist_ok=True)
+    dxf_gerado.write_bytes(b"dxf convertido persistente")
+    monkeypatch.setattr(jobs_mod, "wait_for_lock", lambda *a, **k: (object(), None))
+    monkeypatch.setattr(jobs_mod, "release_lock", lambda *a, **k: None)
+
+    def _triagem(_settings, _obra, documentos, **_kwargs):
+        vistos.extend(documentos)
+        return type("R", (), {
+            "ok": True, "log_tail": "ok",
+            "artefatos": {"documentos": [{
+                "doc_id": doc_id, "ok": True,
+                "dxf_path": str(dxf_gerado), "erro_msg": None,
+            }]},
+        })()
+
+    monkeypatch.setattr(jobs_mod.pipeline_runner, "executar_triagem_documentos", _triagem)
+    app_state = _AppStateFake(settings, conn)
+    app_state.job_meta[job_id] = {"etapa": "triagem"}
+    jobs_mod.processar_um_job(app_state, job)
+
+    assert [doc["id"] for doc in vistos] == [doc_id]
+    documento = repo.obter_documento(conn, doc_id)
+    assert documento["status"] == "classificado"
+    assert documento["classe_confirmada"] == "PIL"
+    assert documento["pavimento_confirmado"] == "14_PAV"
+    assert documento["erro_msg"] is None
+    docs = repo.listar_documentos_por_obra(conn, obra_id)
+    convertido = next(d for d in docs if d["arquivo_nome"] == "14P.dxf")
+    assert convertido["status"] == "classificado"
+    assert convertido["classe_confirmada"] == "PIL"
+    assert convertido["pavimento_confirmado"] == "14_PAV"
+    assert convertido["local_path"] == str(dxf_gerado)
+    assert conn.execute(
+        "SELECT status FROM portal_jobs WHERE id=?", (job_id,)
+    ).fetchone()["status"] == "concluido"
+    recorte = conn.execute(
+        """SELECT j.id FROM portal_jobs j
+           WHERE j.obra_id=? AND j.id<>? ORDER BY j.rowid DESC LIMIT 1""",
+        (obra_id, job_id),
+    ).fetchone()
+    assert recorte is not None
+    assert repo.obter_job_meta(conn, recorte["id"]) == {
+        "etapa": "recortes",
+        "target_dxf_paths": [str(dxf_gerado)],
+        "origin_triage_job_id": job_id,
+    }
+    conn.close()
+
+
+def test_triagem_sem_documento_novo_nao_enfileira_recortes(settings, monkeypatch):
+    """Repetir o botão numa obra já classificada deve ser um no-op seguro."""
+    from portal.app import jobs as jobs_mod
+    from portal.db import connection as db_conn_mod
+
+    conn = db_conn_mod.init_db(settings.db_path)
+    membro = repo.criar_membro(
+        conn, login="ana", nome="Ana", senha_hash="h", drive_folder_id="f",
+    )
+    obra_id = repo.criar_obra(conn, membro_id=membro, nome="O", pasta_drive_id="p")
+    repo.criar_documento(
+        conn, obra_id=obra_id, arquivo_nome="13P.dxf",
+        classe_sugerida="PIL", pavimento_sugerido="13_PAV", status="classificado",
+    )
+    job_id = repo.enfileirar_job(conn, obra_id=obra_id)
+    job = repo.consumir_job(conn)
+
+    monkeypatch.setattr(jobs_mod, "wait_for_lock", lambda *a, **k: (object(), None))
+    monkeypatch.setattr(jobs_mod, "release_lock", lambda *a, **k: None)
+
+    def _triagem(_settings, _obra, documentos, **_kwargs):
+        assert documentos == []
+        return type("R", (), {
+            "ok": True, "log_tail": "nenhum documento novo",
+            "artefatos": {"documentos": []},
+        })()
+
+    monkeypatch.setattr(jobs_mod.pipeline_runner, "executar_triagem_documentos", _triagem)
+    app_state = _AppStateFake(settings, conn)
+    app_state.job_meta[job_id] = {"etapa": "triagem"}
+    jobs_mod.processar_um_job(app_state, job)
+
+    outros = conn.execute(
+        "SELECT id FROM portal_jobs WHERE obra_id=? AND id<>?", (obra_id, job_id),
+    ).fetchall()
+    assert outros == []
+    conn.close()
+
+
+def test_eta_usa_mediana_do_historico_da_mesma_etapa(settings):
+    from portal.app.routers.jobs_routes import _duracao_estimada
+    from portal.db import connection as db_conn_mod
+
+    conn = db_conn_mod.init_db(settings.db_path)
+    membro = repo.criar_membro(
+        conn, login="ana", nome="Ana", senha_hash="h", drive_folder_id="f",
+    )
+    obra_id = repo.criar_obra(conn, membro_id=membro, nome="O", pasta_drive_id="p")
+    for segundos in (8, 12, 20):
+        job_id = repo.enfileirar_job(conn, obra_id=obra_id)
+        repo.salvar_job_meta(conn, job_id, {"etapa": "recortes"})
+        conn.execute(
+            """UPDATE portal_jobs SET status='concluido',
+               iniciado_em='2026-09-18T20:00:00Z',
+               finalizado_em=datetime('2026-09-18T20:00:00Z', ?)
+               WHERE id=?""",
+            (f"+{segundos} seconds", job_id),
+        )
+    conn.commit()
+
+    duracao, fonte = _duracao_estimada(conn, obra_id, "recortes")
+    assert duracao == 12
+    assert fonte == "historico_da_obra"
+    conn.close()
+
+
 def test_sa_item_dispara_microciclo_e_nao_toca_estado_da_obra(settings, monkeypatch):
     """etapa='sa_item' (P4 do escape hatch web): dispara APENAS o microciclo do
     item — nunca a etapa cheia — e não mexe em etapa_concluida/estado() da
@@ -281,8 +421,10 @@ def test_sa_item_dispara_microciclo_e_nao_toca_estado_da_obra(settings, monkeypa
                         lambda *a, **k: (chamadas.__setitem__("wait_for_lock", chamadas["wait_for_lock"] + 1), (object(), None))[1])
     monkeypatch.setattr(jobs_mod, "release_lock", lambda *a, **k: None)
 
-    def _fake_microciclo(settings, obra, *, secao, item, pav, dry_run, log_path=None):
-        chamadas["microciclo"].append({"secao": secao, "item": item, "pav": pav, "dry_run": dry_run})
+    def _fake_microciclo(settings, obra, *, secao, item, pav, dry_run, log_path=None,
+                        visual_mode="NOVA"):
+        chamadas["microciclo"].append({"secao": secao, "item": item, "pav": pav,
+                                        "dry_run": dry_run, "visual_mode": visual_mode})
         return type("R", (), {"ok": True, "log_tail": ""})()
 
     monkeypatch.setattr(jobs_mod.pipeline_runner, "executar_microciclo_item", _fake_microciclo)
@@ -295,7 +437,8 @@ def test_sa_item_dispara_microciclo_e_nao_toca_estado_da_obra(settings, monkeypa
 
     assert chamadas["wait_for_lock"] == 0, "sa_item nao deve travar (subprocess ja tem --wait)"
     assert chamadas["microciclo"] == [
-        {"secao": "pilares", "item": "P900", "pav": "13_PAV", "dry_run": False}
+            {"secao": "pilares", "item": "P900", "pav": "13_PAV", "dry_run": False,
+             "visual_mode": "NOVA"}
     ]
 
     row = conn.execute("SELECT status FROM portal_jobs WHERE id=?", (job["id"],)).fetchone()

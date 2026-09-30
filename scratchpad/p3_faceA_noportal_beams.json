@@ -1,0 +1,56 @@
+{
+  "label": "A — esquerda (oeste) · face longa",
+  "lajes": [
+    {
+      "familia": "laje",
+      "nome": "L302",
+      "dim": "—",
+      "nivel": "—",
+      "canto": "AA",
+      "papel": "laje",
+      "raw": "",
+      "dist_esq": "—",
+      "dist_dir": "—"
+    }
+  ],
+  "passa": [
+    {
+      "familia": "viga",
+      "nome": "V314",
+      "dim": "19/50",
+      "nivel": "852.19cm",
+      "canto": "AD",
+      "papel": "passa",
+      "raw": "",
+      "dist_esq": "—",
+      "dist_dir": "—"
+    }
+  ],
+  "chega": [
+    {
+      "familia": "viga",
+      "nome": "VF301",
+      "dim": "19/66",
+      "nivel": "852.19cm",
+      "canto": "AC",
+      "papel": "chega",
+      "raw": "",
+      "dist_esq": "0cm",
+      "dist_dir": "47cm",
+      "_source": "transversal_face_crossing"
+    }
+  ],
+  "interior": [
+    {
+      "familia": "viga",
+      "nome": "nenhuma",
+      "dim": "—",
+      "nivel": "—",
+      "canto": "—",
+      "papel": "interior",
+      "raw": "",
+      "dist_esq": "—",
+      "dist_dir": "—"
+    }
+  ]
+}

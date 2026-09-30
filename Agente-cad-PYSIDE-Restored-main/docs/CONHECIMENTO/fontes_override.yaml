@@ -1,0 +1,65 @@
+# Curadoria das fontes de conhecimento — sobrescreve a heurística de kb_inventario.py.
+# Chave = caminho relativo a D:/Agente-cad-PYSIDE. Status: entrada | canonico | ativo |
+# historico | legado | candidato_obsoleto. Motivo curto, verificável.
+# Curadoria inicial: 2026-09-25 (harmonização da base de conhecimento global).
+
+# ── Programa RAG de junho: princípios herdados pela KB global, execução substituída ──
+Agente-cad-PYSIDE-Restored-main/docs/POLITICA-CONFIANCA-RAG.md:
+  status: canonico
+  motivo: tiers T0/T1/T2/TX valem para a KB global e para semantic_rag_kb
+Agente-cad-PYSIDE-Restored-main/docs/RAG-REVOGACAO-HUMANA-SPEC.md:
+  status: canonico
+  motivo: revogação/tombstone vale para decisões e regras da KB global
+Agente-cad-PYSIDE-Restored-main/docs/ENCICLOPEDIA-SCHEMA.md:
+  status: ativo
+  motivo: 8 dimensões por classe viram o eixo 'classe' da KB global
+MASTERPLAN-CEREBRO-RAG-MULTIMODAL-v1.0.md:
+  status: historico
+  motivo: antecessor da KB global (jun/26); princípios herdados em PLANO-HARMONIZACAO §2
+
+# ── Versões anteriores de masterplans e status ──
+RELEASE_NOTES_v3.0.md: {status: historico, motivo: notas de release de mar/26}
+README.md: {status: legado, motivo: README de mar/26 da raiz; entrada vigente é CLAUDE.md}
+Agente-cad-PYSIDE-Restored-main/STATUS.md:
+  status: legado
+  motivo: STATUS v4.4 de jun/26, sistema desconectado; status real = docs/STATUS.md gerado
+Agente-cad-PYSIDE-Restored-main/docs/STATUS-ATUAL-JUNHO-2026.md: {status: historico, motivo: snapshot de junho}
+Agente-cad-PYSIDE-Restored-main/docs/CAD-10-VALIDATION-REPORT.md: {status: historico, motivo: relatório de maio}
+Agente-cad-PYSIDE-Restored-main/docs/TEST_GAP_ANALYSIS.md: {status: historico, motivo: snapshot de junho}
+Agente-cad-PYSIDE-Restored-main/docs/MASTER_PLAN.md: {status: historico, motivo: visão ampla anterior (Antigravity); diverge do enquadramento atual}
+Agente-cad-PYSIDE-Restored-main/docs/MASTER_PLAN_V2.md: {status: historico, motivo: idem MASTER_PLAN}
+Agente-cad-PYSIDE-Restored-main/docs/LOOPING-EVOLUCAO-N2-VISAO-FICHA.md:
+  status: historico
+  motivo: superseded pelo ARETE-LOOP-PROCEDIMENTO-GERAL (docs/README.md)
+Agente-cad-PYSIDE-Restored-main/docs/MASTERPLAN-LOOP-TREINO-MOTOR.md:
+  status: historico
+  motivo: superseded na execução pelo ARETE-LOOP-PROCEDIMENTO-GERAL; infra de dados citada continua válida
+
+# ── Prompts já executados ──
+Agente-cad-PYSIDE-Restored-main/docs/PROMPT-ETAPA-1-CODEX.md: {status: historico, motivo: prompt executado em jun/26}
+Agente-cad-PYSIDE-Restored-main/docs/PROMPT-ETAPA-2-LAJE-CODEX.md: {status: historico, motivo: prompt executado em jun/26}
+Agente-cad-PYSIDE-Restored-main/docs/PROMPT-VIGA-SPLIT-FV-LV-CODEX.md: {status: historico, motivo: prompt executado em jun/26}
+
+# ── Stores legados com skill/instrução própria ──
+
+# ── Índice antigo: continua útil, mas a entrada agora é o mapa ──
+Agente-cad-PYSIDE-Restored-main/docs/README.md:
+  status: ativo
+  motivo: índice de 2026-07-03; a entrada vigente é docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md
+
+# ── Stories do programa RAG de junho (RAG-0..6, STORY-RAG-*) ──
+
+# ── Conhecimento de negócio antigo, mas valioso (entra no índice) ──
+docs/HANDOFF-B-KNOWLEDGE-EXTRACTION.md: {status: ativo, motivo: conhecimento de negócio (PI/NSC, chapas, garfos, obras reais) extraído de 18 PDFs em mar/26}
+docs/HANDOFF-A-SQUAD-ESTADO-ATUAL.md: {status: historico, motivo: estado do sistema em mar/26}
+compreensao_global_app.md: {status: historico, motivo: auditoria de implementação de jun/26}
+ANALISE-ESTRATEGICA-E2E-NOVA-OBRA.md: {status: historico, motivo: análise E2E de nova obra (jun/26); útil quando a Fase B/C chegar}
+
+# ── Revisão dos candidatos a obsoleto (2026-09-26) ──
+Agente-cad-PYSIDE-Restored-main/PROMPTPESSOAL.MD: {status: historico, motivo: brief original do produto (origem, jun/26)}
+Agente-cad-PYSIDE-Restored-main/README.md: {status: legado, motivo: descreve pipeline ML→SCR de jun/26 (SCR saiu, DP-5); entrada vigente é CLAUDE.md + MAPA}
+Agente-cad-PYSIDE-Restored-main/REFACTORACAO_PYSYDE.MD: {status: historico, motivo: migração Tkinter→PySide concluída}
+Agente-cad-PYSIDE-Restored-main/docs/ANALISE-BASELINE-LV-VISAO-CORTE-10-VIGAS.md: {status: historico, motivo: baseline de jun/26, superada}
+Agente-cad-PYSIDE-Restored-main/docs/OCR_DXF_ECOSYSTEM_ANALYSIS.md: {status: historico, motivo: pesquisa de ferramentas de mai/26}
+Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-SA-1.1-RENDER-LINKS-HETEROGENEOS.md: {status: historico, motivo: story de jun/26 parada em Ready for Review}
+Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-UX-SA-1.2-SALVAR-MCP-E-INTERACAO-PROJETOS.md: {status: historico, motivo: story de jun/26 parada em Ready for Review}

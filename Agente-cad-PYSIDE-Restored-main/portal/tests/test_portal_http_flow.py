@@ -98,6 +98,12 @@ async def test_fluxo_login_listar_enfileirar_consultar(settings):
         assert r.status_code == 200
         job_id = r.json()["job_id"]
         assert r.json()["estado"] == "queued"
+        assert r.json()["preflight"] == {
+            "dwgs_encontrados": 0,
+            "dwgs_a_converter": 0,
+            "documentos_a_processar": 0,
+            "conversao_automatica": True,
+        }
 
         # 6) consultar o job (pode já ter sido pego pelo worker; ambos são válidos)
         r = await client.get(f"/jobs/{job_id}")
@@ -107,6 +113,10 @@ async def test_fluxo_login_listar_enfileirar_consultar(settings):
         assert job["obra_id"] == obra_id
         assert job["estado"] in ("queued", "running", "done", "error")
         assert "progresso" in job
+        assert job["progresso"]["duracao_estimada_s"] > 0
+        assert job["progresso"]["fonte_estimativa"] in {
+            "historico_da_obra", "padrao_da_etapa",
+        }
         assert job["progresso"]["percentual_estimado"] in (0, 2, 100, None) or (
             2 <= job["progresso"]["percentual_estimado"] <= 95
         )
@@ -226,6 +236,58 @@ async def test_health_ok(settings):
 # --------------------------------------------------------------------------- #
 
 @pytest.mark.asyncio
+async def test_n3_persiste_modo_visual_escolhido_no_job(settings):
+    async with _app_cliente(settings) as (app, client):
+        obra_id = _obra_da_ana(settings)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+
+        response = await client.post(
+            f"/obras/{obra_id}/n3",
+            json={"secao": ["pilares"], "pav": "13_PAV", "visual_mode": "INI"},
+        )
+
+        assert response.status_code == 200
+        body = response.json()
+        assert body["visual_mode"] == "INI"
+        assert app.state.job_meta[body["job_id"]]["visual_mode"] == "INI"
+
+
+@pytest.mark.asyncio
+async def test_sa_preserva_classe_da_pagina_e_expoe_posicao_real_na_fila(settings):
+    async with _app_cliente(settings) as (app, client):
+        app.state.worker.stop()
+        obra_id = _obra_da_ana(settings)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        first = await client.post(f"/obras/{obra_id}/sa", json={
+            "secao": ["laterais_viga"], "pav": "14_PAV", "classe_ui": "laterais_passa",
+        })
+        second = await client.post(f"/obras/{obra_id}/sa", json={
+            "secao": ["pilares"], "pav": "15_PAV", "classe_ui": "pilares",
+        })
+        assert first.status_code == second.status_code == 200
+        jobs = (await client.get(f"/obras/{obra_id}/jobs")).json()["jobs"]
+        by_id = {job["id"]: job for job in jobs}
+        first_job = by_id[first.json()["job_id"]]
+        second_job = by_id[second.json()["job_id"]]
+        assert first_job["meta"]["classe_ui"] == "laterais_passa"
+        assert first_job["fila"] == {"posicao": 1, "a_frente": 0, "total_ativos": 2}
+        assert second_job["fila"] == {"posicao": 2, "a_frente": 1, "total_ativos": 2}
+        detail = (await client.get(f"/jobs/{second_job['id']}")).json()
+        assert detail["fila"] == second_job["fila"]
+
+
+@pytest.mark.asyncio
+async def test_n3_recusa_modo_visual_desconhecido(settings):
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_da_ana(settings)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        response = await client.post(
+            f"/obras/{obra_id}/n3",
+            json={"secao": ["lajes"], "pav": "13_PAV", "visual_mode": "ANTIGO"},
+        )
+        assert response.status_code == 422
+
+@pytest.mark.asyncio
 async def test_s9_5_n5_sem_validacao_recusa_409(settings):
     async with _app_cliente(settings) as (_app, client):
         obra_id = _obra_da_ana(settings)  # ana já semeada pelo _app_cliente
@@ -277,11 +339,22 @@ async def test_obra_de_outro_membro_403(settings):
 # não existia — 2026-07-06).
 # --------------------------------------------------------------------------- #
 
+def _tornar_dono(settings, login: str) -> None:
+    c = connection.init_db(settings.db_path)
+    c.execute("UPDATE portal_membros SET papel='dono' WHERE login=?", (login,))
+    c.commit()
+    c.close()
+
+
 @pytest.mark.asyncio
 async def test_status_sem_arquivo_mostra_mensagem_clara(settings):
     """settings de teste aponta status_md_path pra um arquivo que não existe."""
     async with _app_cliente(settings) as (_app, client):
         await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        # [2026-09-28] Status Arete é só do dono: membro comum volta para obras.
+        r = await client.get("/app/status", follow_redirects=False)
+        assert r.status_code == 303 and r.headers["location"] == "/app/obras"
+        _tornar_dono(settings, "ana")
         r = await client.get("/app/status")
         assert r.status_code == 200
         assert "ainda não foi gerado" in r.text
@@ -298,6 +371,7 @@ async def test_status_renderiza_tabela_do_status_md(settings, tmp_path):
         encoding="utf-8",
     )
     async with _app_cliente(settings) as (_app, client):
+        _tornar_dono(settings, "ana")
         await client.post("/login", json={"login": "ana", "senha": "segredo123"})
         r = await client.get("/app/status")
         assert r.status_code == 200
@@ -330,8 +404,11 @@ def _dxf_bytes() -> bytes:
 
 @pytest.mark.asyncio
 async def test_upload_registra_obra_na_hora(settings):
-    """Upload de verdade (multipart) -> vai pro FakeDriveClient -> aparece em GET /obras
-    sem esperar o poller (o endpoint já dispara varrer_uma_vez)."""
+    """Upload rápido já nasce como obra-container com o 1º pavimento na lista.
+
+    Isso garante que a mesma ficha possa receber outros pavimentos depois, sem
+    ficar presa ao modelo legado ``arquivo_nome`` da própria obra.
+    """
     async with _app_cliente(settings) as (_app, client):
         await client.post("/login", json={"login": "ana", "senha": "segredo123"})
 
@@ -342,10 +419,23 @@ async def test_upload_registra_obra_na_hora(settings):
         assert r.status_code == 200, r.text
         body = r.json()
         assert body["novas_obras"] == 1
+        assert body["obra_id"]
+        assert body["doc_id"]
+        assert body["formato"] == "dxf"
 
-        r = await client.get("/obras")
-        nomes = [o["arquivo_nome"] for o in r.json()["obras"]]
-        assert "obra_upload.dxf" in nomes
+        detalhe = await client.get(f"/obras/{body['obra_id']}")
+        assert detalhe.status_code == 200
+        dados = detalhe.json()
+        assert dados["obra"]["arquivo_nome"] is None
+        assert dados["obra"]["nome"] == "obra_upload"
+        assert len(dados["documentos"]) == 1
+        documento = dados["documentos"][0]
+        assert documento["id"] == body["doc_id"]
+        assert documento["arquivo_nome"] == "obra_upload.dxf"
+        assert documento["tipo_documento_confirmado"] == "Bruto"
+        assert documento["local_path"].endswith("entrada\\obra_upload.dxf") or (
+            documento["local_path"].endswith("entrada/obra_upload.dxf")
+        )
 
 
 @pytest.mark.asyncio
@@ -512,6 +602,16 @@ async def test_classificar_documento_manual_sobrescreve_sugestao(settings):
         assert atualizado["pavimento_confirmado"] == "13_PAV"
         assert atualizado["status"] == "classificado"
 
+        # A seleção na lista manda somente o pavimento; a classe já validada
+        # não pode ser apagada ao corrigir uma sugestão da triagem.
+        r = await client.post(
+            f"/obras/{obra_id}/documentos/{doc['doc_id']}/classificar",
+            json={"pavimento_confirmado": "TIPO"},
+        )
+        assert r.status_code == 200
+        assert r.json()["pavimento_confirmado"] == "TIPO"
+        assert r.json()["classe_confirmada"] == "LV"
+
 
 # --------------------------------------------------------------------------- #
 # GET /obras/{id}/fichas — achado real rodando o SA de verdade contra uma obra
@@ -613,6 +713,34 @@ async def test_n5_foto_renderiza_dxf_real(settings, tmp_path):
 
 
 @pytest.mark.asyncio
+async def test_n5_foto_filtra_release_pelo_pavimento(settings, tmp_path):
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_da_ana(settings)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+
+        import ezdxf
+        dxf_13 = tmp_path / "N5_FV_13_PAV.dxf"
+        doc = ezdxf.new()
+        doc.modelspace().add_line((0, 0), (10, 10))
+        doc.saveas(dxf_13)
+        dxf_14 = tmp_path / "N5_FV_14_PAV.dxf"
+        doc.saveas(dxf_14)
+
+        c = connection.init_db(settings.db_path)
+        ana = repo.obter_membro_por_login(c, "ana")
+        repo.registrar_n5_release(c, obra_id=obra_id, classe="FV", liberado_por=ana["id"],
+                                 status_certificacao="certificado", pavimento="13_PAV", dxf_path=str(dxf_13))
+        repo.registrar_n5_release(c, obra_id=obra_id, classe="FV", liberado_por=ana["id"],
+                                 status_certificacao="certificado", pavimento="14_PAV", dxf_path=str(dxf_14))
+        c.close()
+
+        r = await client.get(f"/obras/{obra_id}/n5/FV/foto", params={"pavimento": "13_PAV"})
+        assert r.status_code == 200
+        r_missing = await client.get(f"/obras/{obra_id}/n5/FV/foto", params={"pavimento": "15_PAV"})
+        assert r_missing.status_code == 404
+
+
+@pytest.mark.asyncio
 async def test_n5_foto_sem_release_404(settings):
     async with _app_cliente(settings) as (_app, client):
         obra_id = _obra_da_ana(settings)
@@ -638,6 +766,81 @@ async def test_n5_foto_dxf_apagado_depois_do_release_410(settings, tmp_path):
 
         r = await client.get(f"/obras/{obra_id}/n5/LV/foto")
         assert r.status_code == 410
+
+
+@pytest.mark.asyncio
+async def test_validar_n5_aprova_release_mais_recente(settings, tmp_path):
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_da_ana(settings)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        dxf_path = tmp_path / "N5_LJ_13_PAV.dxf"
+        dxf_path.write_bytes(b"DXF")
+        c = connection.init_db(settings.db_path)
+        ana = repo.obter_membro_por_login(c, "ana")
+        release_id = repo.registrar_n5_release(
+            c, obra_id=obra_id, classe="LJ", liberado_por=ana["id"],
+            status_certificacao="beta", pavimento="13_PAV", dxf_path=str(dxf_path),
+        )
+        c.close()
+
+        r = await client.post(
+            f"/obras/{obra_id}/n5/LJ/validacao", json={"pavimento": "13_PAV"},
+        )
+        assert r.status_code == 200
+        assert r.json()["release_id"] == release_id
+        c = connection.init_db(settings.db_path)
+        assert repo.listar_n5_validacoes_por_obra(c, obra_id)[0]["release_id"] == release_id
+        c.close()
+
+
+@pytest.mark.asyncio
+async def test_zip_n5_do_pavimento_contem_as_quatro_classes(settings, tmp_path):
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_da_ana(settings)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        c = connection.init_db(settings.db_path)
+        ana = repo.obter_membro_por_login(c, "ana")
+        for classe in ("PL", "LV", "FV", "LJ"):
+            path = tmp_path / f"N5_{classe}_13_PAV.dxf"
+            path.write_bytes(("DXF-" + classe).encode())
+            repo.registrar_n5_release(
+                c, obra_id=obra_id, classe=classe, liberado_por=ana["id"],
+                status_certificacao="beta", pavimento="13_PAV", dxf_path=str(path),
+            )
+        c.close()
+
+        r = await client.get(
+            f"/obras/{obra_id}/n5/download", params={"pavimento": "13_PAV"},
+        )
+        assert r.status_code == 200
+        assert r.headers["content-type"] == "application/zip"
+        import io
+        from zipfile import ZipFile
+        with ZipFile(io.BytesIO(r.content)) as archive:
+            assert set(archive.namelist()) == {
+                f"13_PAV/N5_{classe}_13_PAV.dxf" for classe in ("PL", "LV", "FV", "LJ")
+            }
+
+
+@pytest.mark.asyncio
+async def test_zip_n5_completo_informa_classes_pendentes(settings, tmp_path):
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_da_ana(settings)
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        path = tmp_path / "N5_PL_13_PAV.dxf"
+        path.write_bytes(b"DXF-PL")
+        c = connection.init_db(settings.db_path)
+        ana = repo.obter_membro_por_login(c, "ana")
+        repo.registrar_n5_release(
+            c, obra_id=obra_id, classe="PL", liberado_por=ana["id"],
+            status_certificacao="beta", pavimento="13_PAV", dxf_path=str(path),
+        )
+        c.close()
+        r = await client.get(
+            f"/obras/{obra_id}/n5/download", params={"pavimento": "13_PAV"},
+        )
+        assert r.status_code == 409
+        assert "13_PAV/LV" in r.json()["detail"]
 
 
 @pytest.mark.asyncio

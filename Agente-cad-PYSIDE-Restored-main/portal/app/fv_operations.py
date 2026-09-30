@@ -505,7 +505,8 @@ def write_sa_visual(html_path: Path, beam: str, transform: Any, raw_segments: li
     if "</svg>" not in svg:
         raise ValueError("SVG do estrutural limpo invalido")
     drawings = []
-    for index, row in enumerate(raw_segments, 1):
+    for fallback_index, row in enumerate(raw_segments, 1):
+        index = int(str(row.get("segment_label") or fallback_index))
         points = _points(row.get("points"))
         pixels = [transform.dxf_para_px(point[0], point[1]) for point in points]
         coords = " ".join(f"{x:.3f},{y:.3f}" for x, y in pixels)

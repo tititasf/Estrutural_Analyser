@@ -1,0 +1,697 @@
+{
+  "faces": {
+    "A": {
+      "label": "A — esquerda (oeste) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "L326",
+          "dim": "10",
+          "nivel": "852.12cm",
+          "canto": "AC",
+          "papel": "laje",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "14cm"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "VF202",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "AC",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "61cm",
+          "_source": "transversal_face_crossing"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "B": {
+      "label": "B — direita (leste) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "L327",
+          "dim": "10",
+          "nivel": "852.12cm",
+          "canto": "BC",
+          "papel": "laje",
+          "raw": "",
+          "dist_esq": "14cm",
+          "dist_dir": "0cm"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "VF202",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "BC",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "61cm",
+          "dist_dir": "0cm",
+          "_source": "transversal_face_crossing"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "C": {
+      "label": "C — topo (norte) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "VF202",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "CA",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "VF202",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "CB",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V311",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "CC",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "2.5cm",
+          "dist_dir": "2.5cm",
+          "_source": "transversal_face_crossing"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "D": {
+      "label": "D — base (sul) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    }
+  },
+  "orientation": "vertical",
+  "schema": "pil.abcd_tables.v2",
+  "face_ids": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "geometry_type": "rectangular",
+  "item": "P28",
+  "geometry_points": [
+    [
+      1600.8825,
+      1963.038
+    ],
+    [
+      1624.8825,
+      1963.038
+    ],
+    [
+      1624.8825,
+      2043.038
+    ],
+    [
+      1600.8825,
+      2043.038
+    ],
+    [
+      1600.8825,
+      1963.038
+    ]
+  ],
+  "face_slab_beam_violations": [
+    {
+      "face": "A",
+      "rule": "chega_no_canto_exige_laje_no_oposto",
+      "detail": "viga chega em AC; laje esperada em AD, obtida ['AC']"
+    },
+    {
+      "face": "B",
+      "rule": "chega_no_canto_exige_laje_no_oposto",
+      "detail": "viga chega em BC; laje esperada em BD, obtida ['BC']"
+    }
+  ],
+  "face_beam_reach": {
+    "A": [
+      "V306",
+      "V311",
+      "VF202",
+      "VF203"
+    ],
+    "B": [
+      "V306",
+      "V311",
+      "VF202",
+      "VF203"
+    ],
+    "C": [
+      "V306",
+      "V311",
+      "VF202"
+    ],
+    "D": [
+      "VF203"
+    ]
+  },
+  "face_beam_span_overlap": {
+    "A": [
+      "VF202",
+      "VF203"
+    ],
+    "B": [
+      "VF202",
+      "VF203"
+    ],
+    "C": [
+      "V306",
+      "V311",
+      "VF202"
+    ],
+    "D": [
+      "VF203"
+    ]
+  },
+  "face_beam_crosses": {
+    "A": [
+      "VF202",
+      "VF203"
+    ],
+    "B": [
+      "VF202",
+      "VF203"
+    ],
+    "C": [
+      "VF202",
+      "VF203"
+    ],
+    "D": [
+      "VF202",
+      "VF203"
+    ]
+  },
+  "face_corner_reach": {
+    "AC": [
+      "V306",
+      "V311",
+      "VF202"
+    ],
+    "AD": [
+      "VF203"
+    ],
+    "BC": [
+      "V306",
+      "V311",
+      "VF202"
+    ],
+    "BD": [
+      "VF203"
+    ],
+    "CA": [
+      "V306",
+      "V311",
+      "VF202"
+    ],
+    "CB": [
+      "V306",
+      "V311",
+      "VF202"
+    ],
+    "DA": [
+      "VF203"
+    ],
+    "DB": [
+      "VF203"
+    ]
+  },
+  "embedded_beams": [
+    "VF203"
+  ],
+  "face_slab_touching": {
+    "A": [
+      "L326",
+      "L327"
+    ],
+    "B": [
+      "L326",
+      "L327"
+    ],
+    "C": [
+      "L319",
+      "L320",
+      "L326",
+      "L327"
+    ],
+    "D": [
+      "L326",
+      "L327"
+    ]
+  },
+  "face_beam_covering": {
+    "A": [],
+    "B": [],
+    "C": [
+      "VF202",
+      "VF203",
+      "V301",
+      "VF301"
+    ],
+    "D": [
+      "VF202",
+      "VF203",
+      "V301",
+      "VF301"
+    ]
+  },
+  "face_beam_containing": {
+    "A": [],
+    "B": [],
+    "C": [
+      "VF202"
+    ],
+    "D": [
+      "VF203"
+    ]
+  },
+  "face_beam_arrives_dying": {
+    "A": [
+      "V306",
+      "V307",
+      "V309",
+      "V309A",
+      "V310"
+    ],
+    "B": [
+      "V304",
+      "V305",
+      "V308",
+      "V313",
+      "V314",
+      "V315",
+      "V316",
+      "V317",
+      "V318",
+      "V319",
+      "V320",
+      "V321",
+      "V322",
+      "V323",
+      "V324",
+      "V325",
+      "V327",
+      "V328",
+      "V329",
+      "V331",
+      "V332",
+      "V330",
+      "V326"
+    ],
+    "C": [
+      "V303",
+      "V304",
+      "V305",
+      "V306",
+      "V307",
+      "V309",
+      "V309A",
+      "V310",
+      "V311",
+      "V312",
+      "V313",
+      "V314",
+      "V315",
+      "V316",
+      "V317",
+      "V318",
+      "V319",
+      "V320",
+      "V321",
+      "V322",
+      "V323",
+      "V324",
+      "V325",
+      "V327",
+      "V328",
+      "V329",
+      "V331",
+      "V332",
+      "VF202",
+      "V302",
+      "V330",
+      "V301",
+      "V326",
+      "VF301"
+    ],
+    "D": []
+  },
+  "face_geometry_span": {
+    "A": 80.0,
+    "B": 80.0,
+    "C": 24.0,
+    "D": 24.0
+  },
+  "embedded_at_start": {
+    "VF203": [
+      24,
+      true,
+      "inicio"
+    ]
+  },
+  "beam_axis_horizontal": {
+    "V303": true,
+    "V304": true,
+    "V305": true,
+    "V306": true,
+    "V307": false,
+    "V308": true,
+    "V309": false,
+    "V309A": false,
+    "V310": false,
+    "V311": false,
+    "V312": false,
+    "V313": false,
+    "V314": false,
+    "V315": false,
+    "V316": false,
+    "V317": false,
+    "V318": false,
+    "V319": false,
+    "V320": false,
+    "V321": false,
+    "V322": false,
+    "V323": false,
+    "V324": false,
+    "V325": false,
+    "V327": false,
+    "V328": false,
+    "V329": false,
+    "V331": false,
+    "V332": false,
+    "VF202": true,
+    "VF203": true,
+    "V302": true,
+    "V330": false,
+    "V301": true,
+    "V326": false,
+    "VF301": true
+  },
+  "face_axis_horizontal": {
+    "A": false,
+    "B": false,
+    "C": true,
+    "D": true
+  },
+  "face_slab_contact": {
+    "A": {
+      "L325": [
+        0.0,
+        19.0
+      ],
+      "L326": [
+        0.0,
+        14.0
+      ],
+      "L327": [
+        0.0,
+        13.96
+      ],
+      "L328": [
+        0.0,
+        14.0
+      ],
+      "L329": [
+        0.0,
+        13.96
+      ],
+      "L330": [
+        0.0,
+        13.96
+      ],
+      "L331": [
+        0.0,
+        14.0
+      ]
+    },
+    "B": {
+      "L325": [
+        19.0,
+        0.0
+      ],
+      "L326": [
+        14.0,
+        0.0
+      ],
+      "L327": [
+        13.96,
+        0.0
+      ],
+      "L328": [
+        14.0,
+        0.0
+      ],
+      "L329": [
+        13.96,
+        0.0
+      ],
+      "L330": [
+        13.96,
+        0.0
+      ],
+      "L331": [
+        14.0,
+        0.0
+      ]
+    },
+    "C": {
+      "L301": [
+        0.0,
+        21.5
+      ],
+      "L302": [
+        21.5,
+        0.0
+      ],
+      "L309": [
+        0.0,
+        21.5
+      ],
+      "L310": [
+        21.62,
+        0.0
+      ],
+      "L318": [
+        0.0,
+        0.0
+      ],
+      "L319": [
+        0.0,
+        21.5
+      ],
+      "L320": [
+        21.62,
+        0.0
+      ],
+      "L326": [
+        0.0,
+        21.5
+      ],
+      "L327": [
+        21.62,
+        0.0
+      ]
+    },
+    "D": {
+      "L301": [
+        21.5,
+        0.0
+      ],
+      "L302": [
+        0.0,
+        21.5
+      ],
+      "L309": [
+        21.5,
+        0.0
+      ],
+      "L310": [
+        0.0,
+        21.62
+      ],
+      "L318": [
+        0.0,
+        0.0
+      ],
+      "L319": [
+        21.5,
+        0.0
+      ],
+      "L320": [
+        0.0,
+        21.62
+      ],
+      "L326": [
+        21.5,
+        0.0
+      ],
+      "L327": [
+        0.0,
+        21.62
+      ]
+    }
+  },
+  "beam_corridor_width": {
+    "V311": 19.0,
+    "VF202": 19.0
+  },
+  "slab_level_provenance": {
+    "L326": "sem_evidencia_local",
+    "L327": "contida"
+  }
+}

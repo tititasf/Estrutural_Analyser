@@ -488,3 +488,10 @@ Notas de proveniência (não apagar):
 - Face Caso 4 em D → **interior** com dim + N; em A/B a **mesma** viga pode ser **passa**.  
 - Face C com dois segmentos de topo → **duas** entradas passa, cada uma com profundidade e nível.  
 - Dualidade AC/BC ↔ C: ids e dims **coerentes** entre chega (A/B) e passa (C).
+
+
+## Entrega N5 em conjuntos Para e Passa (D-84, 2026-09-30)
+
+O viewer e os DXFs N5 de pilares dividem-se em PARA (Cima, ABCD Para, Grade Para) e PASSA (Cima, ABCD Passa, Grade Passa). A vista Cima é universal: ambos os conjuntos usam a mesma fonte N3. Cada grupo mantém três vistas por pilar e escala CAD original; apenas a subaba ativa carrega seus tiles SVG. Os dois modos Nova e Ini seguem o mesmo contrato. Os pilares NASCE no próximo pavimento continuam disponíveis no SA e excluídos do N3/N5 até correção manual da classificação.
+
+Nova e Ini ficam abaixo das subabas de conjuntos, fora do desenho, com o mesmo estilo. A troca preserva Para/Passa e consulta os artefatos: sem N3 completo daquele modo ou sem N5 existente, apenas avisa, sem geração automática. Os motores granulares N3/N5 perguntam o estilo; N5 oferece apenas modos com as cinco vistas N3 dos pilares elegíveis. O worker também verifica essa condição antes de montar a prancha, impedindo mistura de fontes Nova/Ini.

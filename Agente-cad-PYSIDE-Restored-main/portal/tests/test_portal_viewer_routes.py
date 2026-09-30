@@ -59,7 +59,7 @@ def test_sao_os_botoes_de_destaque_pedidos():
     assert grupos == [
         "pilares",
         "lat_a_para", "lat_a_passa", "lat_b_para", "lat_b_passa",
-        "fundos", "lajes",
+        "fundos", "lajes", "cortes",
     ]
 
 

@@ -15,6 +15,12 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+from scripts.pl_abcd_visual_nova import (
+    expand_intervals_with_unidos,
+    paineis_intervals_for_face,
+    parse_paineis_unidos,
+)
+
 
 SCHEMA = "pil.n3.web_ficha/v1"
 KINDS = {"panel", "slab_void", "beam_void"}
@@ -79,8 +85,37 @@ def _face_ids(pillar: dict, robot: dict) -> list[str]:
 
 
 def _default_face(face: str, width: float, height: float, robot: dict) -> dict:
-    heights = [_positive(robot.get(f"h{i}_{face}")) for i in range(1, 6)]
-    heights = [value for value in heights if value > 0.0]
+    # O desenho N3 usa paineis_intervals_* como malha efetiva acima de h1.
+    # h2=244 e' apenas a chapa inteira: no modo NOVA ela pode ser duas
+    # meias-chapas de 122, e C/D seguem regras diferentes conforme aberturas.
+    raw_intervals = robot.get(f"paineis_intervals_{face}")
+    if isinstance(raw_intervals, (list, tuple)):
+        intervals = [_positive(value) for value in raw_intervals]
+    elif raw_intervals is not None:
+        intervals = [_positive(raw_intervals)]
+    else:
+        intervals = []
+    intervals = [value for value in intervals if value > 0.0]
+    contract = robot.get("_sa_mode_contract") or {}
+    face_contract = (contract.get("faces") or {}).get(face) or {}
+    if face in "CD" and face_contract and intervals:
+        h1 = (_positive(robot.get(f"h1_geom_{face}"))
+              or _positive(robot.get(f"h1_{face}")) or min(2.0, height))
+        contract_void = (face_contract.get("vazio_topo") or {}).get("valor_cm") or 0.0
+        residual_void = max(0.0, height - h1 - sum(intervals))
+        intervals = paineis_intervals_for_face(
+            face_id=face, height_cm=height, h1_cm=h1,
+            top_void_cm=max(_positive(contract_void), residual_void),
+        )
+    if intervals:
+        h1 = (_positive(robot.get(f"h1_geom_{face}"))
+              or _positive(robot.get(f"h1_{face}")) or min(2.0, height))
+        unidos = parse_paineis_unidos(robot, face)
+        expanded, _ = expand_intervals_with_unidos(intervals, unidos)
+        heights = [h1] + (expanded or intervals)
+    else:
+        heights = [_positive(robot.get(f"h{i}_{face}")) for i in range(1, 6)]
+        heights = [value for value in heights if value > 0.0]
     if not heights:
         first = min(2.0, height)
         heights = [first]
@@ -110,7 +145,7 @@ def _default_face(face: str, width: float, height: float, robot: dict) -> dict:
         opening_depth = _positive(raw.get("altura") or raw.get("depth"))
         if opening_width <= 0 or opening_depth <= 0:
             continue
-        lado = str(raw.get("lado") or raw.get("side") or "").lower()
+        lado = str(raw.get("origem_portal") or raw.get("lado") or raw.get("side") or "").lower()
         side = "right" if lado in {"direito", "right"} else "left"
         openings[side].append({
             "distance": _positive(raw.get("x_offset") or raw.get("distance")),
@@ -235,7 +270,39 @@ def validate_ficha(payload: dict) -> dict:
                     "level": _positive(raw.get("level")),
                     "top_distance": _positive(raw.get("top_distance")),
                 })
+                if raw.get("element_level") is not None:
+                    openings[side][-1]["element_level"] = _number(raw["element_level"])
+                if raw.get("level_source") in {"sa", "sa_related", "n3_geometry", "manual",
+                                               "abcd_sa", "abcd_manual", "abcd_inferred",
+                                               "pillar_fallback"}:
+                    openings[side][-1]["level_source"] = raw["level_source"]
+                # O vínculo com a viga faz parte da ficha editável. Perdê-lo ao
+                # validar faz a próxima execução N3 gerar aberturas anônimas.
+                for key in ("n3_slot", "beam_name", "beam_dimension", "beam_behavior", "n3_kind"):
+                    if raw.get(key):
+                        openings[side][-1][key] = str(raw[key])
+                if raw.get("geometry_level_gap_cm") is not None:
+                    openings[side][-1]["geometry_level_gap_cm"] = _number(raw["geometry_level_gap_cm"])
         clean_faces[face] = {"panels": panels, "openings": openings}
+        if raw_face.get("top_void_cm") is not None:
+            clean_faces[face]["top_void_cm"] = _positive(raw_face["top_void_cm"])
+        # Presenca da chave e' significativa: [] remove lajes sugeridas pelo N1.
+        # Fichas antigas sem a chave continuam recebendo a sugestao automatica.
+        if "slabs" in raw_face:
+            raw_slabs = raw_face.get("slabs")
+            if not isinstance(raw_slabs, list):
+                raise ValueError(f"face {face}: lajes deve ser uma lista")
+            clean_faces[face]["slabs"] = [
+                {
+                    "left_distance": _positive(raw.get("left_distance")),
+                    "right_distance": _positive(raw.get("right_distance")),
+                    "level": _number(raw.get("level")) if raw.get("level") is not None else None,
+                    "top_distance": _positive(raw.get("top_distance")),
+                    "width": _positive(raw.get("width")),
+                    "height": _positive(raw.get("height")),
+                }
+                for raw in raw_slabs if isinstance(raw, dict)
+            ]
     result["faces"] = clean_faces
     grades = result.setdefault("grades", {})
     for key in ("grade_1", "distance_1", "grade_2", "distance_2", "grade_3"):
@@ -357,6 +424,14 @@ def robot_patch(ficha: dict) -> dict:
             patch[f"larg{index}_{face}"] = col_widths[index - 1] if index <= len(col_widths) else 0.0
         patch[f"paineis_intervals_{face}"] = row_heights[1:] if len(row_heights) > 1 else row_heights
         patch[f"portal_cells_{face}"] = deepcopy(panels)
+        if "slabs" in data:
+            patch[f"_portal_slabs_{face}"] = deepcopy(data["slabs"])
+            first_slab = next((slab for slab in data["slabs"]
+                               if slab["width"] > 0 and slab["height"] > 0), None)
+            patch[f"vazio_laje_{face}"] = first_slab["height"] if first_slab else 0.0
+            patch[f"rebaixo_laje_{face}"] = first_slab["top_distance"] if first_slab else 0.0
+            patch[f"laje_{face}"] = max(0.0, first_slab["height"] - 2.0) if first_slab else 0.0
+            patch[f"posicao_laje_{face}"] = 1.0 if first_slab else 0.0
         total_width = sum(col_widths) or max((p["width"] for p in panels), default=0.0)
         total_height = sum(row_heights)
         opening_index = 1
@@ -367,9 +442,18 @@ def robot_patch(ficha: dict) -> dict:
                 x_offset = opening["distance"] if side == "left" else max(
                     0.0, total_width - opening["distance"] - opening["width"]
                 )
-                y_rel = opening["level"] or max(
-                    0.0, total_height - opening["top_distance"] - opening["depth"]
-                )
+                if opening.get("element_level") is not None:
+                    # A cota absoluta e a distância ao topo prevalecem sobre
+                    # y_rel legado; y_rel do motor começa acima da cinta h1.
+                    # Nas faces C/D a malha termina ABAIXO do vazio superior.
+                    # Usar a soma dos painéis deslocava a abertura para dentro
+                    # da chapa pelo tamanho inteiro desse vazio (P10.C).
+                    y_rel = max(0.0, dimensions["height"] - opening["top_distance"]
+                                - opening["depth"] - (row_heights[0] if row_heights else 0.0))
+                else:
+                    y_rel = opening["level"] or max(
+                        0.0, total_height - opening["top_distance"] - opening["depth"]
+                    )
                 # Distancia zero fica dentro da borda correspondente. Distancia
                 # positiva vira abertura central com x_offset explicito.
                 side_robot = ("esquerdo" if side == "left" else "direito") if opening["distance"] <= 0 else "meio"
@@ -379,26 +463,102 @@ def robot_patch(ficha: dict) -> dict:
                     "nivel": opening["level"], "distancia_topo": opening["top_distance"],
                     "distancia_borda": opening["distance"], "origem_portal": side,
                 }
+                if opening.get("beam_name"):
+                    patch[f"abertura_{face}_{opening_index}"]["_viga"] = opening["beam_name"]
+                if opening.get("n3_slot"):
+                    patch[f"abertura_{face}_{opening_index}"]["_origem"] = opening["n3_slot"]
+                if opening.get("element_level") is not None:
+                    patch[f"abertura_{face}_{opening_index}"]["_nivel_origem"] = opening["element_level"]
                 opening_index += 1
     cima = ficha.get("cima_contract") if isinstance(ficha, dict) else None
     fields = (cima or {}).get("fields") if isinstance(cima, dict) else None
     especial = (fields or {}).get("especial") if isinstance(fields, dict) else None
+    if isinstance(fields, dict) and not especial:
+        comprimento = _positive(fields.get("comprimento_interno"))
+        largura = _positive(fields.get("largura_interna"))
+        if comprimento > 0:
+            patch["comprimento"] = comprimento
+        if largura > 0:
+            patch["largura"] = largura
+
+        grade_fields = fields.get("grades") if isinstance(fields.get("grades"), dict) else {}
+        widths = [
+            _positive(grade_fields.get(f"grade_{index}"))
+            for index in range(1, 4)
+        ]
+        widths = [value for value in widths if value > 0]
+        gaps = [
+            _positive(grade_fields.get(f"distancia_{index}"))
+            for index in range(1, len(widths))
+        ]
+        if widths:
+            patch["_portal_cima_grade_layout"] = {
+                "widths": widths,
+                "gaps": gaps,
+            }
+            for index in range(1, 4):
+                patch[f"grade_{index}"] = widths[index - 1] if index <= len(widths) else 0.0
+                if index <= 2:
+                    patch[f"distancia_{index}"] = gaps[index - 1] if index <= len(gaps) else 0.0
+
+        screws = fields.get("parafusos") if isinstance(fields.get("parafusos"), list) else []
+        for index in range(1, 8):
+            patch[f"par_{index}_{index + 1}"] = (
+                _positive(screws[index - 1]) if index <= len(screws) else 0.0
+            )
+
+        for side, key in (("a", "quadradinhos_a"), ("b", "quadradinhos_b")):
+            groups = fields.get(key)
+            if not isinstance(groups, list) and side == "a":
+                groups = fields.get("quadradinhos")
+            if not isinstance(groups, list):
+                groups = []
+            for grade_index in range(1, 4):
+                values = groups[grade_index - 1] if grade_index <= len(groups) else []
+                clean_values = [
+                    _positive(value) for value in (values or [])
+                    if value is not None and _positive(value) > 0
+                ]
+                patch[f"grade_{grade_index}_div_{side}"] = clean_values
     if isinstance(especial, dict) and especial:
         try:
             from src.core.cima_l_contract import build_cima_l_contract, flatten_cima_l_into_robot
+            shape = fields.get("shape") if isinstance(fields.get("shape"), dict) else {}
+            comprimento_1_externo = _positive(shape.get("comprimento_1_externo"))
+            comprimento_2_externo = _positive(shape.get("comprimento_2_externo"))
+            largura_1 = _positive(shape.get("largura_1"))
+            largura_2 = _positive(shape.get("largura_2"))
+            secao = {
+                "externa_x": comprimento_2_externo,
+                "interna_x": largura_1,
+                "externa_y": comprimento_1_externo,
+                "interna_y": max(0.1, comprimento_1_externo - largura_2),
+            }
+            saved_contract = {
+                "schema": "pil.cima_l/v1",
+                "classification": str(fields.get("classificacao_pilar") or "especial_l"),
+                "shape": deepcopy(shape),
+                "secao": secao,
+                "arms": deepcopy(especial),
+            }
             seed = dict(patch)
             seed["subtipo_pil"] = "L"
-            seed["pilar_especial"] = {"cima": {"arms": especial}, "tipo_pilar_especial": "L"}
+            seed["pilar_especial"] = {
+                "cima": saved_contract,
+                "secao_l": secao,
+                "tipo_pilar_especial": "L",
+            }
             built = build_cima_l_contract(seed) or {"schema": "pil.cima_l/v1", "arms": especial}
-            arms = dict(built.get("arms") or {})
-            if especial.get("haste"):
-                arms["haste"] = {**(arms.get("haste") or {}), **especial["haste"]}
-            if especial.get("ramo"):
-                arms["ramo"] = {**(arms.get("ramo") or {}), **especial["ramo"]}
-            built["arms"] = arms
             patch.update(flatten_cima_l_into_robot({}, built))
         except Exception:
-            patch["pilar_especial"] = {"cima": {"arms": especial}, "tipo_pilar_especial": "L"}
+            patch["pilar_especial"] = {
+                "cima": {
+                    "classification": str(fields.get("classificacao_pilar") or "especial_l"),
+                    "shape": deepcopy(fields.get("shape") or {}),
+                    "arms": deepcopy(especial),
+                },
+                "tipo_pilar_especial": "L",
+            }
     return patch
 
 
@@ -406,4 +566,14 @@ def apply_ficha_to_robot(robot: dict, ficha: dict | None) -> dict:
     result = deepcopy(robot or {})
     if ficha:
         result.update(robot_patch(ficha))
+        contract = result.get("_sa_mode_contract")
+        if isinstance(contract, dict):
+            faces = contract.get("faces")
+            if isinstance(faces, dict):
+                for face, data in (ficha.get("faces") or {}).items():
+                    if not isinstance(data, dict) or data.get("top_void_cm") is None:
+                        continue
+                    face_contract = faces.get(face)
+                    if isinstance(face_contract, dict) and isinstance(face_contract.get("vazio_topo"), dict):
+                        face_contract["vazio_topo"]["valor_cm"] = _positive(data["top_void_cm"])
     return result

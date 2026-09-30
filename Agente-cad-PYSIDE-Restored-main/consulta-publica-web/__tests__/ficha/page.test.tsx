@@ -42,7 +42,7 @@ beforeEach(() => {
 });
 
 describe("Ficha do Item — renderização por combinação de abas", () => {
-  it("renderiza com N1 + N3 + LV — todas as 3 abas aparecem", async () => {
+  it("renderiza com N1 + N3 + LV — todas as abas aparecem", async () => {
     jest.spyOn(fichaApi, "buscarFicha").mockResolvedValue({
       status: "ok",
       data: fichaBase({ tem_lv: true }),
@@ -51,12 +51,12 @@ describe("Ficha do Item — renderização por combinação de abas", () => {
     render(<FichaPage params={{ code: "ITEMCODE01" }} />);
 
     expect(await screen.findByText("Pilar P1")).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "N1" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "N3" })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "PAINÉIS" })).toBeInTheDocument();
+    for (const nome of ["Estrutural Limpo", "Destaque no Estrutural", "Desenho Técnico, Materiais e Construção"]) {
+      expect(screen.getByRole("tab", { name: nome })).toBeInTheDocument();
+    }
   });
 
-  it("renderiza só com N1 — segmented control colapsa (AC2)", async () => {
+  it("renderiza só com N1 — sem Desenho Técnico nem Materiais (sem N3 para medir)", async () => {
     jest.spyOn(fichaApi, "buscarFicha").mockResolvedValue({
       status: "ok",
       data: fichaBase({ svg: { n1: "/api/v1/ficha/ITEMCODE01/svg/n1", n3: null }, tem_lv: false }),
@@ -65,8 +65,10 @@ describe("Ficha do Item — renderização por combinação de abas", () => {
     render(<FichaPage params={{ code: "ITEMCODE01" }} />);
 
     await screen.findByText("Pilar P1");
-    expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
-    expect(screen.getByText("N1")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Estrutural Limpo" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Destaque no Estrutural" })).toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Desenho Técnico, Materiais e Construção" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Materiais e Construção" })).not.toBeInTheDocument();
   });
 
   it("edge case: sem nenhum SVG (svg.n1 e svg.n3 ambos null, tem_lv false)", async () => {
@@ -120,8 +122,16 @@ describe("Ficha do Item — falha de SVG não quebra o resto (AC4)", () => {
 
     render(<FichaPage params={{ code: "ITEMCODE01" }} />);
     await screen.findByText("Pilar P1");
+    // A aba inicial é "Estrutural Limpo" (views); o <img> do SVG N1 está no Destaque.
+    act(() => {
+      screen.getByRole("tab", { name: "Destaque no Estrutural" }).click();
+    });
 
-    const img = document.querySelector("img") as HTMLImageElement;
+    const img = (await waitFor(() => {
+      const el = document.querySelector("img");
+      expect(el).toBeTruthy();
+      return el;
+    })) as HTMLImageElement;
     expect(img).toBeTruthy();
     act(() => {
       img.dispatchEvent(new Event("error"));

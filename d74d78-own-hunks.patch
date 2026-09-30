@@ -1,0 +1,945 @@
+diff --git a/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/publisher/publish.py b/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/publisher/publish.py
+--- a/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/publisher/publish.py
++++ b/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/publisher/publish.py
+@@ -59,6 +59,19 @@
+ )
+ _LV_LADO = {"lateral_a_para": "A", "lateral_b_para": "B",
+             "lateral_a_passa": "A", "lateral_b_passa": "B"}
++
++
++def _comportamento_portal(obra_id: str) -> str:
++    """Mint mínimo conhece a obra mesmo antes do primeiro SA/publicar()."""
++    path = _REPO_ROOT / "portal_data.db"
++    if not path.is_file():
++        return "misto"
++    try:
++        with sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True) as portal:
++            row = portal.execute("SELECT comportamento FROM portal_obras WHERE id=?", (obra_id,)).fetchone()
++            return row[0] if row and row[0] in {"para", "passa", "misto"} else "misto"
++    except sqlite3.Error:
++        return "misto"
+ 
+ 
+ def gerar_code(conn: sqlite3.Connection) -> str:
+@@ -85,6 +98,7 @@
+ 
+ def _upsert_obra(
+     conn: sqlite3.Connection, obra_id: str, obra_dir: Path, rotulo: str, batch: str,
++    comportamento: str = "misto",
+ ) -> str:
+     """Upsert do registro `kind='obra'` — code preservado se já existir.
+     Extraído de `publicar()` [2026-07-13] pra reuso por
+@@ -97,21 +111,24 @@
+     conn.execute(
+         """
+         INSERT INTO public_codes
+-            (code, kind, obra_id, obra_dir, obra_rotulo, publish_batch)
+-        VALUES (?, 'obra', ?, ?, ?, ?)
++            (code, kind, obra_id, obra_dir, obra_rotulo, publish_batch, payload_json)
++        VALUES (?, 'obra', ?, ?, ?, ?, ?)
+         ON CONFLICT(code) DO UPDATE SET
+             obra_dir=excluded.obra_dir,
+             obra_rotulo=excluded.obra_rotulo,
++            payload_json=excluded.payload_json,
+             publish_batch=excluded.publish_batch,
+             revoked=0
+         """,
+-        (code, obra_id, str(obra_dir), rotulo, batch),
++        (code, obra_id, str(obra_dir), rotulo, batch,
++         json.dumps({"comportamento": comportamento})),
+     )
+     return code
+ 
+ 
+ def _upsert_pavimento(
+     conn: sqlite3.Connection, obra_id: str, obra_dir: Path, pavimento: str, rotulo: str, batch: str,
++    comportamento: str = "misto",
+ ) -> str:
+     """Upsert do registro `kind='pavimento'` — code preservado se já existir.
+     Extraído de `publicar()` [2026-07-13], mesmo motivo de `_upsert_obra`."""
+@@ -123,16 +140,18 @@
+     conn.execute(
+         """
+         INSERT INTO public_codes
+-            (code, kind, obra_id, obra_dir, pavimento, obra_rotulo, publish_batch)
+-        VALUES (?, 'pavimento', ?, ?, ?, ?, ?)
++            (code, kind, obra_id, obra_dir, pavimento, obra_rotulo, publish_batch, payload_json)
++        VALUES (?, 'pavimento', ?, ?, ?, ?, ?, ?)
+         ON CONFLICT(code) DO UPDATE SET
+             obra_dir=excluded.obra_dir,
+             pavimento=excluded.pavimento,
+             obra_rotulo=excluded.obra_rotulo,
++            payload_json=excluded.payload_json,
+             publish_batch=excluded.publish_batch,
+             revoked=0
+         """,
+-        (code, obra_id, str(obra_dir), pavimento, rotulo, batch),
++        (code, obra_id, str(obra_dir), pavimento, rotulo, batch,
++         json.dumps({"comportamento": comportamento})),
+     )
+     return code
+ 
+@@ -155,6 +174,7 @@
+     anteriores (mesmo upsert de `publicar()`), nunca gera um novo
+     `publish_batch` (não revoga nada — só adiciona/atualiza)."""
+     obra_id = str(obra_id)
++    comportamento = _comportamento_portal(obra_id)
+     fechar_no_final = conn is None
+     if conn is None:
+         conn = get_connection(db_path) if db_path else get_connection()
+@@ -163,8 +183,8 @@
+         rotulo = obra_rotulo or _obra_rotulo_default()
+         batch = str(uuid.uuid4())
+         with conn:
+-            code_obra = _upsert_obra(conn, obra_id, obra_dir, rotulo, batch)
+-            code_pavimento = _upsert_pavimento(conn, obra_id, obra_dir, pavimento, rotulo, batch)
++            code_obra = _upsert_obra(conn, obra_id, obra_dir, rotulo, batch, comportamento)
++            code_pavimento = _upsert_pavimento(conn, obra_id, obra_dir, pavimento, rotulo, batch, comportamento)
+         return {"code_obra": code_obra, "code_pavimento": code_pavimento}
+     finally:
+         if fechar_no_final:
+@@ -198,8 +218,9 @@
+         rotulo = obra_rotulo or _obra_rotulo_default()
+         batch = str(uuid.uuid4())
+         with conn:
+-            _upsert_obra(conn, obra_id, obra_dir, rotulo, batch)
+-            _upsert_pavimento(conn, obra_id, obra_dir, pavimento, rotulo, batch)
++            comportamento = _comportamento_portal(obra_id)
++            _upsert_obra(conn, obra_id, obra_dir, rotulo, batch, comportamento)
++            _upsert_pavimento(conn, obra_id, obra_dir, pavimento, rotulo, batch, comportamento)
+ 
+             existente = conn.execute(
+                 """
+@@ -239,7 +260,7 @@
+     return int(m.group(0)) if m else 0
+ 
+ 
+-def _unidades_do_pavimento(estado: dict) -> list[dict]:
++def _unidades_do_pavimento(estado: dict, comportamento: str = "misto") -> list[dict]:
+     """Tudo o que vira 1 código público num pavimento. Cada unidade traz a
+     âncora (classe, item_id) que `/ficha/{code}` resolve, o payload e os
+     candidatos legados cujo código ela herda."""
+@@ -254,6 +275,8 @@
+                                      payload=None, legado=[]))
+ 
+     for modo, classe, sufixo, classes_legado in _PILAR_VARIANTES:
++        if comportamento != "misto" and not classe.endswith("_" + comportamento):
++            continue
+         for item in ficha_reader.listar_itens_n1(estado, classe):
+             item_id = str(item.get("item_id") or "")
+             if not item_id:
+@@ -264,6 +287,8 @@
+                                  legado=[(c, nome) for c in classes_legado]))
+ 
+     for modo, classes in _LV_LISTAGENS:
++        if comportamento != "misto" and not classes[0].endswith("_" + comportamento):
++            continue
+         por_viga: dict[str, list[tuple[str, dict]]] = {}
+         for classe in classes:
+             for item in ficha_reader.listar_itens_n1(estado, classe):
+@@ -387,6 +412,7 @@
+     Retorna resumo: {publish_batch, itens_publicados, itens_preservados}.
+     """
+     obra_id = str(obra["id"])
++    comportamento = str(obra.get("comportamento") or "misto").lower()
+     fechar_no_final = conn is None
+     if conn is None:
+         conn = get_connection(db_path) if db_path else get_connection()
+@@ -401,7 +427,7 @@
+         itens_preservados = 0
+ 
+         with conn:
+-            code_obra = _upsert_obra(conn, obra_id, obra_dir, rotulo, novo_batch)
++            code_obra = _upsert_obra(conn, obra_id, obra_dir, rotulo, novo_batch, comportamento)
+ 
+             for pavimento in pavimentos:
+                 estado = ficha_reader.ler_estado_pavimento(obra_dir, pavimento)
+@@ -411,11 +437,11 @@
+                 # [2026-07-12] código próprio por pavimento — "ficha do
+                 # pavimento"/recorte limpo da torre, resolve direto pra
+                 # lista de itens DAQUELE pavimento (não do obra inteiro).
+-                _upsert_pavimento(conn, obra_id, obra_dir, pavimento, rotulo, novo_batch)
++                _upsert_pavimento(conn, obra_id, obra_dir, pavimento, rotulo, novo_batch, comportamento)
+ 
+                 ctx = dict(obra_id=obra_id, obra_dir=obra_dir, pavimento=pavimento,
+                            rotulo=rotulo, batch=novo_batch)
+-                for unidade in _unidades_do_pavimento(estado):
++                for unidade in _unidades_do_pavimento(estado, comportamento):
+                     code_item = _achar_code(conn, obra_id, pavimento, unidade)
+                     if code_item:
+                         itens_preservados += 1
+@@ -426,13 +452,21 @@
+ 
+             # Revoga qualquer publish_batch anterior desta obra (AC 3) —
+             # nunca gera novo código, só marca revoked=1 nos batches antigos.
+-            conn.execute(
+-                """
+-                UPDATE public_codes SET revoked = 1
+-                WHERE obra_id = ? AND publish_batch != ? AND publish_batch IS NOT NULL
+-                """,
+-                (obra_id, novo_batch),
+-            )
++            oposto = "passa" if comportamento == "para" else "para"
++            ocultas = (f"pilares_n3_{oposto}", f"lateral_a_{oposto}", f"lateral_b_{oposto}")
++            if comportamento == "misto":
++                conn.execute(
++                    "UPDATE public_codes SET revoked = 1 WHERE obra_id = ? "
++                    "AND publish_batch != ? AND publish_batch IS NOT NULL",
++                    (obra_id, novo_batch),
++                )
++            else:
++                conn.execute(
++                    "UPDATE public_codes SET revoked = 1 WHERE obra_id = ? "
++                    "AND publish_batch != ? AND publish_batch IS NOT NULL "
++                    "AND (kind != 'item' OR classe NOT IN (?,?,?))",
++                    (obra_id, novo_batch, *ocultas),
++                )
+ 
+         return {
+             "publish_batch": novo_batch,
+diff --git a/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/obra_service.py b/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/obra_service.py
+--- a/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/obra_service.py
++++ b/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/obra_service.py
+@@ -21,13 +21,14 @@
+ 
+ from .code_lookup import code_da_obra, code_do_pavimento
+ from .ficha_service import pavimento_label
++from .obra_context import classe_permitida, comportamento_obra, pavimentos_ordenados
+ 
+ 
+ def _listar_itens_do_pavimento(conn: sqlite3.Connection, obra_id: str, pavimento: str) -> list[dict]:
+     import json
+     itens_rows = conn.execute(
+         """
+-        SELECT code, titulo_publico, tipo_elemento, payload_json FROM public_codes
++        SELECT code, titulo_publico, tipo_elemento, payload_json, classe FROM public_codes
+         WHERE obra_id = ? AND pavimento = ? AND kind = 'item' AND revoked = 0
+         ORDER BY titulo_publico
+         """,
+@@ -35,7 +36,10 @@
+     ).fetchall()
+     
+     result = []
++    comportamento = comportamento_obra(conn, obra_id)
+     for item in itens_rows:
++        if not classe_permitida(item["classe"], comportamento):
++            continue
+         modo = None
+         if item["payload_json"]:
+             try:
+@@ -62,18 +66,22 @@
+     obra_id = row["obra_id"]
+     obra_dir = Path(row["obra_dir"])
+ 
+-    pavimentos_reais = ficha_reader.descobrir_pavimentos(obra_dir)
++    ordem = pavimentos_ordenados(obra_id)
++    pavimentos_reais = [p["pavimento"] for p in ordem] if ordem else ficha_reader.descobrir_pavimentos(obra_dir)
+ 
+     resultado_pavimentos = []
+     for pavimento in pavimentos_reais:
+         resultado_pavimentos.append({
+             "code": code_do_pavimento(conn, obra_id, pavimento),
+             "pavimento_label": pavimento_label(pavimento),
++            "comportamento": comportamento_obra(conn, obra_id),
++            "ordem": next((p for p in ordem if p["pavimento"] == pavimento), None),
+             "itens": _listar_itens_do_pavimento(conn, obra_id, pavimento),
+         })
+ 
+     return {
+         "obra_rotulo": row["obra_rotulo"],
++        "comportamento": comportamento_obra(conn, obra_id),
+         "pavimentos": resultado_pavimentos,
+     }
+ 
+@@ -91,6 +99,8 @@
+     return {
+         "obra_rotulo": row["obra_rotulo"],
+         "obra_code": code_da_obra(conn, obra_id),
++        "comportamento": comportamento_obra(conn, obra_id),
+         "pavimento_label": pavimento_label(pavimento),
++        "ordem": next((p for p in pavimentos_ordenados(obra_id) if p["pavimento"] == pavimento), None),
+         "itens": _listar_itens_do_pavimento(conn, obra_id, pavimento),
+     }
+diff --git a/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/reaproveitamento_service.py b/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/reaproveitamento_service.py
+--- a/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/reaproveitamento_service.py
++++ b/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/reaproveitamento_service.py
+@@ -43,6 +43,7 @@
+ from services import materiais_service as ms
+ from services.plano_de_corte import PERDA_CORTE, compra_de_grupos, material_da_bitola
+ from services.resolve_service import resolver_code
++from services.obra_context import comportamento_obra, pavimentos_ordenados
+ 
+ log = logging.getLogger(__name__)
+ 
+@@ -93,6 +94,11 @@
+     """Todos os pavimentos da obra até `pav`, na ordem da obra (de baixo para
+     cima). Pavimento que não existe no cadastro não quebra a sequência: o
+     anterior é o que vem antes na ordem (dono, 29/09)."""
++    ordem_dono = [r["pavimento"] for r in pavimentos_ordenados(obra_id)]
++    if ordem_dono:
++        if pav not in ordem_dono:
++            return [pav]
++        return ordem_dono[:ordem_dono.index(pav) + 1]
+     pavs = {r[0] for r in conn.execute(
+         "SELECT DISTINCT pavimento FROM public_codes WHERE obra_id = ? AND kind = 'item' AND revoked = 0",
+         (obra_id,))} | {pav}
+@@ -712,9 +718,10 @@
+ 
+ def obter_reaproveitamento(conn, row, root: Path) -> Optional[dict]:
+     """Resposta da ficha, ou {"calculando": True} enquanto o cenário é medido.
+-    Fundo/laje (sem modo) usam o cenário Para até a obra ter o campo de
+-    comportamento (D-78)."""
+-    cenario = cenarios_da_classe(row["classe"])[0]
++    Fundo/laje usam o modo da obra; Misto mantém o cenário Para padrão."""
++    cenarios = cenarios_da_classe(row["classe"])
++    modo = comportamento_obra(conn, row["obra_id"])
++    cenario = ("passa" if modo == "passa" and "passa" in cenarios else cenarios[0])
+     pronto, res = resultado_cenario(conn, row["obra_id"], row["pavimento"], cenario, root)
+     if not pronto:
+         return {"calculando": True}
+diff --git a/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/resolve_service.py b/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/resolve_service.py
+--- a/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/resolve_service.py
++++ b/Agente-cad-PYSIDE-Restored-main/consulta-publica-api/services/resolve_service.py
+@@ -11,6 +11,8 @@
+ import sqlite3
+ from typing import Optional
+ 
++from .obra_context import classe_permitida, comportamento_obra
++
+ 
+ def resolver_code(conn: sqlite3.Connection, code: str) -> Optional[sqlite3.Row]:
+     """Retorna a linha de `public_codes` para `code` (trim, case-sensitive),
+@@ -19,6 +21,11 @@
+     retorno (None), nunca um branch por "formato válido" antes de consultar.
+     """
+     code = code.strip()
+-    return conn.execute(
++    row = conn.execute(
+         "SELECT * FROM public_codes WHERE code = ? AND revoked = 0", (code,)
+     ).fetchone()
++    if row is not None and row["kind"] == "item" and not classe_permitida(
++        row["classe"], comportamento_obra(conn, row["obra_id"])
++    ):
++        return None
++    return row
+diff --git a/Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/DECISOES-DO-DONO.md b/Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/DECISOES-DO-DONO.md
+--- a/Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/DECISOES-DO-DONO.md
++++ b/Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/DECISOES-DO-DONO.md
+@@ -110,8 +110,8 @@
+ | D-71 | 2026-09-29 | Materiais | **Regras de corte no reaproveitamento** (sarrafo corta junto com o painel): **LV** mesmo tipo (gradeado/sarrafeado), comprimento **igual**, match dos sarrafos/grades de extremidade (esq./dir./nenhum), só a altura varia cortando **embaixo**; **PIL** largura igual, só a altura cortando **em cima**; **FV** largura igual (espessura não se corta), só o **comprimento**, com match dos sarrafos de extremidade; **LAJ** tira de escoramento nunca, painel comum corta em qualquer direção. **Nunca entre classes** | chat 2026-09-29 | vigente — `docs/MATERIAIS-E-CONSTRUCAO.md` §12.3 |
+ | D-72 | 2026-09-29 | Materiais | **Estoque acumula e se gasta** ao subir a obra, rastreado pelos IDs de painel e sobra; o estoque de pavimentos mais antigos entra como etapa 4. Par "próprio item" por nome/número (V301↔V401), sem exigir mesma posição | chat 2026-09-29 | vigente — `docs/MATERIAIS-E-CONSTRUCAO.md` §12 |
+ | D-73 | 2026-09-29 | Portal | "Material de compra" vira **"Material necessário, preparação e reaproveitamento"** com 3 sub-abas: Preparação com Materiais Novos / Preparação com Materiais Reaproveitados e Novos / Materiais Disponíveis dos Pavimentos Anteriores (sobras juntas sem proveniência; montados por item da classe) | chat 2026-09-29 | vigente, implementado 29/09 — `docs/MATERIAIS-E-CONSTRUCAO.md` §12.6 |
+-| D-74 | 2026-09-29 | Materiais | **Sequência dos pavimentos = a ordem de todos os pavimentos da obra** (subsolos, térreo, 1º, tipo 2–10 como um pavimento só, 11º, 12º, cobertura, deck…): pavimento ausente no cadastro não quebra a sequência; o estoque só começa do zero no primeiro pavimento (ex.: subsolo). O portal de fôrmas deve guardar anterior/próximo de cada pavimento | chat 2026-09-29 | vigente — `docs/MATERIAIS-E-CONSTRUCAO.md` §12.6 (ordem provisória por nome até o portal gravar a ordem) |
++| D-74 | 2026-09-29 | Materiais | **Sequência dos pavimentos = a ordem de todos os pavimentos da obra** (subsolos, térreo, 1º, tipo 2–10 como um pavimento só, 11º, 12º, cobertura, deck…): pavimento ausente no cadastro não quebra a sequência; o estoque só começa do zero no primeiro pavimento (ex.: subsolo). O portal de fôrmas guarda anterior/próximo de cada pavimento | chat 2026-09-29 | vigente, implementado 29/09 — `portal_obra_pavimentos`, `GET/PUT /obras/{obra_id}/pavimentos/ordem`; consulta usa a ordem cadastrada, com fallback provisório por nome em obras ainda não configuradas |
+ | D-75 | 2026-09-29 | Materiais | **Sobra limpa de chapa pode ir para outra classe** (só recorte puro de painel/chapa, sem sarrafo); painel montado e retalho com sarrafo continuam só na própria classe. Mantém ID e registro de proveniência e de fornecimento | chat 2026-09-29 | vigente — implementado 29/09 (`docs/MATERIAIS-E-CONSTRUCAO.md` §12.6) |
+ | D-77 | 2026-09-29 | Materiais | **Sobras: máximo aproveitamento, peças grandes primeiro** — não há ordem de classes; os painéis maiores de todas as classes do pavimento escolhem primeiro a sobra (a menor que serve) | chat 2026-09-29 | vigente — `docs/MATERIAIS-E-CONSTRUCAO.md` §12.6 |
+-| D-78 | 2026-09-29 | Materiais/Portal | **Reaproveitamento em 2 frentes: Para e Passa**, calculadas e listadas separadas (pilares e laterais de cada modo); fundo e laje entram igualmente nos dois, sem citar Para/Passa. A obra terá o campo **comportamento Para / Passa / Misto** (Misto = hoje, as 2 listas); a consulta exibirá só a lista do modo da obra | chat 2026-09-29 | vigente — campo da obra a implementar (prompt dado ao dono) |
++| D-78 | 2026-09-29 | Materiais/Portal | **Reaproveitamento em 2 frentes: Para e Passa**, calculadas e listadas separadas (pilares e laterais de cada modo); fundo e laje entram igualmente nos dois, sem citar Para/Passa. A obra tem o campo **comportamento Para / Passa / Misto** (Misto = hoje, as 2 listas); a consulta exibe só a lista do modo da obra | chat 2026-09-29 | vigente, implementado 29/09 — `portal_obras.comportamento`, filtro de rotas internas e códigos públicos, payload público da obra/pavimento |
+ | D-76 | 2026-09-29 | FV | **Laterais servem de ajuda ao fundo, não de regra rígida** (espelho de o FV ser referência da LV): o fundo deve ficar tão completo quanto as laterais — trecho com as duas paredes reais e sem fundo ganha painel; painel na faixa de outra viga volta para a dona. Sempre com prova local do DXF (linha real, fora de cota, pilar sólido/hachura fora); fundo validado não muda | chat 2026-09-29 (apontamento 9cf6beac) | vigente, implementado 29/09 — `docs/SA-ANALISE/CLASSES/FV.md` §1, `src/core/beam_interpreters/fundo_viga_lateral_ref.py` |
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/db/repository.py b/Agente-cad-PYSIDE-Restored-main/portal/db/repository.py
+--- a/Agente-cad-PYSIDE-Restored-main/portal/db/repository.py
++++ b/Agente-cad-PYSIDE-Restored-main/portal/db/repository.py
+@@ -484,6 +484,7 @@
+     data_entrega: Optional[str] = None,
+     criterios_cliente: Optional[str] = None,
+     observacoes: Optional[str] = None,
++    comportamento: Optional[str] = None,
+ ) -> None:
+     """[2026-07-07, migration 004] Cabeçalho de referência do processamento —
+     quem pediu, prazo, critérios do cliente. Só atualiza os campos passados
+@@ -496,11 +497,49 @@
+                data_entrega = COALESCE(?, data_entrega),
+                criterios_cliente = COALESCE(?, criterios_cliente),
+                observacoes = COALESCE(?, observacoes),
++               comportamento = COALESCE(?, comportamento),
+                updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
+            WHERE id = ?""",
+-        (nome, cliente, data_solicitacao, data_entrega, criterios_cliente, observacoes, obra_id),
+-    )
+-    conn.commit()
++        (nome, cliente, data_solicitacao, data_entrega, criterios_cliente, observacoes,
++         comportamento, obra_id),
++    )
++    conn.commit()
++
++
++def listar_pavimentos_obra(conn: sqlite3.Connection, obra_id: str) -> list[dict[str, Any]]:
++    rows = conn.execute(
++        "SELECT pavimento, ordem, repete_de, repete_ate FROM portal_obra_pavimentos "
++        "WHERE obra_id = ? ORDER BY ordem", (obra_id,),
++    ).fetchall()
++    result = []
++    for index, row in enumerate(rows):
++        result.append({
++            "pavimento": row["pavimento"], "ordem": row["ordem"],
++            "anterior": rows[index - 1]["pavimento"] if index else None,
++            "proximo": rows[index + 1]["pavimento"] if index + 1 < len(rows) else None,
++            "tipo": {"de": row["repete_de"], "ate": row["repete_ate"]}
++                    if row["repete_de"] is not None else None,
++        })
++    return result
++
++
++def salvar_pavimentos_obra(conn: sqlite3.Connection, obra_id: str, pavimentos: list[dict]) -> list[dict]:
++    nomes = [str(row["pavimento"]).strip() for row in pavimentos]
++    if not all(nomes) or len(nomes) != len(set(nomes)):
++        raise ValueError("Pavimentos vazios ou repetidos")
++    with conn:
++        conn.execute("DELETE FROM portal_obra_pavimentos WHERE obra_id = ?", (obra_id,))
++        for index, row in enumerate(pavimentos):
++            tipo = row.get("tipo") or {}
++            de, ate = tipo.get("de"), tipo.get("ate")
++            if (de is None) != (ate is None) or (de is not None and
++                    (not isinstance(de, int) or not isinstance(ate, int) or de < 1 or de > ate)):
++                raise ValueError("Faixa TIPO inválida")
++            conn.execute(
++                "INSERT INTO portal_obra_pavimentos(obra_id,pavimento,ordem,repete_de,repete_ate) "
++                "VALUES(?,?,?,?,?)", (obra_id, nomes[index], index, de, ate),
++            )
++    return listar_pavimentos_obra(conn, obra_id)
+ 
+ 
+ def obter_obra(conn: sqlite3.Connection, obra_id: str) -> Optional[dict[str, Any]]:
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/db/schema.sql b/Agente-cad-PYSIDE-Restored-main/portal/db/schema.sql
+--- a/Agente-cad-PYSIDE-Restored-main/portal/db/schema.sql
++++ b/Agente-cad-PYSIDE-Restored-main/portal/db/schema.sql
+@@ -45,6 +45,8 @@
+                    CHECK (estado IN ('aguardando_ingestao','processando','pronta','erro')),
+     erro_msg       TEXT,
+     local_path     TEXT,
++    comportamento TEXT NOT NULL DEFAULT 'misto'
++                   CHECK (comportamento IN ('para','passa','misto')),
+     -- [2026-07-06, migrations/003] última etapa (triagem/recortes/sa) concluída
+     -- com sucesso — `estado` sozinho não distingue "só a triagem rodou" de
+     -- "o SA completo rodou" (achado real testando o modo rápido: toda etapa
+@@ -54,6 +56,18 @@
+     detectada_em   TEXT,
+     processada_em  TEXT,
+     updated_at     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
++);
++
++CREATE TABLE IF NOT EXISTS portal_obra_pavimentos (
++    obra_id TEXT NOT NULL REFERENCES portal_obras(id) ON DELETE CASCADE,
++    pavimento TEXT NOT NULL,
++    ordem INTEGER NOT NULL CHECK (ordem >= 0),
++    repete_de INTEGER,
++    repete_ate INTEGER,
++    PRIMARY KEY (obra_id, pavimento),
++    UNIQUE (obra_id, ordem),
++    CHECK ((repete_de IS NULL AND repete_ate IS NULL) OR
++           (repete_de IS NOT NULL AND repete_ate IS NOT NULL AND repete_de >= 1 AND repete_de <= repete_ate))
+ );
+ 
+ -- 2.2b portal_documentos — documentos individuais dentro de uma obra (2026-07-06).
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/app/routers/n1_routes.py b/Agente-cad-PYSIDE-Restored-main/portal/app/routers/n1_routes.py
+--- a/Agente-cad-PYSIDE-Restored-main/portal/app/routers/n1_routes.py
++++ b/Agente-cad-PYSIDE-Restored-main/portal/app/routers/n1_routes.py
+@@ -27,7 +27,31 @@
+ from src.core import pillar_n3_ficha
+ from src.core.cima_l_contract import is_cima_l, portal_cima_l_contract
+ 
+-router = APIRouter(prefix="/obras", tags=["n1"])
++def _bloquear_modo_oposto(request: Request, conn: sqlite3.Connection = Depends(get_db_conn)) -> None:
++    """Impede acesso direto às rotas N1/N3 do modo não escolhido pela obra."""
++    params = request.path_params
++    obra_id = params.get("obra_id")
++    if not obra_id:
++        return
++    obra = repo.obter_obra(conn, obra_id)
++    modo = str((obra or {}).get("comportamento") or "misto").lower()
++    if modo == "misto":
++        return
++    classe = str(params.get("classe") or "").lower()
++    behavior = str(params.get("behavior") or "").lower()
++    vista = str(params.get("vista") or request.query_params.get("vista") or "").lower()
++    oposto = "passa" if modo == "para" else "para"
++    if (behavior == oposto or classe in {f"lateral_a_{oposto}", f"lateral_b_{oposto}",
++                                     f"pilares_n3_{oposto}"} or
++            (classe.startswith("pilares") and
++             (vista.endswith("-" + oposto) or vista.endswith("_" + oposto)))):
++        raise HTTPException(status_code=404, detail="vista indisponível para esta obra")
++    if (modo == "passa" and classe.startswith("pilares") and
++            "/pilar-n3-ficha" in request.url.path and not vista):
++        raise HTTPException(status_code=404, detail="vista deve ser informada para esta obra")
++
++
++router = APIRouter(prefix="/obras", tags=["n1"], dependencies=[Depends(_bloquear_modo_oposto)])
+ 
+ 
+ class ValidacaoCampoPayload(BaseModel):
+@@ -194,6 +218,10 @@
+     }
+     classes = []
+     for classe in ficha_reader.CLASSES_N1:
++        modo = str(obra.get("comportamento") or "misto").lower()
++        if modo != "misto" and classe in {f"lateral_a_{'passa' if modo == 'para' else 'para'}",
++                                             f"lateral_b_{'passa' if modo == 'para' else 'para'}"}:
++            continue
+         if classe in {"pilares_especiais", "pilares_n3_para", "pilares_n3_passa"}:
+             continue
+         itens = ficha_reader.listar_itens_n1(estado, classe) if estado else []
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/app/routers/obras_routes.py b/Agente-cad-PYSIDE-Restored-main/portal/app/routers/obras_routes.py
+--- a/Agente-cad-PYSIDE-Restored-main/portal/app/routers/obras_routes.py
++++ b/Agente-cad-PYSIDE-Restored-main/portal/app/routers/obras_routes.py
+@@ -12,7 +12,8 @@
+ 
+ from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
+ from fastapi.responses import FileResponse
+-from pydantic import BaseModel
++from pydantic import BaseModel, Field
++from typing import Literal
+ 
+ from .. import access, auth, certification, classificador, drive_poller
+ from ..dbdep import get_db_conn
+@@ -39,6 +40,7 @@
+ class CriarObraIn(BaseModel):
+     nome: str
+     descricao: Optional[str] = None
++    comportamento: Literal["para", "passa", "misto"] = "misto"
+ 
+ 
+ class ClassificarDocumentoIn(BaseModel):
+@@ -65,6 +67,16 @@
+     data_entrega: Optional[str] = None
+     criterios_cliente: Optional[str] = None
+     observacoes: Optional[str] = None
++    comportamento: Optional[Literal["para", "passa", "misto"]] = None
++
++
++class PavimentoOrdemIn(BaseModel):
++    pavimento: str = Field(min_length=1, max_length=100)
++    tipo: Optional[dict[str, int]] = None
++
++
++class OrdemPavimentosIn(BaseModel):
++    pavimentos: list[PavimentoOrdemIn]
+ 
+ 
+ class RenomearDocumentoIn(BaseModel):
+@@ -286,6 +298,7 @@
+         conn, membro_id=membro["id"], nome=nome, descricao=body.descricao,
+         pasta_drive_id=pasta_id, estado="aguardando_ingestao", local_path=str(local_path),
+     )
++    repo.atualizar_cabecalho_obra(conn, obra_id, comportamento=body.comportamento)
+     return {"obra_id": obra_id, "nome": nome, "descricao": body.descricao, "pasta_drive_id": pasta_id}
+ 
+ 
+@@ -581,8 +594,37 @@
+         conn, obra_id, nome=nome, cliente=body.cliente,
+         data_solicitacao=body.data_solicitacao, data_entrega=body.data_entrega,
+         criterios_cliente=body.criterios_cliente, observacoes=body.observacoes,
++        comportamento=body.comportamento,
+     )
+     return repo.obter_obra(conn, obra_id)
++
++
++@router.get("/{obra_id}/pavimentos/ordem")
++def obter_ordem_pavimentos(obra_id: str, membro: dict = Depends(auth.exige_login),
++                           conn: sqlite3.Connection = Depends(get_db_conn)):
++    obra = repo.obter_obra(conn, obra_id)
++    if obra is None or not access.pode_ver_obra(obra, membro):
++        raise HTTPException(status_code=404, detail="obra não encontrada")
++    rows = repo.listar_pavimentos_obra(conn, obra_id)
++    return {"obra_id": obra_id, "definida_pelo_dono": bool(rows), "pavimentos": rows}
++
++
++@router.put("/{obra_id}/pavimentos/ordem")
++def atualizar_ordem_pavimentos(obra_id: str, body: OrdemPavimentosIn,
++                               membro: dict = Depends(auth.exige_login),
++                               conn: sqlite3.Connection = Depends(get_db_conn)):
++    obra = repo.obter_obra(conn, obra_id)
++    if obra is None or not access.pode_ver_obra(obra, membro):
++        raise HTTPException(status_code=404, detail="obra não encontrada")
++    if not access.eh_dono(membro):
++        raise HTTPException(status_code=403, detail="Somente o dono define a ordem dos pavimentos")
++    try:
++        rows = repo.salvar_pavimentos_obra(
++            conn, obra_id, [row.model_dump() for row in body.pavimentos],
++        )
++    except ValueError as exc:
++        raise HTTPException(status_code=422, detail=str(exc)) from exc
++    return {"obra_id": obra_id, "definida_pelo_dono": bool(rows), "pavimentos": rows}
+ 
+ 
+ @router.post("/{obra_id}/documentos/{doc_id}/renomear")
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/app/routers/paginas_routes.py b/Agente-cad-PYSIDE-Restored-main/portal/app/routers/paginas_routes.py
+--- a/Agente-cad-PYSIDE-Restored-main/portal/app/routers/paginas_routes.py
++++ b/Agente-cad-PYSIDE-Restored-main/portal/app/routers/paginas_routes.py
+@@ -153,6 +153,7 @@
+         "usuario": membro,
+         "obrigatoria": int(membro.get("trocar_senha") or 0) == 1,
+     })
++
+ 
+ # --------------------------------------------------------------------------- #
+ # Lista de obras
+@@ -428,6 +429,7 @@
+             "fichas": fichas,
+             "comentarios": comentarios,
+             "documentos": documentos,
++            "ordem_pavimentos": repo.listar_pavimentos_obra(conn, obra_id),
+             "resumo_documentos": resumo_documentos,
+             "eh_obra_rapida": eh_obra_rapida,
+             "onboarding_rapido": onboarding_rapido,
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/app/routers/viewer_routes.py b/Agente-cad-PYSIDE-Restored-main/portal/app/routers/viewer_routes.py
+--- a/Agente-cad-PYSIDE-Restored-main/portal/app/routers/viewer_routes.py
++++ b/Agente-cad-PYSIDE-Restored-main/portal/app/routers/viewer_routes.py
+@@ -269,6 +269,9 @@
+     grupos: list[dict] = []
+     if estado is not None:
+         for grupo, rotulo, classes_sa in GRUPOS_VIEWER:
++            modo = str(obra.get("comportamento") or "misto").lower()
++            if modo != "misto" and grupo.startswith("lat_") and not grupo.endswith("_" + modo):
++                continue
+             itens: list[dict] = []
+             for classe in classes_sa:
+                 itens.extend(_geometria_dos_itens(estado, classe, transform))
+@@ -505,6 +508,9 @@
+     obra_dir = _obra_dir(request, obra)
+ 
+     classe = _GRUPO_PARA_CLASSE.get(payload.grupo)
++    modo = str(obra.get("comportamento") or "misto").lower()
++    if modo != "misto" and payload.grupo.startswith("lat_") and not payload.grupo.endswith("_" + modo):
++        raise HTTPException(status_code=404, detail="grupo indisponível para esta obra")
+     if classe is None:
+         raise HTTPException(status_code=422, detail=f"grupo desconhecido: {payload.grupo}")
+     if len(payload.poligono_px) < 3:
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/app/static/drill_grade.js b/Agente-cad-PYSIDE-Restored-main/portal/app/static/drill_grade.js
+--- a/Agente-cad-PYSIDE-Restored-main/portal/app/static/drill_grade.js
++++ b/Agente-cad-PYSIDE-Restored-main/portal/app/static/drill_grade.js
+@@ -10,6 +10,10 @@
+   if (!root) return;
+ 
+   var OBRA_ID = root.getAttribute('data-obra');
++  var OBRA_COMPORTAMENTO = root.getAttribute('data-comportamento') || 'misto';
++  function classePermitida(c) {
++    return OBRA_COMPORTAMENTO === 'misto' || !/_(para|passa)$/.test(c) || c.endsWith('_' + OBRA_COMPORTAMENTO);
++  }
+   var OBRA_NOME = root.getAttribute('data-obra-nome') || 'Obra';
+ 
+   var VIGA_CLASSES = {
+@@ -507,7 +511,7 @@
+   }
+ 
+   function classesPrincipais() {
+-    return ['pilares', 'lajes', 'fundo', 'laterais_para', 'laterais_passa'];
++    return ['pilares', 'lajes', 'fundo', 'laterais_para', 'laterais_passa'].filter(classePermitida);
+   }
+ 
+   function secaoMotor(c) {
+@@ -848,7 +852,7 @@
+           byId.lajes || { classe: 'lajes', titulo: 'Laje unificada', total: 0 },
+           byId.fundo || { classe: 'fundo', titulo: 'Fundo de viga unificado', total: 0 }
+         ]}
+-      ];
++      ].map(function (g) { g.items = g.items.filter(function (c) { return classePermitida(c.classe); }); return g; });
+     }
+     var schema = etapaId === 'n3' ? N3_GROUPS : SA_GROUPS;
+     // N3 também lista laterais/fundos/lajes do SA + pilares n3
+@@ -862,7 +866,7 @@
+     return schema.map(function (g) {
+       return {
+         nome: g.nome,
+-        items: g.ids.map(function (id) {
++        items: g.ids.filter(classePermitida).map(function (id) {
+           return byId[id] || { classe: id, titulo: id, total: 0 };
+         })
+       };
+@@ -1894,10 +1898,10 @@
+         state.classesCache = data.classes || [];
+         var by = {};
+         state.classesCache.forEach(function (c) { by[c.classe] = c; });
+-        state.classesCache.push({ classe: 'laterais_para', titulo: 'Segmentos Lateral A.B. · Para',
++        if (classePermitida('laterais_para')) state.classesCache.push({ classe: 'laterais_para', titulo: 'Segmentos Lateral A.B. · Para',
+           total: Number((by.lateral_a_para || {}).total || 0) + Number((by.lateral_b_para || {}).total || 0),
+           n5_concluido: Boolean((by.lateral_a_para || {}).n5_concluido || (by.lateral_b_para || {}).n5_concluido) });
+-        state.classesCache.push({ classe: 'laterais_passa', titulo: 'Segmentos Lateral A.B. · Passa',
++        if (classePermitida('laterais_passa')) state.classesCache.push({ classe: 'laterais_passa', titulo: 'Segmentos Lateral A.B. · Passa',
+           total: Number((by.lateral_a_passa || {}).total || 0) + Number((by.lateral_b_passa || {}).total || 0),
+           n5_concluido: Boolean((by.lateral_a_passa || {}).n5_concluido || (by.lateral_b_passa || {}).n5_concluido) });
+         if (done) done();
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/app/static/pillar_ficha.js b/Agente-cad-PYSIDE-Restored-main/portal/app/static/pillar_ficha.js
+--- a/Agente-cad-PYSIDE-Restored-main/portal/app/static/pillar_ficha.js
++++ b/Agente-cad-PYSIDE-Restored-main/portal/app/static/pillar_ficha.js
+@@ -36,7 +36,7 @@
+   }
+ 
+   function App(root, options) {
+-    this.root = root; this.options = options; this.data = null; this.views = {}; this.tab = options.initialTab || 'abcd-para'; this.timer = null; this.selectedPanel = null;
++    this.root = root; this.options = options; this.data = null; this.views = {}; this.tab = options.initialTab || ('abcd-' + (options.comportamento === 'passa' ? 'passa' : 'para')); this.timer = null; this.selectedPanel = null;
+     this.visualMode = options.visualMode || null; this.availableVisualModes = [];
+     this.dirty = false; this.saving = false; this.regenJob = null; this.regenChecking = false; this.regenDiscovered = false; this.regenError = ''; this.regenTimer = null; this.regenRefreshOnDone = null;
+     this.load();
+@@ -138,7 +138,9 @@
+     help.appendChild(guide); shell.appendChild(help);
+     if (!self.options.hideTabs) {
+       var tabs = el('div', 'plf-tabs');
+-      [['cima','N3 Cima'],['abcd-para','ABCD Para'],['abcd-passa','ABCD Passa'],['grades-para','Grades Para'],['grades-passa','Grades Passa']].forEach(function (spec) {
++      [['cima','N3 Cima'],['abcd-para','ABCD Para'],['abcd-passa','ABCD Passa'],['grades-para','Grades Para'],['grades-passa','Grades Passa']].filter(function (spec) {
++        return !self.options.comportamento || self.options.comportamento === 'misto' || spec[0] === 'cima' || spec[0].endsWith('-' + self.options.comportamento);
++      }).forEach(function (spec) {
+         tabs.appendChild(button(spec[1], '', function () {
+           if (self.tab === spec[0]) return;
+           if (self.dirty && !confirm('Descartar as alterações não salvas desta ficha?')) return;
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/app/static/portal.css b/Agente-cad-PYSIDE-Restored-main/portal/app/static/portal.css
+--- a/Agente-cad-PYSIDE-Restored-main/portal/app/static/portal.css
++++ b/Agente-cad-PYSIDE-Restored-main/portal/app/static/portal.css
+@@ -926,6 +926,18 @@
+   margin-bottom: 16px;
+   box-shadow: 0 1px 3px rgba(15, 23, 42, .05);
+ }
++.obra-ordem-panel {
++  border: 1px solid #dbe4f0; border-radius: 14px; background: #fff;
++  padding: 14px 16px; margin-bottom: 16px;
++}
++.obra-ordem-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
++.obra-ordem-head h2 { font-size: 1rem; margin: 0; }
++.obra-ordem-head span { color: #64748b; font-size: .75rem; }
++.obra-ordem-panel .docs-lista-scroll { max-height: 350px; }
++.obra-ordem-panel td input[type=number] { width: 58px; margin-left: 4px; }
++.obra-ordem-panel td button { margin-right: 3px; min-width: 26px; }
++.obra-ordem-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
++.obra-ordem-actions input { flex: 1; min-width: 170px; }
+ .obra-docs-head { margin-bottom: 10px; }
+ .obra-docs-title-row {
+   display: flex;
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/app/templates/obras_lista.html b/Agente-cad-PYSIDE-Restored-main/portal/app/templates/obras_lista.html
+--- a/Agente-cad-PYSIDE-Restored-main/portal/app/templates/obras_lista.html
++++ b/Agente-cad-PYSIDE-Restored-main/portal/app/templates/obras_lista.html
+@@ -141,6 +141,13 @@
+         <form id="form-criar-obra">
+           <label class="field-label" for="criar-nome">Nome da obra</label>
+           <input type="text" id="criar-nome" class="field" placeholder="ex.: Edifício Paraíso" required autocomplete="off">
++
++          <label class="field-label" for="criar-comportamento">Comportamento</label>
++          <select id="criar-comportamento" class="field" required>
++            <option value="misto" selected>Misto</option>
++            <option value="para">Para</option>
++            <option value="passa">Passa</option>
++          </select>
+ 
+           <label class="field-label" for="criar-descricao">Descrição <span class="field-opt">(opcional)</span></label>
+           <textarea id="criar-descricao" class="field" rows="2" placeholder="Critérios do cliente, observações do lote…"></textarea>
+@@ -610,7 +617,8 @@
+       fetch('/obras/criar', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+-        body: JSON.stringify({ nome: nome, descricao: descricao || null }),
++        body: JSON.stringify({ nome: nome, descricao: descricao || null,
++          comportamento: document.getElementById('criar-comportamento').value }),
+       }).then(function (r) {
+         return r.json().then(function (data) { return { ok: r.ok, data: data }; });
+       }).then(function (res) {
+diff --git a/Agente-cad-PYSIDE-Restored-main/portal/app/templates/obra_detalhe.html b/Agente-cad-PYSIDE-Restored-main/portal/app/templates/obra_detalhe.html
+--- a/Agente-cad-PYSIDE-Restored-main/portal/app/templates/obra_detalhe.html
++++ b/Agente-cad-PYSIDE-Restored-main/portal/app/templates/obra_detalhe.html
+@@ -38,6 +38,7 @@
+       <div id="docs-viewer" data-obra="{{ obra.id }}" hidden></div>
+       <div id="drill-root" class="drill"
+            data-obra="{{ obra.id }}"
++           data-comportamento="{{ obra.comportamento or 'misto' }}"
+            data-obra-nome="{{ obra.nome }}"
+            data-sa-feito="{{ '1' if sa_feito else '0' }}"
+            data-n5-feito="{{ '1' if n5_feito else '0' }}"></div>
+@@ -285,6 +286,8 @@
+         </div>
+         <div id="cab-visualizacao" class="obra-ficha-hero-body">
+           <div class="obra-ficha-chips" role="list">
++            <div class="obra-ficha-chip" role="listitem"><span class="obra-ficha-chip-lab">Comportamento</span>
++              <span class="obra-ficha-chip-val">{{ (obra.comportamento or 'misto')|capitalize }}</span></div>
+             <div class="obra-ficha-chip" role="listitem">
+               <span class="obra-ficha-chip-lab">Cliente</span>
+               <span class="obra-ficha-chip-val{% if not obra.cliente %} is-empty{% endif %}">{{ obra.cliente or 'Não informado' }}</span>
+@@ -312,6 +315,10 @@
+         <form id="cab-form" class="obra-ficha-form" hidden>
+           <div class="obra-ficha-form-grid">
+             <label>Nome<input type="text" name="nome" value="{{ obra.nome }}" required></label>
++            <label>Comportamento
++              <select name="comportamento" required>
++                {% for modo in ['misto','para','passa'] %}<option value="{{ modo }}"{% if (obra.comportamento or 'misto') == modo %} selected{% endif %}>{{ modo|capitalize }}</option>{% endfor %}
++              </select></label>
+             <label>Cliente<input type="text" name="cliente" value="{{ obra.cliente or '' }}" placeholder="Nome do cliente"></label>
+             <label>Data de solicitação<input type="date" name="data_solicitacao" value="{{ obra.data_solicitacao or '' }}"></label>
+             <label>Data de entrega<input type="date" name="data_entrega" value="{{ obra.data_entrega or '' }}"></label>
+@@ -326,6 +333,20 @@
+           </div>
+         </form>
+         <p id="cab-resultado" class="meta obra-ficha-resultado" role="status" aria-live="polite"></p>
++      </section>
++
++      <section class="obra-ordem-panel" id="obra-ordem-panel" aria-label="Ordem dos pavimentos">
++        <div class="obra-ordem-head"><h2>Ordem dos pavimentos</h2><span>De baixo para cima · independente dos documentos</span></div>
++        <div class="docs-lista-scroll"><table class="docs-lista-tabela">
++          <thead><tr><th>Ordem</th><th>Pavimento atual</th><th>Anterior</th><th>Próximo</th><th>TIPO · repete de/até</th><th></th></tr></thead>
++          <tbody id="obra-ordem-linhas"></tbody>
++        </table></div>
++        {% if membro.papel == 'dono' %}
++        <div class="obra-ordem-actions"><input id="obra-ordem-novo" placeholder="Novo pavimento, ex.: COBERTURA" aria-label="Novo pavimento">
++          <button type="button" id="obra-ordem-adicionar">Adicionar</button>
++          <button type="button" id="obra-ordem-salvar">Salvar ordem</button></div>
++        {% endif %}
++        <p id="obra-ordem-status" role="status" aria-live="polite"></p>
+       </section>
+ 
+       {% if not eh_obra_rapida %}
+@@ -684,6 +705,14 @@
+ {% block scripts %}
+ <script>
+   var OBRA_ID = {{ obra.id|tojson }};
++  var OBRA_COMPORTAMENTO = {{ (obra.comportamento or 'misto')|tojson }};
++  var ORDEM_PAVIMENTOS = {{ ordem_pavimentos|tojson }};
++  var MAPA_PAVIMENTOS = {};
++  function atualizarMapaPavimentos() {
++    MAPA_PAVIMENTOS = {};
++    ORDEM_PAVIMENTOS.forEach(function (p) { MAPA_PAVIMENTOS[p.pavimento] = p; });
++  }
++  atualizarMapaPavimentos();
+   var _todosJobs = {{ jobs|tojson }};
+   window._todosJobs = _todosJobs;
+   // [2026-07-12] Código público (App de Consulta) da obra — carregado à
+@@ -1163,6 +1192,70 @@
+   })();
+ 
+   // --- cabeçalho do processamento: ver/editar (2026-07-07) ---
++  (function () {
++    var tbody = document.getElementById('obra-ordem-linhas');
++    if (!tbody) return;
++    var status = document.getElementById('obra-ordem-status');
++    var salvar = document.getElementById('obra-ordem-salvar');
++    var items = ORDEM_PAVIMENTOS.map(function (p) { return {
++      pavimento: p.pavimento, tipo: p.tipo ? { de: p.tipo.de, ate: p.tipo.ate } : null
++    }; });
++    if (!items.length) {
++      var docs = {{ documentos|tojson }};
++      docs.forEach(function (d) {
++        var pav = d.pavimento_confirmado || d.pavimento_sugerido;
++        if (pav && !items.some(function (p) { return p.pavimento === pav; })) items.push({ pavimento: pav, tipo: null });
++      });
++    }
++    function render() {
++      tbody.textContent = '';
++      items.forEach(function (p, i) {
++        var tr = document.createElement('tr');
++        function cell(content) { var td = document.createElement('td'); td.textContent = content; tr.appendChild(td); return td; }
++        cell(String(i + 1)); cell(p.pavimento);
++        cell(i ? items[i - 1].pavimento : '—');
++        cell(i + 1 < items.length ? items[i + 1].pavimento : '—');
++        var tipo = cell('');
++        if (salvar) {
++          var check = document.createElement('input'); check.type = 'checkbox'; check.checked = !!p.tipo;
++          check.setAttribute('aria-label', 'Pavimento tipo ' + p.pavimento);
++          var de = document.createElement('input'); de.type = 'number'; de.min = '1'; de.placeholder = 'de';
++          var ate = document.createElement('input'); ate.type = 'number'; ate.min = '1'; ate.placeholder = 'até';
++          de.value = p.tipo ? p.tipo.de : ''; ate.value = p.tipo ? p.tipo.ate : '';
++          de.disabled = ate.disabled = !check.checked;
++          check.onchange = function () { p.tipo = check.checked ? { de: Number(de.value) || 1, ate: Number(ate.value) || 1 } : null; de.disabled = ate.disabled = !check.checked; };
++          de.onchange = ate.onchange = function () { if (p.tipo) p.tipo = { de: Number(de.value), ate: Number(ate.value) }; };
++          tipo.appendChild(check); tipo.appendChild(de); tipo.appendChild(ate);
++        } else tipo.textContent = p.tipo ? p.tipo.de + 'º ao ' + p.tipo.ate + 'º' : '—';
++        var actions = cell('');
++        if (salvar) [['↑', i - 1], ['↓', i + 1], ['×', -1]].forEach(function (a) {
++          var btn = document.createElement('button'); btn.type = 'button'; btn.textContent = a[0];
++          btn.disabled = a[1] >= items.length || (a[1] < 0 && a[0] !== '×');
++          btn.setAttribute('aria-label', a[0] === '×' ? 'Remover ' + p.pavimento : 'Mover ' + p.pavimento + (a[0] === '↑' ? ' para cima' : ' para baixo'));
++          btn.onclick = function () { if (a[0] === '×') items.splice(i, 1); else { var tmp = items[i]; items[i] = items[a[1]]; items[a[1]] = tmp; } render(); };
++          actions.appendChild(btn);
++        });
++        tbody.appendChild(tr);
++      });
++    }
++    render();
++    if (!salvar) return;
++    document.getElementById('obra-ordem-adicionar').onclick = function () {
++      var input = document.getElementById('obra-ordem-novo');
++      var pav = input.value.trim();
++      if (!pav || items.some(function (p) { return p.pavimento === pav; })) { status.textContent = 'Informe um pavimento novo.'; return; }
++      items.push({ pavimento: pav, tipo: null }); input.value = ''; status.textContent = ''; render();
++    };
++    salvar.onclick = function () {
++      status.textContent = 'Salvando…';
++      fetch('/obras/' + OBRA_ID + '/pavimentos/ordem', {
++        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pavimentos: items })
++      }).then(function (r) { return r.json().then(function (data) { if (!r.ok) throw new Error(data.detail || 'Falha ao salvar'); return data; }); })
++        .then(function (data) { ORDEM_PAVIMENTOS = data.pavimentos; atualizarMapaPavimentos(); status.textContent = 'Ordem salva.'; render(); if (window.renderDocsObra) window.renderDocsObra(); })
++        .catch(function (err) { status.textContent = err.message; });
++    };
++  })();
++
+   (function () {
+     var secao = document.getElementById('cabecalho-obra');
+     if (!secao) return;
+@@ -1962,6 +2055,8 @@
+         var nome = d.nome_exibicao || d.arquivo_nome || d.id;
+         var cl = classeOf(d);
+         var st = d.status || '';
++        var pavimento = d.pavimento_confirmado || d.pavimento_sugerido || '';
++        var anterior = MAPA_PAVIMENTOS[pavimento] && MAPA_PAVIMENTOS[pavimento].anterior || '';
+         var ativo = d.id === state.selectedId ? ' ativo' : '';
+         var extra = '';
+         if (state.tab === 'dwg') {
+@@ -1975,13 +2070,16 @@
+           '<div class="doc-meta">' + esc(d.arquivo_nome || '') + '</div></td>' +
+           '<td><select class="doc-classe-sel" data-doc-id="' + esc(d.id) + '" title="Classe do documento">' +
+           selectOpts(cl) + '</select></td>' +
++          '<td class="doc-meta">' + esc(pavimento || '—') + '</td>' +
++          '<td class="doc-meta">' + esc(anterior || '—') + '</td>' +
+           '<td class="doc-meta">' + esc(st) + (extra ? ' · ' + extra : '') + '</td>' +
+           '</tr>';
+       }).join('');
+       listaEl.innerHTML =
+         '<div class="docs-lista-scroll"><table class="docs-lista-tabela">' +
+-        '<thead><tr><th>Arquivo</th><th>Classe</th><th>Status</th></tr></thead>' +
++        '<thead><tr><th>Arquivo</th><th>Classe</th><th>Pavimento atual</th><th>Anterior</th><th>Status</th></tr></thead>' +
+         '<tbody>' + rows + '</tbody></table></div>';
++      window.renderDocsObra = renderLista;
+ 
+       listaEl.querySelectorAll('tr.docs-row').forEach(function (tr) {
+         tr.addEventListener('click', function (e) {
+@@ -2958,7 +3056,7 @@
+           ['sa', 'N1 / SA'], ['cima', 'N3 Cima'], ['abcd-para', 'N3 ABCD Para'],
+           ['abcd-passa', 'N3 ABCD Passa'], ['grades-para', 'N3 Grades Para'],
+           ['grades-passa', 'N3 Grades Passa']
+-        ];
++        ].filter(function (tab) { return OBRA_COMPORTAMENTO === 'misto' || !/-(para|passa)$/.test(tab[0]) || tab[0].endsWith('-' + OBRA_COMPORTAMENTO); });
+         camposEl.innerHTML = '<div id="pillar-tab-fields"></div>' +
+           '<div class="pillar-viewer-shell">' +
+             '<div class="pillar-main-tabs" role="tablist">' + tabsPilar.map(function (tab, i) {
+@@ -3140,7 +3238,7 @@
+               window.PillarFicha.mount(document.getElementById('pillar-n3-editor'), {
+                 obraId: OBRA_ID, classe: _painel3Estado.classe, itemId: itemId,
+                 pavimento: _pavimentoSelecionado || item.pavimento,
+-                initialTab: tabId, hideTabs: true
++                initialTab: tabId, hideTabs: true, comportamento: OBRA_COMPORTAMENTO
+               });
+             }
+           }
+@@ -3196,7 +3294,9 @@
+               });
+           });
+         });
+-        selecionarAbaPilar(window.PortalDeepLink ? window.PortalDeepLink.get('vista', 'sa') : 'sa');
++        var abaPilarInicial = window.PortalDeepLink ? window.PortalDeepLink.get('vista', 'sa') : 'sa';
++        if (!tabsPilar.some(function (tab) { return tab[0] === abaPilarInicial; })) abaPilarInicial = 'sa';
++        selecionarAbaPilar(abaPilarInicial);
+       })
+       .catch(function () {
+         if (meuToken !== _n1DetalheReqToken) return;
+@@ -3253,7 +3353,7 @@
+         if (['pilares', 'pilares_especiais', 'pilares_n3_para', 'pilares_n3_passa'].indexOf(_painel3Estado.classe) >= 0 && window.PillarFicha) {
+           window.PillarFicha.mount(document.getElementById('pillar-n3-editor-n3'), {
+             obraId: OBRA_ID, classe: _painel3Estado.classe, itemId: itemId,
+-            pavimento: _pavimentoSelecionado || item.pavimento
++            pavimento: _pavimentoSelecionado || item.pavimento, comportamento: OBRA_COMPORTAMENTO
+           });
+         }
+         var dica = '<p class="zoom-pan-dica">Scroll zoom · arraste pan · duplo-clique reseta (viewBox)</p>';
+@@ -4201,6 +4301,9 @@
+     var combinados = {};
+     (gruposOriginais || []).forEach(function (grupo) {
+       var id = grupo.grupo;
++      if (OBRA_COMPORTAMENTO !== 'misto' &&
++          ((id || '').endsWith('_para') || (id || '').endsWith('_passa')) &&
++          !(id || '').endsWith('_' + OBRA_COMPORTAMENTO)) return;
+       var combinadoId = null;
+       var rotulo = null;
+       if (id === 'lat_a_para' || id === 'lat_b_para') {

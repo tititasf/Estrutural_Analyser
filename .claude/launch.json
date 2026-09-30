@@ -4,16 +4,56 @@
     {
       "name": "portal",
       "runtimeExecutable": "C:/Users/Thierry/AppData/Local/Programs/Python/Python312/python.exe",
-      "runtimeArgs": ["D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/portal/run_dev.py"],
+      "runtimeArgs": [
+        "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/portal/run_dev.py"
+      ],
       "port": 21380
+    },
+    {
+      "name": "lv-review",
+      "runtimeExecutable": "D:/Agente-cad-PYSIDE/.venv/Scripts/python.exe",
+      "runtimeArgs": [
+        "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/servidor_revisao_pil.py",
+        "--directory",
+        "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v",
+        "--port",
+        "21396"
+      ],
+      "port": 21396
+    },
+    {
+      "name": "lv-guia",
+      "runtimeExecutable": "D:/Agente-cad-PYSIDE/.venv/Scripts/python.exe",
+      "runtimeArgs": [
+        "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/servidor_revisao_pil.py",
+        "--directory",
+        "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260706_103941/laterais_viga",
+        "--port",
+        "21398"
+      ],
+      "port": 21398
+    },
+    {
+      "name": "lv-sa-fichas",
+      "runtimeExecutable": "D:/Agente-cad-PYSIDE/.venv/Scripts/python.exe",
+      "runtimeArgs": [
+        "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/servidor_revisao_pil.py",
+        "--directory",
+        "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/html_fichas/Obra_TREINO_1/TMC-EST-PE-6000-13P-R03_R2018_ASCII_ODA_20260920_115219_883603_7932",
+        "--port",
+        "21397"
+      ],
+      "port": 21397
     },
     {
       "name": "v301-review",
       "runtimeExecutable": "D:/Agente-cad-PYSIDE/.venv/Scripts/python.exe",
       "runtimeArgs": [
         "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/servidor_revisao_pil.py",
-        "--directory", "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/v301_geometry_gate",
-        "--port", "8765"
+        "--directory",
+        "D:/Agente-cad-PYSIDE/Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/g2v/v301_geometry_gate",
+        "--port",
+        "8765"
       ],
       "port": 8765
     }

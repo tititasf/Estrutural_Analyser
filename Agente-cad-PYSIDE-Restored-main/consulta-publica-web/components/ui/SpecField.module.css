@@ -1,19 +1,40 @@
 .linha {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: flex-start;
   min-height: 40px;
-  padding: 4px 0;
-  border-bottom: 1px solid var(--surface-2);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--surface-2, rgba(255, 255, 255, 0.08));
+  gap: 16px;
 }
 
 .chave {
-  font-size: 16px;
-  color: var(--fg-muted);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg-muted, #94a3b8);
+  min-width: 110px;
 }
 
 .valor {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--fg);
+  color: var(--fg, #f8fafc);
+  text-align: right;
+  word-break: break-word;
+}
+
+.multilineValor {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.multilineItem {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg, #f8fafc);
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 8px;
+  border-radius: 4px;
 }

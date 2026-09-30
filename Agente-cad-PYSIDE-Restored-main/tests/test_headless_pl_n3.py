@@ -31,15 +31,15 @@ def test_generate_pl_n3_function_exists_and_calls_dialog():
     calls = []
 
     class FakeDialog:
-        def materialize_pl_n3_variants(self):
-            calls.append("materialize")
+        def materialize_pl_n3_variants(self, visual_mode="NOVA"):
+            calls.append(("materialize", visual_mode))
             return ["P1_para", "P1_passa", "P2_para", "P2_passa"], []
 
     window = SimpleNamespace(
         _build_pre_validation_dialog=lambda: FakeDialog(),
     )
     generated, failed = mod._generate_pl_n3_nova_previews("Obra_X", window)
-    assert calls == ["materialize"]
+    assert calls == [("materialize", "NOVA")]
     assert failed == []
     assert "P1_para" in generated and "P1_passa" in generated
     assert "P2_para" in generated and "P2_passa" in generated

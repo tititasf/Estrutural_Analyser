@@ -1,0 +1,32 @@
+{
+  "classe": "LJ",
+  "obra": "Obra_LJ_DEGRAU",
+  "pavimento": "13_PAV",
+  "visual_mode": "NOVA",
+  "pillar_group": null,
+  "output": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_lj_n5_alinha_top0\\Obra_LJ_DEGRAU\\Fase-6_Execucao_CAD\\n5\\N5_LJ_13_PAV_NOVA.dxf",
+  "ok_count": 3,
+  "missing_count": 0,
+  "extra_count": 0,
+  "extra_ids": [],
+  "items": [
+    {
+      "item_id": "L316",
+      "source": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_lj_n5_alinha_top0\\Obra_LJ_DEGRAU\\Fase-6_Execucao_CAD\\LJ_preview_L316.dxf",
+      "status": "ok",
+      "message": "2 entidades; posição SA (1000.0, 500.0); translação coerente (900.0, 400.0)"
+    },
+    {
+      "item_id": "L317",
+      "source": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_lj_n5_alinha_top0\\Obra_LJ_DEGRAU\\Fase-6_Execucao_CAD\\LJ_preview_L317.dxf",
+      "status": "ok",
+      "message": "2 entidades; posição SA (1000.0, 500.0); translação coerente (900.0, 400.0)"
+    },
+    {
+      "item_id": "L318",
+      "source": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_lj_n5_alinha_top0\\Obra_LJ_DEGRAU\\Fase-6_Execucao_CAD\\LJ_preview_L318.dxf",
+      "status": "ok",
+      "message": "1 entidades; posição SA (1000.0, 500.0); translação coerente (900.0, 400.0)"
+    }
+  ]
+}

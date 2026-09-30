@@ -1,0 +1,307 @@
+{
+  "faces": {
+    "A": {
+      "label": "A — base (sul) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "L315",
+          "dim": "12",
+          "nivel": "852.19cm",
+          "canto": "AD",
+          "papel": "laje",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "34.5cm"
+        },
+        {
+          "familia": "laje",
+          "nome": "L316",
+          "dim": "13",
+          "nivel": "852.19cm",
+          "canto": "AC",
+          "papel": "laje",
+          "raw": "",
+          "dist_esq": "34.6cm",
+          "dist_dir": "0cm"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V301",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "AC",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—",
+          "_source": "axial_bilateral_runs"
+        },
+        {
+          "familia": "viga",
+          "nome": "V301",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "AD",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—",
+          "_source": "axial_bilateral_runs"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V325",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "AA",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "15.5cm",
+          "dist_dir": "15.5cm",
+          "_source": "transversal_face_crossing"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "B": {
+      "label": "B — topo (norte) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "L307",
+          "dim": "12",
+          "nivel": "852.12cm",
+          "canto": "BC",
+          "papel": "laje",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "34.5cm"
+        },
+        {
+          "familia": "laje",
+          "nome": "L308",
+          "dim": "13",
+          "nivel": "852.12cm",
+          "canto": "BD",
+          "papel": "laje",
+          "raw": "",
+          "dist_esq": "34.5cm",
+          "dist_dir": "0cm"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V301",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "BC",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—",
+          "_source": "axial_bilateral_runs"
+        },
+        {
+          "familia": "viga",
+          "nome": "V301",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "BD",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—",
+          "_source": "axial_bilateral_runs"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V325",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "BB",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "15.5cm",
+          "dist_dir": "15.5cm",
+          "_source": "transversal_face_crossing"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "C": {
+      "label": "C — esquerda (oeste) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "V301",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "CC",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "0cm"
+        }
+      ]
+    },
+    "D": {
+      "label": "D — direita (leste) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "V301",
+          "dim": "19/120",
+          "nivel": "852.19cm",
+          "canto": "DD",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "0cm"
+        }
+      ]
+    }
+  },
+  "orientation": "horizontal",
+  "schema": "pil.abcd_tables.v2",
+  "face_ids": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "geometry_type": "rectangular",
+  "item": "P48",
+  "geometry_points": [
+    [
+      4209.8825,
+      2991.038
+    ],
+    [
+      4259.8825,
+      2991.038
+    ],
+    [
+      4259.8825,
+      3010.038
+    ],
+    [
+      4209.8825,
+      3010.038
+    ],
+    [
+      4209.8825,
+      2991.038
+    ]
+  ],
+  "face_slab_beam_violations": []
+}

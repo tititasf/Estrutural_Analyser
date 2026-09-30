@@ -1,0 +1,268 @@
+{
+  "faces": {
+    "A": {
+      "label": "A — esquerda (oeste) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V309",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "AC",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "V307",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "AD",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "B": {
+      "label": "B — direita (leste) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "L319",
+          "dim": "14",
+          "nivel": "852.19cm",
+          "canto": "BB",
+          "papel": "laje",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "0cm"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "C": {
+      "label": "C — topo (norte) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "V309",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "CC",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "7cm"
+        }
+      ]
+    },
+    "D": {
+      "label": "D — base (sul) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "V307",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "DD",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "7cm",
+          "dist_dir": "0cm"
+        }
+      ]
+    }
+  },
+  "orientation": "vertical",
+  "schema": "pil.abcd_tables.v2",
+  "face_ids": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "geometry_type": "rectangular",
+  "item": "P25",
+  "geometry_points": [
+    [
+      1178.8825,
+      2240.038
+    ],
+    [
+      1197.8825,
+      2240.038
+    ],
+    [
+      1197.8825,
+      2300.038
+    ],
+    [
+      1178.8825,
+      2300.038
+    ],
+    [
+      1178.8825,
+      2240.038
+    ]
+  ],
+  "face_slab_beam_violations": []
+}

@@ -158,19 +158,17 @@ def paineis_intervals_for_face(
     """Intervalos de malha H (acima de h1) para uma face — genérico.
 
     A/B (longas): módulos 122 + sobra até o topo da face.
-    C/D passantes (sem abertura lateral): painel contínuo até base do void de topo.
-    C/D com abertura lateral: mesma pilha 122 até o topo (como longas).
+    C/D: painéis contínuos de até 244 cm. Abertura lateral é recorte no
+    painel, nunca motivo para inserir uma junta de 122 cm.
     """
     h1 = float(h1_cm or 0.0)
     height = float(height_cm or 0.0)
     top_void = max(0.0, float(top_void_cm or 0.0))
     fid = str(face_id or "").upper()
-    if fid in FACES_CURTAS and not has_side_openings:
+    if fid in FACES_CURTAS:
         usable = max(0.0, height - h1 - top_void)
-        return distribute_paineis_nova(usable, split_modules=False)
-    # Faces longas (e curtas com abertura) recebem o mesmo desconto de void
-    # quando o chamador o publica: o guia ABCD manda a pilha usar a altura
-    # útil DEPOIS do vazio de topo. Chamadas legadas passam 0.0 aqui.
+        return distribute_paineis_nova(usable, module=244.0)
+    # Faces longas recebem o desconto do vazio publicado e seguem em 122 cm.
     usable = max(0.0, height - h1 - top_void)
     return distribute_paineis_nova(usable, split_modules=bool(split_long_faces))
 

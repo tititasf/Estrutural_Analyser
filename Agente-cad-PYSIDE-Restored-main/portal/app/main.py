@@ -23,12 +23,15 @@ from .config import Settings, load_settings
 from .routers import (
     admin_publish_routes,
     auth_routes,
+    base_global_routes,
     comentarios_routes,
     fichas_routes,
     jobs_routes,
     n1_routes,
+    item_geometry_routes,
     obras_routes,
     paginas_routes,
+    preprocessamento_routes,
     qa_routes,
     recortes_routes,
     viewer_routes,
@@ -134,16 +137,53 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     except OSError:  # pragma: no cover - disco indisponível não derruba o app
         app.state.static_versao = "0"
 
+    # [2026-09-28] Troca de senha obrigatória no primeiro acesso. Um único
+    # portão aqui em vez de uma checagem em cada rota: enquanto a flag
+    # trocar_senha do membro estiver ligada, página vira redirect para a troca
+    # e API vira 403 — nenhuma rota nova consegue esquecer a regra.
+    from fastapi.concurrency import run_in_threadpool
+    from fastapi.responses import JSONResponse, RedirectResponse
+
+    from . import auth
+
+    _livres_na_troca = {"/app/trocar-senha", "/trocar-senha", "/logout", "/login", "/health", "/me"}
+
+    def _precisa_trocar(db_path, login: str) -> bool:
+        conn = db_conn.get_connection(db_path)
+        try:
+            row = conn.execute(
+                "SELECT trocar_senha FROM portal_membros WHERE login = ? AND ativo = 1", (login,),
+            ).fetchone()
+        finally:
+            conn.close()
+        return bool(row and row["trocar_senha"] == 1)
+
+    @app.middleware("http")
+    async def exigir_troca_de_senha(request, call_next):
+        caminho = request.url.path
+        if caminho not in _livres_na_troca and not caminho.startswith("/static/"):
+            cfg = request.app.state.settings
+            valor = request.cookies.get(cfg.session_cookie_name, "")
+            login = auth.ler_cookie(cfg, valor) if valor else None
+            if login and await run_in_threadpool(_precisa_trocar, cfg.db_path, login):
+                if request.method == "GET" and (caminho == "/" or caminho.startswith("/app")):
+                    return RedirectResponse("/app/trocar-senha", status_code=303)
+                return JSONResponse({"detail": "troca de senha obrigatória"}, status_code=403)
+        return await call_next(request)
+
     app.include_router(auth_routes.router)
     app.include_router(obras_routes.router)
     app.include_router(jobs_routes.router)
     app.include_router(fichas_routes.router)
     app.include_router(n1_routes.router)
+    app.include_router(item_geometry_routes.router)
     app.include_router(recortes_routes.router)
+    app.include_router(preprocessamento_routes.router)
     app.include_router(viewer_routes.router)
     app.include_router(comentarios_routes.router)
     app.include_router(comentarios_routes.ui_router)
     app.include_router(paginas_routes.router)
+    app.include_router(base_global_routes.router)
     app.include_router(qa_routes.router)
     app.include_router(admin_publish_routes.router)
 

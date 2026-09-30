@@ -33,7 +33,19 @@ def test_ficha_laje_expoe_camadas_campos_e_n3(tmp_path: Path):
     assert list(result["layers"]) == ["sa", "c1", "c2", "c3", "n3"]
     assert result["item"]["nivel"] == "852.12"
     assert result["n3"]["linhas_verticais"][0]["value"] == 120
+    assert [row["value"] for row in result["n3"]["paineis_verticais"]] == [120.0, 80.0]
+    assert result["n3"]["sobra_vertical"] == 80.0
+    assert [row["value"] for row in result["n3"]["paineis_horizontais"]] == [80.0, 20.0]
+    assert result["n3"]["sobra_horizontal"] == 20.0
     assert result["item"]["next"] == "L302"
+
+
+def test_paineis_l301_explicam_posicoes_acumuladas_e_sobra():
+    panels = laje_ficha._panel_rows(
+        [{"value": 50}, {"value": 244}], 405.5,
+    )
+    assert [row["value"] for row in panels] == [50.0, 194.0, 161.5]
+    assert [row["is_remainder"] for row in panels] == [False, False, True]
 
 
 def test_edicoes_criam_backup_e_override_consumivel(tmp_path: Path):
@@ -53,6 +65,31 @@ def test_edicoes_criam_backup_e_override_consumivel(tmp_path: Path):
     assert override["n3"]["linhas_verticais"] == [{"value": 99.0, "is_union": True}]
 
 
+def test_n3_rejeita_posicao_fora_da_laje_e_repetida(tmp_path: Path):
+    _state(tmp_path)
+    try:
+        laje_operations.update_n3(
+            tmp_path, "13_PAV", "L301",
+            {"linhas_verticais": [{"value": 200}], "linhas_horizontais": []},
+            comprimento=200, largura=100,
+        )
+    except ValueError as exc:
+        assert "menor que 200" in str(exc)
+    else:
+        raise AssertionError("posição na borda deveria ser rejeitada")
+
+    try:
+        laje_operations.update_n3(
+            tmp_path, "13_PAV", "L301",
+            {"linhas_verticais": [{"value": 50}, {"value": 50}], "linhas_horizontais": []},
+            comprimento=200, largura=100,
+        )
+    except ValueError as exc:
+        assert "repetidas" in str(exc)
+    else:
+        raise AssertionError("posição repetida deveria ser rejeitada")
+
+
 def test_frontend_laje_esta_integrado_no_template():
     root = Path(__file__).resolve().parents[2]
     js = (root / "portal" / "app" / "static" / "laje_ficha.js").read_text(encoding="utf-8")
@@ -66,6 +103,15 @@ def test_frontend_laje_esta_integrado_no_template():
     assert "options.cache='no-store'" in js
     assert "_fresh=" in js
     assert "cacheBust:Date.now()" in js
+    assert "Sobra vertical" in js
+    assert "Sobra horizontal" in js
+    assert "Cada campo é a largura real cotada no N3" in js
+    assert "data-lj-panel-row" in js
+    assert "data-lj-remainder" in js
+    assert "refreshPanelEditors" in js
+    assert "if(!save)return" in js
+    assert "accumulated+=Number(inputs[0].value)" in js
+    assert "lj-panel-preview" not in js
     assert "LajeFicha.mount" in template
     assert "/static/laje_ficha.js" in template
 

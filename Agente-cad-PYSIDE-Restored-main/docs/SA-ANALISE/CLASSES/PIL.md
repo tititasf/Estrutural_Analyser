@@ -8,6 +8,10 @@ para E–H. `src/core/pillar_face_beams.py` enriquece as faces, e
 `src/core/beam_interpreters/pilar_viga.py` mantém contratos exclusivos: **Pilar com
 Viga Para** e **Pilar com Viga Passa**.
 
+**Jev opcional:** em dúvida de face/vínculo após topologia CAD, consultar por
+candidato e face com handle e contato local; dimensão retangular simples segue
+pela geometria. Ver [segunda leitura do SA](../JEV-SEGUNDA-LEITURA-OPCIONAL.md).
+
 | Família | Campos/slots | Pergunta que decide | Confusão proibida |
 |---|---|---|---|
 | identidade/geometria | `name.label`, `points_json`, `pilar_segs`, dimensão | nome, bbox e dimensão descrevem o volume? | nome correto com polígono alheio |
@@ -115,7 +119,7 @@ robô SCR legado (`_ROBOS_ABAS/Robo_Pilares/`):
   painel nunca deveria ter hatch próprio. Reaproveitamento de hachura de
   painel entre variantes é feature futura, **compreensão pendente** — não
   investigar/cobrar isso ainda em G2-V/G5-V.
-- Consequência prática pro agente QA: ao ler SVG de G2-V/G5-V (N1-V não se
+- Consequência prática pro agente QA: ao ler a evidência (PNG/SVG) de G2-V/G5-V (N1-V não se
   aplica aqui — os cards N1 são geometria bruta do SA, sem ABCD/sarrafo/
   hachura; ver `docs/SA-ANALISE/HISTORICO/PIL.md`, entrada 2026-07-16), se o N4
   não tiver a hachura de vazio que o N3 tem, registrar como achado real

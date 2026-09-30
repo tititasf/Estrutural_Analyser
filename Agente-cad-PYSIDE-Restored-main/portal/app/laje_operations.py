@@ -145,7 +145,7 @@ def update_fields(obra_dir: Path, pavimento: str, name: str, fields: dict[str, A
     return {"item": new_name, "backup": str(backup)}
 
 
-def _lines(rows: Any, label: str) -> list[dict[str, Any]]:
+def _lines(rows: Any, label: str, total: Any = None) -> list[dict[str, Any]]:
     clean = []
     for row in rows or []:
         if not isinstance(row, dict):
@@ -154,13 +154,26 @@ def _lines(rows: Any, label: str) -> list[dict[str, Any]]:
             "value": _finite(row.get("value"), f"posição {label}", positive=True),
             "is_union": bool(row.get("is_union", False)),
         })
-    return sorted(clean, key=lambda row: row["value"])
+    clean = sorted(clean, key=lambda row: row["value"])
+    values = [row["value"] for row in clean]
+    if len(values) != len(set(values)):
+        raise ValueError(f"posições {label}s repetidas")
+    extent = _finite(total, f"limite {label}", positive=True)
+    if extent is not None and any(value >= extent for value in values):
+        raise ValueError(
+            f"posição {label} deve ser menor que {extent:g} cm; "
+            "os valores são posições acumuladas desde a borda da laje"
+        )
+    return clean
 
 
-def update_n3(obra_dir: Path, pavimento: str, name: str, n3: dict[str, Any]) -> dict[str, Any]:
+def update_n3(
+    obra_dir: Path, pavimento: str, name: str, n3: dict[str, Any],
+    *, comprimento: Any = None, largura: Any = None,
+) -> dict[str, Any]:
     clean = {
-        "linhas_verticais": _lines(n3.get("linhas_verticais"), "vertical"),
-        "linhas_horizontais": _lines(n3.get("linhas_horizontais"), "horizontal"),
+        "linhas_verticais": _lines(n3.get("linhas_verticais"), "vertical", comprimento),
+        "linhas_horizontais": _lines(n3.get("linhas_horizontais"), "horizontal", largura),
     }
     with _LOCK:
         payload = load_override(obra_dir, pavimento, name)
@@ -195,4 +208,3 @@ def delete_slab(obra_dir: Path, pavimento: str, name: str) -> dict[str, Any]:
                     cut[key] = None
         backup = _backup_and_write(path, state)
     return {"item": target, "backup": str(backup), "remaining": len(kept)}
-

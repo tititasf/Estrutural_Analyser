@@ -1082,3 +1082,17 @@ ANTES de tocar no código, descartada com evidência real (quebraria V301)
   por essa mesma causa raiz até essa reescrita ser feita, com harness
   amplo (FV completo + LV + PIL, já que a função é compartilhada) numa
   sessão dedicada.
+
+## 2026-09-30 — D-80 validada no portal: sem piso mínimo e L terminal relativo
+
+- Produção recuperou fundos de **5 cm** (V412), **10 cm** (V418) e **9,5 cm**
+  (VF401) no 14_PAV. Isso comprova que os antigos bloqueios de 15/25 cm não
+  existem no caminho publicado; epsilon geométrico não é regra de engenharia.
+- O diagnóstico nominal encontrou `VF401 <- VF405`: corpo de 349,5 cm e cauda
+  ortogonal terminal de 71 cm, ambos com largura 14 cm. A união em L decorre do
+  encontro na extremidade e da dominância relativa do corpo, não do tamanho
+  absoluto da cauda.
+- Job 14_PAV: `dcf40b94` concluído. Job 13_PAV: `4a49daf6` concluído.
+  Neste último, V303 não recebeu novos L porque seus seis fundos já têm validação
+  humana e D-76 os congela. No microciclo sem esse bloqueio, os dois L de V303
+  continuam reproduzidos; V304×V329 permanecem dois painéis, como no N4.

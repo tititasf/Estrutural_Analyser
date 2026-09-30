@@ -1,0 +1,20 @@
+{
+  "classe": "PL",
+  "obra": "Obra_PL_SPLIT",
+  "pavimento": "13_PAV",
+  "visual_mode": "NOVA",
+  "pillar_group": "PASSA",
+  "output": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_pl_split_groups_share_cim0\\Obra_PL_SPLIT\\Fase-6_Execucao_CAD\\n5\\N5_PL_13_PAV_NOVA_PASSA.dxf",
+  "ok_count": 1,
+  "missing_count": 0,
+  "extra_count": 0,
+  "extra_ids": [],
+  "items": [
+    {
+      "item_id": "P1",
+      "source": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_pl_split_groups_share_cim0\\Obra_PL_SPLIT\\Fase-6_Execucao_CAD\\production_sa\\13_PAV\\20260930_120000\\n3\\pil\\para\\PL_CIMA_preview_P1.dxf;D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_pl_split_groups_share_cim0\\Obra_PL_SPLIT\\Fase-6_Execucao_CAD\\production_sa\\13_PAV\\20260930_120000\\n3\\pil\\passa\\PL_ABCD_preview_P1.dxf;D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_pl_split_groups_share_cim0\\Obra_PL_SPLIT\\Fase-6_Execucao_CAD\\production_sa\\13_PAV\\20260930_120000\\n3\\pil\\passa\\PL_GRADES_preview_P1.dxf",
+      "status": "ok",
+      "message": "3 entidades em 3 preview(s); linha 1"
+    }
+  ]
+}

@@ -163,6 +163,12 @@ def _make_fake_fase4(viga_name: str, entry: dict, fase4_dir: Path) -> None:
                 'reuse':            bool(s.get('reuse', False)),
                 'reuse_regions':    s.get('reuse_regions', []),
                 'panel_type':       s.get('panel_type', 'Sarrafeado'),
+                # Painel EMBAIXO de abertura de viga: o `height1` dele e' a
+                # SOBRA, medida do fundo, e nao a altura de um painel
+                # rebaixado alinhado pelo TOPO. Sem isto o gerador le' o
+                # numero como degrau e pendura o painel no topo, dentro do
+                # vazio (V304.B: caixa de 29x15 em y -165..-150).
+                'sob_abertura':     bool(s.get('sob_abertura', False)),
             }
             for s in segs if float(s.get('largura_cm', s.get('width', 0)) or 0) > 0
         ]

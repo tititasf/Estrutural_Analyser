@@ -143,17 +143,43 @@ Evidencia V13 face A (medida no recorte):
 O `3` que aparece cotado e' o **degrau** (15 − 12), nao um painel empilhado
 acima da laje.
 
-**Divergencia doc x codigo (aberta).** Esta secao manda "desenhar laje por
-painel quando `laje_sup_local` estiver presente", mas hoje esse campo carrega
-a **espessura do painel de fechamento** (V13: `laje_sup_local = 3.0`), nao a
-altura da laje daquele trecho. Alem disso o limite do degrau (x=200) nao cai
-em fronteira de painel (244/63/108), entao "por painel" nao chega a expressar
-o degrau — falta altura de laje **por trecho**.
+**Divergencia doc x codigo — RESOLVIDA em 2026-09-13.** A secao mandava
+"desenhar laje por painel quando `laje_sup_local` estiver presente", mas esse
+campo carrega a **espessura do painel de fechamento** (V13: `laje_sup_local =
+3.0`), nao a altura da laje daquele trecho. Alem disso o limite do degrau
+(x=200) nao cai em fronteira de painel (244/63/108), entao "por painel" nunca
+chegaria a expressar o degrau — faltava altura de laje **por trecho**.
 
-Estado do motor: a ficha entrega `laje_sup` = 12.3 para a face inteira (o
-valor de baixo do painel aplicado em todo lugar) e o N4 desenha 12.3 nos 415,
-deixando o lado do painel 3 mais alto que o outro. Pela regra §8 do contrato
-rigido, o conserto comeca no interpretador/contrato, nao no motor.
+Estado anterior: a ficha entregava `laje_sup` = 12.3 para a face inteira (o
+valor de baixo do painel aplicado em todo lugar) e o N4 desenhava 12.3 nos
+415, deixando o lado sem painel 3 cm mais baixo que o outro.
+
+Conserto, na ordem que a §8 do contrato rigido exige (interpretador primeiro,
+motor depois):
+
+1. `motor_reverso_lv.py` passou a emitir **`laje_sup_trechos`** na face unit —
+   `[{x0, x1, altura}, ...]` em x relativo a` borda esquerda da face. V13 face
+   A: `0-200 = 12.3` e `200-415 = 15.3`.
+2. `gerar_lv_dxf_stog.py` desenha a faixa de laje por trecho e **parte o
+   retangulo na fronteira** quando ela cai dentro de um painel. Sem o campo, o
+   caminho de codigo e' o de antes.
+
+**Duas guardas, ambas obrigatorias** (uma so' nao basta):
+
+- o trecho alto tem de reproduzir a **cota escrita** da face (`_ls_cota`);
+- o **valor do degrau** tem de estar cotado junto ao topo da face — e' assim
+  que o projetista o comunica (na V13, o `3` na borda esquerda).
+
+Sem a 2a guarda a V301 gerava 4 degraus inexistentes: ela nao tem degrau
+algum (laje 15 uniforme), mas nas unidades sem rotulo da face B a propria
+leitura de cota vem errada (21), entao a 1a guarda concorda consigo mesma e
+deixa passar. Inferir por geometria em vez de ler o que o desenho declara e'
+o mesmo erro das tampas de sarrafo (§5.2.1 do contrato).
+
+Medido nas 32 vigas do 13_PAV: **3 tem degrau** (V13 nas duas faces, V302 e
+V303 numa face cada), sempre de 3 cm; as outras 29 nao recebem o campo. V301
+regenerada saiu **byte a byte igual**. Testes em
+`tests/test_lv_degrau_laje_por_trecho.py` (2 positivos + 4 de controle).
 
 Regra operacional atual:
 

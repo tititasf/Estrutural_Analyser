@@ -1,0 +1,20 @@
+{
+  "classe": "PL",
+  "obra": "Obra_DB2",
+  "pavimento": "13_PAV",
+  "visual_mode": "NOVA",
+  "pillar_group": null,
+  "output": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_n5_item_manual_c0\\Obra_DB2\\Fase-6_Execucao_CAD\\n5\\N5_PL_13_PAV_NOVA.dxf",
+  "ok_count": 1,
+  "missing_count": 0,
+  "extra_count": 0,
+  "extra_ids": [],
+  "items": [
+    {
+      "item_id": "P901",
+      "source": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_n5_item_manual_c0\\Obra_DB2\\Fase-6_Execucao_CAD\\PL_preview_P901.dxf",
+      "status": "ok",
+      "message": "1 entidades em 1 preview(s); linha 1"
+    }
+  ]
+}

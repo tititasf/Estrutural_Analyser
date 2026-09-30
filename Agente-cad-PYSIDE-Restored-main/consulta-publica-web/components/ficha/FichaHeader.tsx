@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowLeft, Copy, Layers } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { ArrowLeft, Check, CheckCircle2, Copy, Layers } from "lucide-react";
 import Link from "next/link";
 import { TypeIcon, type TipoElemento } from "@/components/ui/TypeIcon";
 import { rotuloCodigoItem } from "@/lib/tipoElementoLabels";
@@ -15,57 +15,102 @@ interface FichaHeaderProps {
   titulo: string;
   code: string;
   onVoltar: () => void;
+  /** Ações de canteiro (compartilhar, QR) na linha do código. */
+  acoes?: ReactNode;
 }
 
 function ehTipoElemento(tipo: string): tipo is TipoElemento {
   return tipo === "pilar" || tipo === "viga_fundo" || tipo === "viga_lateral" || tipo === "laje";
 }
 
-/** Cabeçalho da Ficha — breadcrumb neutro (nunca expõe item_id/pavimento
- * cru, só os rótulos públicos), tipo+título, código + copiar (AC1/AC3). */
-export function FichaHeader({ obraRotulo, pavimentoLabel, pavimentoCode, tipo, titulo, code, onVoltar }: FichaHeaderProps) {
+export function FichaHeader({
+  obraRotulo,
+  pavimentoLabel,
+  pavimentoCode,
+  tipo,
+  titulo,
+  code,
+  onVoltar,
+  acoes,
+}: FichaHeaderProps) {
   const [copiado, setCopiado] = useState(false);
 
   async function copiarCodigo() {
     try {
       await navigator.clipboard.writeText(code);
       setCopiado(true);
-      setTimeout(() => setCopiado(false), 1500);
+      setTimeout(() => setCopiado(false), 2000);
     } catch {
-      // Sem permissão de clipboard — falha silenciosa, não é crítico.
+      // Fallback silencioso se clipboard for restrito
     }
   }
 
   return (
     <div className={styles.wrapper}>
+      {/* Breadcrumb unificado */}
       <div className={styles.breadcrumb}>
-        <button type="button" className={styles.voltar} onClick={onVoltar} aria-label="Voltar">
-          <ArrowLeft size={20} aria-hidden="true" /> Voltar
+        <button type="button" className={styles.voltar} onClick={onVoltar} aria-label="Sair">
+          <ArrowLeft size={16} aria-hidden="true" />
+          <span>Sair</span>
         </button>
-        {obraRotulo && <span> · {obraRotulo}</span>}
+
+        {obraRotulo && (
+          <div className={styles.crumbTab}>
+            <span>{obraRotulo}</span>
+          </div>
+        )}
+
         {pavimentoCode ? (
           <Link
             href={`/pavimento/${pavimentoCode}`}
-            className={styles.pavimentoLink}
-            aria-label={`Abrir ficha do pavimento ${pavimentoLabel} (código ${pavimentoCode})`}
+            className={styles.crumbTabLink}
+            aria-label={`Abrir ficha do pavimento ${pavimentoLabel}`}
           >
-            {" "}
-            · <Layers size={14} aria-hidden="true" /> {pavimentoLabel}
+            <Layers size={13} aria-hidden="true" />
+            <span>{pavimentoLabel}</span>
           </Link>
         ) : (
-          <span> · {pavimentoLabel}</span>
+          <div className={styles.crumbTab}>
+            <Layers size={13} aria-hidden="true" />
+            <span>{pavimentoLabel}</span>
+          </div>
+        )}
+
+        {pavimentoCode && (
+          <Link
+            href={`/pavimento/${pavimentoCode}#${tipo}`}
+            className={styles.crumbTabLink}
+          >
+            <span>{tipo === 'pilar' ? 'Pilares' : tipo === 'laje' ? 'Lajes' : tipo === 'viga_fundo' ? 'Fundo de Vigas' : tipo === 'viga_lateral' ? 'Laterais de Viga' : 'Itens'}</span>
+          </Link>
         )}
       </div>
 
+      {/* Título Principal & Badges */}
       <div className={styles.tituloLinha}>
-        {ehTipoElemento(tipo) && <TypeIcon tipo={tipo} />}
-        <h1 className={styles.titulo}>{titulo}</h1>
+        <div className={styles.tituloGroup}>
+          {ehTipoElemento(tipo) && <TypeIcon tipo={tipo} />}
+          <h1 className={styles.titulo}>{titulo}</h1>
+        </div>
+        <span className={styles.statusPill}>
+          <CheckCircle2 size={13} /> Auditado Arete
+        </span>
       </div>
 
+      {/* Código Base62 com cópia rápida + ações de canteiro ao lado */}
+      <div className={styles.codigoRow}>
       <div className={styles.codigoLinha}>
-        <span className={styles.codigo}>{rotuloCodigoItem(tipo)}: {code}</span>
-        <button type="button" className={styles.copiar} onClick={copiarCodigo} aria-label="Copiar código">
-          <Copy size={18} aria-hidden="true" />
+        <span className={styles.codigo}>
+          {rotuloCodigoItem(tipo)}: <strong>{code}</strong>
+        </span>
+        <button
+          type="button"
+          className={styles.copiar}
+          onClick={copiarCodigo}
+          aria-label="Copiar código"
+          title="Copiar código"
+        >
+          {copiado ? <Check size={16} color="#34d399" /> : <Copy size={16} />}
         </button>
         {copiado && (
           <span role="status" className={styles.feedback}>
@@ -73,9 +118,9 @@ export function FichaHeader({ obraRotulo, pavimentoLabel, pavimentoCode, tipo, t
           </span>
         )}
       </div>
-      {/* [2026-07-13] Referência legível ao lado do código — nunca é o
-       * código de verdade, só ajuda humano a entender de cabeça de onde
-       * esse código vem (obra › pavimento › item). */}
+      {acoes && <div className={styles.acoes}>{acoes}</div>}
+      </div>
+
       <p className={styles.referencia}>
         {[obraRotulo, pavimentoLabel, titulo].filter(Boolean).join(" › ")}
       </p>

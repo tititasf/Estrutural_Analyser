@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block titulo %}Base Global — Portal de Formas de Concretagem{% endblock %}
+
+{% block conteudo %}
+<style>main.conteudo { max-width: none !important; }</style>
+<link rel="stylesheet" href="/static/base_global.css?v={{ request.app.state.static_versao | default('0') }}">
+<div class="bg-topo">
+  <h1>Base Global</h1>
+  <p class="meta">Mapa da base de conhecimento da empresa: documentos, decisões, glossário,
+    regras e código, e como se ligam. Gerado por <code>scripts/kb/kb_grafo.py</code>;
+    <span id="bg-gerado"></span></p>
+</div>
+
+<div class="card" style="margin: 1rem 0;">
+  <h2>Buscar no conhecimento</h2>
+  <p>Busca textual no índice global publicado. Este snapshot usa as decisões da VPS e os demais documentos indexados no workspace; abra a fonte vigente antes de usar um resultado como regra ou prova.</p>
+  <form id="bg-kb-form" role="search">
+    <label for="bg-kb-q">Pergunta ou termo</label>
+    <input id="bg-kb-q" type="search" maxlength="160" required placeholder="Ex.: quando usar Jev no SA?" style="width: min(36rem, 100%);">
+    <button type="submit" class="btn">Buscar</button>
+  </form>
+  <div id="bg-kb-resultado" aria-live="polite"></div>
+</div>
+<script src="/static/base_global_search.js?v={{ request.app.state.static_versao | default('0') }}"></script>
+
+{% if not tem_grafo %}
+<div class="card"><p><em>O grafo ainda não foi gerado no servidor. Rode
+  <code>python scripts/kb/kb_grafo.py</code> e faça o deploy de <code>docs/CONHECIMENTO/grafo.json</code>.</em></p></div>
+{% else %}
+<div class="bg-layout">
+  <aside class="bg-painel">
+    <div class="bg-bloco">
+      <div class="bg-rotulo">Perspectiva</div>
+      <div class="bg-persp" id="bg-persp"></div>
+      <p class="bg-ajuda" id="bg-persp-ajuda"></p>
+    </div>
+    <div class="bg-bloco">
+      <div class="bg-rotulo">Buscar</div>
+      <input type="search" id="bg-busca" placeholder="nome, título, D-xx, termo…">
+      <ul class="bg-resultados" id="bg-resultados"></ul>
+    </div>
+    <div class="bg-bloco">
+      <div class="bg-rotulo">Mostrar</div>
+      <div id="bg-filtros-tipo" class="bg-filtros"></div>
+      <div id="bg-filtros-status" class="bg-filtros"></div>
+      <label class="bg-chk"><input type="checkbox" id="bg-rotulos" checked> rótulos</label>
+    </div>
+    <div class="bg-bloco">
+      <div class="bg-rotulo">Legenda</div>
+      <div id="bg-legenda" class="bg-legenda"></div>
+    </div>
+  </aside>
+
+  <section class="bg-palco">
+    <div class="bg-barra">
+      <span id="bg-contagem"></span>
+      <span class="bg-barra-dir">
+        <button type="button" class="btn-sec btn" id="bg-ajustar">Enquadrar</button>
+        <button type="button" class="btn-sec btn" id="bg-relayout">Reorganizar</button>
+      </span>
+    </div>
+    <div id="bg-grafo" class="bg-grafo" aria-label="Grafo da base de conhecimento"></div>
+    <div id="bg-carregando" class="bg-carregando">carregando o grafo…</div>
+  </section>
+
+  <aside class="bg-detalhe" id="bg-detalhe">
+    <div id="bg-detalhe-corpo"><p class="bg-ajuda">Clique num nó para ver o que é, de onde vem
+      e com quem se liga. Duplo clique abre a vizinhança dele.</p></div>
+  </aside>
+</div>
+<script src="/static/cytoscape.min.js"></script>
+<script src="/static/base_global.js?v={{ request.app.state.static_versao | default('0') }}"></script>
+{% endif %}
+{% endblock %}

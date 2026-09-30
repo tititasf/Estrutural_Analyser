@@ -1,0 +1,97 @@
+{
+  "item": "V13",
+  "classe": "LV",
+  "schema": "gold_lv_v1",
+  "fonte_n2": "D:\\Agente-cad-PYSIDE\\DADOS-OBRAS\\Obra_TREINO_1\\Fase-2_Triagem\\recortes_reversos\\ALIMONTI - PARAISO - TIPO - 3° AO 12° PAV.- LV - R00\\LV_V13_motor_178399194063.dxf",
+  "aprovado": false,
+  "faces": [
+    {
+      "ordem": 0,
+      "h_body": 44.0,
+      "larguras": [
+        244.0,
+        63.0,
+        108.0
+      ],
+      "total": 415.0,
+      "origem_larguras": "cota escrita",
+      "medido_geometria": {
+        "larguras": [
+          244.0,
+          63.0,
+          84.8
+        ],
+        "total": 391.8,
+        "x": [
+          4643.8,
+          5035.6
+        ],
+        "y": [
+          3226.3,
+          3270.3
+        ]
+      },
+      "arbitrar": {
+        "larguras_cota": [
+          244.0,
+          63.0,
+          108.0
+        ],
+        "larguras_geometria": [
+          244.0,
+          63.0,
+          84.8
+        ],
+        "diferenca": [
+          0.0,
+          0.0,
+          23.2
+        ]
+      }
+    },
+    {
+      "ordem": 1,
+      "h_body": 44.0,
+      "larguras": [
+        244.0,
+        63.0,
+        108.0
+      ],
+      "total": 415.0,
+      "origem_larguras": "cota escrita",
+      "medido_geometria": {
+        "larguras": [
+          244.0,
+          63.0,
+          84.8
+        ],
+        "total": 391.8,
+        "x": [
+          4643.8,
+          5035.6
+        ],
+        "y": [
+          3013.4,
+          3057.4
+        ]
+      },
+      "arbitrar": {
+        "larguras_cota": [
+          244.0,
+          63.0,
+          108.0
+        ],
+        "larguras_geometria": [
+          244.0,
+          63.0,
+          84.8
+        ],
+        "diferenca": [
+          0.0,
+          0.0,
+          23.2
+        ]
+      }
+    }
+  ]
+}

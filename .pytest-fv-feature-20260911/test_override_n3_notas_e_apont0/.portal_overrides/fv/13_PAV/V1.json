@@ -1,0 +1,52 @@
+{
+  "schema": "portal.fv.override/v1",
+  "beam": "V1",
+  "segments": {
+    "1": {
+      "panels": [
+        {
+          "index": 1,
+          "length_cm": 8.0,
+          "width_cm": 2.0
+        },
+        {
+          "index": 2,
+          "length_cm": 2.0,
+          "width_cm": 2.0
+        }
+      ],
+      "chamfers": [
+        {
+          "position": "te",
+          "size_cm": 1.5
+        }
+      ],
+      "openings": [
+        {
+          "position_cm": 3.0,
+          "width_cm": 1.0,
+          "height_cm": 0.5
+        }
+      ]
+    }
+  },
+  "notes": {
+    "sa": "rever apoio",
+    "c1": "",
+    "c2": "",
+    "c3": ""
+  },
+  "annotations": [
+    {
+      "id": "b6248fb69f1140a497629b2769af82b5",
+      "layer": "sa",
+      "segment": "1",
+      "x": 3.0,
+      "y": 4.0,
+      "element": "LINE.Paineis",
+      "text": "alinhar aqui",
+      "created_at": "2026-09-11T18:27:41.275748+00:00"
+    }
+  ],
+  "updated_at": "2026-09-11T18:27:41.275748+00:00"
+}

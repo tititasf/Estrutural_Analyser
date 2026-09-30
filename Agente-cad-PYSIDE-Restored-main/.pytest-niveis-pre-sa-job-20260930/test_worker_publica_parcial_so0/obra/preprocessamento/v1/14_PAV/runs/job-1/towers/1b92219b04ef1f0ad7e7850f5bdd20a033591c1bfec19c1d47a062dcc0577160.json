@@ -1,0 +1,317 @@
+{
+  "conflicts": [],
+  "convention_bindings": {
+    "level_convention": {
+      "candidate_source_ids": [],
+      "scope": null,
+      "selected_source_ids": [],
+      "status": "missing"
+    },
+    "pillar_convention": {
+      "candidate_source_ids": [
+        "pre-src-v1:6c0e6ad68c99c27a5b078fc273be5a357d19915669edb7e5b2c99d254be381fc"
+      ],
+      "scope": "tower",
+      "selected_source_ids": [
+        "pre-src-v1:6c0e6ad68c99c27a5b078fc273be5a357d19915669edb7e5b2c99d254be381fc"
+      ],
+      "status": "bound"
+    }
+  },
+  "cuts": {
+    "capability": "explicit_labels_only",
+    "items": [],
+    "status": "not_available"
+  },
+  "dependencies": {
+    "cuts": [
+      "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145"
+    ],
+    "inventory": [
+      "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145"
+    ],
+    "levels": [
+      "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145"
+    ],
+    "pillars": [
+      "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145",
+      "pre-src-v1:6c0e6ad68c99c27a5b078fc273be5a357d19915669edb7e5b2c99d254be381fc"
+    ]
+  },
+  "engine_version": "preprocess-context-v4-levels",
+  "level_conventions": {},
+  "level_inventory": {
+    "beam_segments": [],
+    "coverage": {
+      "beams": 0,
+      "conflicts": 0,
+      "pillars": 1,
+      "slab_levels_observed": 0,
+      "slabs": 1
+    },
+    "items": [
+      {
+        "display_name": "P1",
+        "item_class": "pillar",
+        "item_id": "51d7de3f-c3ba-51ff-84c1-f153797ac962",
+        "level_fact_ids": [
+          "51d7de3f-c3ba-51ff-84c1-f153797ac962:base",
+          "51d7de3f-c3ba-51ff-84c1-f153797ac962:top"
+        ],
+        "segment_ids": []
+      },
+      {
+        "display_name": "L1",
+        "item_class": "slab",
+        "item_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145:slab:31",
+        "level_fact_ids": [
+          "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145:slab:31:slab_level"
+        ],
+        "segment_ids": []
+      }
+    ],
+    "level_annotations": [],
+    "reference": {
+      "base": null,
+      "datum_id": null,
+      "evidence_handles": [],
+      "height": null,
+      "source_id": null,
+      "status": "missing",
+      "top": null,
+      "unit": null,
+      "warnings": []
+    },
+    "segment_coverage": {
+      "beam_labels": 0,
+      "beams_with_candidates": 0,
+      "candidate_segments": 0,
+      "verified_segments": 0
+    },
+    "status": "partial",
+    "unlinked_annotations": [],
+    "warnings": []
+  },
+  "levels": [
+    {
+      "datum_id": null,
+      "derived_from": [],
+      "display_name": "P1",
+      "evidence_ids": [],
+      "fact_id": "51d7de3f-c3ba-51ff-84c1-f153797ac962:base",
+      "field": "base",
+      "item_id": "51d7de3f-c3ba-51ff-84c1-f153797ac962",
+      "status": "unknown",
+      "unit": null,
+      "value": null,
+      "warnings": [
+        "item_level_and_reference_not_proven"
+      ]
+    },
+    {
+      "datum_id": null,
+      "derived_from": [],
+      "display_name": "P1",
+      "evidence_ids": [],
+      "fact_id": "51d7de3f-c3ba-51ff-84c1-f153797ac962:top",
+      "field": "top",
+      "item_id": "51d7de3f-c3ba-51ff-84c1-f153797ac962",
+      "status": "unknown",
+      "unit": null,
+      "value": null,
+      "warnings": [
+        "item_level_and_reference_not_proven"
+      ]
+    },
+    {
+      "datum_id": null,
+      "derived_from": [],
+      "display_name": "L1",
+      "evidence_ids": [],
+      "fact_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145:slab:31:slab_level",
+      "field": "slab_level",
+      "item_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145:slab:31",
+      "status": "unknown",
+      "unit": null,
+      "value": null,
+      "warnings": [
+        "item_level_and_reference_not_proven"
+      ]
+    }
+  ],
+  "modules": {
+    "cuts": "not_available",
+    "details": "not_supported",
+    "inventory": "complete",
+    "level_convention": "not_available",
+    "levels": "partial",
+    "pillar_convention": "complete",
+    "pillars": "complete",
+    "sa_consumption": "disabled",
+    "slabs_beams": "partial"
+  },
+  "pillar_conventions": {
+    "pre-src-v1:6c0e6ad68c99c27a5b078fc273be5a357d19915669edb7e5b2c99d254be381fc": {
+      "conflicts": [],
+      "entries": [
+        {
+          "cross_pattern": false,
+          "diagonal_angles": [],
+          "diagonal_count": 0,
+          "label": "MORRE",
+          "label_handle": "30",
+          "label_normalized": "MORRE",
+          "label_position": [
+            0.0,
+            0.0
+          ],
+          "line_count": 0,
+          "line_handles": [],
+          "parallel_diagonal": false,
+          "signature": "EMPTY"
+        }
+      ],
+      "headers": [
+        {
+          "handle": "2F",
+          "position": [
+            0.0,
+            100.0
+          ],
+          "text": "CONVENCAO PILARES"
+        }
+      ],
+      "signature_index": {
+        "EMPTY": [
+          "MORRE"
+        ]
+      },
+      "status": "complete",
+      "warnings": []
+    }
+  },
+  "pillars": {
+    "convention_source_ids": [
+      "pre-src-v1:6c0e6ad68c99c27a5b078fc273be5a357d19915669edb7e5b2c99d254be381fc"
+    ],
+    "counts": {
+      "linked": 1,
+      "pending": 0,
+      "total": 1
+    },
+    "items": [
+      {
+        "classification_alternatives": [
+          "MORRE"
+        ],
+        "classification_raw": "MORRE",
+        "coordinate_system": "dxf:modelspace",
+        "dimension_raw": null,
+        "display_name": "P1",
+        "geometry": {
+          "coordinates": [
+            [
+              [
+                0.0,
+                0.0
+              ],
+              [
+                20.0,
+                0.0
+              ],
+              [
+                20.0,
+                40.0
+              ],
+              [
+                0.0,
+                40.0
+              ],
+              [
+                0.0,
+                0.0
+              ]
+            ]
+          ],
+          "type": "Polygon"
+        },
+        "hatch_signature": "EMPTY",
+        "item_id": "51d7de3f-c3ba-51ff-84c1-f153797ac962",
+        "source_entity_handles": [
+          "30"
+        ],
+        "status": "linked",
+        "warnings": []
+      }
+    ],
+    "source_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145",
+    "status": "complete"
+  },
+  "review": "unreviewed",
+  "run_id": "job-1",
+  "schema_version": 1,
+  "scope": {
+    "obra_id": "obra-1",
+    "pavimento_id": "14_PAV",
+    "recorte_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145",
+    "source_revision": "ddac92fa316bed71cf5c75e9b2cde7fcfe760e01960363471d397834f003449e"
+  },
+  "sources": [
+    {
+      "bruto_id": "A",
+      "item_id": "convencao_pilares",
+      "kind": "pillar_convention",
+      "obra_id": "obra-1",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/A/convencao_pilares.dxf",
+      "revision": "27299f998b646c6ae5647ac65aaa17e10cb66bfad8c0f38c955f2a4d5347e70b",
+      "source_id": "pre-src-v1:6c0e6ad68c99c27a5b078fc273be5a357d19915669edb7e5b2c99d254be381fc",
+      "validated": true
+    },
+    {
+      "bruto_id": "A",
+      "item_id": "torre_2",
+      "kind": "tower",
+      "obra_id": "obra-1",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/A/torre_2.dxf",
+      "revision": "ddac92fa316bed71cf5c75e9b2cde7fcfe760e01960363471d397834f003449e",
+      "source_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145",
+      "validated": true
+    }
+  ],
+  "status": "partial",
+  "structural_labels": {
+    "counts": {
+      "ambiguous": 0,
+      "beams": 0,
+      "slabs": 1
+    },
+    "items": [
+      {
+        "coordinate_system": "dxf:modelspace",
+        "display_name": "L1",
+        "geometry": null,
+        "item_class": "slab",
+        "item_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145:slab:31",
+        "label_position": [
+          100.0,
+          100.0
+        ],
+        "raw_text": "L1",
+        "source_entity_handles": [
+          "31"
+        ],
+        "status": "label_only",
+        "warnings": [
+          "geometria_nao_vinculada"
+        ]
+      }
+    ],
+    "source_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145",
+    "status": "partial",
+    "warnings": [
+      "geometria_parcial_ou_ambigua"
+    ]
+  }
+}

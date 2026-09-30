@@ -14,8 +14,8 @@ distintos de verdade (rodava o pipeline inteiro 3x). Corrigido usando o que
 REALMENTE existe no repo para cada etapa (pesquisa confirmou via leitura de
 codigo, nao suposicao):
   - TRIAGEM = conversao de entrada (DWG->DXF via `converter_dwg_dxf_accore.py`,
-    reusa accoreconsole ja instalado — ODA File Converter e' WS-C, ainda nao
-    fechado) + validacao de sanidade ezdxf (R6). Bate com a definicao literal
+    usando accoreconsole no Windows e ODA File Converter no Linux) + validacao
+    de sanidade ezdxf (R6). Bate com a definicao literal
     do HANDOFF-ARCHITECT-PORTAL.md §1.2 ("Conversao de entrada + validacao de
     sanidade ezdxf"), que e' diferente do conceito de "triagem manual" do app
     PySide6 (aquele e' outra coisa, feito no diagnostic_hub.py com mouse).
@@ -210,6 +210,56 @@ def encontrar_dir_fichas(obra_dir: Path, pavimento: Optional[str] = None) -> Opt
     return candidatos[-1] if candidatos else None
 
 
+def _dono_do_segmento(chave: str) -> str | None:
+    """Classe (secao do headless) dona de cada chave de ``segmentos``."""
+    if chave == "fundo":
+        return "fundos_viga"
+    if chave.startswith("lateral_"):
+        return "laterais_viga"
+    return None
+
+
+def _preservar_segmentos_de_outras_classes(
+    payload: dict, canonical: Path, secao: Optional[str], wanted: set[str],
+) -> None:
+    """Job de uma classe so' publica os segmentos DELA (isolamento FV x LV).
+
+    O headless reinterpreta tudo em qualquer job, mas so' aplica os gates da
+    classe pedida: os fundos de um job de LV (ou de PIL/LAJ) saem crus, sem o
+    gate D-60 que o job de FV aplicou. Promover o snapshot inteiro publicaria
+    esses fundos crus por cima dos auditados (incidente 27/09). Aqui cada
+    chave de ``segmentos`` vem do job da classe dona; as demais ficam como
+    estavam no estado canonico anterior. Com ``--item`` so' as vigas pedidas
+    sao trocadas.
+    """
+    if not secao or not canonical.is_file():
+        return
+    fresh = payload.get("segmentos")
+    if not isinstance(fresh, dict):
+        return
+    try:
+        previous = json.loads(canonical.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return
+    old = previous.get("segmentos") if isinstance(previous, dict) else None
+    if not isinstance(old, dict):
+        return
+    merged = {}
+    for chave in set(old) | set(fresh):
+        dono = _dono_do_segmento(chave)
+        if dono is None:
+            merged[chave] = fresh.get(chave, old.get(chave))
+        elif dono != secao:
+            merged[chave] = old.get(chave, [])
+        elif wanted and isinstance(old.get(chave), list):
+            viga = lambda row: str((row or {}).get("beam_name") or "").strip().upper()
+            novos = [r for r in (fresh.get(chave) or []) if viga(r) in wanted]
+            merged[chave] = [r for r in old[chave] if viga(r) not in wanted] + novos
+        else:
+            merged[chave] = fresh.get(chave, [])
+    payload["segmentos"] = merged
+
+
 def promover_snapshot_sa(
     obra_dir: Path,
     pavimento: str,
@@ -217,6 +267,7 @@ def promover_snapshot_sa(
     iniciado_em: float = 0.0,
     secao: Optional[str] = None,
     item_names: Optional[set[str]] = None,
+    snapshot_path: Optional[Path] = None,
 ) -> Path | None:
     """Publica o snapshot isolado do headless como estado canÃ´nico do portal.
 
@@ -229,6 +280,8 @@ def promover_snapshot_sa(
     canonical = obra_dir / f"estado_{pavimento}.json"
     candidates = []
     for candidate in obra_dir.glob(f"estado_{pavimento}*.json"):
+        if snapshot_path is not None and candidate.resolve() != Path(snapshot_path).resolve():
+            continue
         if candidate == canonical:
             continue
         # Snapshot visual parcial: nunca pode substituir o inventário completo
@@ -242,6 +295,8 @@ def promover_snapshot_sa(
         except OSError:
             continue
     if not candidates:
+        if snapshot_path is not None:
+            return None
         # Alguns runners antigos escrevem diretamente no nome canonico. Ele so
         # pode ser aceito quando pertence a ESTA rodada; reutilizar um estado
         # antigo faria um job novo parecer concluido com fichas obsoletas.
@@ -270,6 +325,27 @@ def promover_snapshot_sa(
     # inventário canônico consumido pelo portal. Mescla somente as lajes-alvo
     # no estado anterior e preserva todas as outras lajes do pavimento.
     wanted = {str(name).strip().upper() for name in (item_names or set()) if str(name).strip()}
+    if secao == "pilares" and wanted and canonical.is_file():
+        previous = json.loads(canonical.read_text(encoding="utf-8"))
+        fresh_by_name = {str(row.get("name") or "").strip().upper(): row
+                         for row in payload["pilares"] if isinstance(row, dict)}
+        if not wanted.issubset(fresh_by_name):
+            log.warning("snapshot PIL incompleto para os itens solicitados")
+            return None
+        old_rows = previous.get("pilares")
+        if not isinstance(old_rows, list):
+            return None
+        merged = []
+        seen = set()
+        for row in old_rows:
+            name = str(row.get("name") or "").strip().upper()
+            merged.append(fresh_by_name[name] if name in wanted else row)
+            seen.add(name)
+        merged.extend(fresh_by_name[name] for name in sorted(wanted-seen))
+        payload["pilares"] = merged
+        for field in ("slabs", "cortes"):
+            if field in previous:
+                payload[field] = previous[field]
     if secao == "lajes" and wanted and canonical.is_file():
         try:
             previous = json.loads(canonical.read_text(encoding="utf-8"))
@@ -293,6 +369,7 @@ def promover_snapshot_sa(
                 if name in wanted and name not in seen
             )
             payload["slabs"] = merged_slabs
+    _preservar_segmentos_de_outras_classes(payload, canonical, secao, wanted)
     canonical.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(prefix=f".{canonical.name}.", suffix=".tmp", dir=canonical.parent)
     try:
@@ -314,13 +391,15 @@ def auditar_pacote_pilares_n3(obra_dir: Path, pavimento: str) -> dict:
     """Confirma os contratos e os dois desenhos N3 de cada pilar/modo."""
     canonical = Path(obra_dir) / f"estado_{pavimento}.json"
     try:
-        state = json.loads(canonical.read_text(encoding="utf-8"))
+        from src.core.pillar_sa_review import apply_state
+        state = apply_state(json.loads(canonical.read_text(encoding="utf-8")), obra_dir, pavimento)
     except (OSError, json.JSONDecodeError) as exc:
         return {"total_pilares": 0, "variantes_esperadas": 0,
                 "variantes_completas": 0, "missing": [f"estado: {exc}"]}
     names = [
         str(row.get("name") or row.get("nome") or "").strip()
         for row in (state.get("pilares") or []) if isinstance(row, dict)
+        and str(row.get("classification") or "").strip().upper() != "NASCE"
     ]
     names = [name for name in names if name]
     root = Path(obra_dir) / "Fase-6_Execucao_CAD" / "n3_variants"
@@ -652,6 +731,7 @@ def montar_comando_headless(
     secao: Optional[list[str]] = None,
     pav: Optional[str] = None,
     item: Optional[list[str]] = None,
+    visual_mode: str = "NOVA",
 ) -> list[str]:
     """Comando do headless para as etapas de recortes/sa (HANDOFF §1.2).
 
@@ -685,6 +765,7 @@ def montar_comando_headless(
         # Contrato do botao web: apenas motores N1/N3 e publicacao estruturada.
         # O comando canônico sem esta flag continua sendo o loop Arete/treino.
         "--production-web",
+        "--visual-mode", str(visual_mode or "NOVA").strip().upper(),
     ]
     secoes = [str(s).strip() for s in (secao or []) if str(s).strip()]
     itens = [str(i).strip() for i in (item or []) if str(i).strip()]
@@ -731,6 +812,25 @@ def _rodar_subprocess_sa(
             etapa=etapa, ok=False, comando=cmd, returncode=None, log_tail=msg,
         )
     cmd += ["--project-id", project_id]
+    if getattr(settings, "preprocess_sa_enabled", False):
+        from .preprocessamento.context_resolver import pin_context
+        from src.core.sa_project_source import resolve_sa_project_from_db
+        try:
+            context_obra = _obra_dir(settings, obra)
+            project = resolve_sa_project_from_db(
+                db_path=str(settings.sa_db_path), obra=str(context_obra),
+                pavimento=pav or settings.pav_default, project_id=project_id,
+            )
+            context_path, context_reason = pin_context(
+                obra_dir=context_obra, obra_id=obra['id'], pavimento=pav or settings.pav_default,
+                project_id=project_id, dxf_path=project['dxf_path'],
+            )
+            if context_path:
+                context_payload = json.loads(context_path.read_text(encoding='utf-8'))
+                cmd += ['--context-manifest', str(context_path), '--context-hash', context_payload['context_hash']]
+            log.info('Pré-contexto SA: %s', context_reason)
+        except (OSError, ValueError, LookupError, RuntimeError) as exc:
+            log.warning('Pré-contexto SA não consumido: %s', exc)
 
     py_cmd = cmd[0] if cmd else "?"
     banner = (
@@ -868,6 +968,7 @@ def executar_microciclo_item(
     pav: Optional[str] = None,
     dry_run: bool = True,
     log_path: Optional[Path] = None,
+    visual_mode: str = "NOVA",
 ) -> ResultadoEtapa:
     """P4 — headless de UMA classe + UM item com --persist-db (escape hatch).
 
@@ -898,10 +999,222 @@ def executar_microciclo_item(
 
     cmd = montar_comando_headless(
         settings, obra, secao=[secao_s], pav=pav_efetivo, item=[item_s],
+        visual_mode=visual_mode,
     )
     return _rodar_subprocess_sa(
         settings, cmd, obra=obra, etapa="sa_item", dry_run=dry_run,
         log_path=log_path, pav=pav_efetivo,
+    )
+
+
+def regenerar_n3_cima_item(
+    settings: Settings,
+    obra: dict,
+    *,
+    item: str,
+    pav: str,
+    dry_run: bool = False,
+    log_path: Optional[Path] = None,
+    visual_mode: str = "NOVA",
+    vista: str = "cima",
+) -> ResultadoEtapa:
+    """Regenera somente a vista N3 solicitada de um pilar.
+
+    Este fluxo deliberadamente não chama o headless SA: os campos N1 e as
+    variantes N3 já existem, e reler o DXF estrutural inteiro transformava
+    uma operação de milissegundos em um job de dezenas de minutos.
+    """
+    item_s = str(item or "").strip().upper()
+    if not item_s:
+        raise ValueError("item obrigatorio na regeneracao N3")
+    if vista not in {"cima", "abcd-para", "abcd-passa", "grades-para", "grades-passa"}:
+        raise ValueError(f"vista N3 invalida: {vista!r}")
+    zone = vista.split("-", 1)[0]
+    modes = ("para", "passa") if vista == "cima" else (vista.split("-", 1)[1],)
+    step = "n3_cima_item" if vista == "cima" else "n3_pilar_vista_item"
+    visual_mode = str(visual_mode or "NOVA").strip().upper()
+    if visual_mode not in {"NOVA", "INI"}:
+        raise ValueError(f"modo de desenho invalido: {visual_mode!r}")
+    obra_dir = _obra_dir(settings, obra)
+    from .ficha_reader import ler_estado_pavimento
+    from src.core.pillar_sa_review import eligible, load as load_sa_review, apply_robot
+    state = ler_estado_pavimento(obra_dir, pav) or {}
+    pillar = next((p for p in state.get('pilares', []) if p.get('name') == item_s), None)
+    if pillar and not eligible(pillar):
+        return ResultadoEtapa(etapa=step, ok=False, log_tail="NASCE: somente SA; N3 ignorado")
+    fields = load_sa_review(obra_dir, pav, item_s)
+    root = obra_dir / "Fase-6_Execucao_CAD" / "n3_variants"
+    mode_root = obra_dir / "Fase-6_Execucao_CAD" / "n3_modes" / visual_mode / "pilares"
+    command = [step, str(obra_dir), str(pav), item_s, vista, visual_mode]
+    if dry_run:
+        return ResultadoEtapa(etapa=step, ok=True, comando=command, dry_run=True)
+
+    scripts_dir = Path(settings.repo_root) / "scripts"
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
+    from gerar_pl_dxf_stog import generate_pilar_zone, setup_doc
+    from visual_modes import apply_visual_mode
+    from src.core import pillar_n3_ficha
+
+    saved_root = pillar_n3_ficha.load_ficha(obra_dir, pav, item_s) or {}
+    variants = saved_root.get("variants") if isinstance(saved_root.get("variants"), dict) else {}
+    regenerated: list[str] = []
+    try:
+        for mode in modes:
+            variant_dir = root / mode
+            payload_path = variant_dir / f"{item_s}.json"
+            if not payload_path.is_file():
+                raise FileNotFoundError(f"variante N3 ausente: {payload_path}")
+            payload = json.loads(payload_path.read_text(encoding="utf-8"))
+            ficha = variants.get(mode) if isinstance(variants.get(mode), dict) else saved_root
+            if isinstance(ficha, dict) and ficha:
+                payload = pillar_n3_ficha.apply_ficha_to_robot(payload, ficha)
+            payload = apply_robot(payload, fields)
+
+            doc = setup_doc()
+            count = generate_pilar_zone(
+                doc.modelspace(), payload, zone, visual_mode=visual_mode,
+            )
+            if count < 0:
+                raise RuntimeError(f"motor {zone} não gerou entidades para {item_s}/{mode}")
+            apply_visual_mode(doc, visual_mode, "PL")
+            payload.setdefault("_visual_modes", {})[zone] = visual_mode
+
+            # Publica cumulativamente no diretório do modo. A ponte sem rótulo
+            # continua significando NOVA; gravar INI nela faria consumidores
+            # legados exibirem um desenho INI com etiqueta NOVA.
+            target_dirs = [mode_root / mode]
+            if visual_mode == "NOVA":
+                target_dirs.append(variant_dir)
+            for target_dir in target_dirs:
+                target_dir.mkdir(parents=True, exist_ok=True)
+                dxf_path = target_dir / f"PL_{zone.upper()}_preview_{item_s}.dxf"
+                target_json = target_dir / f"{item_s}.json"
+                fd, tmp_dxf_name = tempfile.mkstemp(
+                    prefix=f".{dxf_path.stem}.", suffix=".dxf", dir=target_dir,
+                )
+                os.close(fd)
+                tmp_dxf = Path(tmp_dxf_name)
+                try:
+                    doc.saveas(str(tmp_dxf))
+                    os.replace(tmp_dxf, dxf_path)
+                finally:
+                    tmp_dxf.unlink(missing_ok=True)
+
+                fd, tmp_json_name = tempfile.mkstemp(
+                    prefix=f".{target_json.stem}.", suffix=".json", dir=target_dir,
+                )
+                try:
+                    with os.fdopen(fd, "w", encoding="utf-8") as stream:
+                        json.dump(payload, stream, ensure_ascii=False, indent=2)
+                        stream.write("\n")
+                        stream.flush()
+                        os.fsync(stream.fileno())
+                    os.replace(tmp_json_name, target_json)
+                finally:
+                    Path(tmp_json_name).unlink(missing_ok=True)
+            regenerated.append(f"{mode}:{count}")
+    except Exception as exc:
+        message = f"regeneracao N3 {vista} falhou: {exc}"
+        if log_path:
+            Path(log_path).write_text(message, encoding="utf-8")
+        return ResultadoEtapa(
+            etapa=step, ok=False, comando=command,
+            returncode=1, log_tail=message,
+        )
+
+    message = f"{item_s} N3 {vista} regenerado ({', '.join(regenerated)})"
+    if log_path:
+        Path(log_path).write_text(message, encoding="utf-8")
+    return ResultadoEtapa(
+        etapa=step, ok=True, comando=command,
+        returncode=0, log_tail=message,
+    )
+
+
+def regenerar_n3_lv_vista_item(
+    settings: Settings,
+    obra: dict,
+    *,
+    beam: str,
+    pav: str,
+    behavior: str,
+    view: str,
+    visual_mode: str = "NOVA",
+    dry_run: bool = False,
+    log_path: Optional[Path] = None,
+) -> ResultadoEtapa:
+    """Gera uma vista LV de contratos SA + override, sem tocar na rodada SA."""
+    from . import lv_n3_operations
+
+    behavior, beam = lv_n3_operations._identity(behavior, beam)
+    if view not in {"corte", "paineis-a", "paineis-b"}:
+        raise ValueError("vista N3 LV inválida")
+    visual_mode = str(visual_mode or "NOVA").upper()
+    if visual_mode not in {"NOVA", "INI"}:
+        raise ValueError("modo de desenho N3 LV inválido")
+    generator_view = {"corte": "CORTE", "paineis-a": "A", "paineis-b": "B"}[view]
+    suffix = "CORTE" if view == "corte" else f"VIEW_{generator_view}"
+    filename = f"LV_preview_{beam}_{behavior.title()}_{suffix}.dxf"
+    obra_dir = _obra_dir(settings, obra)
+    command = [
+        sys.executable, str(Path(settings.repo_root) / "scripts" / "gerar_lv_dxf_stog.py"),
+        "--obra", str(obra_dir), "--item", beam, "--behavior", behavior.title(),
+        "--view", generator_view, "--visual-mode", visual_mode,
+        "--stog-pav-hint", pav,
+    ]
+    if dry_run:
+        return ResultadoEtapa(etapa="n3_lv_view_item", ok=True, comando=command, dry_run=True)
+    try:
+        contracts = lv_n3_operations.effective_contracts(obra_dir, pav, behavior, beam)
+        with tempfile.TemporaryDirectory(prefix="cad-lv-n3-") as temporary:
+            input_dir = Path(temporary) / "contracts"
+            output_dir = Path(temporary) / "output"
+            input_dir.mkdir()
+            output_dir.mkdir()
+            for side in ("A", "B"):
+                (input_dir / f"{beam}_{side}.json").write_text(
+                    json.dumps(contracts[side], ensure_ascii=False), encoding="utf-8",
+                )
+            result = subprocess.run(
+                command + ["--input-dir", str(input_dir), "--output-dir", str(output_dir)],
+                capture_output=True, text=True, timeout=settings.subprocess_timeout_s,
+                cwd=str(settings.repo_root),
+            )
+            generated = output_dir / filename
+            if result.returncode != 0 or not generated.is_file():
+                raise RuntimeError((result.stdout + "\n" + result.stderr)[-1500:] or "DXF LV ausente")
+            import ezdxf
+
+            if len(ezdxf.readfile(generated).modelspace()) == 0:
+                raise RuntimeError("gerador LV produziu uma vista vazia")
+            target_dir = (obra_dir / "Fase-6_Execucao_CAD" / "n3_modes" /
+                          visual_mode / "lv" / behavior)
+            target_dir.mkdir(parents=True, exist_ok=True)
+            target = target_dir / filename
+            fd, temporary_target = tempfile.mkstemp(
+                prefix=f".{target.stem}.", suffix=".dxf", dir=target_dir,
+            )
+            os.close(fd)
+            try:
+                shutil.copyfile(generated, temporary_target)
+                os.replace(temporary_target, target)
+            finally:
+                Path(temporary_target).unlink(missing_ok=True)
+            message = f"{beam} {behavior} N3 {view} regenerado: {target.name}"
+    except Exception as exc:
+        message = f"regeneração N3 LV falhou: {exc}"
+        if log_path:
+            Path(log_path).write_text(message, encoding="utf-8")
+        return ResultadoEtapa(
+            etapa="n3_lv_view_item", ok=False, comando=command,
+            returncode=1, log_tail=message,
+        )
+    if log_path:
+        Path(log_path).write_text(message, encoding="utf-8")
+    return ResultadoEtapa(
+        etapa="n3_lv_view_item", ok=True, comando=command,
+        returncode=0, log_tail=message,
     )
 
 
@@ -1068,11 +1381,12 @@ def _converter_e_validar_um(entrada: Path) -> tuple[bool, str, Optional[Path]]:
         try:
             from scripts.converter_dwg_dxf_accore import convert_dwg_to_dxf  # type: ignore
         except ImportError as exc:
-            return False, f"conversor DWG->DXF (accoreconsole) indisponivel: {exc}", None
-        linhas.append(f"convertendo {entrada.name} -> {dxf_path.name} via accoreconsole")
+            return False, f"conversor DWG->DXF indisponivel: {exc}", None
+        motor = "accoreconsole" if os.name == "nt" else "ODA File Converter"
+        linhas.append(f"convertendo {entrada.name} -> {dxf_path.name} via {motor}")
         try:
             ok = convert_dwg_to_dxf(entrada, dxf_path)
-        except Exception as exc:  # noqa: BLE001 - accoreconsole pode falhar de varias formas
+        except Exception as exc:  # noqa: BLE001 - conversores externos podem falhar
             return False, "\n".join(linhas + [f"conversao DWG->DXF falhou: {exc}"]), None
         if not ok:
             return False, "\n".join(linhas + ["conversao retornou falha"]), None
@@ -1196,7 +1510,11 @@ def listar_dwgs_com_status(settings: Settings, obra: dict, documentos: list[dict
     obra_dir = _obra_dir(settings, obra)
     entrada_dir = obra_dir / "entrada"
     saida = []
-    for doc in documentos:
+    fontes = list(documentos)
+    arquivo_rapido = str(obra.get("arquivo_nome") or "")
+    if arquivo_rapido.lower().endswith(_EXT_DWG) and not fontes:
+        fontes.append({"id": None, "arquivo_nome": arquivo_rapido, "nome_exibicao": None})
+    for doc in fontes:
         if not doc["arquivo_nome"].lower().endswith(_EXT_DWG):
             continue
         dxf_path = entrada_dir / Path(doc["arquivo_nome"]).with_suffix(".dxf").name
@@ -1225,7 +1543,11 @@ def executar_conversao_dwg(
     """
     obra_dir = _obra_dir(settings, obra)
     entrada_dir = obra_dir / "entrada"
-    pendentes = [d for d in documentos if d["arquivo_nome"].lower().endswith(_EXT_DWG)
+    fontes = list(documentos)
+    arquivo_rapido = str(obra.get("arquivo_nome") or "")
+    if arquivo_rapido.lower().endswith(_EXT_DWG) and not fontes:
+        fontes.append({"id": None, "arquivo_nome": arquivo_rapido})
+    pendentes = [d for d in fontes if d["arquivo_nome"].lower().endswith(_EXT_DWG)
                  and not (entrada_dir / Path(d["arquivo_nome"]).with_suffix(".dxf").name).is_file()]
     comando_desc = ["conversao_dwg_dxf", str(obra_dir), f"n_pendentes={len(pendentes)}"]
     if dry_run:
@@ -1239,9 +1561,13 @@ def executar_conversao_dwg(
             resultados.append({"doc_id": doc["id"], "ok": False, "erro_msg": "arquivo dwg nao encontrado em disco"})
             linhas_log.append(f"{doc['arquivo_nome']}: ARQUIVO AUSENTE")
             continue
-        ok, texto_doc, _dxf_path = _converter_e_validar_um(entrada)
+        ok, texto_doc, dxf_path = _converter_e_validar_um(entrada)
         linhas_log.append(f"--- {doc['arquivo_nome']} ---\n{texto_doc}")
-        resultados.append({"doc_id": doc["id"], "ok": ok, "erro_msg": None if ok else texto_doc[:300]})
+        resultados.append({
+            "doc_id": doc["id"], "ok": ok,
+            "dxf_path": str(dxf_path) if dxf_path else None,
+            "erro_msg": None if ok else texto_doc[:300],
+        })
 
     texto_completo = "\n".join(linhas_log) if linhas_log else "nenhum DWG pendente de conversao"
     if log_path is not None:
@@ -1259,7 +1585,12 @@ def executar_conversao_dwg(
 
 
 def executar_recortes(
-    settings: Settings, obra: dict, *, dry_run: bool = True, log_path: Optional[Path] = None,
+    settings: Settings,
+    obra: dict,
+    *,
+    dry_run: bool = True,
+    log_path: Optional[Path] = None,
+    target_dxf_paths: Optional[list[str]] = None,
 ) -> ResultadoEtapa:
     """Etapa 3: 2 motores reais, propositos DIFERENTES (achado ao vivo com o
     dono 2026-07-07 — a aba Recortes do portal mostrava so' o motor errado):
@@ -1280,12 +1611,29 @@ def executar_recortes(
     obra_dir = _obra_dir(settings, obra)
     output_dir = obra_dir / "Fase-2_Triagem" / "recortes_reversos"
     comando_desc = ["RecorteMotor.run+obra_crop_engine", str(obra_dir), "classes=" + ",".join(_CLASSES_RECORTE)]
+    if target_dxf_paths is not None:
+        comando_desc.append(f"n_alvos={len(target_dxf_paths)}")
     if dry_run:
         return ResultadoEtapa(etapa="recortes", ok=True, dry_run=True, comando=comando_desc)
 
-    entrada = _arquivo_entrada(obra_dir, obra)
-    dxf_path = entrada.with_suffix(".dxf") if entrada and entrada.suffix.lower() == _EXT_DWG else entrada
-    if dxf_path is None or not dxf_path.exists():
+    entrada_dir = (obra_dir / "entrada").resolve()
+    alvos: list[Path] = []
+    if target_dxf_paths is not None:
+        # O metadado vem do resultado da triagem, mas ainda assim falha fechado:
+        # recortes só podem ler DXFs existentes dentro da entrada desta obra.
+        for raw_path in target_dxf_paths:
+            candidato = Path(raw_path).resolve()
+            if candidato.suffix.lower() != ".dxf" or candidato.parent != entrada_dir:
+                continue
+            if candidato.is_file() and candidato not in alvos:
+                alvos.append(candidato)
+    else:
+        entrada = _arquivo_entrada(obra_dir, obra)
+        dxf_path = entrada.with_suffix(".dxf") if entrada and entrada.suffix.lower() == _EXT_DWG else entrada
+        if dxf_path is not None and dxf_path.exists():
+            alvos.append(dxf_path.resolve())
+
+    if not alvos:
         msg = f"nenhum DXF encontrado em {obra_dir / 'entrada'} — rode a triagem primeiro"
         return ResultadoEtapa(etapa="recortes", ok=False, comando=comando_desc, log_tail=msg)
 
@@ -1294,15 +1642,16 @@ def executar_recortes(
 
     try:
         from src.core.recorte_motor import RecorteMotor
-        for classe in _CLASSES_RECORTE:
-            try:
-                motor = RecorteMotor(str(dxf_path), er_type=classe)
-                resultados = motor.run(output_dir, overwrite=True)
-            except Exception as exc:  # noqa: BLE001 - motor pode nao achar frame p/ essa classe
-                linhas_log.append(f"{classe}: erro ({exc})")
-                continue
-            linhas_log.append(f"{classe}: {len(resultados)} elemento(s)")
-            total_elementos += len(resultados)
+        for dxf_alvo in alvos:
+            for classe in _CLASSES_RECORTE:
+                try:
+                    motor = RecorteMotor(str(dxf_alvo), er_type=classe)
+                    resultados = motor.run(output_dir, overwrite=True)
+                except Exception as exc:  # noqa: BLE001 - motor pode nao achar frame p/ essa classe
+                    linhas_log.append(f"{dxf_alvo.name} · {classe}: erro ({exc})")
+                    continue
+                linhas_log.append(f"{dxf_alvo.name} · {classe}: {len(resultados)} elemento(s)")
+                total_elementos += len(resultados)
     except ImportError as exc:
         linhas_log.append(f"RecorteMotor indisponivel: {exc}")
 
@@ -1311,9 +1660,16 @@ def executar_recortes(
     # documentos = N brutos em entrada/), não só o 1o — achado com o dono:
     # obra completa (multi-doc) precisa de 1 pasta de recortes por documento
     # na aba Recortes, cada um com sua(s) torre(s)+detalhes.
-    brutos = recortes_reader.listar_brutos_recorte(obra_dir)
-    if not brutos:
-        brutos = [{"bruto_id": dxf_path.stem, "nome": dxf_path.name}]
+    if target_dxf_paths is not None:
+        brutos = [
+            {"bruto_id": caminho.stem, "nome": caminho.name}
+            for caminho in alvos
+        ]
+    else:
+        brutos = recortes_reader.listar_brutos_recorte(obra_dir)
+        if not brutos:
+            dxf_path = alvos[0]
+            brutos = [{"bruto_id": dxf_path.stem, "nome": dxf_path.name}]
     torres_geradas = 0
     for bruto in brutos:
         bruto_path = (obra_dir / "entrada" / bruto["nome"])
@@ -1356,6 +1712,7 @@ def executar_etapa(
     pav: Optional[str] = None,
     dry_run: bool = True,
     log_path: Optional[Path] = None,
+    visual_mode: str = "NOVA",
 ) -> ResultadoEtapa:
     """Executa uma etapa de pipeline (triagem/recortes/sa).
 
@@ -1385,7 +1742,9 @@ def executar_etapa(
                 pass
         return ResultadoEtapa(etapa=etapa, ok=True, comando=[], dry_run=dry_run, log_tail=msg)
 
-    cmd = montar_comando_headless(settings, obra, secao=secao, pav=pav_efetivo)
+    cmd = montar_comando_headless(
+        settings, obra, secao=secao, pav=pav_efetivo, visual_mode=visual_mode,
+    )
     return _rodar_subprocess_sa(
         settings, cmd, obra=obra, etapa=etapa, dry_run=dry_run,
         log_path=log_path, pav=pav_efetivo,
@@ -1399,6 +1758,7 @@ def executar_n5(
     classe: str,
     pavimento: str = "GERAL",
     dry_run: bool = True,
+    visual_mode: str = "NOVA",
 ) -> ResultadoEtapa:
     """Etapa 6: chama assemble_n5 (import direto, leve). Gera 1 DXF por classe+pav.
 
@@ -1408,7 +1768,8 @@ def executar_n5(
     if dry_run:
         return ResultadoEtapa(
             etapa="n5", ok=True, dry_run=True,
-            comando=["assemble_n5", str(obra_dir), classe, f"pavimento={pavimento}"],
+            comando=["assemble_n5", str(obra_dir), classe, f"pavimento={pavimento}",
+                     f"visual_mode={visual_mode}"],
         )
     try:
         from src.core.n5_assembler import assemble_n5  # import tardio: isola ezdxf
@@ -1416,7 +1777,26 @@ def executar_n5(
         return ResultadoEtapa(etapa="n5", ok=False, log_tail=f"import assemble_n5 falhou: {exc}")
 
     try:
-        resultado = assemble_n5(obra_dir, classe, pavimento=pavimento, db_path=str(settings.sa_db_path))
+        from src.core.n5_assembler import n3_mode_readiness
+        readiness = n3_mode_readiness(obra_dir, classe, pavimento, visual_mode, settings.sa_db_path)
+        if not readiness["ready"]:
+            return ResultadoEtapa(etapa="n5", ok=False,
+                log_tail=f"N3 do modo {visual_mode} incompleto ({readiness['total'] - len(readiness['missing'])}/{readiness['total']}). Gere o N3 deste modo antes de unificar.")
+        resultado = assemble_n5(
+            obra_dir, classe, pavimento=pavimento,
+            db_path=str(settings.sa_db_path), visual_mode=visual_mode,
+        )
+        pillar_parts = {}
+        if classe.upper() == "PL":
+            for group in ("PARA", "PASSA"):
+                part = assemble_n5(
+                    obra_dir, classe, pavimento=pavimento,
+                    db_path=str(settings.sa_db_path), visual_mode=visual_mode,
+                    pillar_group=group,
+                )
+                if part.missing_count or not part.ok_count:
+                    raise ValueError(f"N5 PL {group}: conjunto incompleto")
+                pillar_parts[group] = str(part.output_path)
     except Exception as exc:  # noqa: BLE001 - erro do assembler vira estado de job 'error'
         return ResultadoEtapa(etapa="n5", ok=False,
                               comando=["assemble_n5", str(obra_dir), classe],
@@ -1426,8 +1806,11 @@ def executar_n5(
     artefatos = {
         "n5_dxf": dxf_path,
         "n5_manifest": str(resultado.manifest_path),
+        "pillar_parts": pillar_parts,
         "ok_count": resultado.ok_count,
         "missing_count": resultado.missing_count,
+        "extra_count": resultado.extra_count,
+        "extra_ids": resultado.extra_ids,
     }
     ok = (resultado.ok_count > 0) and (resultado.missing_count == 0)
     log_msg = None

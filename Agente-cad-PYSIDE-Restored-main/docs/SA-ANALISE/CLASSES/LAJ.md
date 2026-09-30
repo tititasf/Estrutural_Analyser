@@ -8,6 +8,11 @@ uniões. `src/core/slab_tracer.py` captura/interpreta; a ficha é
 N2/N4. A ordem é imutável: **identidade → contorno/área → apoios → contexto/exceções
 → panelização → desenho**.
 
+**Jev opcional:** em nível/espessura ou apoio por aresta com marcadores
+concorrentes, enviar handles, região física, `h=` e contorno; se a convenção do
+desnível permanecer ambígua, usar ficha visual para decisão humana. Ver
+[segunda leitura do SA](../JEV-SEGUNDA-LEITURA-OPCIONAL.md).
+
 | Família | Campos/prova | Aceite | Anti-padrão |
 |---|---|---|---|
 | identidade | `name.label`, `laje_dim.label`, `laje_nivel.label` | nome, espessura e nível do mesmo item | nível copiado de vizinha |
@@ -31,6 +36,36 @@ vision = **ruído**. g2v_harness.py --backend cli + inventário.
 docs/QA-VISAO-EVIDENCIA-CANONICA.md.
 
 ## 2. Diagnóstico e S5: o que o automatismo não fecha
+
+### Referências FV/LV na ficha de Visão de Cortes (2026-09-30)
+
+Pedido do dono: fundos e laterais ajudam a identificar o nome e os segmentos
+representados pelo corte, como referência e nunca como regra rígida. A associação
+anterior usa o texto de viga mais próximo do símbolo e pode escolher outra viga.
+O portal compara o polígono reconhecido com as geometrias dos segmentos do SA,
+sem filtrar pelo nome atual. Exibe nome sugerido, divergência/concordância e os
+IDs/índices reais de fundo e de laterais A/B × Para/Passa, com links às fichas.
+
+A hipótese exige contato com fundo e lateral do mesmo nome no entorno local,
+sem nome concorrente. Só fundo, só lateral, proximidade sem contato de fundo,
+ausência de fonte ou nomes concorrentes permanecem pendentes. A largura da faixa
+delimita a busca; não impõe altura, número ou comprimento ao símbolo da seção.
+Não se escolhe uma viga distante só por ser a mais próxima, nem se contam as
+variantes Para/Passa como votos independentes. FV/LV derivam do mesmo SA e podem
+compartilhar um erro: concordância não substitui conferência do rótulo e da posição
+no DXF. Os campos derivados são referências de leitura, sem selo de validação;
+os dados originais no arquivo SA permanecem intactos. Implementação:
+`portal/app/corte_references.py`, integração em `ficha_reader.listar_itens_n1`.
+
+Atualização por orientação do dono (2026-09-30): a associação FV/LV única e
+consistente agora define o nome do corte no portal: campo Viga, título da ficha,
+lista e rótulo do destaque estrutural. O nome anterior fica somente no campo
+“Nome anterior · diagnóstico”. Sem associação suficiente ou com nomes
+concorrentes, o nome fica “Pendente”; não se reutiliza o nome antigo como verdade.
+Os arquivos SA e a geometria reconhecida não são sobrescritos. O critério local
+de associação permanece o mesmo; FV/LV não impõem dimensão ou formato ao corte.
+
+### Diagnóstico canônico
 
 `diagnostico_laj_n1_n2.py` alerta comparabilidade/dimensão; não dá veredito de
 polígono, hachura de apoio, posição de cota, obstáculo ou linha de painel. Para S5,

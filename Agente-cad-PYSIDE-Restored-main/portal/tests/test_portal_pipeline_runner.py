@@ -113,6 +113,22 @@ def test_recortes_multi_doc_roda_torre_crop_pra_cada_bruto(settings, tmp_path):
     assert "doc_b" in r.log_tail
 
 
+def test_recortes_granular_processa_somente_dxf_da_triagem_atual(settings, tmp_path):
+    """O cascade incremental não pode voltar ao bruto antigo da mesma obra."""
+    obra_dir, obra = _obra_com_entrada(tmp_path, "doc_antigo.dxf")
+    novo = obra_dir / "entrada" / "doc_novo.dxf"
+    _dxf_valido(novo)
+
+    r = pipeline_runner.executar_recortes(
+        settings, obra, dry_run=False, target_dxf_paths=[str(novo)],
+    )
+
+    assert r.ok, r.log_tail
+    assert r.artefatos["brutos_processados"] == 1
+    assert "doc_novo" in r.log_tail
+    assert "doc_antigo" not in r.log_tail
+
+
 def test_recortes_sem_dxf_falha_pedindo_triagem_primeiro(settings, tmp_path):
     obra_dir = tmp_path / "obra_sem_dxf"
     obra_dir.mkdir(parents=True)
@@ -375,6 +391,35 @@ def test_triagem_documentos_dry_run_nao_toca_disco(settings, tmp_path):
     assert not obra_dir.exists()
 
 
+def test_oda_linux_converte_em_diretorios_isolados(tmp_path, monkeypatch):
+    """Contrato do runtime VPS: ODA recebe pastas isoladas e publica o DXF final."""
+    from scripts import converter_dwg_dxf_accore as conversor
+
+    oda = tmp_path / "ODAFileConverter"
+    oda.write_bytes(b"fake")
+    origem = tmp_path / "origem.dwg"
+    origem.write_bytes(b"dwg-fake")
+    destino = tmp_path / "saida" / "origem.dxf"
+    chamadas = []
+
+    monkeypatch.setenv(conversor.ODA_ENV, str(oda))
+    monkeypatch.setattr(conversor.shutil, "which", lambda nome: "/usr/bin/xvfb-run" if nome == "xvfb-run" else None)
+
+    def _run(comando, **kwargs):
+        chamadas.append((comando, kwargs))
+        saida_dir = Path(comando[-6])
+        (saida_dir / "input.dxf").write_bytes(b"0" * 1024)
+        return type("Proc", (), {"returncode": 0, "stdout": b"", "stderr": b""})()
+
+    monkeypatch.setattr(conversor.subprocess, "run", _run)
+    assert conversor._convert_dwg_to_dxf_oda(origem, destino, timeout=12)
+    assert destino.stat().st_size == 1024
+    comando, kwargs = chamadas[0]
+    assert comando[:3] == ["/usr/bin/xvfb-run", "-a", str(oda)]
+    assert comando[-5:] == ["ACAD2018", "DXF", "0", "1", "*.dwg"]
+    assert kwargs["timeout"] == 12
+
+
 # --------------------------------------------------------------------------- #
 # _garantir_project_registrado — auto-registro em project_data.vision (2026-07-06)
 # Achado real rodando o fluxo inteiro contra uma obra nova: `resolve_sa_project_
@@ -564,6 +609,26 @@ def test_promover_snapshot_microciclo_laje_preserva_inventario(tmp_path):
     assert payload["slabs"][0]["nivel"] == "novo"
 
 
+def test_promover_snapshot_pilar_preserva_outros_itens_e_escolhe_rodada(tmp_path):
+    old={'pilares':[{'name':'P1','classification':'INDETERMINADO'}, {'name':'P2','classification':'NASCE'}],
+         'slabs':[{'name':'L1'}], 'cortes':[{'uid':'C1'}], 'segmentos':{'fundo':[{'beam_name':'V1'}]}}
+    canonical=tmp_path/'estado_13_PAV.json'
+    canonical.write_text(json.dumps(old))
+    source=tmp_path/'estado_13_PAV_pilares_pid123.json'
+    source.write_text(json.dumps({'pilares':[{'name':'P1','classification':'SEGUE'}],
+                                  'slabs':[], 'cortes':[], 'segmentos':{'fundo':[]}}))
+    other=tmp_path/'estado_13_PAV_fundos_viga_pid456.json'
+    other.write_text(json.dumps({'pilares':[{'name':'P99'}]}))
+    promoted=pipeline_runner.promover_snapshot_sa(tmp_path,'13_PAV',secao='pilares',
+                                                 item_names={'P1'},snapshot_path=source)
+    actual=json.loads(promoted.read_text())
+    assert actual['pilares']==[{'name':'P1','classification':'SEGUE'},old['pilares'][1]]
+    assert actual['slabs']==old['slabs'] and actual['cortes']==old['cortes']
+    assert actual['segmentos']==old['segmentos']
+    assert pipeline_runner.promover_snapshot_sa(tmp_path,'13_PAV',secao='pilares',
+                                                item_names={'P404'},snapshot_path=source) is None
+
+
 def _escrever_pacote_n3_minimo(obra_dir: Path, name: str = "P1") -> None:
     root = obra_dir / "Fase-6_Execucao_CAD" / "n3_variants"
     for mode in ("para", "passa"):
@@ -573,6 +638,43 @@ def _escrever_pacote_n3_minimo(obra_dir: Path, name: str = "P1") -> None:
         (folder / f"PL_CIMA_preview_{name}.dxf").write_text("DXF", encoding="utf-8")
         (folder / f"PL_ABCD_preview_{name}.dxf").write_text("DXF", encoding="utf-8")
         (folder / f"PL_GRADES_preview_{name}.dxf").write_text("DXF", encoding="utf-8")
+
+
+@pytest.mark.parametrize("vista,mode,zone", [
+    ("abcd-para", "para", "ABCD"),
+    ("abcd-passa", "passa", "ABCD"),
+    ("grades-para", "para", "GRADES"),
+    ("grades-passa", "passa", "GRADES"),
+])
+def test_regenerar_n3_pilar_publica_somente_vista_e_variante(
+    settings, tmp_path, vista, mode, zone,
+):
+    import ezdxf
+
+    obra_dir = tmp_path / "obra_pilar_vistas"
+    _escrever_pacote_n3_minimo(obra_dir)
+    for variant in ("para", "passa"):
+        source = obra_dir / "Fase-6_Execucao_CAD" / "n3_variants" / variant / "P1.json"
+        source.write_text(json.dumps({
+            "nome": "P1", "comprimento": 66, "largura": 19, "altura": 280,
+            "h1_A": 2, "h2_A": 244, "h3_A": 34,
+            "h1_B": 2, "h2_B": 244, "h3_B": 34,
+            "h1_C": 2, "h2_C": 244, "h3_C": 34,
+            "h1_D": 2, "h2_D": 244, "h3_D": 34,
+            "larg1_A": 66, "larg1_B": 66, "larg1_C": 19, "larg1_D": 19,
+            "grade_1": 66, "grade_2": 0,
+        }), encoding="utf-8")
+    result = pipeline_runner.regenerar_n3_cima_item(
+        settings, {"nome": "obra_pilar_vistas", "local_path": str(obra_dir)},
+        item="P1", pav="TERREO", vista=vista, visual_mode="NOVA",
+    )
+    assert result.ok, result.log_tail
+    target = (obra_dir / "Fase-6_Execucao_CAD" / "n3_modes" / "NOVA" /
+              "pilares" / mode / f"PL_{zone}_preview_P1.dxf")
+    assert target.is_file()
+    assert len(ezdxf.readfile(target).modelspace()) > 0
+    other = "passa" if mode == "para" else "para"
+    assert not (target.parent.parent / other / target.name).exists()
 
 
 def test_job_sa_publica_n1_materializa_ficha_e_audita_n3(settings, tmp_path, monkeypatch):
@@ -763,3 +865,35 @@ def test_assets_arete_substituem_candidato_apenas_em_staging(tmp_path):
     assert result["status"] == "aplicados"
     assert candidate.read_text(encoding="utf-8") == golden.read_text(encoding="utf-8")
     assert golden.read_text(encoding="utf-8") == "<svg><!-- V329 --></svg>"
+
+
+def test_promover_snapshot_de_uma_classe_preserva_segmentos_das_outras(tmp_path):
+    # Incidente 27/09: job so' de LV publicou fundos crus por cima dos auditados.
+    obra_dir = tmp_path / "obra_isolamento_fv_lv"
+    obra_dir.mkdir()
+    (obra_dir / "estado_13_PAV.json").write_text(json.dumps({
+        "pilares": [], "slabs": [], "cortes": [],
+        "segmentos": {"fundo": [{"beam_name": "V1", "points": "auditado"}],
+                      "lateral_a_para": [{"beam_name": "V1", "points": "velho"},
+                                         {"beam_name": "V2", "points": "velho"}]},
+    }), encoding="utf-8")
+    snap = obra_dir / "estado_13_PAV_laterais_viga_pid1.json"
+    snap.write_text(json.dumps({
+        "pilares": [], "slabs": [], "cortes": [],
+        "segmentos": {"fundo": [{"beam_name": "V1", "points": "cru"}],
+                      "lateral_a_para": [{"beam_name": "V1", "points": "novo"},
+                                         {"beam_name": "V2", "points": "novo"}]},
+    }), encoding="utf-8")
+    seg = lambda: json.loads((obra_dir / "estado_13_PAV.json").read_text(encoding="utf-8"))["segmentos"]
+    pipeline_runner.promover_snapshot_sa(obra_dir, "13_PAV", secao="laterais_viga")
+    assert seg()["fundo"][0]["points"] == "auditado"
+    assert [r["points"] for r in seg()["lateral_a_para"]] == ["novo", "novo"]
+
+    snap.write_text(json.dumps({
+        "pilares": [], "slabs": [], "cortes": [],
+        "segmentos": {"fundo": [], "lateral_a_para": [{"beam_name": "V2", "points": "item"},
+                                                        {"beam_name": "V1", "points": "x"}]},
+    }), encoding="utf-8")
+    pipeline_runner.promover_snapshot_sa(obra_dir, "13_PAV", secao="laterais_viga", item_names={"V2"})
+    assert sorted((r["beam_name"], r["points"]) for r in seg()["lateral_a_para"]) == [("V1", "novo"), ("V2", "item")]
+    assert seg()["fundo"][0]["points"] == "auditado"

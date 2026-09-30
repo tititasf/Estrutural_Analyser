@@ -42,17 +42,33 @@ def criar_membro(
     email: Optional[str] = None,
     papel: str = "membro",
     drive_folder_id: Optional[str] = None,
+    trocar_senha: bool = False,
 ) -> str:
     """Cria um membro. senha_hash já vem hasheada (bcrypt/argon2) — nunca senha em claro."""
     membro_id = _new_id()
     conn.execute(
         """INSERT INTO portal_membros
-           (id, login, nome, email, senha_hash, papel, drive_folder_id)
-           VALUES (?,?,?,?,?,?,?)""",
-        (membro_id, login, nome, email, senha_hash, papel, drive_folder_id),
+           (id, login, nome, email, senha_hash, papel, drive_folder_id, trocar_senha)
+           VALUES (?,?,?,?,?,?,?,?)""",
+        (membro_id, login, nome, email, senha_hash, papel, drive_folder_id,
+         1 if trocar_senha else 0),
     )
     conn.commit()
     return membro_id
+
+
+def atualizar_senha_membro(
+    conn: sqlite3.Connection, membro_id: str, senha_hash: str, *, trocar_senha: bool = False,
+) -> None:
+    """Grava a nova senha (já hasheada) e liga/desliga a troca obrigatória."""
+    conn.execute(
+        """UPDATE portal_membros
+           SET senha_hash = ?, trocar_senha = ?,
+               updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
+           WHERE id = ?""",
+        (senha_hash, 1 if trocar_senha else 0, membro_id),
+    )
+    conn.commit()
 
 
 def listar_membros(
@@ -161,6 +177,7 @@ def criar_documento(
     classe_sugerida: Optional[str] = None,
     pavimento_sugerido: Optional[str] = None,
     tipo_documento_sugerido: Optional[str] = None,
+    classe_confirmada: Optional[str] = None,
     pavimento_confirmado: Optional[str] = None,
     tipo_documento_confirmado: Optional[str] = None,
     status: str = "pendente",
@@ -173,11 +190,11 @@ def criar_documento(
         """INSERT INTO portal_documentos
            (id, obra_id, arquivo_nome, arquivo_drive_id, arquivo_hash, local_path,
             classe_sugerida, pavimento_sugerido, tipo_documento_sugerido,
-            pavimento_confirmado, tipo_documento_confirmado, status)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?)""",
+            classe_confirmada, pavimento_confirmado, tipo_documento_confirmado, status)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (doc_id, obra_id, arquivo_nome, arquivo_drive_id, arquivo_hash, local_path,
          classe_sugerida, pavimento_sugerido, tipo_documento_sugerido,
-         pavimento_confirmado, tipo_documento_confirmado, status),
+         classe_confirmada, pavimento_confirmado, tipo_documento_confirmado, status),
     )
     conn.commit()
     return doc_id
@@ -467,6 +484,7 @@ def atualizar_cabecalho_obra(
     data_entrega: Optional[str] = None,
     criterios_cliente: Optional[str] = None,
     observacoes: Optional[str] = None,
+    comportamento: Optional[str] = None,
 ) -> None:
     """[2026-07-07, migration 004] Cabeçalho de referência do processamento —
     quem pediu, prazo, critérios do cliente. Só atualiza os campos passados
@@ -479,11 +497,49 @@ def atualizar_cabecalho_obra(
                data_entrega = COALESCE(?, data_entrega),
                criterios_cliente = COALESCE(?, criterios_cliente),
                observacoes = COALESCE(?, observacoes),
+               comportamento = COALESCE(?, comportamento),
                updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
            WHERE id = ?""",
-        (nome, cliente, data_solicitacao, data_entrega, criterios_cliente, observacoes, obra_id),
+        (nome, cliente, data_solicitacao, data_entrega, criterios_cliente, observacoes,
+         comportamento, obra_id),
     )
     conn.commit()
+
+
+def listar_pavimentos_obra(conn: sqlite3.Connection, obra_id: str) -> list[dict[str, Any]]:
+    rows = conn.execute(
+        "SELECT pavimento, ordem, repete_de, repete_ate FROM portal_obra_pavimentos "
+        "WHERE obra_id = ? ORDER BY ordem", (obra_id,),
+    ).fetchall()
+    result = []
+    for index, row in enumerate(rows):
+        result.append({
+            "pavimento": row["pavimento"], "ordem": row["ordem"],
+            "anterior": rows[index - 1]["pavimento"] if index else None,
+            "proximo": rows[index + 1]["pavimento"] if index + 1 < len(rows) else None,
+            "tipo": {"de": row["repete_de"], "ate": row["repete_ate"]}
+                    if row["repete_de"] is not None else None,
+        })
+    return result
+
+
+def salvar_pavimentos_obra(conn: sqlite3.Connection, obra_id: str, pavimentos: list[dict]) -> list[dict]:
+    nomes = [str(row["pavimento"]).strip() for row in pavimentos]
+    if not all(nomes) or len(nomes) != len(set(nomes)):
+        raise ValueError("Pavimentos vazios ou repetidos")
+    with conn:
+        conn.execute("DELETE FROM portal_obra_pavimentos WHERE obra_id = ?", (obra_id,))
+        for index, row in enumerate(pavimentos):
+            tipo = row.get("tipo") or {}
+            de, ate = tipo.get("de"), tipo.get("ate")
+            if (de is None) != (ate is None) or (de is not None and
+                    (not isinstance(de, int) or not isinstance(ate, int) or de < 1 or de > ate)):
+                raise ValueError("Faixa TIPO inválida")
+            conn.execute(
+                "INSERT INTO portal_obra_pavimentos(obra_id,pavimento,ordem,repete_de,repete_ate) "
+                "VALUES(?,?,?,?,?)", (obra_id, nomes[index], index, de, ate),
+            )
+    return listar_pavimentos_obra(conn, obra_id)
 
 
 def obter_obra(conn: sqlite3.Connection, obra_id: str) -> Optional[dict[str, Any]]:
@@ -560,6 +616,18 @@ def salvar_job_meta(conn: sqlite3.Connection, job_id: str, meta: dict[str, Any])
              meta_json=excluded.meta_json,
              updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')""",
         (job_id, json.dumps(meta, ensure_ascii=False, sort_keys=True)),
+    )
+    conn.commit()
+
+
+def limpar_erro_documento(conn: sqlite3.Connection, doc_id: str) -> None:
+    """Limpa explicitamente o erro anterior após conversão/triagem bem-sucedida."""
+    conn.execute(
+        """UPDATE portal_documentos
+           SET erro_msg = NULL,
+               updated_at = strftime('%Y-%m-%dT%H:%M:%SZ','now')
+           WHERE id = ?""",
+        (doc_id,),
     )
     conn.commit()
 
@@ -1180,6 +1248,10 @@ def inserir_apontamento_ui(
     viewport_altura: int,
     captura_mime: Optional[str],
     captura_blob: Optional[bytes],
+    sessao_id: Optional[str] = None,
+    pagina_id: Optional[str] = None,
+    ordem_ponto: Optional[int] = None,
+    commit: bool = True,
 ) -> str:
     apontamento_id = _new_id()
     conn.execute(
@@ -1187,17 +1259,82 @@ def inserir_apontamento_ui(
            (id,obra_id,membro_id,texto,pagina_url,pagina_titulo,
             seletor_elemento,elemento_tag,elemento_role,elemento_texto,
             elemento_json,clique_x,clique_y,pagina_x,pagina_y,
-            viewport_largura,viewport_altura,captura_mime,captura_blob)
-           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            viewport_largura,viewport_altura,captura_mime,captura_blob,
+            sessao_id,pagina_id,ordem_ponto)
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
         (
             apontamento_id, obra_id, membro_id, texto, pagina_url, pagina_titulo,
             seletor_elemento, elemento_tag, elemento_role, elemento_texto,
             elemento_json, clique_x, clique_y, pagina_x, pagina_y,
             viewport_largura, viewport_altura, captura_mime, captura_blob,
+            sessao_id, pagina_id, ordem_ponto,
         ),
     )
-    conn.commit()
+    if commit:
+        conn.commit()
     return apontamento_id
+
+
+def inserir_sessao_apontamento_ui(
+    conn: sqlite3.Connection, *, obra_id: Optional[str], membro_id: str,
+    titulo: Optional[str], paginas: list[dict[str, Any]],
+) -> str:
+    """Persiste uma sessão inteira; nenhuma página fica salva pela metade."""
+    sessao_id = _new_id()
+    with conn:
+        conn.execute(
+            "INSERT INTO portal_apontamento_sessoes(id,obra_id,membro_id,titulo) VALUES(?,?,?,?)",
+            (sessao_id, obra_id, membro_id, titulo),
+        )
+        for page_order, page in enumerate(paginas, start=1):
+            pagina_id = _new_id()
+            conn.execute(
+                """INSERT INTO portal_apontamento_paginas
+                   (id,sessao_id,ordem,pagina_url,pagina_titulo) VALUES(?,?,?,?,?)""",
+                (pagina_id, sessao_id, page_order, page["pagina_url"], page.get("pagina_titulo")),
+            )
+            for point_order, point in enumerate(page["pontos"], start=1):
+                inserir_apontamento_ui(
+                    conn, obra_id=obra_id, membro_id=membro_id,
+                    sessao_id=sessao_id, pagina_id=pagina_id,
+                    ordem_ponto=point_order, commit=False, **point,
+                )
+    return sessao_id
+
+
+def listar_sessoes_apontamento_ui(
+    conn: sqlite3.Connection, *, membro: dict[str, Any], somente_meus: bool = False,
+) -> list[dict[str, Any]]:
+    if somente_meus:
+        filtro, params = "WHERE s.membro_id = ?", (membro["id"],)
+    elif membro.get("papel") == "dono":
+        filtro, params = "", ()
+    else:
+        # [2026-09-28] Isolamento entre perfis: a captura de tela de um
+        # apontamento mostra obras de quem apontou — membro só vê os próprios.
+        filtro, params = "WHERE s.membro_id = ?", (membro["id"],)
+    sessions = [dict(row) for row in conn.execute(
+        """SELECT s.*,m.login AS autor_login,m.nome AS autor_nome,o.nome AS obra_nome
+             FROM portal_apontamento_sessoes s
+             JOIN portal_membros m ON m.id=s.membro_id
+             LEFT JOIN portal_obras o ON o.id=s.obra_id
+        """ + filtro + " ORDER BY s.created_at DESC,s.id DESC", params,
+    ).fetchall()]
+    for session in sessions:
+        pages = [dict(row) for row in conn.execute(
+            "SELECT * FROM portal_apontamento_paginas WHERE sessao_id=? ORDER BY ordem",
+            (session["id"],),
+        ).fetchall()]
+        for page in pages:
+            page["pontos"] = [dict(row) for row in conn.execute(
+                """SELECT id,texto,seletor_elemento,elemento_tag,elemento_role,
+                          elemento_texto,elemento_json,clique_x,clique_y,pagina_x,pagina_y,
+                          viewport_largura,viewport_altura,captura_mime,ordem_ponto,created_at
+                     FROM portal_apontamentos_ui WHERE pagina_id=? ORDER BY ordem_ponto,id""",
+                (page["id"],),
+            ).fetchall()]
+        session["paginas"] = pages
+    return sessions
 
 
 def listar_apontamentos_ui(
@@ -1210,18 +1347,16 @@ def listar_apontamentos_ui(
         filtro = ""
         params = ()
     else:
-        # Feedback geral e feedback de obras que este membro pode abrir.
-        filtro = """WHERE a.obra_id IS NULL OR a.membro_id = ? OR EXISTS (
-            SELECT 1 FROM portal_obras visivel
-            WHERE visivel.id = a.obra_id AND visivel.membro_id = ?
-        )"""
-        params = (membro["id"], membro["id"])
+        # [2026-09-28] Isolamento entre perfis: membro só vê os próprios.
+        filtro = "WHERE a.membro_id = ?"
+        params = (membro["id"],)
     rows = conn.execute(
         """SELECT a.id,a.obra_id,a.membro_id,a.texto,a.pagina_url,
                   a.pagina_titulo,a.seletor_elemento,a.elemento_tag,
                   a.elemento_role,a.elemento_texto,a.elemento_json,
                   a.clique_x,a.clique_y,a.pagina_x,a.pagina_y,
                   a.viewport_largura,a.viewport_altura,a.captura_mime,
+                  a.sessao_id,a.pagina_id,a.ordem_ponto,
                   a.created_at,m.login AS autor_login,m.nome AS autor_nome,
                   o.nome AS obra_nome
            FROM portal_apontamentos_ui a
@@ -1246,13 +1381,7 @@ def obter_apontamento_ui(
 def pode_ver_apontamento_ui(
     conn: sqlite3.Connection, apontamento: dict[str, Any], membro: dict[str, Any],
 ) -> bool:
-    if membro.get("papel") == "dono" or apontamento["membro_id"] == membro["id"]:
-        return True
-    obra_id = apontamento.get("obra_id")
-    if obra_id is None:
-        return True
-    obra = obter_obra(conn, obra_id)
-    return bool(obra and obra["membro_id"] == membro["id"])
+    return membro.get("papel") == "dono" or apontamento["membro_id"] == membro["id"]
 
 
 # --------------------------------------------------------------------------- #
@@ -1305,6 +1434,117 @@ def listar_n5_releases_por_obra(
     rows = conn.execute(
         """SELECT * FROM portal_n5_releases
            WHERE obra_id = ? ORDER BY liberado_em DESC, id""",
+        (obra_id,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def sincronizar_documento_dxf_convertido(
+    conn: sqlite3.Connection,
+    *,
+    obra_id: str,
+    documento_origem: dict[str, Any],
+    arquivo_nome: str,
+    local_path: str,
+    arquivo_hash: Optional[str] = None,
+    status: str = "revisar",
+    classe_confirmada: Optional[str] = None,
+    pavimento_confirmado: Optional[str] = None,
+) -> str:
+    """Registra o DXF materializado a partir de um DWG na lista da obra.
+
+    A conversao sempre produziu o arquivo em disco, mas historicamente nao
+    criava uma linha em ``portal_documentos``. O upsert por nome torna a
+    operacao idempotente: repetir triagem/conversao atualiza o mesmo DXF em vez
+    de duplica-lo. Confirmacoes humanas ja existentes no DXF sao preservadas.
+    """
+    existente = conn.execute(
+        """SELECT * FROM portal_documentos
+           WHERE obra_id=? AND lower(arquivo_nome)=lower(?)
+           ORDER BY created_at, id LIMIT 1""",
+        (obra_id, arquivo_nome),
+    ).fetchone()
+    if existente is None:
+        return criar_documento(
+            conn,
+            obra_id=obra_id,
+            arquivo_nome=arquivo_nome,
+            arquivo_hash=arquivo_hash,
+            local_path=local_path,
+            classe_sugerida=documento_origem.get("classe_sugerida"),
+            pavimento_sugerido=documento_origem.get("pavimento_sugerido"),
+            tipo_documento_sugerido=documento_origem.get("tipo_documento_sugerido"),
+            classe_confirmada=(
+                classe_confirmada or documento_origem.get("classe_confirmada")
+            ),
+            pavimento_confirmado=(
+                pavimento_confirmado or documento_origem.get("pavimento_confirmado")
+            ),
+            tipo_documento_confirmado=documento_origem.get("tipo_documento_confirmado"),
+            status=status,
+        )
+
+    doc_id = existente["id"]
+    status_final = "classificado" if existente["status"] == "classificado" else status
+    conn.execute(
+        """UPDATE portal_documentos
+           SET local_path=?,
+               arquivo_hash=COALESCE(arquivo_hash, ?),
+               classe_sugerida=COALESCE(classe_sugerida, ?),
+               pavimento_sugerido=COALESCE(pavimento_sugerido, ?),
+               tipo_documento_sugerido=COALESCE(tipo_documento_sugerido, ?),
+               classe_confirmada=COALESCE(classe_confirmada, ?),
+               pavimento_confirmado=COALESCE(pavimento_confirmado, ?),
+               tipo_documento_confirmado=COALESCE(tipo_documento_confirmado, ?),
+               status=?, erro_msg=NULL,
+               updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')
+           WHERE id=?""",
+        (
+            local_path,
+            arquivo_hash,
+            documento_origem.get("classe_sugerida"),
+            documento_origem.get("pavimento_sugerido"),
+            documento_origem.get("tipo_documento_sugerido"),
+            classe_confirmada or documento_origem.get("classe_confirmada"),
+            pavimento_confirmado or documento_origem.get("pavimento_confirmado"),
+            documento_origem.get("tipo_documento_confirmado"),
+            status_final,
+            doc_id,
+        ),
+    )
+    conn.commit()
+    return doc_id
+
+
+def aprovar_n5_release(
+    conn: sqlite3.Connection,
+    *,
+    release_id: str,
+    obra_id: str,
+    classe: str,
+    pavimento: str,
+    aprovado_por: str,
+) -> dict[str, Any]:
+    """Aprova um release N5 específico; idempotente para duplo clique/retry."""
+    conn.execute(
+        """INSERT OR IGNORE INTO portal_n5_validacoes
+           (release_id, obra_id, classe, pavimento, aprovado_por)
+           VALUES (?,?,?,?,?)""",
+        (release_id, obra_id, classe.upper(), pavimento, aprovado_por),
+    )
+    conn.commit()
+    row = conn.execute(
+        "SELECT * FROM portal_n5_validacoes WHERE release_id = ?", (release_id,)
+    ).fetchone()
+    return dict(row)
+
+
+def listar_n5_validacoes_por_obra(
+    conn: sqlite3.Connection, obra_id: str
+) -> list[dict[str, Any]]:
+    rows = conn.execute(
+        """SELECT * FROM portal_n5_validacoes
+           WHERE obra_id = ? ORDER BY aprovado_em DESC, release_id""",
         (obra_id,),
     ).fetchall()
     return [dict(r) for r in rows]

@@ -1,5 +1,18 @@
 # LV — manual granular de interpretação, validação e evolução
 
+**Colunas do portal — decisão do dono, 2026-09-30:** `Possui aberturas?`
+lista os encontros com viga menos profunda registrados na célula do segmento,
+com dimensão, posição esquerda/direita/interna e distâncias na ordem de leitura.
+Abertura pertence ao segmento anterior à divisão (§5.2.3 do contrato).
+`Passa por pilares?` é sempre **Não** em Para. Em Passa registra apenas a
+parede física das faces **A/B/E/F/G/H**, excluindo C/D; mostra pilar, face,
+distância esquerda, comprimento ocupado no segmento e distância direita, em cm.
+As três medidas somam o comprimento do segmento. Não usar caixa envolvente
+do pilar em L como contato, nem confundir este comprimento físico com a
+abertura de sarrafo `comprimento + 22` de G8. `lv_cell` deve acompanhar o
+snapshot publicado; não ler um índice legado compartilhado entre Para/Passa
+quando a célula publicada está disponível.
+
 ## 1. Contrato: quatro interpretações, não uma lateral genérica
 
 LV é a matriz fechada **lado A/B × comportamento PARA/PASSA**. Cada célula tem
@@ -7,6 +20,15 @@ seleção, segmentos, ajustes, painéis e prova próprios. O corte é contexto c
 mas nunca autorização para espelhar dado. `BeamTracer` fornece topologia bruta;
 `src/core/beam_interpreters/lateral_viga.py` é dono da semântica; o contrato N3 é
 `src/core/lv_generation_contract.py`.
+
+**Jev opcional:** só para conflito localizado de célula A/B × Para/Passa
+**no mesmo encontro** (uma parede fonte + um extremo), atribuição à própria
+ocorrência ou apoio; fornecer a cena medida e os quatro contratos, sem decidir
+pelo flag `lv_is_h` sozinho. PARA num extremo e PASSA no outro são encontros
+distintos (catálogo v2 retirado). Inventário fonte: catálogo v3
+(`scripts/arete/jev_calibration/adapters_lv_v3.py`). Ver [segunda leitura do
+SA](../JEV-SEGUNDA-LEITURA-OPCIONAL.md) e
+[registro de capacidades](../JEV-CAPACIDADES-E-REGISTRO-DE-MEDICAO.md).
 
 | Contrato | Significado | Saída exclusiva | Invariante |
 |---|---|---|---|
@@ -17,6 +39,22 @@ mas nunca autorização para espelhar dado. `BeamTracer` fornece topologia bruta
 
 FV não pode fornecer dimensão, painel, apoio nem fallback semântico a LV. A presença
 de `_sa_meta.fv_dimension_fallback` é FAIL de isolamento, não conveniência.
+
+**Regra do dono (2026-09-25): FV é referência/comparação para a LV, nunca lei.**
+A segmentação N1 das quatro células sai de `lateral_viga_cells.py` sobre a cena
+medida em `lv_beam_scene.py` (regras do guia G0/G1/G6-G9, Casos 9 e 11). Estado,
+defeitos corrigidos e prova: `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md` §6.1.1.
+Dúvidas abertas: `docs/QUESTIONARIO-LV-SA-2026-09-25.md`.
+
+**Passa — decisão do dono de 2026-09-30:** a lateral pode seguir toda a parede
+externa do pilar (inclusive faces A–H), mas nunca atravessar seu interior.
+Pilares côncavos exigem intervalos separados de parede e miolo por lado; um
+indicador único para o pilar inteiro não basta. A extensão deve medir a parede
+completa, sem truncá-la pela janela de busca do apoio. Um encontro externo com
+viga menos profunda continua por baixo e abre novo segmento na borda final da
+incidente, mesmo quando ocorre na parede de um pilar da extremidade. Isso não
+altera Q3 para vigas realmente embutidas no pilar, nem a interpretação PARA.
+Prova e regressão: `scripts/arete/relatorios/20260930_thierry_passa/`.
 
 ## 2. Ficha e matriz de campos N1
 
@@ -63,8 +101,9 @@ python scripts/arete/g2v_harness.py --classe LV --pav <PAV> --par n1xn2 `
   --item V328 --backend cli --lista-lv passa
 ```
 
-N1-V/G4-V (interpretação N1×N2) e G5-V (paridade final N3×N4) são SVG-only:
-`g2v_harness.py --backend cli`, lido pelo modelo/agente CLI, sem API visual.
+N1-V/G4-V (interpretação N1×N2) e G5-V (paridade final N3×N4): SVG canônico
+rasterizado em PNG pelo `g2v_harness.py --backend cli` — o agente CLI **lê o PNG**
+(`--zoom` para região densa), sem API visual; SVG como texto só para consulta pontual.
 
 ### 3.0 Visão canónica (obrigatória — senão é ruído)
 

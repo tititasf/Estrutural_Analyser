@@ -1,0 +1,1927 @@
+{
+  "schema": "arete.qa_pil_semantic_comparison/v1",
+  "created_at": "2026-08-23T15:33:23+00:00",
+  "status": "FAIL",
+  "item_count": 39,
+  "passed": 13,
+  "failed": 26,
+  "slab_level_vocabulary": [
+    "852.12",
+    "852.19",
+    "855.12",
+    "859.12"
+  ],
+  "embedded_beam_naming": {
+    "rate": 0.0,
+    "cases": 0,
+    "tier_enabled": false
+  },
+  "results": [
+    {
+      "item": "P1",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P2",
+      "status": "FAIL",
+      "difference_count": 4,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "52"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "interior",
+          "field": "faces.D.interior",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V312",
+              "dim": "19/120",
+              "nivel_cm": "852.19",
+              "canto": "DD",
+              "papel": "interior",
+              "dist_esq_cm": "3",
+              "dist_dir_cm": "3"
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V312",
+              "dim": "19/120",
+              "nivel_cm": "852.19",
+              "canto": "DD",
+              "papel": "interior",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "0"
+            }
+          ]
+        }
+      ],
+      "authority_exclusions": [
+        {
+          "tier": "T0_UNPROVEN",
+          "field": "faces.B.chega.dim",
+          "identity": "VF301",
+          "value": "19/66",
+          "reason": "beam section copies a pillar section and conflicts with the same beam's section elsewhere in the corpus"
+        },
+        {
+          "tier": "T0_UNPROVEN",
+          "field": "faces.C.passa.dim",
+          "identity": "VF301",
+          "value": "19/66",
+          "reason": "beam section copies a pillar section and conflicts with the same beam's section elsewhere in the corpus"
+        }
+      ]
+    },
+    {
+      "item": "P3",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "52"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "52",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P4",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "52"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "52",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P5",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "52"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "52",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P6",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "52"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "52",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P7",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "52"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "52",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P8",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "52"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "52",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P9",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.A.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V332",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF301",
+              "dim": "",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": [
+        {
+          "tier": "T0_UNPROVEN",
+          "field": "faces.A.chega.dim",
+          "identity": "VF301",
+          "value": "19/66",
+          "reason": "beam section copies a pillar section and conflicts with the same beam's section elsewhere in the corpus"
+        },
+        {
+          "tier": "T0_UNPROVEN",
+          "field": "faces.C.passa.dim",
+          "identity": "VF301",
+          "value": "19/66",
+          "reason": "beam section copies a pillar section and conflicts with the same beam's section elsewhere in the corpus"
+        }
+      ]
+    },
+    {
+      "item": "P10",
+      "status": "FAIL",
+      "difference_count": 2,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V302",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "41",
+              "dist_dir_cm": "0"
+            }
+          ]
+        },
+        {
+          "family": "passa",
+          "field": "faces.B.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V302",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V309",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V309A",
+              "dim": "19/120",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V309A",
+              "dim": "19/120",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ]
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P11",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P15",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P16",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P17",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P18",
+      "status": "FAIL",
+      "difference_count": 1,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V302",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V302",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "60",
+              "dist_dir_cm": "0"
+            },
+            {
+              "familia": "viga",
+              "nome": "V331",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BB",
+              "papel": "chega",
+              "dist_esq_cm": "20.5",
+              "dist_dir_cm": "39.5"
+            }
+          ]
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P19",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P23",
+      "status": "FAIL",
+      "difference_count": 2,
+      "differences": [
+        {
+          "family": "passa",
+          "field": "faces.B.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V319",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V329",
+              "dim": "19/60",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V319",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ]
+        },
+        {
+          "family": "interior",
+          "field": "faces.C.interior",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V319",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "CC",
+              "papel": "interior",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P24",
+      "status": "FAIL",
+      "difference_count": 4,
+      "differences": [
+        {
+          "family": "passa",
+          "field": "faces.A.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ]
+        },
+        {
+          "family": "passa",
+          "field": "faces.B.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ]
+        },
+        {
+          "family": "interior",
+          "field": "faces.C.interior",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "CC",
+              "papel": "interior",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V304",
+              "dim": "19/50",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P25",
+      "status": "FAIL",
+      "difference_count": 1,
+      "differences": [
+        {
+          "family": "passa",
+          "field": "faces.B.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V307",
+              "dim": "19/60",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V309",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P26",
+      "status": "FAIL",
+      "difference_count": 1,
+      "differences": [
+        {
+          "family": "faces",
+          "field": "faces.C.lajes",
+          "expected": [],
+          "actual": [
+            {
+              "familia": "laje",
+              "nome": "L318",
+              "dim": "12",
+              "nivel_cm": "852.19",
+              "canto": "CC",
+              "papel": "laje",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "0"
+            }
+          ]
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P27",
+      "status": "FAIL",
+      "difference_count": 8,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V304",
+              "dim": "19/50",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "199"
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V304",
+              "dim": "19/50",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "199"
+            },
+            {
+              "familia": "viga",
+              "nome": "V305",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "chega",
+              "dist_esq_cm": "199",
+              "dist_dir_cm": "0"
+            }
+          ]
+        },
+        {
+          "family": "passa",
+          "field": "faces.A.passa",
+          "expected": [],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V305",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ]
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V304",
+              "dim": "19/50",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V304",
+              "dim": "19/50",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "199",
+              "dist_dir_cm": "0"
+            },
+            {
+              "familia": "viga",
+              "nome": "V331",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "chega",
+              "dist_esq_cm": "199",
+              "dist_dir_cm": "0"
+            }
+          ]
+        },
+        {
+          "family": "chega",
+          "field": "faces.C.chega",
+          "expected": [],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V329",
+              "dim": "19/60",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "chega",
+              "dist_esq_cm": "146",
+              "dist_dir_cm": "0"
+            }
+          ]
+        },
+        {
+          "family": "interior",
+          "field": "faces.C.interior",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V304",
+              "dim": "19/50",
+              "nivel_cm": "852.19",
+              "canto": "CC",
+              "papel": "interior",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "faces",
+          "field": "faces.C.lajes",
+          "expected": [],
+          "actual": [
+            {
+              "familia": "laje",
+              "nome": "L318",
+              "dim": "12",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "laje",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "19"
+            }
+          ]
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V304",
+              "dim": "19/50",
+              "nivel_cm": "852.19",
+              "canto": "CA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V304",
+              "dim": "19/50",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ]
+        },
+        {
+          "family": "passa",
+          "field": "faces.D.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V305",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DE",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": [
+        {
+          "tier": "T0_CAP_PASSAGE_ALREADY_IN_ARM",
+          "field": "faces.C.passa",
+          "identity": "V329",
+          "value": "19/60",
+          "reason": "arm beam records its passage on E/F; the short cap keeps the interior, not a second passage (owner R5)"
+        },
+        {
+          "tier": "T0_CAP_PASSAGE_ALREADY_IN_ARM",
+          "field": "faces.C.passa",
+          "identity": "V329",
+          "value": "19/60",
+          "reason": "arm beam records its passage on E/F; the short cap keeps the interior, not a second passage (owner R5)"
+        }
+      ]
+    },
+    {
+      "item": "P28",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "VF203",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "chega",
+              "dist_esq_cm": "66",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "61"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.D.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "VF203",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "DA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P29",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "chega",
+              "dist_esq_cm": "47",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "47"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.D.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P30",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "chega",
+              "dist_esq_cm": "47",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "47"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.D.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P31",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "chega",
+              "dist_esq_cm": "47",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "47"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.D.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P32",
+      "status": "FAIL",
+      "difference_count": 3,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.A.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "chega",
+              "dist_esq_cm": "47",
+              "dist_dir_cm": "0"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "chega",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "47"
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.D.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DA",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P33",
+      "status": "FAIL",
+      "difference_count": 4,
+      "differences": [
+        {
+          "family": "passa",
+          "field": "faces.A.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "AD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "VF203",
+              "dim": "14/55",
+              "nivel_cm": "852.19",
+              "canto": "AC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ]
+        },
+        {
+          "family": "passa",
+          "field": "faces.B.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "interior",
+          "field": "faces.C.interior",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "CC",
+              "papel": "interior",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V321",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": [
+        {
+          "tier": "T0_CORNER_CONTRADICTS_DISTANCES",
+          "field": "faces.B.chega",
+          "identity": "V321",
+          "value": "BC 81/0",
+          "actual": "esq=BC dir=BD",
+          "reason": "named corner and the row's own distances point to opposite ends of the face"
+        }
+      ]
+    },
+    {
+      "item": "P34",
+      "status": "FAIL",
+      "difference_count": 1,
+      "differences": [
+        {
+          "family": "passa",
+          "field": "faces.B.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P35",
+      "status": "FAIL",
+      "difference_count": 2,
+      "differences": [
+        {
+          "family": "passa",
+          "field": "faces.B.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V308",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BC",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        },
+        {
+          "family": "passa",
+          "field": "faces.D.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V328",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "DB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P41",
+      "status": "FAIL",
+      "difference_count": 1,
+      "differences": [
+        {
+          "family": "passa",
+          "field": "faces.C.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V301",
+              "dim": "19/120",
+              "nivel_cm": "852.19",
+              "canto": "CB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": []
+        }
+      ],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P42",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P43",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P44",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P45",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P46",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P47",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P48",
+      "status": "FAIL",
+      "difference_count": 1,
+      "differences": [
+        {
+          "family": "interior",
+          "field": "faces.C.interior",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V325",
+              "dim": "19/120",
+              "nivel_cm": "852.19",
+              "canto": "CC",
+              "papel": "interior",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V301",
+              "dim": "19/120",
+              "nivel_cm": "852.19",
+              "canto": "CC",
+              "papel": "interior",
+              "dist_esq_cm": "0",
+              "dist_dir_cm": "0"
+            }
+          ]
+        }
+      ],
+      "authority_exclusions": [
+        {
+          "tier": "T0_CORNER_CONTRADICTS_DISTANCES",
+          "field": "faces.A.chega",
+          "identity": "V325",
+          "value": "AA 0/31",
+          "actual": "esq=AD dir=AC",
+          "reason": "named corner and the row's own distances point to opposite ends of the face"
+        }
+      ]
+    },
+    {
+      "item": "P49",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P51",
+      "status": "FAIL",
+      "difference_count": 1,
+      "differences": [
+        {
+          "family": "chega",
+          "field": "faces.B.chega",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V302",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "BB",
+              "papel": "chega",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V320",
+              "dim": "19/120",
+              "nivel_cm": "852.19",
+              "canto": "BB",
+              "papel": "chega",
+              "dist_esq_cm": "15.5",
+              "dist_dir_cm": "15.5"
+            }
+          ]
+        }
+      ],
+      "authority_exclusions": []
+    }
+  ]
+}

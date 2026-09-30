@@ -1,0 +1,98 @@
+{
+  "id": "fc4a710d-b271-416d-aa2c-cce690cd577b",
+  "job_id": "7c31d585-c6ca-44c2-a875-352931045c85",
+  "obra_id": "c62e5b90-976d-42a1-9dd1-d8fb75e30c5e",
+  "membro_id": "c3e89052-1f0b-4850-abc4-6d8b1e80c1f3",
+  "classe": "FV",
+  "pavimento": "13_PAV",
+  "layer": "L1",
+  "status": "completed",
+  "criado_em": "2026-09-11T18:30:41Z",
+  "iniciado_em": "2026-09-11T18:30:41Z",
+  "finalizado_em": "2026-09-11T18:30:41Z",
+  "updated_at": "2026-09-11T18:30:41Z",
+  "items": [
+    {
+      "id": "2eb11850-b4ea-4621-b26b-2eb4c6f84a44",
+      "round_id": "fc4a710d-b271-416d-aa2c-cce690cd577b",
+      "item_id": "V301",
+      "ordinal": 0,
+      "status": "completed",
+      "provider": "codex",
+      "model": "codex-model",
+      "verdict": "invalidou",
+      "note": "segmentação precisa ajuste",
+      "updated_at": "2026-09-11T18:30:41Z",
+      "prompt_text": "Voce e o revisor agentico de FV/SA-N1 do CAD-ANALYZER.\nItem: V301. Camada atual: L1.\n\nRegras obrigatorias:\n- Leia e respeite CLAUDE.md e os documentos citados no contexto.\n- Julgue a camada pedida; nao use um FAIL legitimo como falha tecnica.\n- N2/N4 sao apenas comparadores e nunca podem alimentar N1/N3.\n- Nao grave ou edite arquivos. A sugestao e somente uma proposta read-only.\n- Se uma ferramenta, arquivo ou imagem obrigatoria estiver inacessivel, isso NAO e\n  invalidacao de engenharia. Responda somente com\n  {\"status\":\"technical_failure\",\"failure_category\":\"capability\",\"error\":\"motivo\"}\n  para permitir fallback ao proximo provedor.\n- Se invalidar, proponha apenas mudancas sustentadas por evidencia; se a prova faltar,\n  use revisar_humano. Se validar, use manter e proposed vazio.\n- confidence_percent e obrigatorio, numerico entre 0 e 100, e mede sua confianca no veredito.\n- Responda exclusivamente com um objeto JSON no schema abaixo.\n\nContexto e caminhos de evidencia:\n- CLAUDE.md\n- docs/PROCEDIMENTO-QA-FV-N1-CONTEXTUAL.md\n- docs/PROVENIENCIA-CAMPOS-FV.md\n- docs/PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md\n- ficha: scripts\\arete\\html_fichas\\Obra_FV\\13_PAV_x_fundos_viga_hifi\\fundos_viga\\V301.html\n- evidencia visual PNG obrigatoria: scripts\\arete\\html_fichas\\Obra_FV\\13_PAV_x_fundos_viga_hifi\\fundos_viga\\screenshots_qa\\V301.png\nRevise a ficha de fundo HI-FI e a evidencia PNG. Para L1 julgue o SA; para L2/L3 julgue exclusivamente a camada anterior quando ela existir. Uma reprovação automatizada só é válida com suggestion.action=corrigir e proposed contendo todos os segmentos corrigidos, com polígonos fecháveis de ao menos 3 pontos no mesmo sistema de coordenadas CAD do SVG. Se não conseguir fornecer essa geometria, não reprove: a resposta deve falhar para revisão operacional, nunca gerar uma camada vazia.\n\nNOTAS E APONTAMENTOS HUMANOS (considere-os na revisão):\n{\n  \"notas_por_versao\": {\n    \"sa\": \"\",\n    \"c1\": \"\",\n    \"c2\": \"\",\n    \"c3\": \"\"\n  },\n  \"apontamentos\": []\n}\n\nSchema esperado:\n{\"status\": \"completed\", \"item\": \"V301\", \"layer\": \"L1\", \"verdict\": \"validou|invalidou\", \"confidence_percent\": 0, \"note\": \"justificativa curta baseada em evidencia\", \"suggestion\": {\"action\": \"manter|corrigir|revisar_humano\", \"target_layer\": \"L1\", \"summary\": \"o que a camada deve representar\", \"proposed\": [{\"label\": \"1\", \"role\": \"face_A_chega\", \"points\": [[0, 0], [1, 1]], \"note\": \"somente quando houver evidencia geometrica\"}]}}\n",
+      "prompt_sha256": "1c8981a38583c03e357192737ef9f94f0eef1c2c9015381f532f6761d10adc74",
+      "adapter_version": "qa_cli_fallback/v2",
+      "decision_authority": "PENDENTE",
+      "training_eligible": false,
+      "suggestion": {
+        "action": "corrigir",
+        "target_layer": "L1",
+        "summary": "separar trecho",
+        "proposed": [
+          {
+            "label": "P1",
+            "points": [
+              [
+                0,
+                0
+              ],
+              [
+                20,
+                0
+              ],
+              [
+                20,
+                10
+              ],
+              [
+                0,
+                10
+              ]
+            ]
+          }
+        ],
+        "confidence_percent": 87.5
+      },
+      "confidence_percent": 87.5,
+      "evidence": [
+        {
+          "role": "ficha",
+          "path": "scripts/arete/html_fichas/Obra_FV/13_PAV_x_fundos_viga_hifi/fundos_viga/V301.html",
+          "sha256": "0c404cdf3543003c26ff2f91b3b08c4daf1823b57b4470c567258619ff1873c0",
+          "size_bytes": 83,
+          "authority": "presentation"
+        },
+        {
+          "role": "evidencia visual PNG obrigatoria",
+          "path": "scripts/arete/html_fichas/Obra_FV/13_PAV_x_fundos_viga_hifi/fundos_viga/screenshots_qa/V301.png",
+          "sha256": "8f8cbb7dcf46e0bc7d53265749a6c17d116093a6ba95e442764060c76fd4a86c",
+          "size_bytes": 3,
+          "authority": "visual_evidence"
+        }
+      ],
+      "attempts": [
+        {
+          "id": "fcedd577-cb16-41be-9e52-9f9a578f7b17",
+          "qa_item_id": "2eb11850-b4ea-4621-b26b-2eb4c6f84a44",
+          "ordinal": 0,
+          "provider": "codex",
+          "model_requested": "codex-model",
+          "effort_requested": "high",
+          "model_reported": "codex-model",
+          "status": "completed",
+          "failure_category": null,
+          "error": null,
+          "duration_s": 0.0,
+          "criado_em": "2026-09-11T18:30:41Z",
+          "provider_version": "codex-cli 0.153.4",
+          "raw_response_text": "{\"item\": \"V301\", \"layer\": \"L1\", \"verdict\": \"invalidou\", \"confidence_percent\": 87.5, \"note\": \"segmenta\\u00e7\\u00e3o precisa ajuste\", \"suggestion\": {\"action\": \"corrigir\", \"target_layer\": \"L1\", \"summary\": \"separar trecho\", \"proposed\": [{\"label\": \"P1\", \"points\": [[0, 0], [20, 0], [20, 10], [0, 10]]}]}}",
+          "raw_response_sha256": "9b733e48f581854b72d4a4afc06a6ce081048184d0b0588e412124bcf5531d76"
+        }
+      ]
+    }
+  ]
+}

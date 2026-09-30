@@ -52,11 +52,30 @@ PREV = GATE / "previews_dxf"
 
 
 def _set_item(item: str) -> None:
-    """Reaponta o item corrente e os diretorios derivados dele."""
+    """Reaponta o item corrente e os diretorios derivados dele.
+
+    E' aqui que o cache de preview morre. Os SVG sao gravados como
+    `seg_{i}_N2_{tag}.svg`, com `i` = POSICAO na lista de unidades — e a lista
+    muda toda vez que o motor passa a reconhecer melhor o desenho. Quando isso
+    acontece o indice escorrega e o cartao reexibe o recorte de OUTRA unidade,
+    como se nada tivesse mudado.
+
+    Medido na V304 (2026-09-19): depois que o lado do desenho de 722 foi
+    corrigido de A para B, o cartao do SEGMENTO 1A continuava mostrando o
+    recorte inteiro, com as duas fileiras — era o SVG da rodada anterior. O
+    dono apontou como "o recorte nao ta focado". Cache de revisao que
+    sobrevive a uma mudanca de motor nao economiza tempo: esconde o resultado.
+    """
     global ITEM, GATE, PREV
     ITEM = str(item).strip().upper()
     GATE = ARETE / "relatorios" / "g2v" / f"{ITEM.lower()}_geometry_gate"
     PREV = GATE / "previews_dxf"
+    if PREV.exists() and not os.environ.get("LV_KEEP_PREVIEWS"):
+        for _svg in PREV.glob("seg_*.svg"):
+            try:
+                _svg.unlink()
+            except OSError:
+                pass
     PREV.mkdir(parents=True, exist_ok=True)
 import os  # noqa: E402
 # Idem run_geometry_gate_lv: LV_N4_DIR redireciona a leitura dos N4 para a
@@ -222,6 +241,51 @@ def _expandir_ate_borda_de_painel(path: Path, clip, alcance: float = 35.0):
         elif y0 - alcance <= y < y0:
             novo_y0 = min(novo_y0, y - 6.0)
     return (x0, novo_y0, x1, novo_y1)
+
+
+def _limitar_por_vizinho(clip, unidade, n2_by_side):
+    """Nao deixar o recorte de um segmento invadir o do vizinho de fileira.
+
+    As margens do clip (65 a` esquerda, 55 a` direita, em `n2_anchor`) foram
+    medidas para caber cota de extremidade. Quando duas unidades dividem a
+    fileira e ficam a 21 de distancia — V302, o 181,5 acaba em 4064,7 e o
+    [53, 63,5] comeca em 4086 — cada cartao mostra um pedaco do desenho ao
+    lado, e o revisor le' o vizinho como se fosse o proprio (o dono apontou
+    isso no SEGMENTO 4A). Corta no meio do vao entre as duas.
+
+    Devolve tambem o pad_frac maximo que o render pode usar sem voltar a
+    vazar: o respiro de 8% de um recorte de 236 seria 19, mais que o vao.
+    """
+    x0, y0, x1, y1 = clip
+    bb = unidade.get("bbox") or {}
+    xl, xr = float(bb.get("x_left") or 0), float(bb.get("x_right") or 0)
+    yb, yt = float(bb.get("y_bot") or 0), float(bb.get("y_top") or 0)
+    lim_esq = lim_dir = None
+    for _units in n2_by_side.values():
+        for v in _units:
+            if v is unidade:
+                continue
+            vb = v.get("bbox") or {}
+            vxl, vxr = float(vb.get("x_left") or 0), float(vb.get("x_right") or 0)
+            vyb, vyt = float(vb.get("y_bot") or 0), float(vb.get("y_top") or 0)
+            if min(yt, vyt) - max(yb, vyb) <= 1.0:
+                continue                       # outra fileira
+            if vxr <= xl + 1.0:
+                lim_esq = vxr if lim_esq is None else max(lim_esq, vxr)
+            elif vxl >= xr - 1.0:
+                lim_dir = vxl if lim_dir is None else min(lim_dir, vxl)
+    if lim_esq is not None:
+        x0 = max(x0, (float(lim_esq) + xl) / 2.0)
+    if lim_dir is not None:
+        x1 = min(x1, (xr + float(lim_dir)) / 2.0)
+    folga = min(
+        (xl - x0) if lim_esq is not None else 1e9,
+        (x1 - xr) if lim_dir is not None else 1e9,
+    )
+    pad = 0.08 if folga >= 1e8 else max(
+        0.0, min(0.08, folga / max(x1 - x0, 1.0))
+    )
+    return (x0, y0, x1, y1), pad
 
 
 def find_n4_corte_instances(path: Path, section_views: list | None = None) -> list[dict]:
@@ -844,6 +908,7 @@ def build(item: str | None = None) -> Path:
         c2 = a2["clip"]  # rel
         clip_n2 = (ox2 + c2[0], oy2 + c2[1], ox2 + c2[2], oy2 + c2[3])
         clip_n2 = _expandir_ate_borda_de_painel(n2_path, clip_n2)
+        clip_n2, _pad_n2 = _limitar_por_vizinho(clip_n2, u2, n2_by_side)
         ox4, oy4 = a4["origin"]
         c4 = a4["clip"]
         clip_n4 = (ox4 + c4[0], oy4 + c4[1], ox4 + c4[2], oy4 + c4[3])
@@ -858,7 +923,8 @@ def build(item: str | None = None) -> Path:
         if sp2.exists():
             r["preview_n2_svg"] = sp2.read_text(encoding="utf-8")
         else:
-            svg2 = render_dxf_clip_svg(n2_path, clip=clip_n2, id_prefix=f"s{i}n2")
+            svg2 = render_dxf_clip_svg(n2_path, clip=clip_n2,
+                                       pad_frac=_pad_n2, id_prefix=f"s{i}n2")
             if svg2:
                 sp2.write_text(svg2, encoding="utf-8")
                 r["preview_n2_svg"] = svg2

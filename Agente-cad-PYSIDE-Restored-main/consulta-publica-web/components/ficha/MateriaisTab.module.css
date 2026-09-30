@@ -1,0 +1,258 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+.fonte {
+  font-size: 13px;
+  color: var(--fg-muted);
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.tituloGrupo {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.resumo {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg);
+  margin-top: 4px;
+}
+
+.tabelaWrap {
+  overflow-x: auto;
+}
+
+.tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: var(--fg);
+}
+
+.tabela th,
+.tabela td {
+  padding: 6px 10px;
+  text-align: right;
+  border-bottom: 1px solid var(--border);
+}
+
+.tabela th {
+  font-weight: 600;
+  color: var(--fg-muted);
+  background: var(--surface-2);
+}
+
+.tag {
+  margin-left: 8px;
+  padding: 1px 6px;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+.nota {
+  padding: 8px 0;
+  color: var(--fg-muted);
+}
+
+.compra {
+  border-color: var(--accent, var(--border));
+}
+
+.tabela .esq {
+  text-align: left;
+}
+
+.sub {
+  display: block;
+  font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.miniAbas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.miniAba {
+  padding: 4px 12px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+
+.miniAbaAtiva {
+  background: var(--fg);
+  color: var(--surface);
+  border-color: var(--fg);
+}
+
+.svgWrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.svgChapa {
+  display: block;
+  width: 100%;
+  min-width: 480px;
+  height: auto;
+  cursor: grab;
+  touch-action: none;
+}
+
+.chapaFundo {
+  fill: var(--surface);
+  stroke: var(--fg);
+  stroke-width: 0.8;
+}
+
+.hachura {
+  stroke: var(--fg-muted);
+  stroke-width: 0.5;
+  opacity: 0.5;
+}
+
+.rotuloPeca {
+  fill: var(--fg);
+  font-weight: 700;
+}
+
+.medidaPeca {
+  fill: var(--fg-muted);
+}
+
+.bolinha {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.linhaSobra td {
+  color: var(--fg-muted);
+  font-style: italic;
+}
+
+.idPainel {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8em;
+  white-space: nowrap;
+}
+
+.listaSarr {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.85em;
+  line-height: 1.45;
+}
+
+.bitola {
+  opacity: 0.65;
+  font-size: 0.9em;
+}
+
+.avulsos,
+.grade {
+  margin-top: 12px;
+}
+
+.linhaSentido td {
+  font-weight: 600;
+  font-size: 0.85em;
+  padding-top: 10px;
+  opacity: 0.8;
+}
+
+/* Recorte de abertura no plano de corte: sai da chapa mas não é painel. */
+.hachuraRecorte {
+  stroke: #dc2626;
+  stroke-width: 0.7;
+}
+
+.recorte {
+  stroke: #dc2626;
+  stroke-width: 0.5;
+  stroke-dasharray: 2 1.2;
+}
+
+.pecaRecortada {
+  fill-opacity: 0.35;
+}
+
+/* Reaproveitamento entre pavimentos */
+.etapa {
+  display: inline-block;
+  padding: 1px 6px;
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--fg);
+  white-space: nowrap;
+}
+
+.etapaNovo {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+  border-color: transparent;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 4px 0 8px;
+}
+
+.itemDisp {
+  border-top: 1px solid var(--border);
+  padding: 6px 0;
+}
+
+.itemDisp > summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.itemProprio > summary::after {
+  content: " · próprio item";
+  font-weight: 400;
+  color: var(--fg-muted);
+}
+
+.usado {
+  color: var(--fg-muted);
+}

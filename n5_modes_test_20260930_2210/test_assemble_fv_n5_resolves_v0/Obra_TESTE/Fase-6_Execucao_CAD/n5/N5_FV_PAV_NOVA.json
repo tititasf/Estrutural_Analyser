@@ -1,0 +1,20 @@
+{
+  "classe": "FV",
+  "obra": "Obra_TESTE",
+  "pavimento": "PAV",
+  "visual_mode": "NOVA",
+  "pillar_group": null,
+  "output": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_fv_n5_resolves_v0\\Obra_TESTE\\Fase-6_Execucao_CAD\\n5\\N5_FV_PAV_NOVA.dxf",
+  "ok_count": 1,
+  "missing_count": 0,
+  "extra_count": 0,
+  "extra_ids": [],
+  "items": [
+    {
+      "item_id": "V2.C-1_Para",
+      "source": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_fv_n5_resolves_v0\\Obra_TESTE\\Fase-6_Execucao_CAD\\FV_preview_V2.dxf",
+      "status": "ok",
+      "message": "3 entidades em 1 preview(s)"
+    }
+  ]
+}

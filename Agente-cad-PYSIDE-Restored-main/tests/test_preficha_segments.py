@@ -584,7 +584,7 @@ def test_fv_bridge_does_not_merge_solid_pillar_support_gaps():
     assert with_cut["panels_n1"] == 1
 
 
-def test_stale_decision_from_another_beam_id_does_not_block_harmonization():
+def test_stale_decision_from_another_beam_id_is_not_applied():
     beam = _beam()
     beam["id"] = "beam-atual"
     centerline = [(0, 10), (100, 10)]
@@ -599,39 +599,35 @@ def test_stale_decision_from_another_beam_id_does_not_block_harmonization():
 
     collected = collect_preficha_segments([beam])
 
-    assert collected["lateral_a_para"][0]["points"] == [(0.0, 20.0), (100.0, 20.0)]
+    # FV e' referencia, nao lei: a lateral nao e' reescrita pela borda do fundo.
+    assert collected["lateral_a_para"][0]["points"] == centerline
     assert preficha_source_status(beam, "viga_a_seg_1_comprimento_total") == ""
     assert preficha_geometry_policy(
         beam, "viga_a_seg_1_comprimento_total"
     ) == "infer"
 
 
-def test_stale_lateral_divergent_from_fundo_edge_is_repaired():
-    """Lado com valor presente e distinto de B, mas fora da borda real do
-    fundo, precisa ser corrigido — não só os casos vazio/duplicado.
+def test_lateral_divergent_from_fundo_edge_is_only_reported():
+    """REGRA DO DONO (2026-09-25): o fundo serve de referencia, nunca de lei.
 
-    Reproduz o achado em producao (P35/V308): o lado A tinha um link antigo
-    ~8,7cm deslocado da borda real do contorno de fundo, sem ser vazio nem
-    identico ao lado B — nenhum dos dois gatilhos antigos de reparo cobria
-    esse caso, então o link furado nunca era corrigido.
+    Antes a lateral divergente era reescrita com a borda do fundo
+    (``fundo_edge_fallback``). Agora a geometria lateral e' preservada e a
+    divergencia fica registrada para diagnostico.
     """
     beam = _beam()
-    # Fundo: y de 0 a 20 (borda A real = y=20). Link A gravado com um offset
-    # de 8,7cm (nem vazio, nem igual ao lado B) — inconsistente com a fonte
-    # mais forte (o proprio contorno de fundo).
-    beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]["points"] = [
-        (0, 11.3), (100, 11.3),
-    ]
-    beam["links"]["viga_a_seg_1_comp_total_passa"]["seg_side_a"][0]["points"] = [
-        (0, 11.3), (100, 11.3),
-    ]
+    offset = [(0, 11.3), (100, 11.3)]
+    beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]["points"] = list(offset)
+    beam["links"]["viga_a_seg_1_comp_total_passa"]["seg_side_a"][0]["points"] = list(offset)
 
     collected = collect_preficha_segments([beam])
 
     for behavior in ("para", "passa"):
-        assert collected[f"lateral_a_{behavior}"][0]["points"] == [(0.0, 20.0), (100.0, 20.0)]
-        assert collected[f"lateral_b_{behavior}"][0]["points"] == [(0.0, 0.0), (100.0, 0.0)]
-    assert beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]["geometry_source"] == "fundo_edge_fallback"
+        assert collected[f"lateral_a_{behavior}"][0]["points"] == offset
+    link = beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]
+    assert "geometry_source" not in link
+    assert {item["source_key"] for item in beam["_lv_fv_reference_divergence"]} == {
+        "viga_a_seg_1_comprimento_total", "viga_a_seg_1_comp_total_passa",
+    }
 
 
 def test_human_validated_lateral_divergent_from_fundo_edge_is_preserved():
@@ -666,7 +662,7 @@ def test_fragments_with_same_parent_name_keep_distinct_uids():
     assert rows[0]["uid"] != rows[1]["uid"]
 
 
-def test_repairs_legacy_centerline_as_distinct_lateral_edges():
+def test_legacy_centerline_is_reported_not_repaired_from_fundo():
     beam = _beam()
     centerline = [(0, 10), (100, 10)]
     for side in ("a", "b"):
@@ -676,10 +672,11 @@ def test_repairs_legacy_centerline_as_distinct_lateral_edges():
 
     collected = collect_preficha_segments([beam])
 
+    # Sem reparo pelo fundo: o defeito continua visivel (e medido), nao mascarado.
     for behavior in ("para", "passa"):
-        assert collected[f"lateral_a_{behavior}"][0]["points"] == [(0.0, 20.0), (100.0, 20.0)]
-        assert collected[f"lateral_b_{behavior}"][0]["points"] == [(0.0, 0.0), (100.0, 0.0)]
-    assert beam["links"]["viga_a_seg_1_comprimento_total"]["seg_side_a"][0]["geometry_role"] == "lateral"
+        assert collected[f"lateral_a_{behavior}"][0]["points"] == centerline
+        assert collected[f"lateral_b_{behavior}"][0]["points"] == centerline
+    assert len(beam["_lv_fv_reference_divergence"]) == 4
 
 
 def test_lateral_details_include_height_supports_and_only_touching_side_slabs():

@@ -36,20 +36,19 @@ def test_intervals_long_vs_short_faces():
     assert paineis_intervals_for_face(
         face_id="C", height_cm=304, h1_cm=2, top_void_cm=120, has_side_openings=False
     ) == [182.0]
-    # C com abertura lateral e sem void publicado: pilha completa (o
-    # chamador zera o void de laje nas faces com abertura)
+    # Em face curta, uma abertura lateral recorta o painel; não cria junta 122.
     assert paineis_intervals_for_face(
         face_id="C", height_cm=304, h1_cm=2, top_void_cm=0.0, has_side_openings=True
-    ) == [122.0, 122.0, 58.0]
+    ) == [244.0, 58.0]
     # Void publicado desconta a pilha em QUALQUER face (viga que passa
     # ocupa o topo): A longa com void 55 em PD 280 → painel útil 223.
     assert paineis_intervals_for_face(
         face_id="A", height_cm=280, h1_cm=2, top_void_cm=55
     ) == [122.0, 101.0]
-    # C com abertura lateral mas void de viga repassado: também desconta.
+    # C com abertura lateral e vazio de viga: um painel contínuo de 182 cm.
     assert paineis_intervals_for_face(
         face_id="C", height_cm=304, h1_cm=2, top_void_cm=120, has_side_openings=True
-    ) == [122.0, 60.0]
+    ) == [182.0]
 
 
 def test_top_void_from_n2_residual_and_beam_dim():
@@ -156,8 +155,8 @@ def test_beam_top_void_shrinks_long_faces_in_passa():
 
     assert out["paineis_intervals_A"] == [122.0, 101.0]
     assert out["paineis_intervals_B"] == [122.0, 101.0]
-    # C curta sem abertura e sem void → painel contínuo até o topo
-    assert out["paineis_intervals_C"] == [278.0]
+    # C curta sem abertura e sem void → painéis contínuos de no máximo 244 cm.
+    assert out["paineis_intervals_C"] == [244.0, 34.0]
     assert out["paineis_intervals_D"] == [223.0]
     # vazio de LAJE em face longa segue sem encolher módulos
     assert out["abertura_A_1"]["y_rel"] == pytest.approx(219.0)

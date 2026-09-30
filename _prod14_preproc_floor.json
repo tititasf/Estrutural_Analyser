@@ -1,0 +1,80 @@
+{
+  "coverage": {
+    "failed": 0,
+    "processed": 1,
+    "total": 1
+  },
+  "created_at": "2026-09-23T12:37:28.782033+00:00",
+  "details": {
+    "source_ids": [
+      "pre-src-v1:c82f4beb17a5a34a883e9be933b35dd0ca31b70ac1dfde7721c95173136a2044"
+    ],
+    "status": "not_supported"
+  },
+  "engine_version": "preprocess-context-v3",
+  "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+  "pavimento_id": "14_PAV",
+  "run_id": "50b3fe16-47dc-49e8-9137-4cabe63e0791",
+  "sa_consumption": "disabled",
+  "schema_version": 1,
+  "sources": [
+    {
+      "bruto_id": "TMC-EST-PE-7000-14P-R03",
+      "item_id": "torre_1",
+      "kind": "tower",
+      "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/TMC-EST-PE-7000-14P-R03/torre_1.dxf",
+      "revision": "7ec8a5edd4e5aecc78d60002a7198906c83b0699a4a87084fb9fdc7ac5f36a3b",
+      "source_id": "pre-src-v1:760cf287130248a45f0dd0d98c3c7f2fbabdd52780d4642fa022da415ffe2c48",
+      "validated": true
+    },
+    {
+      "bruto_id": "TMC-EST-PE-7000-14P-R03",
+      "item_id": "detalhes",
+      "kind": "details",
+      "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/TMC-EST-PE-7000-14P-R03/detalhes.dxf",
+      "revision": "5032b8e39151f027436be03dc8f068095a0deb6dbc0093711c35d9b2ceb5892c",
+      "source_id": "pre-src-v1:c82f4beb17a5a34a883e9be933b35dd0ca31b70ac1dfde7721c95173136a2044",
+      "validated": true
+    },
+    {
+      "bruto_id": "TMC-EST-PE-7000-14P-R03",
+      "item_id": "convencao_pilares",
+      "kind": "pillar_convention",
+      "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/TMC-EST-PE-7000-14P-R03/convencao_pilares.dxf",
+      "revision": "cac73fac7993bcaa57ec1e59260d1c3754b69695ba91d8f33d40608c36767183",
+      "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+      "validated": true
+    },
+    {
+      "bruto_id": "TMC-EST-PE-7000-14P-R03",
+      "item_id": "__raw_level_reference__",
+      "kind": "raw_level_reference",
+      "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+      "pavimento_id": "14_PAV",
+      "relative_path": "entrada/TMC-EST-PE-7000-14P-R03.dxf",
+      "revision": "0903460c157132ded20f6d68fd8bce5b1ac981e1aac7bd49bd62b8da616d8876",
+      "source_id": "pre-raw-level-v1:cfa91b772b295b4032aaf3f9bfb04b6ecaf4ce84f2f795c20aca08cf734c576e",
+      "validated": true
+    }
+  ],
+  "status": "partial",
+  "towers": {
+    "pre-src-v1:760cf287130248a45f0dd0d98c3c7f2fbabdd52780d4642fa022da415ffe2c48": {
+      "hash": "3681348ffb2b11b373e590b16d31d3640a83e0d6cb4441d0383593b3229cfbc4",
+      "path": "towers/0762c2873041b5c455588c8e3651dbefc75c9c450d6c8de9881a00c74fbb6808.json",
+      "scope": {
+        "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+        "pavimento_id": "14_PAV",
+        "recorte_id": "pre-src-v1:760cf287130248a45f0dd0d98c3c7f2fbabdd52780d4642fa022da415ffe2c48",
+        "source_revision": "7ec8a5edd4e5aecc78d60002a7198906c83b0699a4a87084fb9fdc7ac5f36a3b"
+      },
+      "status": "partial"
+    }
+  }
+}

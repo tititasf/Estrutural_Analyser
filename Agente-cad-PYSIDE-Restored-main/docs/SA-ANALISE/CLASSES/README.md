@@ -41,7 +41,7 @@ semântica de outra.
 campo/ligação já no DB?     → review/probe, sem headless
 contrato/DXF N3 em dúvida?  → gerador individual + qa_n3_smoke + ficha_motor_item
 geometria N1 em dúvida?     → headless granular + mesmo probe antes/depois
-diferença de desenho?       → SVGs-fonte + g2v_harness --backend cli
+diferença de desenho?       → g2v_harness --backend cli (PNG do SVG-fonte + --zoom)
 falha em mais de uma classe?→ provar BeamTracer/shared seam e regressão completa
 ```
 

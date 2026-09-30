@@ -1,0 +1,807 @@
+{
+  "schema": "arete.qa_pil_semantic_comparison/v1",
+  "created_at": "2026-08-23T18:10:21+00:00",
+  "status": "FAIL",
+  "item_count": 39,
+  "passed": 38,
+  "failed": 1,
+  "slab_level_vocabulary": [
+    "852.12",
+    "852.16",
+    "852.19",
+    "855.12",
+    "859.12"
+  ],
+  "embedded_beam_naming": {
+    "rate": 0.808,
+    "cases": 26,
+    "tier_enabled": true
+  },
+  "results": [
+    {
+      "item": "P1",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_NO_PASSAGE_THROUGH_FACE",
+          "field": "faces.C.passa",
+          "identity": "VF301",
+          "value": "14/55",
+          "reason": "expected passage names a beam whose corridor never enters the pillar across this face"
+        }
+      ]
+    },
+    {
+      "item": "P2",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_UNPROVEN",
+          "field": "faces.B.chega.dim",
+          "identity": "VF301",
+          "value": "19/66",
+          "reason": "expected beam dimension equals pillar section without independent provenance"
+        },
+        {
+          "tier": "T0_UNPROVEN",
+          "field": "faces.C.passa.dim",
+          "identity": "VF301",
+          "value": "19/66",
+          "reason": "expected beam dimension equals pillar section without independent provenance"
+        },
+        {
+          "tier": "T0_INTERIOR_WITH_GAP_BOTH_SIDES",
+          "field": "faces.D.interior",
+          "identity": "V312",
+          "value": "3/3",
+          "reason": "interior means the whole face sits inside the beam; a gap on both sides denies it, and the drawing shows full coverage"
+        }
+      ]
+    },
+    {
+      "item": "P3",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P4",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P5",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P6",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P7",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P8",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P9",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_UNPROVEN",
+          "field": "faces.A.chega.dim",
+          "identity": "VF301",
+          "value": "19/66",
+          "reason": "beam section copies a pillar section and conflicts with the same beam's section elsewhere in the corpus"
+        },
+        {
+          "tier": "T0_UNPROVEN",
+          "field": "faces.C.passa.dim",
+          "identity": "VF301",
+          "value": "19/66",
+          "reason": "beam section copies a pillar section and conflicts with the same beam's section elsewhere in the corpus"
+        },
+        {
+          "tier": "T0_NO_PASSAGE_THROUGH_FACE",
+          "field": "faces.C.passa",
+          "identity": "VF301",
+          "value": "",
+          "reason": "expected passage names a beam whose corridor never enters the pillar across this face"
+        }
+      ]
+    },
+    {
+      "item": "P10",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_ARRIVAL_RECORDED_AS_PASSAGE",
+          "field": "faces.B.passa",
+          "identity": "V302",
+          "value": "19/55",
+          "reason": "beam enters this face from outside and dies in the pillar: by owner rule R4 it arrives here, and passes on the short cap"
+        }
+      ]
+    },
+    {
+      "item": "P11",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P15",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P16",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P17",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_SUPERSEDED_BY_CONTAINED_ANNOTATION",
+          "field": "faces.B.lajes.nivel_cm",
+          "identity": "L316",
+          "value": "852.19",
+          "actual": "852.16",
+          "reason": "slab level annotation lies inside the slab outline; human decision of 2026-08-19 makes it authoritative over the corpus"
+        }
+      ]
+    },
+    {
+      "item": "P18",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P19",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P23",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_SUPERSEDED_BY_CONTAINED_ANNOTATION",
+          "field": "faces.B.lajes.nivel_cm",
+          "identity": "L324",
+          "value": "859.12",
+          "actual": "852.19",
+          "reason": "slab level annotation lies inside the slab outline; human decision of 2026-08-19 makes it authoritative over the corpus"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.B.passa",
+          "identity": "V329",
+          "value": "19/60",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.C.interior",
+          "identity": "V319",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        }
+      ]
+    },
+    {
+      "item": "P24",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_SUPERSEDED_BY_CONTAINED_ANNOTATION",
+          "field": "faces.A.lajes.nivel_cm",
+          "identity": "L324",
+          "value": "859.12",
+          "actual": "852.19",
+          "reason": "slab level annotation lies inside the slab outline; human decision of 2026-08-19 makes it authoritative over the corpus"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.C.interior",
+          "identity": "V321",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_NO_PASSAGE_THROUGH_FACE",
+          "field": "faces.C.passa",
+          "identity": "V304",
+          "value": "19/50",
+          "reason": "expected passage names a beam whose corridor never enters the pillar across this face"
+        },
+        {
+          "tier": "T0_CORNER_OUT_OF_REACH",
+          "field": "faces.A.passa",
+          "identity": "V321@AC",
+          "value": "19/55",
+          "reason": "expected corner is far from the beam corridor; the beam reaches the other end of this face"
+        },
+        {
+          "tier": "T0_CORNER_OUT_OF_REACH",
+          "field": "faces.B.passa",
+          "identity": "V321@BC",
+          "value": "19/55",
+          "reason": "expected corner is far from the beam corridor; the beam reaches the other end of this face"
+        }
+      ]
+    },
+    {
+      "item": "P25",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P26",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P27",
+      "status": "FAIL",
+      "difference_count": 2,
+      "differences": [
+        {
+          "family": "passa",
+          "field": "faces.E.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V329",
+              "dim": "19/60",
+              "nivel_cm": "852.19",
+              "canto": "EB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V329",
+              "dim": "19/60",
+              "nivel_cm": "852.19",
+              "canto": "ED",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V305",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "EB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V305",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "ED",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V329",
+              "dim": "19/60",
+              "nivel_cm": "852.19",
+              "canto": "EB",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V329",
+              "dim": "19/60",
+              "nivel_cm": "852.19",
+              "canto": "ED",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ]
+        },
+        {
+          "family": "passa",
+          "field": "faces.F.passa",
+          "expected": [
+            {
+              "familia": "viga",
+              "nome": "V329",
+              "dim": "19/60",
+              "nivel_cm": "852.19",
+              "canto": "FD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ],
+          "actual": [
+            {
+              "familia": "viga",
+              "nome": "V305",
+              "dim": "19/55",
+              "nivel_cm": "852.19",
+              "canto": "FD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            },
+            {
+              "familia": "viga",
+              "nome": "V329",
+              "dim": "19/60",
+              "nivel_cm": "852.19",
+              "canto": "FD",
+              "papel": "passa",
+              "dist_esq_cm": "",
+              "dist_dir_cm": ""
+            }
+          ]
+        }
+      ],
+      "authority_exclusions": [
+        {
+          "tier": "T0_NO_PASSAGE_THROUGH_FACE",
+          "field": "faces.C.passa",
+          "identity": "V329",
+          "value": "19/60",
+          "reason": "expected passage names a beam whose corridor never enters the pillar across this face"
+        },
+        {
+          "tier": "T0_NO_PASSAGE_THROUGH_FACE",
+          "field": "faces.C.passa",
+          "identity": "V329",
+          "value": "19/60",
+          "reason": "expected passage names a beam whose corridor never enters the pillar across this face"
+        },
+        {
+          "tier": "T0_CAP_PASSAGE_ALREADY_IN_ARM",
+          "field": "faces.D.passa",
+          "identity": "V305",
+          "value": "19/55",
+          "reason": "arm beam records its passage on E/F; the short cap keeps the interior, not a second passage (owner R5)"
+        }
+      ]
+    },
+    {
+      "item": "P28",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.B.chega",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.D.passa",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_MINORITY_EMBEDDED_REGISTRATION",
+          "field": "faces.A.chega",
+          "identity": "VF203",
+          "value": "14/55",
+          "reason": "corpus registers this start-embedded beam against the majority of siblings with the same signature"
+        },
+        {
+          "tier": "T0_MINORITY_EMBEDDED_REGISTRATION",
+          "field": "faces.D.passa",
+          "identity": "VF203",
+          "value": "14/55",
+          "reason": "corpus registers this start-embedded beam against the majority of siblings with the same signature"
+        }
+      ]
+    },
+    {
+      "item": "P29",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.A.chega",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.B.chega",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.D.passa",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.D.passa",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        }
+      ]
+    },
+    {
+      "item": "P30",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.A.chega",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.B.chega",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.D.passa",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.D.passa",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        }
+      ]
+    },
+    {
+      "item": "P31",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.A.chega",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.B.chega",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.D.passa",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.D.passa",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        }
+      ]
+    },
+    {
+      "item": "P32",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.A.chega",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.B.chega",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.D.passa",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        },
+        {
+          "tier": "T0_OUT_OF_REACH",
+          "field": "faces.D.passa",
+          "identity": "V308",
+          "value": "19/55",
+          "reason": "expected beam corridor does not come near this face in the drawing"
+        }
+      ]
+    },
+    {
+      "item": "P33",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_CONTRADICTED_BY_WALL_WIDTH",
+          "field": "faces.A.passa",
+          "identity": "V321",
+          "value": "19/55",
+          "actual": "VF203",
+          "measured_corridor_width": 14.0,
+          "reason": "expected beam section does not fit the corridor width measured on the drawing at this face"
+        },
+        {
+          "tier": "T0_CONTRADICTED_BY_WALL_WIDTH",
+          "field": "faces.C.interior",
+          "identity": "V321",
+          "value": "19/55",
+          "actual": "VF203",
+          "measured_corridor_width": 14.0,
+          "reason": "expected beam section does not fit the corridor width measured on the drawing at this face"
+        },
+        {
+          "tier": "T0_NO_PASSAGE_THROUGH_FACE",
+          "field": "faces.C.passa",
+          "identity": "V321",
+          "value": "19/55",
+          "reason": "expected passage names a beam whose corridor never enters the pillar across this face"
+        },
+        {
+          "tier": "T0_CORNER_CONTRADICTS_DISTANCES",
+          "field": "faces.B.chega",
+          "identity": "V321",
+          "value": "BC 81/0",
+          "actual": "esq=BC dir=BD",
+          "reason": "named corner and the row's own distances point to opposite ends of the face"
+        }
+      ]
+    },
+    {
+      "item": "P34",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P35",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_NO_PASSAGE_THROUGH_FACE",
+          "field": "faces.D.passa",
+          "identity": "V328",
+          "value": "19/55",
+          "reason": "expected passage names a beam whose corridor never enters the pillar across this face"
+        }
+      ]
+    },
+    {
+      "item": "P41",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_NO_PASSAGE_THROUGH_FACE",
+          "field": "faces.C.passa",
+          "identity": "V301",
+          "value": "19/120",
+          "reason": "expected passage names a beam whose corridor never enters the pillar across this face"
+        }
+      ]
+    },
+    {
+      "item": "P42",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P43",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P44",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_SUPERSEDED_BY_CONTAINED_ANNOTATION",
+          "field": "faces.A.lajes.nivel_cm",
+          "identity": "L312",
+          "value": "852.19",
+          "actual": "852.16",
+          "reason": "slab level annotation lies inside the slab outline; human decision of 2026-08-19 makes it authoritative over the corpus"
+        }
+      ]
+    },
+    {
+      "item": "P45",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_SUPERSEDED_BY_CONTAINED_ANNOTATION",
+          "field": "faces.A.lajes.nivel_cm",
+          "identity": "L312",
+          "value": "852.19",
+          "actual": "852.16",
+          "reason": "slab level annotation lies inside the slab outline; human decision of 2026-08-19 makes it authoritative over the corpus"
+        }
+      ]
+    },
+    {
+      "item": "P46",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P47",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": []
+    },
+    {
+      "item": "P48",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_SUPERSEDED_BY_CONTAINED_ANNOTATION",
+          "field": "faces.A.lajes.nivel_cm",
+          "identity": "L316",
+          "value": "852.19",
+          "actual": "852.16",
+          "reason": "slab level annotation lies inside the slab outline; human decision of 2026-08-19 makes it authoritative over the corpus"
+        },
+        {
+          "tier": "T0_CORNER_CONTRADICTS_DISTANCES",
+          "field": "faces.A.chega",
+          "identity": "V325",
+          "value": "AA 0/31",
+          "actual": "esq=AD dir=AC",
+          "reason": "named corner and the row's own distances point to opposite ends of the face"
+        },
+        {
+          "tier": "T0_INTERIOR_PARALLEL_NOT_CONTAINING",
+          "field": "faces.C.interior",
+          "identity": "V325",
+          "value": "19/120",
+          "reason": "interior names a beam that runs parallel to the face without containing it"
+        }
+      ]
+    },
+    {
+      "item": "P49",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_SUPERSEDED_BY_CONTAINED_ANNOTATION",
+          "field": "faces.A.lajes.nivel_cm",
+          "identity": "L316",
+          "value": "852.19",
+          "actual": "852.16",
+          "reason": "slab level annotation lies inside the slab outline; human decision of 2026-08-19 makes it authoritative over the corpus"
+        }
+      ]
+    },
+    {
+      "item": "P51",
+      "status": "PASS",
+      "difference_count": 0,
+      "differences": [],
+      "authority_exclusions": [
+        {
+          "tier": "T0_ARRIVAL_PARALLEL_TO_FACE",
+          "field": "faces.B.chega",
+          "identity": "V302",
+          "value": "19/55",
+          "reason": "central arrival names a beam that runs along the face, not into it"
+        }
+      ]
+    }
+  ]
+}

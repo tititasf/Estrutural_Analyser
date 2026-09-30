@@ -16,6 +16,7 @@ de login é pública; as demais redirecionam para /login sem sessão válida (em
 from __future__ import annotations
 
 import inspect
+import json
 import logging
 import sqlite3
 from functools import lru_cache
@@ -136,6 +137,24 @@ def pagina_login(request: Request, conn: sqlite3.Connection = Depends(get_db_con
     return _render(request, "login.html", {})
 
 
+@router.get("/app", response_class=HTMLResponse)
+def app_raiz():
+    """`/app` sozinho dava 404 — é o endereço que a equipe digita."""
+    return RedirectResponse("/app/obras", status_code=303)
+
+
+@router.get("/app/trocar-senha", response_class=HTMLResponse)
+def pagina_trocar_senha(request: Request, conn: sqlite3.Connection = Depends(get_db_conn)):
+    """Boas-vindas + troca de senha. Obrigatória no primeiro acesso (main.py)."""
+    membro = _membro_da_sessao(request, conn)
+    if membro is None:
+        return RedirectResponse("/login", status_code=303)
+    return _render(request, "trocar_senha.html", {
+        "usuario": membro,
+        "obrigatoria": int(membro.get("trocar_senha") or 0) == 1,
+    })
+
+
 # --------------------------------------------------------------------------- #
 # Lista de obras
 # --------------------------------------------------------------------------- #
@@ -162,6 +181,14 @@ def pagina_obras(request: Request, conn: sqlite3.Connection = Depends(get_db_con
             grupos_map[dono] = []
             ordem_donos.append(dono)
         grupos_map[dono].append(o)
+    if eh_dono:
+        # [2026-09-28] Todo membro ativo aparece, mesmo sem obra ainda — o dono
+        # enxerga a equipe inteira, cada um no seu bloco.
+        for m in repo.listar_membros(conn, apenas_ativos=True):
+            nome_m = (m.get("nome") or m.get("login") or "").strip() or "—"
+            if nome_m not in grupos_map:
+                grupos_map[nome_m] = []
+                ordem_donos.append(nome_m)
     # dono logado primeiro; demais na ordem de primeira aparição (já por data)
     if meu_nome in grupos_map:
         ordem_donos = [meu_nome] + [d for d in ordem_donos if d != meu_nome]
@@ -260,6 +287,21 @@ def pagina_obra_detalhe(
         # sem linhas em portal_documentos) — pula triagem/recortes, vai direto pra SA.
         # "container" (novo modelo) tem documentos e nunca popula arquivo_nome.
         eh_obra_rapida = bool(obra.get("arquivo_nome")) and not documentos
+        onboarding_rapido = (
+            request.query_params.get("onboarding") == "1"
+            and (eh_obra_rapida or bool(documentos))
+        )
+        editar_nome_rapido = (
+            onboarding_rapido and request.query_params.get("novo") == "1"
+        )
+        arquivo_onboarding = str(
+            obra.get("arquivo_nome")
+            or (documentos[0].get("arquivo_nome") if documentos else "")
+        )
+        formato_rapido = (
+            Path(arquivo_onboarding).suffix.lower().removeprefix(".")
+            if onboarding_rapido else ""
+        )
         rotulos = {
             c: certification.classificar_certificacao(settings.status_md_path, c)
             for c in ("PL", "LV", "FV", "LJ")
@@ -296,6 +338,89 @@ def pagina_obra_detalhe(
             for v in request.app.state.validacoes.get(obra_id, {}).values()
         ) or bool(n5_releases)
 
+        n5_por_pav_classe: dict[str, dict[str, dict]] = {}
+        n5_por_pav_classe_modo: dict[str, dict[str, dict[str, dict]]] = {}
+        for release in n5_releases:
+            release = dict(release)
+            release["visual_mode"] = "NOVA"
+            try:
+                manifest_path = Path(release.get("dxf_path") or "").with_suffix(".json")
+                if manifest_path.is_file():
+                    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+                    if str(manifest.get("visual_mode") or "").upper() == "INI":
+                        release["visual_mode"] = "INI"
+            except (OSError, ValueError, json.JSONDecodeError):
+                pass
+            release_pav = str(release.get("pavimento") or "GERAL")
+            release_classe = str(release.get("classe") or "").upper()
+            if release_classe:
+                n5_por_pav_classe.setdefault(release_pav, {}).setdefault(
+                    release_classe, release
+                )
+                n5_por_pav_classe_modo.setdefault(release_pav, {}).setdefault(
+                    release_classe, {}
+                ).setdefault(release["visual_mode"], release)
+
+        pavimentos_viewer = viewer_pavimentos.listar_pavimentos_com_torre(
+            obra_dir, obra
+        )
+        requested_n5_mode = str(request.query_params.get("modo_desenho") or "").upper()
+        if requested_n5_mode not in {"INI", "NOVA"}:
+            requested_class_code = {
+                "pilares": "PL", "lateral_para": "LV", "fundo": "FV", "lajes": "LJ",
+            }.get(str(request.query_params.get("classe") or "").lower(), "PL")
+            current_release = n5_por_pav_classe.get(pavimento_fichas, {}).get(
+                requested_class_code
+            )
+            requested_n5_mode = str((current_release or {}).get("visual_mode") or "NOVA")
+        n5_validacoes = repo.listar_n5_validacoes_por_obra(conn, obra_id)
+        releases_aprovados = {v["release_id"] for v in n5_validacoes}
+        pavimentos_n5 = [item["pavimento"] for item in pavimentos_viewer]
+        for release_pav in n5_por_pav_classe:
+            if release_pav not in pavimentos_n5:
+                pavimentos_n5.append(release_pav)
+        if not pavimentos_n5:
+            pavimentos_n5 = [pavimento_fichas]
+
+        titulos_n5 = {
+            "PL": "Pilares", "LV": "Laterais de viga",
+            "FV": "Fundos de viga", "LJ": "Lajes",
+        }
+        slugs_n5 = {
+            "PL": "pilares", "LV": "lateral_para",
+            "FV": "fundo", "LJ": "lajes",
+        }
+        n5_pavimentos = []
+        for pav in pavimentos_n5:
+            classes = []
+            for codigo, titulo in titulos_n5.items():
+                release = n5_por_pav_classe.get(pav, {}).get(codigo)
+                if release and not Path(release.get("dxf_path") or "").is_file():
+                    release = None
+                classes.append({
+                    "codigo": codigo,
+                    "titulo": titulo,
+                    "slug": slugs_n5[codigo],
+                    "release": release,
+                    "aprovado": bool(release and release["id"] in releases_aprovados),
+                    "rotulo": rotulos[codigo],
+                })
+            n5_pavimentos.append({
+                "pavimento": pav,
+                "classes": classes,
+                "completo": all(item["release"] for item in classes),
+                "todo_aprovado": all(item["aprovado"] for item in classes),
+            })
+
+        slug_para_codigo_n5 = {slug: codigo for codigo, slug in slugs_n5.items()}
+        n5_classe_ativa = slug_para_codigo_n5.get(
+            str(request.query_params.get("classe") or "").lower(), "PL"
+        )
+        n5_grupo_atual = next(
+            (grupo for grupo in n5_pavimentos if grupo["pavimento"] == pavimento_fichas),
+            None,
+        )
+
         ctx = {
             "membro": membro,
             "obra": obra,
@@ -304,9 +429,22 @@ def pagina_obra_detalhe(
             "fichas": fichas,
             "comentarios": comentarios,
             "documentos": documentos,
+            "ordem_pavimentos": repo.listar_pavimentos_obra(conn, obra_id),
             "resumo_documentos": resumo_documentos,
             "eh_obra_rapida": eh_obra_rapida,
+            "onboarding_rapido": onboarding_rapido,
+            "editar_nome_rapido": editar_nome_rapido,
+            "arquivo_onboarding": arquivo_onboarding,
+            "formato_rapido": formato_rapido,
             "n5_releases": n5_releases,
+            "n5_por_pav_classe": n5_por_pav_classe,
+            "n5_por_pav_classe_modo": n5_por_pav_classe_modo,
+            "n5_modo_ativo": requested_n5_mode,
+            "n5_pavimentos": n5_pavimentos,
+            "n5_validacoes": n5_validacoes,
+            "releases_aprovados": releases_aprovados,
+            "n5_classe_ativa": n5_classe_ativa,
+            "n5_grupo_atual": n5_grupo_atual,
             "rotulos": rotulos,
             "etapa_atual": etapa_atual,
             # [FIX 2026-07-06] antes so' calculava com etapa_atual==3 (assumia que
@@ -316,9 +454,7 @@ def pagina_obra_detalhe(
             "validacao_concluida": validacao_concluida,
             "pavimento": pavimento_fichas,
             # Pavimentos com estrutural limpo — um link de viewer por pavimento.
-            "pavimentos_viewer": viewer_pavimentos.listar_pavimentos_com_torre(
-                obra_dir, obra
-            ),
+            "pavimentos_viewer": pavimentos_viewer,
             "classe_ativa": None,
             "item_id": None,
             "nav_ativo": "obras",
@@ -346,13 +482,15 @@ def pagina_obra_detalhe(
 def pagina_status(request: Request, conn: sqlite3.Connection = Depends(get_db_conn)):
     """STATUS.md (gerado por scripts/arete/gerar_status.py) servido como HTML.
 
-    So' LEITURA — o portal nunca escreve nesse arquivo. Visivel a qualquer membro
-    logado (mesma info de certificacao ja exposta por classe nas obras; nada novo
-    exposto). Sem STATUS.md ainda gerado -> mensagem clara, nao erro.
+    So' LEITURA — o portal nunca escreve nesse arquivo. [2026-09-28] Só o dono:
+    é painel interno de qualidade dos motores, não da equipe.
+    Sem STATUS.md ainda gerado -> mensagem clara, nao erro.
     """
     membro = _membro_da_sessao(request, conn)
     if membro is None:
         return RedirectResponse("/login", status_code=303)
+    if not access.eh_dono(membro):
+        return RedirectResponse("/app/obras", status_code=303)
 
     settings = request.app.state.settings
     status_path = Path(settings.status_md_path)

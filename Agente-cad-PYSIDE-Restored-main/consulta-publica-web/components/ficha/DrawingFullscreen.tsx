@@ -22,21 +22,15 @@ interface DrawingFullscreenProps {
   onAlternarNivel: (nivel: "n1" | "n3") => void;
 }
 
-/** Visualizador de desenho em tela cheia (STORY-11) — zoom via botões
- * `+`/`−`/Ajustar, arrasto (pointer events, mouse E touch), double-click/
- * double-tap (fit ↔ 3×), atalhos de teclado, focus trap. Papel sempre
- * branco (`background:#fff` fixo, nunca o tema ativo — front-end-spec
- * §6.1). SVG só é montado no DOM quando `aberto=true` (lazy, AC2).
- *
- * Escopo desta implementação: pinch de 2 dedos NÃO foi implementado (lib
- * de gestos dedicada, ex. `react-zoom-pan-pinch`, ficou para uma iteração
- * futura se o teste de campo mostrar necessidade real) — a alternativa por
- * botão/teclado já cobre o requisito de acessibilidade WCAG 2.5.1 (nenhuma
- * função depende só de gesto multi-toque), que é o que a AC realmente
- * exige. Documentado como débito técnico no Dev Agent Record.
- */
 export function DrawingFullscreen({
-  aberto, svgUrl, descricao, nivelAtivo, temN1, temN3, onFechar, onAlternarNivel,
+  aberto,
+  svgUrl,
+  descricao,
+  nivelAtivo,
+  temN1,
+  temN3,
+  onFechar,
+  onAlternarNivel,
 }: DrawingFullscreenProps) {
   const [escala, setEscala] = useState(ESCALA_MIN);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -121,7 +115,13 @@ export function DrawingFullscreen({
   if (!aberto) return null;
 
   return (
-    <div className={styles.overlay} role="dialog" aria-modal="true" aria-label="Visualizador de desenho" ref={containerRef}>
+    <div
+      className={styles.overlay}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Visualizador de desenho"
+      ref={containerRef}
+    >
       <div className={styles.barraSuperior}>
         <button type="button" className={styles.botaoIcone} onClick={onFechar} aria-label="Fechar">
           <X size={24} aria-hidden="true" />
@@ -174,10 +174,20 @@ export function DrawingFullscreen({
       </div>
 
       <div className={styles.controles}>
-        <button type="button" className={styles.botaoControle} onClick={() => aplicarZoom(escala / PASSO_ZOOM)} aria-label="Diminuir zoom">
+        <button
+          type="button"
+          className={styles.botaoControle}
+          onClick={() => aplicarZoom(escala / PASSO_ZOOM)}
+          aria-label="Diminuir zoom"
+        >
           <Minus size={20} aria-hidden="true" />
         </button>
-        <button type="button" className={styles.botaoControle} onClick={() => aplicarZoom(escala * PASSO_ZOOM)} aria-label="Aumentar zoom">
+        <button
+          type="button"
+          className={styles.botaoControle}
+          onClick={() => aplicarZoom(escala * PASSO_ZOOM)}
+          aria-label="Aumentar zoom"
+        >
           <Plus size={20} aria-hidden="true" />
         </button>
         <button type="button" className={styles.botaoControle} onClick={resetar} aria-label="Ajustar à tela">

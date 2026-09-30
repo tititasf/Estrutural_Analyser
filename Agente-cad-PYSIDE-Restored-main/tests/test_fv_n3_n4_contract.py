@@ -153,6 +153,37 @@ def test_n1_adapter_delegates_panel_rules_to_the_current_fv_engine():
     ]
 
 
+def test_contract_preserves_orthogonal_l_as_body_modules_and_drop():
+    source = {
+        "dim_text": "19/55",
+        "is_horizontal": True,
+        "segmentos_fundo": [{
+            "length": 437,
+            # A bbox do L mede 29, mas a secao declarada continua 19/55.
+            "dim_width": 29,
+            "dim_height": 55,
+            "dim_text": "19/55",
+            "special_geometry": "orthogonal_l",
+            "fv_l_incident": "V319",
+            "geometry": [
+                [100, 10], [518, 10], [518, 0], [537, 0],
+                [537, 29], [518, 29], [518, 10], [100, 10],
+            ],
+        }],
+    }
+
+    contract = build_fv_generation_contract("V303", source)
+
+    segment = contract["segments_rich"][0]
+    assert segment["special_geometry"] == "orthogonal_l"
+    assert [panel["width"] for panel in segment["panels"]] == [244.0, 174.0, 19.0]
+    drop = segment["panels"][-1]
+    assert drop["fv_l_incident"] == "V319"
+    assert drop["is_L_drop"] is True
+    assert drop["height"] == 29.0
+    assert drop["l_drop_depth"] == 10.0
+
+
 def test_n3_and_n4_use_the_same_fv_ficha_schema_without_losing_n4_details():
     n3 = build_fv_generation_contract("V305", _source(), floor="13 PAV")
     rich_panel = {

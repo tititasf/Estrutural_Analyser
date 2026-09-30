@@ -1,0 +1,495 @@
+{
+  "faces": {
+    "A": {
+      "label": "A — esquerda (oeste) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V305",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "AD",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V304",
+          "dim": "19/50",
+          "nivel": "852.19cm",
+          "canto": "AC",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "199cm",
+          "_source": "transversal_face_crossing"
+        },
+        {
+          "familia": "viga",
+          "nome": "V305",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "AD",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "199cm",
+          "dist_dir": "0cm",
+          "_source": "transversal_face_crossing"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "B": {
+      "label": "B — direita (leste) · face longa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V331",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "BC",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "199cm",
+          "dist_dir": "0cm"
+        },
+        {
+          "familia": "viga",
+          "nome": "V304",
+          "dim": "19/50",
+          "nivel": "852.19cm",
+          "canto": "BC",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "199cm",
+          "dist_dir": "0cm",
+          "_source": "transversal_face_crossing"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "C": {
+      "label": "C — topo (norte) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "L318",
+          "dim": "12",
+          "nivel": "852.19cm",
+          "canto": "CA",
+          "papel": "laje",
+          "raw": "",
+          "dist_esq": "0cm",
+          "dist_dir": "19cm"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V304",
+          "dim": "19/50",
+          "nivel": "852.19cm",
+          "canto": "CA",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "V304",
+          "dim": "19/50",
+          "nivel": "852.19cm",
+          "canto": "CB",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—",
+          "_source": "face_c_top_multi_segment"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V329",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "CB",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "146cm",
+          "dist_dir": "0cm"
+        }
+      ],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "D": {
+      "label": "D — base (sul) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "V305",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "DD",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "E": {
+      "label": "E — ramo horizontal · face longa externa",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "L317",
+          "dim": "13",
+          "nivel": "855.12",
+          "canto": "EE",
+          "papel": "laje",
+          "raw": "SA/N1 special six-face geometry",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V329",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "ED",
+          "papel": "passa",
+          "raw": "SA/N1 special six-face geometry",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "V329",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "EB",
+          "papel": "passa",
+          "raw": "SA/N1 special six-face geometry",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V327",
+          "dim": "14/50",
+          "nivel": "852.19cm",
+          "canto": "ED",
+          "papel": "chega",
+          "raw": "SA/N1 special six-face geometry",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "V328",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "EB",
+          "papel": "chega",
+          "raw": "SA/N1 special six-face geometry",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": []
+    },
+    "F": {
+      "label": "F — ramo horizontal · face longa interna",
+      "lajes": [],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V329",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "FD",
+          "papel": "passa",
+          "raw": "SA/N1 special six-face geometry",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [],
+      "interior": []
+    }
+  },
+  "orientation": "vertical",
+  "schema": "pil.abcd_tables.v2",
+  "geometry_type": "L_special_6_faces",
+  "face_ids": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F"
+  ],
+  "face_geometry": {
+    "A": {
+      "p0": [
+        4533.3825,
+        2460.038
+      ],
+      "p1": [
+        4533.3825,
+        2261.038
+      ],
+      "out": [
+        -1.0,
+        -0.0
+      ],
+      "length": 199.0
+    },
+    "B": {
+      "p0": [
+        4552.3825,
+        2242.038
+      ],
+      "p1": [
+        4552.3825,
+        2460.038
+      ],
+      "out": [
+        1.0,
+        -0.0
+      ],
+      "length": 218.0
+    },
+    "C": {
+      "p0": [
+        4552.3825,
+        2460.038
+      ],
+      "p1": [
+        4533.3825,
+        2460.038
+      ],
+      "out": [
+        0.0,
+        1.0
+      ],
+      "length": 19.0
+    },
+    "D": {
+      "p0": [
+        4387.3825,
+        2261.038
+      ],
+      "p1": [
+        4387.3825,
+        2242.038
+      ],
+      "out": [
+        -1.0,
+        -0.0
+      ],
+      "length": 19.0
+    },
+    "E": {
+      "p0": [
+        4387.3825,
+        2242.038
+      ],
+      "p1": [
+        4552.3825,
+        2242.038
+      ],
+      "out": [
+        0.0,
+        -1.0
+      ],
+      "length": 165.0
+    },
+    "F": {
+      "p0": [
+        4533.3825,
+        2261.038
+      ],
+      "p1": [
+        4387.3825,
+        2261.038
+      ],
+      "out": [
+        0.0,
+        1.0
+      ],
+      "length": 146.0
+    }
+  },
+  "face_neighbors": {
+    "A": [
+      "C",
+      "F"
+    ],
+    "B": [
+      "E",
+      "C"
+    ],
+    "C": [
+      "B",
+      "A"
+    ],
+    "D": [
+      "F",
+      "E"
+    ],
+    "E": [
+      "D",
+      "B"
+    ],
+    "F": [
+      "A",
+      "D"
+    ]
+  },
+  "special_geometry_source": "SA/N1 physical six-edge contour",
+  "item": "P27",
+  "geometry_points": [
+    [
+      4552.3825,
+      2242.038
+    ],
+    [
+      4552.3825,
+      2460.038
+    ],
+    [
+      4533.3825,
+      2460.038
+    ],
+    [
+      4533.3825,
+      2261.038
+    ],
+    [
+      4387.3825,
+      2261.038
+    ],
+    [
+      4387.3825,
+      2242.038
+    ],
+    [
+      4552.3825,
+      2242.038
+    ]
+  ],
+  "face_slab_beam_violations": []
+}

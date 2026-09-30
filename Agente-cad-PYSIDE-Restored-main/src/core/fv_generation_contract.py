@@ -294,6 +294,7 @@ def build_fv_generation_contract(
     segment_heights: list[float] = []
     first_support = ""
     last_support = ""
+    is_horizontal = bool(source_data.get("is_horizontal", True))
 
     for index, source in enumerate(source_segments):
         ficha = source.get("ficha") if isinstance(source.get("ficha"), dict) else {}
@@ -305,6 +306,15 @@ def build_fv_generation_contract(
             or ficha.get("largura_total_fundo")
             or dim_width
         )
+        if source.get("special_geometry") == "orthogonal_l":
+            # O snapshot estruturado mede a bbox do L (29/49 no V303), nao a
+            # largura do corpo principal (19). Para modular o painel, a secao
+            # declarada do segmento continua sendo a largura transversal real.
+            declared_width, _declared_height = _dim_pair(
+                source.get("dim_text") or source_data.get("dim_text")
+            )
+            if declared_width > 0:
+                width = declared_width
         height = _number(
             source.get("dim_height") or ficha.get("altura_total") or dim_height
         )
@@ -337,6 +347,39 @@ def build_fv_generation_contract(
         explicit_panels = source.get("panels") or ficha.get("panels")
         if isinstance(explicit_panels, list) and explicit_panels:
             segment["panels"] = explicit_panels
+        elif source.get("special_geometry") == "orthogonal_l":
+            points = source.get("geometry") or []
+            try:
+                axis_values = [float(point[0 if is_horizontal else 1]) for point in points]
+                transverse_values = [float(point[1 if is_horizontal else 0]) for point in points]
+                axis_min = min(axis_values)
+                axis_max = max(axis_values)
+                transverse_span = max(transverse_values) - min(transverse_values)
+                internal_axes = sorted({
+                    value - axis_min for value in axis_values
+                    if value > axis_min + 1e-3 and value < axis_max - 1e-3
+                })
+            except (IndexError, TypeError, ValueError):
+                internal_axes = []
+                transverse_span = 0.0
+            if internal_axes and transverse_span > width:
+                main_width = internal_axes[-1]
+                leaf_width = max(0.0, length - main_width)
+                modules = compute_panel_modules(main_width)
+                segment["panels"] = [
+                    {"width": round(module, 3), "height": round(width, 3)}
+                    for module in modules
+                ]
+                segment["panels"].append({
+                    "width": round(leaf_width, 3),
+                    "height": round(transverse_span, 3),
+                    "is_L_drop": True,
+                    "l_side": "right",
+                    "l_drop_depth": round(transverse_span - width, 3),
+                    "special_geometry": "orthogonal_l",
+                    "fv_l_incident": source.get("fv_l_incident") or "",
+                })
+                segment["special_geometry"] = "orthogonal_l"
         # Sem topologia explicita no N1, nao congele aqui uma regra de paineis.
         # O motor comum N3/N4 deve aplicar sua regra mais recente em draw_viga().
         # Isso evita que o adaptador N1 continue reproduzindo uma distribuicao

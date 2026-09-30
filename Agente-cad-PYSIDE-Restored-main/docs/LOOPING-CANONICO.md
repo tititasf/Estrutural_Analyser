@@ -160,6 +160,23 @@ O RAG é parceiro consultivo do QA, não um segundo juiz: regras/exemplos T1/T2
 citam fonte e ajudam a formular hipótese; evidência do item atual e veredito
 visual continuam mandatórios. Ver `CONTRATO-QA-RAG-LOOPINGS.md`.
 
+#### Segunda leitura Jev (opcional, companheira do Eixo B)
+
+Quando um dossiê N1 trouxer uma dúvida **localizada** com candidatos do DXF fonte,
+o agente pode preparar um JSON pequeno e consultar
+`scripts/arete/jev_sa_second_read.py --request ... --execute --output ...`.
+O helper grava um sidecar com escolha, abstenção/controle e proveniência; **não**
+é headless, gate visual, scorer, `apply` nem fonte para escrever N1. Seu uso é
+opt-in e não requer que Jev supere CAD/SA isolados: ele soma uma segunda leitura
+à triagem. O fluxo de diagnóstico, PNG, correção e reverificação acima permanece
+o único loop. Gatilhos, exemplo L410, limites e integração futura:
+`docs/SA-ANALISE/JEV-SEGUNDA-LEITURA-OPCIONAL.md`.
+
+Desde 29/09, `qa_evidence_auditor.py review` também aceita pacotes Jev preparados
+com `--jev-request`, `--jev-source-dxf` e `--jev-execute`, validando fonte e
+snapshot antes da chamada. Choice/Noul/Score e seus controles geram somente
+sidecars consultivos; `scores_itens.jsonl`, decisões e gates não mudam.
+
 Microciclos com múltiplas tentativas usam o estado persistente oficial:
 
 ```bash
@@ -269,7 +286,7 @@ python scripts/arete/g2v_harness.py \
 
 **Integridade do ciclo:** o microciclo é para descobrir e reverificar uma causa com
 rapidez, nunca para certificar o pavimento. Corrigir a fórmula geral (nunca um caso
-hardcoded), rodar de novo os mesmos itens, ler os SVGs-fonte/HTML e registrar a triagem em
+hardcoded), rodar de novo os mesmos itens, ler a evidência (PNG do SVG-fonte/HTML) e registrar a triagem em
 append-only. Todo toque em extrator compartilhado ou motor exige depois o headless
 completo (`sem --secao/--item`, sempre `--wait`), comparação dos quatro diagnósticos e a
 regressão/gate aplicável antes de fechar ou selar. `--persist-db` no microciclo só pode
@@ -318,16 +335,21 @@ campos nem selo — aponta para DB, ficha, SVG e triagem schema v2.
 Nível 0 — G1 round-trip           dados da ficha sobrevivem N2→N4→N2′
 Nível 1 — G2 canônico             matemática semântica (contagens/valores)  ← MÍNIMO, nunca suficiente
 Nível 2 — G2-V veredito visual    SVGs-fonte lado a lado do recorte N2 (humano) × DXF N4 (robô);
-                                  DOM/SVG preserva texto exato, cotas e geometria vetorial —
+                                  DOM/SVG preserva texto exato, cotas e geometria vetorial;
+                                  agente lê o PNG desses SVGs (+ --zoom) —
                                   REGISTRADO no relatório
 Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N2 (ex.: GRADES)
 ```
 
 > **Quem dá o veredito do Nível 2:** a visão do agente CLI (Claude Code / Codex) lendo
-> os SVGs-fonte e o manifesto vetorial — **única fonte de qualidade comprovada e a ÚNICA
-> permitida hoje** (`g2v_harness.py --backend cli`). Backends de API permanecem proibidos;
-> o harness não contém API nem captura raster. Caminhos explorados e decisões anteriores:
-> `docs/VISION-VALIDACAO-CAMINHOS.md`.
+> a evidência do par — **única fonte de qualidade comprovada e a ÚNICA permitida hoje**
+> (`g2v_harness.py --backend cli`). Backends de API permanecem proibidos; o harness não
+> contém API. **Fonte = SVG canônico da ficha; o agente lê o PNG rasterizado DESSE SVG**
+> (mesma fonte, hash no manifesto — decisão do dono 2026-09-25, eficiência: o SVG como
+> texto custa 30k–300k tokens e não traz as cotas como texto). Região densa:
+> `g2v_harness.py --zoom <svg> x0 y0 x1 y1` re-renderiza a sub-região pelo viewBox
+> (vetorial, nítido). Raster à parte do DXF continua vetado. Caminhos explorados e
+> decisões anteriores: `docs/VISION-VALIDACAO-CAMINHOS.md`.
 
 **Regras operacionais (valem para TODA classe, TODA rodada):**
 1. **Selar golden exige Nível 2 no mínimo:** G2 PASS torna o item *candidato*;
@@ -373,7 +395,7 @@ Nível 3 — Dono (humano)           juiz final; único gabarito onde não há N
 | `g2v_harness.py` | **VEREDITO VISUAL obrigatório** de todo gate visual: `--par n2xn4`(G2-V) / `n1xn2`(N1-V) / `n3xn4`(G5-V), `--backend cli` (agente lê a imagem). Ver §1.5 e `VISION-VALIDACAO-CAMINHOS.md` |
 | `revisao_{laj,pil}_n2_n4_html.py` (+ `dxf_to_svg_casos.render(..., highlight_polys=)`) + `servidor_revisao_pil.py --serve` | Painel dinâmico N2×N4 com pan/zoom pra depuração humana do Eixo A, persistência real em `revisoes_humanas.json` via servidor local (LAJ, 27/07) — companheiro do `arete_runner.py`, não substitui `g2v_harness.py` na selagem — ver §"Painel dinâmico" logo acima |
 | `qa_error_review.py` | Triagem humana (abrir/ler checkboxes) |
-| `playwright_loop.py` | Legado de captura raster; não usar para gates. O veredito QA usa SVGs-fonte exportados por `g2v_harness.py --backend cli`. |
+| `playwright_loop.py` | Legado de captura raster; não usar para gates. O veredito QA usa SVGs-fonte exportados por `g2v_harness.py --backend cli` (agente lê o PNG deles). |
 | `triagem_concordancia.py` | Rollup de concordância auto×humano |
 | `gerar_status.py` | STATUS.md gerado (nunca escrever número à mão) |
 | `single_instance.py` | Trava anti-OOM (biblioteca) |

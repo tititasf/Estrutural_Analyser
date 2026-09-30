@@ -1,3 +1,5 @@
+> **⚠ LEGADO (2026-09-26):** README de mar/26 da raiz do workspace. Regras e layout atuais: `CLAUDE.md`. Entrada vigente do conhecimento: `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md`.
+
 # CAD-ANALYZER v3.0
 
 ## Sistema de Análise e Processamento de Projetos Estruturais

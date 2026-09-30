@@ -33,16 +33,11 @@ DXF bruto → interpretação (Structural Analyzer) → geradores STOG (robôs P
 >    motor — isso continua com o Arete e os masterplans por classe.
 
 **Escopo Fase A:** 13_PAV da Obra_TREINO_1 = **124 itens** (PIL 35, LV 32, FV 26, LAJ 31).
-Números escritos à mão envelhecem: a fonte de verdade de status é
-`python scripts/arete/gerar_status.py` → `docs/STATUS.md` (+ relatório mais recente em
-`scripts/arete/relatorios/` e o golden). Fatos datados (03/07): FV 26/26, LAJ 31/31 e PIL 35/35 no 13_PAV — verdes e re-selados
-(fixes: comparador `SARR_5cm` p/ FV; `gerar_lj_dxf_stog.py` uniões LWPOLYLINE→LINE p/
-LAJ, STORY-EXEC-04 concluída). Pendentes: **LV 21/32** (trabalho in-flight da sessão
-LV), pavimentos além do 13_PAV (baselines de junho, Fase B) e o **backlog N1
-(interpretação do SA)** consolidado pela reconciliação de 03/07: LAJ 17 + PIL 13 +
-FV 22 + LV 14 achados reais — lista com evidência em
-`scripts/arete/relatorios/triagem_erros/RECONCILIACAO-2026-07-03.md`.
-Harness em `scripts/arete/`.
+Status NÃO se escreve aqui (número à mão envelhece e induz erro): ler o relatório mais
+recente em `scripts/arete/relatorios/` + o golden. `docs/STATUS.md`/`gerar_status.py`
+ficaram desconectados do fluxo atual (ago/26) — não usar como verdade.
+Backlog N1 (interpretação do SA) com evidência:
+`scripts/arete/relatorios/triagem_erros/RECONCILIACAO-2026-07-03.md`. Harness em `scripts/arete/`.
 
 ## Ambiente Python — OBRIGATÓRIO Python 3.12
 
@@ -66,6 +61,7 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 
 | Item | Valor |
 |------|-------|
+| Portal do dono | É o da **VPS** (`cad-analyzer.duckdns.org`), não o dev server local: fix só local não chega ao dono. Deploy: `docs/HANDOFF-DEVOPS-VPS-HETZNER.md` §10.6 |
 | DB real (SQLite) | `D:/Agente-cad-PYSIDE/project_data.vision` (o da raiz do repo é stale) |
 | Fichas N2 | tabela `reverse_eng_fichas` (campos_json = schema exato dos JSONs Fase-4; só `_er_meta` difere) |
 | Recortes N2 | tabela `reverse_eng_recortes` + DXFs em `D:/Agente-cad-PYSIDE/DADOS-OBRAS/Obra_TREINO_1/Fase-2_Triagem/recortes_reversos/` |
@@ -95,24 +91,12 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
    (viewBox + drag + wheel + reset). Fonte: `docs/PADRAO-SVG-WEB-PANZOOM-VIEWBOX.md`;
    ref código FV `src/ui/widgets/fv_hifi_n1_render.py`; PIL
    `src/core/pil_qa_notes_chrome.py`.
-5c. **Tags destaque agêntico PIL — contrato falha-fechada:** geometria, semântica,
-   vínculo, conteúdo, ponto, legibilidade e evidência visual têm o mesmo peso.
-   Multilinha tipo+marca / nome / dim / nível; um canto por tag; `V.passa` no
-   vértice físico exato; `V.chega` no centro transversal da viga; interior no
-   centro da face; laje no centro do contato. Pilares especiais usam o contorno
-   real A–F, sem guias da caixa envolvente. Linhas de face usam offset CAD zero;
-   bolinhas usam tamanho canônico dobrado (retangular 1.4, especial r=0.8).
-   Em especiais, `V.chega` parte do canto indicado (`AC/BC/ED/...`) e avança
-   meia largura nominal da viga para dentro da face física. As paredes do DXF
-   são a verdade de terra; é proibido ancorar em `viga_fundo_seg_*`, pois esse
-   contorno pode estar deslocado uma largura inteira (caso V304). O bbox geral
-   é apenas fallback. Somente retangulares preservam o deslocamento externo.
-   Tags usam fonte `1.10×` e roteamento `non_crossing_v1`: chips separados,
-   inteiros no viewBox e zero cruzamento entre conectores (mesmo ponto final é
-   permitido). Cruzamento detectado é FAIL técnico.
-   Chip retangular pode ter contorno
-   branco fino; especial/denso usa sem contorno. PASS de sidecar sem leitura do
-   PNG não aprova. Padrão: `docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md`. CLI
+5c. **Tags destaque agêntico PIL — contrato falha-fechada.** Antes de tocar em
+   tag/destaque PIL, ler o padrão inteiro: `docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md`
+   (posições de ancoragem, tamanhos, roteamento `non_crossing_v1`, especiais A–F).
+   Invariantes: paredes do DXF são a verdade de terra — proibido ancorar em
+   `viga_fundo_seg_*` (pode estar deslocado uma largura, caso V304); cruzamento de
+   conectores é FAIL técnico; PASS de sidecar sem leitura do PNG não aprova. CLI
    `scripts/arete/pil_agentic_highlight_draw.py` ou export `--with-agentic`.
 5d. **Dúvida de interpretação vai ao dono como ficha visual.** Se a dúvida só
    se decide olhando o desenho, gerar a ficha com
@@ -126,6 +110,18 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
    steps. Nunca processar tudo de uma vez.
 7. AutoCAD batch via `accoreconsole.exe` — NUNCA pipelines em paralelo.
 8. Git: sem push para main; commits na branch de sessão.
+
+## Conhecimento — base global (2026-09-25)
+
+- **Entrada do conhecimento:** `docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md` (onde mora cada
+  saber, quem vence em conflito, o que é legado). Termos: `GLOSSARIO.md`. Decisões do dono
+  já tomadas: `DECISOES-DO-DONO.md` — consultar **antes** de perguntar de novo.
+- **Busca:** `python scripts/kb/kb_query.py "pergunta"` (texto + significado; aponta
+  arquivo + seção). Resultado de busca não é prova: abrir a fonte.
+- **Conhecimento novo vai para o doc canônico do tema** (decisão nova do dono = linha nova
+  em `DECISOES-DO-DONO.md` + texto no doc da classe). Depois: `kb_build.py`.
+- **ByteRover (`brv`, `.brv/`), FAISS e `stog_rag_db` são legado:** não curar nem consultar
+  como fonte. Plano de limpeza: `docs/CONHECIMENTO/PLANO-HARMONIZACAO.md`.
 
 ## Multi-agente (Claude Code + Codex + Antigravity) — 1 fonte de verdade
 
@@ -142,5 +138,9 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 Autônomo (autorizado pelo usuário): executar, validar, corrigir e instalar dependências
 sem pedir permissão. Parar apenas para: decisão de produto ambígua (exceção legítima vs
 bug), ação destrutiva fora de escopo, ou bloqueio externo real.
+**Portal (dono, 2026-09-28):** o agente tem autonomia e autoridade para rodar no portal da
+VPS, sozinho e pelo navegador interno, o que precisar (motores SA/N3/unificação, fichas).
+Fix de motor só volta ao dono depois de publicado, **rodado no portal e avaliado** pelo
+agente — nunca "publiquei, rode você". Checar jobs ativos antes; não destruir nada.
 Toda rodada termina com `RELATORIO.md` em `scripts/arete/relatorios/{timestamp}/` +
 golden selado + nota do próximo FAIL a atacar.

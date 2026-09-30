@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import math
+import itertools
+import time
 import sys
 from pathlib import Path
 
@@ -33,7 +35,8 @@ def test_p1_integer_distribution_avoids_central_bolt():
         pj, 88.0, bolt_offsets=[44.0],
     )
 
-    assert segments == [20.0, 20.0, 24.0, 24.0]
+    # Regra atual: menor quantidade de quadrados com vao <= 31 cm.
+    assert segments == [29.0, 29.0, 30.0]
     assert sum(segments) == 88.0
     assert all(abs(boundary - 44.0) > 3.0 for boundary in _boundaries(segments))
     assert _fractional_count(segments) == 0
@@ -77,3 +80,32 @@ def test_integer_total_never_creates_fraction_without_collision():
     assert math.isclose(sum(segments), 102.0, abs_tol=1e-6)
     assert _fractional_count(segments) == 0
 
+
+def test_grade_larga_oito_vaos_termina_sem_explosao_combinatoria():
+    start = time.monotonic()
+    segments = generator._integer_segments_with_avoidance(227.0, offsets=[44.0, 89.0])
+    assert time.monotonic() - start < 3.0
+    assert len(segments) == 8
+    assert sum(segments) == 227.0
+    assert all(abs(boundary - bolt) > 3.0
+               for boundary in _boundaries(segments) for bolt in (44.0, 89.0))
+
+
+def test_solver_cinco_vaos_mantem_a_escolha_exaustiva():
+    total, offsets, preferred = 130.0, [35.0, 70.0], [24.0, 25.0, 26.0, 27.0, 28.0]
+    options = []
+    for prefix in itertools.product(range(24, 29), repeat=4):
+        last = 130 - sum(prefix)
+        if not 24 <= last <= 28:
+            continue
+        values = tuple(map(float, (*prefix, last)))
+        collisions = [3.0 - abs(boundary - bolt)
+                      for boundary in _boundaries(values) for bolt in offsets
+                      if abs(boundary - bolt) <= 3.0]
+        options.append(((len(collisions), round(sum(c + 1e-6 for c in collisions), 6),
+                         round(sum(abs(a-b) for a, b in zip(values, preferred)), 6),
+                         round(sum((value-26.0)**2 for value in values), 6), 0, values), values))
+    expected = list(min(options)[1])
+    assert generator._integer_segments_with_avoidance(
+        total, offsets, preferred=preferred, count=5, max_shift=2.0,
+    ) == expected

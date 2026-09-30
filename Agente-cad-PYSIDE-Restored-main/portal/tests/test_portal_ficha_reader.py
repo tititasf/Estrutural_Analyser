@@ -371,3 +371,33 @@ def test_resolver_visualizacoes_n1_pilar_le_paineis_reais_sem_classe_svg(monkeyp
     assert 'id="plain"' in views["proximo"]
     assert 'id="tag"' not in views["proximo"]
     assert 'id="contexto"' in views["distante"]
+
+
+def test_resolver_visualizacoes_n1_pilar_le_paineis_do_pack_central_sem_pack_na_obra(tmp_path):
+    central = tmp_path / "html_fichas"
+    pack = central / "14_PAV_20260923_pilares_abcd"
+    pilares = pack / "pilares"
+    propostas = pack / "propostas"
+    pilares.mkdir(parents=True)
+    propostas.mkdir()
+    (pilares / "P10.html").write_text(
+        '<div data-n1panel="near"><div data-layer="sa_plain">'
+        '<svg viewBox="0 0 10 10"><path id="plain"/></svg></div>'
+        '<div data-layer="sa"><svg><path id="tag-no-html"/></svg></div></div>'
+        '<div data-n1panel="far"><svg viewBox="0 0 100 100">'
+        '<path id="contexto"/></svg></div>',
+        encoding="utf-8",
+    )
+    (propostas / "P10_sa_motor.svg").write_text(
+        '<svg viewBox="0 0 20 20"><path id="tag"/></svg>', encoding="utf-8",
+    )
+
+    views = fr.resolver_visualizacoes_n1_pilar(
+        tmp_path / "obra_sem_pack", "14_PAV", "pilares", {"beam_name": "P10"},
+        foto_n1_fallback='<svg id="fallback"/>', html_fichas_root=central,
+    )
+
+    assert 'id="plain"' in views["proximo"]
+    assert 'id="tag-no-html"' not in views["proximo"]
+    assert 'id="contexto"' in views["distante"]
+    assert 'id="tag"' in views["com_tag"]

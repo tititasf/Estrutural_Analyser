@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block titulo %}Trocar senha — Portal de Formas de Concretagem{% endblock %}
+
+{% block conteudo_publico %}
+<div class="login-box">
+  {% if obrigatoria %}
+  <h1>Bem-vindo(a), {{ usuario.nome or usuario.login }}</h1>
+  <p class="subtitulo">Este é o seu primeiro acesso ao Portal de Formas de Concretagem.</p>
+  <p class="hint" style="margin-top:0">
+    Aqui você envia as suas obras, acompanha o processamento e revisa as fichas de formas.
+    Cada pessoa vê somente as próprias obras. Antes de começar, troque a senha padrão por uma sua.
+  </p>
+  {% else %}
+  <h1>Trocar senha</h1>
+  <p class="subtitulo">{{ usuario.nome or usuario.login }}</p>
+  {% endif %}
+
+  <div id="erro-faixa" class="faixa faixa-erro" role="alert" hidden></div>
+
+  <form id="senha-form" novalidate>
+    {% if not obrigatoria %}
+    <div class="field">
+      <label for="senha-atual">Senha atual</label>
+      <input id="senha-atual" type="password" autocomplete="current-password" required>
+    </div>
+    {% endif %}
+    <div class="field">
+      <label for="nova-senha">Nova senha</label>
+      <input id="nova-senha" type="password" autocomplete="new-password"
+             minlength="6" required {% if obrigatoria %}autofocus{% endif %}>
+    </div>
+    <div class="field">
+      <label for="confirmacao">Repita a nova senha</label>
+      <input id="confirmacao" type="password" autocomplete="new-password" minlength="6" required>
+    </div>
+    <p class="hint" style="margin:.2rem 0 1rem">Mínimo de 6 caracteres. Pode ser só números.</p>
+    <button type="submit" id="btn-salvar" class="btn" style="width:100%">Salvar senha e entrar</button>
+  </form>
+
+  <form id="sair-form" style="margin-top:.8rem">
+    <button type="submit" class="btn-sec btn" style="width:100%">Sair</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  var form = document.getElementById('senha-form');
+  var faixa = document.getElementById('erro-faixa');
+  var btn = document.getElementById('btn-salvar');
+  function erro(msg) {
+    faixa.textContent = '⚠ ' + msg;
+    faixa.hidden = false;
+    btn.disabled = false;
+    btn.textContent = 'Salvar senha e entrar';
+  }
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    faixa.hidden = true;
+    var atual = document.getElementById('senha-atual');
+    var nova = document.getElementById('nova-senha').value;
+    var conf = document.getElementById('confirmacao').value;
+    if (nova.length < 6) { erro('A nova senha precisa ter 6 caracteres ou mais.'); return; }
+    if (nova !== conf) { erro('A confirmação não é igual à nova senha.'); return; }
+    btn.disabled = true;
+    btn.textContent = 'Salvando…';
+    fetch('/trocar-senha', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        senha_atual: atual ? atual.value : '',
+        nova_senha: nova,
+        confirmacao: conf,
+      }),
+    }).then(function (r) {
+      if (r.ok) { window.location.href = '/app/obras'; return; }
+      return r.json().then(function (j) { erro(j.detail || 'Não foi possível trocar a senha.'); });
+    }).catch(function () { erro('Falha de conexão. Tente de novo.'); });
+  });
+  document.getElementById('sair-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    fetch('/logout', { method: 'POST' }).finally(function () { window.location.href = '/login'; });
+  });
+</script>
+{% endblock %}

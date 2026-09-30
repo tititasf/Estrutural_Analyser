@@ -33,11 +33,13 @@ from middleware.rate_limit import RateLimitMiddleware
 from routers import (
     ficha_routes,
     health_routes,
+    materiais_routes,
     obra_routes,
     paineis_lv_routes,
     pavimento_routes,
     resolve_routes,
     svg_routes,
+    views_routes,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -74,6 +76,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(resolve_routes.router)
     app.include_router(ficha_routes.router)
     app.include_router(svg_routes.router)
+    app.include_router(views_routes.router)
+    app.include_router(materiais_routes.router)
     app.include_router(obra_routes.router)
     app.include_router(paineis_lv_routes.router)
     app.include_router(pavimento_routes.router)

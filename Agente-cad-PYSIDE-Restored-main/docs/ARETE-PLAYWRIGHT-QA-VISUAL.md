@@ -218,6 +218,10 @@ itens com N3 divergente, com o motivo.
 
 ## Leitura em lote via Browser pane (g2v_harness --backend cli)
 
+> **2026-09-25:** o harness já entrega um PNG por SVG (`pngs_para_ler`) e `--zoom`
+> vetorial. O caminho padrão é `Read` direto nos PNGs; o lote via Browser pane abaixo
+> só compensa quando se quer ver muitos itens lado a lado.
+
 Quando o próprio agente CLI (Claude Code) precisa ler os SVGs exportados por
 `g2v_harness.py --backend cli` (veredito visual G2-V/G5-V) usando a ferramenta
 de Browser pane (não Playwright standalone), **não navegue e tire screenshot

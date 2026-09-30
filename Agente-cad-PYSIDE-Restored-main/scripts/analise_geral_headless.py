@@ -103,6 +103,8 @@ def _find_segment_dim(seg: dict, beam_pos: tuple, is_horizontal: bool, spatial_i
     coord = seg.get("coord")
     if not coord or not beam_pos:
         return None
+    # FV vertical guarda (topo, base) = (max Y, min Y); a busca exige min..max.
+    coord = (min(coord[0], coord[1]), max(coord[0], coord[1]))
     pad_axis = 120.0
     pad_trans = 260.0
     if is_horizontal:
@@ -110,7 +112,10 @@ def _find_segment_dim(seg: dict, beam_pos: tuple, is_horizontal: bool, spatial_i
     else:
         bbox = (beam_pos[0] - pad_trans, coord[0] - pad_axis, beam_pos[0] + pad_trans, coord[1] + pad_axis)
     candidates = []
-    for t in _query_texts(spatial_index, bbox):
+    # Secao de pilar empilhada sob o rotulo (P11 / 80/19) nao e' da viga.
+    from src.core.beam_interpreters import FundoVigaInterpreter
+    texts = FundoVigaInterpreter.drop_pillar_section_texts(_query_texts(spatial_index, bbox))
+    for t in texts:
         pair = _parse_dim_pair(t.get("text", ""))
         if not pair or not t.get("pos"):
             continue
@@ -521,6 +526,32 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
     """
     from src.core.preficha_segments import fundo_topology_is_locked
 
+    def _special_contour(segment_index: int) -> dict:
+        slots = (b.get("links") or {}).get(
+            f"viga_fundo_seg_{segment_index}_area_segs"
+        ) or {}
+        for contour in slots.get("contour") or []:
+            if isinstance(contour, dict) and contour.get("special_geometry"):
+                return contour
+        return {}
+
+    def _copy_special_geometry(segment: dict, link: dict) -> None:
+        if not link:
+            return
+        points = []
+        for point in link.get("points") or []:
+            try:
+                points.append((float(point[0]), float(point[1])))
+            except (TypeError, ValueError, IndexError):
+                continue
+        if len(points) >= 4:
+            segment["geometry"] = points
+        for key in (
+            "special_geometry", "geometry_source", "fv_l_incident", "fv_l_tail",
+        ):
+            if link.get(key) not in (None, ""):
+                segment[key] = link[key]
+
     if fundo_topology_is_locked(b):
         import re as _re_locked
 
@@ -611,6 +642,7 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 ),
                 "ficha": dict(link.get("ficha") or {}),
             }
+            _copy_special_geometry(segment, link)
             if is_canonical_measure:
                 segment["measure_source"] = measure_source
                 segment["measure_length"] = measure_length
@@ -657,6 +689,8 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
         for cand in cands:
             if isinstance(cand, dict) and 'text' in cand:
                 dim_texts.append(cand)
+        from src.core.beam_interpreters import FundoVigaInterpreter
+        dim_texts = FundoVigaInterpreter.drop_pillar_section_texts(dim_texts)
 
     merged_groups = classified.get("merged_bottom_groups", [])
     merged_lengths = classified.get("merged_bottom_lengths", [])
@@ -791,6 +825,17 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 "logical": False
             })
 
+    # Contornos especiais ja foram decididos no motor FV a partir das linhas
+    # reais. A extracao headless nao pode reduzi-los novamente ao retangulo do
+    # ``seg_bottom`` antes de montar o contrato N3.
+    for segment in segmentos_fundo:
+        try:
+            segment_index = int(segment.get("seg_index") or 0)
+        except (TypeError, ValueError):
+            segment_index = 0
+        if segment_index > 0:
+            _copy_special_geometry(segment, _special_contour(segment_index))
+
     # dim: texto mais próximo da posição real do beam
     dim_text = _parse_dim_text(dim_texts, beam_pos=beam_pos)
     h_n1 = _parse_h(dim_text)
@@ -856,7 +901,11 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
             geometry_length, _geometry_width = _bbox_length_width(seg.get("geometry"))
             if geometry_length > 0.05 and canonical_span_length is None:
                 seg_len = geometry_length
-        chamfers = _derive_fundo_chamfers(seg.get("geometry"), bool(is_horizontal))
+        chamfers = (
+            {}
+            if seg.get("special_geometry")
+            else _derive_fundo_chamfers(seg.get("geometry"), bool(is_horizontal))
+        )
         snapped_length = (
             _snap_chamfer_length(seg_len)
             if canonical_span_length is None and _has_declared_chamfer(

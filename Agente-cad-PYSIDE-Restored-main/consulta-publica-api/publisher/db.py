@@ -24,7 +24,16 @@ def get_connection(db_path: Path | str = DEFAULT_DB_PATH) -> sqlite3.Connection:
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     conn.executescript(_SCHEMA_PATH.read_text(encoding="utf-8"))
+    _migrar(conn)
     return conn
+
+
+def _migrar(conn: sqlite3.Connection) -> None:
+    """Colunas adicionadas depois do CREATE original — idempotente."""
+    colunas = {row["name"] for row in conn.execute("PRAGMA table_info(public_codes)")}
+    if "payload_json" not in colunas:
+        conn.execute("ALTER TABLE public_codes ADD COLUMN payload_json TEXT")
+        conn.commit()
 
 
 def assert_no_blacklisted_columns(conn: sqlite3.Connection) -> None:

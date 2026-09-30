@@ -1,0 +1,28 @@
+{
+  "schema": "cad.sa.production/v1",
+  "obra": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\TMC-EST-PE-6000-13P-R03",
+  "pavimento": "13_PAV",
+  "project_id": "60573009-fd19-46b7-af72-6f704705a865",
+  "source_dxf": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\TMC-EST-PE-6000-13P-R03\\Fase-2_Triagem\\recortes\\TMC-EST-PE-6000-13P-R03\\torre_1.dxf",
+  "visual_mode": "NOVA",
+  "state_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\TMC-EST-PE-6000-13P-R03\\estado_13_PAV_pilares_pid14932.json",
+  "n1_counts": {
+    "pillars": 0,
+    "slabs": 31,
+    "beams": 46
+  },
+  "n3": {
+    "visual_mode": "NOVA",
+    "fv_generated": [],
+    "fv_failed": [],
+    "lv_generated": [],
+    "lv_failed": [],
+    "lj_generated": [],
+    "lj_failed": [],
+    "pl_generated": [],
+    "pl_failed": []
+  },
+  "n1_tags_pack": "",
+  "artifacts": [],
+  "artifact_index": []
+}

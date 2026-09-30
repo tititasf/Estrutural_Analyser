@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "page": "P18",
+  "updated_at": "2026-08-18T17:16:35.580037+00:00",
+  "notes": {
+    "aten_pil_ctx_human_Obra_TREINO_1_13_PAV_P18": "",
+    "aten_pil_struct_Obra_TREINO_1_13_PAV_P18": "",
+    "aten_pil_ctx_agent_l1_Obra_TREINO_1_13_PAV_P18": "[Camada 1 CORRIGIDA · 2026-08-05 00:41Z]\nA partir da atenção humana.\nFixes: C.passa@CB; A.passa@AD; B.passa@BD\nAtenção: faltou viga pasa cb, BD, AD,; E O PONTO DA VIGA CHEGA BB TA ERRADO MAL POSICIONADO VEJA\n\nPeço aprovação humana no destaque L1 (tags) + tabelas L1 abaixo. Após Validou L1, consolidamos no motor SA.",
+    "aten_pil_struct_l1_Obra_TREINO_1_13_PAV_P18": "",
+    "aten_pil_ctx_agent_l2_Obra_TREINO_1_13_PAV_P18": "[Camada 2 · 2026-08-07T20:07Z · base = Camada 1 (preservada integralmente)]\nAplicado sobre a L1 (evidência geométrica):\n- TROCADO C.passa@CB: V330 → V302 (gap real 19cm → 0cm)\nVeredito: correções aplicadas; peço validação humana.\nGarantias desta rodada: nada que estava na Camada 1 foi removido sem regra explícita (gate de não-regressão). Se sobrar erro fora da lista acima, escreva a atenção — vira nova checagem no próximo refinamento.",
+    "aten_pil_struct_l2_Obra_TREINO_1_13_PAV_P18": "",
+    "aten_pil_ctx_agent_l3_Obra_TREINO_1_13_PAV_P18": "",
+    "aten_pil_struct_l3_Obra_TREINO_1_13_PAV_P18": "",
+    "aten_pil_n3_abcd_P18_aberturas_vigas": "A.chega: V302 dim=19/55 canto=AC d.esq=0cm d.dir=60cm\nA.passa: V330 dim=19/120 canto=AC d.esq=— d.dir=—\nB.chega: V331 dim=19/55 canto=BB d.esq=0cm d.dir=19cm\nB.passa: V330 dim=19/120 canto=BC d.esq=— d.dir=—\nC.passa: V302 dim=19/55 canto=CA d.esq=— d.dir=—\nC.interior: V330 dim=19/120 canto=CC d.esq=0cm d.dir=0cm\nD.chega: V329 dim=19/60 canto=DD d.esq=— d.dir=—",
+    "aten_pil_hl_sa_human_Obra_TREINO_1_13_PAV_P18": "invalidou",
+    "aten_pil_hl_l1_human_Obra_TREINO_1_13_PAV_P18": "invalidou",
+    "aten_pil_hl_l2_human_Obra_TREINO_1_13_PAV_P18": "invalidou",
+    "aten_pil_hl_l3_human_Obra_TREINO_1_13_PAV_P18": "validou",
+    "aten_pil_ctx_agent_verdict_l1_Obra_TREINO_1_13_PAV_P18": "invalidou",
+    "aten_pil_ctx_agent_verdict_l2_Obra_TREINO_1_13_PAV_P18": "validou"
+  }
+}

@@ -19,6 +19,42 @@ def test_build_uses_robot_and_keeps_a1_two_centimeters():
     assert result["dimensions"]["height"] == 280
 
 
+def test_default_faces_follow_effective_n3_mesh_for_long_and_short_faces():
+    robot = {
+        "altura": 306, "comprimento": 60, "largura": 19,
+        "h1_A": 2, "h2_A": 244, "h3_A": 60,
+        "h1_B": 2, "h2_B": 244, "h3_B": 60,
+        "h1_C": 2, "h2_C": 122, "h3_C": 118,
+        "h1_D": 2, "h2_D": 240,
+        "paineis_intervals_A": [122, 122, 60],
+        "paineis_intervals_B": [122, 122, 60],
+        "paineis_intervals_C": [122, 118],
+        "paineis_intervals_D": [240],
+    }
+    result = ficha.build_ficha(_rect_pillar(), robot)
+    heights = {face: [panel["height"] for panel in data["panels"]]
+               for face, data in result["faces"].items()}
+    assert heights == {
+        "A": [2, 122, 122, 60], "B": [2, 122, 122, 60],
+        "C": [2, 122, 118], "D": [2, 240],
+    }
+    patch = ficha.robot_patch(result)
+    assert patch["paineis_intervals_A"] == [122, 122, 60]
+    assert patch["paineis_intervals_C"] == [122, 118]
+    assert patch["paineis_intervals_D"] == [240]
+
+
+def test_unidos_expand_effective_n3_mesh_in_web_ficha():
+    result = ficha.build_ficha(_rect_pillar(), {
+        "altura": 280, "h1_A": 2,
+        "paineis_intervals_A": [122, 122, 34],
+        "paineis_unidos_A": [{"interval_index": 0, "parts": [100, 22]}],
+    })
+    assert [panel["height"] for panel in result["faces"]["A"]["panels"]] == [
+        2, 100, 22, 122, 34,
+    ]
+
+
 def test_special_pillar_exposes_up_to_eight_faces():
     pillar = {
         "name": "P26",
@@ -94,6 +130,31 @@ def test_invalid_zero_sized_panel_is_rejected():
         assert "largura/altura invalida" in str(exc)
     else:
         raise AssertionError("painel zero deveria ser rejeitado")
+
+
+def test_special_cima_shape_and_side_controls_survive_robot_patch():
+    from src.core.cima_l_contract import portal_cima_l_contract
+
+    pillar = {
+        "name": "P26",
+        "points": [[0, 0], [165, 0], [165, 19], [19, 19], [19, 218], [0, 218], [0, 0]],
+    }
+    result = ficha.build_ficha(pillar, {"altura": 300}, pavimento="13_PAV")
+    result["cima_contract"] = portal_cima_l_contract({
+        "subtipo_pil": "L", "geometry_points": pillar["points"],
+    })
+    fields = result["cima_contract"]["fields"]
+    fields["shape"]["comprimento_1_externo"] = 220
+    fields["shape"]["largura_2"] = 20
+    fields["especial"]["ramo_ext"]["parafuso_inicio"] = 43
+    fields["especial"]["ramo_ext"]["parafuso_final"] = 2
+
+    patch = ficha.robot_patch(result)
+    cima = patch["pilar_especial"]["cima"]
+    assert cima["classification"] == "especial_l"
+    assert cima["shape"]["comprimento_1_interno"] == 200
+    assert cima["arms"]["ramo_ext"]["parafuso_inicio"] == 43
+    assert cima["arms"]["ramo_ext"]["parafuso_final"] == 2
 
 
 def test_motor_fase4_reapplies_saved_web_ficha(tmp_path):

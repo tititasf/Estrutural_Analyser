@@ -1,0 +1,20 @@
+{
+  "classe": "PL",
+  "obra": "Obra_PL_ALIAS",
+  "pavimento": "13_PAV",
+  "visual_mode": "NOVA",
+  "pillar_group": null,
+  "output": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_pl_n5_prefers_co0\\Obra_PL_ALIAS\\Fase-6_Execucao_CAD\\n5\\N5_PL_13_PAV_NOVA.dxf",
+  "ok_count": 1,
+  "missing_count": 0,
+  "extra_count": 0,
+  "extra_ids": [],
+  "items": [
+    {
+      "item_id": "P26",
+      "source": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_pl_n5_prefers_co0\\Obra_PL_ALIAS\\Fase-6_Execucao_CAD\\n3_variants\\para\\PL_CIMA_preview_P26.dxf;D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_pl_n5_prefers_co0\\Obra_PL_ALIAS\\Fase-6_Execucao_CAD\\n3_variants\\passa\\PL_ABCD_preview_P26.dxf;D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_pl_n5_prefers_co0\\Obra_PL_ALIAS\\Fase-6_Execucao_CAD\\n3_variants\\passa\\PL_GRADES_preview_P26.dxf;D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_pl_n5_prefers_co0\\Obra_PL_ALIAS\\Fase-6_Execucao_CAD\\n3_variants\\para\\PL_ABCD_preview_P26.dxf;D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_pl_n5_prefers_co0\\Obra_PL_ALIAS\\Fase-6_Execucao_CAD\\n3_variants\\para\\PL_GRADES_preview_P26.dxf",
+      "status": "ok",
+      "message": "5 entidades em 5 preview(s); linha 1"
+    }
+  ]
+}

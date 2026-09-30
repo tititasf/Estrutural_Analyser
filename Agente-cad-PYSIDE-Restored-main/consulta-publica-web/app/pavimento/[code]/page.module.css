@@ -100,3 +100,70 @@ a.obraRotulo {
   font-size: 16px;
   cursor: pointer;
 }
+.abasPrincipais {
+  display: flex;
+  overflow-x: auto;
+  gap: 8px;
+  padding: 16px 16px 8px 16px;
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.abaBtn {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: 20px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  color: var(--fg);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.abaAtiva {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.subAbasContainer {
+  display: flex;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+}
+
+.subAbaBtn {
+  flex: 1;
+  padding: 12px 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: var(--fg-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+.subAbaAtiva {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+.buscaContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--surface-2);
+  min-height: 56px;
+}
+
+.iconeBusca {
+  color: var(--fg-muted);
+}
+
+.listaContainer {
+  min-height: 300px;
+}

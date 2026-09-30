@@ -134,11 +134,56 @@ def _axis(points: list[tuple[float, float]]) -> tuple[tuple[float, float], tuple
     return (center, min(ys)), (center, max(ys)), (1.0, 0.0)
 
 
+TOUCH_TOL_CM = 1.0  # toque parcial (D-57): contorno da laje a <= 1 cm da face
+
+
+def _touches(axis, polygon: list[tuple[float, float]]) -> bool:
+    start, end, normal = axis
+    for ratio in (0.15, 0.5, 0.85):
+        base = (
+            start[0] + (end[0] - start[0]) * ratio,
+            start[1] + (end[1] - start[1]) * ratio,
+        )
+        if any(
+            _point_in_polygon(
+                (base[0] + normal[0] * sign * offset,
+                 base[1] + normal[1] * sign * offset),
+                polygon,
+            )
+            for sign in (-1.0, 1.0)
+            for offset in (1.0, 3.0, 8.0, 16.0)
+        ):
+            return True
+    return False
+
+
+def slabs_touching(segment_points: Iterable[Any] | None,
+                   slabs: Iterable[dict[str, Any]] | None) -> list[str] | None:
+    """Nomes das lajes cujo POLIGONO encosta no segmento: mesma amostragem do
+    fundo, ou toque parcial (distancia <= TOUCH_TOL_CM, D-57). ``None`` quando
+    o segmento nao tem eixo medivel (sem geometria)."""
+    clean = _points(segment_points)
+    axis = _axis(clean)
+    if axis is None:
+        return None
+    names = []
+    for slab in slabs or []:
+        if not isinstance(slab, dict):
+            continue
+        polygon = _points(slab.get("points") or [])
+        if len(polygon) >= 3 and (
+            _touches(axis, polygon) or _polygon_distance(clean, polygon) <= TOUCH_TOL_CM
+        ):
+            names.append(str(slab.get("name") or ""))
+    return names
+
+
 def derive_fundo_segment_level(
     segment_points: Iterable[Any] | None,
     slabs: Iterable[dict[str, Any]] | None,
     *,
     explicit_levels: Iterable[Any] = (),
+    estimated_levels: Iterable[Any] = (),
 ) -> dict[str, Any]:
     """Retorna ``value``, ``source`` e as lajes que comprovam a cota.
 
@@ -163,7 +208,6 @@ def derive_fundo_segment_level(
     axis = _axis(clean)
     if axis is None:
         return {"value": None, "source": "unresolved", "slabs": [], "distance_cm": None}
-    start, end, normal = axis
     touching: list[tuple[float, str]] = []
     levelled_slabs: list[tuple[float, str, list[tuple[float, float]]]] = []
     for slab in slabs or []:
@@ -177,26 +221,25 @@ def derive_fundo_segment_level(
         if level is None or len(polygon) < 3:
             continue
         levelled_slabs.append((level, str(slab.get("name") or ""), polygon))
-        hits = 0
-        for ratio in (0.15, 0.5, 0.85):
-            base = (
-                start[0] + (end[0] - start[0]) * ratio,
-                start[1] + (end[1] - start[1]) * ratio,
-            )
-            if any(
-                _point_in_polygon(
-                    (base[0] + normal[0] * sign * offset,
-                     base[1] + normal[1] * sign * offset),
-                    polygon,
-                )
-                for sign in (-1.0, 1.0)
-                for offset in (1.0, 3.0, 8.0, 16.0)
-            ):
-                hits += 1
-        if hits:
+        if _touches(axis, polygon):
             touching.append((level, str(slab.get("name") or "")))
 
     if not touching:
+        # D-61: sem laje encostada, o nivel ESTIMADO da viga (herdado de outro
+        # segmento/face com laje, ou laje mais proxima no SA) vem antes da
+        # laje mais proxima deste fundo — continua marcado como estimado.
+        estimated = [
+            number
+            for number in (_number(value, zero_is_missing=True) for value in estimated_levels)
+            if number is not None
+        ]
+        if estimated:
+            return {
+                "value": max(estimated),
+                "source": "estimated_beam_level",
+                "slabs": [],
+                "distance_cm": None,
+            }
         nearest = [
             (_polygon_distance(clean, polygon), level, name)
             for level, name, polygon in levelled_slabs

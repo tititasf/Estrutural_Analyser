@@ -7,14 +7,16 @@ import "./globals.css";
 // header X-Robots-Tag (next.config.js + middleware.ts) de propósito: meta
 // tag cobre crawlers que ignoram headers HTTP, header cobre os que ignoram
 // HTML.
+const basePath = process.env.CONSULTA_PUBLICA_BASE_PATH || "";
+
 export const metadata: Metadata = {
-  title: "Consulta de Fôrma",
-  description: "Consulta pública de especificação de itens de fôrma por código.",
+  title: "CAD-ANALYZER — Consulta de Fôrma",
+  description: "Consulta pública e técnica de especificação de itens de fôrma para concreto armado.",
   robots: { index: false, follow: false },
-  manifest: "/manifest.json",
+  manifest: `${basePath}/manifest.json`,
   icons: {
-    icon: "/icons/icon.svg",
-    apple: "/icons/icon.svg",
+    icon: `${basePath}/icons/icon.svg`,
+    apple: `${basePath}/icons/icon.svg`,
   },
 };
 

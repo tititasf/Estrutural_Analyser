@@ -367,6 +367,57 @@ class FundoVigaInterpreter:
         return sum(point[axis] for point in line) / len(line)
 
     @classmethod
+    def own_lateral_center(
+        cls,
+        beam: dict,
+        *,
+        is_horizontal: bool,
+        axial_span: Interval,
+        width: float,
+        near: float,
+        band: float,
+    ) -> float | None:
+        """Centro do par de laterais da PROPRIA viga — referencia, nao regra.
+
+        Assim como as laterais usam o fundo como referencia, o fundo consulta
+        as laterais (``seg_side_a/b`` dos vinculos da viga): par paralelo ao
+        vao, cobrindo metade dele, separado pela largura. So' vale se estiver
+        perto do fundo atual (``near`` ± ``band``): lateral antiga de outra
+        faixa (regressao 27/09) nao arrasta o fundo.
+        """
+        span_min, span_max = sorted((float(axial_span[0]), float(axial_span[1])))
+        span = span_max - span_min
+        if span <= 0.05 or width <= 0.05:
+            return None
+        faces: list[float] = []
+        for slots in (beam.get("links") or {}).values():
+            if not isinstance(slots, dict):
+                continue
+            for slot in ("seg_side_a", "seg_side_b"):
+                for item in slots.get(slot) or []:
+                    pts = item.get("points") if isinstance(item, dict) else item
+                    clean = cls._clean_polyline_points(pts or [])
+                    for p, q in zip(clean, clean[1:]):
+                        if is_horizontal and abs(p[1] - q[1]) <= 0.05:
+                            t, lo, hi = p[1], min(p[0], q[0]), max(p[0], q[0])
+                        elif not is_horizontal and abs(p[0] - q[0]) <= 0.05:
+                            t, lo, hi = p[0], min(p[1], q[1]), max(p[1], q[1])
+                        else:
+                            continue
+                        if min(hi, span_max) - max(lo, span_min) >= 0.5 * span:
+                            faces.append(t)
+        best: tuple[float, float] | None = None
+        for i, first in enumerate(faces):
+            for second in faces[i + 1:]:
+                if abs(abs(second - first) - width) > 1.0:
+                    continue
+                mid = (first + second) / 2.0
+                distance = abs(mid - float(near))
+                if distance <= band and (best is None or distance < best[0]):
+                    best = (distance, mid)
+        return best[1] if best else None
+
+    @classmethod
     def matching_lines_for_span(
         cls,
         lines: Iterable[Iterable[Any]] | None,
@@ -466,9 +517,13 @@ class FundoVigaInterpreter:
                     separation = abs(second - first)
                     if not (width * 0.25 <= separation <= width * 2.0):
                         continue
-                    error = abs(separation - width)
-                    if best is None or error < best[0]:
-                        best = (error, first, second)
+                    # Empate de largura (varias vigas de mesma secao no
+                    # pavimento): vence o par mais proximo da referencia, nunca
+                    # o primeiro da lista (caso V323: par de 19 a 27 m).
+                    error = round(abs(separation - width), 2)
+                    distance = abs((first + second) / 2.0 - float(transverse_center))
+                    if best is None or (error, distance) < best[0]:
+                        best = ((error, distance), first, second)
             if best is not None:
                 return (min(best[1], best[2]), max(best[1], best[2]))
 
@@ -570,11 +625,31 @@ class FundoVigaInterpreter:
             # split de cruzamento mais fundo vira de novo um over-merge visual
             # (regressão V302 S5/S6/S7, 2026-08).
             if width_plausible and cls._polygon_area(candidate) > 0.05:
-                cand_axis = [point[axis] for point in candidate]
-                cand_min, cand_max = min(cand_axis), max(cand_axis)
-                # se a face cobre bem o vão pedido, recorta ao span canônico
-                covers = cand_min - 1.0 <= start and cand_max + 1.0 >= end
-                if covers:
+                # Cobertura medida pela FACE inteira (fragmentos colineares
+                # da mesma parede), nao pelo pedaco extremo: parede partida
+                # onde outra viga chega/cruza continua sendo a mesma face
+                # (V312 cortada em 2991 pela V301; V321 em 2057.5).
+                def face_extent(ref: list[tuple[float, float]]) -> tuple[float, float]:
+                    level = transverse(ref)
+                    values = [
+                        point[axis]
+                        for line in clean_lines
+                        if abs(transverse(line) - level) <= 0.5
+                        for point in line
+                    ]
+                    return min(values), max(values)
+
+                first_min, first_max = face_extent(first)
+                second_min, second_max = face_extent(second)
+                # Face que toca o vão pedido: recorta ao span canônico, mesmo
+                # quando ela termina antes (parede interrompida). Devolver a
+                # extensão da própria linha sobrepunha o segmento vizinho
+                # (V301 S6 virava 2059-2462 por cima do S5, VPS 2026-09-28).
+                touches = (
+                    min(first_min, second_min) - 1.0 <= end
+                    and max(first_max, second_max) + 1.0 >= start
+                )
+                if touches:
                     return cls._rectangle_on_transverse_strip(
                         axial_span=(start, end),
                         is_horizontal=is_horizontal,
@@ -746,6 +821,7 @@ class FundoVigaInterpreter:
         Vínculos realmente validados nunca são tocados. O vão vem da topologia
         interpretada e a largura vem da dimensão estrutural do próprio segmento.
         """
+        cls.normalize_dimension_from_own_geometry(beam)
         # Topologia: quebrar vãos onde viga mais funda cruza (antes de reparar
         # contornos). Idempotente; preserva validated. Headless e load-on-open
         # passam por aqui — o desktop já aplica em process_beam_fv, mas a
@@ -788,6 +864,43 @@ class FundoVigaInterpreter:
             or default_is_horizontal != bool(beam.get("is_h", True))
         )
         repaired = 0
+
+        def local_evidence(
+            is_horizontal: bool,
+            span: Interval,
+            center: float,
+            width: float,
+        ) -> tuple[list[list[tuple[float, float]]], float | None]:
+            """Linhas do vao perto do proprio fundo + centro das laterais.
+
+            Linhas de outras vigas entram so' na faixa lateral do fundo: sem
+            esse limite um par de 19 cm do outro lado da torre empatava com o
+            par certo (V323 x V309, 13_PAV, 27/09). O centro das laterais
+            proprias volta como referencia (None se nao houver par perto).
+            """
+            band = max(2.5 * float(width or 0.0), 40.0)
+            lateral = cls.own_lateral_center(
+                beam,
+                is_horizontal=is_horizontal,
+                axial_span=span,
+                width=float(width or 0.0),
+                near=float(center),
+                band=band,
+            )
+            refs = [float(center)] + ([lateral] if lateral is not None else [])
+            lines = cls.matching_lines_for_span(
+                list(raw_lines) + list(side_lines) + list(context_lines),
+                is_horizontal=is_horizontal,
+                axial_span=span,
+            )
+            local = [
+                line for line in lines
+                if min(
+                    abs(cls._line_transverse(line, is_horizontal=is_horizontal) - ref)
+                    for ref in refs
+                ) <= band
+            ]
+            return local, lateral
 
         def dimension_width(index: int) -> float:
             texts = (
@@ -961,6 +1074,12 @@ class FundoVigaInterpreter:
             if not contours or not isinstance(contours[0], dict):
                 continue
             link = contours[0]
+            # Gate D-60 (fundo_viga_linhas) ja' reparou este contorno no par de
+            # linhas do estrutural. Refazer aqui ressuscitaria a alucinacao que
+            # ele corrigiu. (Anulado nem chega aqui: sai de ``contour``.)
+            from src.core.beam_interpreters.fundo_viga_linhas import gate_frozen
+            if gate_frozen(link):
+                continue
             points = []
             for point in link.get("points") or []:
                 try:
@@ -1056,13 +1175,8 @@ class FundoVigaInterpreter:
                         center = (
                             min(transverse_values) + max(transverse_values)
                         ) / 2.0
-                        evidence_lines = (
-                            list(raw_lines) + list(side_lines) + list(context_lines)
-                        )
-                        matching_lines = cls.matching_lines_for_span(
-                            evidence_lines,
-                            is_horizontal=is_horizontal,
-                            axial_span=span,
+                        matching_lines, lateral_center = local_evidence(
+                            is_horizontal, span, center, width,
                         )
                         # Preferir centro das faces DXF do vão (não só o
                         # rótulo): label deslocado em Y/X gerava marco
@@ -1087,7 +1201,8 @@ class FundoVigaInterpreter:
                             else face_center
                         )
                         transverse_center = (
-                            face_center if matching_lines else label_center
+                            lateral_center if lateral_center is not None
+                            else face_center if matching_lines else label_center
                         )
                         area_points = cls.build_area_contour(
                             axial_span=span,
@@ -1162,13 +1277,8 @@ class FundoVigaInterpreter:
                             max(point[transverse_axis] for point in points)
                             + min(point[transverse_axis] for point in points)
                         ) / 2.0
-                        evidence_lines = (
-                            list(raw_lines) + list(side_lines) + list(context_lines)
-                        )
-                        matching_lines = cls.matching_lines_for_span(
-                            evidence_lines,
-                            is_horizontal=current_is_horizontal,
-                            axial_span=(span_min, span_max),
+                        matching_lines, lateral_center = local_evidence(
+                            current_is_horizontal, (span_min, span_max), center, width,
                         )
                         face_center = center
                         if matching_lines:
@@ -1193,7 +1303,8 @@ class FundoVigaInterpreter:
                             width=width,
                             is_horizontal=current_is_horizontal,
                             transverse_center=(
-                                face_center if matching_lines else label_center
+                                lateral_center if lateral_center is not None
+                                else face_center if matching_lines else label_center
                             ),
                             boundary_lines=matching_lines,
                             allow_synthetic=not matching_lines,
@@ -1237,13 +1348,8 @@ class FundoVigaInterpreter:
                             ) / 2.0
                         else:
                             center = float(segment_pos[transverse_axis])
-                        evidence_lines = (
-                            list(raw_lines) + list(side_lines) + list(context_lines)
-                        )
-                        matching_lines = cls.matching_lines_for_span(
-                            evidence_lines,
-                            is_horizontal=is_horizontal,
-                            axial_span=(span_min, span_max),
+                        matching_lines, lateral_center = local_evidence(
+                            is_horizontal, (span_min, span_max), center, width,
                         )
                         label_center = float(segment_pos[transverse_axis])
                         area_points = cls.build_area_contour(
@@ -1251,7 +1357,8 @@ class FundoVigaInterpreter:
                             width=width,
                             is_horizontal=is_horizontal,
                             transverse_center=(
-                                label_center if matching_lines else center
+                                lateral_center if lateral_center is not None
+                                else label_center if matching_lines else center
                             ),
                             boundary_lines=matching_lines,
                             allow_synthetic=not matching_lines,
@@ -1298,13 +1405,12 @@ class FundoVigaInterpreter:
                         is_horizontal, span, _segment_pos = run_segments[index - 1]
                         axis = 0 if is_horizontal else 1
                         transverse_axis = 1 - axis
-                    evidence_lines = (
-                        list(raw_lines) + list(side_lines) + list(context_lines)
-                    )
-                    matching_lines = cls.matching_lines_for_span(
-                        evidence_lines,
-                        is_horizontal=is_horizontal,
-                        axial_span=span,
+                    center = (
+                        min(point[transverse_axis] for point in points)
+                        + max(point[transverse_axis] for point in points)
+                    ) / 2.0
+                    matching_lines, lateral_center = local_evidence(
+                        is_horizontal, span, center, width,
                     )
                     bottom_matching = cls.matching_lines_for_span(
                         raw_lines,
@@ -1337,7 +1443,10 @@ class FundoVigaInterpreter:
                             axial_span=span,
                             width=width,
                             is_horizontal=is_horizontal,
-                            transverse_center=face_center,
+                            transverse_center=(
+                                lateral_center if lateral_center is not None
+                                else face_center
+                            ),
                             boundary_lines=matching_lines,
                             allow_synthetic=False,
                         )
@@ -1413,11 +1522,9 @@ class FundoVigaInterpreter:
                 center = float(segment_pos[transverse_axis])
 
             span_min, span_max = sorted(span)
-            evidence_lines = list(raw_lines) + list(side_lines) + list(context_lines)
-            matching_lines = cls.matching_lines_for_span(
-                evidence_lines,
-                is_horizontal=is_horizontal,
-                axial_span=(span_min, span_max),
+            matching_lines, lateral_center = local_evidence(
+                is_horizontal, (span_min, span_max), center,
+                dimension_width(index),
             )
             # Faces longitudinais do fundo têm prioridade sobre laterais
             # soltas, mas laterais entram se o fundo veio colinear/cap.
@@ -1472,7 +1579,9 @@ class FundoVigaInterpreter:
                     axial_span=span,
                     width=width,
                     is_horizontal=is_horizontal,
-                    transverse_center=center,
+                    transverse_center=(
+                        lateral_center if lateral_center is not None else center
+                    ),
                     boundary_lines=matching_lines,
                     allow_synthetic=not matching_lines,
                 )
@@ -1639,7 +1748,47 @@ class FundoVigaInterpreter:
     # Textos sobre a faixa do fundo (~eixo + meia largura + tag).
     # Cotas de viga cruzada mais afastadas (~70 cm) ficam de fora.
     _DIM_TRANSVERSE_PAD = 50.0
+    # Texto W/H empilhado sob rotulo de pilar: mesmo x, 5..25 cm abaixo.
+    _PILLAR_DIM_STACK_DX = 8.0
+    _PILLAR_DIM_STACK_DY = (5.0, 25.0)
     _DIM_AXIS_END_PAD = 25.0
+
+    @classmethod
+    def drop_pillar_section_texts(cls, items: Iterable[Any]) -> list[Any]:
+        """Remove a secao de pilar empilhada sob o rotulo (P11 / 80/19).
+
+        Convencao STOG: o W/H do pilar vem logo abaixo do nome, no mesmo x.
+        Esse texto e' do pilar, nunca da viga que passa ao lado (V312 do
+        13_PAV virava 19/80 no lugar de 19/120). Serve a todo buscador de
+        secao de viga que varre textos espaciais.
+        """
+        items = list(items or [])
+        labels: list[tuple[float, float]] = []
+        for item in items:
+            if not isinstance(item, dict):
+                continue
+            if re.fullmatch(r"P\d+[A-Za-z]?", str(item.get("text") or "").strip(), re.I):
+                try:
+                    labels.append((float(item["pos"][0]), float(item["pos"][1])))
+                except (KeyError, TypeError, ValueError, IndexError):
+                    continue
+        if not labels:
+            return items
+        out = []
+        for item in items:
+            if isinstance(item, dict) and cls._parse_height_pair(item.get("text")):
+                try:
+                    x, y = float(item["pos"][0]), float(item["pos"][1])
+                except (KeyError, TypeError, ValueError, IndexError):
+                    x = y = None
+                if x is not None and any(
+                    abs(lx - x) <= cls._PILLAR_DIM_STACK_DX
+                    and cls._PILLAR_DIM_STACK_DY[0] <= ly - y <= cls._PILLAR_DIM_STACK_DY[1]
+                    for lx, ly in labels
+                ):
+                    continue
+            out.append(item)
+        return out
 
     @classmethod
     def _iter_dimension_texts(cls, beam: dict) -> list[dict]:
@@ -1648,6 +1797,7 @@ class FundoVigaInterpreter:
             return []
         raw = list(geometry.get("dimension_texts") or [])
         raw.extend(geometry.get("texts") or [])
+        raw = cls.drop_pillar_section_texts(raw)
         out: list[dict] = []
         seen: set[tuple] = set()
         for item in raw:
@@ -1684,6 +1834,107 @@ class FundoVigaInterpreter:
         if is_horizontal:
             return (min(xs), max(xs), sum(ys) / len(ys))
         return (min(ys), max(ys), sum(xs) / len(xs))
+
+    @classmethod
+    def normalize_dimension_from_own_geometry(cls, beam: dict) -> bool:
+        """Corrige a cota global FV quando ela veio da secao de um pilar.
+
+        O tracer guarda em ``lv_dimension_text`` a cota B/H escolhida contra
+        o fundo classificado da propria viga (o nome e' historico: nao e' um
+        resultado LV nem uma copia da ficha de laterais). A selecao generica
+        de campos ainda podia usar o primeiro texto B/H da nuvem e capturar a
+        secao empilhada sob um pilar — VF301 recebia ``19/66`` de P1 no lugar
+        de ``14/55``.
+
+        A troca exige prova local: o texto sobrevive ao filtro de pilar, cai
+        no vao axial e fica perto de uma linha/contorno do proprio fundo.
+        Campo validado por humano congela a dimensao.
+        """
+        if not isinstance(beam, dict):
+            return False
+        frozen = {
+            str(item) for item in (beam.get("validated_fields") or []) if item
+        }
+        if "dimensao" in frozen:
+            return False
+        geometry = beam.get("geometry") or {}
+        if not isinstance(geometry, dict):
+            return False
+        candidate = geometry.get("lv_dimension_text")
+        if not isinstance(candidate, dict):
+            return False
+        text = str(candidate.get("text") or "").strip()
+        if cls._parse_height_pair(text) is None:
+            return False
+        pos = candidate.get("pos")
+        if not isinstance(pos, (list, tuple)) or len(pos) < 2:
+            return False
+        try:
+            point = (float(pos[0]), float(pos[1]))
+        except (TypeError, ValueError):
+            return False
+
+        pool = [candidate]
+        pool.extend(geometry.get("dimension_texts") or [])
+        pool.extend(geometry.get("texts") or [])
+        if not any(item is candidate for item in cls.drop_pillar_section_texts(pool)):
+            return False
+
+        classified = geometry.get("classified") or {}
+        is_horizontal = bool(beam.get("fv_is_h", beam.get("is_h", True)))
+        axis = 0 if is_horizontal else 1
+        trans_axis = 1 - axis
+        coords = cls._coords_as_tuples(
+            classified.get("merged_bottom_groups_coords") or []
+        )
+        if not coords:
+            return False
+        axis_min = min(start for start, _ in coords)
+        axis_max = max(end for _, end in coords)
+        if not (
+            axis_min - cls._DIM_AXIS_END_PAD
+            <= point[axis]
+            <= axis_max + cls._DIM_AXIS_END_PAD
+        ):
+            return False
+
+        transverse_refs: list[float] = []
+        for line in (
+            list(classified.get("seg_bottom") or [])
+            + list(classified.get("seg_side_a") or [])
+            + list(classified.get("seg_side_b") or [])
+        ):
+            for raw_point in line or []:
+                try:
+                    transverse_refs.append(float(raw_point[trans_axis]))
+                except (TypeError, ValueError, IndexError):
+                    continue
+        for slots_key, slots in (beam.get("links") or {}).items():
+            if not re.match(r"^viga_fundo_seg_\d+_area_segs$", str(slots_key)):
+                continue
+            contour = ((slots or {}).get("contour") or [{}])[0]
+            if not isinstance(contour, dict):
+                continue
+            for raw_point in contour.get("points") or []:
+                try:
+                    transverse_refs.append(float(raw_point[trans_axis]))
+                except (TypeError, ValueError, IndexError):
+                    continue
+        if not transverse_refs or min(
+            abs(point[trans_axis] - value) for value in transverse_refs
+        ) > cls._DIM_TRANSVERSE_PAD:
+            return False
+
+        fields = beam.setdefault("fields", {})
+        previous = fields.get("dimensao")
+        if str(previous or "").strip() == text:
+            return False
+        fields["dimensao"] = text
+        if not beam.get("dim") or beam.get("dim") == previous:
+            beam["dim"] = text
+        geometry["fv_dimension_text"] = dict(candidate)
+        geometry["fv_dimension_source"] = "own_classified_geometry"
+        return True
 
     @classmethod
     def assign_segment_dimensions_from_texts(cls, beam: dict) -> int:
@@ -1762,15 +2013,18 @@ class FundoVigaInterpreter:
             if dim_key in frozen:
                 continue
             dim = str(text["text"])
-            if fields.get(dim_key) == dim:
-                continue
-            fields[dim_key] = dim
+            # A ficha acompanha o texto mesmo quando o campo ja' coincide:
+            # sem isso a altura do segmento some e a secao global da viga
+            # passa a depender da ordem das passadas (V301 19/55 x 19/120).
             ficha = contour.setdefault("ficha", {})
             if not isinstance(ficha, dict):
                 ficha = {}
                 contour["ficha"] = ficha
             ficha["largura_total_fundo"] = cls._format_measure(float(text["width"]))
             ficha["altura_total"] = cls._format_measure(float(text["height"]))
+            if fields.get(dim_key) == dim:
+                continue
+            fields[dim_key] = dim
             assigned += 1
         return assigned
 
@@ -1860,6 +2114,16 @@ class FundoVigaInterpreter:
             if not reaches:
                 continue  # o outro feixe não se estende até este ponto
             other_axis_pos = float(other_pos[axis])
+            walls = cls._crossing_walls(
+                other,
+                label_pos=other_axis_pos,
+                width=other_width,
+                own_transverse_pos=own_transverse_pos,
+                reach=own_width + 1.0,
+            )
+            if walls is not None:
+                crossing_zones.append((walls[0], walls[1], other_width))
+                continue
             crossing_zones.append(
                 (other_axis_pos - other_half_width, other_axis_pos + other_half_width, other_width)
             )
@@ -1891,6 +2155,65 @@ class FundoVigaInterpreter:
         return sorted(result)
 
     _DEEPER_CROSSING_RATIO = 1.5
+
+    @classmethod
+    def _crossing_walls(
+        cls,
+        other: dict,
+        *,
+        label_pos: float,
+        width: float,
+        own_transverse_pos: float,
+        reach: float,
+    ) -> tuple[float, float] | None:
+        """Par de paredes do fundo da viga que cruza, no eixo da viga cortada.
+
+        O rotulo fica ao lado da viga, nao no eixo: a V312 do 13_PAV e'
+        rotulada em x=1599.6 mas as paredes estao em 1603.4/1622.4; cortar
+        por rotulo +- meia largura encurtava a V301 S2 para 1590.1. Vale o par
+        de linhas de fundo que chega ate' esta viga, com vao igual a largura
+        da secao (25%), mais perto do rotulo. None = sem par; fica o rotulo.
+        """
+        other_is_h = bool(other.get("is_h", True))
+        other_axis = 0 if other_is_h else 1
+        classified = (other.get("geometry") or {}).get("classified") or {}
+        faces: set[float] = set()
+        for line in classified.get("seg_bottom") or []:
+            points = cls._clean_polyline_points(line)
+            if len(points) < 2:
+                continue
+            along = [point[other_axis] for point in points]
+            if not (min(along) - reach <= own_transverse_pos <= max(along) + reach):
+                continue
+            faces.add(round(cls._line_transverse(points, is_horizontal=other_is_h), 3))
+        # Sem par no seg_bottom (V330 x VF301 do 13_PAV, 29/09: rotulo em 4527.7,
+        # paredes em 4533.4/4552.4), o contorno de fundo da propria viga que
+        # cruza da' as paredes — antes de cair no rotulo.
+        for key, slots in (other.get("links") or {}).items():
+            if not re.match(r"^viga_fundo_seg_\d+_area_segs$", str(key)) or not isinstance(slots, dict):
+                continue
+            for contour in slots.get("contour") or []:
+                points = cls._clean_polyline_points(contour.get("points")) if isinstance(contour, dict) else []
+                if len(points) < 3:
+                    continue
+                along = [point[other_axis] for point in points]
+                if not (min(along) - reach <= own_transverse_pos <= max(along) + reach):
+                    continue
+                across = [point[1 - other_axis] for point in points]
+                faces.update((round(min(across), 3), round(max(across), 3)))
+        ordered = sorted(faces)
+        best: tuple[float, float] | None = None
+        for i, low in enumerate(ordered):
+            for high in ordered[i + 1:]:
+                if abs((high - low) - width) > 0.25 * width:
+                    continue
+                if best is None or abs((low + high) / 2.0 - label_pos) < abs(
+                    (best[0] + best[1]) / 2.0 - label_pos
+                ):
+                    best = (low, high)
+        if best is None or abs((best[0] + best[1]) / 2.0 - label_pos) > 3.0 * width:
+            return None
+        return best
 
     @classmethod
     def _coords_as_tuples(cls, coords: Iterable[Interval]) -> list[Interval]:
@@ -1939,6 +2262,25 @@ class FundoVigaInterpreter:
         by = float(beam_pos[1]) if beam_pos and len(beam_pos) >= 2 else 0.0
         created = 0
         target_count = len(coords)
+        # Posicao transversal dos contornos automaticos atuais: o painel partido
+        # herda as paredes do contorno que o contem (ex.: o que a referencia
+        # das laterais, D-76, ja' pos entre as paredes), nao o rotulo +- meia largura.
+        axis = 0 if is_horizontal else 1
+        current_bands: list[tuple[float, float, float, float]] = []
+        for key, slots in links.items():
+            if not re.match(r"^viga_fundo_seg_\d+_area_segs$", str(key)) or not isinstance(slots, dict):
+                continue
+            for contour in slots.get("contour") or []:
+                points = cls._clean_polyline_points(contour.get("points")) if isinstance(contour, dict) else []
+                if len(points) < 4 or contour.get("special_geometry"):
+                    continue
+                along = [point[axis] for point in points]
+                across = [point[1 - axis] for point in points]
+                # sem conferir com a largura declarada: ela pode vir errada
+                # (VF301 com o 19/66 do pilar); o gate D-60 audita depois.
+                if not 5.0 <= max(across) - min(across) <= 3.0 * max(float(width), 19.0):
+                    continue
+                current_bands.append((min(along), max(along), min(across), max(across)))
         # remove slots automáticos além do novo total
         for key in list(links.keys()):
             match = re.match(r"^viga_fundo_seg_(\d+)_area_segs$", str(key))
@@ -1955,21 +2297,30 @@ class FundoVigaInterpreter:
                 beam.pop(f"viga_fundo_seg_{idx}_exists", None)
         for index, span in enumerate(coords, start=1):
             span_min, span_max = sorted((float(span[0]), float(span[1])))
+            band = next(
+                (
+                    (t_lo, t_hi) for a_lo, a_hi, t_lo, t_hi in current_bands
+                    if a_lo - 0.5 <= span_min and span_max <= a_hi + 0.5
+                ),
+                None,
+            )
             if is_horizontal:
+                y_lo, y_hi = band or (by - half, by + half)
                 points = [
-                    [span_min, by - half],
-                    [span_max, by - half],
-                    [span_max, by + half],
-                    [span_min, by + half],
-                    [span_min, by - half],
+                    [span_min, y_lo],
+                    [span_max, y_lo],
+                    [span_max, y_hi],
+                    [span_min, y_hi],
+                    [span_min, y_lo],
                 ]
             else:
+                x_lo, x_hi = band or (bx - half, bx + half)
                 points = [
-                    [bx - half, span_min],
-                    [bx + half, span_min],
-                    [bx + half, span_max],
-                    [bx - half, span_max],
-                    [bx - half, span_min],
+                    [x_lo, span_min],
+                    [x_hi, span_min],
+                    [x_hi, span_max],
+                    [x_lo, span_max],
+                    [x_lo, span_min],
                 ]
             key = f"viga_fundo_seg_{index}_area_segs"
             length = abs(span_max - span_min)
@@ -2020,6 +2371,7 @@ class FundoVigaInterpreter:
         """
         if not isinstance(beam, dict):
             return False
+        cls.normalize_dimension_from_own_geometry(beam)
         if cls._beam_has_validated_fundo(beam):
             return False
         geometry = beam.setdefault("geometry", {})

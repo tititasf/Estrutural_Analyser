@@ -198,7 +198,7 @@ class LicensingProxy:
         return True, "Débito Liberado (Temporário)"
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, db_path_override=None):
         super().__init__()
         self.setWindowTitle("Vision-Estrutural AI - Pro Dashboard")
         self.resize(1600, 1000)
@@ -210,7 +210,8 @@ class MainWindow(QMainWindow):
         # DB real fica um nível acima (D:/Agente-cad-PYSIDE/project_data.vision)
         parent_db = os.path.join(os.path.dirname(main_dir), "project_data.vision")
         local_db  = os.path.join(main_dir, "project_data.vision")
-        db_path = parent_db if os.path.exists(parent_db) and os.path.getsize(parent_db) > 200_000 else local_db
+        db_path = (str(db_path_override) if db_path_override is not None else
+                   parent_db if os.path.exists(parent_db) and os.path.getsize(parent_db) > 200_000 else local_db)
         self.db = DatabaseManager(db_path=db_path) # SQLite persistencia
         self.memory = HierarchicalMemory(self.db)
         self.auth_service = AuthService() # Initialize AuthService
@@ -6267,6 +6268,12 @@ class MainWindow(QMainWindow):
         self.pavimento_pillar_report = self._build_complete_pillar_report(self.slabs_found)
         # Aplica rejeições do histórico de pré-ficha antes da pré-validação
         self._apply_preficha_rejections(self.pavimento_pillar_report)
+        from src.core.pillar_sa_review import apply_report
+        preproc = getattr(self, "pavimento_preprocess", {}) or {}
+        if preproc.get("obra") and preproc.get("pavimento"):
+            from src.core.pillar_sa_review import resolve_obra
+            obra_ref = resolve_obra(preproc["obra"])
+            apply_report(self.pavimento_pillar_report, obra_ref, str(preproc["pavimento"]))
         n_report = len(self.pavimento_pillar_report)
         n_nasce = sum(1 for p in self.pavimento_pillar_report.values() if p.get('classification') == 'NASCE')
         self.log(f"📋 Relatório de pilares do pavimento: {n_report} pilar(es) detectados, {n_nasce} NASCE (a desconsiderar nas vigas/pilares).")
@@ -10202,6 +10209,9 @@ class MainWindow(QMainWindow):
             if nivel and score > best_score:
                 best_nivel, best_score = nivel, score
         ctx['best_nivel'] = best_nivel
+        # D-61: score >= 10 = laje ligada a um pilar desta viga; abaixo disso
+        # e' so' a laje "melhor" do pavimento inteiro (ultimo recurso).
+        ctx['best_nivel_ligado'] = best_score >= 10
         if ctx['slab_fichas']:
             ctx['sources'].append('lajes')
 
@@ -10860,6 +10870,12 @@ class MainWindow(QMainWindow):
             if _re.match(r'^P\d+', _support_label(s).strip().upper())
         ]
 
+        # D-61: nivel_viga estimado (sem laje encostada) fica marcado aqui,
+        # por campo: {origem, laje|de, ...}. Ausente = nivel medido.
+        if not isinstance(b.get('nivel_viga_estimado'), dict):
+            b['nivel_viga_estimado'] = {}
+        nivel_est = b['nivel_viga_estimado']
+
         for side, idx in sorted(indices):
             prefix = f'viga_{side}_seg_{idx}'
             slot = f'seg_side_{side}'
@@ -11096,14 +11112,43 @@ class MainWindow(QMainWindow):
                         pass
 
             # Nível da viga (ordem cross-classe):
-            #   laje desta face → best_nivel LAJ/PIL → cota espacial → catálogo
-            lvl_txt, lvl_link = '', None
-            if highest_slab_nivel:
+            #   laje desta face (MEDIDO) → laje do pilar desta viga → nível da
+            #   ficha do pilar → cota no desenho → laje mais próxima → laje do
+            #   pavimento. Tudo depois da 1a opção é ESTIMADO (D-61) e fica
+            #   marcado em nivel_viga_estimado com a origem.
+            lvl_txt, lvl_link, lvl_est = '', None, None
+            # MEDIDO = poligono de laje encostando na face (amostragem ou toque
+            # parcial <= 1 cm, D-57), nas duas linhas da face. O vinculo
+            # face→laje do SA vem de rotulo proximo: sem contato e' estimado
+            # (V327/V328 do 13_PAV: L325 vinculada, laje mais proxima a 218 cm).
+            touch_names = None
+            if slabs_catalog:
+                from src.core.fundo_segment_levels import slabs_touching
+                for suffix in ('comp_total_passa', 'comprimento_total'):
+                    for seg in (links.get(f'{prefix}_{suffix}') or {}).get(slot) or []:
+                        hit = slabs_touching((seg or {}).get('points') or [], slabs_catalog)
+                        if hit is not None:
+                            touch_names = sorted(set(touch_names or []) | set(hit))
+            touch_best, touch_num = '', None
+            for tn in touch_names or []:
+                niv = _slab_nivel(_lookup_slab(tn))
+                m_t = level_pat.search(str(niv or ''))
+                if m_t:
+                    v_t = float(m_t.group(1).replace(',', '.'))
+                    if touch_num is None or v_t > touch_num:
+                        touch_best, touch_num = niv, v_t
+            if touch_best:
+                lvl_txt = touch_best
+            elif highest_slab_nivel:
                 lvl_txt = highest_slab_nivel
-            if not lvl_txt and cross.get('best_nivel'):
+                if touch_names == []:
+                    lvl_est = {'origem': 'laje_vinculada_sem_contato'}
+            if not lvl_txt and cross.get('best_nivel') and cross.get('best_nivel_ligado'):
                 lvl_txt = str(cross.get('best_nivel'))
+                lvl_est = {'origem': 'laje_do_pilar'}
             if not lvl_txt and cross.get('_pillar_nivel'):
                 lvl_txt = str(cross.get('_pillar_nivel'))
+                lvl_est = {'origem': 'ficha_do_pilar'}
             if not lvl_txt and level_candidates:
                 if pts:
                     cx = sum(p[0] for p in pts) / len(pts)
@@ -11120,11 +11165,12 @@ class MainWindow(QMainWindow):
                 else:
                     lvl_link = level_candidates[0]
                 lvl_txt = str((lvl_link or {}).get('text') or '')
+                lvl_est = {'origem': 'cota_de_nivel_no_desenho'}
             if not lvl_txt and slabs_catalog and (pts or all_pts):
                 ref = pts or all_pts
                 cx = sum(float(p[0]) for p in ref) / len(ref)
                 cy = sum(float(p[1]) for p in ref) / len(ref)
-                best_n, best_d = '', float('inf')
+                best_n, best_d, best_s = '', float('inf'), None
                 for s in slabs_catalog:
                     cxy = _slab_centroid(s)
                     if not cxy:
@@ -11132,15 +11178,28 @@ class MainWindow(QMainWindow):
                     d = ((cxy[0] - cx) ** 2 + (cxy[1] - cy) ** 2) ** 0.5
                     niv = _slab_nivel(s)
                     if niv and d < best_d and d < 800:
-                        best_n, best_d = niv, d
+                        best_n, best_d, best_s = niv, d, s
                 if best_n:
                     lvl_txt = best_n
+                    # D-61: sem laje encostada o nivel e' ESTIMADO (laje mais
+                    # proxima) — melhor que nada, mas marcado como tal.
+                    lvl_est = {'origem': 'laje_mais_proxima',
+                               'laje': str((best_s or {}).get('name') or ''),
+                               'distancia_cm': round(best_d, 1)}
+            if not lvl_txt and cross.get('best_nivel'):
+                lvl_txt = str(cross.get('best_nivel'))
+                lvl_est = {'origem': 'laje_do_pavimento'}
+            nivel_key = f'{prefix}_nivel_viga'
+            if nivel_key not in validated:
+                nivel_est.pop(nivel_key, None)
             if lvl_txt:
                 _set_text_field(
-                    f'{prefix}_nivel_viga', lvl_txt,
+                    nivel_key, lvl_txt,
                     {'label': [dict(lvl_link, type=lvl_link.get('type') or 'text')]}
                     if isinstance(lvl_link, dict) else None,
                 )
+                if lvl_est and nivel_key not in validated:
+                    nivel_est[nivel_key] = lvl_est
 
             # Aberturas pilares intermediários (só P* estritamente no vão)
             if pts and (span_max - span_min) > 10:
@@ -11244,19 +11303,39 @@ class MainWindow(QMainWindow):
                 continue
             idxs = sorted(idxs)
             src = f'viga_{side}_seg_{idxs[0]}'
-            for idx in idxs[1:]:
+            # D-61: o nivel da face vem do 1o segmento com nivel MEDIDO (laje
+            # encostada); so' se nenhum tiver, do seg 1 (estimado).
+            nivel_src = next(
+                (f'viga_{side}_seg_{i}' for i in idxs
+                 if (b.get(f'viga_{side}_seg_{i}_nivel_viga')
+                     or fields.get(f'viga_{side}_seg_{i}_nivel_viga'))
+                 and f'viga_{side}_seg_{i}_nivel_viga' not in nivel_est),
+                src,
+            )
+            for idx in idxs:
                 dst = f'viga_{side}_seg_{idx}'
                 for field in ('dim', 'ini_name', 'end_name', 'nivel_viga'):
-                    src_k = f'{src}_{field}'
+                    fsrc = nivel_src if field == 'nivel_viga' else src
+                    if dst == fsrc:
+                        continue
+                    src_k = f'{fsrc}_{field}'
                     dst_k = f'{dst}_{field}'
                     src_val = b.get(src_k) or fields.get(src_k)
                     if not src_val or dst_k in validated:
                         continue
+                    if field == 'nivel_viga':
+                        if src_k in nivel_est:
+                            nivel_est[dst_k] = dict(nivel_est[src_k])
+                        elif dst_k in nivel_est or not (b.get(dst_k) or fields.get(dst_k)):
+                            # segmento sem laje herda o nivel medido de outro
+                            nivel_est[dst_k] = {'origem': 'outro_segmento', 'de': fsrc}
                     # force: multi-seg herda ficha de face do seg1
                     b[dst_k] = src_val
                     fields[dst_k] = src_val
                     if src_k in links:
                         links[dst_k] = _copy.deepcopy(links[src_k])
+                if dst == src:
+                    continue
                 src_l = f'{src}_lajes'
                 dst_l = f'{dst}_lajes'
                 if src_l in links:
@@ -11279,19 +11358,25 @@ class MainWindow(QMainWindow):
         for side, idxs in by_side.items():
             for idx in idxs:
                 k = f'viga_{side}_seg_{idx}_nivel_viga'
-                if b.get(k) or fields.get(k):
-                    continue
-                if k in validated:
+                has = b.get(k) or fields.get(k)
+                # D-61: face so' com nivel estimado adota o MEDIDO da outra face
+                if (has and k not in nivel_est) or k in validated:
                     continue
                 for other_side in ('a', 'b'):
                     if other_side == side:
                         continue
                     ok = f'viga_{other_side}_seg_{idx}_nivel_viga'
                     ov = b.get(ok) or fields.get(ok)
-                    if ov:
-                        b[k] = ov
-                        fields[k] = ov
-                        break
+                    if not ov or (has and ok in nivel_est):
+                        continue
+                    b[k] = ov
+                    fields[k] = ov
+                    if ok in nivel_est:
+                        nivel_est[k] = dict(nivel_est[ok])
+                    else:
+                        nivel_est[k] = {'origem': 'outra_face',
+                                        'de': f'viga_{other_side}_seg_{idx}'}
+                    break
 
         # NÃO escrever de volta em pilares aqui.
         # PIL tem modelo multi-face (passa_esq/dir + para/ch1..3 + lajes) e
@@ -11443,6 +11528,9 @@ class MainWindow(QMainWindow):
                     raw = []
             raw.extend(geo.get('texts', []) or [])
             raw.extend(geo.get('dimension_texts', []) or [])
+            # Secao de pilar empilhada sob o rotulo (P11 / 80/19) nao e' da viga.
+            from src.core.beam_interpreters import FundoVigaInterpreter
+            raw = FundoVigaInterpreter.drop_pillar_section_texts(raw)
             candidates = []
             for item in raw:
                 if not isinstance(item, dict) or 'text' not in item:
@@ -11714,29 +11802,9 @@ class MainWindow(QMainWindow):
             LateralVigaBPassaInterpreter().interpret(b, classified)
             b['lv_interpreter_contract_version'] = _contract_version
 
-            # Compatibilidade para registros legados sem candidato lateral:
-            # copia somente quando Para ficou vazio e Passa já possuía vínculo.
-            _links_now = b.get('links', {})
-            _para_empty = not any(
-                any(bool(value) for value in _links_now.get(key, {}).values())
-                for key in _links_now
-                if 'comprimento_total' in key and 'viga_' in key
-            )
-            if _para_empty:
-                for key, slots in list(_links_now.items()):
-                    if (
-                        'comp_total_passa' not in key
-                        or 'viga_' not in key
-                        or not any(bool(value) for value in slots.values())
-                    ):
-                        continue
-                    para_key = key.replace(
-                        'comp_total_passa', 'comprimento_total'
-                    )
-                    _links_now[para_key] = {
-                        slot: list(values)
-                        for slot, values in slots.items()
-                    }
+            # (2026-09-25) Removida a "compatibilidade" que copiava Passa -> Para
+            # quando Para ficava vazio: celula LV nunca recebe dado de outra
+            # celula (LV.md §1). Para vazio e' estado honesto, nao lacuna a tapar.
             try:
                 self._populate_lv_segment_ui_fields(b)
             except Exception as _pop_exc:
@@ -13391,6 +13459,50 @@ class MainWindow(QMainWindow):
         return self._points_bbox_tuple(slab.get('points') or [])
 
     def _slab_cut_direction(self, slab: Dict, pts: list) -> str:
+        """Lado da laje onde fica a viga do corte: a borda reta da laje sobre
+        a qual o símbolo foi desenhado. O centro da laje só decide quando o
+        corte não cai sobre nenhuma borda — numa laje longa (L318) um corte
+        de viga horizontal perto da ponta parecia "Oeste" e era lido no eixo
+        errado (−30 cm fictício)."""
+        edge_dir = self._slab_cut_direction_by_edge(slab, pts)
+        return edge_dir or self._slab_cut_direction_by_center(slab, pts)
+
+    def _slab_cut_direction_by_edge(self, slab: Dict, pts: list,
+                                    max_dist: float = 60.0) -> str:
+        poly = [p[:2] for p in (slab.get('points') or [])
+                if isinstance(p, (list, tuple)) and len(p) >= 2]
+        cb = self._points_bbox_tuple(pts)
+        if len(poly) < 3 or not cb:
+            return ''
+        cx, cy = self._bbox_center_tuple(cb)
+
+        def _inside(x, y):
+            dentro = False
+            for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+                if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+                    dentro = not dentro
+            return dentro
+
+        best = None
+        for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+            if abs(y1 - y2) < 1e-6 and abs(x1 - x2) > 1e-6:
+                if not min(x1, x2) <= cx <= max(x1, x2):
+                    continue
+                dist = abs(cy - y1)
+                # laje ao norte da borda -> viga ao sul
+                direction = 'Sul' if _inside(cx, y1 + 1.0) else 'Norte'
+            elif abs(x1 - x2) < 1e-6 and abs(y1 - y2) > 1e-6:
+                if not min(y1, y2) <= cy <= max(y1, y2):
+                    continue
+                dist = abs(cx - x1)
+                direction = 'Oeste' if _inside(x1 + 1.0, cy) else 'Leste'
+            else:
+                continue
+            if dist <= max_dist and (best is None or dist < best[0]):
+                best = (dist, direction)
+        return best[1] if best else ''
+
+    def _slab_cut_direction_by_center(self, slab: Dict, pts: list) -> str:
         sb = self._slab_bounds(slab)
         cb = self._points_bbox_tuple(pts)
         if not sb or not cb:
@@ -13827,8 +13939,16 @@ class MainWindow(QMainWindow):
         pts = link.get('points') or []
         bb = self._points_bbox_tuple(pts)
         center = self._bbox_center_tuple(bb)
-        direction = ficha.get('direction') or self._slab_cut_direction(slab, pts)
-        neighbor = self._neighbor_by_direction(slab, slabs, poly_map, direction) if direction else None
+        direction = self._slab_cut_direction(slab, pts)
+        stored_dir = ficha.get('direction')
+        # Direção gravada só é mantida se não for a do cálculo antigo pelo
+        # centro da laje (essa era do motor e pode estar errada); outra
+        # direção qualquer pode ter sido corrigida à mão no LinkManager.
+        if stored_dir and stored_dir != self._slab_cut_direction_by_center(slab, pts):
+            direction = stored_dir
+        elif stored_dir != direction:
+            ficha['direction'] = direction
+        neighbor =self._neighbor_by_direction(slab, slabs, poly_map, direction) if direction else None
         own_h_str = self._slab_height_value(slab)
         neigh_h_str = self._slab_height_value(neighbor) if neighbor else ''
 
@@ -14714,7 +14834,7 @@ class MainWindow(QMainWindow):
             if not hist_entry:
                 continue
             classification = (hist_entry.get('classification') or '').strip()
-            if not classification:
+            if not classification or classification.upper() == 'INDETERMINADO':
                 continue
             physical_type = _physical_type_for_history(
                 classification,
@@ -15091,6 +15211,16 @@ class MainWindow(QMainWindow):
                 except Exception:
                     entry['bbox'] = entry.get('bbox')
                 derived_lajes = self._pillar_laje_entries(points, slabs)
+                if entry['classification'] == 'INDETERMINADO':
+                    from src.core.pillar_convention_recognition import recognize, convention_for_source
+                    convention = (getattr(self, 'pavimento_preprocess', {}) or {}).get('convention', {})
+                    if not convention:
+                        convention = convention_for_source(getattr(self, 'current_dxf_path', None))
+                    classification, evidence = recognize(points, self.dxf_data or {}, convention)
+                    entry['classification_evidence'] = evidence
+                    if classification != 'INDETERMINADO':
+                        entry['classification'] = classification
+                        entry['ignore_in_beams'] = classification.upper() == 'NASCE'
                 existing = {x.get('laje'): x for x in entry.get('lajes', [])}
                 for item in derived_lajes:
                     existing.setdefault(item.get('laje'), item)
@@ -15309,8 +15439,13 @@ class MainWindow(QMainWindow):
                 if not isinstance(cut, dict):
                     continue
                 ficha = cut.get('ficha') or {}
-                neighbor_name = (ficha.get('side_a_laje_name') or '').strip()
-                if not neighbor_name or neighbor_name.lower() == 'nulo':
+                # A vizinha é o lado que NÃO é esta laje (A ou B, conforme a
+                # direção); ler sempre o lado A tomava a própria laje por vizinha.
+                own_name = (slab.get('name') or '').strip()
+                side_a = (ficha.get('side_a_laje_name') or '').strip()
+                side_b = (ficha.get('side_b_laje_name') or '').strip()
+                neighbor_name = side_b if side_a == own_name else side_a
+                if not neighbor_name or neighbor_name.lower() == 'nulo' or neighbor_name == own_name:
                     continue
 
                 # Localiza a laje vizinha pelo nome
@@ -15328,7 +15463,9 @@ class MainWindow(QMainWindow):
                 if delta is None:
                     continue
 
-                calc_level = n_src['value'] + delta
+                # delta em cm, nível em m (bug de 2026-09-26: somava cm como m)
+                from src.core.slab_level_inference import cut_delta_level
+                calc_level = cut_delta_level(n_src['value'], delta)
                 confidence = 0.80 if n_src.get('human') else 0.55
                 candidate_values.append({
                     'value': round(calc_level, 2),
@@ -15355,6 +15492,32 @@ class MainWindow(QMainWindow):
                     'candidates': candidate_values,
                 }
                 continue
+
+            # Portões de coerência: o cálculo sozinho não decide o nível.
+            from src.core.slab_level_inference import gate_cut_delta_level
+            import statistics
+            ref_vals = [s['value'] for s in level_sources.values() if s.get('human')] \
+                or [s['value'] for s in level_sources.values() if s.get('value') is not None]
+            own_label = next((
+                self._parse_slab_level_value(link.get('text'))
+                for link in (self._ensure_slab_level_links(slab).get('label') or [])
+                if isinstance(link, dict) and not link.get('is_inferred')
+                and self._parse_slab_level_value(link.get('text')) is not None
+            ), None)
+            veredito = gate_cut_delta_level(
+                best['value'], best['delta'],
+                reference_level_m=statistics.median(ref_vals) if ref_vals else None,
+                own_label_level_m=own_label,
+            )
+            if not veredito['accepted']:
+                slab['level_inference'] = {
+                    'status': 'needs_review',
+                    'reason': 'cut_view_delta_reprovado_nos_portoes',
+                    'value_proposto': best['value'],
+                    'gates': veredito['gates'],
+                    'candidates': candidate_values,
+                }
+                continue
             self._apply_inferred_slab_level(
                 slab, best['value'],
                 f"cut_view_delta from {best['source_slab']} (Δ={best['delta']:+.1f}cm)",
@@ -15363,6 +15526,9 @@ class MainWindow(QMainWindow):
             # Enriquece o level_inference com metadados de confiança
             slab['level_inference']['confidence'] = best['confidence']
             slab['level_inference']['method'] = 'cut_view_delta'
+            slab['level_inference']['gates'] = veredito['gates']
+            if veredito['confirmed_by_label']:
+                slab['level_inference']['status'] = 'confirmed'
             level_sources[slab.get('id') or slab.get('name')] = {
                 'value': best['value'],
                 'slab': slab.get('name'),
@@ -16177,6 +16343,9 @@ class MainWindow(QMainWindow):
     def _infer_slab_levels_from_context(self, slabs: list[Dict]) -> None:
         if not slabs:
             return
+        if getattr(self, '_sa_preprocessed_item_levels', None):
+            from portal.app.preprocessamento.sa_levels import consume_item_levels
+            self._sa_level_consumer_calls = consume_item_levels(slabs, self._sa_preprocessed_item_levels)
         auto_cuts, auto_pillars = self._auto_link_slab_cut_views(slabs)
         poly_map = self._slab_polygon_map(slabs)
         self._prune_stale_neighbor_level_links(slabs)

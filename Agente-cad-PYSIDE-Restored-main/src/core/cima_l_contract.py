@@ -34,6 +34,20 @@ def globais_pilar_especial_l(
         "pilar2_gradeb_tamanho": c2 + 11.0 - 18.5,
         "pilar2_parafuso_tamanho": c1 - l2 - 30.0 - 11.0,
         "pilar2_parafuso_posicao": 41.0,
+        # Perfil / metal — CIMA_FUNCIONAL_EXCEL + calcular_perfis_metalicos_especiais_L
+        "pilar1_metalb_tamanho": -58.5,
+        "pilar2_metala_posicao": 58.5,
+        "pilar2_metala_tamanho": -58.5,
+        "perfil_metalico_a_posicao": 47.5,
+        "perfil_metalico_b_posicao": 47.5,
+        "perfil_metalico_a_tamanho": -47.5,
+        "perfil_metalico_b_tamanho": -47.5,
+        "metal_b_1_posicao": -11.0,
+        "sarrafo_corner": 18.5,
+        "sarrafo_thick": 4.4,
+        "chapa_both": 22.0,
+        "chapa_one": 11.0,
+        "parafuso_trim": 30.0,
         "comp_1": c1, "comp_2": c2, "larg_1": l1, "larg_2": l2,
     }
 
@@ -85,7 +99,7 @@ def n3_faces_l(pj: dict | None) -> list[dict[str, Any]]:
     paineis = paineis_l_from_secao(secao)
     return [
         {"id": "A", "panel": paineis["haste_ext"], "inner": paineis["haste"]},
-        {"id": "B", "panel": paineis["haste_ext"], "inner": paineis["haste"]},
+        {"id": "B", "panel": paineis["haste_int"], "inner": paineis["haste"] - paineis["espessura"]},
         {"id": "C", "panel": paineis["espessura"], "inner": paineis["espessura"]},
         {"id": "D", "panel": paineis["espessura"], "inner": paineis["espessura"]},
         {"id": "E", "panel": paineis["ramo_ext"], "inner": paineis["ramo"]},
@@ -145,6 +159,15 @@ def _spacings(pj: dict, keys: list[str], fallback: list[float] | None = None) ->
 CIMA_L_GRADE_MODULES = (122.0, 120.0, 80.0, 70.0)
 CIMA_L_GRID_CELL = 30.0
 CIMA_L_MAX_GRADE = 122.0
+
+# As quatro faces longas do contorno em L. C/D sao as faces curtas da
+# espessura e continuam no ABCD, mas nao formam grades independentes no CIMA.
+CIMA_L_SIDE_ARMS = (
+    ("A", "haste_ext"),
+    ("B", "haste_int"),
+    ("E", "ramo_ext"),
+    ("F", "ramo_int"),
+)
 
 
 def paineis_l_from_secao(secao: dict[str, float]) -> dict[str, float]:
@@ -206,6 +229,15 @@ def _quadradinhos_for_grade(width: float, preferred: Any, bolt_offsets: list[flo
     pref = [float(v) for v in (preferred or []) if v]
     if pref and abs(sum(pref) - width) < 0.5:
         return [round(v, 4) for v in pref]
+    # Módulos CIMA (retangular e L): a grade inteira vira uma malha fixa.
+    for module, parts in (
+        (70.0, [20.0, 25.0, 25.0]),
+        (80.0, [27.0, 26.0, 27.0]),
+        (120.0, [30.0, 30.0, 30.0, 30.0]),
+        (122.0, [30.0, 31.0, 31.0, 30.0]),
+    ):
+        if abs(width - module) < 0.6:
+            return parts
     whole = round(width)
     if (
         abs(width - whole) < 1e-4
@@ -275,6 +307,9 @@ def _face_contract(
         "quadradinhos": [[round(v, 4) for v in row] for row in divs],
         "parafusos": [round(v, 4) for v in spacings],
         "parafuso_inicio": round(bolt_start, 4),
+        # Limite direito relativo ao painel. Mantido no contrato da ficha;
+        # o desenho especial atual continua usando suas estações canônicas.
+        "parafuso_final": 1.0,
         "div_prefix": div_prefix,
         "bolt_keys": bolt_keys,
     }
@@ -294,13 +329,48 @@ def build_cima_l_contract(pj: dict) -> dict[str, Any] | None:
     secao = secao_l_do_payload(pj)
     if not secao:
         return None
-    thick = min(secao["interna_x"], secao["externa_y"] - secao["interna_y"])
-    haste_len = secao["externa_y"]
-    ramo_len = secao["externa_x"]
-    globais = globais_pilar_especial_l(haste_len, ramo_len, thick, thick)
     saved = ((pj.get("pilar_especial") or {}).get("cima") or {}) if isinstance(pj, dict) else {}
     if not isinstance(saved, dict):
         saved = {}
+    thick_1 = float(secao["interna_x"])
+    thick_2 = float(secao["externa_y"] - secao["interna_y"])
+    canonical_shape = {
+        "comprimento_1_interno": float(secao["interna_y"]),
+        "comprimento_1_externo": float(secao["externa_y"]),
+        "comprimento_2_interno": float(secao["externa_x"] - thick_1),
+        "comprimento_2_externo": float(secao["externa_x"]),
+        "largura_1": thick_1,
+        "largura_2": thick_2,
+    }
+    saved_shape = saved.get("shape") if isinstance(saved.get("shape"), dict) else {}
+    shape = dict(canonical_shape)
+    for key in shape:
+        try:
+            candidate = float(saved_shape.get(key) or 0.0)
+        except (TypeError, ValueError):
+            candidate = 0.0
+        if candidate > 0.0:
+            shape[key] = candidate
+    # Larguras governam a espessura de cada perna; comprimentos internos sao
+    # normalizados para que a ficha nunca envie uma seção L contraditória.
+    shape["comprimento_1_interno"] = max(
+        0.1, shape["comprimento_1_externo"] - shape["largura_2"],
+    )
+    shape["comprimento_2_interno"] = max(
+        0.1, shape["comprimento_2_externo"] - shape["largura_1"],
+    )
+    secao = {
+        "externa_x": shape["comprimento_2_externo"],
+        "interna_x": shape["largura_1"],
+        "externa_y": shape["comprimento_1_externo"],
+        "interna_y": shape["comprimento_1_interno"],
+    }
+    thick = min(shape["largura_1"], shape["largura_2"])
+    haste_len = secao["externa_y"]
+    ramo_len = secao["externa_x"]
+    globais = globais_pilar_especial_l(
+        haste_len, ramo_len, shape["largura_1"], shape["largura_2"],
+    )
     saved_arms = saved.get("arms") if isinstance(saved.get("arms"), dict) else {}
     haste_keys = [f"par_a_{i}" for i in range(1, 9)]
     ramo_keys = [f"par_e_{i}" for i in range(1, 9)]
@@ -318,19 +388,20 @@ def build_cima_l_contract(pj: dict) -> dict[str, Any] | None:
             pj.setdefault(f"par_e_{i}", value)
     paineis = paineis_l_from_secao(secao)
     specs = (
-        ("haste_ext", paineis["haste"], paineis["haste_ext"], "grade_haste_ext", haste_keys, 0.0),
-        ("haste_int", paineis["haste"] - thick, paineis["haste_int"], "grade_haste_int", haste_keys, 0.0),
-        ("ramo_ext", paineis["ramo"], paineis["ramo_ext"], "grade_ramo_ext", ramo_keys, globais["pilar2_parafuso_posicao"]),
-        ("ramo_int", paineis["ramo"] - thick, paineis["ramo_int"], "grade_ramo_int", ramo_keys, 0.0),
+        ("A", "haste_ext", paineis["haste"], paineis["haste_ext"], "grade_haste_ext", haste_keys, 0.0),
+        ("B", "haste_int", paineis["haste"] - thick, paineis["haste_int"], "grade_haste_int", haste_keys, 0.0),
+        ("E", "ramo_ext", paineis["ramo"], paineis["ramo_ext"], "grade_ramo_ext", ramo_keys, globais["pilar2_parafuso_posicao"]),
+        ("F", "ramo_int", paineis["ramo"] - thick, paineis["ramo_int"], "grade_ramo_int", ramo_keys, 0.0),
     )
     faces: dict[str, Any] = {}
-    for name, inner, panel, prefix, keys, bolt_start in specs:
+    for side_id, name, inner, panel, prefix, keys, bolt_start in specs:
         alias = "haste" if name.startswith("haste") else "ramo"
         source = saved_arms.get(name) or saved_arms.get(alias) or {}
         face = _face_contract(
             pj, name=name, inner=inner, panel=panel,
             div_prefix=prefix, bolt_keys=keys, bolt_start=bolt_start,
         )
+        face["side_id"] = side_id
         if isinstance(source, dict) and source.get("quadradinhos"):
             face["quadradinhos"] = source["quadradinhos"]
         if isinstance(source, dict) and source.get("grade_widths"):
@@ -339,6 +410,10 @@ def build_cima_l_contract(pj: dict) -> dict[str, Any] | None:
             face["grade_width"] = source["grade_widths"][0]
         if isinstance(source, dict) and source.get("gaps") is not None:
             face["gaps"] = source["gaps"]
+        if isinstance(source, dict) and source.get("parafuso_inicio") is not None:
+            face["parafuso_inicio"] = source["parafuso_inicio"]
+        if isinstance(source, dict) and source.get("parafuso_final") is not None:
+            face["parafuso_final"] = source["parafuso_final"]
         faces[name] = face
     faces["haste"] = faces["haste_ext"]
     faces["ramo"] = faces["ramo_ext"]
@@ -347,6 +422,8 @@ def build_cima_l_contract(pj: dict) -> dict[str, Any] | None:
         "secao": {**secao, "espessura": round(thick, 4)},
         "paineis": paineis,
         "globais": globais,
+        "classification": str(saved.get("classification") or "especial_l"),
+        "shape": shape,
         "arms": faces,
     }
 
@@ -401,14 +478,9 @@ def portal_cima_l_contract(robot: dict) -> dict[str, Any]:
         nums = [float(v) for v in (values or []) if v]
         return " | ".join(fmt(v) for v in nums) if nums else "—"
 
-    rows = [["formato", "L — 4 faces longas (haste ext/int + ramo ext/int)"]]
+    rows = [["formato", "L — grades independentes nos lados A, B, E e F"]]
     fields_arms = {}
-    titles = [
-        ("haste_ext", "Haste externa"),
-        ("haste_int", "Haste interna"),
-        ("ramo_ext", "Ramo externo"),
-        ("ramo_int", "Ramo interno"),
-    ]
+    titles = [(arm_key, f"Lado {side_id}") for side_id, arm_key in CIMA_L_SIDE_ARMS]
     if not any(arms.get(key) for key, _title in titles):
         titles = [("haste", "Haste"), ("ramo", "Ramo")]
     for key, title in titles:
@@ -427,6 +499,7 @@ def portal_cima_l_contract(robot: dict) -> dict[str, Any]:
             f"G{i + 1}: {label(row)}" for i, row in enumerate(arm.get("quadradinhos") or [])
         )])
         fields_arms[key] = {
+            "side_id": arm.get("side_id") or title.removeprefix("Lado "),
             "comprimento_interno": arm.get("comprimento_interno") or 0.0,
             "grade_externa": arm.get("grade_externa") or 0.0,
             "n_grades": arm.get("n_grades") or 0,
@@ -435,6 +508,7 @@ def portal_cima_l_contract(robot: dict) -> dict[str, Any]:
             "gaps": list(arm.get("gaps") or []),
             "parafusos": (list(arm.get("parafusos") or []) + [None] * 7)[:7],
             "parafuso_inicio": arm.get("parafuso_inicio") or 0.0,
+            "parafuso_final": arm.get("parafuso_final") if arm.get("parafuso_final") is not None else 1.0,
             "quadradinhos": [
                 (list(row) + [None] * 5)[:5] for row in (arm.get("quadradinhos") or [[]])[:3]
             ] or [[None] * 5],
@@ -444,9 +518,9 @@ def portal_cima_l_contract(robot: dict) -> dict[str, Any]:
         "rows": rows,
         "fields": {
             "formato": "L",
-            "comprimento_interno": secao.get("externa_y") or 0.0,
-            "largura_interna": secao.get("externa_x") or 0.0,
-            "espessura": secao.get("espessura") or secao.get("interna_x") or 0.0,
+            "classificacao_pilar": contract.get("classification") or "especial_l",
+            "shape": dict(contract.get("shape") or {}),
             "especial": fields_arms,
+            "side_order": [side_id for side_id, _arm_key in CIMA_L_SIDE_ARMS],
         },
     }

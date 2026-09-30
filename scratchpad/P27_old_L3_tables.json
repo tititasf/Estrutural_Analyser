@@ -1,0 +1,325 @@
+{
+  "item": "P27",
+  "orientation": "vertical",
+  "geometry_type": "L_special_6_faces",
+  "face_ids": [
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F"
+  ],
+  "face_geometry": {
+    "A": {
+      "p0": [
+        4533.3825,
+        2460.038
+      ],
+      "p1": [
+        4533.3825,
+        2261.038
+      ],
+      "out": [
+        -1.0,
+        -0.0
+      ],
+      "length": 199.0
+    },
+    "B": {
+      "p0": [
+        4552.3825,
+        2242.038
+      ],
+      "p1": [
+        4552.3825,
+        2460.038
+      ],
+      "out": [
+        1.0,
+        -0.0
+      ],
+      "length": 218.0
+    },
+    "C": {
+      "p0": [
+        4552.3825,
+        2460.038
+      ],
+      "p1": [
+        4533.3825,
+        2460.038
+      ],
+      "out": [
+        0.0,
+        1.0
+      ],
+      "length": 19.0
+    },
+    "D": {
+      "p0": [
+        4387.3825,
+        2261.038
+      ],
+      "p1": [
+        4387.3825,
+        2242.038
+      ],
+      "out": [
+        -1.0,
+        -0.0
+      ],
+      "length": 19.0
+    },
+    "E": {
+      "p0": [
+        4387.3825,
+        2242.038
+      ],
+      "p1": [
+        4552.3825,
+        2242.038
+      ],
+      "out": [
+        0.0,
+        -1.0
+      ],
+      "length": 165.0
+    },
+    "F": {
+      "p0": [
+        4533.3825,
+        2261.038
+      ],
+      "p1": [
+        4387.3825,
+        2261.038
+      ],
+      "out": [
+        0.0,
+        1.0
+      ],
+      "length": 146.0
+    }
+  },
+  "base_layer": "L3",
+  "faces": {
+    "A": {
+      "label": "A — esquerda (oeste) · face longa",
+      "lajes": [],
+      "passa": [],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V304",
+          "dim": "19/50",
+          "nivel": "852.19cm",
+          "canto": "AC",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": []
+    },
+    "B": {
+      "label": "B — direita (leste) · face longa",
+      "lajes": [],
+      "passa": [],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V304",
+          "dim": "19/50",
+          "nivel": "852.19cm",
+          "canto": "BC",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": []
+    },
+    "C": {
+      "label": "C — topo (norte) · face curta",
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "nenhuma",
+          "dim": "—",
+          "nivel": "—",
+          "canto": "—",
+          "papel": "—",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V329",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "CA",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "V329",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "CB",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "V304",
+          "dim": "19/50",
+          "nivel": "852.19cm",
+          "canto": "CC",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "D": {
+      "label": "D — base (sul) · face curta",
+      "lajes": [],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V305",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "DE",
+          "papel": "passa",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [],
+      "interior": [
+        {
+          "familia": "viga",
+          "nome": "V305",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "DD",
+          "papel": "interior",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ]
+    },
+    "E": {
+      "lajes": [
+        {
+          "familia": "laje",
+          "nome": "L317",
+          "dim": "13",
+          "nivel": "855.12",
+          "canto": "EE",
+          "papel": "laje",
+          "raw": "face especial em L",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V329",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "ED",
+          "papel": "passa",
+          "raw": "face especial em L",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "V329",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "EB",
+          "papel": "passa",
+          "raw": "face especial em L",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [
+        {
+          "familia": "viga",
+          "nome": "V327",
+          "dim": "14/50",
+          "nivel": "852.19cm",
+          "canto": "ED",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        },
+        {
+          "familia": "viga",
+          "nome": "V328",
+          "dim": "19/55",
+          "nivel": "852.19cm",
+          "canto": "EB",
+          "papel": "chega",
+          "raw": "",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "interior": [],
+      "label": "E — ramo horizontal · face longa externa"
+    },
+    "F": {
+      "lajes": [],
+      "passa": [
+        {
+          "familia": "viga",
+          "nome": "V329",
+          "dim": "19/60",
+          "nivel": "852.19cm",
+          "canto": "FD",
+          "papel": "passa",
+          "raw": "face especial em L",
+          "dist_esq": "—",
+          "dist_dir": "—"
+        }
+      ],
+      "chega": [],
+      "interior": [],
+      "label": "F — ramo horizontal · face longa interna"
+    }
+  },
+  "actions": [
+    "pilar especial em L reconhecido: seis faces físicas A–F",
+    "tags especiais A–F materializadas com a mesma semântica laje/passa/chega/interior",
+    "atenção especial: F.passa V329@FD preservado; face exclusiva"
+  ],
+  "routing_policy": "non_crossing_v1",
+  "connector_crossings": [],
+  "qa_issues": [],
+  "qa_status": "pass",
+  "human_note_used_as_acceptance": "Lado F e so FD passa, nada mais."
+}

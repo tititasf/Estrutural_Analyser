@@ -1,17 +1,26 @@
 .wrapper {
-  padding: 16px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  background: var(--surface, #1e293b);
+  border-radius: var(--radius, 12px);
+  border: 1px solid var(--surface-2, #334155);
 }
 
 .tituloSecao {
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--fg);
-  margin-bottom: 8px;
+  color: var(--fg, #f8fafc);
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .vazio {
-  color: var(--fg-muted);
+  color: var(--fg-muted, #94a3b8);
+  font-size: 14px;
 }

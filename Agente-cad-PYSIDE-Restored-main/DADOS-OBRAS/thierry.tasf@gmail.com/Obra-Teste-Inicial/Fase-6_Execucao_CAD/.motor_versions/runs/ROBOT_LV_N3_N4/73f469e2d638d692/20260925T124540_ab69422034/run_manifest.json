@@ -1,0 +1,13 @@
+{
+  "run_id": "20260925T124540_ab69422034",
+  "motor_id": "ROBOT_LV_N3_N4",
+  "version_id": "73f469e2d638d692",
+  "mode": "publish",
+  "status": "published",
+  "official_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-6_Execucao_CAD\\production_sa\\13_PAV\\20260925_094413_16808\\n3\\dxf\\LV_preview_V324_Para_VIEW_A.dxf",
+  "output_path": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial\\Fase-6_Execucao_CAD\\production_sa\\13_PAV\\20260925_094413_16808\\n3\\dxf\\LV_preview_V324_Para_VIEW_A.dxf",
+  "baseline_sha256": null,
+  "output_sha256": "fa15f063ef9cc8c5575a26b1132df031e37075274db46abfd4911a07f26ff92f",
+  "effect": "new",
+  "created_at": "2026-09-25T12:45:40+00:00"
+}

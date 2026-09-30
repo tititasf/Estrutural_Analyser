@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_macros.html" import status_badge %}
-{% block titulo %}{{ 'Todas as obras' if membro.papel == 'dono' else 'Lista de Obras — ' ~ (membro.nome or membro.login) }} — Portal de Formas{% endblock %}
+{% block titulo %}{{ 'Todas as obras' if membro.papel == 'dono' else 'Lista de Obras — ' ~ (membro.nome or membro.login) }} — Portal de Formas de Concretagem{% endblock %}
 
 {% block sidebar_obras_extra %}
 <li class="sidebar-obras-arvore sidebar-obras-lista-page">
@@ -142,6 +142,13 @@
           <label class="field-label" for="criar-nome">Nome da obra</label>
           <input type="text" id="criar-nome" class="field" placeholder="ex.: Edifício Paraíso" required autocomplete="off">
 
+          <label class="field-label" for="criar-comportamento">Comportamento</label>
+          <select id="criar-comportamento" class="field" required>
+            <option value="misto" selected>Misto</option>
+            <option value="para">Para</option>
+            <option value="passa">Passa</option>
+          </select>
+
           <label class="field-label" for="criar-descricao">Descrição <span class="field-opt">(opcional)</span></label>
           <textarea id="criar-descricao" class="field" rows="2" placeholder="Critérios do cliente, observações do lote…"></textarea>
 
@@ -194,14 +201,8 @@
 
           <div class="flow-actions">
             <button type="submit" class="btn" id="btn-criar-obra">Criar obra →</button>
-            {% if drive_folder_url %}
-            <a class="btn-sec btn" href="{{ drive_folder_url }}" target="_blank" rel="noopener">Abrir pasta no Drive ↗</a>
-            {% endif %}
-            <button type="button" class="btn-sec btn" id="btn-verificar">Verificar agora ↻</button>
-            <button type="button" class="btn-sec btn" data-goto-wiz="3">Exibir lista de obras</button>
           </div>
           <div id="criar-obra-resultado" role="status" aria-live="polite"></div>
-          <span id="verificar-status" class="status-verificar" role="status" aria-live="polite"></span>
         </form>
         {% else %}
         <p class="faixa faixa-aviso" style="margin:0">
@@ -248,6 +249,11 @@
           <tr class="obras-user-sep">
             <td colspan="7">Lista de Obras — {{ g.dono }}{% if g.dono == meu_nome %} · você{% endif %}</td>
           </tr>
+          {% if not g.obras %}
+          <tr class="obras-row" data-nome="" data-dono="{{ g.dono|e }}">
+            <td colspan="7" class="meta">Nenhuma obra enviada ainda.</td>
+          </tr>
+          {% endif %}
           {% endif %}
           {% for o in g.obras %}
           <tr class="obras-row" data-nome="{{ o.nome|e }}" data-dono="{{ g.dono|e }}">
@@ -387,6 +393,12 @@
         progresso.hidden = true;
         if (xhr.status >= 200 && xhr.status < 300) {
           var data = JSON.parse(xhr.responseText);
+          if (data.obra_id) {
+            resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
+              '<span aria-hidden="true">✓</span> Enviado! Abrindo a ficha para você nomear e continuar…</p>';
+            window.location.assign('/app/obras/' + encodeURIComponent(data.obra_id) + '?onboarding=1&novo=1');
+            return;
+          }
           resultado.innerHTML = '<p class="faixa faixa-info" role="status">' +
             '<span aria-hidden="true">✓</span> Enviado! ' +
             (data.novas_obras > 0 ? 'Já apareceu na lista.' : 'Confirmando…') + '</p>';
@@ -605,7 +617,8 @@
       fetch('/obras/criar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nome: nome, descricao: descricao || null }),
+        body: JSON.stringify({ nome: nome, descricao: descricao || null,
+          comportamento: document.getElementById('criar-comportamento').value }),
       }).then(function (r) {
         return r.json().then(function (data) { return { ok: r.ok, data: data }; });
       }).then(function (res) {
@@ -647,36 +660,6 @@
     });
   }
 
-  // verificar Drive
-  var btnVer = document.getElementById('btn-verificar');
-  if (btnVer) {
-    btnVer.addEventListener('click', function () {
-      var status = document.getElementById('verificar-status');
-      btnVer.disabled = true;
-      btnVer.textContent = 'Verificando…';
-      if (status) status.textContent = '';
-      fetch('/obras/verificar-drive', { method: 'POST' })
-        .then(function (r) {
-          if (!r.ok) throw new Error('falha');
-          return r.json();
-        })
-        .then(function (data) {
-          if (data.novas_obras > 0) {
-            if (status) status.textContent = data.novas_obras + ' obra(s) nova(s) — atualizando…';
-            setTimeout(function () { window.location.reload(); }, 900);
-          } else {
-            if (status) status.textContent = 'Nenhuma obra nova por enquanto.';
-            btnVer.disabled = false;
-            btnVer.textContent = 'Verificar agora ↻';
-          }
-        })
-        .catch(function () {
-          if (status) status.textContent = 'Não foi possível verificar agora.';
-          btnVer.disabled = false;
-          btnVer.textContent = 'Verificar agora ↻';
-        });
-    });
-  }
 })();
 </script>
 {% endblock %}

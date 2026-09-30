@@ -411,6 +411,15 @@ def _integer_segments_with_avoidance(
         preferred = []
     offsets = [float(value) for value in (offsets or [])]
 
+    # Acima de quatro vãos, o produto cartesiano cresce exponencialmente
+    # (227 cm / 8 vãos exigia 42^7 tentativas). A soma restante e a posição
+    # da fração formam estados finitos; cada prefixo equivalente partilha o
+    # mesmo melhor sufixo, preservando a ordem de preferência original.
+    if count > 4:
+        return _integer_segments_with_avoidance_dp(
+            whole, fraction, count, ideal, low, high, preferred, offsets, tol,
+        )
+
     best = None
     fraction_indexes = [count - 1] if not fraction else list(range(count))
     for prefix in itertools.product(range(low, high + 1), repeat=max(0, count - 1)):
@@ -457,6 +466,57 @@ def _integer_segments_with_avoidance(
     if best:
         return best[1]
     return _balanced_parts_with_single_fraction(total_w, count)
+
+
+def _integer_segments_with_avoidance_dp(
+    whole, fraction, count, ideal, low, high, preferred, offsets, tol,
+):
+    from functools import lru_cache
+
+    best = None
+    fraction_indexes = [count - 1] if not fraction else range(count)
+    for fraction_index in fraction_indexes:
+        @lru_cache(maxsize=None)
+        def solve(index, used):
+            if index == count:
+                return ((0, 0.0, 0.0, 0.0, ()), ()) if used == whole else None
+            remaining = count - index - 1
+            start = max(low, whole - used - high * remaining)
+            stop = min(high, whole - used - low * remaining)
+            winner = None
+            for integer in range(start, stop + 1):
+                suffix = solve(index + 1, used + integer)
+                if suffix is None:
+                    continue
+                segment = float(integer) + (fraction if index == fraction_index else 0.0)
+                boundary = used + integer + (fraction if fraction_index <= index else 0.0)
+                penetrations = ([tol - abs(boundary - offset) for offset in offsets
+                                 if abs(boundary - offset) <= tol]
+                                if index < count - 1 else [])
+                suffix_score, suffix_segments = suffix
+                balance = (segment - ideal) ** 2
+                segments = (segment,) + suffix_segments
+                score = (
+                    len(penetrations) + suffix_score[0],
+                    round(sum(value + 1e-6 for value in penetrations) + suffix_score[1], 6),
+                    round((abs(segment - preferred[index]) if preferred else balance) + suffix_score[2], 6),
+                    round(balance + suffix_score[3], 6),
+                    segments,
+                )
+                if winner is None or score < winner[0]:
+                    winner = (score, segments)
+            return winner
+
+        result = solve(0, 0)
+        if result is None:
+            continue
+        score, segments = result
+        full_score = (*score[:4], 0 if fraction_index == count - 1 else 1, segments)
+        if best is None or full_score < best[0]:
+            best = (full_score, segments)
+    return list(best[1]) if best else _balanced_parts_with_single_fraction(
+        float(whole) + fraction, count,
+    )
 
 
 def _grade_boundaries_with_avoidance(total_w, offsets, tol=3.0, step=5.0, max_shift=20.0):
@@ -567,7 +627,7 @@ def _grade_layout_from_inner(inner_width):
     return _normalized_grade_layout(total_width, legacy)
 
 
-def _grade_divisions(pj, total_width, ng, grade_width, gaps):
+def _grade_divisions(pj, total_width, ng, grade_width, gaps, side='a'):
     """Divisões por grade com offsets globais dos parafusos convertidos em locais."""
     global_bolts = _bolt_offsets_from_pj(pj, total_width)
     divisions = []
@@ -601,10 +661,68 @@ def _grade_divisions(pj, total_width, ng, grade_width, gaps):
         divisions.append(_div_segments(
             pj,
             grade_width,
-            f'grade_{index + 1}_div_a',
+            f'grade_{index + 1}_div_{side}',
             bolt_offsets=local_bolts,
         ))
     return divisions
+
+
+def cima_layout_contract(pj, inner_width):
+    """Contrato exato de grades/quadradinhos consumido por ``draw_cima``.
+
+    Overrides do portal podem definir larguras e gaps, desde que fechem a
+    largura física (vão interno + 22 cm). Sem override, preserva integralmente
+    o cálculo homologado anterior. O lado B só diverge quando foi informado;
+    contratos antigos continuam desenhando os dois lados com a mesma malha.
+    """
+    total_width = float(inner_width) + 22.0
+    explicit = pj.get('_portal_cima_grade_layout') or {}
+    if not isinstance(explicit, dict):
+        explicit = {}
+
+    def _positive(values, *, allow_zero=False):
+        result = []
+        for value in values or []:
+            try:
+                parsed = float(value)
+            except (TypeError, ValueError):
+                continue
+            if parsed > 0 or (allow_zero and parsed >= 0):
+                result.append(parsed)
+        return result
+
+    widths = _positive(explicit.get('widths'))
+    gaps = _positive(explicit.get('gaps'), allow_zero=True)
+    if not widths or len(widths) > 3 or len(gaps) != len(widths) - 1 or abs(sum(widths) + sum(gaps) - total_width) > 0.5:
+        ng, grade_width, gaps = _grade_layout_from_inner(inner_width)
+        widths = [grade_width] * ng
+    starts, cursor = [], 0.0
+    for index, width in enumerate(widths):
+        starts.append(cursor)
+        cursor += width
+        if index < len(gaps):
+            cursor += gaps[index]
+    global_bolts = _bolt_offsets_from_pj(pj, total_width)
+    divisions = {}
+    for side in ('a', 'b'):
+        rows = []
+        for index, (start, width) in enumerate(zip(starts, widths), start=1):
+            local_bolts = [
+                offset - start for offset in global_bolts
+                if start - 3.0 <= offset <= start + width + 3.0
+            ]
+            key = f'grade_{index}_div_{side}'
+            # Lado B ausente mantém exatamente a malha histórica do desenho.
+            if side == 'b' and not pj.get(key):
+                rows.append(list(divisions['a'][index - 1]))
+            else:
+                rows.append(_div_segments(pj, width, key, bolt_offsets=local_bolts))
+        divisions[side] = rows
+    return {
+        'total_width': total_width, 'widths': widths, 'gaps': gaps,
+        'starts': starts, 'divisions_a': divisions['a'],
+        'divisions_b': divisions['b'],
+    }
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -772,27 +890,27 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
     # Para ng=1: gw_c = chapa_full_w, dg_c = 0 → compatível com código anterior.
     # Para ng=2: gw_c < chapa_full_w, duas grades lado a lado com gap dg_c.
     # Mesma lógica de draw_grades (fonte única: GradeCalculator + _div_segments).
-    ng_c, gw_c, gaps_c = _grade_layout_from_inner(comp)
-    starts_c = _grade_starts(gw_c, gaps_c)
-    divisions_c = _grade_divisions(
-        pj, chapa_full_w, ng_c, gw_c, gaps_c,
-    )
+    cima_contract = cima_layout_contract(pj, comp)
+    widths_c, gaps_c = cima_contract['widths'], cima_contract['gaps']
+    starts_c = cima_contract['starts']
+    divisions_a, divisions_b = cima_contract['divisions_a'], cima_contract['divisions_b']
 
     # ── 3b/3d. Madeira por grade (lado C = topo, lado A = fundo) ─────────────
     # Cada uma das ng_c grades recebe: fundo + canto_esq + canto_dir + N divisores.
     madeira_y0 = cy_t + TC
     madeira_h = CORNER_W
 
-    def _draw_madeira_row(y_m):
+    def _draw_madeira_row(y_m, divisions):
         n0 = len(entities)
         for gi, grade_start in enumerate(starts_c):
+            gw_c = widths_c[gi]
             gx0 = corner_l + grade_start
             gx1 = gx0 + gw_c
             rp(gx0, y_m, gw_c, madeira_h, 'Madeira')                        # fundo
             rp(gx0, y_m, CORNER_W, madeira_h, 'Madeira')                     # canto esq
             rp(gx1 - CORNER_W, y_m, CORNER_W, madeira_h, 'Madeira')         # canto dir
             cumulative = 0.0
-            for segment in divisions_c[gi][:-1]:
+            for segment in divisions[gi][:-1]:
                 cumulative += segment
                 off = cumulative
                 cx_mid = gx0 + off
@@ -800,9 +918,9 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
         for e in entities[n0:]:
             e.dxf.color = 126
 
-    _draw_madeira_row(madeira_y0)           # lado C (topo)
+    _draw_madeira_row(madeira_y0, divisions_b)  # lado B (topo)
     madeira_y0_a = cy_b - TC - CORNER_W
-    _draw_madeira_row(madeira_y0_a)         # lado A (fundo)
+    _draw_madeira_row(madeira_y0_a, divisions_a)  # lado A (fundo)
 
     # ── 3e. Perfil Metálico (2x "C-channel" além das peças Madeira) ──────────
     PERFIL_EXT = EXTRA_GRAV - TC
@@ -829,18 +947,18 @@ def draw_cima(msp, ox, oy, comp, larg, grade_1, nome, pj):
             for v in nums:
                 w = v
                 x0 = gx0 + cumsum
-                x1 = min(gx0 + cumsum + w, gx0 + gw_c)
+                x1 = min(gx0 + cumsum + w, gx0 + widths_c[gi])
                 if x1 - x0 > 0.01:
                     txt = f'{v:.0f}' if v == int(v) else f'{v:g}'
                     entities.append(dim_h(msp, x0, x1, y_base, 'COTA', 'cotax2', offset=offset, text=txt))
                 cumsum += w
 
-    _place_div_dims(divisions_c, madeira_y0_a, offset=20)
+    _place_div_dims(divisions_a, madeira_y0_a, offset=20)
 
     # Eventual fração da largura total fica em um único gap entre grades.
     for gi, gap in enumerate(gaps_c):
         if gap > 0.01:
-            gap_x0 = corner_l + starts_c[gi] + gw_c
+            gap_x0 = corner_l + starts_c[gi] + widths_c[gi]
             gap_x1 = gap_x0 + gap
             entities.append(dim_h(msp, gap_x0, gap_x1, madeira_y0_a,
                                   'COTA', 'cotax2', offset=20))

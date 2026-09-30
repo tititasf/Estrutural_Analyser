@@ -1,0 +1,78 @@
+{
+  "number": "329",
+  "name": "V329_B_Para",
+  "beam_name": "V329",
+  "floor": "13_PAV",
+  "side": "B",
+  "behavior": "Para",
+  "contract_id": "LV_B_PARA",
+  "total_width": 19.0,
+  "total_height": 64.0,
+  "h_section": 60.0,
+  "h_face_rule": "section_depth + 4 cm",
+  "panels": [
+    {
+      "width": 141.0,
+      "height1": 64.0,
+      "height2": 64.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 1,
+      "segment_index": 1,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          4552.3825,
+          2460.038
+        ],
+        [
+          4552.3825,
+          2601.038
+        ]
+      ],
+      "contract_id": "LV_B_PARA",
+      "source_key": "viga_b_seg_1_comprimento_total"
+    }
+  ],
+  "structural_segments": [
+    {
+      "width": 141.0,
+      "segment_index": 1,
+      "points": [
+        [
+          4552.3825,
+          2460.038
+        ],
+        [
+          4552.3825,
+          2601.038
+        ]
+      ],
+      "source_key": "viga_b_seg_1_comprimento_total",
+      "source_slot": "seg_side_b",
+      "contract_id": "LV_B_PARA"
+    }
+  ],
+  "structural_segment_count": 1,
+  "segment_count": 1,
+  "geometry_length": 141.0,
+  "start_adjustment": 0.0,
+  "end_adjustment": 0.0,
+  "endpoint_events": [],
+  "endpoint_labels": {
+    "start": "P27",
+    "end": "P18"
+  },
+  "total_length": 141.0,
+  "dimension_status": "sa_lv",
+  "generation_ready": true,
+  "_sa_meta": {
+    "source": "Structural Analyzer / N1 / beams.data_json.links",
+    "schema": "lv_generation_contract/v1",
+    "behavior_isolated": true,
+    "fv_dimension_fallback": false,
+    "dimension_source": "lv_dimension_text"
+  },
+  "behavior_distinct_from_other": true
+}

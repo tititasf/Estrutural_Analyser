@@ -1,0 +1,91 @@
+{
+  "coverage": {
+    "failed": 0,
+    "processed": 2,
+    "total": 2
+  },
+  "created_at": "2026-09-30T18:55:41.921842+00:00",
+  "details": {
+    "source_ids": [
+      "pre-src-v1:2b8c2db78dec83d6fcc653ee771fe4e4aecde5459f26f878381b446d475a25af"
+    ],
+    "status": "not_supported"
+  },
+  "engine_version": "preprocess-context-v4-levels",
+  "obra_id": "obra-1",
+  "pavimento_id": "14_PAV",
+  "run_id": "job-1",
+  "sa_consumption": "scoped_context_available",
+  "schema_version": 1,
+  "sources": [
+    {
+      "bruto_id": "A",
+      "item_id": "detalhes",
+      "kind": "details",
+      "obra_id": "obra-1",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/A/detalhes.dxf",
+      "revision": "60d223d25b09c856b4e7485e080f36e157fd40411bd3cf8c6fea2eec5bef430b",
+      "source_id": "pre-src-v1:2b8c2db78dec83d6fcc653ee771fe4e4aecde5459f26f878381b446d475a25af",
+      "validated": true
+    },
+    {
+      "bruto_id": "A",
+      "item_id": "convencao_pilares",
+      "kind": "pillar_convention",
+      "obra_id": "obra-1",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/A/convencao_pilares.dxf",
+      "revision": "81922092710b7c1e1a86d3b4fa0614b3f94693b13d7fff2725a8dd372d383257",
+      "source_id": "pre-src-v1:6c0e6ad68c99c27a5b078fc273be5a357d19915669edb7e5b2c99d254be381fc",
+      "validated": true
+    },
+    {
+      "bruto_id": "A",
+      "item_id": "torre_1",
+      "kind": "tower",
+      "obra_id": "obra-1",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/A/torre_1.dxf",
+      "revision": "bfdf7eb3694f5b4aa4d148bb93a288fffe752ce0e1fb95fcc1abb95c296e6112",
+      "source_id": "pre-src-v1:ce13fd565292649fb0974c128a4e6e2664d7b0f28d698554ac38d6e2cbf1ca5f",
+      "validated": true
+    },
+    {
+      "bruto_id": "A",
+      "item_id": "torre_2",
+      "kind": "tower",
+      "obra_id": "obra-1",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/A/torre_2.dxf",
+      "revision": "93e5d344bc90c171f907c6cd9224b7828558034f62c5564ac847abad6baf27f3",
+      "source_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145",
+      "validated": true
+    }
+  ],
+  "status": "partial",
+  "towers": {
+    "pre-src-v1:ce13fd565292649fb0974c128a4e6e2664d7b0f28d698554ac38d6e2cbf1ca5f": {
+      "hash": "487e6038424a27d3458abfb6788e9c535009d30688ea6531137933143dced567",
+      "path": "towers/084fc1f48537e0497dfde09e54249986ce51d9085ce27af964349e85fb2b42ec.json",
+      "scope": {
+        "obra_id": "obra-1",
+        "pavimento_id": "14_PAV",
+        "recorte_id": "pre-src-v1:ce13fd565292649fb0974c128a4e6e2664d7b0f28d698554ac38d6e2cbf1ca5f",
+        "source_revision": "bfdf7eb3694f5b4aa4d148bb93a288fffe752ce0e1fb95fcc1abb95c296e6112"
+      },
+      "status": "partial"
+    },
+    "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145": {
+      "hash": "4a30087cbbf991de865afd8e06447b3e358fd9863ea781468e0aeea63e204bbf",
+      "path": "towers/1b92219b04ef1f0ad7e7850f5bdd20a033591c1bfec19c1d47a062dcc0577160.json",
+      "scope": {
+        "obra_id": "obra-1",
+        "pavimento_id": "14_PAV",
+        "recorte_id": "pre-src-v1:eccdf3a737d06b43d08bcf79741cd8985eedf36c2bc628c4fece3c3ed644c145",
+        "source_revision": "93e5d344bc90c171f907c6cd9224b7828558034f62c5564ac847abad6baf27f3"
+      },
+      "status": "partial"
+    }
+  }
+}

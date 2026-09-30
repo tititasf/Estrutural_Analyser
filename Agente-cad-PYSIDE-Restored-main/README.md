@@ -1,3 +1,5 @@
+> **⚠ LEGADO (2026-09-26):** descreve o pipeline de jun/26 (ML → robôs → SCR); o SCR saiu do produto (DP-5) e a web virou o produto. Regras e missão atuais: `CLAUDE.md`. Entrada vigente do conhecimento: `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md`.
+
 # AgenteCAD / Estrutural Analyzer
 
 Sistema de analise estrutural inteligente com interpretacao semantica de DXFs e geracao automatizada de scripts de producao.

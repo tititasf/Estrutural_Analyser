@@ -1,0 +1,136 @@
+{
+  "id": "32e0eaa5-6632-4eb5-865e-8f1414a22ed9",
+  "job_id": "50fd4972-58e5-44a8-b45a-255c1e01b301",
+  "obra_id": "64ff0f61-9ad2-4fe7-b5d0-85b59ce4e5e0",
+  "membro_id": "c7a9c72a-ca55-4726-9adf-3ab92a63bb10",
+  "classe": "PIL",
+  "pavimento": "13_PAV",
+  "layer": "L1",
+  "status": "completed",
+  "criado_em": "2026-09-11T18:27:42Z",
+  "iniciado_em": "2026-09-11T18:27:42Z",
+  "finalizado_em": "2026-09-11T18:27:42Z",
+  "updated_at": "2026-09-11T18:27:42Z",
+  "items": [
+    {
+      "id": "203e2c28-4ef8-4938-ac53-b68beeffb6a4",
+      "round_id": "32e0eaa5-6632-4eb5-865e-8f1414a22ed9",
+      "item_id": "P9",
+      "ordinal": 0,
+      "status": "completed",
+      "provider": "codex",
+      "model": "codex-model",
+      "verdict": "validou",
+      "note": "evidencia P9",
+      "updated_at": "2026-09-11T18:27:42Z",
+      "prompt_text": "Voce e o revisor agentico de PIL/SA-N1 do CAD-ANALYZER.\nItem: P9. Camada atual: L1.\n\nRegras obrigatorias:\n- Leia e respeite CLAUDE.md e os documentos citados no contexto.\n- Julgue a camada pedida; nao use um FAIL legitimo como falha tecnica.\n- N2/N4 sao apenas comparadores e nunca podem alimentar N1/N3.\n- Nao grave ou edite arquivos. A sugestao e somente uma proposta read-only.\n- Se uma ferramenta, arquivo ou imagem obrigatoria estiver inacessivel, isso NAO e\n  invalidacao de engenharia. Responda somente com\n  {\"status\":\"technical_failure\",\"failure_category\":\"capability\",\"error\":\"motivo\"}\n  para permitir fallback ao proximo provedor.\n- Se invalidar, proponha apenas mudancas sustentadas por evidencia; se a prova faltar,\n  use revisar_humano. Se validar, use manter e proposed vazio.\n- confidence_percent e obrigatorio, numerico entre 0 e 100, e mede sua confianca no veredito.\n- Responda exclusivamente com um objeto JSON no schema abaixo.\n\nContexto e caminhos de evidencia:\n- CLAUDE.md\n- docs/LOOPING-AGENTICO-INTERPRETACAO-PILARES-ABCD.md\n- docs/PROCEDIMENTO-QA-PIL-N1-CONTEXTUAL.md\n- docs/INTERPRETACAO-PILARES-ABCD.md\n- docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md\n- ficha: scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_pilares_abcd\\pilares\\P9.html\n- evidencia visual PNG obrigatoria: scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_pilares_abcd\\pilares\\screenshots_qa\\P9.png\nA ficha e grande: use Grep pelo marcador data-ficha-panel=\"interp\"; nao leia o HTML inteiro. Abra a evidencia PNG com a ferramenta de imagem; sem inspeciona-la, use revisar_humano. Para L1, julgue o SA. Para L2/L3, preserve a camada anterior e nunca reconstrua a partir do SA.\n\nSchema esperado:\n{\"status\": \"completed\", \"item\": \"P9\", \"layer\": \"L1\", \"verdict\": \"validou|invalidou\", \"confidence_percent\": 0, \"note\": \"justificativa curta baseada em evidencia\", \"suggestion\": {\"action\": \"manter|corrigir|revisar_humano\", \"target_layer\": \"L1\", \"summary\": \"o que a camada deve representar\", \"proposed\": [{\"label\": \"1\", \"role\": \"face_A_chega\", \"points\": [[0, 0], [1, 1]], \"note\": \"somente quando houver evidencia geometrica\"}]}}\n",
+      "prompt_sha256": "e98303a1a96b91109a5a152d7da1d1b1170a77e039680f6f3bf144c50fe8cd6c",
+      "adapter_version": "qa_cli_fallback/v2",
+      "decision_authority": "PENDENTE",
+      "training_eligible": false,
+      "suggestion": {
+        "action": "manter",
+        "target_layer": "L1",
+        "summary": "sugestao P9",
+        "proposed": [],
+        "confidence_percent": 91.0
+      },
+      "confidence_percent": 91.0,
+      "evidence": [
+        {
+          "role": "ficha",
+          "path": "scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_pilares_abcd/pilares/P9.html",
+          "sha256": "f3e4886a7677ee050241867a92da9137a6cdbdbcaeb50dd8bf30ad66a5a000d2",
+          "size_bytes": 18,
+          "authority": "presentation"
+        },
+        {
+          "role": "evidencia visual PNG obrigatoria",
+          "path": "scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_pilares_abcd/pilares/screenshots_qa/P9.png",
+          "sha256": "f084b1351c41cf3c554d932a3a978992a39b902f289c6e213b6428c3b38541ed",
+          "size_bytes": 8,
+          "authority": "visual_evidence"
+        }
+      ],
+      "attempts": [
+        {
+          "id": "cea8804a-6ef5-4a6f-b60f-7d09aa96ef31",
+          "qa_item_id": "203e2c28-4ef8-4938-ac53-b68beeffb6a4",
+          "ordinal": 0,
+          "provider": "codex",
+          "model_requested": "codex-model",
+          "effort_requested": "high",
+          "model_reported": "codex-model",
+          "status": "completed",
+          "failure_category": null,
+          "error": null,
+          "duration_s": 0.0,
+          "criado_em": "2026-09-11T18:27:42Z",
+          "provider_version": "codex-cli 0.153.4",
+          "raw_response_text": "{\"item\": \"P9\", \"layer\": \"L1\", \"verdict\": \"validou\", \"confidence_percent\": 91, \"note\": \"evidencia P9\", \"suggestion\": {\"action\": \"manter\", \"target_layer\": \"L1\", \"summary\": \"sugestao P9\", \"proposed\": []}}",
+          "raw_response_sha256": "83ea8e25dfc58fcdf020f672bf42f113d3d882b93796f645b080f20a9aee8cac"
+        }
+      ]
+    },
+    {
+      "id": "0dcffd81-2750-42ee-99b6-b1bca24527f0",
+      "round_id": "32e0eaa5-6632-4eb5-865e-8f1414a22ed9",
+      "item_id": "P10",
+      "ordinal": 1,
+      "status": "completed",
+      "provider": "codex",
+      "model": "codex-model",
+      "verdict": "validou",
+      "note": "evidencia P10",
+      "updated_at": "2026-09-11T18:27:42Z",
+      "prompt_text": "Voce e o revisor agentico de PIL/SA-N1 do CAD-ANALYZER.\nItem: P10. Camada atual: L1.\n\nRegras obrigatorias:\n- Leia e respeite CLAUDE.md e os documentos citados no contexto.\n- Julgue a camada pedida; nao use um FAIL legitimo como falha tecnica.\n- N2/N4 sao apenas comparadores e nunca podem alimentar N1/N3.\n- Nao grave ou edite arquivos. A sugestao e somente uma proposta read-only.\n- Se uma ferramenta, arquivo ou imagem obrigatoria estiver inacessivel, isso NAO e\n  invalidacao de engenharia. Responda somente com\n  {\"status\":\"technical_failure\",\"failure_category\":\"capability\",\"error\":\"motivo\"}\n  para permitir fallback ao proximo provedor.\n- Se invalidar, proponha apenas mudancas sustentadas por evidencia; se a prova faltar,\n  use revisar_humano. Se validar, use manter e proposed vazio.\n- confidence_percent e obrigatorio, numerico entre 0 e 100, e mede sua confianca no veredito.\n- Responda exclusivamente com um objeto JSON no schema abaixo.\n\nContexto e caminhos de evidencia:\n- CLAUDE.md\n- docs/LOOPING-AGENTICO-INTERPRETACAO-PILARES-ABCD.md\n- docs/PROCEDIMENTO-QA-PIL-N1-CONTEXTUAL.md\n- docs/INTERPRETACAO-PILARES-ABCD.md\n- docs/PADRAO-TAGS-DESTAQUE-AGENTICO-PIL.md\n- ficha: scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_pilares_abcd\\pilares\\P10.html\n- evidencia visual PNG obrigatoria: scripts\\arete\\html_fichas\\Obra_TREINO_1\\13_PAV_pilares_abcd\\pilares\\screenshots_qa\\P10.png\nA ficha e grande: use Grep pelo marcador data-ficha-panel=\"interp\"; nao leia o HTML inteiro. Abra a evidencia PNG com a ferramenta de imagem; sem inspeciona-la, use revisar_humano. Para L1, julgue o SA. Para L2/L3, preserve a camada anterior e nunca reconstrua a partir do SA.\n\nSchema esperado:\n{\"status\": \"completed\", \"item\": \"P10\", \"layer\": \"L1\", \"verdict\": \"validou|invalidou\", \"confidence_percent\": 0, \"note\": \"justificativa curta baseada em evidencia\", \"suggestion\": {\"action\": \"manter|corrigir|revisar_humano\", \"target_layer\": \"L1\", \"summary\": \"o que a camada deve representar\", \"proposed\": [{\"label\": \"1\", \"role\": \"face_A_chega\", \"points\": [[0, 0], [1, 1]], \"note\": \"somente quando houver evidencia geometrica\"}]}}\n",
+      "prompt_sha256": "e7b7efe3dbc0d6696e14a639cd189c0f918c99bcbf1286a932f4e47ae7d67b8d",
+      "adapter_version": "qa_cli_fallback/v2",
+      "decision_authority": "PENDENTE",
+      "training_eligible": false,
+      "suggestion": {
+        "action": "manter",
+        "target_layer": "L1",
+        "summary": "sugestao P10",
+        "proposed": [],
+        "confidence_percent": 91.0
+      },
+      "confidence_percent": 91.0,
+      "evidence": [
+        {
+          "role": "ficha",
+          "path": "scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_pilares_abcd/pilares/P10.html",
+          "sha256": "f3e4886a7677ee050241867a92da9137a6cdbdbcaeb50dd8bf30ad66a5a000d2",
+          "size_bytes": 18,
+          "authority": "presentation"
+        },
+        {
+          "role": "evidencia visual PNG obrigatoria",
+          "path": "scripts/arete/html_fichas/Obra_TREINO_1/13_PAV_pilares_abcd/pilares/screenshots_qa/P10.png",
+          "sha256": "f084b1351c41cf3c554d932a3a978992a39b902f289c6e213b6428c3b38541ed",
+          "size_bytes": 8,
+          "authority": "visual_evidence"
+        }
+      ],
+      "attempts": [
+        {
+          "id": "7a918818-c290-411d-9a5d-73b874c08d9a",
+          "qa_item_id": "0dcffd81-2750-42ee-99b6-b1bca24527f0",
+          "ordinal": 0,
+          "provider": "codex",
+          "model_requested": "codex-model",
+          "effort_requested": "high",
+          "model_reported": "codex-model",
+          "status": "completed",
+          "failure_category": null,
+          "error": null,
+          "duration_s": 0.0,
+          "criado_em": "2026-09-11T18:27:42Z",
+          "provider_version": "codex-cli 0.153.4",
+          "raw_response_text": "{\"item\": \"P10\", \"layer\": \"L1\", \"verdict\": \"validou\", \"confidence_percent\": 91, \"note\": \"evidencia P10\", \"suggestion\": {\"action\": \"manter\", \"target_layer\": \"L1\", \"summary\": \"sugestao P10\", \"proposed\": []}}",
+          "raw_response_sha256": "dd78ada999b55214f641d4c632ed19c202cbaf8ec9531948040a11de760484c8"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,3867 @@
+{
+  "schema": "cad.sa.production/v1",
+  "obra": "/opt/cad-analyzer/DADOS-OBRAS/thierry/TMC-EST-PE-7000-14P-R03",
+  "pavimento": "14_PAV",
+  "project_id": "f28c3897-c8df-4bb9-a187-cb090f2c7ec7",
+  "source_dxf": "/opt/cad-analyzer/DADOS-OBRAS/thierry/TMC-EST-PE-7000-14P-R03/Fase-2_Triagem/recortes/TMC-EST-PE-7000-14P-R03/torre_1.dxf",
+  "visual_mode": "NOVA",
+  "state_path": "/opt/cad-analyzer/DADOS-OBRAS/thierry/TMC-EST-PE-7000-14P-R03/estado_14_PAV_pid3470818.json",
+  "n1_counts": {
+    "pillars": 35,
+    "slabs": 22,
+    "beams": 33
+  },
+  "n3": {
+    "visual_mode": "NOVA",
+    "fv_generated": [
+      "V401",
+      "V402",
+      "V403",
+      "V404",
+      "V405",
+      "V406",
+      "V407",
+      "V408",
+      "V409",
+      "V410",
+      "V411",
+      "V412",
+      "V413",
+      "V414",
+      "V415",
+      "V416",
+      "V417",
+      "V418",
+      "V419",
+      "V420",
+      "V421",
+      "V422",
+      "V423",
+      "V424",
+      "V425",
+      "V426",
+      "V427",
+      "VF401",
+      "VF402",
+      "VF403"
+    ],
+    "fv_failed": [],
+    "lv_generated": [
+      "V401_Para_CORTE",
+      "V401_Para_VIEW_A",
+      "V401_Para_VIEW_B",
+      "V401_Passa_CORTE",
+      "V401_Passa_VIEW_A",
+      "V401_Passa_VIEW_B",
+      "V402_Para_CORTE",
+      "V402_Para_VIEW_A",
+      "V402_Para_VIEW_B",
+      "V402_Passa_CORTE",
+      "V402_Passa_VIEW_A",
+      "V402_Passa_VIEW_B",
+      "V403_Para_CORTE",
+      "V403_Para_VIEW_A",
+      "V403_Para_VIEW_B",
+      "V403_Passa_CORTE",
+      "V403_Passa_VIEW_A",
+      "V403_Passa_VIEW_B",
+      "V404_Para_CORTE",
+      "V404_Para_VIEW_A",
+      "V404_Para_VIEW_B",
+      "V404_Passa_CORTE",
+      "V404_Passa_VIEW_A",
+      "V404_Passa_VIEW_B",
+      "V405_Para_CORTE",
+      "V405_Para_VIEW_A",
+      "V405_Para_VIEW_B",
+      "V405_Passa_CORTE",
+      "V405_Passa_VIEW_A",
+      "V405_Passa_VIEW_B",
+      "V406_Para_CORTE",
+      "V406_Para_VIEW_A",
+      "V406_Para_VIEW_B",
+      "V406_Passa_CORTE",
+      "V406_Passa_VIEW_A",
+      "V406_Passa_VIEW_B",
+      "V407_Para_CORTE",
+      "V407_Para_VIEW_A",
+      "V407_Para_VIEW_B",
+      "V407_Passa_CORTE",
+      "V407_Passa_VIEW_A",
+      "V407_Passa_VIEW_B",
+      "V408_Para_CORTE",
+      "V408_Para_VIEW_A",
+      "V408_Para_VIEW_B",
+      "V408_Passa_CORTE",
+      "V408_Passa_VIEW_A",
+      "V408_Passa_VIEW_B",
+      "V409_Para_CORTE",
+      "V409_Para_VIEW_A",
+      "V409_Para_VIEW_B",
+      "V409_Passa_CORTE",
+      "V409_Passa_VIEW_A",
+      "V409_Passa_VIEW_B",
+      "V410_Para_CORTE",
+      "V410_Para_VIEW_A",
+      "V410_Para_VIEW_B",
+      "V410_Passa_CORTE",
+      "V410_Passa_VIEW_A",
+      "V410_Passa_VIEW_B",
+      "V411_Para_CORTE",
+      "V411_Para_VIEW_A",
+      "V411_Para_VIEW_B",
+      "V411_Passa_CORTE",
+      "V411_Passa_VIEW_A",
+      "V411_Passa_VIEW_B",
+      "V412_Para_CORTE",
+      "V412_Para_VIEW_A",
+      "V412_Para_VIEW_B",
+      "V412_Passa_CORTE",
+      "V412_Passa_VIEW_A",
+      "V412_Passa_VIEW_B",
+      "V413_Para_CORTE",
+      "V413_Para_VIEW_A",
+      "V413_Para_VIEW_B",
+      "V413_Passa_CORTE",
+      "V413_Passa_VIEW_A",
+      "V413_Passa_VIEW_B",
+      "V414_Para_CORTE",
+      "V414_Para_VIEW_A",
+      "V414_Para_VIEW_B",
+      "V414_Passa_CORTE",
+      "V414_Passa_VIEW_A",
+      "V414_Passa_VIEW_B",
+      "V415_Para_CORTE",
+      "V415_Para_VIEW_A",
+      "V415_Para_VIEW_B",
+      "V415_Passa_CORTE",
+      "V415_Passa_VIEW_A",
+      "V415_Passa_VIEW_B",
+      "V416_Para_CORTE",
+      "V416_Para_VIEW_A",
+      "V416_Para_VIEW_B",
+      "V416_Passa_CORTE",
+      "V416_Passa_VIEW_A",
+      "V416_Passa_VIEW_B",
+      "V417_Para_CORTE",
+      "V417_Para_VIEW_A",
+      "V417_Para_VIEW_B",
+      "V417_Passa_CORTE",
+      "V417_Passa_VIEW_A",
+      "V417_Passa_VIEW_B",
+      "V418_Para_CORTE",
+      "V418_Para_VIEW_A",
+      "V418_Para_VIEW_B",
+      "V418_Passa_CORTE",
+      "V418_Passa_VIEW_A",
+      "V418_Passa_VIEW_B",
+      "V419_Para_CORTE",
+      "V419_Para_VIEW_A",
+      "V419_Para_VIEW_B",
+      "V419_Passa_CORTE",
+      "V419_Passa_VIEW_A",
+      "V419_Passa_VIEW_B",
+      "V420_Para_CORTE",
+      "V420_Para_VIEW_A",
+      "V420_Para_VIEW_B",
+      "V420_Passa_CORTE",
+      "V420_Passa_VIEW_A",
+      "V420_Passa_VIEW_B",
+      "V421_Para_CORTE",
+      "V421_Para_VIEW_A",
+      "V421_Para_VIEW_B",
+      "V421_Passa_CORTE",
+      "V421_Passa_VIEW_A",
+      "V421_Passa_VIEW_B",
+      "V422_Para_CORTE",
+      "V422_Para_VIEW_A",
+      "V422_Para_VIEW_B",
+      "V422_Passa_CORTE",
+      "V422_Passa_VIEW_A",
+      "V422_Passa_VIEW_B",
+      "V423_Para_CORTE",
+      "V423_Para_VIEW_A",
+      "V423_Para_VIEW_B",
+      "V423_Passa_CORTE",
+      "V423_Passa_VIEW_A",
+      "V423_Passa_VIEW_B",
+      "V424_Para_CORTE",
+      "V424_Para_VIEW_A",
+      "V424_Para_VIEW_B",
+      "V424_Passa_CORTE",
+      "V424_Passa_VIEW_A",
+      "V424_Passa_VIEW_B",
+      "V425_Para_CORTE",
+      "V425_Para_VIEW_A",
+      "V425_Para_VIEW_B",
+      "V425_Passa_CORTE",
+      "V425_Passa_VIEW_A",
+      "V425_Passa_VIEW_B",
+      "V426_Para_CORTE",
+      "V426_Para_VIEW_A",
+      "V426_Para_VIEW_B",
+      "V426_Passa_CORTE",
+      "V426_Passa_VIEW_A",
+      "V426_Passa_VIEW_B",
+      "V427_Para_CORTE",
+      "V427_Para_VIEW_A",
+      "V427_Para_VIEW_B",
+      "V427_Passa_CORTE",
+      "V427_Passa_VIEW_A",
+      "V427_Passa_VIEW_B"
+    ],
+    "lv_failed": [],
+    "lj_generated": [
+      "L401",
+      "L402",
+      "L403",
+      "L404",
+      "L405",
+      "L406",
+      "L407",
+      "L408",
+      "L409",
+      "L410",
+      "L411",
+      "L412",
+      "L413",
+      "L414",
+      "L415",
+      "L416",
+      "L417",
+      "L418",
+      "L419",
+      "L420",
+      "L421",
+      "L422"
+    ],
+    "lj_failed": [],
+    "pl_generated": [
+      "P10_para",
+      "P10_passa",
+      "P11_para",
+      "P11_passa",
+      "P12_para",
+      "P12_passa",
+      "P14_para",
+      "P14_passa",
+      "P16_para",
+      "P16_passa",
+      "P17_para",
+      "P17_passa",
+      "P18_para",
+      "P18_passa",
+      "P19_para",
+      "P19_passa",
+      "P20_para",
+      "P20_passa",
+      "P21_para",
+      "P21_passa",
+      "P22_para",
+      "P22_passa",
+      "P23_para",
+      "P23_passa",
+      "P24_para",
+      "P24_passa",
+      "P25_para",
+      "P25_passa",
+      "P28_para",
+      "P28_passa",
+      "P29_para",
+      "P29_passa",
+      "P30_para",
+      "P30_passa",
+      "P31_para",
+      "P31_passa",
+      "P32_para",
+      "P32_passa",
+      "P33_para",
+      "P33_passa",
+      "P34_para",
+      "P34_passa",
+      "P35_para",
+      "P35_passa",
+      "P41_para",
+      "P41_passa",
+      "P42_para",
+      "P42_passa",
+      "P43_para",
+      "P43_passa",
+      "P44_para",
+      "P44_passa",
+      "P45_para",
+      "P45_passa",
+      "P46_para",
+      "P46_passa",
+      "P47_para",
+      "P47_passa",
+      "P48_para",
+      "P48_passa",
+      "P49_para",
+      "P49_passa",
+      "P50_para",
+      "P50_passa",
+      "P51_para",
+      "P51_passa",
+      "P26_para",
+      "P26_passa",
+      "P27_para",
+      "P27_passa"
+    ],
+    "pl_failed": []
+  },
+  "n1_tags_pack": "",
+  "artifacts": [
+    "n3/contracts/V401_fundo.json",
+    "n3/contracts/V402_fundo.json",
+    "n3/contracts/V403_fundo.json",
+    "n3/contracts/V404_fundo.json",
+    "n3/contracts/V405_fundo.json",
+    "n3/contracts/V406_fundo.json",
+    "n3/contracts/V407_fundo.json",
+    "n3/contracts/V408_fundo.json",
+    "n3/contracts/V409_fundo.json",
+    "n3/contracts/V410_fundo.json",
+    "n3/contracts/V411_fundo.json",
+    "n3/contracts/V412_fundo.json",
+    "n3/contracts/V413_fundo.json",
+    "n3/contracts/V414_fundo.json",
+    "n3/contracts/V415_fundo.json",
+    "n3/contracts/V416_fundo.json",
+    "n3/contracts/V417_fundo.json",
+    "n3/contracts/V418_fundo.json",
+    "n3/contracts/V419_fundo.json",
+    "n3/contracts/V420_fundo.json",
+    "n3/contracts/V421_fundo.json",
+    "n3/contracts/V422_fundo.json",
+    "n3/contracts/V423_fundo.json",
+    "n3/contracts/V424_fundo.json",
+    "n3/contracts/V425_fundo.json",
+    "n3/contracts/V426_fundo.json",
+    "n3/contracts/V427_fundo.json",
+    "n3/contracts/VF401_fundo.json",
+    "n3/contracts/VF402_fundo.json",
+    "n3/contracts/VF403_fundo.json",
+    "n3/contracts_lj/L401.json",
+    "n3/contracts_lj/L402.json",
+    "n3/contracts_lj/L403.json",
+    "n3/contracts_lj/L404.json",
+    "n3/contracts_lj/L405.json",
+    "n3/contracts_lj/L406.json",
+    "n3/contracts_lj/L407.json",
+    "n3/contracts_lj/L408.json",
+    "n3/contracts_lj/L409.json",
+    "n3/contracts_lj/L410.json",
+    "n3/contracts_lj/L411.json",
+    "n3/contracts_lj/L412.json",
+    "n3/contracts_lj/L413.json",
+    "n3/contracts_lj/L414.json",
+    "n3/contracts_lj/L415.json",
+    "n3/contracts_lj/L416.json",
+    "n3/contracts_lj/L417.json",
+    "n3/contracts_lj/L418.json",
+    "n3/contracts_lj/L419.json",
+    "n3/contracts_lj/L420.json",
+    "n3/contracts_lj/L421.json",
+    "n3/contracts_lj/L422.json",
+    "n3/contracts_lv/LV-PARA/V401_A.json",
+    "n3/contracts_lv/LV-PARA/V401_B.json",
+    "n3/contracts_lv/LV-PARA/V402_A.json",
+    "n3/contracts_lv/LV-PARA/V402_B.json",
+    "n3/contracts_lv/LV-PARA/V403_A.json",
+    "n3/contracts_lv/LV-PARA/V403_B.json",
+    "n3/contracts_lv/LV-PARA/V404_A.json",
+    "n3/contracts_lv/LV-PARA/V404_B.json",
+    "n3/contracts_lv/LV-PARA/V405_A.json",
+    "n3/contracts_lv/LV-PARA/V405_B.json",
+    "n3/contracts_lv/LV-PARA/V406_A.json",
+    "n3/contracts_lv/LV-PARA/V406_B.json",
+    "n3/contracts_lv/LV-PARA/V407_A.json",
+    "n3/contracts_lv/LV-PARA/V407_B.json",
+    "n3/contracts_lv/LV-PARA/V408_A.json",
+    "n3/contracts_lv/LV-PARA/V408_B.json",
+    "n3/contracts_lv/LV-PARA/V409_A.json",
+    "n3/contracts_lv/LV-PARA/V409_B.json",
+    "n3/contracts_lv/LV-PARA/V410_A.json",
+    "n3/contracts_lv/LV-PARA/V410_B.json",
+    "n3/contracts_lv/LV-PARA/V411_A.json",
+    "n3/contracts_lv/LV-PARA/V411_B.json",
+    "n3/contracts_lv/LV-PARA/V412_A.json",
+    "n3/contracts_lv/LV-PARA/V412_B.json",
+    "n3/contracts_lv/LV-PARA/V413_A.json",
+    "n3/contracts_lv/LV-PARA/V413_B.json",
+    "n3/contracts_lv/LV-PARA/V414_A.json",
+    "n3/contracts_lv/LV-PARA/V414_B.json",
+    "n3/contracts_lv/LV-PARA/V415_A.json",
+    "n3/contracts_lv/LV-PARA/V415_B.json",
+    "n3/contracts_lv/LV-PARA/V416_A.json",
+    "n3/contracts_lv/LV-PARA/V416_B.json",
+    "n3/contracts_lv/LV-PARA/V417_A.json",
+    "n3/contracts_lv/LV-PARA/V417_B.json",
+    "n3/contracts_lv/LV-PARA/V418_A.json",
+    "n3/contracts_lv/LV-PARA/V418_B.json",
+    "n3/contracts_lv/LV-PARA/V419_A.json",
+    "n3/contracts_lv/LV-PARA/V419_B.json",
+    "n3/contracts_lv/LV-PARA/V420_A.json",
+    "n3/contracts_lv/LV-PARA/V420_B.json",
+    "n3/contracts_lv/LV-PARA/V421_A.json",
+    "n3/contracts_lv/LV-PARA/V421_B.json",
+    "n3/contracts_lv/LV-PARA/V422_A.json",
+    "n3/contracts_lv/LV-PARA/V422_B.json",
+    "n3/contracts_lv/LV-PARA/V423_A.json",
+    "n3/contracts_lv/LV-PARA/V423_B.json",
+    "n3/contracts_lv/LV-PARA/V424_A.json",
+    "n3/contracts_lv/LV-PARA/V424_B.json",
+    "n3/contracts_lv/LV-PARA/V425_A.json",
+    "n3/contracts_lv/LV-PARA/V425_B.json",
+    "n3/contracts_lv/LV-PARA/V426_A.json",
+    "n3/contracts_lv/LV-PARA/V426_B.json",
+    "n3/contracts_lv/LV-PARA/V427_A.json",
+    "n3/contracts_lv/LV-PARA/V427_B.json",
+    "n3/contracts_lv/LV-PASSA/V401_A.json",
+    "n3/contracts_lv/LV-PASSA/V401_B.json",
+    "n3/contracts_lv/LV-PASSA/V402_A.json",
+    "n3/contracts_lv/LV-PASSA/V402_B.json",
+    "n3/contracts_lv/LV-PASSA/V403_A.json",
+    "n3/contracts_lv/LV-PASSA/V403_B.json",
+    "n3/contracts_lv/LV-PASSA/V404_A.json",
+    "n3/contracts_lv/LV-PASSA/V404_B.json",
+    "n3/contracts_lv/LV-PASSA/V405_A.json",
+    "n3/contracts_lv/LV-PASSA/V405_B.json",
+    "n3/contracts_lv/LV-PASSA/V406_A.json",
+    "n3/contracts_lv/LV-PASSA/V406_B.json",
+    "n3/contracts_lv/LV-PASSA/V407_A.json",
+    "n3/contracts_lv/LV-PASSA/V407_B.json",
+    "n3/contracts_lv/LV-PASSA/V408_A.json",
+    "n3/contracts_lv/LV-PASSA/V408_B.json",
+    "n3/contracts_lv/LV-PASSA/V409_A.json",
+    "n3/contracts_lv/LV-PASSA/V409_B.json",
+    "n3/contracts_lv/LV-PASSA/V410_A.json",
+    "n3/contracts_lv/LV-PASSA/V410_B.json",
+    "n3/contracts_lv/LV-PASSA/V411_A.json",
+    "n3/contracts_lv/LV-PASSA/V411_B.json",
+    "n3/contracts_lv/LV-PASSA/V412_A.json",
+    "n3/contracts_lv/LV-PASSA/V412_B.json",
+    "n3/contracts_lv/LV-PASSA/V413_A.json",
+    "n3/contracts_lv/LV-PASSA/V413_B.json",
+    "n3/contracts_lv/LV-PASSA/V414_A.json",
+    "n3/contracts_lv/LV-PASSA/V414_B.json",
+    "n3/contracts_lv/LV-PASSA/V415_A.json",
+    "n3/contracts_lv/LV-PASSA/V415_B.json",
+    "n3/contracts_lv/LV-PASSA/V416_A.json",
+    "n3/contracts_lv/LV-PASSA/V416_B.json",
+    "n3/contracts_lv/LV-PASSA/V417_A.json",
+    "n3/contracts_lv/LV-PASSA/V417_B.json",
+    "n3/contracts_lv/LV-PASSA/V418_A.json",
+    "n3/contracts_lv/LV-PASSA/V418_B.json",
+    "n3/contracts_lv/LV-PASSA/V419_A.json",
+    "n3/contracts_lv/LV-PASSA/V419_B.json",
+    "n3/contracts_lv/LV-PASSA/V420_A.json",
+    "n3/contracts_lv/LV-PASSA/V420_B.json",
+    "n3/contracts_lv/LV-PASSA/V421_A.json",
+    "n3/contracts_lv/LV-PASSA/V421_B.json",
+    "n3/contracts_lv/LV-PASSA/V422_A.json",
+    "n3/contracts_lv/LV-PASSA/V422_B.json",
+    "n3/contracts_lv/LV-PASSA/V423_A.json",
+    "n3/contracts_lv/LV-PASSA/V423_B.json",
+    "n3/contracts_lv/LV-PASSA/V424_A.json",
+    "n3/contracts_lv/LV-PASSA/V424_B.json",
+    "n3/contracts_lv/LV-PASSA/V425_A.json",
+    "n3/contracts_lv/LV-PASSA/V425_B.json",
+    "n3/contracts_lv/LV-PASSA/V426_A.json",
+    "n3/contracts_lv/LV-PASSA/V426_B.json",
+    "n3/contracts_lv/LV-PASSA/V427_A.json",
+    "n3/contracts_lv/LV-PASSA/V427_B.json",
+    "n3/dxf/FV_preview_V401.dxf",
+    "n3/dxf/FV_preview_V402.dxf",
+    "n3/dxf/FV_preview_V403.dxf",
+    "n3/dxf/FV_preview_V404.dxf",
+    "n3/dxf/FV_preview_V405.dxf",
+    "n3/dxf/FV_preview_V406.dxf",
+    "n3/dxf/FV_preview_V407.dxf",
+    "n3/dxf/FV_preview_V408.dxf",
+    "n3/dxf/FV_preview_V409.dxf",
+    "n3/dxf/FV_preview_V410.dxf",
+    "n3/dxf/FV_preview_V411.dxf",
+    "n3/dxf/FV_preview_V412.dxf",
+    "n3/dxf/FV_preview_V413.dxf",
+    "n3/dxf/FV_preview_V414.dxf",
+    "n3/dxf/FV_preview_V415.dxf",
+    "n3/dxf/FV_preview_V416.dxf",
+    "n3/dxf/FV_preview_V417.dxf",
+    "n3/dxf/FV_preview_V418.dxf",
+    "n3/dxf/FV_preview_V419.dxf",
+    "n3/dxf/FV_preview_V420.dxf",
+    "n3/dxf/FV_preview_V421.dxf",
+    "n3/dxf/FV_preview_V422.dxf",
+    "n3/dxf/FV_preview_V423.dxf",
+    "n3/dxf/FV_preview_V424.dxf",
+    "n3/dxf/FV_preview_V425.dxf",
+    "n3/dxf/FV_preview_V426.dxf",
+    "n3/dxf/FV_preview_V427.dxf",
+    "n3/dxf/FV_preview_VF401.dxf",
+    "n3/dxf/FV_preview_VF402.dxf",
+    "n3/dxf/FV_preview_VF403.dxf",
+    "n3/dxf/LJ_preview_L401.dxf",
+    "n3/dxf/LJ_preview_L402.dxf",
+    "n3/dxf/LJ_preview_L403.dxf",
+    "n3/dxf/LJ_preview_L404.dxf",
+    "n3/dxf/LJ_preview_L405.dxf",
+    "n3/dxf/LJ_preview_L406.dxf",
+    "n3/dxf/LJ_preview_L407.dxf",
+    "n3/dxf/LJ_preview_L408.dxf",
+    "n3/dxf/LJ_preview_L409.dxf",
+    "n3/dxf/LJ_preview_L410.dxf",
+    "n3/dxf/LJ_preview_L411.dxf",
+    "n3/dxf/LJ_preview_L412.dxf",
+    "n3/dxf/LJ_preview_L413.dxf",
+    "n3/dxf/LJ_preview_L414.dxf",
+    "n3/dxf/LJ_preview_L415.dxf",
+    "n3/dxf/LJ_preview_L416.dxf",
+    "n3/dxf/LJ_preview_L417.dxf",
+    "n3/dxf/LJ_preview_L418.dxf",
+    "n3/dxf/LJ_preview_L419.dxf",
+    "n3/dxf/LJ_preview_L420.dxf",
+    "n3/dxf/LJ_preview_L421.dxf",
+    "n3/dxf/LJ_preview_L422.dxf",
+    "n3/dxf/LV_preview_V401_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V401_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V401_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V401_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V401_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V401_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V402_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V402_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V402_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V402_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V402_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V402_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V403_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V403_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V403_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V403_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V403_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V403_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V404_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V404_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V404_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V404_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V404_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V404_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V405_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V405_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V405_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V405_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V405_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V405_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V406_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V406_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V406_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V406_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V406_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V406_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V407_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V407_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V407_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V407_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V407_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V407_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V408_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V408_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V408_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V408_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V408_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V408_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V409_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V409_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V409_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V409_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V409_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V409_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V410_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V410_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V410_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V410_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V410_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V410_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V411_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V411_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V411_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V411_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V411_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V411_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V412_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V412_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V412_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V412_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V412_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V412_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V413_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V413_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V413_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V413_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V413_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V413_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V414_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V414_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V414_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V414_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V414_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V414_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V415_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V415_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V415_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V415_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V415_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V415_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V416_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V416_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V416_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V416_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V416_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V416_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V417_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V417_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V417_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V417_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V417_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V417_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V418_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V418_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V418_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V418_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V418_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V418_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V419_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V419_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V419_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V419_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V419_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V419_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V420_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V420_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V420_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V420_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V420_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V420_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V421_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V421_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V421_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V421_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V421_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V421_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V422_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V422_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V422_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V422_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V422_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V422_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V423_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V423_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V423_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V423_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V423_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V423_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V424_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V424_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V424_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V424_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V424_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V424_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V425_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V425_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V425_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V425_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V425_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V425_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V426_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V426_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V426_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V426_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V426_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V426_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V427_Para_CORTE.dxf",
+    "n3/dxf/LV_preview_V427_Para_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V427_Para_VIEW_B.dxf",
+    "n3/dxf/LV_preview_V427_Passa_CORTE.dxf",
+    "n3/dxf/LV_preview_V427_Passa_VIEW_A.dxf",
+    "n3/dxf/LV_preview_V427_Passa_VIEW_B.dxf",
+    "n3/dxf/LV_stog_quality.png",
+    "n3/pil/para/P10.json",
+    "n3/pil/para/P11.json",
+    "n3/pil/para/P12.json",
+    "n3/pil/para/P14.json",
+    "n3/pil/para/P16.json",
+    "n3/pil/para/P17.json",
+    "n3/pil/para/P18.json",
+    "n3/pil/para/P19.json",
+    "n3/pil/para/P20.json",
+    "n3/pil/para/P21.json",
+    "n3/pil/para/P22.json",
+    "n3/pil/para/P23.json",
+    "n3/pil/para/P24.json",
+    "n3/pil/para/P25.json",
+    "n3/pil/para/P26.json",
+    "n3/pil/para/P27.json",
+    "n3/pil/para/P28.json",
+    "n3/pil/para/P29.json",
+    "n3/pil/para/P30.json",
+    "n3/pil/para/P31.json",
+    "n3/pil/para/P32.json",
+    "n3/pil/para/P33.json",
+    "n3/pil/para/P34.json",
+    "n3/pil/para/P35.json",
+    "n3/pil/para/P41.json",
+    "n3/pil/para/P42.json",
+    "n3/pil/para/P43.json",
+    "n3/pil/para/P44.json",
+    "n3/pil/para/P45.json",
+    "n3/pil/para/P46.json",
+    "n3/pil/para/P47.json",
+    "n3/pil/para/P48.json",
+    "n3/pil/para/P49.json",
+    "n3/pil/para/P50.json",
+    "n3/pil/para/P51.json",
+    "n3/pil/para/PL_ABCD_preview_P10.dxf",
+    "n3/pil/para/PL_ABCD_preview_P11.dxf",
+    "n3/pil/para/PL_ABCD_preview_P12.dxf",
+    "n3/pil/para/PL_ABCD_preview_P14.dxf",
+    "n3/pil/para/PL_ABCD_preview_P16.dxf",
+    "n3/pil/para/PL_ABCD_preview_P17.dxf",
+    "n3/pil/para/PL_ABCD_preview_P18.dxf",
+    "n3/pil/para/PL_ABCD_preview_P19.dxf",
+    "n3/pil/para/PL_ABCD_preview_P20.dxf",
+    "n3/pil/para/PL_ABCD_preview_P21.dxf",
+    "n3/pil/para/PL_ABCD_preview_P22.dxf",
+    "n3/pil/para/PL_ABCD_preview_P23.dxf",
+    "n3/pil/para/PL_ABCD_preview_P24.dxf",
+    "n3/pil/para/PL_ABCD_preview_P25.dxf",
+    "n3/pil/para/PL_ABCD_preview_P26.dxf",
+    "n3/pil/para/PL_ABCD_preview_P27.dxf",
+    "n3/pil/para/PL_ABCD_preview_P28.dxf",
+    "n3/pil/para/PL_ABCD_preview_P29.dxf",
+    "n3/pil/para/PL_ABCD_preview_P30.dxf",
+    "n3/pil/para/PL_ABCD_preview_P31.dxf",
+    "n3/pil/para/PL_ABCD_preview_P32.dxf",
+    "n3/pil/para/PL_ABCD_preview_P33.dxf",
+    "n3/pil/para/PL_ABCD_preview_P34.dxf",
+    "n3/pil/para/PL_ABCD_preview_P35.dxf",
+    "n3/pil/para/PL_ABCD_preview_P41.dxf",
+    "n3/pil/para/PL_ABCD_preview_P42.dxf",
+    "n3/pil/para/PL_ABCD_preview_P43.dxf",
+    "n3/pil/para/PL_ABCD_preview_P44.dxf",
+    "n3/pil/para/PL_ABCD_preview_P45.dxf",
+    "n3/pil/para/PL_ABCD_preview_P46.dxf",
+    "n3/pil/para/PL_ABCD_preview_P47.dxf",
+    "n3/pil/para/PL_ABCD_preview_P48.dxf",
+    "n3/pil/para/PL_ABCD_preview_P49.dxf",
+    "n3/pil/para/PL_ABCD_preview_P50.dxf",
+    "n3/pil/para/PL_ABCD_preview_P51.dxf",
+    "n3/pil/para/PL_CIMA_preview_P10.dxf",
+    "n3/pil/para/PL_CIMA_preview_P11.dxf",
+    "n3/pil/para/PL_CIMA_preview_P12.dxf",
+    "n3/pil/para/PL_CIMA_preview_P14.dxf",
+    "n3/pil/para/PL_CIMA_preview_P16.dxf",
+    "n3/pil/para/PL_CIMA_preview_P17.dxf",
+    "n3/pil/para/PL_CIMA_preview_P18.dxf",
+    "n3/pil/para/PL_CIMA_preview_P19.dxf",
+    "n3/pil/para/PL_CIMA_preview_P20.dxf",
+    "n3/pil/para/PL_CIMA_preview_P21.dxf",
+    "n3/pil/para/PL_CIMA_preview_P22.dxf",
+    "n3/pil/para/PL_CIMA_preview_P23.dxf",
+    "n3/pil/para/PL_CIMA_preview_P24.dxf",
+    "n3/pil/para/PL_CIMA_preview_P25.dxf",
+    "n3/pil/para/PL_CIMA_preview_P26.dxf",
+    "n3/pil/para/PL_CIMA_preview_P27.dxf",
+    "n3/pil/para/PL_CIMA_preview_P28.dxf",
+    "n3/pil/para/PL_CIMA_preview_P29.dxf",
+    "n3/pil/para/PL_CIMA_preview_P30.dxf",
+    "n3/pil/para/PL_CIMA_preview_P31.dxf",
+    "n3/pil/para/PL_CIMA_preview_P32.dxf",
+    "n3/pil/para/PL_CIMA_preview_P33.dxf",
+    "n3/pil/para/PL_CIMA_preview_P34.dxf",
+    "n3/pil/para/PL_CIMA_preview_P35.dxf",
+    "n3/pil/para/PL_CIMA_preview_P41.dxf",
+    "n3/pil/para/PL_CIMA_preview_P42.dxf",
+    "n3/pil/para/PL_CIMA_preview_P43.dxf",
+    "n3/pil/para/PL_CIMA_preview_P44.dxf",
+    "n3/pil/para/PL_CIMA_preview_P45.dxf",
+    "n3/pil/para/PL_CIMA_preview_P46.dxf",
+    "n3/pil/para/PL_CIMA_preview_P47.dxf",
+    "n3/pil/para/PL_CIMA_preview_P48.dxf",
+    "n3/pil/para/PL_CIMA_preview_P49.dxf",
+    "n3/pil/para/PL_CIMA_preview_P50.dxf",
+    "n3/pil/para/PL_CIMA_preview_P51.dxf",
+    "n3/pil/para/PL_GRADES_preview_P10.dxf",
+    "n3/pil/para/PL_GRADES_preview_P11.dxf",
+    "n3/pil/para/PL_GRADES_preview_P12.dxf",
+    "n3/pil/para/PL_GRADES_preview_P14.dxf",
+    "n3/pil/para/PL_GRADES_preview_P16.dxf",
+    "n3/pil/para/PL_GRADES_preview_P17.dxf",
+    "n3/pil/para/PL_GRADES_preview_P18.dxf",
+    "n3/pil/para/PL_GRADES_preview_P19.dxf",
+    "n3/pil/para/PL_GRADES_preview_P20.dxf",
+    "n3/pil/para/PL_GRADES_preview_P21.dxf",
+    "n3/pil/para/PL_GRADES_preview_P22.dxf",
+    "n3/pil/para/PL_GRADES_preview_P23.dxf",
+    "n3/pil/para/PL_GRADES_preview_P24.dxf",
+    "n3/pil/para/PL_GRADES_preview_P25.dxf",
+    "n3/pil/para/PL_GRADES_preview_P26.dxf",
+    "n3/pil/para/PL_GRADES_preview_P27.dxf",
+    "n3/pil/para/PL_GRADES_preview_P28.dxf",
+    "n3/pil/para/PL_GRADES_preview_P29.dxf",
+    "n3/pil/para/PL_GRADES_preview_P30.dxf",
+    "n3/pil/para/PL_GRADES_preview_P31.dxf",
+    "n3/pil/para/PL_GRADES_preview_P32.dxf",
+    "n3/pil/para/PL_GRADES_preview_P33.dxf",
+    "n3/pil/para/PL_GRADES_preview_P34.dxf",
+    "n3/pil/para/PL_GRADES_preview_P35.dxf",
+    "n3/pil/para/PL_GRADES_preview_P41.dxf",
+    "n3/pil/para/PL_GRADES_preview_P42.dxf",
+    "n3/pil/para/PL_GRADES_preview_P43.dxf",
+    "n3/pil/para/PL_GRADES_preview_P44.dxf",
+    "n3/pil/para/PL_GRADES_preview_P45.dxf",
+    "n3/pil/para/PL_GRADES_preview_P46.dxf",
+    "n3/pil/para/PL_GRADES_preview_P47.dxf",
+    "n3/pil/para/PL_GRADES_preview_P48.dxf",
+    "n3/pil/para/PL_GRADES_preview_P49.dxf",
+    "n3/pil/para/PL_GRADES_preview_P50.dxf",
+    "n3/pil/para/PL_GRADES_preview_P51.dxf",
+    "n3/pil/passa/P10.json",
+    "n3/pil/passa/P11.json",
+    "n3/pil/passa/P12.json",
+    "n3/pil/passa/P14.json",
+    "n3/pil/passa/P16.json",
+    "n3/pil/passa/P17.json",
+    "n3/pil/passa/P18.json",
+    "n3/pil/passa/P19.json",
+    "n3/pil/passa/P20.json",
+    "n3/pil/passa/P21.json",
+    "n3/pil/passa/P22.json",
+    "n3/pil/passa/P23.json",
+    "n3/pil/passa/P24.json",
+    "n3/pil/passa/P25.json",
+    "n3/pil/passa/P26.json",
+    "n3/pil/passa/P27.json",
+    "n3/pil/passa/P28.json",
+    "n3/pil/passa/P29.json",
+    "n3/pil/passa/P30.json",
+    "n3/pil/passa/P31.json",
+    "n3/pil/passa/P32.json",
+    "n3/pil/passa/P33.json",
+    "n3/pil/passa/P34.json",
+    "n3/pil/passa/P35.json",
+    "n3/pil/passa/P41.json",
+    "n3/pil/passa/P42.json",
+    "n3/pil/passa/P43.json",
+    "n3/pil/passa/P44.json",
+    "n3/pil/passa/P45.json",
+    "n3/pil/passa/P46.json",
+    "n3/pil/passa/P47.json",
+    "n3/pil/passa/P48.json",
+    "n3/pil/passa/P49.json",
+    "n3/pil/passa/P50.json",
+    "n3/pil/passa/P51.json",
+    "n3/pil/passa/PL_ABCD_preview_P10.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P11.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P12.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P14.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P16.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P17.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P18.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P19.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P20.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P21.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P22.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P23.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P24.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P25.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P26.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P27.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P28.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P29.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P30.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P31.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P32.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P33.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P34.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P35.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P41.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P42.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P43.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P44.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P45.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P46.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P47.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P48.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P49.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P50.dxf",
+    "n3/pil/passa/PL_ABCD_preview_P51.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P10.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P11.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P12.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P14.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P16.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P17.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P18.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P19.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P20.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P21.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P22.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P23.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P24.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P25.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P26.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P27.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P28.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P29.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P30.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P31.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P32.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P33.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P34.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P35.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P41.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P42.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P43.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P44.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P45.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P46.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P47.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P48.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P49.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P50.dxf",
+    "n3/pil/passa/PL_CIMA_preview_P51.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P10.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P11.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P12.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P14.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P16.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P17.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P18.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P19.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P20.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P21.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P22.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P23.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P24.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P25.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P26.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P27.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P28.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P29.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P30.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P31.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P32.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P33.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P34.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P35.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P41.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P42.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P43.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P44.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P45.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P46.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P47.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P48.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P49.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P50.dxf",
+    "n3/pil/passa/PL_GRADES_preview_P51.dxf"
+  ],
+  "artifact_index": [
+    {
+      "path": "n3/pil/para/P10.json",
+      "sha256": "0d1e644c3700959e8bfe5e046ba1a483dcf9b720de4b24e1a490b0ce10eab92a",
+      "bytes": 16143
+    },
+    {
+      "path": "n3/pil/para/P11.json",
+      "sha256": "95d3476ed30eb0aadb2602b7462d47bc82b5774dd8e704fe4c1918853bfdc8ff",
+      "bytes": 13852
+    },
+    {
+      "path": "n3/pil/para/P12.json",
+      "sha256": "091cba5d0db549f9dc42d28c99e5b4b0600f5f76068f74adfcf3295938e34833",
+      "bytes": 13735
+    },
+    {
+      "path": "n3/pil/para/P14.json",
+      "sha256": "83e8e2f8a81f54c9772aba2f287a5a29abf75dcc9ab940d60f4ced7128ade9b7",
+      "bytes": 11252
+    },
+    {
+      "path": "n3/pil/para/P16.json",
+      "sha256": "54b6a2e251d743d5ffab4df082b4202ed39dd095bddbe3332b0fff1c4b53e1d6",
+      "bytes": 13715
+    },
+    {
+      "path": "n3/pil/para/P17.json",
+      "sha256": "1562301998c356b201db8dbc6a1c8f5016a9d5097bfac0d62373136a64eaa7cd",
+      "bytes": 13858
+    },
+    {
+      "path": "n3/pil/para/P18.json",
+      "sha256": "b41ee709e2e109659e32f7b8d46dd16c18114af62759d45dfd8eb1563631ccaf",
+      "bytes": 10625
+    },
+    {
+      "path": "n3/pil/para/P19.json",
+      "sha256": "9dc4446e2dfed183f168df1471d32290b40fee2ded39e3487f368d48faf4681a",
+      "bytes": 14620
+    },
+    {
+      "path": "n3/pil/para/P20.json",
+      "sha256": "b2943fc6a11ce11c87ca7b84d46b51572cbb81a8fb12e6886ee5c3f6ae02e6ab",
+      "bytes": 14025
+    },
+    {
+      "path": "n3/pil/para/P21.json",
+      "sha256": "022be10591d82b27af61dc3afbde3bcb49fe737a7f511336be4b620b9a817d97",
+      "bytes": 14025
+    },
+    {
+      "path": "n3/pil/para/P22.json",
+      "sha256": "870e925acba3f41c27cefc29d5719bf9d7f1e25f06ce21c4b1c4e20031f21418",
+      "bytes": 14025
+    },
+    {
+      "path": "n3/pil/para/P23.json",
+      "sha256": "efe454fef7286c27694fa7b50935d86681e90ce6305b994f51b61d961aacf1ca",
+      "bytes": 13208
+    },
+    {
+      "path": "n3/pil/para/P24.json",
+      "sha256": "45fb89f05637e5a80566a1828bc6bc8263995a9ee2dbee6a90461dd9a805d4b6",
+      "bytes": 14911
+    },
+    {
+      "path": "n3/pil/para/P25.json",
+      "sha256": "9fee7b7780e690c9336a1fb780025cd255d972f7a8026c5c8617b784bcd9d238",
+      "bytes": 13850
+    },
+    {
+      "path": "n3/pil/para/P26.json",
+      "sha256": "67cf82a7434d8194ebdf0ea2010eba7707b6ea8e45467044ac9c7ccbf6dd664c",
+      "bytes": 16016
+    },
+    {
+      "path": "n3/pil/para/P27.json",
+      "sha256": "915e4e8b1dd9a90f2b0f4bc83b0eea93dffac1471e53147a52a39d06f31e39a5",
+      "bytes": 18451
+    },
+    {
+      "path": "n3/pil/para/P28.json",
+      "sha256": "4ea566494f751105f701badc8f505fd581712349c78520e258e689ecdf55b8f9",
+      "bytes": 13958
+    },
+    {
+      "path": "n3/pil/para/P29.json",
+      "sha256": "34517818f47edacd5485bf847844d9197666f03b567480ae17412f2e165752cb",
+      "bytes": 14311
+    },
+    {
+      "path": "n3/pil/para/P30.json",
+      "sha256": "2a79b8c4f5e8513e49c060035ae6d5558e1aeeac126ee7582c26ea285af089b7",
+      "bytes": 14365
+    },
+    {
+      "path": "n3/pil/para/P31.json",
+      "sha256": "b2578c4358571729f319055a616c91d9fc84df5aae6c186d12dc45d36de04853",
+      "bytes": 13565
+    },
+    {
+      "path": "n3/pil/para/P32.json",
+      "sha256": "263182001c773f45315b48f4545649de546bdecf89d5d0600d8ad1c2d3c863e4",
+      "bytes": 13565
+    },
+    {
+      "path": "n3/pil/para/P33.json",
+      "sha256": "38fe1c7e09a48fe5570e2b2996873ff22f57d306c1c4987f0281a198850f9019",
+      "bytes": 16158
+    },
+    {
+      "path": "n3/pil/para/P34.json",
+      "sha256": "9f91ecdf740419bab41c4aa376668fc6852d8f4743358fb5eadc6f73a6c27879",
+      "bytes": 13705
+    },
+    {
+      "path": "n3/pil/para/P35.json",
+      "sha256": "4d0d6f11294f6546998044bdbdc4d280627a1c5bc800829c89cbcdf50ef0c6fa",
+      "bytes": 13672
+    },
+    {
+      "path": "n3/pil/para/P41.json",
+      "sha256": "80083600b926741cdaed1e1e186f3b23c4957cb55554afe4bace0e1c9d9449c6",
+      "bytes": 15998
+    },
+    {
+      "path": "n3/pil/para/P42.json",
+      "sha256": "50eab70607bf966fa346482fbfed363aff04d7a4e5dd6514e4815389505c2bb3",
+      "bytes": 13993
+    },
+    {
+      "path": "n3/pil/para/P43.json",
+      "sha256": "d0e622f971dd1cbf25f7eb5e52c814f480541f0051c5eb69fffc7bc092080d44",
+      "bytes": 15482
+    },
+    {
+      "path": "n3/pil/para/P44.json",
+      "sha256": "7b81e0665a8aea82e95a789c52593cf767042e773dd5545ba35811f4ebc17d20",
+      "bytes": 13993
+    },
+    {
+      "path": "n3/pil/para/P45.json",
+      "sha256": "a73bc52a61215c5fa503d2193c599f1760fdbaab6c7b2428b16383ae70067ab6",
+      "bytes": 15337
+    },
+    {
+      "path": "n3/pil/para/P46.json",
+      "sha256": "30d65a5951e1ffc6c8f5220ddd20b8f613160f956afffd8e060cc43ad85a81a6",
+      "bytes": 13993
+    },
+    {
+      "path": "n3/pil/para/P47.json",
+      "sha256": "d13bb1c08869ea552cc7c7b989fd1b22c99f232c7746ba69df46379aec853772",
+      "bytes": 15337
+    },
+    {
+      "path": "n3/pil/para/P48.json",
+      "sha256": "89cf65d57209ebe15fe14e37fcbef6701bbf0e0bf0492b502f4f882b3367aa0d",
+      "bytes": 13848
+    },
+    {
+      "path": "n3/pil/para/P49.json",
+      "sha256": "23d0d025f072ddce6fc8ef172b29958b528fdd20405baf70d96180ece404f285",
+      "bytes": 16152
+    },
+    {
+      "path": "n3/pil/para/P50.json",
+      "sha256": "3dfcdebb9af6e723e316935e9553a2edd23405d12a6cdefda7bad9c63c132319",
+      "bytes": 13880
+    },
+    {
+      "path": "n3/pil/para/P51.json",
+      "sha256": "6283166dbe5f6c9c360f75518352339428791bd2c260ae3abcf4625420928a6a",
+      "bytes": 13848
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P10.dxf",
+      "sha256": "26017b1ea4a6685ac8e7378442231ec04fc66be0a7e14aae5e6c510026efdb09",
+      "bytes": 115368
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P11.dxf",
+      "sha256": "a698874162e34dfd39e3e51b4cd23da2385f7525e390ac6e064b218b6d093344",
+      "bytes": 102294
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P12.dxf",
+      "sha256": "3e7db05b25064957a47249b750553f871ee76a798575d1c66bed3a5a69a67aab",
+      "bytes": 104729
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P14.dxf",
+      "sha256": "5c93d0f20ab963832ad254c9088362443eb634a4465c5aefd221c5a64f3aa37f",
+      "bytes": 93783
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P16.dxf",
+      "sha256": "51ad40da9d934e79b60024e79b207a536439da2a0e5292659ed0a566c74e0ccd",
+      "bytes": 100456
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P17.dxf",
+      "sha256": "d3e4e575dd6f9eb9eb89e40ba9dbf64353f0b5b807c5085206ab1adb39803854",
+      "bytes": 102298
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P18.dxf",
+      "sha256": "d8566307ec852d4a3519bd36d555de42259120a41b932dcf9baa4beec98d6e6e",
+      "bytes": 92892
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P19.dxf",
+      "sha256": "411a91711561b261493a05e3a6e7b903463d786f0ed85c1edf8a5193a4df7817",
+      "bytes": 104960
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P20.dxf",
+      "sha256": "cc09ff096916dd883951b240b854f5a633225592f015b834499ee53d04e704b1",
+      "bytes": 113909
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P21.dxf",
+      "sha256": "b1bb68ba025da922a057d42951a593a1061d02234663daedd948a5296007cb39",
+      "bytes": 113907
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P22.dxf",
+      "sha256": "f4f1e2051d456488ce14692e09f98da67e0a09056a7a766771ab745da6b07d48",
+      "bytes": 113911
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P23.dxf",
+      "sha256": "81447cd2a57dc232ed6fd6463fbeb6f67fa8ac14ed76172ce6eb3364feec2d2d",
+      "bytes": 108282
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P24.dxf",
+      "sha256": "3957da0cc6e7f04dff42f510a791a8037e0c596d698dfd3a3760a0cf7d4904b1",
+      "bytes": 114343
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P25.dxf",
+      "sha256": "4bf8ae018d27eec30c28a70b846abab2223f3ab728282ee0f73224ad2bea7804",
+      "bytes": 109302
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P26.dxf",
+      "sha256": "07aef8abf89b6781cd519477166dabdb99d5c4a4fcb0dccd9bd2dc59fd502b7c",
+      "bytes": 127309
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P27.dxf",
+      "sha256": "539b940fbf7cf05fd05e9c606d0cfdcc01da7efe399a191da2d8c8a2f062f924",
+      "bytes": 133190
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P28.dxf",
+      "sha256": "e579233985e85532888cf63e64ea2144ada2538afe1ae36a05205f5078f18902",
+      "bytes": 106334
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P29.dxf",
+      "sha256": "2c637be74f366f59ee42329200ea97f7a7e3b2c0d57b0471b69924bba9d7ca29",
+      "bytes": 113616
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P30.dxf",
+      "sha256": "7c10cd82c8061aaed7ce3bb55a399a18d9b47bed2763171ce79c2c9ff40850ed",
+      "bytes": 113515
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P31.dxf",
+      "sha256": "fa10aa9cd4830a15cf5942a75d0dde2c21c591cac5c49752cec459f52c7283be",
+      "bytes": 110104
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P32.dxf",
+      "sha256": "b87114e0b72e49dbe6ec6dd5706dedd701ce482393ae589d30b145405535b724",
+      "bytes": 112573
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P33.dxf",
+      "sha256": "b1678e8f6025867e2513ffe9bccb2a3e2d07478e0a825d136cdc358b25425e3a",
+      "bytes": 111104
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P34.dxf",
+      "sha256": "8e55f57e99f640292b6f4a15d8c43339f6874bfc1cccaed24a4da587c8291ccc",
+      "bytes": 100314
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P35.dxf",
+      "sha256": "8c008c8d1b2cf4c2c5d17b51b6ae8d4ab4c32c0445aa7f5fa5473bf9c88a63f2",
+      "bytes": 104044
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P41.dxf",
+      "sha256": "0e0cbb8b50fd3a17cd433b38633e3b3a9b2af80766b205ee47f419115aa11922",
+      "bytes": 108236
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P42.dxf",
+      "sha256": "01993679248ed96b8e8c6eb30fcbc60b7edc7ff89294370e27c5f5c79950c868",
+      "bytes": 106740
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P43.dxf",
+      "sha256": "fe010a95f3d54faea72afb572c37b4e3552e004be50acd60a012307eaeb38045",
+      "bytes": 108752
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P44.dxf",
+      "sha256": "60551611efde76cb152f03893419645436b8af1e573b9a5f9e5595bb438775cc",
+      "bytes": 106740
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P45.dxf",
+      "sha256": "70d8c3429656123d2399f219426cf4006e3273c61494b0b751f829d0bf8405d8",
+      "bytes": 104177
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P46.dxf",
+      "sha256": "4f01c1158633092c2d14e9213077f725388dc0f2835266ae16e5a08975c9625c",
+      "bytes": 104266
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P47.dxf",
+      "sha256": "36d8cb4880c0316b4379e13c36c30514caecd445bc3bf880df31b2b89b421ba6",
+      "bytes": 104179
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P48.dxf",
+      "sha256": "d19dee0695a0362ff054fe7d1383a752c9f205c98d06ff78a101001d951c5c18",
+      "bytes": 102294
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P49.dxf",
+      "sha256": "518eeed556e15c348f473e7df27d99725ec69e98bbcb996dc1721186cc38b2d4",
+      "bytes": 112919
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P50.dxf",
+      "sha256": "9d49f54fe5d955f63805072010c9ebd38b3dd8f9f992a7f87553b486e31dfab1",
+      "bytes": 102294
+    },
+    {
+      "path": "n3/pil/para/PL_ABCD_preview_P51.dxf",
+      "sha256": "de0d064503b283921fc9181c7904b9bf4039b270d41a63f5440480b2dba46537",
+      "bytes": 102294
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P10.dxf",
+      "sha256": "4388c01c7f79f874a73615ef34e43076a009deeaddd249ce59c488bebbd97107",
+      "bytes": 62335
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P11.dxf",
+      "sha256": "0b33cf6cc27c7cb779094251daa39dc0b034f77085474d0e962b8486527a2cad",
+      "bytes": 67505
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P12.dxf",
+      "sha256": "441f0ed20af83347988b433e7446a37f9b6a20acfa47d7ba6b2cc17ad215c9ba",
+      "bytes": 67570
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P14.dxf",
+      "sha256": "ad9c0b3103806c44000e6d2821badaba36e146ca5ba7fb54512ed6d598662b0a",
+      "bytes": 77319
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P16.dxf",
+      "sha256": "1da8bd4b7d33f9859d5d5ccc6a5a4d98cfb1d012e1d8bb9b4afc5d21e71b51b2",
+      "bytes": 67608
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P17.dxf",
+      "sha256": "f886a1b482f475e7cb80a3ed5452dd242dae69f1764a6ed0c7ba02a35315b005",
+      "bytes": 70079
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P18.dxf",
+      "sha256": "82c6af669ef102a9b8d92811751b92081889f0d50eea01c6eebe38f9e17d7312",
+      "bytes": 77333
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P19.dxf",
+      "sha256": "272c3eb4285610a87495d2ebf1401fdf33c3fd41e7510b7403ca3308887f5946",
+      "bytes": 67507
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P20.dxf",
+      "sha256": "695ad9b3e7c36854f02a732354146b046e23916088ecd451c3eae724c427618c",
+      "bytes": 67507
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P21.dxf",
+      "sha256": "a8c615f5e1755e1e3044d1ae14d2199397d0bf7b0ac43c32e4ff5902ce58d6a5",
+      "bytes": 67507
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P22.dxf",
+      "sha256": "c4ffd641d9708259f6a2bebdbf649cd060feaa3c5bcc2bb66eb25a3187782ac7",
+      "bytes": 67509
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P23.dxf",
+      "sha256": "4d344f8134458f771759f7cd4576593a2185f90941fb2bb130382188ea14efc1",
+      "bytes": 67608
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P24.dxf",
+      "sha256": "e2b22ee9f98fdde25cbfba22fb3f54b5ae3171b36c8ce9d2e22993995d1a3ba0",
+      "bytes": 67507
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P25.dxf",
+      "sha256": "e6e037b428397f7e9f7b242ab45171f3522b57e371c3fa8a13b2c3bb35a6d248",
+      "bytes": 62337
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P26.dxf",
+      "sha256": "6c270f9fbab0175c5c0e2a137357da819f69082461c7f28bae7322bba9cb55ae",
+      "bytes": 90773
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P27.dxf",
+      "sha256": "fabe7161274f86a90c204eb23a940c86edf132e1b928b7a1b83e4ae7331e15b8",
+      "bytes": 90373
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P28.dxf",
+      "sha256": "6db03a2c36a08cfcba204eb88d28ea40a8e9c6f881f26945623747f93d784dad",
+      "bytes": 67507
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P29.dxf",
+      "sha256": "cd9c1075702e1c9be580607ab41e3443b2697fb362f55679ecfc292cbe61b673",
+      "bytes": 62343
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P30.dxf",
+      "sha256": "9f5b237897c626176b764c801990809d589518d699884da70c924dd14e6d5676",
+      "bytes": 62341
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P31.dxf",
+      "sha256": "6c7c516999cf14455394a79e9c5ec567154061067a3a8943758145bc01f97d74",
+      "bytes": 62341
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P32.dxf",
+      "sha256": "7d4fb8aac5d31e019b1e264e1ce086ff874f7e12baeaa2a17afbc4cbcefb55d9",
+      "bytes": 62341
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P33.dxf",
+      "sha256": "23f2dff40dc9ba3a4a51116c5ee1767a1814b426f134f919e167177972c63b1c",
+      "bytes": 67606
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P34.dxf",
+      "sha256": "aec638e39cb0ea4d843200c773c617ee2717cb8b6742172dec95bab45198a316",
+      "bytes": 62335
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P35.dxf",
+      "sha256": "4c470f279ab06e418abfa40c1053187b86113aa234e56087273ea5795e596667",
+      "bytes": 62335
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P41.dxf",
+      "sha256": "50cf42ce86bc7a07794d8417c5ead05cf62db5f00ad80bd4591b7f9e644066f5",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P42.dxf",
+      "sha256": "4b4fe43857b34d2c42bd94f170d41b50b46e1b95c3ce177167701cf3bd59760c",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P43.dxf",
+      "sha256": "255cfc7a6155d3a83c051294593ddf1f6b504754b5483127fb8e76ef99d62506",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P44.dxf",
+      "sha256": "cc68090d8f99afc808dd2446bdc02ae2e83af5c3e28b2e696baa91f4ce1b55b7",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P45.dxf",
+      "sha256": "ac6d954b1275fe52e15d8e87044c837563a1c039f62419ae019a13b43ee383cc",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P46.dxf",
+      "sha256": "3f84e060b2b2e45fd03f16cac86fe34bf3a8c155595f4a6eed2e54655e549513",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P47.dxf",
+      "sha256": "e145ec9d40eb25fcd8409abcd8550ed356d6ff90cfe45723f25d33ebe43cf19b",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P48.dxf",
+      "sha256": "9f5d59012fb1ac51c12be33f8c40cadc1a4a3af5615146ace25bed6670abe37f",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P49.dxf",
+      "sha256": "9134090e5e320362b661bdfa729230f0f3a53506df1ad250103e9ab3a8a46308",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P50.dxf",
+      "sha256": "d5c064cae5321788a114515905c26a50014b0ab687158916edde8d61301e0bef",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/para/PL_CIMA_preview_P51.dxf",
+      "sha256": "255b3aeb1c8da2ca4fe75aa23cc31d833bdc0311e8fa8378515b3199812fc3d7",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P10.dxf",
+      "sha256": "5abf803addfe1f896db7e2bed80ebdb0bc2922a137536ea4d299bd3ec384e8bc",
+      "bytes": 80025
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P11.dxf",
+      "sha256": "09bc336ed29b56ca8018567f72c25c1d9956eab171c519f205f3ed39dfaab315",
+      "bytes": 87983
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P12.dxf",
+      "sha256": "4e7feb4007338460e17ab3ad97046add258b7357ff3d5fa219bcb947d9949c8e",
+      "bytes": 88003
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P14.dxf",
+      "sha256": "2edc1dc26f5021bf3b439462abd833ef734ccca0bdf9b445692e6162fa724019",
+      "bytes": 172297
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P16.dxf",
+      "sha256": "d33dcf555877efbdb8776e07949d87c4c8985fcd8775cb669b724c77312e6e39",
+      "bytes": 88003
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P17.dxf",
+      "sha256": "65f7c29de32ce43293bad6562549a63166c8ce13e2569b2436715be67b97d4cd",
+      "bytes": 95969
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P18.dxf",
+      "sha256": "3ae62de261078471e0574dc394ca19b4f2302bf8e75c68a2511e3a5340c7cbaa",
+      "bytes": 172441
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P19.dxf",
+      "sha256": "ebd57875612ce2f471ddf2fec549cffe5310e293d94a6bfddca672e5eba53852",
+      "bytes": 87985
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P20.dxf",
+      "sha256": "2779023cf6a88bde9d82ca261b140589233ff91fcefbd8abbb0f10a1ea09a413",
+      "bytes": 88009
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P21.dxf",
+      "sha256": "0db9e87ac8e1950d82b48c7fecb0f4f9740767065e621fc034ff46415f789f1d",
+      "bytes": 88005
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P22.dxf",
+      "sha256": "b6db137c1264bd537c455020dd8d580fc3e22b80c210f813153d6449deb7599c",
+      "bytes": 88011
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P23.dxf",
+      "sha256": "f85d098eef0726b356ee8d59564ed657af85193a86a2557d50b345a83c6a56ea",
+      "bytes": 88003
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P24.dxf",
+      "sha256": "ea85c8f82db93717251a93a9a1f5e0a28144736547b54eab0b56d6eb64e8b0b5",
+      "bytes": 87985
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P25.dxf",
+      "sha256": "508cca97553fdda8522dbb99082d5f6ba0b37b571735d093db8b12262e6113c9",
+      "bytes": 80027
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P26.dxf",
+      "sha256": "ac84b55453f43698c7abfe11d38297f12e0cb000260a796c309c8dab58e665b1",
+      "bytes": 229768
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P27.dxf",
+      "sha256": "dfaaccc53d8488c2c9021ffb325fc5663494068b265c6f59f9d32bc60c5eb2c2",
+      "bytes": 229768
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P28.dxf",
+      "sha256": "70632694ec5fe7e31ba445b5b844526ed3d69fa31ef9d9897a75a828d8ab0b8f",
+      "bytes": 87985
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P29.dxf",
+      "sha256": "beebd75d3e789662c9ac7da197f82d81a1dd058cdf6c2062952347c3c82b3490",
+      "bytes": 80038
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P30.dxf",
+      "sha256": "b55e6d1ffd26175a50528a9e7262294510110ea46b9f9b452a61f8ae57a9c71a",
+      "bytes": 80038
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P31.dxf",
+      "sha256": "d27a393d0630557ed909e95ca48cc3a961239ec7d2dbdb19b33a74af38d10704",
+      "bytes": 80038
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P32.dxf",
+      "sha256": "f8170e965c8281810d41b73e573216b1413d4bf7e39011ef575eb9f2908b38e8",
+      "bytes": 80038
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P33.dxf",
+      "sha256": "5b2106c17f99851afd582cce52882191e843ce89c659a5b7a6a8dd9709808397",
+      "bytes": 88079
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P34.dxf",
+      "sha256": "e753e31b9a1cfc0935771b6f2fcad1c2ed699b52d3d2eb5696065d3c846a6d9b",
+      "bytes": 80025
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P35.dxf",
+      "sha256": "deb74219cd6da9e594f1ab368467d6283a1f9c900f078bb34604cff06fe5d31e",
+      "bytes": 80025
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P41.dxf",
+      "sha256": "077dd1ca753e40f728654197048ec7c1a5b50441adda0392fc94b2f0a68d958c",
+      "bytes": 80103
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P42.dxf",
+      "sha256": "d161ef0cbc30b8ac1b81b28370e2aa16802e06e9a9d75d39e7746aa89135e00a",
+      "bytes": 80025
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P43.dxf",
+      "sha256": "6296d7673e936f6ce99600a99addd9c65cd824dd8e0e7c97b11b307bdc106ca1",
+      "bytes": 80025
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P44.dxf",
+      "sha256": "3dfd3137ff411d66c31656139841b2a635b950fa848e7fcdaaa28b5de724e8f9",
+      "bytes": 80025
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P45.dxf",
+      "sha256": "ff001a6e74b66fcc58758eb4ec291d5cf1f1d6d25fdb5bb0854f49e67ede1143",
+      "bytes": 80025
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P46.dxf",
+      "sha256": "e20fd7d260ed3e0eb5276a55c2cbb8ffea9fdb853955854233e78583ee17bcff",
+      "bytes": 80025
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P47.dxf",
+      "sha256": "ab5b677e0e808ada32ac8f242cb8ce1e7b3804718b07fe01ada25a9f84ea42f9",
+      "bytes": 80027
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P48.dxf",
+      "sha256": "157c7645c1c2dfa2a61695ff0bbbb78397ddf8a868aec10c534766b669136fc5",
+      "bytes": 80027
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P49.dxf",
+      "sha256": "092bbb09363302d85ea51fa00fca9b6c14ab493b4cb8e1b4ca600c78aa33459a",
+      "bytes": 80105
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P50.dxf",
+      "sha256": "4b36fec53daf960dad03434d72c95f0cc61b682e7190fae7e8d0e781f5c7e8b9",
+      "bytes": 80027
+    },
+    {
+      "path": "n3/pil/para/PL_GRADES_preview_P51.dxf",
+      "sha256": "ee8e7e4c30150653b68ad67a76fcb3cdd663a962a0350d17663f4d2bff421016",
+      "bytes": 80027
+    },
+    {
+      "path": "n3/pil/passa/P10.json",
+      "sha256": "9c984bc3bce9891edb4c58742571525e6f30d4c66a7f8c64be6f1cb04ea1648c",
+      "bytes": 16256
+    },
+    {
+      "path": "n3/pil/passa/P11.json",
+      "sha256": "98551aa84bc8caecc4ff8b39e0d23aebf28c86d8c4ec2376651c32e64ac6a7a3",
+      "bytes": 12684
+    },
+    {
+      "path": "n3/pil/passa/P12.json",
+      "sha256": "0b176a863c38fd46f498567c6d8986ed319e260aa58897ac8d17f18c444a5d0d",
+      "bytes": 14350
+    },
+    {
+      "path": "n3/pil/passa/P14.json",
+      "sha256": "c652f1d837683a24b424435a6af36f93ae56281e0355202e79dad81ad7a1d4c5",
+      "bytes": 11843
+    },
+    {
+      "path": "n3/pil/passa/P16.json",
+      "sha256": "72e91bfc690fe18273baab0f6ab6548ae8e97a66b1d88005c18fcb0bf0cff4c4",
+      "bytes": 12592
+    },
+    {
+      "path": "n3/pil/passa/P17.json",
+      "sha256": "020a201cacefff5fe9de3cd43ce81c814f37ba6d46580b2eca485828b9824023",
+      "bytes": 12690
+    },
+    {
+      "path": "n3/pil/passa/P18.json",
+      "sha256": "db093def98d0143e370c1489db9be1553732d9ca5e0527cc76347c12499d179b",
+      "bytes": 11862
+    },
+    {
+      "path": "n3/pil/passa/P19.json",
+      "sha256": "50185a8674658b36564a5dd198444dc5aa9db446421f2fe54b798ec8c86799d1",
+      "bytes": 13274
+    },
+    {
+      "path": "n3/pil/passa/P20.json",
+      "sha256": "57c04ca6a6ebbb6743f31451a8f758fb11d318da01ad6e1b9ef32be33168dc84",
+      "bytes": 14546
+    },
+    {
+      "path": "n3/pil/passa/P21.json",
+      "sha256": "f85df4c78447eae0708c7ca902e2247a6df95c3e1f56a9fd1246032d243f7e3f",
+      "bytes": 14546
+    },
+    {
+      "path": "n3/pil/passa/P22.json",
+      "sha256": "08132a85efbe37fbd59c8016ef90f670932ac5b6100d392c450b387af53fa91b",
+      "bytes": 14546
+    },
+    {
+      "path": "n3/pil/passa/P23.json",
+      "sha256": "4b3216a0cc34c3dab216f91acccd9cdf7942085a5537bb68da3331c50ee0cdf6",
+      "bytes": 13888
+    },
+    {
+      "path": "n3/pil/passa/P24.json",
+      "sha256": "6e201fc2b939082eec9a329626c715fd2e7dc2fced7f610cb4f021809789f0c6",
+      "bytes": 15233
+    },
+    {
+      "path": "n3/pil/passa/P25.json",
+      "sha256": "95a6c89bbc1eed147d3e521ab9ae658fb7a43989ef01449905ee35f53fbfe9ea",
+      "bytes": 14076
+    },
+    {
+      "path": "n3/pil/passa/P26.json",
+      "sha256": "2d1ebdb2fd3e769e21a7fa3d547b735a6da8a9a7fd1891856352eec6f676c07e",
+      "bytes": 18278
+    },
+    {
+      "path": "n3/pil/passa/P27.json",
+      "sha256": "310d3a81260f855fec48fae43a1a0a386d839545087d99c86e5470936ffbcd4d",
+      "bytes": 20556
+    },
+    {
+      "path": "n3/pil/passa/P28.json",
+      "sha256": "69e7e0f42bcf8fb62487bdfdec23b74338cfeb541fa8b586b07055e662e833a3",
+      "bytes": 14855
+    },
+    {
+      "path": "n3/pil/passa/P29.json",
+      "sha256": "cfb2056bdaf25a0e5f43def59709201878b68882828039c42318c321fe03069f",
+      "bytes": 15605
+    },
+    {
+      "path": "n3/pil/passa/P30.json",
+      "sha256": "85c31051be9eb061f0f9fed485349d5250ee18cb1cb095f54956101622245c38",
+      "bytes": 15475
+    },
+    {
+      "path": "n3/pil/passa/P31.json",
+      "sha256": "aae288a285068bb33fcd3272248cc669f8323632a29d157766994264fe5ad3bd",
+      "bytes": 14856
+    },
+    {
+      "path": "n3/pil/passa/P32.json",
+      "sha256": "545ae958d2e58c2ba457cf1ba479de20883f1c5faddbc8a4994a6b36a78df946",
+      "bytes": 14856
+    },
+    {
+      "path": "n3/pil/passa/P33.json",
+      "sha256": "40cd6f3be08f8de5b5ae4f56bcbfec926c2ab8766cc061ca5e3c20cbec8ce4b4",
+      "bytes": 14879
+    },
+    {
+      "path": "n3/pil/passa/P34.json",
+      "sha256": "52e2047ab791c267b8f0a5d73ba4de8ece1809a3545a54913425488774d427b7",
+      "bytes": 12580
+    },
+    {
+      "path": "n3/pil/passa/P35.json",
+      "sha256": "548d52293b03303184ff269ef470fe32e9ecfd2a86741b67c7bb54c02c4a1a1b",
+      "bytes": 14423
+    },
+    {
+      "path": "n3/pil/passa/P41.json",
+      "sha256": "115c2f6945497571ab8577087d451a6a1adec7ca44780550163f37f5c13b9c9e",
+      "bytes": 14744
+    },
+    {
+      "path": "n3/pil/passa/P42.json",
+      "sha256": "cc28a1ee3b9bf234cb41bf6183ab92e8c6616d3c1809f022545c155872a22a49",
+      "bytes": 12774
+    },
+    {
+      "path": "n3/pil/passa/P43.json",
+      "sha256": "6f60c63446cfdb5358ffe0dd9d09368621be5104db4cc62563433711139a41f0",
+      "bytes": 14723
+    },
+    {
+      "path": "n3/pil/passa/P44.json",
+      "sha256": "d12832dc5bca2bf5fd3a31cd3cbb7f29fe1c1da63a5cabc9ff551fed7ad66924",
+      "bytes": 12774
+    },
+    {
+      "path": "n3/pil/passa/P45.json",
+      "sha256": "885fa54bb8332b10bcbb17aab85f08dcf9977ab534c1f06931a36c3b0a3a2ada",
+      "bytes": 14625
+    },
+    {
+      "path": "n3/pil/passa/P46.json",
+      "sha256": "a3a6604aae6cec14c77d44375bb30f83592e7bc58c48663bd4d9da35e1ed0a25",
+      "bytes": 12774
+    },
+    {
+      "path": "n3/pil/passa/P47.json",
+      "sha256": "f86f1d7ccf61a04f2f5a0b5e4442133df7093799cf49bf4b5ec806a499f41064",
+      "bytes": 14625
+    },
+    {
+      "path": "n3/pil/passa/P48.json",
+      "sha256": "a751cc346cf24e50db6771082fd6e5135ce51f5ee8678ec96357a5cce97558a9",
+      "bytes": 12676
+    },
+    {
+      "path": "n3/pil/passa/P49.json",
+      "sha256": "4542ad0ec85d47eafa0f68855d891e9ca9b3e2cfd3e49690bcfcad9dc38800d6",
+      "bytes": 14863
+    },
+    {
+      "path": "n3/pil/passa/P50.json",
+      "sha256": "7dbb2a39a233d0890b54ee65cbcd578a9ac7292dbfb859d386c3b39610e5b124",
+      "bytes": 12708
+    },
+    {
+      "path": "n3/pil/passa/P51.json",
+      "sha256": "3de0613f635a5875fb80bfed89cdd277c91d2f447177a552c56a79ac390c7aba",
+      "bytes": 12676
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P10.dxf",
+      "sha256": "f9cc87b80314638161e27a2a502d33598087f5e514f06e9b6caffb8db6429d52",
+      "bytes": 102280
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P11.dxf",
+      "sha256": "09dc751c319150631e1e23d35d08c10dc2b25e8fd024c7412d7b39d0f4e86d16",
+      "bytes": 98947
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P12.dxf",
+      "sha256": "5fdd65fca918c142eeb330377c9d07811d6c9bc4d79ef05ba52198cf0d25ec7b",
+      "bytes": 103912
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P14.dxf",
+      "sha256": "aa307fc8ae6c8b3ca1a25bd59089de27877306cae0d71bbb2b92ce1df509e569",
+      "bytes": 104379
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P16.dxf",
+      "sha256": "b5628c14611886cee334a2d1245f46250aa1f9cfdad8461e50904c2b87bbcae7",
+      "bytes": 98949
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P17.dxf",
+      "sha256": "b94718b389ea2da35a7995a202385f48455fd1b9b80cce370fb08dd67119b76b",
+      "bytes": 98949
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P18.dxf",
+      "sha256": "f71cb41a0c1fdd1fa38acd73a580f7b37ab704393bc3c592581597b4bb35fefb",
+      "bytes": 108364
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P19.dxf",
+      "sha256": "d79fe27706dd9e11a7e3dca02f8d4faee9b1df31213673c7f9927b8efcaa083c",
+      "bytes": 98949
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P20.dxf",
+      "sha256": "95b9cae04f75e1266029bee5924a69db282afef74e2abbf0ccafc43989564008",
+      "bytes": 103910
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P21.dxf",
+      "sha256": "b33ae5eaba247f6cb17cc40c6b689569d8f2cda8e1fc42c37394767747bb4daa",
+      "bytes": 103906
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P22.dxf",
+      "sha256": "9b62f5e307c2440c734ba9bc1ed83339a4eaef3a4c0a03954944bcae0c349f97",
+      "bytes": 103912
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P23.dxf",
+      "sha256": "b8352e0fe74fa699aab399504a5a362ed4d0d13273639966b4091d28ae561acc",
+      "bytes": 103912
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P24.dxf",
+      "sha256": "1eeab291a6f030392f5d19aba6b3a28475d22f1143ba4c0962d70b9e6d0cb88e",
+      "bytes": 103912
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P25.dxf",
+      "sha256": "12233493466523b5048ba544497841991d88d046dfe027ac114b367ff1bcc616",
+      "bytes": 98103
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P26.dxf",
+      "sha256": "21dbe83fe6a47cc89ce764dcec86229cac73e11ff483253033b0134f99e14e02",
+      "bytes": 141330
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P27.dxf",
+      "sha256": "076e4df22a5fc4e7fd95b325e94d285a444fbec7096c8d304e2bf4681b0fd668",
+      "bytes": 142646
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P28.dxf",
+      "sha256": "60fb75509626a69e4caaee7d4804f329ffdd162fd3ecd03602fdfff06e863ac7",
+      "bytes": 109676
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P29.dxf",
+      "sha256": "0ce258e0cf8bd3c2782371264cd2da9634aed499fc01ed7cb3f052d7aaafec2b",
+      "bytes": 112288
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P30.dxf",
+      "sha256": "8a0d39d5dd66672156b48768d9457f40ba68daa9580b214b19412ad5e7e00bf3",
+      "bytes": 111251
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P31.dxf",
+      "sha256": "92e9b4c7ee6c665a538b8aedbfdf211606fe0e564778512817124e7bf3f53324",
+      "bytes": 111251
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P32.dxf",
+      "sha256": "ffaa8b4e273a3571a1c3d00e6332c53af8c4a789d2819a6caaa2fdc81d037f69",
+      "bytes": 111251
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P33.dxf",
+      "sha256": "55f71aec573d2cd2640b7e09cbab0c0ff4ced0c6a11822fe127835c183c59c1b",
+      "bytes": 105739
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P34.dxf",
+      "sha256": "8d5fdddce82f5a67c59afba30490a54028a488e087c1572e12f1cf5158f5a092",
+      "bytes": 98943
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P35.dxf",
+      "sha256": "52ec12925839841826f9e407de3ffa890ae2419deffc9988669daf6e30e264a2",
+      "bytes": 102297
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P41.dxf",
+      "sha256": "ef7adb386bf72f6d7bf983f413216b130441aaa813e73f74e70dd3fed5fc0e6f",
+      "bytes": 98349
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P42.dxf",
+      "sha256": "4d78a6efd40e2e5f0793c772b7751cf9d1de64825455a54f4f251b505e511e59",
+      "bytes": 98943
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P43.dxf",
+      "sha256": "9c6501bc8da66502e714b8bdbeb99196471bae5a36e37a0de2680dbbf7ab972b",
+      "bytes": 103906
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P44.dxf",
+      "sha256": "31dd22811f71b5c292a1f95f3d5a6a6e4a5b22f9eccb3915da0e5d9189dabc08",
+      "bytes": 98943
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P45.dxf",
+      "sha256": "5800103f912b997f3ba639b57b5f9e8893f9687825ee0faafde5073fdf37581e",
+      "bytes": 103906
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P46.dxf",
+      "sha256": "0275ab93517b002175044d81abc7d6a70fa083b2755590cfb45469983392f3d9",
+      "bytes": 98943
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P47.dxf",
+      "sha256": "2a0003125d8f398604a643adfe5e23c5e4cfa098891d46bcf2f3e3c40df5b648",
+      "bytes": 103908
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P48.dxf",
+      "sha256": "5a40d5adf35f0147d7788d36b739c3e8f839594403dc1acb4fcbe1b4b6b5fcc3",
+      "bytes": 98945
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P49.dxf",
+      "sha256": "f6461390a03061fc01efdc8fa0caa3cca300f270c3931bd30d3b0ae8e86b1929",
+      "bytes": 105726
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P50.dxf",
+      "sha256": "424bed9ecb814438ba75b91a75a23fcff9db3c6530e7761bc53779cae35632cc",
+      "bytes": 98945
+    },
+    {
+      "path": "n3/pil/passa/PL_ABCD_preview_P51.dxf",
+      "sha256": "2d60219e1e2ff87c01ae598ef5f695f52a85a35d8f67988998fe9ef207f6b950",
+      "bytes": 98945
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P10.dxf",
+      "sha256": "018e7e1bb45615b8826a29d13e1304d8fc979d6cdabf1c0d2cf970fc666a75f2",
+      "bytes": 62335
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P11.dxf",
+      "sha256": "a3472fedb939b496045c3305e177c3df9f36daa4411feb537a7fabe8b06b44ec",
+      "bytes": 67505
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P12.dxf",
+      "sha256": "277b4842423cbce8ed5bff9c0d210977260c787ab540e9e9e45904a4e925351b",
+      "bytes": 67570
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P14.dxf",
+      "sha256": "6fee02268522b17cb58d92ead44915de113cb58c57e506f34cab440db368abbf",
+      "bytes": 77319
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P16.dxf",
+      "sha256": "f6ede87091c8e80c14be0098d7a72ae419686528b48aff158c127a1bd17d4af8",
+      "bytes": 67608
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P17.dxf",
+      "sha256": "9b0c941b8684c2a5615d3884f1fb97972cac0fe9dd6af388b5c2ecca4cceaa41",
+      "bytes": 70079
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P18.dxf",
+      "sha256": "51f85a7ad35e72a8a07b64be6928c24746a857683249819306dd77536bf367ad",
+      "bytes": 77333
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P19.dxf",
+      "sha256": "3e5e0767e27d1fde5190b4672c72a87e4251ad58a9f12f108cb1faf398e988c3",
+      "bytes": 67507
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P20.dxf",
+      "sha256": "0f97176796f4c16f59ba09e3d5986666d62a2df2ff12ce1cd6db3f811e37bddc",
+      "bytes": 67507
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P21.dxf",
+      "sha256": "3726556f48070b8827b95e82833f491d0b2ef9dc801cbd0cb028a996f99ad61a",
+      "bytes": 67503
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P22.dxf",
+      "sha256": "d7ec1e80f832cfceb36f9adac0178dfd2f22bf4d33572b12bf7d1370a4f1f9cd",
+      "bytes": 67509
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P23.dxf",
+      "sha256": "cbe60164a33289bebd20b519d5bf3b1c66bd486dd027457a0cb8983d2ab8d713",
+      "bytes": 67608
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P24.dxf",
+      "sha256": "abb15cd52273f05f9b288730debba474a1e9d9470527a03c9db14214a1081ec5",
+      "bytes": 67507
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P25.dxf",
+      "sha256": "88c2d2a71931047d13093d3f8c8d10d2973f1e5090a69759dfb34a4c45944a2c",
+      "bytes": 62337
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P26.dxf",
+      "sha256": "4bc43e75933012b950eefd71f908ed2eabd31a038ad29ce096d00a77889149f3",
+      "bytes": 90773
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P27.dxf",
+      "sha256": "e922f4c8401dfc6def26e362cf7496c08c1772e49762476e85de15d7fa159ac3",
+      "bytes": 90373
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P28.dxf",
+      "sha256": "4f77e2d6a081e46e52cfe8ace8d19eca522d3b780410ec8af969b94b243674a6",
+      "bytes": 67507
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P29.dxf",
+      "sha256": "3cded4b4dd25c118fb07188a28bb098a0a8517b571a3fe74935889cb77d80e86",
+      "bytes": 62341
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P30.dxf",
+      "sha256": "ab508257c9cacc20be2f51fd740d3d0c42204d6f2afc464bdb4983940eeeb2ac",
+      "bytes": 62341
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P31.dxf",
+      "sha256": "a6bac9490cd5996a52af7d155bae0effd0106530a019c0985b95502df35cece0",
+      "bytes": 62341
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P32.dxf",
+      "sha256": "7c5cfc4e8e6d5ce67e77dc756ccb8697f810e201c94ef817568cab0e5a281a6f",
+      "bytes": 62341
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P33.dxf",
+      "sha256": "503fb256d28435c1afce64b2b049cca5e43d0afafeb0643a0d13c50d85d1a61a",
+      "bytes": 67606
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P34.dxf",
+      "sha256": "9fff1e00b8e9f7aab4b0e556f2cfec2bc4960321ebc4f1805e3f83b89aa5ba49",
+      "bytes": 62335
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P35.dxf",
+      "sha256": "60fb267552143c33f207481116865159d9ff1c5f486cc769f12c3e873110ae86",
+      "bytes": 62335
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P41.dxf",
+      "sha256": "a98c71d191ca74d953354b5298691c5154e49ba9851cc218416439b799c1fd42",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P42.dxf",
+      "sha256": "cd4e15111a83478895aaa565be3faa63b6e9005745659285d364677338d8ff90",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P43.dxf",
+      "sha256": "501aa3f721ddd98143db5c814a0637af5f7757d7a13e96ce58ed4e81821db1b9",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P44.dxf",
+      "sha256": "c816694f6ed753e7f39825f88b80975c65493372cbf34b1a7c499ef82f11adef",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P45.dxf",
+      "sha256": "3a26fcc7bcd0c1ff7705e0ffde5dbe40e3f1dc47d784d80475353a479968ade7",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P46.dxf",
+      "sha256": "f3d3ecf43c0da8fc9da58104a0e1e2b0ca0156b3ca59e4df6725656088768e90",
+      "bytes": 62346
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P47.dxf",
+      "sha256": "e7b044c36412baa1b8ff27dc991489135e82773e64bab2caad8613a2962655a9",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P48.dxf",
+      "sha256": "7dd76433c1462d744b2f656fadf61c8a9b92412175b721cfe8a9439ac27883ef",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P49.dxf",
+      "sha256": "4ade639c7874d2a84377b3428213ef258fe5a1da1fde722c5028231d2ff79755",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P50.dxf",
+      "sha256": "1839c4c3ee8199f4c7f229f45614486e974ff89d3b156aee8f84048568a815d6",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/passa/PL_CIMA_preview_P51.dxf",
+      "sha256": "49ad456a43d371a6f647f7c29304de426063c25f4aec863cbc36a084a899be58",
+      "bytes": 62348
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P10.dxf",
+      "sha256": "9fe1cc6e8b202bb64b68283c4ab3debfd7622cf1520288bbd1dc91113ba72571",
+      "bytes": 80477
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P11.dxf",
+      "sha256": "c215a31149c86f37f3d6af7786c3c0bcd3c09d656f511a49b6075f7624f78df3",
+      "bytes": 88284
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P12.dxf",
+      "sha256": "4e40c6cfd74cd28152646e565c6682c03ed2ba552dc261a9d9a3e74a094a90ea",
+      "bytes": 88303
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P14.dxf",
+      "sha256": "8c18fc0949f223a2b8b6f783546cfc7c55675dbedcbb6519039179e7568c37e4",
+      "bytes": 173377
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P16.dxf",
+      "sha256": "56cd56b9ebeb67e926b824c32bf791fff0de48363cac47d3000200b8b81f4918",
+      "bytes": 88303
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P17.dxf",
+      "sha256": "46f6739cee73105812cf614d2f18f9c7390163f0c4720024ee7ab9e80d1d0960",
+      "bytes": 96347
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P18.dxf",
+      "sha256": "1b10e2eecb880041f6fcf9b6788240aa8f2593365ea7762306ae0eaa0b1f49b0",
+      "bytes": 173377
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P19.dxf",
+      "sha256": "90ed4cd02015d033ba5edd5188f96b28bb254f58e26e639f69783a254a10b9d3",
+      "bytes": 88284
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P20.dxf",
+      "sha256": "e74cb89e1925ea20ace81874807cab53504b5d4ffc0ca2b1c2d54dd5514bab61",
+      "bytes": 88309
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P21.dxf",
+      "sha256": "0f4480e5d55d67df132ca5b7bba2c26fa49bc49184619a6af1bf5efb027addd0",
+      "bytes": 88308
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P22.dxf",
+      "sha256": "831823c28d08af0fb75b3546164d6ecca45146d0c53ae756600696cfd2a50e0c",
+      "bytes": 88311
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P23.dxf",
+      "sha256": "4d4ac8998fe7dfa63d3049d66f6ad2d459ba93fe69c2240b09494dd05a7af3cc",
+      "bytes": 88303
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P24.dxf",
+      "sha256": "f6b718a600500f4b50f38e2a89d3e1aa1abf59ed456de8addc6b28c239ffbc22",
+      "bytes": 88285
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P25.dxf",
+      "sha256": "8e7dc4002a4dc51a2ffa74f4f1e132648fcc022b2651c68a143705214748575a",
+      "bytes": 80479
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P26.dxf",
+      "sha256": "ed9b367a8232079735de61c3b0b140fb1b27276af8e9dad92b44aacc2413e7bb",
+      "bytes": 230690
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P27.dxf",
+      "sha256": "cc301e6ec85417cb79189f6a1aea48298a12b3641875143f46fecc07a3d0a7fc",
+      "bytes": 230689
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P28.dxf",
+      "sha256": "618cffe6f6cb18ff6efb6c5dccc49a8d84c9912ef180463ecd04f38fe0a3c249",
+      "bytes": 87985
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P29.dxf",
+      "sha256": "7fdf05c2b585c654fbda5507454b3042733cb6a773f0df0e511baf2cd22f1bdc",
+      "bytes": 80038
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P30.dxf",
+      "sha256": "a608e8da3c30c20213b34f7b176b12cec1153e80bb12ffefffb3e2d4153ceae2",
+      "bytes": 80038
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P31.dxf",
+      "sha256": "be3434c3a48754d59afc7d921eb9328d3598caf744ac7faeb78f5c29a48013fb",
+      "bytes": 80038
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P32.dxf",
+      "sha256": "bc9ae5365effd9d4878dec1fb82e74d6347104bcb1f4b67f2a038fd0ab98c9c6",
+      "bytes": 80038
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P33.dxf",
+      "sha256": "49ce3e1bb861c7aea31c13075b8126ee070d5491821778a54a39104fa2ae08af",
+      "bytes": 88301
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P34.dxf",
+      "sha256": "c2a2ea3782223660d4582fb830e47fddd92e38b97c4947da8d23bc1d076306a5",
+      "bytes": 80247
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P35.dxf",
+      "sha256": "3837f35e85b6841075b335daad9c4e203fe83418d2c0d5fb59e46572dbe6ab50",
+      "bytes": 80247
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P41.dxf",
+      "sha256": "5ff13aa5babd16c21a716d50b49962efa7b239f93622476c35567f000bc4522d",
+      "bytes": 80477
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P42.dxf",
+      "sha256": "a9a36748706e14b0606ee7f7867f2f995cb8520460412fc67ea94cd591af504e",
+      "bytes": 80247
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P43.dxf",
+      "sha256": "2b0466be35cc2b4c0eefd56f41093e2dcc6736fb4bbe49ecb3be01282ba548f8",
+      "bytes": 80247
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P44.dxf",
+      "sha256": "f188542b5ed149ea031f07a69cc1aac18a1f6d2672708c384c0d092580033681",
+      "bytes": 80247
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P45.dxf",
+      "sha256": "c7d2d2d227e1dd30ac45c649d1f4dcfb3e5c879c11112acf82aff48a8f856fac",
+      "bytes": 80247
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P46.dxf",
+      "sha256": "06bda15157aa80fff075c0159766fb76a33c0c180da3c0e67ddb24c352d87f1e",
+      "bytes": 80247
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P47.dxf",
+      "sha256": "5976391c480afa28cbb1b404dff4bb9cde9991f7fe35c771bb0a8de3173a6bf5",
+      "bytes": 80249
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P48.dxf",
+      "sha256": "8a08d0babdbac46d7efe16e6ef154acfe9b932aeefa0238a9c645457b8546b50",
+      "bytes": 80249
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P49.dxf",
+      "sha256": "1594da0c684814504e5a6a520b314c13dc7aa824bbf3390603a22389939349a6",
+      "bytes": 80249
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P50.dxf",
+      "sha256": "eb8ab28e71baafdfa3c28a9b1a757784269387fee02e21d3c4a1161a4308b763",
+      "bytes": 80249
+    },
+    {
+      "path": "n3/pil/passa/PL_GRADES_preview_P51.dxf",
+      "sha256": "9dea7d02679cd082e20e2170fb269826c66338b755e9e87dd59d7102eaa9bd2c",
+      "bytes": 80249
+    }
+  ],
+  "preprocess_context": {
+    "status": "consumed",
+    "context_run_id": "50b3fe16-47dc-49e8-9137-4cabe63e0791",
+    "context_hash": "ee7d4263a201ac226da17bf80fb0ab4788132237b71e079c789a4c76422a646b",
+    "package_hash": "3681348ffb2b11b373e590b16d31d3640a83e0d6cb4441d0383593b3229cfbc4",
+    "scope": {
+      "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+      "pavimento_id": "14_PAV",
+      "recorte_id": "pre-src-v1:760cf287130248a45f0dd0d98c3c7f2fbabdd52780d4642fa022da415ffe2c48",
+      "source_revision": "7ec8a5edd4e5aecc78d60002a7198906c83b0699a4a87084fb9fdc7ac5f36a3b"
+    },
+    "sources": [
+      {
+        "bruto_id": "TMC-EST-PE-7000-14P-R03",
+        "item_id": "torre_1",
+        "kind": "tower",
+        "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+        "pavimento_id": "14_PAV",
+        "relative_path": "Fase-2_Triagem/recortes/TMC-EST-PE-7000-14P-R03/torre_1.dxf",
+        "revision": "7ec8a5edd4e5aecc78d60002a7198906c83b0699a4a87084fb9fdc7ac5f36a3b",
+        "source_id": "pre-src-v1:760cf287130248a45f0dd0d98c3c7f2fbabdd52780d4642fa022da415ffe2c48",
+        "validated": true
+      },
+      {
+        "bruto_id": "TMC-EST-PE-7000-14P-R03",
+        "item_id": "convencao_pilares",
+        "kind": "pillar_convention",
+        "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+        "pavimento_id": "14_PAV",
+        "relative_path": "Fase-2_Triagem/recortes/TMC-EST-PE-7000-14P-R03/convencao_pilares.dxf",
+        "revision": "cac73fac7993bcaa57ec1e59260d1c3754b69695ba91d8f33d40608c36767183",
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "validated": true
+      },
+      {
+        "bruto_id": "TMC-EST-PE-7000-14P-R03",
+        "item_id": "__raw_level_reference__",
+        "kind": "raw_level_reference",
+        "obra_id": "781becd6-b113-4bec-8d5a-2027f10a65a8",
+        "pavimento_id": "14_PAV",
+        "relative_path": "entrada/TMC-EST-PE-7000-14P-R03.dxf",
+        "revision": "0903460c157132ded20f6d68fd8bce5b1ac981e1aac7bd49bd62b8da616d8876",
+        "source_id": "pre-raw-level-v1:cfa91b772b295b4032aaf3f9bfb04b6ecaf4ce84f2f795c20aca08cf734c576e",
+        "validated": true
+      }
+    ],
+    "convention": {
+      "MORRE": {
+        "label": "MORRE",
+        "sig": "EMPTY",
+        "label_pos": [
+          7222.518403,
+          3138.444275
+        ],
+        "line_count": 12,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AD",
+          "9D",
+          "9E",
+          "9F",
+          "A0",
+          "A1",
+          "A2",
+          "A3",
+          "A4",
+          "A5",
+          "A6",
+          "A7",
+          "A8"
+        ]
+      },
+      "SEGUE": {
+        "label": "SEGUE",
+        "sig": "DIAG",
+        "label_pos": [
+          7019.878633,
+          3138.444275
+        ],
+        "line_count": 17,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      }
+    },
+    "level_reference": {
+      "base": 852.19,
+      "top": 855.25,
+      "height": 3.06,
+      "unit": "m",
+      "source_id": "pre-raw-level-v1:cfa91b772b295b4032aaf3f9bfb04b6ecaf4ce84f2f795c20aca08cf734c576e",
+      "evidence_handles": [
+        "1918",
+        "1944"
+      ]
+    },
+    "cache": "disabled",
+    "reason": "validated_source_signature_to_raw_term",
+    "consumer_calls": [
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "CROSS",
+        "used_external_convention": true,
+        "result": "INDETERMINADO"
+      },
+      {
+        "signature": "CROSS",
+        "used_external_convention": true,
+        "result": "INDETERMINADO"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "CROSS",
+        "used_external_convention": true,
+        "result": "INDETERMINADO"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "CROSS",
+        "used_external_convention": true,
+        "result": "INDETERMINADO"
+      },
+      {
+        "signature": "CROSS",
+        "used_external_convention": true,
+        "result": "INDETERMINADO"
+      },
+      {
+        "signature": "CROSS",
+        "used_external_convention": true,
+        "result": "INDETERMINADO"
+      },
+      {
+        "signature": "CROSS",
+        "used_external_convention": true,
+        "result": "INDETERMINADO"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "CROSS",
+        "used_external_convention": true,
+        "result": "INDETERMINADO"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      },
+      {
+        "signature": "DIAG",
+        "used_external_convention": true,
+        "result": "SEGUE"
+      }
+    ],
+    "items": [
+      {
+        "report_key": "P10",
+        "item_name": "P10",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P11",
+        "item_name": "P11",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P12",
+        "item_name": "P12",
+        "field": "classification",
+        "value": "INDETERMINADO",
+        "expected_raw_term": "SEGUE",
+        "matches": false,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P17",
+        "item_name": "P17",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P19",
+        "item_name": "P19",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P20",
+        "item_name": "P20",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P21",
+        "item_name": "P21",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P22",
+        "item_name": "P22",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P28",
+        "item_name": "P28",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P29",
+        "item_name": "P29",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P30",
+        "item_name": "P30",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P31",
+        "item_name": "P31",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P32",
+        "item_name": "P32",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P33",
+        "item_name": "P33",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P34",
+        "item_name": "P34",
+        "field": "classification",
+        "value": "INDETERMINADO",
+        "expected_raw_term": "SEGUE",
+        "matches": false,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P24",
+        "item_name": "P24",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P23",
+        "item_name": "P23",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P35",
+        "item_name": "P35",
+        "field": "classification",
+        "value": "INDETERMINADO",
+        "expected_raw_term": "SEGUE",
+        "matches": false,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P14",
+        "item_name": "P14",
+        "field": "classification",
+        "value": "INDETERMINADO",
+        "expected_raw_term": "SEGUE",
+        "matches": false,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P16",
+        "item_name": "P16",
+        "field": "classification",
+        "value": "INDETERMINADO",
+        "expected_raw_term": "SEGUE",
+        "matches": false,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P49",
+        "item_name": "P49",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P41",
+        "item_name": "P41",
+        "field": "classification",
+        "value": "INDETERMINADO",
+        "expected_raw_term": "SEGUE",
+        "matches": false,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P43",
+        "item_name": "P43",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P45",
+        "item_name": "P45",
+        "field": "classification",
+        "value": "INDETERMINADO",
+        "expected_raw_term": "SEGUE",
+        "matches": false,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P47",
+        "item_name": "P47",
+        "field": "classification",
+        "value": "INDETERMINADO",
+        "expected_raw_term": "SEGUE",
+        "matches": false,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P42",
+        "item_name": "P42",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P44",
+        "item_name": "P44",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P46",
+        "item_name": "P46",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P48",
+        "item_name": "P48",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P50",
+        "item_name": "P50",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P51",
+        "item_name": "P51",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      },
+      {
+        "report_key": "P25",
+        "item_name": "P25",
+        "field": "classification",
+        "value": "SEGUE",
+        "expected_raw_term": "SEGUE",
+        "matches": true,
+        "source_id": "pre-src-v1:f862c9a3b83983412585ef885b70cff8e0671374d8d2a9adaaf0551d6243af2f",
+        "source_entity_handles": [
+          "AE",
+          "80",
+          "81",
+          "82",
+          "83",
+          "84",
+          "85",
+          "86",
+          "87",
+          "88",
+          "89",
+          "8A",
+          "8B",
+          "8C",
+          "8D",
+          "8E",
+          "8F",
+          "90"
+        ]
+      }
+    ]
+  }
+}

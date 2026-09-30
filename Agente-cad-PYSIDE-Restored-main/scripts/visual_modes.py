@@ -309,7 +309,7 @@ def _line_rectangles(lines: list) -> list[tuple[list, tuple]]:
     found = []
     for (layer, x0, x1), entries in horizontal.items():
         for (y0, bottom), (y1, top) in sorted(
-            combinations(sorted(entries), 2),
+            combinations(sorted(entries, key=lambda entry: entry[0]), 2),
             key=lambda pair: abs(pair[1][0] - pair[0][0]),
         ):
             if y0 == y1 or id(bottom) in used or id(top) in used:

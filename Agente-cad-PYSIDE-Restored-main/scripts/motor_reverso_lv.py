@@ -37,6 +37,8 @@ _MIN_FACE_W  = 80     # largura mínima de H-line para ser borda de face (não V
 _H_BODY_MIN  = 8      # h_body mínimo válido (cm)
 _H_BODY_MAX  = 200    # h_body máximo válido (cm) — beams can reach 130–200cm in practice
 _MIN_OVERLAP = 40     # sobreposição x mínima entre H-lines do mesmo par (cm)
+_MARCO_MAX   = 90     # altura máxima de marco acima do topo do corpo (cm) —
+                      # mesma janela que `_has_laje_box` já usa para o topo
 _LABEL_Y_GAP = 120    # máximo de distância y abaixo do label para encontrar face (cm)
 _LABEL_X_GAP = 80     # máximo de distância x entre label e face (cm)
 
@@ -175,7 +177,18 @@ def _collect_seg_line(layer: str, x1: float, y1: float, x2: float, y2: float,
     if layer == 'Painéis':
         if dy < _EPS_LINE and dx > 5:
             paineis_h.append((min(y1, y2), min(x1, x2), max(x1, x2)))
-        elif dx < _EPS_LINE and dy > 5:
+        elif dx < _EPS_LINE and dy > 4.9:
+            # Limiar era `> 5`, que descarta parede de painel com EXATAMENTE
+            # 5,0 de altura. Medido na V303 (unidade x 7797,6..7984,1): a
+            # borda DIREITA e' uma vertical de 5,0 (y 6479,3..6484,3) — o
+            # pedaco de corpo sob um vazio de 54. Sem ela a face terminava em
+            # 7955,1, o painel de 29 nunca existia e a unidade saia com
+            # paineis=[157,5] em vez de [157,5; 29]: R de 11% no gate.
+            #
+            # `> 4.9` e nao `> 2`: baixar ate' 2 mexia na V302.B#1, ja'
+            # APROVADA — a laje virava 15 em vez de 14 e a total 67 em vez de
+            # 59, porque verticais entre 2 e 5 mudam o par daquela unidade.
+            # A layer ja' e' `Painéis`, entao tique de cota nao entra aqui.
             paineis_v.append((min(x1, x2), min(y1, y2), max(y1, y2)))
     elif layer in ('SARR_2.2x7', 'SARR_EDITAR', 'SARR_3.5x7'):
         if dx < _EPS_LINE and dy > 5:
@@ -248,7 +261,16 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         panel_boxes:  list = []   # (xl, yl, xr, yr) caixas fechadas de Paineis
         reap_boxes:   list = []   # (xl, yl, xr, yr) HATCH REAPROVEITAMENTO
         laje_boxes:   list = []   # (xl, yl, xr, yr) HATCH Hachura de laje/faixas
+        # AR-CONC e' a hachura da LAJE e vive na layer COTA, nao em
+        # 'Hachura' — por isso nunca entrava em `laje_boxes`. O fundo
+        # dela e' o topo REAL do corpo, referencia crua para medir a
+        # laje sob o painel de fechamento sem arredondamento no meio.
+        conc_boxes:   list = []   # (xl, yl, xr, yr) HATCH AR-CONC (laje)
         cota_txts:    list = []   # (x, y, val)
+        # Fator de repeticao escrito no desenho ("7X" = este painel vale
+        # por 7). E' texto NAO numerico na layer COTA, entao o float()
+        # abaixo o descartava em silencio.
+        fator_txts:   list = []   # (x, y, fator)
         panel_num_txts: list = [] # (x, y, val) numeros desenhados na layer Paineis
         secao_txts:   list = []   # (x, y, val)  camada "Cota Seção (2x)"
         face_labels:  list = []   # (x, y, txt, side)  camada "Texto Seção" / "5"
@@ -354,6 +376,9 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     txt = e.dxf.text.strip()
                     ix, iy = float(e.dxf.insert[0]), float(e.dxf.insert[1])
                     if layer == 'COTA':
+                        _mf = re.match(r'^(\d{1,2})\s*[Xx]$', txt)
+                        if _mf:
+                            fator_txts.append((ix, iy, int(_mf.group(1))))
                         val = float(txt)
                         cota_txts.append((ix, iy, val))
                     elif layer_key.startswith('PAINE'):
@@ -386,7 +411,13 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             elif etype == 'HATCH':
                 try:
                     layer_u = str(layer).upper()
-                    if layer_u in ('REAPROVEITAMENTO', 'HACHURA'):
+                    _pat_u = str(
+                        getattr(e.dxf, 'pattern_name', '') or ''
+                    ).upper()
+                    # AR-CONC (a laje) vive na layer COTA, fora do filtro
+                    # abaixo — por isso nunca era coletada.
+                    if layer_u in ('REAPROVEITAMENTO', 'HACHURA') \
+                            or _pat_u == 'AR-CONC':
                         xs_h = []
                         ys_h = []
                         for path in e.paths:
@@ -397,6 +428,8 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                                     ys_h.append(float(v[1]))
                         if xs_h and ys_h:
                             box = (min(xs_h), min(ys_h), max(xs_h), max(ys_h))
+                            if _pat_u == 'AR-CONC':
+                                conc_boxes.append(box)
                             if layer_u == 'REAPROVEITAMENTO':
                                 reap_boxes.append(box)
                             elif layer_u == 'HACHURA':
@@ -657,6 +690,29 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 if best_confirmed is not None:
                     break
                 if cover_pair is not None:
+                    # O "minimum cover" so' vale se de fato COBRIR. Sem isto um
+                    # fragmento estreito vira fundo da face: medido na V302, a
+                    # unidade longa (top_w=976) fechava com cobertura de 242.3
+                    # (25%) e h_body=184, enquanto existia um full_floor de 44
+                    # — e' a unidade de 140.3 que o dono apontou no SEGMENTO 2A
+                    # (11 pontos `LINE·Painéis 140.3cm`), desenhada sobre a
+                    # correta ("acima dessas linhas erradas ta correto o
+                    # desenho").
+                    #
+                    # Medido nas 32 vigas: TODOS os covers da V301 cobrem 100%
+                    # do topo — o algoritmo funcionando como projetado — e so'
+                    # a V302 tem um de 25%. O limiar de 0.60 separa os dois com
+                    # folga larga dos dois lados.
+                    _uni = []
+                    for _ca, _cb in sorted(covered_intervals):
+                        if _uni and _ca <= _uni[-1][1]:
+                            _uni[-1] = (_uni[-1][0], max(_uni[-1][1], _cb))
+                        else:
+                            _uni.append((_ca, _cb))
+                    _cob = sum(_cb - _ca for _ca, _cb in _uni)
+                    if _cob < 0.60 * top_w:
+                        cover_pair = None
+                        continue
                     break  # primeiro y_top válido vence (tops ordenados por prox. ao label)
 
             best_partial_floor = cover_pair
@@ -811,10 +867,38 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     score = abs(ly - pair['y_top']) + x_dist
                     if best_score is None or score < best_score:
                         best_score = score
+                        _yb, _yt = pair['y_bot'], pair['y_top']
+                        # A ALTURA da faixa orfa se mede NELA, nao se herda do
+                        # vizinho de fileira. Deste par so' aproveitamos a
+                        # base; o topo sai das verticais que nascem nessa base
+                        # dentro da propria banda X.
+                        #
+                        # Medido na V304.B (banda 2263,7..2323,7, base 5373):
+                        # a borda superior dela mede 31 cm de largura e cai no
+                        # filtro `_MIN_FACE_W = 40`, que existe para excluir
+                        # detalhe de VC. Sem borda no catalogo nao ha' par, e a
+                        # face herdava os 45 do vizinho de 722. Com 45 a linha
+                        # do topo real (59) fica fora da janela do detector de
+                        # abertura, e o vazio de 29x44 com sobra 15 — os
+                        # numeros que o N2 escreve — virava "laje de 29" mais
+                        # um painel de 31 que nao existe no desenho.
+                        _tops = [
+                            max(vy1, vy2) for vx, vy1, vy2 in paineis_v
+                            if edge_xl - 2.0 <= vx <= edge_xr + 2.0
+                            and min(vy1, vy2) <= _yb + 2.0
+                            and max(vy1, vy2) > _yb + 20.0
+                        ]
+                        if _tops:
+                            # Mesmo arredondamento do catalogo `ys`: medir o
+                            # topo cru contra uma base ja' agrupada e' o que
+                            # produz cota fracionada.
+                            _cand = round(max(_tops) / _EPS_Y) * _EPS_Y
+                            if _H_BODY_MIN < _cand - _yb < _H_BODY_MAX:
+                                _yt = _cand
                         best = {
-                            'y_bot': pair['y_bot'],
-                            'y_top': pair['y_top'],
-                            'h_body': pair['h_body'],
+                            'y_bot': _yb,
+                            'y_top': _yt,
+                            'h_body': round(_yt - _yb, 1),
                             'x_left': edge_xl,
                             'x_right': edge_xr,
                             'total_w': round(edge_xr - edge_xl, 1),
@@ -1609,11 +1693,24 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         all_panel_ws = {round(p['width']) for p in panels_A + panels_B}
         b_round = round(result['b_geom'])
 
-        def _has_marco_top_paineis(xl: float, xr: float, y_top: float) -> bool:
-            """Marco da laje superior costuma aparecer como Painéis acima do topo."""
+        def _has_marco_top_paineis(xl: float, xr: float, y_top: float,
+                                   teto: float | None = None) -> bool:
+            """Marco da laje superior costuma aparecer como Painéis acima do topo.
+
+            `teto` limita a que distancia acima do topo o marco pode nascer.
+            Sem ele a busca atravessa a fileira inteira, e e' o comportamento
+            historico — manter assim onde ja' esta' validado: apertar este
+            teto para todos os chamadores muda V301, V302 e V303.
+            """
             for vx, vy1, vy2 in paineis_v:
-                if xl - 8.0 <= vx <= xr + 8.0 and min(vy1, vy2) >= y_top - 3.0:
-                    return True
+                if not (xl - 8.0 <= vx <= xr + 8.0):
+                    continue
+                _base = min(vy1, vy2)
+                if _base < y_top - 3.0:
+                    continue
+                if teto is not None and _base > y_top + float(teto):
+                    continue
+                return True
             return False
 
         def _has_laje_box(xl: float, xr: float, y_bot: float, y_top: float,
@@ -1645,7 +1742,19 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             y_bot, y_top = fg['y_bot'], fg['y_top']
             x_left, x_right = fg['x_left'], fg['x_right']
             h_body = fg['h_body']
-            exclude = all_panel_ws | {b_round}
+            # A LARGURA de uma abertura de viga nao e' espessura de laje. Ela
+            # e' escrita logo acima da abertura, dentro do X da face e perto do
+            # topo — exatamente a janela de onde sai o candidato a laje.
+            # Medido na V304: o 27 da A#1 virava laje (altura 59+27 = 86) e o
+            # 29 da B virava laje (59+29 = 88). Nenhum dos dois numeros e'
+            # cota vertical no desenho.
+            # A deteccao aqui e' previa (sem `segs`, que ainda nao existem), e
+            # por isso so' alimenta a lista de EXCLUSAO — nunca a ficha.
+            _larg_abr = {
+                round(float(a.get('x_fim', 0)) - float(a.get('x_ini', 0)))
+                for a in _detectar_aberturas_viga(paineis_h, paineis_v, fg)
+            }
+            exclude = all_panel_ws | {b_round} | _larg_abr
             # Em folhas STOG explodidas, cotas da lateral podem permanecer
             # na layer Painéis; a janela geométrica abaixo separa cota de ID.
             height_txts = cota_txts + panel_num_txts
@@ -1683,11 +1792,29 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         # do desenho, nao espessura de laje. Sem cota local
                         # plausivel, manter apenas o corpo da face.
                         return h_body, 0.0, 0.0
-                    laje_sup = float(lo[0]) if lo else laje_total
-                    laje_inf = max(0.0, round(laje_total - laje_sup, 1))
-                    if laje_sup > 35 or laje_inf > 35:
-                        return h_body, 0.0, 0.0
-                    return h_total, laje_sup, laje_inf
+                    # A espessura da laje precisa de uma COTA que a confirme.
+                    # Sem `lo`, o valor viria so' da subtracao h_total-h_body,
+                    # e h_total e' o maior numero achado numa janela de 160 a`
+                    # direita — que alcanca o desenho vizinho quando duas
+                    # unidades dividem a fileira.
+                    #
+                    # Medido na V302 (unidade 181,5 em x 3883..4065): o vizinho
+                    # comeca em 4086 e o texto "63,5" dele, que e' LARGURA DE
+                    # PAINEL, virava h_total; a laje saia 63,5-44 = 19,5 sem
+                    # nenhuma cota de 19,5 no desenho. O N2 escreve 14 ali, e
+                    # e' o que o passo 2 mede quando este passo desiste.
+                    #
+                    # Tentativa descartada antes desta: limitar a janela pela
+                    # parede do vizinho. A parede e' dificil de identificar com
+                    # seguranca (na V301 uma vertical da propria unidade, a 3
+                    # da borda, passava por vizinha) e o corte derrubava a laje
+                    # de uma unidade da V301 de 15 para 14 — viga validada.
+                    if lo:
+                        laje_sup = float(lo[0])
+                        laje_inf = max(0.0, round(laje_total - laje_sup, 1))
+                        if laje_sup > 35 or laje_inf > 35:
+                            return h_body, 0.0, 0.0
+                        return h_total, laje_sup, laje_inf
 
             # ── Passo 2: COTA espalhada dentro da face (laje por segmento) ────
             # COTAs de laje aparecem no range Y da face inteira (não só perto de y_top).
@@ -1714,7 +1841,17 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
             if laje_sup > 0 and laje_inf > 0 and laje_sup == laje_inf:
                 laje_inf = 0.0
 
-            if _has_marco_top_paineis(x_left, x_right, y_top):
+            # AQUI o marco tem teto. Este ramo escolhe a espessura da laje pelo
+            # MAIOR numero junto ao topo, e por isso precisa de um marco que
+            # seja mesmo desta face. Medido na V304.B (topo 5432): o marco
+            # achado nascia em 5585,9 — 154 cm acima, ja' na fileira de CIMA —
+            # e o "maior numero junto ao topo" virava o 29, que e' a LARGURA
+            # da abertura de viga. A face saia com 59+29 = 88 de altura e uma
+            # hachura de laje que o N2 nao desenha.
+            # O teto so' vale neste chamador: aplicado a todos, muda V301,
+            # V302 e V303, onde ha' marco legitimo mais alto.
+            if _has_marco_top_paineis(x_left, x_right, y_top,
+                                      teto=_MARCO_MAX):
                 near_top = [
                     v for cx, cy, v in height_txts
                     if (x_left - 10 <= cx <= x_right + 120)
@@ -1971,6 +2108,34 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     return 0
                 return vals
 
+            def _fatores_por_painel(fg: dict, segs: list) -> list:
+                """Fator de repeticao de cada painel, do texto "NX" do desenho.
+
+                Medido na V303.B: "7X" em (7258,2, 6439,5) cai exatamente no
+                centro do 2o painel (7136,2..7380,2). O texto fica ABAIXO do
+                corpo, no nivel seguinte ao da cadeia de cotas de painel.
+
+                Devolve um fator por painel, 1 onde nao ha' marca.
+                """
+                out = [1] * len(segs or [])
+                if not segs or not fator_txts:
+                    return out
+                xl = float(fg.get('x_left', 0.0))
+                yb = float(fg.get('y_bot', 0.0))
+                faixas, acc = [], 0.0
+                for _s in segs:
+                    _w = float(_s.get('largura_cm', _s.get('width', 0)) or 0)
+                    faixas.append((xl + acc, xl + acc + _w))
+                    acc += _w
+                for fx, fy, fat in fator_txts:
+                    if not (yb - 90.0 <= fy <= yb - 2.0):
+                        continue
+                    for _i, (_a, _b) in enumerate(faixas):
+                        if _a - 1.0 <= fx <= _b + 1.0:
+                            out[_i] = int(fat)
+                            break
+                return out
+
             def _grade_layer_style(pair: dict, segs: list) -> str:
                 if not any(seg.get('panel_type') == 'Grade' for seg in segs):
                     return 'native'
@@ -2089,11 +2254,32 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 if not candidates:
                     return {}
                 gap, _neg_width, bxl, byl, bxr, byr = min(candidates)
+                # `yt` vem do pair e ja' esta' ARREDONDADO; as caixas de painel
+                # sao cruas. Medir o gap entre os dois mistura referencias e
+                # devolve fracao onde o desenho tem inteiro: na V302.B o pair
+                # diz y_top=7105,0 (o topo real e' 7104,6) e a caixa do painel
+                # comeca em 7116,6 — gap 11,6 em vez de 12,0, e o N4 escrevia
+                # "11,5"/"14,5" onde o N2 escreve 12 e 15 (apontamento do dono,
+                # SEGMENTO 1B). Usar o topo da caixa do CORPO, que e' crua como
+                # a do painel, tira o arredondamento do meio.
+                # A referencia crua e' o FUNDO da hachura de laje, que por
+                # definicao assenta no topo do corpo.
+                _topo_corpo = None
+                for _bxl, _byl, _bxr, _byr in conc_boxes:
+                    if _bxr - _bxl < 50.0:
+                        continue
+                    if _bxr < xl - 4.0 or _bxl > xr + 4.0:
+                        continue
+                    if abs(_byl - yt) <= 2.5:
+                        if _topo_corpo is None or _byl < _topo_corpo:
+                            _topo_corpo = float(_byl)
+                _gap_real = (byl - _topo_corpo if _topo_corpo is not None
+                             else gap)
                 return {
                     'height': round(byr - byl, 1),
                     'width': round(bxr - bxl, 1),
                     'x_offset': round(bxl - xl, 1),
-                    'slab_height': round(gap, 1),
+                    'slab_height': round(_gap_real, 1),
                 }
 
             def _sarrafos_verticais_face(pair: dict) -> tuple[bool, bool, list]:
@@ -2115,9 +2301,39 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 # y_top-y_bot ja bate com h_body).
                 h_body_ref = float(pair.get('h_body') or (yt - float(pair.get('y_bot', 0.0))))
                 yb = yt - h_body_ref
+                # Um sarrafo vertical pode vir PARTIDO no N2, cortado pela
+                # linha do piso da abertura. Medido na V304.B: em x=2299,7 ha'
+                # 5380,5->5387,5 (7) e 5387,5->5431,5 (44). O pedaco de 7
+                # morria no filtro de comprimento abaixo e a corrida comecava
+                # so' no piso, sem encostar no sarrafo horizontal de baixo
+                # (apontamento do dono: "p2 deveria ir ate' o p1"). Colineares
+                # que se TOCAM sao um sarrafo so' e tem de ser unidos antes de
+                # qualquer filtro de tamanho.
+                # O x do grupo e' o do primeiro segmento, CRU — arredondar a
+                # chave para agrupar e depois desenhar com ela desloca o
+                # sarrafo em ate' 0,1 cm, e isso muda V13, V301, V302 e V303.
+                _por_x: dict = {}
+                for _x, _b, _t in sarr_v:
+                    if _x < xl - 4.0 or _x > xr + 4.0:
+                        continue
+                    _por_x.setdefault(round(_x, 1), []).append(
+                        (min(_b, _t), max(_b, _t), _x))
+                _sarr_v_face: list = []
+                for _segs in _por_x.values():
+                    _segs.sort()
+                    _xr0 = _segs[0][2]
+                    _cb, _ct = _segs[0][0], _segs[0][1]
+                    for _b, _t, _ in _segs[1:]:
+                        if _b <= _ct + 0.6:
+                            _ct = max(_ct, _t)
+                        else:
+                            _sarr_v_face.append((_xr0, _cb, _ct))
+                            _cb, _ct = _b, _t
+                    _sarr_v_face.append((_xr0, _cb, _ct))
+
                 specs: list = []
                 seen: set = set()
-                for x, syb, syt in sarr_v:
+                for x, syb, syt in _sarr_v_face:
                     if x < xl - 4.0 or x > xr + 4.0:
                         continue
                     overlap = min(syt, yt + 90.0) - max(syb, yb - 5.0)
@@ -2241,6 +2457,39 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             existing['label_source'] = 'text'
                         continue
 
+                    # Copia da outra face no mesmo sitio. `_row_pairs_for_anchor`
+                    # alinha so em Y (tol 8 cm na base) e o ancora B da
+                    # fileira puxa os pares da coluna A. No V301 isso inflava
+                    # o B com 4 desenhos que ja eram A (12 raw → 8 verdadeiros).
+                    # Ancora nomeada sempre entra; o par extra, so se nao
+                    # sobrepor unidade ja criada do outro lado.
+                    if not is_named_anchor:
+                        _px0 = float(pair.get('x_left', 0) or 0)
+                        _px1 = float(pair.get('x_right', 0) or 0)
+                        _py0 = float(pair.get('y_bot', 0) or 0)
+                        _py1 = float(pair.get('y_top', 0) or 0)
+                        _pw = max(1.0, _px1 - _px0)
+                        _ph = max(1.0, _py1 - _py0)
+                        _copia = False
+                        for _ex in units_by_bbox.values():
+                            if str(_ex.get('side') or '').upper() == side:
+                                continue
+                            _eb = _ex.get('bbox') or {}
+                            _ex0 = float(_eb.get('x_left', 0) or 0)
+                            _ex1 = float(_eb.get('x_right', 0) or 0)
+                            _ey0 = float(_eb.get('y_bot', 0) or 0)
+                            _ey1 = float(_eb.get('y_top', 0) or 0)
+                            _ox = min(_px1, _ex1) - max(_px0, _ex0)
+                            _oy = min(_py1, _ey1) - max(_py0, _ey0)
+                            _ew = max(1.0, _ex1 - _ex0)
+                            _eh = max(1.0, _ey1 - _ey0)
+                            if (_ox > 0.80 * min(_pw, _ew)
+                                    and _oy > 0.50 * min(_ph, _eh)):
+                                _copia = True
+                                break
+                        if _copia:
+                            continue
+
                     pair = _refine_body_top(pair) or pair
                     h_total, ls_u, li_u = _face_heights(pair)
                     # Marco/tampa acima do topo de corpo (ex. 124−102.4 = 21.6)
@@ -2287,6 +2536,47 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         float(pair.get('x_left', 0.0) or 0.0),
                     )
                     segs_u = _propagate_laje(segs_raw, ls_u, li_u, pair)
+                    laje_trechos: list = []
+                    aberturas_viga = _detectar_aberturas_viga(
+                        paineis_h, paineis_v, pair, segs_u)
+                    # Altura por segmento — SO' onde ha' abertura de viga, que
+                    # e' o caso em que o topo e' de fato fragmentado por
+                    # segmento. Ver o docstring de `_alturas_por_segmento`:
+                    # sem escopo isto mudava 42 de 120 unidades, as 17 da V301
+                    # inclusive (desenho ja' validado pelo dono).
+                    if aberturas_viga:
+                        _alts = _alturas_por_segmento(paineis_h, pair, segs_u)
+                        for _sg, _alt in zip(segs_u, _alts):
+                            if _alt is None or _alt <= 0:
+                                continue
+                            _h1 = float(_sg.get('height1', 0) or 0)
+                            if _h1 > 0 and abs(_alt - _h1) > 1.5:
+                                _sg['height1'] = _alt
+                    # Painel que fica EMBAIXO de uma abertura de viga: o
+                    # `height1` dele e' a SOBRA, medida do fundo para cima, e
+                    # nao a altura de um painel rebaixado alinhado pelo TOPO.
+                    # O gerador nao tem como saber a diferenca so' pelo numero
+                    # — os dois sao "menor que a face" — e tratava como degrau:
+                    # medido na V304.B, o painel de 29 com sobra 15 saia
+                    # pendurado no topo, como uma caixa de 29x15 em y -165..-150
+                    # (apontamento do dono: "essa linha nao deveria existir
+                    # aqui, e' uma abertura"). A ficha passa a dizer.
+                    if aberturas_viga:
+                        _cx_sg = 0.0
+                        for _sg in segs_u:
+                            _w_sg = float(
+                                _sg.get('largura_cm', _sg.get('width', 0)) or 0)
+                            _meio = _cx_sg + _w_sg / 2.0
+                            if any(float(_a['x_ini']) - 1.0 <= _meio
+                                   <= float(_a['x_fim']) + 1.0
+                                   for _a in aberturas_viga):
+                                _sg['sob_abertura'] = True
+                            _cx_sg += _w_sg
+                    # Laje que a COTA ESCRITA declara para esta face, medida
+                    # antes de `ls_u` ser sobrescrito pelo ramo do painel de
+                    # topo. E' a verdade de terra do degrau: o trecho alto tem
+                    # de concordar com ela.
+                    _ls_cota = float(ls_u or 0)
                     top_panel = _top_panel_face(pair)
                     if top_panel:
                         old_body_h = float(pair.get('h_body', 0) or 0)
@@ -2359,6 +2649,88 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             + float(top_panel.get('height', 0) or 0),
                             1,
                         )
+                        # ── Degrau de laje por trecho (2026-09-13) ──────────
+                        # A laje pode ter altura diferente por trecho da mesma
+                        # face, com o topo PLANO: onde ha' painel de fechamento
+                        # no topo a laje e' mais baixa e o painel completa a
+                        # altura; fora dele a laje sobe sozinha ate' o mesmo
+                        # topo. `laje_sup` escalar nao expressa isso — ele
+                        # carrega so' o valor de BAIXO do painel, e o N4 o
+                        # aplicava na face inteira, deixando o lado sem painel
+                        # rebaixado pela espessura dele.
+                        #
+                        # Medido no N2 da V13 face A (415 de largura):
+                        #   cota "15" a direita, cota "200" sobre o trecho
+                        #   esquerdo e cota "3" na borda -> laje 15 nos 215 da
+                        #   direita, laje 12 + painel 3 nos 200 da esquerda,
+                        #   topo plano nos dois. A fronteira (x=200) NAO cai em
+                        #   divisa de painel (244/63/108), entao "laje por
+                        #   painel" nao consegue expressar o degrau — por isso
+                        #   o trecho tem x proprio.
+                        #
+                        # Fora de degrau o campo fica ausente e nada muda.
+                        _pan_h = float(top_panel.get('height', 0) or 0)
+                        _pan_w = float(top_panel.get('width', 0) or 0)
+                        _pan_x0 = float(top_panel.get('x_offset', 0) or 0)
+                        _span = round(
+                            float(pair.get('x_right', 0) or 0)
+                            - float(pair.get('x_left', 0) or 0), 1)
+                        _alta_cand = round(ls_u + _pan_h, 1)
+                        # GUARDA (obrigatoria): so' ha' degrau se o trecho alto
+                        # reproduzir a cota escrita da face. Sem isso, qualquer
+                        # marco estreito lido como "painel de topo" vira degrau
+                        # inventado — medido na V301, que nao tem degrau algum
+                        # (laje 15 uniforme) e gerava 6 unidades com trechos de
+                        # laje 21/22 e x ate' 461 numa face de 415. O mesmo erro
+                        # de inferir por geometria em vez de ler o que o desenho
+                        # declara ja' tinha aparecido nas tampas de sarrafo.
+                        _cota_ok = (
+                            _ls_cota > 0.05
+                            and abs(_alta_cand - _ls_cota) <= 0.6
+                        )
+                        # 2a evidencia, independente da 1a: o VALOR do degrau
+                        # precisa estar COTADO no desenho junto ao topo desta
+                        # face. E' assim que o projetista comunica o degrau (na
+                        # V13 o "3" esta' escrito na borda esquerda). Sozinha, a
+                        # comparacao com `_ls_cota` nao basta: nas unidades sem
+                        # rotulo da V301.B a propria leitura de cota ja' vem
+                        # errada (21), entao ela concorda consigo mesma e deixa
+                        # passar degrau inexistente.
+                        _deg_ok = any(
+                            abs(float(v) - _pan_h) <= 0.4
+                            and float(pair.get('x_left', 0)) - 35.0 <= cx
+                            <= float(pair.get('x_right', 0)) + 35.0
+                            and float(pair.get('y_top', 0)) - 5.0 <= cy
+                            <= float(pair.get('y_top', 0)) + _alta_cand + 20.0
+                            for cx, cy, v in cota_txts
+                        )
+                        if (_cota_ok and _deg_ok and _pan_h > 0.05
+                                and 0.5 < _pan_w < _span - 0.5):
+                            # ARITMETICA, nao medicao (correcao do dono,
+                            # 2026-09-13): com a laje cotada em 15 e o painel
+                            # em 3, o trecho de baixo e' 15-3 = 12 exato. O
+                            # valor medido na geometria (12.3 na face A, 12.4
+                            # na B) e' folga de desenho — deixa-lo passar faz
+                            # o N4 cotar "12,3" e "12,5", numeros que nao
+                            # existem no projeto.
+                            ls_u = round(_ls_cota - _pan_h, 1)
+                            _alta_cand = round(_ls_cota, 1)
+                            h_total = round(
+                                float(pair.get('h_body', 0) or 0)
+                                + ls_u + _pan_h, 1)
+                            _x0 = round(max(0.0, _pan_x0), 1)
+                            _x1 = round(min(_span, _pan_x0 + _pan_w), 1)
+                            _alta = _alta_cand
+                            if _x0 > 0.5:
+                                laje_trechos.append(
+                                    {'x0': 0.0, 'x1': _x0, 'altura': _alta})
+                            laje_trechos.append(
+                                {'x0': _x0, 'x1': _x1, 'altura': ls_u})
+                            if _span - _x1 > 0.5:
+                                laje_trechos.append(
+                                    {'x0': _x1, 'x1': _span, 'altura': _alta})
+                            if len(laje_trechos) < 2:
+                                laje_trechos = []
                     # O bbox vertical pode incluir cotas/chamadas externas. A
                     # altura material do corpo ja esta nos paineis extraidos.
                     panel_body_heights = [
@@ -2448,6 +2820,14 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             h_total if h_total > 0
                             else pair.get('h_body', 0.0)),
                         'laje_sup': ls_u,
+                        'laje_sup_trechos': laje_trechos,
+                        'aberturas_viga': aberturas_viga,
+                        # Fronteira de SEGMENTO: a abertura de viga separa o
+                        # painel em dois segmentos, mesmo encostados, e o corte
+                        # fica na BORDA DIREITA da abertura. A abertura e a
+                        # sobra pertencem ao segmento que vem ANTES.
+                        # V302.A: corte em 200.5 -> segmentos de 200.5 e 269.5.
+                        'cortes_segmento': [a['x_fim'] for a in aberturas_viga],
                         'laje_inf': li_u,
                         'pontaletes_face': _pontaletes_for_pair(pair),
                         'grade_layer_style': _grade_layer_style(pair, segs_u),
@@ -2486,6 +2866,14 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                         'edge_span_candidates': [
                             round(float(v), 1) for v in horizontal_dims
                         ],
+                        # Fator de repeticao por painel. Medido na V303.B: o
+                        # texto "7X" em (7258,2, 6439,5) fica exatamente sobre
+                        # o 2o painel (7136,2..7380,2, centro 7258,2), com
+                        # linha de cota propria num nivel ABAIXO da cadeia de
+                        # paineis. Significa que aquele painel vale por 7, e a
+                        # total soma 244 + 7x244 + 66,5 + 244 = 2262,5 (regra
+                        # do dono, 2026-09-19).
+                        'fatores_painel': _fatores_por_painel(pair, segs_u),
                     }
                     units_by_bbox[key] = unit
                     units.append(unit)
@@ -2519,14 +2907,237 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                             flags=re.IGNORECASE,
                         )
 
+            # ── Lado pela POSICAO, quando ele contradiz o territorio ──────────
+            # Uma unidade sem rotulo herda o lado da ancora, e
+            # `_row_pairs_for_anchor` casa candidatos por alinhamento em Y
+            # (tolerancia 8) sem olhar X — se a ancora e' de outra face, a
+            # unidade sai com o lado trocado e o desenho vai para a face errada.
+            # Medido nas 32 vigas: 14 unidades em 10 vigas ficam fora do
+            # territorio do proprio lado.
+            #
+            # O N2 separa as duas faces de um jeito OU de outro: ou em COLUNAS
+            # de x, ou em FILEIRAS empilhadas. A FILEIRA vem primeiro porque e'
+            # a separacao inequivoca — quando ela existe, as bases distam
+            # centenas de cm (V13 213, V303 206, V304 213). O x so' entra onde
+            # as fileiras se misturam (V301, V302), e ali a coluna e' mesmo a
+            # unica pista.
+            #
+            # Isto e' o que conserta a V304: a face A ocupa a fileira y 5586 e
+            # a face B a fileira y 5373. O desenho de 722 esta' na fileira DA B
+            # e saia como `V304.A#4` — o dono contou 3 desenhos em A e 2 em B,
+            # e o motor entregava 4 e 1. Pior: era o proprio criterio de x que
+            # o VIRAVA de B para A, porque com uma unidade rotulada por lado os
+            # "territorios" sao dois PONTOS — na V304 a 25 cm um do outro — e
+            # dois pontos sao sempre disjuntos.
+            _centro = lambda _b: (float(_b.get('x_left', 0) or 0)
+                                  + float(_b.get('x_right', 0) or 0)) / 2.0
+            _base = lambda _b: float(_b.get('y_bot', 0) or 0)
+
+            def _territorio(_medida) -> dict:
+                _t: dict = {}
+                for _u in units:
+                    _s = str(_u.get('side') or '').upper()
+                    if _s in ('A', 'B') and str(_u.get('label') or '').strip():
+                        _c = _medida(_u.get('bbox') or {})
+                        _lo, _hi = _t.get(_s, (_c, _c))
+                        _t[_s] = (min(_lo, _c), max(_hi, _c))
+                return _t
+
+            def _reatribuir(_terr: dict, _medida, _tol: float) -> None:
+                for _u in units:
+                    if str(_u.get('label') or '').strip():
+                        continue                     # rotulada manda
+                    _s = str(_u.get('side') or '').upper()
+                    if _s not in ('A', 'B'):
+                        continue
+                    _o = 'B' if _s == 'A' else 'A'
+                    _c = _medida(_u.get('bbox') or {})
+
+                    def _dist(_lado, _c=_c):
+                        _lo, _hi = _terr[_lado]
+                        if _lo - _tol <= _c <= _hi + _tol:
+                            return 0.0
+                        return min(abs(_c - _lo), abs(_c - _hi))
+
+                    if _dist(_o) < _dist(_s):
+                        _u['side'] = _o
+
+            _terr_y = _territorio(_base)
+            _fileiras_separam = False
+            if len(_terr_y) == 2:
+                (_a0, _a1), (_b0, _b1) = _terr_y['A'], _terr_y['B']
+                # Duas condicoes, e as duas sao estruturais:
+                #
+                # 1. cada face ocupa UMA fileira so'. Se os rotulos de um lado
+                #    aparecem em varias, fileira nao identifica face — e' o
+                #    caso da V303, onde a face A vem em tres fileiras
+                #    ("CONT. V303.A") e cada fileira traz um desenho de A e um
+                #    de B lado a lado. La' quem separa e' a coluna;
+                # 2. as duas fileiras distam mais que a altura de uma face, ou
+                #    seja, o topo de uma nao alcanca a base da outra.
+                _uma_fileira_por_face = (_a1 - _a0 <= 20.0
+                                         and _b1 - _b0 <= 20.0)
+                _fileiras_separam = (
+                    _uma_fileira_por_face
+                    and max(_b0 - _a1, _a0 - _b1) > _H_BODY_MAX
+                )
+            if _fileiras_separam:
+                _reatribuir(_terr_y, _base, 20.0)
+            else:
+                # Age so' quando ha' certeza: as duas colunas rotuladas existem
+                # e NAO se sobrepoem em x. Onde se sobrepoem (V301, V311, V315,
+                # V317, V319, V324, V326) nao ha' territorio e nada e' mexido.
+                _terr = _territorio(_centro)
+                if len(_terr) == 2:
+                    (_a0, _a1), (_b0, _b1) = _terr['A'], _terr['B']
+                    if _a1 < _b0 or _b1 < _a0:      # colunas disjuntas
+                        _reatribuir(_terr, _centro, 60.0)
+
+            # ── Duplicata na mesma posicao: fica a que casa com a BANDA ───────
+            # `_pair_for_label` pode devolver dois pares para o mesmo bbox com
+            # h_body diferente (V302 x=5217 y=7061: 44 e 56). Ate' agora a
+            # copia errada era descartada no GERADOR por ter o lado
+            # contradizendo a posicao — com o lado corrigido acima esse
+            # descarte perde o gancho e as duplicatas voltam (medido: 118 -> 122
+            # unidades). O desempate certo nao e' o lado, e' a geometria: a
+            # banda de painel do proprio N2 diz qual h_body e' o verdadeiro.
+            # Agrupa por SOBREPOSICAO, nao por chave exata: o par espurio nem
+            # sempre repete o y_bot (V302 x=5718 tem um com y_bot 7061 e outro
+            # com 7082, 21 de diferenca, e o segundo tem h_body=24 no meio de
+            # uma fileira de 44/45).
+            def _cx(_u):
+                _b = _u.get('bbox') or {}
+                return (float(_b.get('x_left', 0) or 0),
+                        float(_b.get('x_right', 0) or 0),
+                        float(_b.get('y_bot', 0) or 0),
+                        float(_b.get('y_bot', 0) or 0)
+                        + float(_u.get('h_body', 0) or 0))
+
+            _grupos: list = []
+            for _u in units:
+                _xl0, _xr0, _yb0, _yt0 = _cx(_u)
+                _lado = str(_u.get('side') or '').upper()
+                for _g in _grupos:
+                    _xl1, _xr1, _yb1, _yt1 = _cx(_g[0])
+                    if str(_g[0].get('side') or '').upper() != _lado:
+                        continue
+                    _ox = min(_xr0, _xr1) - max(_xl0, _xl1)
+                    _oy = min(_yt0, _yt1) - max(_yb0, _yb1)
+                    if (_ox > 0.80 * min(_xr0 - _xl0, _xr1 - _xl1)
+                            and _oy > 0.50 * min(_yt0 - _yb0, _yt1 - _yb1)):
+                        _g.append(_u)
+                        break
+                else:
+                    _grupos.append([_u])
+            _mortas = []
+            for _g in _grupos:
+                if len(_g) < 2:
+                    continue
+                _b = _g[0].get('bbox') or {}
+                _xl = float(_b.get('x_left', 0) or 0)
+                _xr = float(_b.get('x_right', 0) or 0)
+                _yb = float(_b.get('y_bot', 0) or 0)
+                if _xr <= _xl:
+                    continue
+                _teto = max(float(u.get('h_body', 0) or 0) for u in _g) + 40.0
+                _ys = sorted({
+                    y for y, a, b in paineis_h
+                    if min(b, _xr) - max(a, _xl) > 0.75 * (_xr - _xl)
+                    and _yb - 25.0 <= y <= _yb + _teto
+                })
+                if len(_ys) < 2:
+                    continue
+                _banda = round(_ys[-1] - _ys[0], 1)
+                # Tolerancia APERTADA de proposito: o par errado costuma
+                # errar por 1 cm exato (45 contra a banda de 44), e com
+                # folga de 1.0 os dois passavam por bons e nada era
+                # descartado.
+                _bons = [u for u in _g
+                         if abs(float(u.get('h_body', 0) or 0) - _banda) <= 0.6]
+                if _bons and len(_bons) < len(_g):
+                    _mortas.extend(
+                        u for u in _g if not any(u is _k for _k in _bons)
+                    )
+            if _mortas:
+                units[:] = [u for u in units
+                            if not any(u is _m for _m in _mortas)]
+
+            # Mesmo sitio, lados diferentes: fica a rotulada, cai a copia
+            # sem rotulo (V301 B#7/8/13/14 = A da mesma fileira).
+            _mortas_lado = []
+            for _u in units:
+                if str(_u.get('label') or '').strip():
+                    continue
+                _b = _u.get('bbox') or {}
+                _xl0 = float(_b.get('x_left', 0) or 0)
+                _xr0 = float(_b.get('x_right', 0) or 0)
+                _yb0 = float(_b.get('y_bot', 0) or 0)
+                _yt0 = float(_b.get('y_top', 0) or 0)
+                _s = str(_u.get('side') or '').upper()
+                _w0 = max(1.0, _xr0 - _xl0)
+                _h0 = max(1.0, _yt0 - _yb0)
+                for _v in units:
+                    if _v is _u:
+                        continue
+                    if str(_v.get('side') or '').upper() == _s:
+                        continue
+                    if not str(_v.get('label') or '').strip():
+                        continue
+                    _b2 = _v.get('bbox') or {}
+                    _xl1 = float(_b2.get('x_left', 0) or 0)
+                    _xr1 = float(_b2.get('x_right', 0) or 0)
+                    _yb1 = float(_b2.get('y_bot', 0) or 0)
+                    _yt1 = float(_b2.get('y_top', 0) or 0)
+                    _ox = min(_xr0, _xr1) - max(_xl0, _xl1)
+                    _oy = min(_yt0, _yt1) - max(_yb0, _yb1)
+                    _w1 = max(1.0, _xr1 - _xl1)
+                    _h1 = max(1.0, _yt1 - _yb1)
+                    if (_ox > 0.80 * min(_w0, _w1)
+                            and _oy > 0.50 * min(_h0, _h1)):
+                        _mortas_lado.append(_u)
+                        break
+            if _mortas_lado:
+                units[:] = [u for u in units
+                            if not any(u is _m for _m in _mortas_lado)]
+
+            # Altura TOTAL de cada lado: a maior soma corpo+laje entre as
+            # unidades que MEDIRAM a propria laje. Serve para separar as duas
+            # leituras de `laje_sup == 0` logo abaixo.
+            _total_lado: dict = {}
+            for _u in units:
+                _lu = float(_u.get('laje_sup', 0) or 0)
+                if _lu > 0:
+                    _s = str(_u.get('side') or '').upper()
+                    _total_lado[_s] = max(
+                        _total_lado.get(_s, 0.0),
+                        float(_u.get('h_body', 0) or 0) + _lu,
+                    )
+
             for unit in units:
                 unit.pop('_side_distance', None)
                 side = str(unit.get('side') or '').upper()
                 if float(unit.get('laje_sup', 0) or 0) <= 0:
-                    unit['laje_sup'] = float(
-                        result.get('laje_sup_A' if side == 'A' else 'laje_sup_B', 0)
-                        or 0
-                    )
+                    # `laje_sup == 0` tem DUAS leituras: "nao detectei" (a
+                    # maioria — o fallback pela face e' o que faz a V301
+                    # inteira funcionar) e "nao ha' laje separada aqui".
+                    #
+                    # O que as separa e' o corpo ja' ter chegado ao total do
+                    # lado. Medido na V302.A: a unidade [53, 63,5] tem
+                    # h_body=59, e as irmas fazem 43+16=59 e 44+14=58 — o
+                    # corpo dela JA' inclui a laje, porque o N2 a desenha como
+                    # uma banda unica, sem linha separando. O fallback somava
+                    # outros 16 e o robo desenhava 75 onde o N2 tem 59; foi o
+                    # que o dono leu como "o N4 reproduziu outro N2"
+                    # (SEGMENTO 4A). Na V301 o corpo e' 109 contra um total de
+                    # 124, entao o fallback continua valendo la'.
+                    _tt = float(_total_lado.get(side, 0.0))
+                    _hb = float(unit.get('h_body', 0) or 0)
+                    if not (_tt > 0 and _hb >= _tt - 1.0):
+                        unit['laje_sup'] = float(
+                            result.get(
+                                'laje_sup_A' if side == 'A' else 'laje_sup_B', 0
+                            ) or 0
+                        )
                 if float(unit.get('laje_inf', 0) or 0) <= 0:
                     unit['laje_inf'] = float(
                         result.get('laje_inf_A' if side == 'A' else 'laje_inf_B', 0)
@@ -2536,6 +3147,101 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                 laje_sup_u = float(unit.get('laje_sup', 0) or 0)
                 laje_inf_u = float(unit.get('laje_inf', 0) or 0)
                 top_panel_u = float(unit.get('painel_sup_alt', 0) or 0)
+
+                # ── TOPO PLANO: a laje compensa a altura do segmento ───────
+                # Regra revelada pela cota de altura TOTAL do N2, medida na
+                # V302.A (apontamento do dono, 2026-09-14):
+                #     segmento 1: altura 43 + laje 16 = 59
+                #     segmento 2: altura 45 + laje 14 = 59
+                # O topo fica plano e a laje absorve a diferenca. E' a mesma
+                # regra do degrau da V13 (44 + 12 + 3 = 59 e 44 + 15 = 59),
+                # so' que la' quem compensa e' o painel de fechamento.
+                #
+                #     laje_local = total - altura_do_segmento - painel_sup
+                #
+                # TEM de rodar AQUI, e nao no construtor da unidade: la'
+                # `ls_u` ainda vale 0 nas unidades sem painel de topo (a laje
+                # so' e' preenchida neste passe, a partir de laje_sup_A/B), e
+                # a formula devolvia valores negativos que eram descartados —
+                # a V302.A ficava sem trechos.
+                #
+                # So' entra como COMPLEMENTO: se a deteccao por painel de topo
+                # ja' resolveu (caso V13), nao mexe.
+                #
+                # GUARDA: diferenca de altura entre segmentos <= 10. Acima
+                # disso e' DEGRAU, e ali o espaco sobre o painel baixo e'
+                # VAZIO, nao laje: na V301.A (44 contra 109, degrau de 65) a
+                # formula daria laje 80. Medido, o limiar de 10 pega 26
+                # unidades em 8 vigas e deixa a V301 inteira de fora.
+                if not unit.get('laje_sup_trechos'):
+                    _segs_u2 = unit.get('panels') or []
+                    _hs2 = [float(s.get('height1', 0) or 0) for s in _segs_u2
+                            if float(s.get('height1', 0) or 0) > 0]
+                    _tot2 = h_body_u + laje_sup_u + top_panel_u
+                    _tw2 = float(unit.get('painel_sup_width', 0) or 0)
+                    _to2 = float(unit.get('painel_sup_x_offset', 0) or 0)
+                    if (_hs2 and _tot2 > 0
+                            and max(_hs2) - min(_hs2) <= 10.0
+                            and (len(set(round(v, 1) for v in _hs2)) > 1
+                                 or top_panel_u > 0.5)):
+                        # A fronteira do degrau de laje NAO e' so' a divisa de
+                        # painel: onde o painel de fechamento acaba, a laje
+                        # sobe para ocupar o lugar dele. Medido na V302.B, que
+                        # o dono apontou (SEGMENTO 1B, P1): painel de topo de
+                        # 125 sobre um painel de 244, e o N2 escreve laje 12
+                        # sob ele e 15 depois. Partindo so' por painel, o
+                        # degrau saia em 244 — "o degrau da cota nao conseguiu
+                        # ficar posicionado corretamente".
+                        _cortes = [0.0]
+                        _accb = 0.0
+                        for _s2 in _segs_u2:
+                            _wb = float(_s2.get('largura_cm',
+                                                _s2.get('width', 0)) or 0)
+                            if _wb > 0:
+                                _accb += _wb
+                                _cortes.append(round(_accb, 1))
+                        _larg_u = _accb
+                        if _tw2 > 0.5:
+                            for _b in (_to2, _to2 + _tw2):
+                                if 0.5 < _b < _larg_u - 0.5:
+                                    _cortes.append(round(float(_b), 1))
+                        _cortes = sorted(set(_cortes))
+
+                        def _alt_painel_em(_x):
+                            _a, _ult = 0.0, 0.0
+                            for _s in _segs_u2:
+                                _w = float(_s.get('largura_cm',
+                                                  _s.get('width', 0)) or 0)
+                                if _w <= 0:
+                                    continue
+                                _ult = float(_s.get('height1', 0) or 0)
+                                if _a - 0.5 <= _x <= _a + _w + 0.5:
+                                    return _ult
+                                _a += _w
+                            return _ult
+
+                        _tr2 = []
+                        for _i2 in range(len(_cortes) - 1):
+                            _xa, _xb = _cortes[_i2], _cortes[_i2 + 1]
+                            if _xb - _xa <= 0.05:
+                                continue
+                            _meio2 = (_xa + _xb) / 2.0
+                            _sob2 = (top_panel_u if (_tw2 > 0.5
+                                     and _to2 - 1.0 <= _meio2
+                                     <= _to2 + _tw2 + 1.0) else 0.0)
+                            _alt2 = round(
+                                _tot2 - _alt_painel_em(_meio2) - _sob2, 1)
+                            if _alt2 <= 0 or _alt2 > 35.0:
+                                _tr2 = []
+                                break
+                            if _tr2 and abs(_tr2[-1]['altura'] - _alt2) <= 0.05:
+                                _tr2[-1]['x1'] = round(_xb, 1)
+                            else:
+                                _tr2.append({'x0': round(_xa, 1),
+                                             'x1': round(_xb, 1),
+                                             'altura': _alt2})
+                        if len(_tr2) > 1:
+                            unit['laje_sup_trechos'] = _tr2
                 total_u = float(unit.get('h_total', 0) or 0)
                 # Se a cota total fecha exatamente corpo + laje superior +
                 # painel superior, não existe laje inferior nesta unidade.
@@ -2553,7 +3259,15 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
                     and laje_sup_u + laje_inf_u > 0.5
                 ):
                     unit['h_total'] = round(h_body_u + laje_sup_u + laje_inf_u, 1)
-                if laje_sup_u >= 12.0:
+                # Com DEGRAU a laje global subestima: na V302.B ela vale 11,6
+                # (a do trecho sob o painel de fechamento) e fica abaixo do
+                # limiar, mas o trecho da direita tem 14,6 e o N2 cota ali.
+                # Sem isto o gerador pula o bloco inteiro do marco e a
+                # unidade sai SEM nenhuma cota de laje — apontamento do dono
+                # (V302 SEGMENTO 1B, P5: "falta essa cota da laje").
+                _alt_tr = [float(t.get('altura', 0) or 0)
+                           for t in (unit.get('laje_sup_trechos') or [])]
+                if laje_sup_u >= 12.0 or (_alt_tr and max(_alt_tr) >= 12.0):
                     unit['marco_laje_sup'] = True
             return units
 
@@ -2716,6 +3430,199 @@ def _extract_lv_geom_from_dxf(dxf_path: str, elem_id: str = '') -> dict:
         result['_extracao_erro'] = str(ex)
 
     return result
+
+
+def _detectar_aberturas_viga(paineis_h, paineis_v, pair, segs=None,
+                             tol=1.5) -> list:
+    """Aberturas de VIGA na face — as que RECORTAM o painel.
+
+    Regra do dono (2026-09-13/14): abertura de VIGA recorta o painel; abertura
+    de PILAR so' recorta o sarrafo. E uma abertura de viga SEPARA SEGMENTOS:
+    o painel vira dois segmentos distintos, mesmo encostados.
+
+    Assinatura medida no N2 da V302.A (unidade 0..470, fundo em y=0.3):
+
+        vertical   x=178.5  y 5.3 -> 43.3      borda esquerda da abertura
+        horizontal y=5.3    x 178.5 -> 200.5   PISO da abertura = topo da sobra
+        vertical   x=200.5  y 0.3 -> 5.3       borda direita da sobra
+
+    A marca confiavel e' a **horizontal intermediaria** (nem fundo nem topo).
+    Procurar no TOPO da unidade nao funciona: quando os segmentos tem alturas
+    diferentes — na V302.A o seg.1 tem 43 e o seg.2 tem 45 — o topo do seg.1
+    nao e' o topo da unidade, e a abertura passa despercebida.
+
+    Devolve [{x_ini, x_fim, sobra_h, abertura_h}] em x relativo a` borda
+    esquerda da face. `sobra_h` = 0 seria corte completo em Y (sem sobra), mas
+    esse caso nao tem horizontal intermediaria e nao e' detectado aqui.
+
+    Medido nas 32 vigas do 13_PAV: 20 de 120 unidades tem abertura com sobra.
+    """
+    try:
+        XL = float(pair.get('x_left', 0) or 0)
+        XR = float(pair.get('x_right', 0) or 0)
+        YB = float(pair.get('y_bot', 0) or 0)
+        YT = float(pair.get('y_top', 0) or 0)
+    except Exception:
+        return []
+    if XR - XL <= 1.0:
+        return []
+
+    horiz, verts = [], []
+    for y, xl, xr in (paineis_h or []):
+        if max(xl, xr) < XL - 6 or min(xl, xr) > XR + 6:
+            continue
+        if not (YB - 6 <= y <= YT + 6):
+            continue
+        horiz.append((y - YB, min(xl, xr) - XL, max(xl, xr) - XL))
+    for x, y1, y2 in (paineis_v or []):
+        if not (XL - 6 <= x <= XR + 6):
+            continue
+        if max(y1, y2) < YB - 6 or min(y1, y2) > YT + 6:
+            continue
+        verts.append((x - XL, min(y1, y2) - YB, max(y1, y2) - YB))
+    if not horiz or not verts:
+        return []
+
+    # ── Guarda: DEGRAU nao e' abertura de viga ────────────────────────────
+    # O degrau ja' e' modelado pelas alturas dos paineis (`height1`) e pelo
+    # ombro. Sem esta guarda o ombro dele entra como "piso de abertura": na
+    # V301.A a faixa 0->294.5 (= paineis 244 + 50.5, os BAIXOS, 44 contra 109)
+    # virava abertura e o desenho da V301 — ja' validado pelo dono — mudava.
+    # Se a faixa detectada cai sobre paineis que JA estao rebaixados, e'
+    # degrau. Mesmo discriminador usado em `classificar_aberturas_pilar`.
+    _cruas = []
+    _hs = [float(s.get('height1', 0) or 0) for s in (segs or [])]
+    if _hs:
+        _hmax = max(_hs)
+        _acc = 0.0
+        for _s, _h1 in zip(segs or [], _hs):
+            _w = float(_s.get('largura_cm', _s.get('width', 0)) or 0)
+            if _hmax - _h1 > 3.0:
+                _cruas.append((_acc, _acc + _w))
+            _acc += _w
+    # FUNDIR faixas adjacentes: a zona baixa do degrau costuma ser mais de um
+    # painel seguido. Na V301.A sao dois — 244 e 50.5, ambos com 44 contra 109
+    # — e a faixa do degrau vai de 0 a 294.5. Testando painel a painel, a
+    # abertura 0->294.5 nao cabe em nenhum isolado e a guarda nao pegava.
+    faixas_baixas = []
+    for _lo, _hi in sorted(_cruas):
+        if faixas_baixas and _lo - faixas_baixas[-1][1] <= tol:
+            faixas_baixas[-1] = (faixas_baixas[-1][0], max(faixas_baixas[-1][1], _hi))
+        else:
+            faixas_baixas.append((_lo, _hi))
+
+    y_fundo = min(h[0] for h in horiz)
+    y_topo = max(h[0] for h in horiz)
+    out = []
+    for y, hx0, hx1 in horiz:
+        if not (y_fundo + 2.0 < y < y_topo - 2.0):
+            continue
+        # A assinatura tem DUAS maos. Na V302.A a vertical da esquerda SOBE do
+        # piso da abertura e a da direita DESCE ate' o fundo (a sobra segue
+        # para a direita). Na V304.B e' o espelho: a abertura encosta na ponta
+        # ESQUERDA, entao quem sobe e' a vertical da direita (x=29, de 15 a
+        # 58,5 — os 44 de vazio) e quem desce e' a borda da propria face
+        # (x=0, do fundo ate' 15 — os 15 de sobra). So' a primeira mao estava
+        # escrita, e por isso toda abertura na ponta esquerda passava
+        # despercebida; a face saia sem abertura, com laje inventada de 29.
+        sobe_esq = [v for v in verts
+                    if abs(v[0] - hx0) <= tol and abs(v[1] - y) <= tol]
+        desce_dir = [v for v in verts
+                     if abs(v[0] - hx1) <= tol and abs(v[1] - y_fundo) <= tol]
+        sobe_dir = [v for v in verts
+                    if abs(v[0] - hx1) <= tol and abs(v[1] - y) <= tol]
+        desce_esq = [v for v in verts
+                     if abs(v[0] - hx0) <= tol and abs(v[1] - y_fundo) <= tol]
+        _espelhada = False
+        if sobe_esq and desce_dir:
+            topo_local = max(v[2] for v in sobe_esq)
+        elif sobe_dir and desce_esq:
+            topo_local = max(v[2] for v in sobe_dir)
+            _espelhada = True
+        else:
+            continue
+        _sobra_h = y - y_fundo
+        _abert_h = topo_local - y
+        # A SOBRA e' remanescente — "sobra uma partezinha abaixo" (dono). Numa
+        # abertura de viga ela e' bem menor que o vazio; num DEGRAU a faixa de
+        # baixo e' a principal. Medido:
+        #     V302.A   sobra  5 x abertura 38      abertura
+        #     V303 8B  sobra  5 x abertura 40      abertura
+        #     V301.A   sobra 65 x "abertura" 44    DEGRAU
+        # Com isso a guarda de painel rebaixado pode ser dispensada quando a
+        # proporcao ja' diz que e' abertura — foi o que destravou a V303, onde
+        # o painel de 29 tem height1 39,7 contra 45 e parecia degrau.
+        _proporcao_de_abertura = 0.0 < _sobra_h < _abert_h
+        # Na mao ESPELHADA a proporcao e' EXIGENCIA, nao desempate. A guarda
+        # de `faixas_baixas` compara a faixa detectada com os paineis
+        # rebaixados, e so' vale quando as duas coincidem. Medido na V301.B
+        # (ja' validada): pela mao espelhada o degrau sai como 154,2..461,2 —
+        # mais largo que a face inteira (458,2) — e a guarda nao o alcanca,
+        # enquanto a proporcao ja' dizia degrau (sobra 65 contra vazio 38).
+        # Toda abertura de viga medida ate' aqui tem sobra menor que o vazio:
+        # V302.A 5x38, V303 8B 5x40, V304.A#1 5x54, V304.B 15x44.
+        if _espelhada and not _proporcao_de_abertura:
+            continue
+        if not _proporcao_de_abertura and any(
+                lo - tol <= hx0 and hx1 <= hi + tol
+                for lo, hi in faixas_baixas):
+            continue
+        item = {
+            'x_ini': round(hx0, 1),
+            'x_fim': round(hx1, 1),
+            'sobra_h': round(_sobra_h, 1),
+            'abertura_h': round(_abert_h, 1),
+        }
+        if item not in out:
+            out.append(item)
+    return sorted(out, key=lambda d: d['x_ini'])
+
+
+def _alturas_por_segmento(paineis_h, pair, segs, tol=1.5) -> list:
+    """Altura REAL de cada segmento, medida pelo topo que cobre o seu x.
+
+    `_make_seg` da' o mesmo `h_body` a todos os segmentos da unidade. Quando o
+    topo e' fragmentado isso achata alturas diferentes: medido no N2 da V302.A,
+    o seg.1 termina em y=43.3 e os seg.2/3 em y=45.3 — a ficha entregava 43 nos
+    tres.
+
+    ESCOPO: so' faz sentido onde o topo e' realmente fragmentado por segmento.
+    Em face com DEGRAU o N2 desenha a borda superior numa linha unica
+    atravessando tudo (regra ja' registrada no gerador), e ali a altura do
+    painel baixo vem do OMBRO, nao do topo — medir pelo topo devolveria a
+    altura cheia para todo painel. Medido: aplicar isto sem escopo mudava 42 de
+    120 unidades, as 17 da V301 inclusive, que e' desenho ja' validado pelo
+    dono. Por isso o chamador so' usa esta funcao em unidade com abertura de
+    viga detectada.
+
+    Devolve [altura_ou_None] na ordem dos segmentos.
+    """
+    try:
+        XL = float(pair.get('x_left', 0) or 0)
+        XR = float(pair.get('x_right', 0) or 0)
+        YB = float(pair.get('y_bot', 0) or 0)
+        YT = float(pair.get('y_top', 0) or 0)
+    except Exception:
+        return []
+    horiz = []
+    for y, xl, xr in (paineis_h or []):
+        if max(xl, xr) < XL - 6 or min(xl, xr) > XR + 6:
+            continue
+        if not (YB - 6 <= y <= YT + 6):
+            continue
+        horiz.append((y - YB, min(xl, xr) - XL, max(xl, xr) - XL))
+    if not horiz:
+        return []
+    y_fundo = min(h[0] for h in horiz)
+    out, acc = [], 0.0
+    for s in (segs or []):
+        w = float(s.get('largura_cm', s.get('width', 0)) or 0)
+        meio = acc + w / 2.0
+        acc += w
+        cobre = [h for h in horiz
+                 if h[1] - tol <= meio <= h[2] + tol and h[0] > y_fundo + 2.0]
+        out.append(round(max(h[0] for h in cobre) - y_fundo, 1) if cobre else None)
+    return out
 
 
 # ──────────────────────────────────────────────────────────────────────────────

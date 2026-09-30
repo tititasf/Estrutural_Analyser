@@ -64,7 +64,7 @@ def test_schema_no_blacklisted_columns(conn: sqlite3.Connection):
     esperado = {
         "code", "kind", "obra_id", "obra_dir", "pavimento", "classe", "item_id",
         "tipo_elemento", "titulo_publico", "obra_rotulo", "revoked", "created_at",
-        "publish_batch",
+        "publish_batch", "payload_json",
     }
     assert columns == esperado
 
@@ -113,16 +113,16 @@ def test_publicar_gera_codigos_unicos_e_mapeia_tipo_elemento(conn, obra_dir):
     obra = {"id": "obra-123"}
     resumo = publicar(obra, obra_dir, conn=conn)
 
-    assert resumo["itens_publicados"] == 3  # P1, P2, L101
+    assert resumo["itens_publicados"] == 5  # P1 e P2 (Para+Passa), L101
     assert resumo["itens_preservados"] == 0
 
     rows = conn.execute(
         "SELECT item_id, tipo_elemento, code FROM public_codes WHERE kind='item' ORDER BY item_id"
     ).fetchall()
-    assert [r["item_id"] for r in rows] == ["L101", "P1", "P2"]
+    assert [r["item_id"] for r in rows] == ["L101", "P1_Para", "P1_Passa", "P2_Para", "P2_Passa"]
     tipos = {r["item_id"]: r["tipo_elemento"] for r in rows}
-    assert tipos["P1"] == "pilar"
-    assert tipos["P2"] == "pilar"
+    assert tipos["P1_Para"] == "pilar"
+    assert tipos["P2_Passa"] == "pilar"
     assert tipos["L101"] == "laje"
     codes = [r["code"] for r in rows]
     assert len(codes) == len(set(codes))  # todos únicos
@@ -138,7 +138,7 @@ def test_republish_preserva_code_e_revoga_batch_anterior(conn, obra_dir):
     }
 
     resumo2 = publicar(obra, obra_dir, conn=conn)
-    assert resumo2["itens_preservados"] == 3
+    assert resumo2["itens_preservados"] == 5
     assert resumo2["itens_publicados"] == 0
     assert resumo2["publish_batch"] != resumo1["publish_batch"]
 
@@ -188,7 +188,7 @@ def test_revogar_item_individual(conn, obra_dir):
     obra = {"id": "obra-item-revoke"}
     publicar(obra, obra_dir, conn=conn)
     row = conn.execute(
-        "SELECT code FROM public_codes WHERE obra_id='obra-item-revoke' AND item_id='P1'"
+        "SELECT code FROM public_codes WHERE obra_id='obra-item-revoke' AND item_id='P1_Para'"
     ).fetchone()
     afetadas = revogar(code=row["code"], conn=conn)
     assert afetadas == 1
@@ -196,7 +196,7 @@ def test_revogar_item_individual(conn, obra_dir):
     p1 = conn.execute("SELECT revoked FROM public_codes WHERE code=?", (row["code"],)).fetchone()
     assert p1["revoked"] == 1
     p2 = conn.execute(
-        "SELECT revoked FROM public_codes WHERE obra_id='obra-item-revoke' AND item_id='P2'"
+        "SELECT revoked FROM public_codes WHERE obra_id='obra-item-revoke' AND item_id='P2_Para'"
     ).fetchone()
     assert p2["revoked"] == 0
 
@@ -296,6 +296,118 @@ def test_db_fecha_sem_lock_pendente(tmp_path, obra_dir):
         row = ro_conn.execute(
             "SELECT COUNT(*) c FROM public_codes WHERE obra_id='obra-ro'"
         ).fetchone()
-        assert row[0] == 5  # 1 obra + 1 pavimento + 3 itens
+        assert row[0] == 7  # 1 obra + 1 pavimento + 5 itens
     finally:
         ro_conn.close()
+
+
+# ---------------------------------------------------------------------------
+# [2026-09-28] LV = 1 código por viga por listagem; pilar = 2 códigos.
+# ---------------------------------------------------------------------------
+
+def _seg(uid, viga, label, side, behavior):
+    return {"uid": uid, "beam_name": viga, "segment_label": label, "side": side,
+            "behavior": behavior, "length": 100, "points": [[0, 0], [100, 0]]}
+
+
+@pytest.fixture
+def obra_lv(tmp_path: Path) -> Path:
+    estado = json.loads(json.dumps(_ESTADO_TERREO))
+    estado["segmentos"]["lateral_a_para"] = [
+        _seg("ap|V301|2", "V301", "2", "A", "Para"), _seg("ap|V301|1", "V301", "1", "A", "Para"),
+        _seg("ap|V302|1", "V302", "1", "A", "Para"),
+    ]
+    estado["segmentos"]["lateral_b_para"] = [_seg("bp|V301|1", "V301", "1", "B", "Para")]
+    estado["segmentos"]["lateral_a_passa"] = [_seg("aq|V301|1", "V301", "1", "A", "Passa")]
+    d = tmp_path / "obra_lv"
+    d.mkdir()
+    (d / "estado_TERREO.json").write_text(json.dumps(estado), encoding="utf-8")
+    return d
+
+
+def _itens(conn, tipo):
+    return [dict(r) for r in conn.execute(
+        "SELECT code, classe, item_id, titulo_publico, payload_json FROM public_codes"
+        " WHERE kind='item' AND revoked=0 AND tipo_elemento=? ORDER BY titulo_publico, payload_json",
+        (tipo,))]
+
+
+def test_lv_um_codigo_por_viga_com_modo_e_segmentos(conn, obra_lv):
+    publicar({"id": "obra-lv"}, obra_lv, conn=conn)
+    lvs = _itens(conn, "viga_lateral")
+    chaves = sorted((r["titulo_publico"], json.loads(r["payload_json"])["modo"]) for r in lvs)
+    assert chaves == [("V301", "param"), ("V301", "passa"), ("V302", "param")]
+
+    v301 = next(json.loads(r["payload_json"]) | {"_code": r["code"]} for r in lvs
+                if r["titulo_publico"] == "V301" and '"param"' in r["payload_json"])
+    segs = v301["segmentos"]
+    assert [(s["lado"], s["segmento"]) for s in segs] == [("A", "1"), ("A", "2"), ("B", "1")]
+    assert [s["indice"] for s in segs] == [0, 1, 2]
+    assert segs[1]["svg"]["n1"] == f"/api/v1/ficha/{v301['_code']}/svg/n1?seg=1"
+    ancora = next(r for r in lvs if r["code"] == v301["_code"])
+    assert (ancora["classe"], ancora["item_id"]) == ("lateral_a_para", "ap|V301|1")
+
+    # Republicar preserva o código da viga.
+    publicar({"id": "obra-lv"}, obra_lv, conn=conn)
+    assert {r["code"] for r in _itens(conn, "viga_lateral")} == {r["code"] for r in lvs}
+
+
+def test_pilar_dois_codigos_com_modo_pilar(conn, obra_dir):
+    publicar({"id": "obra-p"}, obra_dir, conn=conn)
+    pilares = _itens(conn, "pilar")
+    assert sorted((r["titulo_publico"], json.loads(r["payload_json"])["modo_pilar"]) for r in pilares) == [
+        ("P1", "param"), ("P1", "passa"), ("P2", "param"), ("P2", "passa")]
+
+
+def test_codigos_legados_sao_herdados(conn, obra_lv):
+    """QR já impresso continua abrindo: pilar antigo vira o `param`, segmento
+    1 antigo vira a viga; os demais segmentos antigos ficam revogados."""
+    def legado(code, classe, item_id):
+        conn.execute(
+            "INSERT INTO public_codes (code, kind, obra_id, obra_dir, pavimento, classe, item_id,"
+            " tipo_elemento, titulo_publico, publish_batch) VALUES (?, 'item', 'obra-lg', ?, 'TERREO', ?, ?, 'x', 'x', 'velho')",
+            (code, str(obra_lv), classe, item_id))
+    legado("PILARP1AAA", "pilares", "P1")
+    legado("SEGV301S01", "lateral_a_para", "ap|V301|1")
+    legado("SEGV301S02", "lateral_a_para", "ap|V301|2")
+    conn.commit()
+
+    publicar({"id": "obra-lg"}, obra_lv, conn=conn)
+    vivo = {r["code"]: dict(r) for r in conn.execute(
+        "SELECT code, classe, item_id, payload_json FROM public_codes WHERE revoked=0 AND kind='item'")}
+    assert vivo["PILARP1AAA"]["classe"] == "pilares_n3_para"
+    assert json.loads(vivo["PILARP1AAA"]["payload_json"]) == {"modo_pilar": "param"}
+    assert json.loads(vivo["SEGV301S01"]["payload_json"])["viga"] == "V301"
+    assert "SEGV301S02" not in vivo
+
+
+def test_db_antigo_ganha_coluna_payload_json(tmp_path):
+    db_path = tmp_path / "antigo.db"
+    velho = sqlite3.connect(db_path)
+    velho.execute("CREATE TABLE public_codes (code TEXT PRIMARY KEY, kind TEXT NOT NULL, obra_id TEXT NOT NULL,"
+                  " obra_dir TEXT NOT NULL, pavimento TEXT, classe TEXT, item_id TEXT, tipo_elemento TEXT,"
+                  " titulo_publico TEXT, obra_rotulo TEXT, revoked INTEGER NOT NULL DEFAULT 0,"
+                  " created_at TEXT, publish_batch TEXT)")
+    velho.commit()
+    velho.close()
+    c = get_connection(db_path)
+    try:
+        assert "payload_json" in {r["name"] for r in c.execute("PRAGMA table_info(public_codes)")}
+    finally:
+        c.close()
+
+
+def test_portal_interno_acha_codigo_de_pilar_e_segmento(tmp_path, obra_lv):
+    """O portal interno pergunta por (classe, item_id) N1 — pilar cai no
+    código `param`, segmento cai no código da viga."""
+    from portal.app.public_codes_lookup import buscar_code_item
+
+    db_path = tmp_path / "lookup.db"
+    c = get_connection(db_path)
+    publicar({"id": "obra-lk"}, obra_lv, conn=c)
+    esperado_p1 = c.execute("SELECT code FROM public_codes WHERE item_id='P1_Para'").fetchone()["code"]
+    viga = c.execute("SELECT code FROM public_codes WHERE titulo_publico='V301' AND classe='lateral_a_para'").fetchone()["code"]
+    c.close()
+    assert buscar_code_item(db_path, "obra-lk", "TERREO", "pilares", "P1") == esperado_p1
+    assert buscar_code_item(db_path, "obra-lk", "TERREO", "lateral_b_para", "bp|V301|1") == viga
+    assert buscar_code_item(db_path, "obra-lk", "TERREO", "lateral_a_para", "ap|V301|2") == viga

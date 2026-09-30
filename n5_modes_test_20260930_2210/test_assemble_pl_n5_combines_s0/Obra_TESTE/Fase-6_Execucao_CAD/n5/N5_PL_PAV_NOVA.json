@@ -1,0 +1,20 @@
+{
+  "classe": "PL",
+  "obra": "Obra_TESTE",
+  "pavimento": "PAV",
+  "visual_mode": "NOVA",
+  "pillar_group": null,
+  "output": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_pl_n5_combines_s0\\Obra_TESTE\\Fase-6_Execucao_CAD\\n5\\N5_PL_PAV_NOVA.dxf",
+  "ok_count": 1,
+  "missing_count": 0,
+  "extra_count": 0,
+  "extra_ids": [],
+  "items": [
+    {
+      "item_id": "P2",
+      "source": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_pl_n5_combines_s0\\Obra_TESTE\\Fase-6_Execucao_CAD\\PL_CIMA_preview_P2.dxf;D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_pl_n5_combines_s0\\Obra_TESTE\\Fase-6_Execucao_CAD\\PL_ABCD_preview_P2.dxf",
+      "status": "ok",
+      "message": "2 entidades em 2 preview(s); linha 1"
+    }
+  ]
+}

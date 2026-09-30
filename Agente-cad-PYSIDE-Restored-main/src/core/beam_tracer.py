@@ -5,6 +5,87 @@ from shapely.geometry import Point, LineString, Polygon
 from .spatial_index import SpatialIndex
 from .beam_interpreters import FundoVigaInterpreter
 
+
+def _separate_one_sided_l_extensions(
+    spans,
+    panel_items,
+    *,
+    is_horizontal: bool,
+    tolerance: float = 0.5,
+):
+    """Separa extensoes de contorno em L sem usar comprimento como criterio.
+
+    Uma aba axial que possui apenas uma face longitudinal nao e' uma area de
+    fundo isolada. Quando ela toca um vao vizinho comprovado por duas faces,
+    ela e' a perna/quina do mesmo contorno em L. Um trecho de 1 cm com duas
+    faces continua sendo painel; tamanho nunca decide.
+    """
+    axis = 0 if is_horizontal else 1
+    transverse = 1 - axis
+
+    def _points(item):
+        raw = (item or {}).get("line") if isinstance(item, dict) else None
+        out = []
+        for point in raw or []:
+            try:
+                out.append((float(point[0]), float(point[1])))
+            except (TypeError, ValueError, IndexError):
+                continue
+        return out
+
+    def _faces(span):
+        start, end = sorted((float(span[0]), float(span[1])))
+        length = end - start
+        if length <= 1e-6:
+            return []
+        values = []
+        for item in panel_items or []:
+            points = _points(item)
+            if len(points) < 2:
+                continue
+            lo = min(point[axis] for point in points)
+            hi = max(point[axis] for point in points)
+            overlap = max(0.0, min(end, hi) - max(start, lo))
+            # Encostar na extremidade nao prova uma segunda face. Isso e'
+            # especialmente importante para uma aba em L de apenas 1 cm:
+            # a face do painel vizinho nasce no limite, mas nao cobre a aba.
+            if overlap <= 1e-6 or overlap < 0.5 * length:
+                continue
+            value = sum(point[transverse] for point in points) / len(points)
+            if not any(abs(value - known) <= tolerance for known in values):
+                values.append(value)
+        return sorted(values)
+
+    faces = [_faces(span) for span in spans]
+    kept = []
+    extensions = []
+    for index, span in enumerate(spans):
+        start, end = sorted((float(span[0]), float(span[1])))
+        own_faces = faces[index]
+        if len(own_faces) != 1:
+            kept.append((start, end))
+            continue
+        neighbor = None
+        side = None
+        if index > 0 and abs(float(spans[index - 1][1]) - start) <= tolerance and len(faces[index - 1]) >= 2:
+            neighbor, side = index - 1, "before"
+        elif index + 1 < len(spans) and abs(float(spans[index + 1][0]) - end) <= tolerance and len(faces[index + 1]) >= 2:
+            neighbor, side = index + 1, "after"
+        if neighbor is None or not any(
+            abs(own_faces[0] - value) <= tolerance for value in faces[neighbor]
+        ):
+            kept.append((start, end))
+            continue
+        extensions.append({
+            "start": start,
+            "end": end,
+            "face": own_faces[0],
+            "neighbor_index": neighbor,
+            "side": side,
+            "geometry": "one_sided_l_extension",
+        })
+    return kept, extensions
+
 class BeamTracer:
     """
     Motor especializado em identificar vigas baseadas em nomes (V1, V2...)
@@ -136,19 +217,34 @@ class BeamTracer:
             raw_lines = self._capture_fundo_geometry(
                 pos, is_h, orientations, beam_labels, content,
             )
-            lv_is_h = legacy_orientations[id(b_text)]
-            lv_raw_lines = (
-                self._capture_geometry(
-                    pos, lv_is_h, legacy_orientations, beam_labels, content,
-                )
-                if lv_is_h == is_h
-                else self._capture_geometry(
-                    pos,
-                    lv_is_h,
-                    legacy_orientations,
-                    beam_labels,
-                    content,
-                )
+            # A orientacao da LATERAL e' a mesma da viga, e sai da mesma
+            # evidencia: a ROTACAO DO PROPRIO ROTULO, por OCORRENCIA.
+            #
+            # `legacy_orientations` tinha dois vicios. Descartava a rotacao do
+            # rotulo — a prova mais forte que o desenho oferece — e era
+            # indexado por NOME, entao numa viga com continuacoes a ultima
+            # ocorrencia sobrescrevia as outras.
+            #
+            # Medido no 13_PAV: 13 das 36 vigas saiam com `lv_is_h != is_h`.
+            # Em todas as 13 o rotulo esta' certo. A V313 e' o caso limpo — o
+            # rotulo esta' deitado sobre uma faixa VERTICAL que desce ate' o
+            # P29, e o `lv_is_h` dizia horizontal; a captura entao pegava a
+            # faixa horizontal vizinha em vez da viga, e a secao adotada vinha
+            # de uma viga perpendicular (V302 e V304 ficavam com `19/120`
+            # tendo `19/55` a 2 cm do proprio eixo).
+            #
+            # CUIDADO ao medir isto: a geometria capturada NAO serve de
+            # testemunha, porque ela e' consequencia deste booleano — onde ele
+            # erra, ela erra junto e as duas concordam. A prova tem de vir do
+            # desenho.
+            lv_is_h = orientations[id(b_text)]
+            # O mapa de orientacoes dos VIZINHOS tem de ser o mesmo, senao a
+            # captura decide de quem e' cada linha com dois criterios
+            # diferentes. (O ternario que existia aqui tinha os dois ramos
+            # identicos — so' a condicao mudava, e agora ela e' sempre
+            # verdadeira.)
+            lv_raw_lines = self._capture_geometry(
+                pos, lv_is_h, orientations, beam_labels, content,
             )
             pre_beams.append({
                 'name': content,
@@ -332,12 +428,16 @@ class BeamTracer:
                     run_coords = [
                         (coords[index][1], coords[index + 1][0])
                         for index in range(len(coords) - 1)
-                        if coords[index + 1][0] - coords[index][1] > 10.0
+                        if coords[index + 1][0] - coords[index][1] > 1e-3
                     ]
-                    lengths = self.fundo_interpreter.lengths(run_coords)
+                    lengths = self.fundo_interpreter.lengths(
+                        run_coords, minimum=1e-3
+                    )
                 else:
                     run_coords = coords
-                    lengths = self.fundo_interpreter.lengths(run_coords)
+                    lengths = self.fundo_interpreter.lengths(
+                        run_coords, minimum=1e-3
+                    )
                 if lengths:
                     bottom_runs.append({
                         'is_h': bool(b['is_h']),
@@ -368,12 +468,14 @@ class BeamTracer:
                 spans = []
                 for i in range(len(merged_coords) - 1):
                     span = merged_coords[i + 1][0] - merged_coords[i][1]
-                    if span > 10.0:
+                    if span > 1e-3:
                         spans.append(span)
                 master_beam['geometry']['classified']['merged_bottom_lengths'] = spans
             else:
                 master_beam['geometry']['classified']['merged_bottom_lengths'] = (
-                    self.fundo_interpreter.lengths(merged_coords)
+                    self.fundo_interpreter.lengths(
+                        merged_coords, minimum=1e-3
+                    )
                 )
 
             lv_occurrence_coords = [
@@ -1212,7 +1314,11 @@ class BeamTracer:
                 cur_min, cur_max = start, end
         merged.append((cur_min, cur_max))
         
-        final_merged = [(start, end) for start, end in merged if end - start > 10]
+        # Nao existe comprimento minimo semantico para FV: um intervalo com
+        # area positiva permanece candidato mesmo quando mede apenas 1 cm.
+        final_merged = [
+            (start, end) for start, end in merged if end - start > 1e-3
+        ]
         lengths = [end - start for start, end in final_merged]
         return lengths, final_merged
 
@@ -1388,7 +1494,7 @@ class BeamTracer:
             groups.append((cur_min, cur_max))
             return groups
 
-        def _spans_from_groups(groups, min_span=10.0):
+        def _spans_from_groups(groups, min_span=1e-3):
             """Retorna spans (distâncias entre grupos consecutivos)."""
             spans = []
             for i in range(len(groups) - 1):
@@ -1397,7 +1503,7 @@ class BeamTracer:
                     spans.append(span)
             return spans
 
-        def _widths_from_groups(groups, min_width=10.0):
+        def _widths_from_groups(groups, min_width=1e-3):
             """Retorna larguras internas de cada grupo (modo painel)."""
             return [g[1] - g[0] for g in groups if g[1] - g[0] > min_width]
 
@@ -1464,10 +1570,10 @@ class BeamTracer:
                     for c_min, c_max in cuts:
                         if c_max <= curr: continue
                         if c_min >= p_max: break
-                        if c_min > curr + 5:
+                        if c_min > curr + 1e-3:
                             new_panels.append((curr, c_min))
                         curr = max(curr, c_max)
-                    if curr < p_max - 5:
+                    if curr < p_max - 1e-3:
                         new_panels.append((curr, p_max))
             return new_panels
 
@@ -1564,49 +1670,24 @@ class BeamTracer:
                 for p_min, p_max in base_panels:
                     curr_min = p_min
                     for d_p in div_pos:
-                        if curr_min + 5 < d_p < p_max - 5:
+                        if curr_min + 1e-3 < d_p < p_max - 1e-3:
                             split_panels.append((curr_min, d_p))
                             curr_min = d_p
                     if curr_min < p_max:
                         split_panels.append((curr_min, p_max))
 
-                # Um divisor real (apoio/mudança de altura) às vezes cai a
-                # poucos cm de uma extremidade e produz um fragmento residual
-                # do tamanho da largura da própria viga, não um segmento
-                # estrutural — achado real V310/V331 (2026-07-20): quina
-                # chanfrada, a borda mais longa de um lado do fundo gera uma
-                # lasca de ~19cm colada ao painel principal quando o divisor
-                # bate exatamente onde a borda mais curta começa. N2 não conta
-                # essa lasca como segmento próprio nem soma seu comprimento ao
-                # painel vizinho. O limiar (30cm) fica bem abaixo do menor
-                # painel real confirmado no 13_PAV (41.5cm, V301) e bem acima
-                # da lasca observada (19cm nos dois casos reais), então só
-                # afeta esse padrão específico de fragmento residual.
-                _notch_fragment_max_length = 30.0
-                cleaned_panels = []
-                for idx, (p_min, p_max) in enumerate(split_panels):
-                    length = p_max - p_min
-                    if length > _notch_fragment_max_length:
-                        cleaned_panels.append((p_min, p_max))
-                        continue
-                    touches_larger_neighbor = False
-                    if idx > 0:
-                        prev_min, prev_max = split_panels[idx - 1]
-                        if (
-                            abs(prev_max - p_min) <= 0.5
-                            and (prev_max - prev_min) > _notch_fragment_max_length
-                        ):
-                            touches_larger_neighbor = True
-                    if idx < len(split_panels) - 1:
-                        next_min, next_max = split_panels[idx + 1]
-                        if (
-                            abs(next_min - p_max) <= 0.5
-                            and (next_max - next_min) > _notch_fragment_max_length
-                        ):
-                            touches_larger_neighbor = True
-                    if not touches_larger_neighbor:
-                        cleaned_panels.append((p_min, p_max))
-                split_panels = cleaned_panels
+                # V310/V331 provaram que uma extensão de uma única face pode
+                # ser a perna de um contorno em L. O contrato antigo usava
+                # comprimento <=30 cm e também poderia apagar painel curto
+                # real. Agora tamanho não decide: duas faces = painel mesmo
+                # com 1 cm; uma face colada a vão de duas faces = evidência L.
+                split_panels, l_extensions = _separate_one_sided_l_extensions(
+                    split_panels,
+                    painel_items,
+                    is_horizontal=is_horizontal,
+                )
+                if l_extensions:
+                    classified['fv_l_outline_extensions'] = l_extensions
 
                 final_groups = _apply_obstacles_to_panels(split_panels, visual_obstacles)
                 classified['merged_bottom_lengths'] = _widths_from_groups(final_groups)

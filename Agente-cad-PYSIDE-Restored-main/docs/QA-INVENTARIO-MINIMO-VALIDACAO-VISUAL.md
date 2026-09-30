@@ -27,7 +27,8 @@ Validação **válida** (obrigatória para PASS):
    (`docs/QA-VISAO-EVIDENCIA-CANONICA.md`);
 2. extrair o **inventário mínimo** do gabarito (N2) e do candidato (N4/N3);
 3. rastrear item a item (MATCH / NEAR / MISSING / EXTRA / VOID_JUNK);
-4. ler os SVGs com visão e preencher o veredito.
+4. ler com visão os PNGs do harness (rasterizados do SVG canónico; `--zoom` em
+   região densa) e preencher o veredito.
 
 Sem inventário anexado (path + resumo) **e** sem SVG canónico lido, o veredito
 visual **não pode ser PASS**.
@@ -204,7 +205,7 @@ no campo de achados ou anexar o path no veredito — ausência = validação inv
 - qualquer item do `checklist_visual` ≠ true;
 - `confianca` &lt; 0.85;
 - `gate0` presente e ≠ PASS;
-- `svgs_lidos` não intersecta `svgs_para_ler`;
+- evidência lida (`pngs_lidos`/`svgs_lidos`) não intersecta a emitida (`pngs_para_ler`/`svgs_para_ler`);
 - LV: flags de inventário mínimo ≠ true **ou** `inventario.path` ausente/inexistente.
 
 ---

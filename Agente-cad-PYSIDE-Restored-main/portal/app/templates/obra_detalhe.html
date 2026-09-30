@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% from "_macros.html" import class_badge %}
-{% block titulo %}{{ obra.nome }} — Portal de Formas{% endblock %}
+{% block titulo %}{{ obra.nome }} — Portal de Formas de Concretagem{% endblock %}
 
 {% set triagem_feita = etapa_atual >= 2 %}
 {% set recortes_feito = etapa_atual >= 3 %}
@@ -25,6 +25,16 @@
 {# foi clicado — Bruto, Recorte, doc comum ou classe N1/N3/N5.           #}
 {# ------------------------------------------------------------------ #}
 {% block sidebar_obras_extra %}
+{# A coluna antiga .painel-2 só existe para seus controles internos. Aplicar a
+   classe antes de o navegador criar .shell-obra evita a coluna piscar. #}
+<script>
+  document.body.classList.add('drill-grade-on');
+  try {
+    if (localStorage.getItem('portal:painel-status-recolhido') === '1') {
+      document.body.classList.add('painel-status-inicial-recolhido');
+    }
+  } catch (e) { /* armazenamento indisponivel: manter aberto */ }
+</script>
 {# 2026-07: Drill grade (1 coluna) — substitui a árvore gorda + painéis 2/3.
    #docs-viewer permanece no DOM (hidden) para o JS legado de triagem/recortes
    preencher caches; a UI visível é #drill-root. #}
@@ -38,6 +48,7 @@
       <div id="docs-viewer" data-obra="{{ obra.id }}" hidden></div>
       <div id="drill-root" class="drill"
            data-obra="{{ obra.id }}"
+           data-comportamento="{{ obra.comportamento or 'misto' }}"
            data-obra-nome="{{ obra.nome }}"
            data-sa-feito="{{ '1' if sa_feito else '0' }}"
            data-n5-feito="{{ '1' if n5_feito else '0' }}"></div>
@@ -47,8 +58,8 @@
 {% endblock %}
 
 {% block conteudo %}
-<link rel="stylesheet" href="/static/pillar_ficha.css?v={{ request.app.state.static_versao | default('0') }}">
-<link rel="stylesheet" href="/static/fv_ficha.css?v={{ request.app.state.static_versao | default('0') }}">
+<link rel="stylesheet" href="/static/pillar_ficha.css?v={{ request.app.state.static_versao | default('0') }}-pillar-levels-v12">
+<link rel="stylesheet" href="/static/fv_ficha.css?v={{ request.app.state.static_versao | default('0') }}-lv-n3-v1">
 <div class="shell-obra">
     <nav class="painel-2" aria-label="Etapas da obra" style="display: flex; flex-direction: column;">
     <!-- Fases da Obra Global -->
@@ -143,9 +154,39 @@
     <p class="subtitulo obra-page-code" id="obra-code-publico-slot"></p>
 
     {% if obra.estado == 'erro' and obra.erro_msg %}
-    <div class="faixa faixa-erro" id="obra-erro-alerta" role="alert" style="white-space:pre-wrap;font-family:monospace;font-size:.82rem">
-      <span aria-hidden="true">🔴</span> {{ obra.erro_msg }}
+    <div class="faixa faixa-erro obra-engine-alert" id="obra-erro-alerta" role="alert">
+      <button type="button" class="obra-engine-alert-close" aria-label="Fechar aviso de falha" title="Fechar e não mostrar novamente">×</button>
+      <div class="obra-engine-alert-content">
+      {% if 'pacote N3 de pilares incompleto' in obra.erro_msg %}
+      <strong>⚠️ O motor de desenho N3 não concluiu.</strong>
+      <span>Os dados SA foram preservados. Rode novamente somente o motor N3 desta torre.</span>
+      {% else %}
+      <strong>⚠️ Um motor de processamento falhou.</strong>
+      <span>{{ obra.erro_msg.split('[portal]')[-1].strip() }}</span>
+      {% endif %}
+      </div>
     </div>
+    <script>
+      (function () {
+        var alerta = document.getElementById('obra-erro-alerta');
+        if (!alerta) return;
+        var storageKey = 'portal:obra-engine-alert:{{ obra.id }}';
+        var mensagem = {{ obra.erro_msg|tojson }};
+        function fecharErroObra() {
+          try { window.localStorage.setItem(storageKey, mensagem); } catch (e) { /* privacidade */ }
+          alerta.remove();
+        }
+        window.fecharErroObra = fecharErroObra;
+        try {
+          if (window.localStorage.getItem(storageKey) === mensagem) {
+            alerta.remove();
+            return;
+          }
+        } catch (e) { /* localStorage indisponível: mantém botão funcional */ }
+        var fechar = alerta.querySelector('.obra-engine-alert-close');
+        if (fechar) fechar.addEventListener('click', fecharErroObra);
+      })();
+    </script>
     {% endif %}
 
     {% if job_ativo %}
@@ -196,6 +237,52 @@
       {# Ficha + docs da obra: só no modo lista de pavimentos (obra-mode-pavs).
          Com pavimento selecionado some (obra-mode-pavimento). #}
       <div id="obra-ficha-docs">
+      {% if onboarding_rapido %}
+      <section class="obra-onboarding" id="obra-onboarding" aria-labelledby="obra-onboarding-title"
+               data-auto-edit="{{ '1' if editar_nome_rapido else '0' }}"
+               data-formato="{{ formato_rapido }}">
+        <div class="obra-onboarding-head">
+          <span class="obra-onboarding-kicker">Pavimento recebido</span>
+          <h2 id="obra-onboarding-title">Revise o nome e siga o processamento</h2>
+          <p>Arquivo <strong>{{ arquivo_onboarding }}</strong> reconhecido como <strong>{{ formato_rapido | upper }}</strong>.</p>
+        </div>
+        <ol class="obra-onboarding-steps">
+          <li class="is-current">
+            <span class="obra-onboarding-num" aria-hidden="true">1</span>
+            <div><strong>Nomeie a obra</strong><span>A ficha abaixo já está aberta para edição.</span></div>
+          </li>
+          {% if formato_rapido == 'dwg' %}
+          <li>
+            <span class="obra-onboarding-num" aria-hidden="true">2</span>
+            <div><strong>Converta para DXF</strong><span>Etapa necessária antes da leitura e dos recortes.</span></div>
+          </li>
+          <li>
+            <span class="obra-onboarding-num" aria-hidden="true">3</span>
+            <div><strong>Execute Triagem + Recortes</strong><span>Classifica o pavimento e gera a torre limpa.</span></div>
+          </li>
+          {% else %}
+          <li class="is-skipped">
+            <span class="obra-onboarding-num" aria-hidden="true">✓</span>
+            <div><strong>Conversão dispensada</strong><span>O arquivo já chegou em DXF.</span></div>
+          </li>
+          <li>
+            <span class="obra-onboarding-num" aria-hidden="true">2</span>
+            <div><strong>Execute Triagem + Recortes</strong><span>Classifica o pavimento e gera a torre limpa.</span></div>
+          </li>
+          {% endif %}
+        </ol>
+        <div class="obra-onboarding-actions">
+          {% if formato_rapido == 'dwg' %}
+          <button type="button" class="btn" data-acao="converter-dwg"
+                  data-endpoint="documentos/converter-dwg">Converter DWG → DXF</button>
+          <button type="button" class="btn btn-sec" data-acao="triagem">Triagem + Recortes</button>
+          {% else %}
+          <button type="button" class="btn" data-acao="triagem">Iniciar Triagem + Recortes</button>
+          {% endif %}
+        </div>
+        <div id="acao-resultado" role="status" aria-live="polite"></div>
+      </section>
+      {% endif %}
       {# Ficha hero (proposta 1) — nome em destaque; chips de meta; notas em cards #}
       <section class="cabecalho-obra obra-ficha-hero" aria-labelledby="cab-h" id="cabecalho-obra"
                data-obra="{{ obra.id }}">
@@ -209,6 +296,8 @@
         </div>
         <div id="cab-visualizacao" class="obra-ficha-hero-body">
           <div class="obra-ficha-chips" role="list">
+            <div class="obra-ficha-chip" role="listitem"><span class="obra-ficha-chip-lab">Comportamento</span>
+              <span class="obra-ficha-chip-val">{{ (obra.comportamento or 'misto')|capitalize }}</span></div>
             <div class="obra-ficha-chip" role="listitem">
               <span class="obra-ficha-chip-lab">Cliente</span>
               <span class="obra-ficha-chip-val{% if not obra.cliente %} is-empty{% endif %}">{{ obra.cliente or 'Não informado' }}</span>
@@ -236,6 +325,10 @@
         <form id="cab-form" class="obra-ficha-form" hidden>
           <div class="obra-ficha-form-grid">
             <label>Nome<input type="text" name="nome" value="{{ obra.nome }}" required></label>
+            <label>Comportamento
+              <select name="comportamento" required>
+                {% for modo in ['misto','para','passa'] %}<option value="{{ modo }}"{% if (obra.comportamento or 'misto') == modo %} selected{% endif %}>{{ modo|capitalize }}</option>{% endfor %}
+              </select></label>
             <label>Cliente<input type="text" name="cliente" value="{{ obra.cliente or '' }}" placeholder="Nome do cliente"></label>
             <label>Data de solicitação<input type="date" name="data_solicitacao" value="{{ obra.data_solicitacao or '' }}"></label>
             <label>Data de entrega<input type="date" name="data_entrega" value="{{ obra.data_entrega or '' }}"></label>
@@ -251,6 +344,22 @@
         </form>
         <p id="cab-resultado" class="meta obra-ficha-resultado" role="status" aria-live="polite"></p>
       </section>
+
+      {% macro painel_ordem(escondido=false) %}
+      <section class="obra-ordem-panel" id="obra-ordem-panel" aria-label="Ordem dos pavimentos"{% if escondido %} hidden{% endif %}>
+        <div class="obra-ordem-head"><h2>Ordem dos pavimentos</h2><span>De baixo para cima · independente dos documentos</span></div>
+        <div class="docs-lista-scroll"><table class="docs-lista-tabela">
+          <thead><tr><th>Ordem</th><th>Pavimento atual</th><th>Documento</th><th>Anterior</th><th>Próximo</th><th>TIPO · repete de/até</th><th></th></tr></thead>
+          <tbody id="obra-ordem-linhas"></tbody>
+        </table></div>
+        {% if membro.papel == 'dono' %}
+        <div class="obra-ordem-actions"><input id="obra-ordem-novo" placeholder="Novo pavimento, ex.: COBERTURA" aria-label="Novo pavimento">
+          <button type="button" id="obra-ordem-adicionar">Adicionar</button>
+          <button type="button" id="obra-ordem-salvar">Salvar ordem</button></div>
+        {% endif %}
+        <p id="obra-ordem-status" role="status" aria-live="polite"></p>
+      </section>
+      {% endmacro %}
 
       {% if not eh_obra_rapida %}
       <script type="application/json" id="docs-data">{{ documentos | tojson }}</script>
@@ -281,8 +390,13 @@
           <button type="button" class="docs-tab-btn" role="tab" data-docs-tab="dwg" aria-selected="false">
             DWG <span class="docs-tab-count" id="docs-count-dwg">0</span>
           </button>
+          <button type="button" class="docs-tab-btn" role="tab" data-docs-tab="ordem" aria-selected="false">
+            Ordem dos pavimentos
+          </button>
         </div>
 
+        {{ painel_ordem(true) }}
+        <div id="docs-documentos-conteudo">
         <div id="docs-lista-tab" class="docs-lista-wrap" aria-live="polite"></div>
         <div id="docs-viewer-tab" class="docs-viewer-panel" hidden>
           <p class="docs-viewer-empty">Selecione um item na lista para visualizar.</p>
@@ -309,11 +423,6 @@
             </p>
             <p class="meta" id="docs-drop-hint">.pdf, .dxf, .dwg ou fotos — cada arquivo vira 1 documento desta obra</p>
           </div>
-          <div class="obra-upload-opts">
-            <label>Pavimento padrão (opcional)
-              <input type="text" id="docs-upload-pavimento-padrao" placeholder="ex.: 13_PAV" autocomplete="off">
-            </label>
-          </div>
           <div id="docs-progresso" class="upload-progresso" hidden>
             <div class="upload-progresso-barra"><div id="docs-barra-fill"></div></div>
             <span id="docs-progresso-texto" class="meta">Enviando…</span>
@@ -331,9 +440,11 @@
           </button>
         </div>
         <div id="docs-triagem-resultado" role="status" aria-live="polite"></div>
+        </div>{# /#docs-documentos-conteudo #}
       </section>
 
       {% else %}
+      {{ painel_ordem() }}
       <section aria-labelledby="et1">
         <h2 id="et1">⚡ Processamento rápido de um único pavimento</h2>
         <p>Este arquivo é 1 pavimento único, sem separar por classe — mas ainda passa pela
@@ -376,25 +487,149 @@
 
     {# ============================== N5 (detalhe) ============================== #}
     <div class="conteudo-secao" id="detalhe-n5" hidden>
-      <section aria-labelledby="et4">
-        <h2 id="et4">Validação</h2>
-        <p>Revise a interpretação N1 na aba "SA / N1" e marque erros abaixo. Ao concluir
-        sua validação, a liberação do N5 é destravada.</p>
-        {% if not sa_feito %}
-        <p class="meta">⏳ A Análise Estrutural (SA) ainda não rodou — mas você já pode revisar aqui quando quiser.</p>
-        {% endif %}
-        {% for classe, rotulo in rotulos.items() %}
-          <div class="card" style="display:flex;justify-content:space-between;align-items:center">
-            <span><strong>{{ classe }}</strong> {{ class_badge(classe, rotulo) }}</span>
-            <button class="btn btn-sec" data-acao="validacao" data-obra="{{ obra.id }}"
-                    data-classe="{{ classe }}">Concluir validação de {{ classe }} →</button>
-          </div>
-        {% endfor %}
-      </section>
+      <section class="n5-final-page" aria-labelledby="n5-final-title">
+        <header class="n5-management-head">
+          <p class="fv-web-kicker">Gestão de finalizados</p>
+          <h2 id="n5-final-title">Downloads N5 por pavimento</h2>
+          <p>Lista direta dos arquivos finais. Uma nova geração volta a ficar pendente até ser revisada.</p>
+        </header>
 
-      {# n5_liberacao.html já lida sozinho com "validação pendente" vs "pode
-         baixar" via `validacao_concluida` — nunca escondido atrás de etapa_atual. #}
-      {% include "n5_liberacao.html" %}
+        <div class="n5-final-list">
+          {% for grupo in n5_pavimentos %}
+          <article class="n5-final-pav">
+            <header>
+              <div><small>PAVIMENTO</small><h3>{{ grupo.pavimento }}</h3></div>
+              <span class="n5-final-summary {{ 'done' if grupo.todo_aprovado else 'pending' }}">
+                {{ '✓ Todos aprovados' if grupo.todo_aprovado else '⏳ Revisão pendente' }}
+              </span>
+            </header>
+            <div class="n5-final-classes">
+              {% for item in grupo.classes %}
+              <div class="n5-final-row">
+                <div class="n5-final-name">
+                  <strong>{{ item.codigo }}</strong><span>{{ item.titulo }}</span>
+                  {{ class_badge(item.codigo, item.rotulo) }}
+                </div>
+                <div class="n5-final-state {{ 'approved' if item.aprovado else 'pending' }}">
+                  <span>{{ '✓ Aprovado' if item.aprovado else '⏳ Pendente' }}</span>
+                  <small>{{ 'N5 revisado' if item.aprovado else ('Aguardando revisão' if item.release else 'Ainda não gerado') }}</small>
+                </div>
+                <div class="n5-final-actions">
+                  {% if item.release %}
+                  <a class="btn btn-sec" href="/app/obras/{{ obra.id }}?aba=sa&amp;pavimento={{ grupo.pavimento|urlencode }}&amp;etapa=sa&amp;classe={{ item.slug }}&amp;vista=unificados">Visualizar</a>
+                  <a class="btn btn-sec" href="/obras/{{ obra.id }}/n5/{{ item.codigo }}/download?pavimento={{ grupo.pavimento|urlencode }}">Baixar DXF</a>
+                  {% else %}
+                  <button type="button" class="btn btn-sec" disabled>N5 indisponível</button>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <footer>
+              {% if grupo.completo %}
+              <a class="btn btn-pri" href="/obras/{{ obra.id }}/n5/download?pavimento={{ grupo.pavimento|urlencode }}">Baixar ZIP completo de {{ grupo.pavimento }}</a>
+              {% else %}
+              <button type="button" class="btn btn-pri" disabled title="As quatro classes precisam estar geradas">ZIP do pavimento aguardando classes</button>
+              {% endif %}
+            </footer>
+          </article>
+          {% endfor %}
+        </div>
+
+        {% set pavimentos_completos = n5_pavimentos | selectattr('completo') | list %}
+        <footer class="n5-final-all">
+          {% if n5_pavimentos and pavimentos_completos|length == n5_pavimentos|length %}
+          <a class="btn btn-pri" href="/obras/{{ obra.id }}/n5/download">Baixar todos os pavimentos</a>
+          {% else %}
+          <button type="button" class="btn btn-pri" disabled>Baixar todos os pavimentos · aguardando N5</button>
+          {% endif %}
+        </footer>
+      </section>
+    </div>
+
+    {# Visualização por pavimento, separada da gestão global de finalizados. #}
+    <div class="conteudo-secao" id="detalhe-n5-pavimento" hidden>
+      <section class="n5-pav-page" aria-labelledby="n5-pav-title">
+        <header>
+          <div>
+            <p class="fv-web-kicker">N5 · unificados do pavimento</p>
+            <h2 id="n5-pav-title">{{ pavimento }}</h2>
+            <p>Alterne entre as classes para revisar, validar ou baixar o N5.</p>
+          </div>
+          <div class="n5-pav-zip">
+            {% if n5_grupo_atual and n5_grupo_atual.completo %}
+            <a class="btn btn-pri" href="/obras/{{ obra.id }}/n5/download?pavimento={{ pavimento|urlencode }}&amp;visual_mode={{ n5_modo_ativo }}">Baixar ZIP do pavimento · {{ 'Ini' if n5_modo_ativo == 'INI' else 'Nova' }}</a>
+            {% else %}
+            <button type="button" class="btn btn-pri" disabled title="As quatro classes precisam estar geradas">ZIP aguardando todas as classes</button>
+            {% endif %}
+          </div>
+        </header>
+
+        <nav class="n5-pav-tabs" role="tablist" aria-label="Classes N5">
+          {% for classe, titulo, slug in [('PL','Pilares','pilares'), ('LV','Laterais de viga','lateral_para'), ('FV','Fundos de viga','fundo'), ('LJ','Lajes','lajes')] %}
+          {% set release = n5_por_pav_classe_modo.get(pavimento, {}).get(classe, {}).get(n5_modo_ativo) %}
+          {% set aprovado = release and release.id in releases_aprovados %}
+          <button type="button" role="tab" data-n5-tab="{{ classe }}" data-n5-slug="{{ slug }}"
+                  aria-selected="{{ 'true' if classe == n5_classe_ativa else 'false' }}"
+                  class="{{ 'active' if classe == n5_classe_ativa else '' }}">
+            <strong>{{ classe }}</strong><span>{{ titulo }}</span>
+            <i aria-label="{{ 'Aprovado' if aprovado else ('Pendente' if release else 'Não gerado') }}">{{ '✓' if aprovado else ('⏳' if release else '—') }}</i>
+          </button>
+          {% endfor %}
+        </nav>
+
+        <div class="n5-pav-viewer-shell">
+          {% for classe, titulo, slug in [('PL','Pilares','pilares'), ('LV','Laterais de viga','lateral_para'), ('FV','Fundos de viga','fundo'), ('LJ','Lajes','lajes')] %}
+          {% set release = n5_por_pav_classe_modo.get(pavimento, {}).get(classe, {}).get(n5_modo_ativo) %}
+          {% set aprovado = release and release.id in releases_aprovados %}
+          <article class="n5-pav-panel {{ 'done' if aprovado else 'pending' }}" data-n5-panel="{{ classe }}"
+                   role="tabpanel" {% if classe != n5_classe_ativa %}hidden{% endif %}>
+            <div class="n5-pav-card-head">
+              <div><small>{{ classe }}</small><h3>{{ titulo }}</h3></div>
+              <span>{{ '✓ Aprovado' if aprovado else ('⏳ Pendente' if release else '— Não gerado') }}</span>
+            </div>
+            {% if classe == 'PL' %}
+            <nav class="n5-pav-tabs" role="tablist" aria-label="Conjuntos de pilares">
+              <button type="button" role="tab" data-pillar-group="PARA" aria-selected="true" class="active">Pilares Para</button>
+              <button type="button" role="tab" data-pillar-group="PASSA" aria-selected="false">Pilares Passa</button>
+            </nav>
+            {% endif %}
+            <nav class="n5-pav-tabs" role="tablist" aria-label="Modo de desenho N5">
+              {% for mode in ['NOVA', 'INI'] %}
+              <button type="button" role="tab" data-n5-select-mode="{{ mode }}" aria-selected="{{ 'true' if mode == n5_modo_ativo else 'false' }}" class="{{ 'active' if mode == n5_modo_ativo else '' }}">{{ 'Nova' if mode == 'NOVA' else 'Ini' }}</button>
+              {% endfor %}
+            </nav>
+            {% if release %}
+            {% for group in (['PARA', 'PASSA'] if classe == 'PL' else ['']) %}
+            <section data-pillar-panel="{{ group }}" {% if group == 'PASSA' %}hidden{% endif %}>
+              {% if group %}<p>Cima · ABCD {{ group|title }} · Grade {{ group|title }}</p>{% endif %}
+            <div class="zoom-pan-viewport n5-pav-preview"
+                 data-n5-svg-src="/obras/{{ obra.id }}/n5/{{ classe }}/foto?pavimento={{ pavimento|urlencode }}&amp;visual_mode={{ n5_modo_ativo }}{% if group %}&amp;pillar_group={{ group }}{% endif %}"
+                 data-drawing-mode="{{ release.visual_mode }}"
+                 data-drawing-mode-switch="n5"
+                 data-n5-svg-label="N5 {{ titulo }} {{ group|title }} · {{ pavimento }}"
+                 role="img" aria-label="N5 {{ titulo }} {{ group|title }} · {{ pavimento }}">
+              <span class="n5-svg-loading" role="status">Carregando desenho vetorial…</span>
+            </div>
+            <a class="btn btn-sec" href="/obras/{{ obra.id }}/n5/{{ classe }}/download?pavimento={{ pavimento|urlencode }}&amp;visual_mode={{ n5_modo_ativo }}{% if group %}&amp;pillar_group={{ group }}{% endif %}">Baixar DXF · {{ 'Ini' if n5_modo_ativo == 'INI' else 'Nova' }}</a>
+            </section>
+            {% endfor %}
+            {% if aprovado %}
+            <button type="button" class="btn btn-sec" disabled>N5 aprovado</button>
+            {% else %}
+            <button type="button" class="btn btn-pri" data-validar-n5="{{ classe }}"
+                    data-pavimento="{{ pavimento }}" data-visual-mode="{{ n5_modo_ativo }}" data-obra="{{ obra.id }}">Validar N5</button>
+            {% endif %}
+            {% else %}
+            <div class="n5-pav-empty">
+              <strong>Modo {{ 'Ini' if n5_modo_ativo == 'INI' else 'Nova' }} ainda não gerado.</strong>
+              Rode o motor N5 desta classe escolhendo esse modo para visualizar ou baixar.
+            </div>
+            {% endif %}
+          </article>
+          {% endfor %}
+        </div>
+      </section>
     </div>
 
     <div id="acao-resultado" role="status" aria-live="polite"></div>
@@ -422,7 +657,7 @@
                 <span><span id="fase1-icon" aria-hidden="true">{% if triagem_feita %}✓{% else %}⏳{% endif %}</span> <b>Fase 1:</b> Ingestão/Triagem</span>
               </div>
               <div style="display: flex; gap: 5px; flex-direction: column;">
-                <button class="btn btn-sm painel2-acao-btn" data-acao="converter-dwg" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px;">Converter Todos Docs</button>
+                <button class="btn btn-sm painel2-acao-btn" data-acao="converter-dwg" data-endpoint="documentos/converter-dwg" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px;">Converter DWG → DXF</button>
                 <button class="btn btn-sm painel2-acao-btn" data-acao="triagem" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px;">Triagem + Recortes</button>
               </div>
             </li>
@@ -481,7 +716,8 @@
               </div>
               <div class="painel-status-pavimentos" data-status-pavimentos="fase5"
                    aria-label="Status dos pavimentos na fase 5"></div>
-              <button class="btn btn-sm painel2-acao-btn" data-acao="download" data-escopo="global" style="font-size: 0.7rem; padding: 4px 8px; width: 100%; background: #28a745; color: white; border: none;">Download Todos N5 (Zip)</button>
+              <button type="button" class="btn btn-sm painel2-acao-btn" data-open-finalizados
+                      style="font-size: 0.7rem; padding: 4px 8px; width: 100%; background: #28a745; color: white; border: none;">Acessar Gestão de finalizados</button>
             </li>
           </ul>
         </div>
@@ -497,6 +733,14 @@
 {% block scripts %}
 <script>
   var OBRA_ID = {{ obra.id|tojson }};
+  var OBRA_COMPORTAMENTO = {{ (obra.comportamento or 'misto')|tojson }};
+  var ORDEM_PAVIMENTOS = {{ ordem_pavimentos|tojson }};
+  var MAPA_PAVIMENTOS = {};
+  function atualizarMapaPavimentos() {
+    MAPA_PAVIMENTOS = {};
+    ORDEM_PAVIMENTOS.forEach(function (p) { MAPA_PAVIMENTOS[p.pavimento] = p; });
+  }
+  atualizarMapaPavimentos();
   var _todosJobs = {{ jobs|tojson }};
   window._todosJobs = _todosJobs;
   // [2026-07-12] Código público (App de Consulta) da obra — carregado à
@@ -704,9 +948,53 @@
     });
   }
 
+  function carregarSvgN5(viewport) {
+    if (!viewport || !viewport.dataset.n5SvgSrc) return Promise.resolve(viewport);
+    if (viewport.querySelector('svg')) return Promise.resolve(viewport);
+    if (viewport._n5SvgPromise) return viewport._n5SvgPromise;
+    viewport._n5SvgPromise = fetch(viewport.dataset.n5SvgSrc, {
+      headers: { 'Accept': 'image/svg+xml' }
+    }).then(function (response) {
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      return response.text();
+    }).then(function (source) {
+      var parsed = new DOMParser().parseFromString(source, 'image/svg+xml');
+      var svg = parsed.documentElement;
+      if (!svg || svg.nodeName.toLowerCase() !== 'svg' || parsed.querySelector('parsererror')) {
+        throw new Error('resposta SVG inválida');
+      }
+      // A rota e interna e gera SVG com Matplotlib; ainda removemos conteúdo
+      // executável antes de inserir no DOM como defesa em profundidade.
+      svg.querySelectorAll('script,foreignObject').forEach(function (node) { node.remove(); });
+      Array.from(svg.querySelectorAll('*')).concat([svg]).forEach(function (node) {
+        Array.from(node.attributes || []).forEach(function (attr) {
+          if (/^on/i.test(attr.name)) node.removeAttribute(attr.name);
+        });
+      });
+      viewport.replaceChildren(document.importNode(svg, true));
+      delete viewport.dataset.zoomInit;
+      inicializarZoomPan(viewport);
+      return viewport;
+    }).catch(function (error) {
+      viewport._n5SvgPromise = null;
+      var aviso = document.createElement('span');
+      aviso.className = 'n5-svg-error';
+      aviso.setAttribute('role', 'alert');
+      aviso.textContent = 'Não foi possível carregar o desenho N5. ' + String(error.message || error);
+      viewport.replaceChildren(aviso);
+      return viewport;
+    });
+    return viewport._n5SvgPromise;
+  }
+  window.carregarSvgN5 = carregarSvgN5;
+
   function ativarZoomEmContainer(container) {
     if (!container) return;
-    container.querySelectorAll('.zoom-pan-viewport').forEach(inicializarZoomPan);
+    container.querySelectorAll('.zoom-pan-viewport').forEach(function (viewport) {
+      if (viewport.closest('[hidden]')) return;
+      if (viewport.dataset.n5SvgSrc) carregarSvgN5(viewport);
+      else inicializarZoomPan(viewport);
+    });
   }
   window.ativarZoomEmContainer = ativarZoomEmContainer;
   window.prepSvgPanZoom = prepSvgPanZoom;
@@ -715,7 +1003,123 @@
     document.querySelectorAll('.conteudo-secao').forEach(function (el) {
       el.hidden = el.id !== 'detalhe-' + qual;
     });
+    if (qual === 'n5-pavimento') ativarZoomEmContainer(document.getElementById('detalhe-n5-pavimento'));
   }
+  window.fecharPolylineAtual = fecharPolylineAtual;
+  window.mostrarDetalhe = mostrarDetalhe;
+
+  document.querySelectorAll('[data-open-finalizados]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      mostrarDetalhe('n5');
+      if (window.PortalDeepLink) window.PortalDeepLink.updateView({vista:'gestao-finalizados'});
+    });
+  });
+
+  document.querySelectorAll('[data-validar-n5]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var classe = btn.getAttribute('data-validar-n5');
+      var pavimentoN5 = btn.getAttribute('data-pavimento');
+      var obraN5 = btn.getAttribute('data-obra');
+      btn.disabled = true;
+      btn.textContent = 'Validando…';
+      fetch('/obras/' + obraN5 + '/n5/' + classe + '/validacao', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          pavimento: pavimentoN5,
+          visual_mode: btn.getAttribute('data-visual-mode') || 'NOVA'
+        })
+      }).then(function (response) {
+        return response.json().then(function (data) {
+          if (!response.ok) throw new Error(data.detail || ('HTTP ' + response.status));
+          return data;
+        });
+      }).then(function () {
+        window.location.reload();
+      }).catch(function (error) {
+        btn.disabled = false;
+        btn.textContent = 'Validar N5';
+        window.alert('Não foi possível validar este N5: ' + error.message);
+      });
+    });
+  });
+
+  (function () {
+    var root = document.getElementById('detalhe-n5-pavimento');
+    if (!root) return;
+    root.querySelectorAll('[data-pillar-group]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var panel = button.closest('[data-n5-panel]');
+        var group = button.dataset.pillarGroup;
+        panel.querySelectorAll('[data-pillar-group]').forEach(function (tab) {
+          var active = tab.dataset.pillarGroup === group;
+          tab.classList.toggle('active', active);
+          tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        panel.querySelectorAll('[data-pillar-panel]').forEach(function (view) {
+          view.hidden = view.dataset.pillarPanel !== group;
+        });
+        ativarZoomEmContainer(panel);
+      });
+    });
+    var requestedGroup = new URLSearchParams(window.location.search).get('grupo_pilares');
+    if (requestedGroup === 'PASSA') {
+      var groupButton = root.querySelector('[data-pillar-group="PASSA"]');
+      if (groupButton) groupButton.click();
+    }
+    root.querySelectorAll('[data-n5-select-mode]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var mode = button.dataset.n5SelectMode;
+        if (mode === '{{ n5_modo_ativo }}') return;
+        var panel = button.closest('[data-n5-panel]');
+        var classe = panel.dataset.n5Panel;
+        fetch('/obras/{{ obra.id }}/n5/modos?classe=' + classe + '&pavimento=' + encodeURIComponent('{{ pavimento }}'))
+          .then(function (response) { if (!response.ok) throw new Error('Não foi possível consultar os modos.'); return response.json(); })
+          .then(function (data) {
+            var available = data.modes[mode];
+            if (!available.n3) { window.alert('N3 do modo ' + mode + ' ainda não está completo. Gere o N3 deste modo primeiro.'); return; }
+            if (!available.n5) { window.alert('Unificado do modo ' + mode + ' ainda não foi gerado. Rode o motor de unificação N5 neste modo.'); return; }
+            var url = new URL(window.location.href);
+            url.searchParams.set('modo_desenho', mode);
+            url.searchParams.set('vista', 'unificados');
+            url.searchParams.set('classe', {PL:'pilares',LV:'lateral_para',FV:'fundo',LJ:'lajes'}[classe]);
+            var group = panel.querySelector('[data-pillar-group][aria-selected="true"]');
+            if (group) url.searchParams.set('grupo_pilares', group.dataset.pillarGroup);
+            window.location.href = url.toString();
+          }).catch(function (error) { window.alert(error.message); });
+      });
+    });
+    var tabs = Array.from(root.querySelectorAll('[data-n5-tab]'));
+    var panels = Array.from(root.querySelectorAll('[data-n5-panel]'));
+    root.querySelectorAll('[data-n5-mode-switch]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        var url = new URL(window.location.href);
+        url.searchParams.set('modo_desenho', '{{ "NOVA" if n5_modo_ativo == "INI" else "INI" }}');
+        window.location.href = url.toString();
+      });
+    });
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var classe = tab.getAttribute('data-n5-tab');
+        tabs.forEach(function (item) {
+          var active = item === tab;
+          item.classList.toggle('active', active);
+          item.setAttribute('aria-selected', active ? 'true' : 'false');
+        });
+        panels.forEach(function (panel) {
+          panel.hidden = panel.getAttribute('data-n5-panel') !== classe;
+        });
+        var activePanel = root.querySelector('[data-n5-panel="' + classe + '"]');
+        ativarZoomEmContainer(activePanel);
+        if (window.PortalDeepLink) {
+          window.PortalDeepLink.updateView({
+            classe: tab.getAttribute('data-n5-slug'),
+            vista: 'unificados'
+          });
+        }
+      });
+    });
+  })();
 
   // [novo, a pedido do dono] clicar no nome da obra (sidebar) volta pro
   // cabeçalho/documentos — de qualquer painel (Recortes/N1/N3/N5) em que
@@ -785,10 +1189,6 @@
       progTexto.textContent = 'Enviando ' + arquivos.length + ' arquivo(s)…';
       var formData = new FormData();
       for (var i = 0; i < arquivos.length; i++) formData.append('arquivos', arquivos[i]);
-      var pavimentoPadraoEl = document.getElementById('docs-upload-pavimento-padrao');
-      if (pavimentoPadraoEl && pavimentoPadraoEl.value.trim()) {
-        formData.append('pavimento_padrao', pavimentoPadraoEl.value.trim());
-      }
       var xhr = new XMLHttpRequest();
       xhr.open('POST', '/obras/' + OBRA_ID + '/documentos');
       xhr.upload.addEventListener('progress', function (e) {
@@ -852,16 +1252,102 @@
 
   // --- cabeçalho do processamento: ver/editar (2026-07-07) ---
   (function () {
+    var tbody = document.getElementById('obra-ordem-linhas');
+    if (!tbody) return;
+    var status = document.getElementById('obra-ordem-status');
+    var salvar = document.getElementById('obra-ordem-salvar');
+    var docsOrdem = {{ documentos|tojson }};
+    var items = ORDEM_PAVIMENTOS.map(function (p) { return {
+      pavimento: p.pavimento, tipo: p.tipo ? { de: p.tipo.de, ate: p.tipo.ate } : null
+    }; });
+    if (!items.length) {
+      docsOrdem.forEach(function (d) {
+        var pav = d.pavimento_confirmado || d.pavimento_sugerido;
+        if (pav && !items.some(function (p) { return p.pavimento === pav; })) items.push({ pavimento: pav, tipo: null });
+      });
+    }
+    function render() {
+      tbody.textContent = '';
+      items.forEach(function (p, i) {
+        var tr = document.createElement('tr');
+        function cell(content) { var td = document.createElement('td'); td.textContent = content; tr.appendChild(td); return td; }
+        cell(String(i + 1)); cell(p.pavimento);
+        var docsCell = cell('');
+        var vinculados = docsOrdem.filter(function (d) {
+          return String(d.pavimento_confirmado || d.pavimento_sugerido || '').trim().toUpperCase() ===
+            String(p.pavimento).trim().toUpperCase();
+        });
+        if (!vinculados.length) docsCell.textContent = 'Sem documento vinculado';
+        vinculados.forEach(function (d) {
+          var nome = document.createElement('div');
+          nome.className = 'obra-ordem-documento';
+          nome.textContent = d.nome_exibicao || d.arquivo_nome || d.id;
+          docsCell.appendChild(nome);
+        });
+        cell(i ? items[i - 1].pavimento : '—');
+        cell(i + 1 < items.length ? items[i + 1].pavimento : '—');
+        var tipo = cell('');
+        if (salvar) {
+          var check = document.createElement('input'); check.type = 'checkbox'; check.checked = !!p.tipo;
+          check.setAttribute('aria-label', 'Pavimento tipo ' + p.pavimento);
+          var de = document.createElement('input'); de.type = 'number'; de.min = '1'; de.placeholder = 'de';
+          var ate = document.createElement('input'); ate.type = 'number'; ate.min = '1'; ate.placeholder = 'até';
+          de.value = p.tipo ? p.tipo.de : ''; ate.value = p.tipo ? p.tipo.ate : '';
+          de.disabled = ate.disabled = !check.checked;
+          check.onchange = function () { p.tipo = check.checked ? { de: Number(de.value) || 1, ate: Number(ate.value) || 1 } : null; de.disabled = ate.disabled = !check.checked; };
+          de.onchange = ate.onchange = function () { if (p.tipo) p.tipo = { de: Number(de.value), ate: Number(ate.value) }; };
+          tipo.appendChild(check); tipo.appendChild(de); tipo.appendChild(ate);
+        } else tipo.textContent = p.tipo ? p.tipo.de + 'º ao ' + p.tipo.ate + 'º' : '—';
+        var actions = cell('');
+        if (salvar) [['↑', i - 1], ['↓', i + 1], ['×', -1]].forEach(function (a) {
+          var btn = document.createElement('button'); btn.type = 'button'; btn.textContent = a[0];
+          btn.disabled = a[1] >= items.length || (a[1] < 0 && a[0] !== '×');
+          btn.setAttribute('aria-label', a[0] === '×' ? 'Remover ' + p.pavimento : 'Mover ' + p.pavimento + (a[0] === '↑' ? ' para cima' : ' para baixo'));
+          btn.onclick = function () { if (a[0] === '×') items.splice(i, 1); else { var tmp = items[i]; items[i] = items[a[1]]; items[a[1]] = tmp; } render(); };
+          actions.appendChild(btn);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+    window.atualizarDocumentosDaOrdem = function (docs) { docsOrdem = docs || []; render(); };
+    window.atualizarOrdemExterna = function (rows) {
+      items = rows.map(function (p) { return {
+        pavimento: p.pavimento, tipo: p.tipo ? { de: p.tipo.de, ate: p.tipo.ate } : null
+      }; });
+      render();
+    };
+    render();
+    if (!salvar) return;
+    document.getElementById('obra-ordem-adicionar').onclick = function () {
+      var input = document.getElementById('obra-ordem-novo');
+      var pav = input.value.trim();
+      if (!pav || items.some(function (p) { return p.pavimento === pav; })) { status.textContent = 'Informe um pavimento novo.'; return; }
+      items.push({ pavimento: pav, tipo: null }); input.value = ''; status.textContent = ''; render();
+    };
+    salvar.onclick = function () {
+      status.textContent = 'Salvando…';
+      fetch('/obras/' + OBRA_ID + '/pavimentos/ordem', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pavimentos: items })
+      }).then(function (r) { return r.json().then(function (data) { if (!r.ok) throw new Error(data.detail || 'Falha ao salvar'); return data; }); })
+        .then(function (data) { ORDEM_PAVIMENTOS = data.pavimentos; atualizarMapaPavimentos(); status.textContent = 'Ordem salva.'; render(); if (window.renderDocsObra) window.renderDocsObra(); })
+        .catch(function (err) { status.textContent = err.message; });
+    };
+  })();
+
+  (function () {
     var secao = document.getElementById('cabecalho-obra');
     if (!secao) return;
     var visualizacao = document.getElementById('cab-visualizacao');
     var form = document.getElementById('cab-form');
     var resultado = document.getElementById('cab-resultado');
-    document.getElementById('cab-editar-btn').addEventListener('click', function () {
+    function abrirEdicao() {
       if (visualizacao) visualizacao.hidden = true;
       form.hidden = false;
       secao.classList.add('is-editing');
-    });
+      var nomeInput = form.querySelector('input[name="nome"]');
+      if (nomeInput) { nomeInput.focus(); nomeInput.select(); }
+    }
+    document.getElementById('cab-editar-btn').addEventListener('click', abrirEdicao);
     document.getElementById('cab-cancelar-btn').addEventListener('click', function () {
       form.hidden = true;
       if (visualizacao) visualizacao.hidden = false;
@@ -881,12 +1367,16 @@
         return r.json();
       }).then(function () {
         resultado.textContent = 'Salvo ✔';
-        // recarrega a página para refletir o hero com os novos valores
-        setTimeout(function () { window.location.reload(); }, 500);
+        // Mantém o guia do primeiro acesso, mas não reabre o formulário depois de salvar.
+        var destino = new URL(window.location.href);
+        destino.searchParams.delete('novo');
+        setTimeout(function () { window.location.assign(destino.pathname + destino.search); }, 500);
       }).catch(function (err) {
         resultado.textContent = 'Falha: ' + err.message;
       });
     });
+    var onboarding = document.getElementById('obra-onboarding');
+    if (onboarding && onboarding.getAttribute('data-auto-edit') === '1') abrirEdicao();
   })();
 
   // --- viewer nativo de Documentos (2026-07-07): lista agrupada Pavimento →
@@ -1459,6 +1949,8 @@
     var chipsEl = document.getElementById('docs-resumo-chips');
     var dropHint = document.getElementById('docs-drop-hint');
     var inputFile = document.getElementById('docs-input');
+    var docsConteudo = document.getElementById('docs-documentos-conteudo');
+    var ordemPainel = document.getElementById('obra-ordem-panel');
 
     var CLASSES_DOC = ['', 'Bruto', 'Detalhe', 'PDF', 'Outro', 'PIL', 'LV', 'FV', 'LAJ', 'GF'];
     var CLASSES_LABEL = {
@@ -1539,10 +2031,12 @@
         b.classList.toggle('ativo', on);
         b.setAttribute('aria-selected', on ? 'true' : 'false');
       });
+      if (docsConteudo) docsConteudo.hidden = tab === 'ordem';
+      if (ordemPainel) ordemPainel.hidden = tab !== 'ordem';
       if (convertWrap) convertWrap.hidden = tab !== 'dwg';
       if (dropHint) dropHint.textContent = TAB_HINT[tab] || TAB_HINT.pdf;
       if (inputFile && TAB_ACCEPT[tab]) inputFile.setAttribute('accept', TAB_ACCEPT[tab]);
-      renderLista();
+      if (tab !== 'ordem') renderLista();
       limparViewer();
     }
 
@@ -1604,6 +2098,68 @@
       }).join('');
     }
 
+    function pavimentosDisponiveis(atual) {
+      var nomes = ['3SS', '2SS', '1SS', 'TERREO'];
+      for (var n = 1; n <= 30; n++) nomes.push(n + '_PAV');
+      nomes.push('TIPO');
+      for (var c = 1; c <= 3; c++) nomes.push('COBERTURA_' + c);
+      for (var k = 1; k <= 3; k++) nomes.push('DECK_' + k);
+      ORDEM_PAVIMENTOS.forEach(function (p) { if (nomes.indexOf(p.pavimento) < 0) nomes.push(p.pavimento); });
+      state.docs.forEach(function (d) {
+        var nome = d.pavimento_confirmado || d.pavimento_sugerido;
+        if (nome && nomes.indexOf(nome) < 0) nomes.push(nome);
+      });
+      if (atual && nomes.indexOf(atual) < 0) nomes.push(atual);
+      return '<option value="">— selecione —</option>' + nomes.map(function (p) {
+        return '<option value="' + esc(p) + '"' + (p === atual ? ' selected' : '') + '>' +
+          esc(p.replace('_PAV', 'º pavimento').replace('TERREO', 'Térreo').replace('_', ' ')) + '</option>';
+      }).join('') + '<option value="__novo__">+ Criar nova opção…</option>';
+    }
+
+    function salvarPavimento(doc, pavimento, tipo) {
+      var url = '/obras/' + OBRA_ID + '/pavimentos/ordem';
+      // A ordem é do dono. Leia a versão atual antes de acrescentar uma opção.
+      var precisaOrdem = !MAPA_PAVIMENTOS[pavimento] || pavimento === 'TIPO';
+      var preparar = precisaOrdem ? fetch(url).then(function (r) {
+        if (!r.ok) throw new Error('Não foi possível consultar a ordem dos pavimentos.');
+        return r.json();
+      }).then(function (data) {
+        var rows = (data.pavimentos || []).map(function (p) {
+          return { pavimento: p.pavimento, tipo: p.tipo || null };
+        });
+        var existente = rows.find(function (p) { return p.pavimento === pavimento; });
+        if (existente && pavimento === 'TIPO') existente.tipo = tipo;
+        else if (!existente) rows.push({ pavimento: pavimento, tipo: tipo });
+        return fetch(url, {
+          method: 'PUT', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pavimentos: rows })
+        }).then(function (r) {
+          return r.json().then(function (data) {
+            if (!r.ok) throw new Error(data.detail || 'Não foi possível salvar o pavimento na ordem.');
+            ORDEM_PAVIMENTOS = data.pavimentos;
+            atualizarMapaPavimentos();
+            if (window.atualizarOrdemExterna) window.atualizarOrdemExterna(data.pavimentos);
+          });
+        });
+      }) : Promise.resolve();
+      return preparar.then(function () {
+        return fetch('/obras/' + OBRA_ID + '/documentos/' + encodeURIComponent(doc.id) + '/classificar', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pavimento_confirmado: pavimento })
+        });
+      }).then(function (r) {
+        return r.json().then(function (data) {
+          if (!r.ok) throw new Error(data.detail || 'Não foi possível associar o documento.');
+          Object.assign(doc, data);
+          if (window.documentosTriagem) {
+            var t = window.documentosTriagem.find(function (x) { return x.id === doc.id; });
+            if (t) Object.assign(t, data);
+          }
+          if (window.atualizarDocumentosDaOrdem) window.atualizarDocumentosDaOrdem(state.docs);
+        });
+      });
+    }
+
     function salvarClasse(doc, valor) {
       if (!valor) return Promise.resolve(); // — auto —: não grava (API exige campo)
       var isTipo = ['Bruto', 'Detalhe', 'PDF', 'Outro'].indexOf(valor) >= 0;
@@ -1643,6 +2199,8 @@
         var nome = d.nome_exibicao || d.arquivo_nome || d.id;
         var cl = classeOf(d);
         var st = d.status || '';
+        var pavimento = d.pavimento_confirmado || d.pavimento_sugerido || '';
+        var anterior = MAPA_PAVIMENTOS[pavimento] && MAPA_PAVIMENTOS[pavimento].anterior || '';
         var ativo = d.id === state.selectedId ? ' ativo' : '';
         var extra = '';
         if (state.tab === 'dwg') {
@@ -1656,17 +2214,24 @@
           '<div class="doc-meta">' + esc(d.arquivo_nome || '') + '</div></td>' +
           '<td><select class="doc-classe-sel" data-doc-id="' + esc(d.id) + '" title="Classe do documento">' +
           selectOpts(cl) + '</select></td>' +
+          '<td><div class="doc-pavimento-editor">' +
+          '<select class="doc-pavimento-sel" data-doc-id="' + esc(d.id) + '" aria-label="Pavimento do documento ' + esc(nome) + '">' +
+          pavimentosDisponiveis(pavimento) + '</select>' +
+          '<div class="doc-pavimento-extra" hidden></div>' +
+          '<span class="doc-pavimento-status" role="status" aria-live="polite"></span></div></td>' +
+          '<td class="doc-meta">' + esc(anterior || '—') + '</td>' +
           '<td class="doc-meta">' + esc(st) + (extra ? ' · ' + extra : '') + '</td>' +
           '</tr>';
       }).join('');
       listaEl.innerHTML =
         '<div class="docs-lista-scroll"><table class="docs-lista-tabela">' +
-        '<thead><tr><th>Arquivo</th><th>Classe</th><th>Status</th></tr></thead>' +
+        '<thead><tr><th>Arquivo</th><th>Classe</th><th>Pavimento atual</th><th>Anterior</th><th>Status</th></tr></thead>' +
         '<tbody>' + rows + '</tbody></table></div>';
+      window.renderDocsObra = renderLista;
 
       listaEl.querySelectorAll('tr.docs-row').forEach(function (tr) {
         tr.addEventListener('click', function (e) {
-          if (e.target && e.target.tagName === 'SELECT') return;
+          if (e.target && e.target.closest('.doc-pavimento-editor, select.doc-classe-sel')) return;
           var id = tr.getAttribute('data-doc-id');
           var d = state.docs.find(function (x) { return x.id === id; });
           state.selectedId = id;
@@ -1690,6 +2255,60 @@
             alert('Não foi possível salvar a classe.');
           });
         });
+      });
+      listaEl.querySelectorAll('select.doc-pavimento-sel').forEach(function (sel) {
+        var editor = sel.closest('.doc-pavimento-editor');
+        var extra = editor.querySelector('.doc-pavimento-extra');
+        var status = editor.querySelector('.doc-pavimento-status');
+        editor.addEventListener('click', function (e) { e.stopPropagation(); });
+        function mostrarCampos() {
+          var valor = sel.value;
+          extra.hidden = valor !== 'TIPO' && valor !== '__novo__';
+          if (valor === 'TIPO') {
+            var faixa = MAPA_PAVIMENTOS.TIPO && MAPA_PAVIMENTOS.TIPO.tipo || {};
+            extra.innerHTML = '<label>De <input class="doc-tipo-de" type="number" min="1" max="30" value="' + esc(faixa.de || '') + '"></label>' +
+              '<label>Até <input class="doc-tipo-ate" type="number" min="1" max="30" value="' + esc(faixa.ate || '') + '"></label>' +
+              '<button type="button" class="doc-pavimento-aplicar">Salvar TIPO</button>';
+          } else if (valor === '__novo__') {
+            extra.innerHTML = '<label>Nova opção <input class="doc-pavimento-novo" type="text" maxlength="100" placeholder="Nome do pavimento"></label>' +
+              '<button type="button" class="doc-pavimento-aplicar">Criar e associar</button>';
+          } else extra.innerHTML = '';
+        }
+        function aplicar() {
+          var d = state.docs.find(function (x) { return x.id === sel.getAttribute('data-doc-id'); });
+          if (!d) return;
+          var valor = sel.value, tipo = null;
+          if (valor === '__novo__') {
+            valor = (extra.querySelector('.doc-pavimento-novo').value || '').trim().toUpperCase();
+            if (!valor || valor === '__NOVO__') { status.textContent = 'Informe um nome válido.'; return; }
+          }
+          if (valor === 'TIPO') {
+            var de = Number(extra.querySelector('.doc-tipo-de').value);
+            var ate = Number(extra.querySelector('.doc-tipo-ate').value);
+            if (!Number.isInteger(de) || !Number.isInteger(ate) || de < 1 || ate > 30 || de > ate) {
+              status.textContent = 'Informe a faixa de 1 a 30, com início até o fim.'; return;
+            }
+            tipo = { de: de, ate: ate };
+          }
+          if (!valor) { status.textContent = 'Selecione um pavimento.'; return; }
+          sel.disabled = true;
+          status.textContent = 'Salvando…';
+          salvarPavimento(d, valor, tipo).then(function () {
+            status.textContent = 'Salvo.';
+            renderLista();
+          }).catch(function (err) {
+            sel.disabled = false;
+            status.textContent = err.message || 'Falha ao salvar.';
+          });
+        }
+        sel.addEventListener('change', function () {
+          mostrarCampos();
+          if (sel.value && sel.value !== 'TIPO' && sel.value !== '__novo__') aplicar();
+        });
+        extra.addEventListener('click', function (e) {
+          if (e.target.classList.contains('doc-pavimento-aplicar')) aplicar();
+        });
+        if (sel.value === 'TIPO') mostrarCampos();
       });
     }
 
@@ -1715,6 +2334,7 @@
         })
         .then(function (data) {
           state.docs = data.documentos || [];
+          if (window.atualizarDocumentosDaOrdem) window.atualizarDocumentosDaOrdem(state.docs);
           // atualiza JSON embutido e cache da triagem
           var emb = document.getElementById('docs-data');
           if (emb) emb.textContent = JSON.stringify(state.docs);
@@ -1731,7 +2351,7 @@
           return carregarDwgsMeta();
         })
         .then(function () {
-          renderLista();
+          if (state.tab !== 'ordem') renderLista();
           if (state.selectedId) {
             var d = state.docs.find(function (x) { return x.id === state.selectedId; });
             if (d && tabOf(d) === state.tab) mostrarViewer(d);
@@ -1789,7 +2409,9 @@
 
     // boot
     carregarDwgsMeta().then(function () {
-      setTab('pdf');
+      var onboarding = document.getElementById('obra-onboarding');
+      var formatoInicial = onboarding ? onboarding.getAttribute('data-formato') : '';
+      setTab(formatoInicial === 'dwg' ? 'dwg' : (formatoInicial === 'dxf' ? 'dxf' : 'pdf'));
     });
   })();
 
@@ -1799,16 +2421,123 @@
     var res = document.getElementById('docs-triagem-resultado');
     var titleEl = btn.querySelector('.obra-action-title');
     var labelDefault = titleEl ? titleEl.textContent : 'Triagem + Recortes';
+    var fluxoTimer = null;
+
+    function tempo(segundos) {
+      if (segundos == null || !isFinite(Number(segundos))) return 'calculando…';
+      segundos = Math.max(0, Math.round(Number(segundos)));
+      if (segundos < 60) return segundos < 10 ? 'menos de 10 s' : segundos + ' s';
+      var min = Math.floor(segundos / 60), seg = segundos % 60;
+      return min + ' min' + (seg ? ' ' + seg + ' s' : '');
+    }
+
+    function desenharAcompanhamento(pct, etapa, progresso, estado, detalhe) {
+      pct = Math.max(0, Math.min(100, Math.round(Number(pct) || 0)));
+      progresso = progresso || {};
+      var finalizado = estado === 'done';
+      var falhou = estado === 'error' || estado === 'cancelled';
+      var restante = finalizado ? 'concluído' : tempo(progresso.restante_estimado_s);
+      var fonte = progresso.fonte_estimativa === 'historico_da_obra'
+        ? 'previsão baseada no histórico desta obra' : 'previsão inicial da etapa';
+      res.innerHTML = '<section class="triagem-live ' + (falhou ? 'is-error' : (finalizado ? 'is-done' : '')) + '" role="status" aria-live="polite">' +
+        '<div class="triagem-live-head"><strong>' + etapa + '</strong><b>' + pct + '% <small>estimado</small></b></div>' +
+        '<div class="triagem-live-track" aria-label="Progresso estimado em ' + pct + '%"><i style="width:' + pct + '%"></i></div>' +
+        '<div class="triagem-live-times"><span>Decorrido: <b>' + tempo(progresso.decorrido_s) + '</b></span>' +
+        '<span>Restante: <b>' + restante + '</b></span></div>' +
+        '<p>' + (detalhe || progresso.rotulo || '') + '</p>' +
+        '<small>' + fonte + ' · você pode sair da página; o processamento continua no servidor.</small></section>';
+    }
+
+    function buscarFilho(parentId) {
+      return fetch('/obras/' + OBRA_ID + '/jobs', {cache: 'no-store'})
+        .then(function(r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+        .then(function(data) {
+          var jobs = data.jobs || [];
+          return jobs.find(function(j) {
+            return j.meta && j.meta.etapa === 'recortes' && j.meta.origin_triage_job_id === parentId;
+          }) || null;
+        });
+    }
+
+    function acompanharJob(parentId, childId, esperaFilho) {
+      if (fluxoTimer) clearTimeout(fluxoTimer);
+      var atualId = childId || parentId;
+      fetch('/jobs/' + encodeURIComponent(atualId), {cache: 'no-store'})
+        .then(function(r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+        .then(function(job) {
+          var p = job.progresso || {};
+          if (!childId) {
+            var parcial = job.estado === 'done' ? 35 : Math.round((Number(p.percentual_estimado) || 0) * .35);
+            desenharAcompanhamento(parcial, '1 de 2 · Conversão e triagem', p, job.estado,
+              job.estado === 'done' ? 'Triagem concluída; preparando os recortes…' : p.rotulo);
+            if (job.estado === 'done') {
+              return buscarFilho(parentId).then(function(filho) {
+                if (filho) return acompanharJob(parentId, filho.id, false);
+                if (esperaFilho > 0) {
+                  fluxoTimer = setTimeout(function() { acompanharJob(parentId, null, esperaFilho - 1); }, 1000);
+                } else {
+                  desenharAcompanhamento(100, 'Triagem + Recortes', p, 'done', 'Nenhum novo recorte foi necessário.');
+                  btn.disabled = false;
+                  if (titleEl) titleEl.textContent = labelDefault;
+                  if (window.recarregarDocsObra) window.recarregarDocsObra();
+                }
+              });
+            }
+            if (job.estado === 'error' || job.estado === 'cancelled') {
+              desenharAcompanhamento(parcial, 'Conversão e triagem', p, job.estado, job.erro_msg || 'O processamento não foi concluído.');
+              btn.disabled = false;
+              if (titleEl) titleEl.textContent = labelDefault;
+              return;
+            }
+          } else {
+            var total = job.estado === 'done' ? 100 : 35 + Math.round((Number(p.percentual_estimado) || 0) * .65);
+            desenharAcompanhamento(total, '2 de 2 · Recortes estruturais e torre limpa', p, job.estado,
+              job.estado === 'done' ? 'Processamento completo.' : p.rotulo);
+            if (job.estado === 'done') {
+              btn.disabled = false;
+              if (titleEl) titleEl.textContent = labelDefault;
+              if (window.atualizaAposJob) window.atualizaAposJob();
+              if (window.recarregarDocsObra) window.recarregarDocsObra();
+              return;
+            }
+            if (job.estado === 'error' || job.estado === 'cancelled') {
+              desenharAcompanhamento(total, 'Recortes', p, job.estado, job.erro_msg || 'Os recortes não foram concluídos.');
+              btn.disabled = false;
+              if (titleEl) titleEl.textContent = labelDefault;
+              return;
+            }
+          }
+          fluxoTimer = setTimeout(function() { acompanharJob(parentId, childId, esperaFilho); }, 1000);
+        })
+        .catch(function() {
+          fluxoTimer = setTimeout(function() { acompanharJob(parentId, childId, esperaFilho); }, 3000);
+        });
+    }
+
+    window.acompanharTriagemRecortes = function(parentId, childId) {
+      btn.disabled = true;
+      if (titleEl) titleEl.textContent = 'Processando…';
+      acompanharJob(parentId, childId || null, 8);
+    };
     btn.addEventListener('click', function () {
       btn.disabled = true;
       if (titleEl) titleEl.textContent = 'Enfileirando…';
       fetch('/obras/' + OBRA_ID + '/triagem', { method: 'POST' })
         .then(function (r) { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
         .then(function (data) {
+          var preflight = data.preflight || {};
+          var conversao = Number(preflight.dwgs_a_converter || 0);
+          var documentos = Number(preflight.documentos_a_processar || 0);
+          var aviso = conversao > 0
+            ? ' Pré-verificação: ' + conversao + ' DWG será convertido automaticamente antes da triagem.'
+            : ' Pré-verificação concluída: nenhum DWG aguarda conversão.';
+          aviso += documentos > 0
+            ? ' Escopo incremental: ' + documentos + ' documento(s) novo(s) será(ão) processado(s); os anteriores ficam preservados.'
+            : ' Nenhum documento novo precisa ser processado; os anteriores ficam preservados.';
           res.innerHTML = '<p class="faixa faixa-info" role="status">' +
             '<span aria-hidden="true">✓</span> Triagem enfileirada (job ' + data.job_id +
-            '). Atualize a página em instantes para ver o resultado.</p>';
-          setTimeout(function () { if(window.atualizaAposJob) window.atualizaAposJob(); }, 3000);
+            ').' + aviso + '</p>';
+          window.acompanharTriagemRecortes(data.job_id);
         })
         .catch(function () {
           res.innerHTML = '<p class="faixa faixa-erro" role="alert">' +
@@ -1817,6 +2546,17 @@
           if (titleEl) titleEl.textContent = labelDefault;
         });
     });
+
+    // Retoma o acompanhamento após F5/navegação sem criar um novo job.
+    var filhoAtivo = (_todosJobs || []).find(function(j) {
+      return (j.status === 'na_fila' || j.status === 'executando') &&
+        j.meta && j.meta.etapa === 'recortes' && j.meta.origin_triage_job_id;
+    });
+    var triagemAtiva = (_todosJobs || []).find(function(j) {
+      return (j.status === 'na_fila' || j.status === 'executando') && j.meta && j.meta.etapa === 'triagem';
+    });
+    if (filhoAtivo) window.acompanharTriagemRecortes(filhoAtivo.meta.origin_triage_job_id, filhoAtivo.id);
+    else if (triagemAtiva) window.acompanharTriagemRecortes(triagemAtiva.id);
   })();
 
   document.querySelectorAll('button[data-acao]').forEach(function (btn) {
@@ -1866,7 +2606,10 @@
         return r.json();
       }).then(function (data) {
         var alertaAnterior = document.getElementById('obra-erro-alerta');
-        if (alertaAnterior) alertaAnterior.remove();
+        if (alertaAnterior) {
+          if (window.fecharErroObra) window.fecharErroObra();
+          else alertaAnterior.remove();
+        }
         res.className = 'faixa faixa-info';
         res.textContent = data.total
           ? data.total + ' pavimentos enfileirados. O processamento será sequencial.'
@@ -1925,7 +2668,11 @@
       _recortesBrutosCache.forEach(function(bruto) {
         var brutoPav = (bruto.pavimento || 'Indeterminado').trim();
         if (brutoPav === pav) {
-          var itens = _recortesItensPorBruto[bruto.bruto_id] || [];
+          // Somente torres são unidades de SA. Detalhes, convenções e outros
+          // recortes não participam do denominador da interpretação.
+          var itens = (_recortesItensPorBruto[bruto.bruto_id] || []).filter(function(item) {
+            return String(item.item_id || '').indexOf('torre') === 0;
+          });
           total += itens.length;
           itens.forEach(function(item) {
             // Conta como validado se tem validado=true (e não foi invalidado localmente)
@@ -2025,7 +2772,11 @@
          var bp = (b.pavimento || 'Indeterminado').trim();
          return bp === pav;
       });
-      if (brutoEncontrado) {
+      // Drill ativo: abre pelo drill, que monta as abas de recortes. O viewer
+      // solto abaixo (sem abas) fica só como fallback.
+      var abriuPeloDrill = !!(window.DrillGrade && window.DrillGrade.openRecorteDoPav &&
+        window.DrillGrade.openRecorteDoPav(pav));
+      if (brutoEncontrado && !abriuPeloDrill) {
          // Carrega o bruto no painel central!
          var detalhePainel = document.getElementById('docs-detalhe');
          if (detalhePainel) {
@@ -2205,6 +2956,10 @@
       lista.appendChild(li);
     });
     var atual = itens[_painel3Estado.indice];
+    if (window.DrillGrade && window.DrillGrade.state && window.PortalDeepLink) {
+      window.DrillGrade.state.itemId = atual.item_id;
+      window.PortalDeepLink.sync();
+    }
     if (_painel3Estado.stage === 'n1') carregarDetalheItemN1(atual.item_id);
     else carregarDetalheItemN3(atual.item_id);
   }
@@ -2278,6 +3033,10 @@
           if (!pavs.length) return;
           indice = (indice + delta + pavs.length) % pavs.length;
           _pavimentoSelecionado = pavs[indice];
+          if (window.DrillGrade && window.DrillGrade.state && window.PortalDeepLink) {
+            window.DrillGrade.state.pav = _pavimentoSelecionado;
+            window.PortalDeepLink.sync();
+          }
           _n1ClassesCarregado = false; _n3ClassesCarregado = false;
           carregarItensClasseParaPainel3(_painel3Estado.stage, _painel3Estado.classe);
         }
@@ -2303,7 +3062,8 @@
       obraId: OBRA_ID,
       pavimento: _pavimentoSelecionado,
       beam: beam,
-      initialSegment: segmento || 'todos'
+      initialSegment: (window.PortalDeepLink && window.PortalDeepLink.get('segmento', null)) || segmento || 'todos',
+      initialLayer: window.PortalDeepLink ? window.PortalDeepLink.get('vista', 'sa') : 'sa'
     });
   }
 
@@ -2324,13 +3084,16 @@
       return;
     }
     painel.innerHTML = '<div id="lv-ficha-root"></div>';
+    var lvVista = window.PortalDeepLink && window.PortalDeepLink.get('vista', null);
     window.LvFicha.mount(document.getElementById('lv-ficha-root'), {
       obraId: OBRA_ID,
       pavimento: _pavimentoSelecionado,
       beam: beam,
       behavior: behavior,
-      initialSide: lado,
-      initialSegment: segmento
+      initialSide: window.PortalDeepLink ? window.PortalDeepLink.get('lado', lado) : lado,
+      initialSegment: (window.PortalDeepLink && window.PortalDeepLink.get('segmento', null)) || segmento,
+      initialLayer: lvVista || 'sa',
+      visualMode: new URLSearchParams(window.location.search).get('modo_desenho') || 'NOVA'
     });
   }
 
@@ -2345,7 +3108,8 @@
     window.LajeFicha.mount(document.getElementById('laje-ficha-root'), {
       obraId: OBRA_ID,
       pavimento: _pavimentoSelecionado,
-      item: itemId
+      item: itemId,
+      initialLayer: window.PortalDeepLink ? window.PortalDeepLink.get('vista', 'sa') : 'sa'
     });
   }
 
@@ -2424,19 +3188,37 @@
         // pilar) cai no fallback do label cru, sem validação funcional
         // (gap documentado, não confunde com um bug).
         var camposFieldId = item.campos_field_id || {};
+        var camposSomenteLeitura = new Set(item.campos_somente_leitura || []);
+        var escReferencia = function(v) {
+          return String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        };
         var linhas = codePublicoHtml + Object.keys(item.campos).map(function (k) {
           var v = item.campos[k];
           if (v === null || v === undefined || v === '') v = '(vazio/não identificado)';
           var fieldIdReal = camposFieldId[k] || k;
           var fieldId = encodeURIComponent(fieldIdReal);
           var validado = validados.has(fieldIdReal);
+          var valorHtml = String(v).replace(/</g, '&lt;');
+          var links = (item.campos_links || {})[k] || [];
+          if (links.length) {
+            valorHtml = links.map(function(ref) {
+              var url = new URL(window.location.href);
+              url.searchParams.set('pavimento', item.pavimento);
+              url.searchParams.set('etapa', 'sa');
+              url.searchParams.set('classe', ref.classe);
+              url.searchParams.set('item', ref.item_id);
+              var texto = ref.beam_name + ' · segmento ' + ref.segment_label;
+              texto += ref.contato ? ' · contato' : ' · a ' + ref.distancia_cm + ' cm';
+              return '<a href="' + escReferencia(url.pathname + url.search) + '">' + escReferencia(texto) + '</a>';
+            }).join('<br>');
+          }
           return '<div class="n1-campo">' +
             '<span class="n1-campo-label">' + k + '</span>' +
-            '<span class="n1-campo-valor">' + String(v).replace(/</g, '&lt;') + '</span>' +
-            '<button type="button" class="btn-sec btn campo-validar-btn" ' +
+            '<span class="n1-campo-valor">' + valorHtml + '</span>' +
+            (camposSomenteLeitura.has(k) ? '<span class="muted" style="font-size:11px;">Referência</span>' : '<button type="button" class="btn-sec btn campo-validar-btn" ' +
             'style="padding:2px 6px; font-size:11px;' + (validado ? ' background:#d63384; color:white;' : '') + '" ' +
             'onclick="validarCampoN1(\'' + itemId + '\', \'' + fieldId + '\', ' + (!validado) + ')">' +
-            (validado ? '🌸 Validado' : '✔ Validar campo') + '</button>' +
+            (validado ? '🌸 Validado' : '✔ Validar campo') + '</button>') +
             '</div>';
         }).join('');
         if (item.atencao) {
@@ -2462,7 +3244,6 @@
           btns = '<div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">' +
 '<button class="btn btn-sm" style="background:#28a745; color:white; border:none; padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'validar\')">Validar</button>' +
 '<button class="btn btn-sm" style="background:#dc3545; color:white; border:none; padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'excluir\')">Excluir</button>' +
-'<button class="btn btn-sm btn-sec" style="padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'regenerar\')">Invalidar e Regenerar Geometria</button>' +
 '</div>';
         }
 // Interpretação ABCD: 4 tabelinhas (A/B/C/D × laje/passa/chega/interior)
@@ -2495,7 +3276,7 @@
           ['sa', 'N1 / SA'], ['cima', 'N3 Cima'], ['abcd-para', 'N3 ABCD Para'],
           ['abcd-passa', 'N3 ABCD Passa'], ['grades-para', 'N3 Grades Para'],
           ['grades-passa', 'N3 Grades Passa']
-        ];
+        ].filter(function (tab) { return (item.resumo_pilar_n1 || {}).classificacao !== 'NASCE' || tab[0] === 'sa'; }).filter(function (tab) { return OBRA_COMPORTAMENTO === 'misto' || !/-(para|passa)$/.test(tab[0]) || tab[0].endsWith('-' + OBRA_COMPORTAMENTO); });
         camposEl.innerHTML = '<div id="pillar-tab-fields"></div>' +
           '<div class="pillar-viewer-shell">' +
             '<div class="pillar-main-tabs" role="tablist">' + tabsPilar.map(function (tab, i) {
@@ -2548,24 +3329,105 @@
         }
         function valorMedida(value) {
           if (value === null || value === undefined || value === '') return '—';
-          return textoSeguro(value) + ' cm';
+          var numero = Number(value);
+          if (!Number.isFinite(numero)) return textoSeguro(value) + ' cm';
+          return textoSeguro(numero.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+          })) + ' cm';
         }
         function valorNivel(value) {
           if (value === null || value === undefined || value === '') return '—';
           return textoSeguro(value);
         }
         function resumoN1PilarHtml() {
-          var camposResumo = [
-            ['Orientação', textoSeguro(resumoPilar.orientacao)],
-            ['Classificação', textoSeguro(resumoPilar.classificacao)],
-            ['Nível de chegada', valorNivel(resumoPilar.nivel_chegada)],
-            ['Nível de saída', valorNivel(resumoPilar.nivel_saida)],
-            ['Altura do pé-direito', valorMedida(resumoPilar.pe_direito)]
-          ];
+          function selectField(key, label, choices) {
+            var current = String(resumoPilar[key] || '');
+            if (current && choices.indexOf(current) < 0) choices = choices.concat([current]);
+            return '<label class="pillar-n1-summary-field"><span>' + label + '</span><select aria-label="' + label + '" data-sa-field="' + key + '">' + choices.map(function (value) {
+              return '<option' + (value === current ? ' selected' : '') + '>' + textoSeguro(value) + '</option>';
+            }).join('') + '</select></label>';
+          }
+          function numberField(key, label) {
+            var value = resumoPilar[key];
+            return '<label class="pillar-n1-summary-field"><span>' + label + '</span><input aria-label="' + label + '" data-sa-field="' + key + '" type="number" step="any"' + (key === 'pe_direito' ? ' min="0.01"' : '') + ' value="' + (Number.isFinite(Number(value)) && value !== null ? Number(value) : '') + '"></label>';
+          }
           return '<section class="pillar-n1-summary"><strong>Campos SA / N1</strong><div>' +
-            camposResumo.map(function (campo) {
-              return '<div class="pillar-n1-summary-field"><span>' + campo[0] + '</span><b>' + campo[1] + '</b></div>';
-            }).join('') + '</div></section>';
+            selectField('orientacao', 'Orientação', ['RETANGULAR VERTICAL', 'RETANGULAR HORIZONTAL', 'QUADRADO', 'ESPECIAL']) +
+            selectField('classificacao', 'Classificação', ['SEGUE', 'MORRE', 'NASCE', 'INDETERMINADO']) +
+            numberField('nivel_chegada', 'Nível de chegada') + numberField('nivel_saida', 'Nível de saída') +
+            numberField('pe_direito', 'Altura do pé-direito (cm)') + '</div>' +
+            '<button type="button" class="btn" data-sa-save>Salvar alterações dos campos SA</button> <span data-sa-status role="status"></span></section>';
+        }
+        function montarCamposN1() {
+          fieldsPilar.innerHTML = btns + resumoN1PilarHtml() +
+            '<div class="abcd-review-actions" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0"><button type="button" class="btn btn-sec" style="padding:5px 9px;font-size:12px" data-abcd-edit>Editar Campos da Interpretação SA</button><button type="button" class="btn btn-sec" data-pillar-interpret>Solicitar interpretação SA deste item</button>' +
+            '<button type="button" class="btn" style="padding:5px 9px;font-size:12px" data-abcd-save hidden>Salvar correções</button>' +
+            '<button type="button" class="btn btn-sec" style="padding:5px 9px;font-size:12px" data-abcd-cancel hidden>Cancelar</button>' +
+            '<span data-abcd-status role="status"></span></div>' +
+            (abcdHtml || '<p class="muted">Interpretação ABCD ainda não disponível.</p>');
+          var abcdWrap = fieldsPilar.querySelector('.abcd-p-wrap');
+          var actions = fieldsPilar.querySelector('.abcd-review-actions');
+          if (abcdWrap) {
+            var title = abcdWrap.querySelector('div');
+            if (title) { title.textContent = 'Interpretação ABCD por face'; title.after(actions); }
+          }
+          var saSave = fieldsPilar.querySelector('[data-sa-save]');
+          saSave.addEventListener('click', function () {
+            var fields = {};
+            fieldsPilar.querySelectorAll('[data-sa-field]').forEach(function (input) {
+              var key = input.dataset.saField;
+              if (String(input.value) !== String(resumoPilar[key])) fields[key] = input.value;
+            });
+            var statusSa = fieldsPilar.querySelector('[data-sa-status]');
+            if (!Object.keys(fields).length) { statusSa.textContent = 'Nenhuma alteração.'; return; }
+            saSave.disabled = true; statusSa.textContent = 'Salvando…';
+            fetch('/obras/' + OBRA_ID + '/n1/' + encodeURIComponent(_painel3Estado.classe) + '/' + encodeURIComponent(itemId) + '/sa-review?pavimento=' + encodeURIComponent(_pavimentoSelecionado || item.pavimento), {
+              method: 'PUT', credentials: 'same-origin', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fields: fields})
+            }).then(function (response) { return response.json().then(function (body) {
+              if (!response.ok) throw new Error(body.detail || 'Falha ao salvar');
+              if (window.DrillGrade) window.DrillGrade.refreshItems();
+              carregarDetalheItemN1(itemId);
+            }); }).catch(function (error) { saSave.disabled = false; statusSa.textContent = String(error.message || error); });
+          });
+          var edit = fieldsPilar.querySelector('[data-abcd-edit]');
+          var save = fieldsPilar.querySelector('[data-abcd-save]');
+          var cancel = fieldsPilar.querySelector('[data-abcd-cancel]');
+          var status = fieldsPilar.querySelector('[data-abcd-status]');
+          edit.addEventListener('click', function () {
+            fieldsPilar.querySelectorAll('.abcd-editable').forEach(function (cell) {
+              var input = document.createElement('input');
+              input.className = 'abcd-edit-input';
+              input.value = cell.dataset.value || '';
+              input.setAttribute('aria-label', cell.dataset.field + ' da linha ABCD');
+              cell.textContent = '';
+              cell.appendChild(input);
+            });
+            edit.hidden = true; save.hidden = false; cancel.hidden = false;
+            status.textContent = 'Valores corrigidos serão salvos nesta obra; o snapshot SA permanece intacto.';
+          });
+          cancel.addEventListener('click', montarCamposN1);
+          save.addEventListener('click', function () {
+            var edits = [];
+            fieldsPilar.querySelectorAll('.abcd-editable').forEach(function (cell) {
+              var input = cell.querySelector('input');
+              if (!input || input.value.trim() === (cell.dataset.value || '').trim()) return;
+              var row = cell.closest('tr');
+              edits.push({face: row.dataset.face, role: row.dataset.role,
+                index: Number(row.dataset.index), field: cell.dataset.field, value: input.value.trim()});
+            });
+            if (!edits.length) { montarCamposN1(); return; }
+            save.disabled = true; status.textContent = 'Salvando…';
+            var path = '/obras/' + OBRA_ID + '/n1/' + encodeURIComponent(_painel3Estado.classe) + '/' +
+              encodeURIComponent(itemId) + '/abcd-review?pavimento=' + encodeURIComponent(_pavimentoSelecionado || item.pavimento);
+            fetch(path, {method: 'PUT', credentials: 'same-origin',
+              headers: {'Content-Type': 'application/json'}, body: JSON.stringify({edits: edits})})
+              .then(function (response) { return response.json().then(function (body) {
+                if (!response.ok) throw new Error(body.detail || 'Falha ao salvar');
+                carregarDetalheItemN1(itemId);
+              }); })
+              .catch(function (error) { save.disabled = false; status.textContent = String(error.message || error); });
+          });
         }
         function selecionarSubabaN1(subId) {
           var subviewer = document.getElementById('pillar-n1-subviewer');
@@ -2588,9 +3450,10 @@
             };
             var svg = visualizacoesN1[subId];
             if (subId === 'proximo' && !svg) svg = item.foto_n1;
-            fieldsPilar.innerHTML = btns + resumoN1PilarHtml() +
-              (abcdHtml || '<p class="muted">Interpretação ABCD ainda não disponível.</p>');
-            subviewer.innerHTML = viewerSvg(titulos[subId] || 'N1 / SA', svg);
+            montarCamposN1();
+            subviewer.innerHTML = (subId === 'com_tag' && item.tag_sync !== 'atualizada' ?
+              '<p class="pillar-tag-warning">⚠ As tags deste desenho ainda são o snapshot original do SA; confira nome, dimensão e nível na tabela acima.</p>' : '') +
+              viewerSvg(titulos[subId] || 'N1 / SA', svg);
           }
           ativarZoomEmContainer(subviewer);
         }
@@ -2603,21 +3466,20 @@
           fieldsPilar.innerHTML = '';
           viewerPilar.innerHTML = '';
           if (tabId === 'sa') {
-            fieldsPilar.innerHTML = btns + resumoN1PilarHtml() +
-              (abcdHtml || '<p class="muted">Interpretação ABCD ainda não disponível.</p>');
+            montarCamposN1();
             viewerPilar.innerHTML = '<div class="pillar-n1-subtabs" role="tablist" aria-label="Visualizações N1 / SA">' +
               subabasN1.map(function (subtab, i) {
                 return '<button type="button" class="pillar-n1-subtab' + (i === 0 ? ' active' : '') +
                   '" role="tab" aria-selected="' + (i === 0 ? 'true' : 'false') +
                   '" data-pillar-n1-subtab="' + subtab[0] + '">' + subtab[1] + '</button>';
-              }).join('') + '</div><div id="pillar-n1-subviewer"></div>';
+              }).join('') + '<button type="button" class="btn btn-sec" data-pillar-geometry>Editar geometria N1</button></div><div id="pillar-n1-subviewer"></div>';
             viewerPilar.querySelectorAll('[data-pillar-n1-subtab]').forEach(function (button) {
               button.addEventListener('click', function () {
                 selecionarSubabaN1(button.getAttribute('data-pillar-n1-subtab'));
               });
             });
             qaPilar.hidden = false;
-            selecionarSubabaN1('proximo');
+            selecionarSubabaN1(window.PortalDeepLink ? window.PortalDeepLink.get('subvista', 'proximo') : 'proximo');
           } else {
             qaPilar.hidden = true;
             fieldsPilar.innerHTML = '';
@@ -2626,7 +3488,7 @@
               window.PillarFicha.mount(document.getElementById('pillar-n3-editor'), {
                 obraId: OBRA_ID, classe: _painel3Estado.classe, itemId: itemId,
                 pavimento: _pavimentoSelecionado || item.pavimento,
-                initialTab: tabId, hideTabs: true
+                initialTab: tabId, hideTabs: true, comportamento: OBRA_COMPORTAMENTO
               });
             }
           }
@@ -2682,7 +3544,9 @@
               });
           });
         });
-        selecionarAbaPilar('sa');
+        var abaPilarInicial = window.PortalDeepLink ? window.PortalDeepLink.get('vista', 'sa') : 'sa';
+        if (!tabsPilar.some(function (tab) { return tab[0] === abaPilarInicial; })) abaPilarInicial = 'sa';
+        selecionarAbaPilar(abaPilarInicial);
       })
       .catch(function () {
         if (meuToken !== _n1DetalheReqToken) return;
@@ -2739,7 +3603,7 @@
         if (['pilares', 'pilares_especiais', 'pilares_n3_para', 'pilares_n3_passa'].indexOf(_painel3Estado.classe) >= 0 && window.PillarFicha) {
           window.PillarFicha.mount(document.getElementById('pillar-n3-editor-n3'), {
             obraId: OBRA_ID, classe: _painel3Estado.classe, itemId: itemId,
-            pavimento: _pavimentoSelecionado || item.pavimento
+            pavimento: _pavimentoSelecionado || item.pavimento, comportamento: OBRA_COMPORTAMENTO
           });
         }
         var dica = '<p class="zoom-pan-dica">Scroll zoom · arraste pan · duplo-clique reseta (viewBox)</p>';
@@ -3666,7 +4530,8 @@
     lat_b_passa: COR_DESTAQUE_ESTRUTURAL,
     laterais: COR_DESTAQUE_ESTRUTURAL, // legado
     fundos: COR_DESTAQUE_ESTRUTURAL,
-    lajes: COR_DESTAQUE_ESTRUTURAL
+    lajes: COR_DESTAQUE_ESTRUTURAL,
+    cortes: '#4fc3a1'
   };
   // Filtro de destaque → classe SA no drill (Interpretação)
   var DESTAQUE_PARA_CLASSE_SA = {
@@ -3679,14 +4544,28 @@
     lat_b_passa: 'lateral_b_passa',
     fundos: 'fundo',
     laterais: 'lateral_a_para',
-    lajes: 'lajes'
+    lajes: 'lajes',
+    cortes: 'cortes'
   };
+
+
+  // Convenção do pilar já interpretada pelo SA; desconhecidos ficam explícitos.
+  function corPilar(item) {
+    var c = String(item.classification || '').trim().toUpperCase();
+    if (c === 'NASCE') return '#ff4545';
+    if (c === 'MORRE') return '#ffe033';
+    if (['SEGUE', 'CONTINUA', 'PASSA'].indexOf(c) !== -1) return '#4ea1ff';
+    return '#a8b0bd';
+  }
 
   function gruposDestaqueParaExibicao(gruposOriginais) {
     var grupos = [];
     var combinados = {};
     (gruposOriginais || []).forEach(function (grupo) {
       var id = grupo.grupo;
+      if (OBRA_COMPORTAMENTO !== 'misto' &&
+          ((id || '').endsWith('_para') || (id || '').endsWith('_passa')) &&
+          !(id || '').endsWith('_' + OBRA_COMPORTAMENTO)) return;
       var combinadoId = null;
       var rotulo = null;
       if (id === 'lat_a_para' || id === 'lat_b_para') {
@@ -3726,7 +4605,8 @@
       '<span class="destaque-botoes" id="destaque-botoes"></span>' +
       '<button type="button" class="btn-sec btn btn-sm" id="destaque-nenhuma" title="Limpar destaques">Nenhuma</button>' +
       '<label class="destaque-nomes"><input type="checkbox" id="destaque-rotulos" checked> nomes</label>' +
-      '<span class="meta" id="destaque-info"></span>';
+      '<span class="meta" id="destaque-info"></span>' +
+      '<span class="destaque-pilares-legenda" style="flex-basis:100%;font-size:.72rem"><span style="color:#4ea1ff">● Segue</span> · <span style="color:#ffe033">● Morre aqui</span> · <span style="color:#ff4545">● Nasce no próximo pavimento</span> · <span style="color:#a8b0bd">● Indeterminado</span></span>';
     hostEl.insertBefore(bar, hostEl.firstChild);
     return bar;
   }
@@ -3893,6 +4773,10 @@
         overlay.setAttribute('viewBox', '0 0 ' + tw + ' ' + th);
         overlay.setAttribute('preserveAspectRatio', 'xMidYMid meet');
         overlay.dataset.homeVb = '0 0 ' + tw + ' ' + th;
+        // Contexto p/ apontamento (ui_feedback.js): tela -> coordenadas DXF.
+        overlay.setAttribute('data-bbox-dxf', JSON.stringify((dados.transform && dados.transform.bbox_dxf) || null));
+        overlay.setAttribute('data-fonte', JSON.stringify(dados.fonte || null));
+        overlay.setAttribute('data-pavimento', dados.pavimento || pavimento || '');
 
         // re-pan dual (substitui single-SVG se já inicializado)
         vp.dataset.zoomInit = '';
@@ -3916,10 +4800,24 @@
           overlay.innerHTML = '';
           var mostrarRotulos = !!(document.getElementById('destaque-rotulos') || {}).checked;
           var visiveis = 0;
+          var tagItens = [];
+          function rotuloEmLinhas(s) {
+            s = String(s || '').trim();
+            var m = s.match(/^(.*?)\s+(SEG\s*\d+(?:\.\d+)?(?:-[AB])?)\s*$/i);
+            return m ? [m[1].trim(), m[2].replace(/\s+/g, ' ').toUpperCase()] : [s];
+          }
           gruposDestaque.forEach(function (grupo) {
             if (!ativos[grupo.grupo]) return;
-            var cor = CORES_DESTAQUE[grupo.grupo] || '#fff';
-            (grupo.itens || []).forEach(function (item) {
+            var corGrupo = CORES_DESTAQUE[grupo.grupo] || '#fff';
+            var gLat = String(grupo.grupo || '');
+            var alternaLateral = gLat.indexOf('lat_') === 0 || gLat.indexOf('laterais') === 0;
+            var alternaFundo = gLat === 'fundos' || gLat === 'fundo';
+            (grupo.itens || []).forEach(function (item, idxItem) {
+              // Segmentos alternam 2 cores (dono 2026-09-28): laterais rosa /
+              // laranja (mesma paleta do card SA da ficha LV); fundos azul /
+              // marrom claro. Vermelho fica reservado para erro (fora do frame).
+              var cor = alternaLateral ? ['#ff5fb2', '#ff9a1f'][idxItem % 2]
+                : alternaFundo ? ['#4ea1ff', '#c9a27e'][idxItem % 2] : gLat === 'pilares' ? corPilar(item) : corGrupo;
               visiveis++;
               var pts = (item.pontos_px || []).map(function (p) { return p[0] + ',' + p[1]; }).join(' ');
               if (!pts) return;
@@ -3931,10 +4829,27 @@
               poly.setAttribute('stroke-width', item.fora_do_frame ? '4.6' : '6');
               poly.setAttribute('fill-opacity', '0.15');
               poly.setAttribute('vector-effect', 'non-scaling-stroke');
+              poly.setAttribute('data-grupo', grupo.grupo || '');
+              poly.setAttribute('data-rotulo', item.rotulo || '');
               var title = document.createElementNS(SVGNS, 'title');
               title.textContent = (item.rotulo || '') + (item.fora_do_frame ? ' — FORA DA PRANCHA' : '');
               poly.appendChild(title);
               overlay.appendChild(poly);
+              // Fundos/laterais: tag vai para o vazio mais proximo, fora das
+              // linhas destacadas, com linha-guia na cor do destaque
+              // (TagLeader, pedido do dono 2026-09-27). Pilar/laje seguem no centro.
+              var gIdTag = grupo.grupo || '';
+              var tagViga = gIdTag === 'fundos' || gIdTag === 'fundo' ||
+                gIdTag.indexOf('lat_') === 0 || gIdTag.indexOf('lateral') === 0 ||
+                gIdTag.indexOf('laterais') === 0;
+              if (window.TagLeader && tagViga) {
+                tagItens.push({
+                  pts: item.pontos_px || [], color: item.fora_do_frame ? '#ff6b6b' : cor,
+                  lines: rotuloEmLinhas(item.rotulo), place: mostrarRotulos,
+                  title: (item.rotulo || '') + (item.fora_do_frame ? ' — FORA DA PRANCHA' : ''),
+                });
+                return;
+              }
               if (mostrarRotulos && item.pontos_px && item.pontos_px.length) {
                 var cx = 0, cy = 0;
                 var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -3964,7 +4879,7 @@
                 var rot = String(item.rotulo || '').trim();
                 var linhas = (function (s) {
                   if (!s) return [''];
-                  var mSeg = s.match(/^(.*?)\s+(SEG\s*\d+)\s*$/i);
+                  var mSeg = s.match(/^(.*?)\s+(SEG\s*\d+(?:\.\d+)?(?:-[AB])?)\s*$/i);
                   if (mSeg) return [mSeg[1].trim(), mSeg[2].replace(/\s+/g, ' ').toUpperCase()];
                   var mPar = s.match(/^(.*?)\s*\(segmento\s+(\d+)\)\s*$/i);
                   if (mPar) return [mPar[1].trim(), 'SEG ' + mPar[2]];
@@ -3992,6 +4907,9 @@
               }
             });
           });
+          if (tagItens.length && mostrarRotulos) {
+            window.TagLeader.place(document, overlay, tagItens, {fontSize: 3.25, halo: 0.7});
+          }
           if (infoEl) infoEl.textContent = visiveis ? (visiveis + ' item(ns)') : (dados.sa_rodado ? 'nenhum destaque' : 'sem SA');
           // reindex OSNAP com vértices SA + geometria do fundo
           var svgF = vp.querySelector('svg:not(.destaque-overlay)');
@@ -4095,8 +5013,10 @@
     var itemIdFoto = mItem ? decodeURIComponent(mItem[2]) : null;
     var isBrutoCompleto = !!brutoIdAtual && !itemIdFoto;
     var isTorreLimpa = !!(itemIdFoto && String(itemIdFoto).indexOf('torre') === 0);
+    var isRecorteEstruturalEditavel = !!(itemIdFoto &&
+      (isTorreLimpa || String(itemIdFoto) === 'detalhes'));
 
-    fetch(url).then(function(res) {
+    fetch(url, { cache: 'no-store' }).then(function(res) {
       if (!res.ok) throw new Error('Falha na rede');
       return res.text();
     }).then(function(text) {
@@ -4111,20 +5031,63 @@
          cropHtml = `
          <div id="crop-ui-container" class="crop-ui-box">
            <label class="crop-ui-toggle"><input type="checkbox" id="chk-crop-manual"> Modo Recorte Manual</label>
-           <select id="crop-classe-alvo">
-             <option value="torre_1">Torre 1</option>
-             <option value="torre_2">Torre 2</option>
-             <option value="detalhes">Detalhes e Convenções Gerais</option>
-             <option value="convencao_pilares">Convenção de Pilares</option>
-             <option value="convencao_niveis">Convenção de Níveis</option>
-             <option value="outros">Outros</option>
-           </select>
+           <select id="crop-classe-alvo" aria-label="Destino do recorte manual"></select>
            <button type="button" class="btn" id="btn-crop-enviar">Recortar & Processar</button>
            <button type="button" class="btn btn-sec" id="btn-crop-limpar">Limpar</button>
            <span class="meta">Arraste retângulos no desenho</span>
          </div>`;
       }
       container.innerHTML = cropHtml + vpHtml;
+
+      if (isBrutoCompleto) {
+        var selectDestino = container.querySelector('#crop-classe-alvo');
+        var itensExistentes = ((window._recortesItensPorBruto || {})[brutoIdAtual] || []).slice();
+        var nomesFixos = [
+          ['torre_1', 'Torre 1'], ['torre_2', 'Torre 2'],
+          ['detalhes', 'Detalhes e Convenções Gerais'],
+          ['convencao_pilares', 'Convenção de Pilares'],
+          ['convencao_niveis', 'Convenção de Níveis'], ['outros', 'Outros']
+        ];
+        var existentesIds = {};
+        itensExistentes.forEach(function (itemExistente) { existentesIds[itemExistente.item_id] = true; });
+        if (selectDestino && itensExistentes.length) {
+          var grupoSubstituir = document.createElement('optgroup');
+          grupoSubstituir.label = 'Substituir recorte existente';
+          itensExistentes.forEach(function (itemExistente) {
+            var option = document.createElement('option');
+            option.value = itemExistente.item_id;
+            option.textContent = 'Refazer · ' + (itemExistente.titulo || itemExistente.item_id);
+            option.dataset.cropMode = 'replace';
+            grupoSubstituir.appendChild(option);
+          });
+          selectDestino.appendChild(grupoSubstituir);
+        }
+        if (selectDestino) {
+          var grupoCriar = document.createElement('optgroup');
+          grupoCriar.label = 'Criar novo recorte';
+          nomesFixos.forEach(function (par) {
+            if (existentesIds[par[0]]) return;
+            var option = document.createElement('option');
+            option.value = par[0];
+            option.textContent = 'Criar · ' + par[1];
+            option.dataset.cropMode = 'create';
+            grupoCriar.appendChild(option);
+          });
+          var proximaTorre = 1;
+          while (existentesIds['torre_' + proximaTorre]) proximaTorre += 1;
+          if (!grupoCriar.querySelector('option[value="torre_' + proximaTorre + '"]')) {
+            var optionTorre = document.createElement('option');
+            optionTorre.value = 'torre_' + proximaTorre;
+            optionTorre.textContent = 'Criar · Torre ' + proximaTorre;
+            optionTorre.dataset.cropMode = 'create';
+            grupoCriar.insertBefore(optionTorre, grupoCriar.firstChild);
+          }
+          selectDestino.appendChild(grupoCriar);
+          // Navegação normal pelo Bruto começa em criação segura. A seleção de
+          // substituição só é aplicada abaixo quando veio de "Refazer recorte".
+          if (grupoCriar.firstElementChild) grupoCriar.firstElementChild.selected = true;
+        }
+      }
 
       var vp = container.querySelector('.zoom-pan-viewport');
       if (text.toLowerCase().includes('<svg')) {
@@ -4146,7 +5109,7 @@
       }
 
       // Torre limpa: pan dual + destaques (não inicializa pan simples antes)
-      if (isTorreLimpa && window._viewerPavimentoAtual) {
+      if (isRecorteEstruturalEditavel && window._viewerPavimentoAtual) {
         window._cropRects = [];
         window._polyGeoms = [];
         window._polyAtual = [];
@@ -4182,40 +5145,92 @@
               redesenharCropRects(container);
             });
             var btnEnviar = document.getElementById('btn-crop-enviar');
+            var selectAlvo = document.getElementById('crop-classe-alvo');
+            function atualizarRotuloCrop() {
+              var selected = selectAlvo && selectAlvo.selectedOptions ? selectAlvo.selectedOptions[0] : null;
+              var substituindo = selected && selected.dataset.cropMode === 'replace';
+              if (btnEnviar) btnEnviar.textContent = substituindo ? 'Refazer & Processar' : 'Recortar & Processar';
+            }
+            if (selectAlvo) selectAlvo.addEventListener('change', atualizarRotuloCrop);
+            var intentRefazer = window._recorteReplaceIntent;
+            if (intentRefazer && intentRefazer.brutoId === brutoIdAtual && selectAlvo) {
+              selectAlvo.value = intentRefazer.itemId;
+              if (chk) {
+                chk.checked = true;
+                window._modoCropManualAtivo = true;
+              }
+            }
+            atualizarRotuloCrop();
             if (btnEnviar) btnEnviar.addEventListener('click', function () {
               if (window._cropRects.length === 0) return alert('Desenhe pelo menos um retângulo de recorte.');
-              var classe = document.getElementById('crop-classe-alvo').value.trim();
+              var select = document.getElementById('crop-classe-alvo');
+              var classe = select.value.trim();
               if (!classe) return alert('Escolha a classe alvo.');
+              var selected = select.selectedOptions ? select.selectedOptions[0] : null;
+              var substituirItem = selected && selected.dataset.cropMode === 'replace' ? classe : null;
+              var substituirTorre = /^torre_\d+$/.test(substituirItem || '');
+              var mensagemConfirmacao = substituirTorre
+                ? 'Tem certeza que deseja refazer esta torre? Somente os dados SA/N3/N5 vinculados a ela serão apagados e deverão ser processados novamente.'
+                : 'Tem certeza que deseja refazer este recorte? Apenas o recorte selecionado será substituído; os dados SA/N3/N5 das torres serão preservados.';
+              if (substituirItem && !window.confirm(mensagemConfirmacao)) return;
               this.textContent = 'Processando...';
               this.disabled = true;
               fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(brutoIdAtual) + '/manual_crop', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ bboxes: window._cropRects, classe_alvo: classe })
+                body: JSON.stringify({
+                  bboxes: window._cropRects,
+                  classe_alvo: classe,
+                  substituir_item_id: substituirItem,
+                  confirmar_limpeza_dependencias: substituirTorre
+                })
               }).then(function (r) {
-                if (!r.ok) throw new Error('Falha no servidor');
-                return r.json();
+                return r.json().then(function (body) {
+                  if (!r.ok) throw new Error(body.detail || 'Falha no servidor');
+                  return body;
+                });
               }).then(function (res) {
                 return fetch('/obras/' + OBRA_ID + '/recortes/brutos/' + encodeURIComponent(brutoIdAtual) + '/itens')
                   .then(function (rr) { return rr.json(); })
                   .then(function (dados) {
                     if (dados && dados.itens) window._recortesItensPorBruto[brutoIdAtual] = dados.itens;
-                    alert('Recorte manual gerado: ' + res.torre);
+                    window._recorteReplaceIntent = null;
                     if (window.atualizarSubclassesDoBruto) window.atualizarSubclassesDoBruto(brutoIdAtual);
+                    if (substituirItem) {
+                      // Reabre o recorte substituído em uma página limpa para
+                      // não manter nenhuma representação do DXF anterior.
+                      var proximaUrl = new URL(window.location.href);
+                      var recorteId = 'rec:' + brutoIdAtual + ':' + res.torre;
+                      proximaUrl.searchParams.set('documento', recorteId);
+                      if (String(res.torre || '').indexOf('torre') === 0) {
+                        proximaUrl.searchParams.set('torre', recorteId);
+                      }
+                      ['etapa', 'classe', 'item', 'viga', 'vista'].forEach(function (chave) {
+                        proximaUrl.searchParams.delete(chave);
+                      });
+                      proximaUrl.searchParams.set('_recorte_atualizado', String(Date.now()));
+                      window.location.replace(proximaUrl.toString());
+                      return;
+                    }
                     // Atualização pontual: a lista acima já recebeu os dados novos.
                     // O refresh global antigo reconstruía pavimento, árvore e grade,
                     // disparando novas prévias SVG pesadas depois de cada recorte.
                     if (window.DrillGrade && typeof window.DrillGrade.render === 'function') {
                       window.DrillGrade.render();
                     }
+                    if (window.DrillGrade && typeof window.DrillGrade.refreshRecorteTabs === 'function') {
+                      window.DrillGrade.refreshRecorteTabs();
+                    }
                     if (window.atualizarEstatisticasGlobais) window.atualizarEstatisticasGlobais();
-                    btnEnviar.textContent = 'Recortar & Processar';
                     btnEnviar.disabled = false;
+                    if (window.DrillGrade && typeof window.DrillGrade.openRecorteById === 'function') {
+                      window.DrillGrade.openRecorteById('rec:' + brutoIdAtual + ':' + res.torre);
+                    }
                   });
-              }).catch(function () {
-                alert('Erro ao enviar recortes');
-                btnEnviar.textContent = 'Recortar & Processar';
+              }).catch(function (error) {
+                alert(error.message || 'Erro ao enviar recortes');
                 btnEnviar.disabled = false;
+                atualizarRotuloCrop();
               });
             });
           }
@@ -4290,9 +5305,8 @@
 
   function atualizarBotoesValidacao(brutoId, itemId) {
     var btnValidar = document.getElementById('recorte-validar-btn');
-    var btnInvalidar = document.getElementById('recorte-invalidar-btn');
     var tag = document.getElementById('recorte-validado-tag');
-    if (!btnValidar || !btnInvalidar) return;
+    if (!btnValidar) return;
     var chave = brutoId + '_' + itemId;
     var ok = statusValidacaoRecorte(brutoId, itemId);
     var invalLocal = !!_recortesInvalidadosLocal[chave];
@@ -4301,13 +5315,20 @@
     btnValidar.classList.toggle('ativo', ok);
     btnValidar.classList.toggle('recorte-btn-validado', ok);
     btnValidar.textContent = ok ? '✔ Já validado' : '✔ Validar';
-    btnInvalidar.classList.toggle('ativo', invalLocal && !ok);
     if (tag) {
       tag.hidden = !ok;
       tag.setAttribute('aria-hidden', ok ? 'false' : 'true');
     }
     var statusEl = document.getElementById('recorte-validacao-status');
     if (statusEl && ok) statusEl.textContent = '';
+  }
+
+  function iniciarRefazerRecorte(item) {
+    if (!window.DrillGrade || typeof window.DrillGrade.startRecorteReplace !== 'function') {
+      window.alert('O viewer Bruto ainda não está disponível. Atualize a página e tente novamente.');
+      return;
+    }
+    window.DrillGrade.startRecorteReplace(item.brutoId, item.itemId);
   }
 
   // [2026-07-13] Preenche 1 slot de código público (obra/pavimento/recorte/
@@ -4582,6 +5603,8 @@
           '<input type="text" id="criar-item-nome" placeholder="' +
             (showSeg ? 'Nome da viga (ex. V2)' : 'Nome (ex. P99)') +
             '" autocomplete="off">' +
+          '<select id="criar-item-existente" aria-label="Itens já populados"><option value="">Itens já populados</option></select>' +
+          '<select id="editar-item-segmento" aria-label="Segmento existente" hidden></select>' +
           '<span id="criar-item-seg-wrap" class="criar-item-seg-wrap"' +
             (showSeg ? '' : ' hidden') + '>' +
             '<label class="criar-item-seg-label" for="criar-item-segmento">Próx. SEG</label>' +
@@ -4589,6 +5612,10 @@
             '<input type="number" id="criar-item-segmento-livre" class="criar-item-seg-livre" ' +
               'min="1" step="1" placeholder="nº" title="Número livre de segmento" hidden>' +
           '</span>' +
+          '<button type="button" class="btn-sec btn" id="btn-item-redesenhar" disabled>Redesenhar item</button>' +
+          '<button type="button" class="btn-sec btn" id="btn-item-excluir" disabled>Excluir Item</button>' +
+          '<button type="button" class="btn-sec btn" id="btn-segmento-excluir" hidden disabled>Excluir Segmento</button>' +
+          '<button type="button" class="btn-sec btn" id="btn-item-cancelar" hidden>Cancelar edição</button>' +
           '<button type="button" class="btn-sec btn" id="btn-criar-item-limpar">Limpar</button>' +
           '<button type="button" class="btn" id="btn-criar-item-salvar">Criar item →</button>' +
         '</div>' +
@@ -4802,6 +5829,10 @@
 
     /** Enter / duplo-clique fechou uma polyline → associa SEG e abre o próximo. */
     window._onPolylineFechada = function (entry) {
+      if (window.ItemGeometry && window.ItemGeometry.isEditing()) {
+        window._polyGeoms = [entry];
+        return;
+      }
       var classe = selClasse ? selClasse.value : '';
       var viga = isClasseVigaCriar(classe);
       window._polyGeoms = window._polyGeoms || [];
@@ -5067,6 +6098,7 @@
     var cat = (item.categoria || '').replace(/</g, '&lt;');
     var tit = (item.titulo || '').replace(/</g, '&lt;');
     var isTorre = !!(item.itemId && String(item.itemId).indexOf('torre') === 0);
+    var permiteFerramentasEstruturais = isTorre || String(item.itemId || '') === 'detalhes';
     var prefClasse = window._criarItemClassePref || null;
     window._viewerPavimentoAtual = (item.pavimento && item.pavimento !== 'Indeterminado')
       ? item.pavimento : null;
@@ -5085,7 +6117,7 @@
         '</div>' +
         '<div class="recorte-acoes-primarias">' +
           '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-validar-btn">✔ Validar</button>' +
-          '<button type="button" class="btn-sec btn recorte-validacao-btn" id="recorte-invalidar-btn">✖ Invalidar</button>' +
+          '<button type="button" class="btn-sec btn recorte-refazer-btn" id="recorte-refazer-btn">↻ Refazer recorte</button>' +
           '<div class="recorte-mais-wrap">' +
             '<button type="button" class="btn-sec btn recorte-mais-btn" id="recorte-mais-btn" ' +
               'title="Mais ações" aria-haspopup="true" aria-expanded="false">⋯</button>' +
@@ -5105,16 +6137,16 @@
           '<div id="recorte-code-slot"><span class="n1-campo-label">Recorte</span><br><span class="muted">—</span></div>' +
         '</div>' +
       '</details>' +
-      (isTorre ?
+      (permiteFerramentasEstruturais ?
         '<details class="criar-item-coll" id="criar-item-coll"' + (prefClasse ? ' open' : '') + '>' +
-          '<summary>✏️ Criar item no estrutural <span class="meta">· desenhe geometria SA</span></summary>' +
+          '<summary>✏️ Criar ou editar item no estrutural</summary>' +
           '<div class="criar-item-body">' + htmlCriarItemPanel(prefClasse) + '</div>' +
         '</details>'
         : '') +
       '<div id="doc-viewer-extra" class="recorte-viewer-host"></div>';
 
     document.getElementById('recorte-validar-btn').addEventListener('click', function () { marcarValidacaoRecorte(item, true); });
-    document.getElementById('recorte-invalidar-btn').addEventListener('click', function () { marcarValidacaoRecorte(item, false); });
+    document.getElementById('recorte-refazer-btn').addEventListener('click', function () { iniciarRefazerRecorte(item); });
     document.getElementById('recorte-regenerar-btn').addEventListener('click', function () { fecharMenuRecorte(); regenerarRecorte(item); });
     document.getElementById('recorte-excluir-btn').addEventListener('click', function () { fecharMenuRecorte(); excluirRecorte(item); });
     document.getElementById('recorte-codigos-btn').addEventListener('click', function () {
@@ -5248,8 +6280,17 @@ window.atualizaAposJob = function() {
         var btnSa = document.getElementById('btn-rodar-sa');
         if (btnSa) btnSa.disabled = false;
         
-        // Re-seleciona para montar a interface novamente
+        // Re-seleciona para montar a interface novamente. selecionarPavimento
+        // desenha o Bruto no painel direito: guardar o que estava visivel e
+        // reabrir depois (Torre limpa / documento / ficha do item).
+        var secaoVisivel = null;
+        document.querySelectorAll('.conteudo-secao').forEach(function (el) {
+            if (!el.hidden && !secaoVisivel) secaoVisivel = el.id;
+        });
         if (window.selecionarPavimento) window.selecionarPavimento(window._pavimentoSelecionado);
+        if (window.DrillGrade && typeof window.DrillGrade.reabrirConteudo === 'function') {
+            try { window.DrillGrade.reabrirConteudo(secaoVisivel); } catch (e) { console.warn('[job] reabrir', e); }
+        }
         
         // Recarregar a arvore
         if (window.OBRA_ID) {
@@ -5420,13 +6461,13 @@ window.atualizarEstatisticasGlobais = function() {
   // ---------------------------------------------------------------- //
   // Drill grade: expõe hooks do conteúdo central p/ drill_grade.js
   // ---------------------------------------------------------------- //
-  document.body.classList.add('drill-grade-on');
   // boot: sem ?pavimento= → ficha da obra; com pav → esconde ficha
   (function () {
     var pBoot = null;
     try { pBoot = new URLSearchParams(window.location.search).get('pavimento'); } catch (e) {}
     if (typeof setObraModo === 'function') setObraModo(pBoot ? 'pavimento' : 'pavs');
   })();
+  window.fecharPolylineAtual = fecharPolylineAtual;
   window.mostrarDetalhe = mostrarDetalhe;
   window.selecionarPavimento = selecionarPavimento;
   window.selecionarTriagemGeral = selecionarTriagemGeral;
@@ -5460,6 +6501,7 @@ window.atualizarEstatisticasGlobais = function() {
 
     function aplicar(recolhido) {
       painel.classList.toggle('recolhido', recolhido);
+      document.body.classList.remove('painel-status-inicial-recolhido');
       botao.setAttribute('aria-expanded', recolhido ? 'false' : 'true');
       botao.title = recolhido ? 'Expandir o status' : 'Recolher o status';
     }
@@ -5475,9 +6517,12 @@ window.atualizarEstatisticasGlobais = function() {
     });
   })();
 </script>
-<script src="/static/fv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&fv=20260912unvalidate"></script>
-<script src="/static/lv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lv=20260912lazyviewer"></script>
-<script src="/static/laje_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lj=20260912hifi"></script>
-<script src="/static/pillar_ficha.js?v={{ request.app.state.static_versao | default('0') }}"></script>
-<script src="/static/drill_grade.js?v={{ request.app.state.static_versao | default('0') }}"></script>
+<script src="/static/drill_grade.js?v={{ request.app.state.static_versao | default('0') }}&dm=20260930convencao"></script>
+<script src="/static/drawing_mode.js?v={{ request.app.state.static_versao | default('0') }}"></script>
+<script src="/static/fv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&fv=20260918drawingmode"></script>
+<script src="/static/tag_leader.js?v={{ request.app.state.static_versao | default('0') }}&tl=20260927c"></script>
+<script src="/static/lv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lv=20260928cores"></script>
+<script src="/static/laje_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lj=20260918drawingmode"></script>
+<script src="/static/pillar_ficha.js?v={{ request.app.state.static_versao | default('0') }}-pillar-actions-v20"></script>
+<script src="/static/item_geometry.js?v={{ request.app.state.static_versao | default('0') }}"></script>
 {% endblock %}

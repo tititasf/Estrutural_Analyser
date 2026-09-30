@@ -67,11 +67,24 @@ def buscar_code_item(
     if conn is None:
         return None
     try:
-        row = conn.execute(
-            "SELECT code FROM public_codes WHERE obra_id = ? AND pavimento = ? AND classe = ? "
-            "AND item_id = ? AND kind = 'item' AND revoked = 0",
-            (obra_id, pavimento, classe, item_id),
-        ).fetchone()
+        sql = ("SELECT code FROM public_codes WHERE obra_id = ? AND pavimento = ? AND classe = ? "
+               "AND item_id = ? AND kind = 'item' AND revoked = 0")
+        row = conn.execute(sql, (obra_id, pavimento, classe, item_id)).fetchone()
+        if row is None and classe in ("pilares", "pilares_especiais"):
+            # [2026-09-28] pilar publicado em 2 códigos (Para/Passa): o
+            # item N1 aponta para o `param`.
+            row = conn.execute(sql, (obra_id, pavimento, "pilares_n3_para", f"{item_id}_Para")).fetchone()
+        if row is None and classe.startswith("lateral_"):
+            # [2026-09-28] LV publicada em 1 código por viga: o segmento vive
+            # no payload do código da viga.
+            row = conn.execute(
+                """SELECT code FROM public_codes
+                   WHERE obra_id = ? AND pavimento = ? AND kind = 'item' AND revoked = 0
+                     AND tipo_elemento = 'viga_lateral' AND EXISTS (
+                       SELECT 1 FROM json_each(public_codes.payload_json, '$.segmentos') s
+                       WHERE json_extract(s.value, '$.item_id') = ?)""",
+                (obra_id, pavimento, item_id),
+            ).fetchone()
         return row["code"] if row else None
     except sqlite3.OperationalError:
         return None

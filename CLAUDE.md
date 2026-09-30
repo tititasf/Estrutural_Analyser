@@ -9,6 +9,8 @@
 | `DADOS-OBRAS/` | Dados das obras (Fases 0–8, recortes reversos, RAG por-obra). Os paths gravados no DB apontam para cá. |
 | `SCRIPTS_ROBOS/`, `_ROBOS_ABAS/` | Robôs geradores SCR legados (referência de semântica). |
 | `BASE_DWG_PARA_COMANDOS_SCRIPTS.dwg` | MOLDE correto para automação AutoCAD COM. |
+| `KB-GLOBAL/` | Índice da **base de conhecimento global** (+ `obras/<obra>.sqlite` no futuro). Derivado: `scripts/kb/kb_build.py` recria. Entrada do conhecimento: `Agente-cad-PYSIDE-Restored-main/docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md`. |
+| `data/vectors/faiss/`, `DADOS-OBRAS/stog_rag_db/` | Vetores RAG de mai–jun/26 — **legado**, não consultar (ver `docs/CONHECIMENTO/PLANO-HARMONIZACAO.md`). |
 
 ## Missões ativas (duas, intercaladas — qualidade manda)
 

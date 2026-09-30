@@ -79,6 +79,99 @@ def test_select_canonical_keeps_each_distinct_segment_geometry():
     assert any(u["panels"][0].get("reuse") for u in canon)
 
 
+def test_select_canonical_keeps_same_widths_on_different_rows():
+    """Filas distintas do recorte humano nao sao duplicata do motor."""
+    panels = [_seg(111, 109), _seg(63, 44), _seg(244, 44)]
+    units = [
+        {
+            "side": "A",
+            "label": "",
+            "bbox": {"x_left": 6009.4, "y_top": 8263.0, "y_bot": 8154.0},
+            "h_body": 109,
+            "panels": panels,
+        },
+        {
+            "side": "A",
+            "label": "",
+            "bbox": {"x_left": 6011.9, "y_top": 8016.0, "y_bot": 7907.0},
+            "h_body": 109,
+            "panels": panels,
+        },
+    ]
+    canon = lv.select_canonical_face_units(units, viga_nome="V301")
+    assert len(canon) == 2
+
+
+def test_split_mixed_height_face_unit_by_divergence():
+    unit = {
+        "side": "A",
+        "label": "V301.A",
+        "bbox": {"x_left": 5479.9, "x_right": 5928.6, "y_bot": 8154.0, "y_top": 8263.0},
+        "h_body": 109.0,
+        "panels": [
+            _seg(244, 44),
+            _seg(50.5, 44),
+            _seg(111, 109),
+            _seg(19, 109),
+            _seg(21.2, 109),
+        ],
+    }
+    pieces = lv.split_face_unit_by_panel_height(unit)
+    assert len(pieces) == 2
+    assert pieces[0]["label"] == "V301.A"
+    assert pieces[1]["label"] == ""
+    assert abs(pieces[0]["h_body"] - 44) < 1
+    assert abs(pieces[1]["h_body"] - 109) < 1
+    assert len(pieces[0]["panels"]) == 2
+    assert len(pieces[1]["panels"]) == 3
+
+
+def test_near_heights_do_not_split():
+    unit = {
+        "side": "A",
+        "label": "V302.A",
+        "bbox": {"x_left": 0, "x_right": 470, "y_bot": 0, "y_top": 45},
+        "h_body": 43,
+        "panels": [_seg(200.5, 43), _seg(159.5, 45), _seg(110, 45)],
+        "cortes_segmento": [200.5],
+        "aberturas_viga": [{"x_ini": 178.5, "x_fim": 200.5}],
+    }
+    by_h = lv.split_face_unit_by_panel_height(unit)
+    assert len(by_h) == 1
+    by_ab = lv.split_face_unit_by_aberturas(unit)
+    assert len(by_ab) == 2
+    assert sum(p["width"] for p in by_ab[0]["panels"]) == 200.5
+    tagged = lv.split_face_unit_for_tags(unit)
+    assert len(tagged) == 2
+
+
+def test_prepare_n4_keeps_v301_a_sixteen_after_height_split():
+    """Dois degraus 59|124 por ocorrencia × 8 ocorrencias A = 16 segmentos."""
+    short = [_seg(244, 44), _seg(50.5, 44), _seg(111, 109), _seg(19, 109)]
+    tall_first = [_seg(111, 109), _seg(63, 44), _seg(244, 44)]
+    units = []
+    for i, y in enumerate((8263.0, 8016.0, 7777.0, 7500.0)):
+        units.append({
+            "side": "A",
+            "label": "V301.A" if i == 0 else "CONT. V301.A",
+            "bbox": {"x_left": 5479.9, "y_top": y, "y_bot": y - 109},
+            "h_body": 109,
+            "panels": short,
+        })
+        units.append({
+            "side": "A",
+            "label": "",
+            "bbox": {"x_left": 6009.4, "y_top": y, "y_bot": y - 109},
+            "h_body": 109,
+            "panels": tall_first,
+        })
+    prepared = lv.prepare_n4_face_units(units, viga_nome="V301")
+    assert len(prepared) == 16
+    hs = [float(u["h_body"]) for u in prepared]
+    assert sum(1 for h in hs if h < 70) == 8
+    assert sum(1 for h in hs if h >= 70) == 8
+
+
 def test_layout_primary_unit_starts_at_origin_for_view_a():
     units = [
         {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block titulo %}Portal de Formas — Arete{% endblock %}</title>
+  <title>{% block titulo %}Portal de Formas de Concretagem{% endblock %}</title>
   {# ?v=<mtime dos estáticos> — invalida o cache do navegador a cada edição
      de CSS. Sem isto, mudar o estilo e recarregar mostra a versão antiga. #}
   <link rel="stylesheet" href="/static/portal.css?v={{ request.app.state.static_versao | default('0') }}">
@@ -12,14 +12,11 @@
   {% if membro %}
   <div class="shell">
     <nav class="sidebar" id="portal-sidebar" aria-label="Navegação principal">
-      <a class="brand" href="/app/obras" title="Portal de Formas">
+      <a class="brand" href="/app/obras" title="Portal de Formas de Concretagem">
         <span class="brand-mark" aria-hidden="true">◆</span>
-        <span class="nav-texto">Portal de Formas</span>
+        <span class="nav-texto">Portal de Formas de Concretagem</span>
       </a>
       <ul class="nav-lista">
-        <li><a href="/app/status" class="nav-status-btn {{ 'ativo' if nav_ativo == 'status' else '' }}" title="Status Arete">
-          <span aria-hidden="true">📊</span><span class="nav-texto">Status Arete</span>
-        </a></li>
         <li><a href="/app/obras" class="{{ 'ativo' if nav_ativo == 'obras' else '' }}" title="Obras">
           <span aria-hidden="true">🗂</span><span class="nav-texto">Obras</span>
         </a></li>
@@ -28,17 +25,31 @@
       <div class="nav-rodape">
         <div class="who">
           <span class="who-nome nav-texto">{{ membro.nome or membro.login }}</span>
-          <span class="who-papel nav-texto">{{ 'Dono — vê tudo' if membro.papel == 'dono' else 'Membro' }}</span>
         </div>
         <div class="ui-feedback-nav" data-ui-feedback-ignore>
           <button type="button" class="ui-feedback-nav-btn" id="ui-feedback-start"
                   title="Selecione qualquer elemento desta página para registrar um comentário">
             <span aria-hidden="true">⌖</span><span class="nav-texto">Fazer apontamento</span>
           </button>
+          <button type="button" class="ui-feedback-nav-btn" id="ui-feedback-add-page"
+                  title="Adicionar esta página ao apontamento em andamento" hidden>
+            <span aria-hidden="true">＋</span><span class="nav-texto">Adicionar nova página</span>
+          </button>
           <button type="button" class="ui-feedback-nav-btn" id="ui-feedback-open"
                   title="Ver os apontamentos do portal por usuário">
             <span aria-hidden="true">☷</span><span class="nav-texto">Ver apontamentos</span>
           </button>
+          {% if membro.papel == 'dono' %}
+          <a href="/app/status" class="ui-feedback-nav-btn {{ 'ativo' if nav_ativo == 'status' else '' }}" title="Status Arete (só o dono)">
+            <span aria-hidden="true">📊</span><span class="nav-texto">Status Arete</span>
+          </a>
+          <a href="/app/base-global" class="ui-feedback-nav-btn {{ 'ativo' if nav_ativo == 'base_global' else '' }}" title="Base Global — mapa do conhecimento (só o dono)">
+            <span aria-hidden="true">🧠</span><span class="nav-texto">Base Global</span>
+          </a>
+          {% endif %}
+          <a href="/app/trocar-senha" class="ui-feedback-nav-btn" title="Trocar a minha senha">
+            <span aria-hidden="true">🔑</span><span class="nav-texto">Trocar senha</span>
+          </a>
         </div>
         <form id="logout-form">
           <button type="submit" class="btn-logout" title="Sair"><span class="nav-texto">Sair</span><span class="nav-icone-compacto" aria-hidden="true">⏻</span></button>
@@ -93,34 +104,50 @@
       });
     });
   </script>
-  <div class="ui-feedback-hover-box" id="ui-feedback-hover-box" data-ui-feedback-ignore hidden></div>
-  <div class="ui-feedback-mode" id="ui-feedback-mode" data-ui-feedback-ignore hidden>
-    Clique no texto, botão, campo ou detalhe que deseja apontar · Esc cancela
+  <div class="ui-feedback-hover-box" id="ui-feedback-hover-box" data-ui-feedback-ignore aria-hidden="true" hidden></div>
+  <div class="ui-feedback-mode" id="ui-feedback-mode" data-ui-feedback-ignore
+       role="status" aria-live="assertive" aria-atomic="true" hidden>
+    Selecione um texto, botão, campo ou detalhe. Use Tab e Enter pelo teclado · Esc cancela
   </div>
-  <dialog class="ui-feedback-dialog" id="ui-feedback-dialog" data-ui-feedback-ignore>
+  <dialog class="ui-feedback-dialog" id="ui-feedback-dialog" data-ui-feedback-ignore
+          aria-modal="true" aria-labelledby="ui-feedback-dialog-title"
+          aria-describedby="ui-feedback-dialog-subtitle">
     <div class="ui-feedback-dialog-head">
-      <div><strong id="ui-feedback-dialog-title">Apontamentos da página</strong>
+      <div><h2 id="ui-feedback-dialog-title">Apontamentos da página</h2>
         <span id="ui-feedback-dialog-subtitle">Feedback comunitário do portal, identificado por usuário</span></div>
       <button type="button" class="ui-feedback-close" data-ui-feedback-close aria-label="Fechar">×</button>
     </div>
-    <section class="ui-feedback-editor" id="ui-feedback-editor" hidden>
-      <div class="ui-feedback-selected-meta" id="ui-feedback-selected-meta"></div>
-      <img id="ui-feedback-preview" class="ui-feedback-preview" alt="Captura do ponto selecionado" hidden>
-      <label for="ui-feedback-text">O que deve ser ajustado neste ponto?</label>
-      <textarea id="ui-feedback-text" maxlength="4000" rows="4"
-                placeholder="Descreva o comportamento esperado ou o problema observado"></textarea>
+    <section class="ui-feedback-editor" id="ui-feedback-editor" aria-label="Novo apontamento" hidden>
+      <div class="ui-feedback-session-bar">
+        <label>Título do apontamento
+          <input id="ui-feedback-session-title" maxlength="500" placeholder="Resumo opcional deste conjunto de ajustes">
+        </label>
+        <div class="ui-feedback-page-tabs" id="ui-feedback-page-tabs" role="tablist" aria-label="Páginas do apontamento"></div>
+      </div>
+      <div class="ui-feedback-points" id="ui-feedback-points"></div>
       <div class="ui-feedback-actions">
-        <button type="button" class="btn-sec btn" data-ui-feedback-cancel>Cancelar</button>
-        <button type="button" class="btn" data-ui-feedback-save>Salvar apontamento</button>
+        <button type="button" class="btn-sec btn" data-ui-feedback-discard>Descartar rascunho</button>
+        <button type="button" class="btn-sec btn" data-ui-feedback-minimize>Minimizar e navegar</button>
+        <button type="button" class="btn-sec btn" data-ui-feedback-add-point>Adicionar mais pontuação</button>
+        <button type="button" class="btn-sec btn" data-ui-feedback-add-page>Adicionar nova página</button>
+        <button type="button" class="btn" data-ui-feedback-save>Finalizar e salvar apontamento</button>
       </div>
       <div class="ui-feedback-message" id="ui-feedback-message" role="status" aria-live="polite"></div>
     </section>
-    <section class="ui-feedback-history" id="ui-feedback-history">
+    <section class="ui-feedback-session-viewer" id="ui-feedback-session-viewer" aria-label="Visualização do apontamento" hidden>
+      <div class="ui-feedback-viewer-head">
+        <button type="button" class="btn-sec btn" data-ui-feedback-back-list>← Todos os apontamentos</button>
+        <div><h3 id="ui-feedback-viewer-title"></h3><span id="ui-feedback-viewer-meta"></span></div>
+      </div>
+      <div class="ui-feedback-page-tabs" id="ui-feedback-viewer-tabs" role="tablist" aria-label="Páginas registradas"></div>
+      <div class="ui-feedback-points" id="ui-feedback-viewer-points"></div>
+    </section>
+    <section class="ui-feedback-history" id="ui-feedback-history" aria-label="Histórico de apontamentos">
       <div class="ui-feedback-history-tools">
         <label><input type="checkbox" id="ui-feedback-only-mine"> Somente meus</label>
         <button type="button" class="btn-sec btn" data-ui-feedback-refresh>Atualizar</button>
       </div>
-      <div class="ui-feedback-list" id="ui-feedback-list"><p>Carregando…</p></div>
+      <div class="ui-feedback-list" id="ui-feedback-list" role="list" aria-live="polite"><p>Carregando…</p></div>
     </section>
   </dialog>
   <script>
@@ -131,7 +158,7 @@
     };
   </script>
   <script src="/static/html2canvas.min.js?v=1.4.1"></script>
-  <script src="/static/ui_feedback.js?v={{ request.app.state.static_versao | default('0') }}"></script>
+  <script src="/static/ui_feedback.js?v={{ request.app.state.static_versao | default('0') }}&ui=20260913capturezoom"></script>
   {% endif %}
   {% block scripts %}{% endblock %}
 </body>

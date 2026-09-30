@@ -301,6 +301,7 @@ def montar_ficha_fv(
     beam: str,
     estado: dict,
     html_fichas_root: Optional[Path] = None,
+    visual_mode: str | None = None,
 ) -> dict[str, Any]:
     """Monta uma ficha por viga, sem alterar qualquer artefato da obra."""
     if not _BEAM_RE.fullmatch(str(beam or "")):
@@ -389,7 +390,9 @@ def montar_ficha_fv(
         photo_item = dict(first)
         if source_beam != beam:
             photo_item["beam_name"] = source_beam
-        current = ficha_reader.extrair_fotos_producao(obra_dir, pavimento, "fundo", photo_item)
+        current = ficha_reader.extrair_fotos_producao(
+            obra_dir, pavimento, "fundo", photo_item, visual_mode,
+        )
         layers["n3"] = {
             "available": bool(current.get("n3")), "svg": current.get("n3"),
             "segments": [{"index": row["index"]} for row in segments],
@@ -398,6 +401,13 @@ def montar_ficha_fv(
 
     return {
         "schema": SCHEMA,
+        "visual_mode": ficha_reader.modo_visual_n3(
+            obra_dir, pavimento, "fundo", state_items[0] if state_items else {"beam_name": beam},
+            visual_mode=visual_mode,
+        ),
+        "available_visual_modes": ficha_reader.modos_visuais_n3_disponiveis(
+            obra_dir, pavimento, "fundo", state_items[0] if state_items else {"beam_name": beam},
+        ),
         "obra": {"pavimento": pavimento},
         "beam": {
             "name": beam,

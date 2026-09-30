@@ -42,8 +42,32 @@ def _line_rows(value: Any) -> list[dict[str, Any]]:
     return result
 
 
+def _panel_rows(lines: list[dict[str, Any]], total: Any) -> list[dict[str, Any]]:
+    """Traduz posições acumuladas de juntas nas larguras que o desenho exibe."""
+    try:
+        extent = round(float(total), 3)
+    except (TypeError, ValueError):
+        return []
+    if extent <= 0:
+        return []
+    positions = sorted({round(float(row["value"]), 3) for row in lines})
+    positions = [value for value in positions if 0 < value < extent]
+    boundaries = [0.0, *positions, extent]
+    result = []
+    for index, (start, end) in enumerate(zip(boundaries, boundaries[1:]), start=1):
+        result.append({
+            "index": index,
+            "start": start,
+            "end": end,
+            "value": round(end - start, 3),
+            "is_remainder": index == len(boundaries) - 1,
+        })
+    return result
+
+
 def montar_ficha_laje(
-    obra_dir: Path, pavimento: str, name: str, estado: dict[str, Any], *, include_svgs: bool = False,
+    obra_dir: Path, pavimento: str, name: str, estado: dict[str, Any], *,
+    include_svgs: bool = False, visual_mode: str | None = None,
 ) -> dict[str, Any]:
     items = ficha_reader.listar_itens_n1(estado, "lajes")
     item = next((row for row in items if str(row.get("item_id") or "").upper() == name.upper()), None)
@@ -59,17 +83,24 @@ def montar_ficha_laje(
     n3 = override_n3 if has_override else contract
     photos = {"n1": None, "n3": None}
     if include_svgs:
-        # SA continua vindo da ficha canônica. N3, porém, é um artefato
-        # regenerável: após um microciclo o HTML histórico permanece imutável
-        # e não pode encobrir o DXF de produção recém-publicado.
-        photos["n1"] = ficha_reader.resolver_foto_portal(
-            obra_dir, pavimento, "lajes", item, "n1",
-        ).get("svg")
-        photos["n3"] = ficha_reader.extrair_fotos_producao(
-            obra_dir, pavimento, "lajes", item,
-        ).get("n3")
+        # O SA contextual e o N3 compacto vêm da mesma leitura de produção.
+        # Assim a carga embutida e a carga sob demanda exibem exatamente os
+        # mesmos artefatos, inclusive após um microciclo de regeneração.
+        photos.update(ficha_reader.extrair_fotos_producao(
+            obra_dir, pavimento, "lajes", item, visual_mode,
+        ))
+    vertical_lines = _line_rows(n3.get("linhas_verticais"))
+    horizontal_lines = _line_rows(n3.get("linhas_horizontais"))
+    vertical_panels = _panel_rows(vertical_lines, contract.get("comprimento"))
+    horizontal_panels = _panel_rows(horizontal_lines, contract.get("largura"))
     return {
         "schema": "cad.portal.laje_ficha/v1",
+        "visual_mode": ficha_reader.modo_visual_n3(
+            obra_dir, pavimento, "lajes", item, visual_mode=visual_mode,
+        ),
+        "available_visual_modes": ficha_reader.modos_visuais_n3_disponiveis(
+            obra_dir, pavimento, "lajes", item,
+        ),
         "item": {
             "id": canonical, "name": canonical,
             "nivel": (item.get("campos") or {}).get("Nível"),
@@ -82,8 +113,12 @@ def montar_ficha_laje(
         "n3": {
             "comprimento": contract.get("comprimento"), "largura": contract.get("largura"),
             "modo_selecionado": contract.get("modo_selecionado"),
-            "linhas_verticais": _line_rows(n3.get("linhas_verticais")),
-            "linhas_horizontais": _line_rows(n3.get("linhas_horizontais")),
+            "linhas_verticais": vertical_lines,
+            "linhas_horizontais": horizontal_lines,
+            "paineis_verticais": vertical_panels,
+            "paineis_horizontais": horizontal_panels,
+            "sobra_vertical": vertical_panels[-1]["value"] if vertical_panels else None,
+            "sobra_horizontal": horizontal_panels[-1]["value"] if horizontal_panels else None,
             "source": "override_humano" if has_override else (str(contract_path) if contract_path else None),
             "has_override": has_override,
         },
@@ -100,6 +135,7 @@ def montar_ficha_laje(
 
 def resolver_camada_laje(
     obra_dir: Path, pavimento: str, name: str, estado: dict[str, Any], layer: str,
+    visual_mode: str | None = None,
 ) -> dict[str, Any]:
     if layer not in {"sa", "n3"}:
         raise ValueError("camada de laje inválida")
@@ -109,12 +145,15 @@ def resolver_camada_laje(
     if layer == "n3":
         photo = {
             "svg": ficha_reader.extrair_fotos_producao(
-                obra_dir, pavimento, "lajes", item,
+                obra_dir, pavimento, "lajes", item, visual_mode,
             ).get("n3"),
             "origem": "artefato_producao",
         }
     else:
-        photo = ficha_reader.resolver_foto_portal(
-            obra_dir, pavimento, "lajes", item, "n1",
-        )
+        photo = {
+            "svg": ficha_reader.extrair_fotos_producao(
+                obra_dir, pavimento, "lajes", item,
+            ).get("n1"),
+            "origem": "recorte_contextual_estrutural",
+        }
     return {"layer": layer, "available": bool(photo.get("svg")), **photo}

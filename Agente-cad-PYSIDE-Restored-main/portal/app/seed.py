@@ -90,6 +90,14 @@ def main(argv: list[str] | None = None) -> int:
         help="membro (--login) JA existente: cria/acha a pasta no Drive e associa, "
              "sem recriar o membro (preserva id/jobs/comentarios ja ligados)",
     )
+    ap.add_argument(
+        "--trocar-senha", action="store_true",
+        help="[2026-09-28] membro precisa trocar a senha no primeiro acesso",
+    )
+    ap.add_argument(
+        "--redefinir-senha", action="store_true",
+        help="membro (--login) JA existente: grava --senha e exige troca no proximo acesso",
+    )
     ap.add_argument("--db", default=None, help="path do portal_data.db (default: raiz do repo)")
     ap.add_argument("--listar", action="store_true", help="lista membros e sai")
     args = ap.parse_args(argv)
@@ -99,6 +107,19 @@ def main(argv: list[str] | None = None) -> int:
         if args.listar:
             for m in repo.listar_membros(conn):
                 print(f"{m['login']:<16} {m['papel']:<8} folder={m['drive_folder_id']}")
+            return 0
+
+        if args.redefinir_senha:
+            if not (args.login and args.senha):
+                ap.error("--redefinir-senha precisa de --login e --senha")
+            membro = repo.obter_membro_por_login(conn, args.login)
+            if membro is None:
+                print(f"membro '{args.login}' nao existe", file=sys.stderr)
+                return 1
+            repo.atualizar_senha_membro(
+                conn, membro["id"], auth.hash_senha(args.senha), trocar_senha=True,
+            )
+            print(f"senha de '{args.login}' redefinida; troca exigida no proximo acesso")
             return 0
 
         if args.atualizar_drive:
@@ -128,6 +149,7 @@ def main(argv: list[str] | None = None) -> int:
             conn, login=args.login, nome=args.nome,
             senha_hash=auth.hash_senha(args.senha), email=args.email,
             papel=args.papel, drive_folder_id=drive_folder_id,
+            trocar_senha=args.trocar_senha,
         )
         print(f"membro criado: {args.login} (papel={args.papel}, id={membro_id})")
         return 0

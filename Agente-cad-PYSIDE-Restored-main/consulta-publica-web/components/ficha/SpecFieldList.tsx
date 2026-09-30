@@ -10,7 +10,11 @@ interface SpecFieldListProps {
 /** Seção "Especificação" — pares chave/valor + banner de atenção condicional
  * (§5.3, AC1). */
 export function SpecFieldList({ campos, atencao }: SpecFieldListProps) {
-  const entradas = Object.entries(campos);
+  const permitidos = ["classificacao", "segmento", "dimensao", "nivel", "nível"];
+  const entradas = Object.entries(campos).filter(([chave]) => {
+    const limpo = chave.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return permitidos.some(p => limpo.includes(p));
+  });
 
   return (
     <section className={styles.wrapper}>

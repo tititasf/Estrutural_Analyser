@@ -31,7 +31,7 @@
     </thead>
     <tbody>
       {% for classe, rotulo in rotulos.items() %}
-      {% set ja_liberado = n5_releases | selectattr('classe', 'equalto', classe) | list %}
+      {% set ja_liberado = n5_releases | selectattr('classe', 'equalto', classe) | selectattr('pavimento', 'equalto', pavimento) | list %}
       <tr>
         <td><strong>{{ classe }}</strong></td>
         <td>{{ class_badge(classe, rotulo) }}</td>
@@ -79,9 +79,10 @@
         var card = linha.querySelector('.n1-foto-card');
         if (!linha.hidden) { linha.hidden = true; return; }
         linha.hidden = false;
-        if (!card.querySelector('img')) {
-          card.innerHTML = '<h4>N5 — ' + classe + '</h4><div class="zoom-pan-viewport"><img alt="N5 ' + classe + '" src="/obras/' + obraId + '/n5/' + classe + '/foto"></div>' +
-            '<p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta</p>';
+        if (!card.querySelector('.zoom-pan-viewport')) {
+          var svgUrl = '/obras/' + obraId + '/n5/' + classe + '/foto?pavimento=' + encodeURIComponent({{ (pavimento or 'GERAL')|tojson }});
+          card.innerHTML = '<h4>N5 — ' + classe + '</h4><div class="zoom-pan-viewport" data-n5-svg-src="' + svgUrl + '" role="img" aria-label="N5 ' + classe + '"><span class="n5-svg-loading" role="status">Carregando desenho vetorial…</span></div>' +
+            '<p class="zoom-pan-dica">Scroll pra zoom, arraste pra navegar, duplo-clique reseta (viewBox)</p>';
           if (window.ativarZoomEmContainer) window.ativarZoomEmContainer(card);
         }
       });
@@ -103,7 +104,7 @@
         }).then(function (r) {
           if (!r.ok) throw new Error('n5 ' + r.status);
           // 2) dispara o download do DXF consolidado
-          window.location.href = '/obras/' + obra + '/n5/' + classe + '/download';
+          window.location.href = '/obras/' + obra + '/n5/' + classe + '/download?pavimento=' + encodeURIComponent({{ (pavimento or 'GERAL')|tojson }});
           res.className = 'faixa faixa-info';
           res.textContent = 'Download iniciado para ' + classe + '.';
         }).catch(function () {

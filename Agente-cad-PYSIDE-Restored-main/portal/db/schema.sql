@@ -21,6 +21,8 @@ CREATE TABLE IF NOT EXISTS portal_membros (
                   CHECK (papel IN ('membro','dono')),
     drive_folder_id TEXT UNIQUE,
     ativo         INTEGER NOT NULL DEFAULT 1 CHECK (ativo IN (0,1)),
+    -- [016] 1 = senha padrão; portal só serve a troca de senha até trocar.
+    trocar_senha  INTEGER NOT NULL DEFAULT 0 CHECK (trocar_senha IN (0,1)),
     created_at    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
     updated_at    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
@@ -43,6 +45,8 @@ CREATE TABLE IF NOT EXISTS portal_obras (
                    CHECK (estado IN ('aguardando_ingestao','processando','pronta','erro')),
     erro_msg       TEXT,
     local_path     TEXT,
+    comportamento TEXT NOT NULL DEFAULT 'misto'
+                   CHECK (comportamento IN ('para','passa','misto')),
     -- [2026-07-06, migrations/003] última etapa (triagem/recortes/sa) concluída
     -- com sucesso — `estado` sozinho não distingue "só a triagem rodou" de
     -- "o SA completo rodou" (achado real testando o modo rápido: toda etapa
@@ -52,6 +56,18 @@ CREATE TABLE IF NOT EXISTS portal_obras (
     detectada_em   TEXT,
     processada_em  TEXT,
     updated_at     TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+
+CREATE TABLE IF NOT EXISTS portal_obra_pavimentos (
+    obra_id TEXT NOT NULL REFERENCES portal_obras(id) ON DELETE CASCADE,
+    pavimento TEXT NOT NULL,
+    ordem INTEGER NOT NULL CHECK (ordem >= 0),
+    repete_de INTEGER,
+    repete_ate INTEGER,
+    PRIMARY KEY (obra_id, pavimento),
+    UNIQUE (obra_id, ordem),
+    CHECK ((repete_de IS NULL AND repete_ate IS NULL) OR
+           (repete_de IS NOT NULL AND repete_ate IS NOT NULL AND repete_de >= 1 AND repete_de <= repete_ate))
 );
 
 -- 2.2b portal_documentos — documentos individuais dentro de uma obra (2026-07-06).
@@ -144,6 +160,17 @@ CREATE TABLE IF NOT EXISTS portal_n5_releases (
     liberado_em   TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
 );
 
+-- Aprovação do N5 é vinculada ao release. Se o motor regenerar a classe,
+-- o novo arquivo nasce pendente em vez de herdar a aprovação do anterior.
+CREATE TABLE IF NOT EXISTS portal_n5_validacoes (
+    release_id     TEXT PRIMARY KEY REFERENCES portal_n5_releases(id) ON DELETE CASCADE,
+    obra_id        TEXT NOT NULL REFERENCES portal_obras(id),
+    classe         TEXT NOT NULL CHECK (classe IN ('PL','LV','FV','LJ')),
+    pavimento      TEXT NOT NULL,
+    aprovado_por   TEXT NOT NULL REFERENCES portal_membros(id),
+    aprovado_em    TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now'))
+);
+
 -- Índices (HANDOFF §4).
 CREATE INDEX IF NOT EXISTS idx_obras_membro_estado ON portal_obras(membro_id, estado, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_obras_pasta_arquivo ON portal_obras(pasta_drive_id, created_at DESC);
@@ -156,3 +183,4 @@ CREATE INDEX IF NOT EXISTS idx_coment_export ON portal_comentarios_equipe(export
 CREATE INDEX IF NOT EXISTS idx_coment_obra ON portal_comentarios_equipe(obra_id, item_id);
 CREATE INDEX IF NOT EXISTS idx_n5_obra ON portal_n5_releases(obra_id, classe, pavimento, liberado_em DESC);
 CREATE INDEX IF NOT EXISTS idx_n5_auditoria ON portal_n5_releases(liberado_em DESC);
+CREATE INDEX IF NOT EXISTS idx_n5_validacoes_obra_pav ON portal_n5_validacoes(obra_id, pavimento, classe);

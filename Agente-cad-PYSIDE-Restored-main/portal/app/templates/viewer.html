@@ -50,8 +50,8 @@
 
 <p class="muted" style="font-size:.75rem;margin-top:8px">
   Arraste para mover · roda do mouse aproxima · duplo clique volta ao enquadramento inicial.
-  Itens em vermelho têm geometria fora da prancha — erro de interpretação a investigar,
-  não são desenháveis aqui.
+  <span style="color:#4ea1ff">● Segue</span> · <span style="color:#ffe033">● Morre aqui</span> · <span style="color:#ff4545">● Nasce no próximo pavimento</span> · <span style="color:#a8b0bd">● Indeterminado</span>
+  · Geometria fora da prancha é indicada no título do item.
 </p>
 {% endblock %}
 
@@ -80,6 +80,16 @@
     box.hidden = false;
   }
 
+
+  // Convenção do pilar já interpretada pelo SA; desconhecidos ficam explícitos.
+  function corPilar(item) {
+    var c = String(item.classification || '').trim().toUpperCase();
+    if (c === 'NASCE') return '#ff4545';
+    if (c === 'MORRE') return '#ffe033';
+    if (['SEGUE', 'CONTINUA', 'PASSA'].indexOf(c) !== -1) return '#4ea1ff';
+    return '#a8b0bd';
+  }
+
   function desenhar() {
     var camada = el("v-camada");
     camada.innerHTML = "";
@@ -89,8 +99,9 @@
 
     dados.grupos.forEach(function (grupo) {
       if (!ativos[grupo.grupo]) return;
-      var cor = CORES[grupo.grupo] || "#fff";
+      var corGrupo = CORES[grupo.grupo] || "#fff";
       grupo.itens.forEach(function (item) {
+        var cor = grupo.grupo === "pilares" ? corPilar(item) : corGrupo;
         visiveis++;
         var pts = item.pontos_px.map(function (p) { return p[0] + "," + p[1]; }).join(" ");
         var poly = document.createElementNS(SVGNS, "polygon");
@@ -133,7 +144,7 @@
           var rot = String(item.rotulo || "").trim();
           var linhas = (function (s) {
             if (!s) return [""];
-            var mSeg = s.match(/^(.*?)\s+(SEG\s*\d+)\s*$/i);
+            var mSeg = s.match(/^(.*?)\s+(SEG\s*\d+(?:\.\d+)?(?:-[AB])?)\s*$/i);
             if (mSeg) return [mSeg[1].trim(), mSeg[2].replace(/\s+/g, " ").toUpperCase()];
             var mPar = s.match(/^(.*?)\s*\(segmento\s+(\d+)\)\s*$/i);
             if (mPar) return [mPar[1].trim(), "SEG " + mPar[2]];

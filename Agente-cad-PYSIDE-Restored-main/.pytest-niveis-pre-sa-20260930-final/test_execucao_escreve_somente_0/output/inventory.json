@@ -1,0 +1,84 @@
+{
+  "level_conventions": {},
+  "mode": "inventory_only",
+  "modules": {
+    "cuts": "not_implemented",
+    "inventory": "complete",
+    "level_convention": "not_available",
+    "levels": "not_implemented",
+    "pillar_convention": "not_available",
+    "pillars": "partial",
+    "sa_consumption": "disabled",
+    "slabs_beams": "partial"
+  },
+  "obra_id": "obra-1",
+  "pavimento_id": "14_PAV",
+  "pillar_conventions": {},
+  "pillars": {
+    "pre-src-v1:ce13fd565292649fb0974c128a4e6e2664d7b0f28d698554ac38d6e2cbf1ca5f": {
+      "convention_source_ids": [],
+      "counts": {
+        "linked": 0,
+        "pending": 1,
+        "total": 1
+      },
+      "items": [
+        {
+          "classification_alternatives": [],
+          "classification_raw": null,
+          "coordinate_system": "dxf:modelspace",
+          "dimension_raw": null,
+          "display_name": "P1",
+          "geometry": null,
+          "hatch_signature": null,
+          "item_id": "pending:pre-src-v1:ce13fd565292649fb0974c128a4e6e2664d7b0f28d698554ac38d6e2cbf1ca5f:2F",
+          "source_entity_handles": [
+            "2F"
+          ],
+          "status": "geometry_missing",
+          "warnings": [
+            "rotulo_sem_geometria_associada"
+          ]
+        }
+      ],
+      "source_id": "pre-src-v1:ce13fd565292649fb0974c128a4e6e2664d7b0f28d698554ac38d6e2cbf1ca5f",
+      "status": "partial",
+      "warnings": [
+        "convencao_pilares_ausente"
+      ]
+    }
+  },
+  "preview": false,
+  "provisional": false,
+  "schema_version": 1,
+  "sources": [
+    {
+      "bruto_id": "A",
+      "item_id": "torre_1",
+      "kind": "tower",
+      "obra_id": "obra-1",
+      "pavimento_id": "14_PAV",
+      "relative_path": "Fase-2_Triagem/recortes/A/torre_1.dxf",
+      "revision": "cb7c62b4b050aac2b81adad5f184a1d286be35c5b061d9177952fd809750265f",
+      "source_id": "pre-src-v1:ce13fd565292649fb0974c128a4e6e2664d7b0f28d698554ac38d6e2cbf1ca5f",
+      "validated": true
+    }
+  ],
+  "status": "partial",
+  "structural_labels": {
+    "pre-src-v1:ce13fd565292649fb0974c128a4e6e2664d7b0f28d698554ac38d6e2cbf1ca5f": {
+      "counts": {
+        "ambiguous": 0,
+        "beams": 0,
+        "slabs": 0
+      },
+      "items": [],
+      "source_id": "pre-src-v1:ce13fd565292649fb0974c128a4e6e2664d7b0f28d698554ac38d6e2cbf1ca5f",
+      "status": "partial",
+      "warnings": [
+        "geometria_parcial_ou_ambigua"
+      ]
+    }
+  },
+  "unvalidated_source_ids": []
+}

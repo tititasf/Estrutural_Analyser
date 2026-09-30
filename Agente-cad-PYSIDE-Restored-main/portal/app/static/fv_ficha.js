@@ -126,24 +126,17 @@
     return '<article class="fv-web-ficha" aria-label="Ficha de fundo de viga ' + esc(beam.name) + '">' +
       '<header class="fv-web-head"><div>' +
         '<p class="fv-web-kicker">Fundo de viga · ficha HI-FI</p><h2>' + esc(beam.name) + '</h2>' +
-        '<span>' + beam.segment_count + ' segmento(s)</span><button type="button" class="fv-rename" data-fv-rename>Renomear fundo de viga</button></div>' +
-        '<div class="fv-web-nav"><button type="button" data-fv-nav="previous" ' + (!beam.previous ? 'disabled' : '') +
+        '<span>' + beam.segment_count + ' segmento(s)</span><button type="button" class="fv-rename" data-fv-rename>Renomear fundo de viga</button><button type="button" class="danger" data-fv-delete-beam>Excluir viga</button></div>' +
+        '<div class="fv-web-nav"><button type="button" data-fv-nav="previous" data-fv-target="' + esc(beam.previous || '') + '" ' + (!beam.previous ? 'disabled' : '') +
           ' aria-label="Viga anterior">←</button><b>' + beam.position + '/' + beam.total_beams + '</b>' +
-          '<button type="button" data-fv-nav="next" ' + (!beam.next ? 'disabled' : '') +
+          '<button type="button" data-fv-nav="next" data-fv-target="' + esc(beam.next || '') + '" ' + (!beam.next ? 'disabled' : '') +
           ' aria-label="Próxima viga">→</button></div></header>' +
       (mismatchCount ? '<aside class="fv-web-integrity" role="status"><strong>SA atual preservado</strong><span>' +
         mismatchCount + ' segmento(s) diferem da ficha HI-FI de referência. Medidas e painéis antigos não foram aplicados; ' +
         'as camadas de desenho permanecem disponíveis somente para comparação.</span></aside>' : '') +
-      '<section class="fv-web-table-card"><div class="fv-web-section-title"><div><h3>Interpretação dos segmentos</h3>' +
-        '<p>Selecione uma linha para abrir os painéis e enquadrar o segmento.</p></div>' +
-        '<span>medidas em cm</span></div><div class="fv-web-table-scroll"><table class="fv-web-table">' +
-        '<thead><tr><th></th><th>Seg.</th><th>Comprimento</th><th>Largura</th><th>Altura da viga</th>' +
-        '<th>Nível</th><th>Ponto inicial</th><th>Ponto final</th><th>Painéis N3</th>' +
-        '<th>Selo validação<br><button type="button" data-fv-table-validate-all>Validar todos</button></th></tr></thead>' +
-        '<tbody>' + segmentRows(data.segments) + '</tbody></table></div></section>' +
       '<section class="fv-web-viewer-card"><div class="fv-web-layerbar" role="toolbar" aria-label="Camadas do fundo de viga">' +
         layerOrder.map(function (name) {
-          var available = layers[name] && layers[name].available;
+          var available = name === 'n3' || (layers[name] && layers[name].available);
           var referenceOnly = available && name !== 'sa' && mismatchCount > 0;
           return '<button type="button" class="fv-web-layer ' + name + (name === 'sa' ? ' active' : '') + '" data-fv-layer="' + name + '" ' +
             (!available ? 'disabled title="Camada não materializada"' : (referenceOnly ? 'title="Referência visual de outra segmentação"' : '')) +
@@ -151,6 +144,11 @@
             '<small>' + (available ? (referenceOnly ? 'referência' : 'disponível') : 'ausente') + '</small></button>';
         }).join('') + '</div>' +
         '<div class="fv-web-segtabs" role="tablist" data-fv-segtabs></div>' +
+        '<section class="fv-web-table-card lv-interpretation-card fv-interpretation-card"><div class="fv-web-table-scroll"><table class="fv-web-table">' +
+        '<thead><tr><th></th><th>Seg.</th><th>Comprimento</th><th>Largura</th><th>Altura da viga</th>' +
+        '<th>Nível</th><th>Ponto inicial</th><th>Ponto final</th><th>Painéis N3</th>' +
+        '<th>Selo validação<br><button type="button" data-fv-table-validate-all>Validar todos</button></th></tr></thead>' +
+        '<tbody>' + segmentRows(data.segments) + '</tbody></table></div></section>' +
         '<div class="fv-web-layer-actions" data-fv-layer-actions></div>' +
         '<div class="fv-web-canvas" tabindex="0"><div class="fv-web-canvas-inner"></div>' +
           '<div class="fv-web-canvas-actions"><span data-fv-view-label>SA · Todos</span>' +
@@ -277,7 +275,7 @@
   }
 
   function bind(root, options, data) {
-    var state = {layer: 'sa', segment: String(options.initialSegment || 'todos'), pz: null,
+    var state = {layer: String(options.initialLayer || 'sa'), segment: String(options.initialSegment || 'todos'), pz: null,
       editing: null, pointing: null, hiddenHighlights: []};
     var layers = data.context.layers || {};
     var canvas = root.querySelector('.fv-web-canvas');
@@ -446,10 +444,16 @@
 
     function regenerateN3(detail, button) {
       var index = detail.getAttribute('data-fv-detail'); button.disabled = true; button.textContent = 'Salvando e enfileirando…';
-      saveN3(detail, button).then(function () {
+      var chooser = window.escolherModoDesenho ? window.escolherModoDesenho({currentMode:data.visual_mode,description:'Escolha o estilo para regenerar este fundo de viga e manter no N5.'}) : Promise.resolve('NOVA');
+      chooser.then(function (visualMode) {
+        if (!visualMode) { button.disabled=false; button.textContent='Regenerar N3 deste segmento'; return null; }
+        options.visualMode = visualMode;
+        return saveN3(detail, button).then(function () {
         return api('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(data.beam.name) +
-          '/segmentos/' + index + '/regenerar-n3' + querySuffix(), {method:'POST'});
+          '/segmentos/' + index + '/regenerar-n3' + querySuffix(), {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({visual_mode:visualMode})});
+        });
       }).then(function (job) {
+        if (!job) return;
         qaStatus.textContent = 'Regeneração N3 de S' + index + ' enfileirada · aguardando processamento…';
         function pollJob() {
           fetch('/jobs/' + encodeURIComponent(job.job_id)).then(function(response){return response.json();}).then(function(status){
@@ -558,19 +562,9 @@
     function deleteSegment(button) {
       var segment = selectedSaSegment();
       if (!segment) return;
-      if (!window.confirm('Excluir definitivamente o segmento S' + state.segment + ' de ' + data.beam.name + '?')) return;
-      button.disabled = true;
-      api('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(data.beam.name) +
-          '/segmentos/' + encodeURIComponent(state.segment) + querySuffix(), {method: 'DELETE'})
-        .then(function () {
-          if (window.DrillGrade && window.DrillGrade.refreshItems) window.DrillGrade.refreshItems();
-          load(root, Object.assign({}, options, {initialSegment: 'todos'}));
-        }).catch(function (error) {
-          button.disabled = false; qaStatus.className = 'fv-qa-status error';
-          qaStatus.textContent = 'Falha ao excluir segmento: ' + error.message;
-        });
+      window.ItemGeometry.delete({classe:'fundo',itemId:segment.id,beam:data.beam.name,
+        segmento:segment.index,pavimento:options.pavimento}, false);
     }
-
     function deleteLayer(button) {
       var layer = state.layer;
       if (['c1', 'c2', 'c3'].indexOf(layer) < 0) return;
@@ -652,10 +646,7 @@
         return [bbox[0] + point.x / transform.largura_px * (bbox[2] - bbox[0]),
                 bbox[3] - point.y / transform.altura_px * (bbox[3] - bbox[1])];
       });
-      api('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(data.beam.name) +
-          '/segmentos/' + encodeURIComponent(state.segment) + querySuffix(), {
-            method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({points: points})
-          }).then(function () {
+      window.ItemGeometry.save({classe:'fundo',itemId:selectedSaSegment().id,pavimento:options.pavimento}, points).then(function () {
         if (window.DrillGrade && window.DrillGrade.refreshItems) window.DrillGrade.refreshItems();
         load(root, Object.assign({}, options, {initialSegment: state.segment}));
       }).catch(function (error) {
@@ -698,16 +689,19 @@
     }
 
     function showLayer(name) {
-      if (!layers[name] || !layers[name].available) return;
+      if (!layers[name] || (!layers[name].available && name !== 'n3')) return;
       restoreHighlights();
       state.layer = name;
-      inner.innerHTML = cleanSvg(layers[name].svg);
+      inner.innerHTML = cleanSvg(layers[name].svg) || (name === 'n3'
+        ? '<div class="lv-canvas-empty"><strong>Modo ' + (data.visual_mode === 'INI' ? 'Ini' : 'Nova') + ' ainda não gerado.</strong><br>Solicite a regeneração deste fundo nesse modo para visualizar ou baixar.</div>'
+        : '');
       root.querySelectorAll('[data-fv-layer]').forEach(function (button) {
         button.classList.toggle('active', button.getAttribute('data-fv-layer') === name);
       });
       state.editing = null; canvas.classList.remove('fv-editing');
       renderSegmentTabs(); renderLayerActions();
       state.pz = initPanZoom(canvas);
+      if (name === 'n3' && window.aplicarTagModoDesenho) window.aplicarTagModoDesenho(canvas, data.visual_mode,{onChange:function(mode){load(root,Object.assign({},options,{initialLayer:'n3',visualMode:mode}));}});
       renderAnnotationMarkers();
       label.textContent = layerLabel(name) + ' · ' + (state.segment === 'todos' ? 'Todos' : 'S' + state.segment);
       window.requestAnimationFrame(function () { focusSegment(state.pz, name, state.segment); });
@@ -823,6 +817,11 @@
     function selectSegment(segment, expand) {
       restoreHighlights();
       state.segment = String(segment);
+      root.querySelectorAll('[data-fv-segment], [data-fv-detail]').forEach(function (row) {
+        var key = row.getAttribute('data-fv-segment') || row.getAttribute('data-fv-detail');
+        if (row.hasAttribute('data-fv-segment')) row.hidden = state.segment !== 'todos' && key !== state.segment;
+        else if (state.segment !== 'todos' && key !== state.segment) row.hidden = true;
+      });
       root.querySelectorAll('[data-fv-focus]').forEach(function (button) {
         button.classList.toggle('active', button.getAttribute('data-fv-focus') === state.segment);
       });
@@ -943,6 +942,9 @@
     });
     root.querySelector('[data-fv-save-notes]').addEventListener('click', function () { saveNotes(true); });
     root.querySelector('[data-fv-rename]').addEventListener('click', renameBeam);
+    root.querySelector('[data-fv-delete-beam]').addEventListener('click', function () {
+      window.ItemGeometry.delete({classe:'fundo',itemId:data.beam.name,beam:data.beam.name,pavimento:options.pavimento}, true);
+    });
     root.querySelector('[data-fv-cancel-point]').addEventListener('click', function () {
       state.pointing=null; canvas.classList.remove('fv-pointing'); root.querySelector('[data-fv-annotation-editor]').hidden=true;
     });
@@ -961,13 +963,17 @@
       api('/obras/'+encodeURIComponent(options.obraId)+'/fv/'+encodeURIComponent(data.beam.name)+'/apontamentos/'+encodeURIComponent(id)+querySuffix(),{method:'DELETE'})
         .then(function(){load(root,Object.assign({},options,{initialSegment:state.segment}));});
     });
-    showLayer(layers.sa && layers.sa.available ? 'sa' : Object.keys(layers).filter(function (key) { return layers[key].available; })[0]);
+    var requestedLayer = state.layer;
+    showLayer(layers[requestedLayer] && (layers[requestedLayer].available || requestedLayer === 'n3')
+      ? requestedLayer
+      : (layers.sa && layers.sa.available ? 'sa' : Object.keys(layers).filter(function (key) { return layers[key].available; })[0]));
     if (state.segment !== 'todos') selectSegment(state.segment, true);
   }
 
   function load(root, options) {
     root.innerHTML = '<div class="fv-web-loading"><i></i><span>Montando ficha HI-FI de ' + esc(options.beam) + '…</span></div>';
     var query = options.pavimento ? '?pavimento=' + encodeURIComponent(options.pavimento) : '';
+    if (options.visualMode) query += (query ? '&' : '?') + 'visual_mode=' + encodeURIComponent(options.visualMode);
     fetch('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(options.beam) + query)
       .then(function (response) {
         return response.json().then(function (body) {

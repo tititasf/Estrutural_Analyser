@@ -1,0 +1,363 @@
+--- a/portal/app/ficha_reader.py
++++ b/portal/app/ficha_reader.py
+@@ -176,7 +176,9 @@
+         return None
+     try:
+         from src.core.pillar_sa_review import apply_state
+-        return apply_state(json.loads(caminho.read_text(encoding="utf-8")), obra_dir, pavimento)
++        from .item_geometry import apply_state as apply_geometry
++        state = apply_geometry(json.loads(caminho.read_text(encoding="utf-8")), obra_dir, pavimento)
++        return apply_state(state, obra_dir, pavimento)
+     except (OSError, json.JSONDecodeError) as exc:
+         log.warning("estado_%s.json ilegível em %s: %s", pavimento, obra_dir, exc)
+         return None
+--- a/portal/app/fv_operations.py
++++ b/portal/app/fv_operations.py
+@@ -505,7 +505,8 @@
+     if "</svg>" not in svg:
+         raise ValueError("SVG do estrutural limpo invalido")
+     drawings = []
+-    for index, row in enumerate(raw_segments, 1):
++    for fallback_index, row in enumerate(raw_segments, 1):
++        index = int(str(row.get("segment_label") or fallback_index))
+         points = _points(row.get("points"))
+         pixels = [transform.dxf_para_px(point[0], point[1]) for point in points]
+         coords = " ".join(f"{x:.3f},{y:.3f}" for x, y in pixels)
+--- a/portal/app/main.py
++++ b/portal/app/main.py
+@@ -28,6 +28,7 @@
+     fichas_routes,
+     jobs_routes,
+     n1_routes,
++    item_geometry_routes,
+     obras_routes,
+     paginas_routes,
+     preprocessamento_routes,
+@@ -175,6 +176,7 @@
+     app.include_router(jobs_routes.router)
+     app.include_router(fichas_routes.router)
+     app.include_router(n1_routes.router)
++    app.include_router(item_geometry_routes.router)
+     app.include_router(recortes_routes.router)
+     app.include_router(preprocessamento_routes.router)
+     app.include_router(viewer_routes.router)
+--- a/portal/app/pillar_tag_view.py
++++ b/portal/app/pillar_tag_view.py
+@@ -40,7 +40,7 @@
+     if source is None:
+         return None
+     fingerprint = hashlib.sha256(json.dumps({
+-        "tables": tables, "dxf": str(source), "mtime": source.stat().st_mtime_ns,
++        "points": pillar["points"], "tables": tables, "dxf": str(source), "mtime": source.stat().st_mtime_ns,
+     }, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()[:24]
+     if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", pavimento) or not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", pillar_name):
+         return None
+--- a/portal/app/routers/n1_routes.py
++++ b/portal/app/routers/n1_routes.py
+@@ -1060,6 +1060,9 @@
+         obra_dir, pav, classe, item,
+         foto_n1_fallback=fotos["n1"], html_fichas_root=html_fichas_root,
+     )
++    from ..item_geometry import load as load_manual_geometry
++    if item_id in load_manual_geometry(obra_dir, pav).get("edits", {}).get("pilares", {}):
++        visualizacoes_n1["proximo"] = ficha_reader._svg_sa_laje_contextual(obra_dir, pav, item, classe=classe) or ficha_reader._svg_geometria_n1(item)
+     resumo_pilar_n1 = None
+     tag_sync = "original"
+     if classe in {"pilares", "pilares_especiais", "pilares_n3_para", "pilares_n3_passa"}:
+--- a/portal/app/static/drill_grade.js
++++ b/portal/app/static/drill_grade.js
+@@ -2273,6 +2273,7 @@
+       window._recorteReplaceIntent = { brutoId: brutoId, itemId: itemId };
+       selectRecorteDoc(brutoDoc.id);
+     },
++    openTorreCriar: openTorreCriar,
+     openSaClasse: openSaClasse,
+     goPavsList: goPavsList,
+     goHub: goHub,
+--- a/portal/app/static/fv_ficha.js
++++ b/portal/app/static/fv_ficha.js
+@@ -126,7 +126,7 @@
+     return '<article class="fv-web-ficha" aria-label="Ficha de fundo de viga ' + esc(beam.name) + '">' +
+       '<header class="fv-web-head"><div>' +
+         '<p class="fv-web-kicker">Fundo de viga · ficha HI-FI</p><h2>' + esc(beam.name) + '</h2>' +
+-        '<span>' + beam.segment_count + ' segmento(s)</span><button type="button" class="fv-rename" data-fv-rename>Renomear fundo de viga</button></div>' +
++        '<span>' + beam.segment_count + ' segmento(s)</span><button type="button" class="fv-rename" data-fv-rename>Renomear fundo de viga</button><button type="button" class="danger" data-fv-delete-beam>Excluir viga</button></div>' +
+         '<div class="fv-web-nav"><button type="button" data-fv-nav="previous" data-fv-target="' + esc(beam.previous || '') + '" ' + (!beam.previous ? 'disabled' : '') +
+           ' aria-label="Viga anterior">←</button><b>' + beam.position + '/' + beam.total_beams + '</b>' +
+           '<button type="button" data-fv-nav="next" data-fv-target="' + esc(beam.next || '') + '" ' + (!beam.next ? 'disabled' : '') +
+@@ -134,13 +134,6 @@
+       (mismatchCount ? '<aside class="fv-web-integrity" role="status"><strong>SA atual preservado</strong><span>' +
+         mismatchCount + ' segmento(s) diferem da ficha HI-FI de referência. Medidas e painéis antigos não foram aplicados; ' +
+         'as camadas de desenho permanecem disponíveis somente para comparação.</span></aside>' : '') +
+-      '<section class="fv-web-table-card"><div class="fv-web-section-title"><div><h3>Interpretação dos segmentos</h3>' +
+-        '<p>Selecione uma linha para abrir os painéis e enquadrar o segmento.</p></div>' +
+-        '<span>medidas em cm</span></div><div class="fv-web-table-scroll"><table class="fv-web-table">' +
+-        '<thead><tr><th></th><th>Seg.</th><th>Comprimento</th><th>Largura</th><th>Altura da viga</th>' +
+-        '<th>Nível</th><th>Ponto inicial</th><th>Ponto final</th><th>Painéis N3</th>' +
+-        '<th>Selo validação<br><button type="button" data-fv-table-validate-all>Validar todos</button></th></tr></thead>' +
+-        '<tbody>' + segmentRows(data.segments) + '</tbody></table></div></section>' +
+       '<section class="fv-web-viewer-card"><div class="fv-web-layerbar" role="toolbar" aria-label="Camadas do fundo de viga">' +
+         layerOrder.map(function (name) {
+           var available = name === 'n3' || (layers[name] && layers[name].available);
+@@ -151,6 +144,11 @@
+             '<small>' + (available ? (referenceOnly ? 'referência' : 'disponível') : 'ausente') + '</small></button>';
+         }).join('') + '</div>' +
+         '<div class="fv-web-segtabs" role="tablist" data-fv-segtabs></div>' +
++        '<section class="fv-web-table-card lv-interpretation-card fv-interpretation-card"><div class="fv-web-table-scroll"><table class="fv-web-table">' +
++        '<thead><tr><th></th><th>Seg.</th><th>Comprimento</th><th>Largura</th><th>Altura da viga</th>' +
++        '<th>Nível</th><th>Ponto inicial</th><th>Ponto final</th><th>Painéis N3</th>' +
++        '<th>Selo validação<br><button type="button" data-fv-table-validate-all>Validar todos</button></th></tr></thead>' +
++        '<tbody>' + segmentRows(data.segments) + '</tbody></table></div></section>' +
+         '<div class="fv-web-layer-actions" data-fv-layer-actions></div>' +
+         '<div class="fv-web-canvas" tabindex="0"><div class="fv-web-canvas-inner"></div>' +
+           '<div class="fv-web-canvas-actions"><span data-fv-view-label>SA · Todos</span>' +
+@@ -564,19 +562,9 @@
+     function deleteSegment(button) {
+       var segment = selectedSaSegment();
+       if (!segment) return;
+-      if (!window.confirm('Excluir definitivamente o segmento S' + state.segment + ' de ' + data.beam.name + '?')) return;
+-      button.disabled = true;
+-      api('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(data.beam.name) +
+-          '/segmentos/' + encodeURIComponent(state.segment) + querySuffix(), {method: 'DELETE'})
+-        .then(function () {
+-          if (window.DrillGrade && window.DrillGrade.refreshItems) window.DrillGrade.refreshItems();
+-          load(root, Object.assign({}, options, {initialSegment: 'todos'}));
+-        }).catch(function (error) {
+-          button.disabled = false; qaStatus.className = 'fv-qa-status error';
+-          qaStatus.textContent = 'Falha ao excluir segmento: ' + error.message;
+-        });
+-    }
+-
++      window.ItemGeometry.delete({classe:'fundo',itemId:segment.id,beam:data.beam.name,
++        segmento:segment.index,pavimento:options.pavimento}, false);
++    }
+     function deleteLayer(button) {
+       var layer = state.layer;
+       if (['c1', 'c2', 'c3'].indexOf(layer) < 0) return;
+@@ -658,10 +646,7 @@
+         return [bbox[0] + point.x / transform.largura_px * (bbox[2] - bbox[0]),
+                 bbox[3] - point.y / transform.altura_px * (bbox[3] - bbox[1])];
+       });
+-      api('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(data.beam.name) +
+-          '/segmentos/' + encodeURIComponent(state.segment) + querySuffix(), {
+-            method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({points: points})
+-          }).then(function () {
++      window.ItemGeometry.save({classe:'fundo',itemId:selectedSaSegment().id,pavimento:options.pavimento}, points).then(function () {
+         if (window.DrillGrade && window.DrillGrade.refreshItems) window.DrillGrade.refreshItems();
+         load(root, Object.assign({}, options, {initialSegment: state.segment}));
+       }).catch(function (error) {
+@@ -832,6 +817,11 @@
+     function selectSegment(segment, expand) {
+       restoreHighlights();
+       state.segment = String(segment);
++      root.querySelectorAll('[data-fv-segment], [data-fv-detail]').forEach(function (row) {
++        var key = row.getAttribute('data-fv-segment') || row.getAttribute('data-fv-detail');
++        if (row.hasAttribute('data-fv-segment')) row.hidden = state.segment !== 'todos' && key !== state.segment;
++        else if (state.segment !== 'todos' && key !== state.segment) row.hidden = true;
++      });
+       root.querySelectorAll('[data-fv-focus]').forEach(function (button) {
+         button.classList.toggle('active', button.getAttribute('data-fv-focus') === state.segment);
+       });
+@@ -952,6 +942,9 @@
+     });
+     root.querySelector('[data-fv-save-notes]').addEventListener('click', function () { saveNotes(true); });
+     root.querySelector('[data-fv-rename]').addEventListener('click', renameBeam);
++    root.querySelector('[data-fv-delete-beam]').addEventListener('click', function () {
++      window.ItemGeometry.delete({classe:'fundo',itemId:data.beam.name,beam:data.beam.name,pavimento:options.pavimento}, true);
++    });
+     root.querySelector('[data-fv-cancel-point]').addEventListener('click', function () {
+       state.pointing=null; canvas.classList.remove('fv-pointing'); root.querySelector('[data-fv-annotation-editor]').hidden=true;
+     });
+--- a/portal/app/static/laje_ficha.js
++++ b/portal/app/static/laje_ficha.js
+@@ -190,13 +190,13 @@
+   function bind(root,data,options,state){
+     root.querySelectorAll('[data-lj-layer]').forEach(function(b){b.addEventListener('click',function(){state.layer=b.dataset.ljLayer;state.editing=false;render(root,data,options,state);});});
+     root.querySelectorAll('[data-lj-nav]').forEach(function(b){b.addEventListener('click',function(){if(b.dataset.ljNav)load(root,Object.assign({},options,{item:b.dataset.ljNav}));});});
+-    var edit=root.querySelector('[data-lj-edit]'),editMain=root.querySelector('[data-lj-edit-main]');function startEdit(){state.editing=true;render(root,data,options,state);}if(edit)edit.addEventListener('click',startEdit);if(editMain)editMain.addEventListener('click',startEdit);
++    var edit=root.querySelector('[data-lj-edit]'),editMain=root.querySelector('[data-lj-edit-main]');function startEdit(){state.editing=true;render(root,data,options,state);}if(edit)edit.addEventListener('click',startEdit);if(editMain)editMain.addEventListener('click',function(){window.ItemGeometry.open({classe:'lajes',itemId:data.item.id,pavimento:options.pavimento});});
+     var cancel=root.querySelector('[data-lj-cancel]');if(cancel)cancel.addEventListener('click',function(){state.editing=false;render(root,data,options,state);});
+     root.querySelectorAll('[data-lj-add]').forEach(function(b){b.addEventListener('click',function(){var box=root.querySelector('[data-lj-panel-list="'+b.dataset.ljAdd+'"]');var remainder=box.querySelector('[data-lj-remainder-row]');remainder.insertAdjacentHTML('beforebegin',editablePanelRow(b.dataset.ljAdd,{index:box.querySelectorAll('[data-lj-panel-row]').length+1,value:'',is_union:false}));bindRemovers(root);bindPanelInputs(root);refreshPanelEditors(root);});});bindRemovers(root);bindPanelInputs(root);refreshPanelEditors(root);
+     var save=root.querySelector('[data-lj-save]');if(save)save.addEventListener('click',function(){save.disabled=true;var url='/obras/'+encodeURIComponent(options.obraId)+'/lajes/'+encodeURIComponent(data.item.id)+(state.layer==='n3'?'/n3':'/campos')+query(options);var body;if(state.layer==='n3')body={linhas_verticais:collectLines(root,'vertical'),linhas_horizontais:collectLines(root,'horizontal')};else{var f=root.querySelector('[data-lj-fields]');body={name:f.querySelector('[name=name]').value,nivel:f.querySelector('[name=nivel]').value,height:f.querySelector('[name=height]').value};}api(url,json('PUT',body)).then(function(p){load(root,Object.assign({},options,{item:p.item||data.item.id,initialLayer:state.layer}));}).catch(function(e){save.disabled=false;alert('Falha ao salvar: '+e.message);});});
+     function validation(value,button){button.disabled=true;api('/obras/'+encodeURIComponent(options.obraId)+'/n1/lajes/'+encodeURIComponent(data.item.id)+'/campo/_item_/validar'+query(options),json('POST',{validado:value})).then(function(){return load(root,Object.assign({},options,{item:data.item.id,initialLayer:state.layer}));}).catch(function(e){button.disabled=false;alert('Falha na validação: '+e.message);});}
+     var val=root.querySelector('[data-lj-validate]');if(val)val.addEventListener('click',function(){validation(true,val);});var unval=root.querySelector('[data-lj-unvalidate]');if(unval)unval.addEventListener('click',function(){if(confirm('Desvalidar '+data.item.name+'?'))validation(false,unval);});
+-    var del=root.querySelector('[data-lj-delete]');if(del)del.addEventListener('click',function(){if(!confirm('Excluir a laje '+data.item.name+'? Um backup recuperável será criado.'))return;del.disabled=true;api('/obras/'+encodeURIComponent(options.obraId)+'/lajes/'+encodeURIComponent(data.item.id)+query(options),json('DELETE',{confirmado:true})).then(function(){if(window.DrillGrade&&window.DrillGrade.refreshItems)window.DrillGrade.refreshItems();var next=data.item.next||data.item.previous;if(next)load(root,Object.assign({},options,{item:next}));else root.innerHTML='<div class="fv-web-error">Laje excluída. Não há outro item nesta lista.</div>';}).catch(function(e){del.disabled=false;alert('Falha ao excluir: '+e.message);});});
++    var del=root.querySelector('[data-lj-delete]');if(del)del.addEventListener('click',function(){window.ItemGeometry.delete({classe:'lajes',itemId:data.item.id,pavimento:options.pavimento},false);});
+     var regen=root.querySelector('[data-lj-regenerate]');if(regen)regen.addEventListener('click',function(){if(regenActive(state.regenJob)||state.regenChecking)return;var chooser=window.escolherModoDesenho?window.escolherModoDesenho({currentMode:data.visual_mode,description:'A laje mantém a mesma geometria nos dois modos; a escolha ficará registrada para o N3 e o N5.'}):Promise.resolve('NOVA');chooser.then(function(mode){if(!mode)return;options.visualMode=mode;state.regenChecking=true;state.regenError='';paintRegen(root,state);return api('/obras/'+encodeURIComponent(options.obraId)+'/lajes/'+encodeURIComponent(data.item.id)+'/regenerar-n3'+query(options),json('POST',{visual_mode:mode})).then(function(p){state.regenRefreshOnDone=p.job_id;pollRegenJob(root,data,options,state,p.job_id);});}).catch(function(e){state.regenChecking=false;state.regenError=e.message;paintRegen(root,state);});});
+     var notes=root.querySelector('[data-lj-save-notes]');if(notes)notes.addEventListener('click',function(){var values={};root.querySelectorAll('[data-lj-note]').forEach(function(t){values[t.dataset.ljNote]=t.value;});notes.disabled=true;api('/obras/'+encodeURIComponent(options.obraId)+'/lajes/'+encodeURIComponent(data.item.id)+'/notas'+query(options),json('PUT',{notes:values})).then(function(p){data.notes=p.notes;notes.disabled=false;root.querySelector('[data-lj-status]').textContent='Opiniões salvas.';}).catch(function(e){notes.disabled=false;root.querySelector('[data-lj-status]').textContent='Falha: '+e.message;});});
+   }
+--- a/portal/app/static/lv_ficha.js
++++ b/portal/app/static/lv_ficha.js
+@@ -498,7 +498,7 @@
+       '<header class="fv-web-head"><div><p class="fv-web-kicker">Lateral de viga · ficha HI-FI</p><div class="lv-name-line"><h2>' + esc(data.beam.name) + '</h2>' +
+         '<span class="lv-behavior-tag"><b>Comportamento:</b> ' + behaviorLabel + '</span></div>' +
+         '<span>' + total + ' segmento(s) · A: ' + data.sides.A.segments.length + ' · B: ' + data.sides.B.segments.length + '</span>' +
+-        '</div>' +
++        '<button type="button" class="danger" data-lv-delete-beam>Excluir viga</button></div>' +
+         '<div class="fv-web-nav"><button type="button" data-lv-beam="' + esc(data.beam.previous || '') + '" ' + (!data.beam.previous ? 'disabled' : '') + '>←</button>' +
+         '<b>' + data.beam.position + '/' + data.beam.total_beams + '</b><button type="button" data-lv-beam="' + esc(data.beam.next || '') + '" ' + (!data.beam.next ? 'disabled' : '') + '>→</button></div></header>' +
+       '<section class="fv-web-viewer-card">' +
+@@ -516,8 +516,8 @@
+         (state.section === 'cut' ? '' : '<div class="fv-web-layer-actions">' +
+           '<button type="button" class="success" data-lv-validate ' + (!segment || segment.human_validated ? 'disabled' : '') + '>' + (segment && segment.human_validated ? '✓ Segmento validado' : 'Validar Segmento') + '</button>' +
+           (segment && segment.human_validated ? '<button type="button" class="danger" data-lv-unvalidate>Desvalidar Segmento</button>' : '') +
+-          '<button type="button" disabled title="Edição geométrica será conectada ao motor lateral">Editar Segmento</button>' +
+-          '<button type="button" disabled title="Exclusão será conectada ao motor lateral">Excluir Segmento</button></div>') +
++          '<button type="button" data-lv-edit ' + (!segment ? 'disabled' : '') + '>Editar Segmento</button>' +
++          '<button type="button" class="danger" data-lv-delete ' + (!segment ? 'disabled' : '') + '>Excluir Segmento</button></div>') +
+         '<div class="fv-web-canvas"><div class="fv-web-canvas-inner">' + (layerInfo(data, state) && layerInfo(data, state).svg ? cleanSvg(layerInfo(data, state).svg) :
+           '<div class="lv-canvas-empty">' + (layerInfo(data, state) && (layerInfo(data, state).lazy || layerInfo(data, state).loading) ? 'Carregando desenho desta camada…' : 'Camada sem desenho materializado.') + '</div>') + '</div>' +
+           '<div class="fv-web-canvas-actions"><span>' + esc(({sa:'SA',sa_cut:'SA Visão Corte',c1:'C1',c2:'C2',c3:'C3',n3_cut:'N3 Visão Corte',n3_panels:'N3 Painéis Segmentos'})[state.layer]) +
+@@ -542,6 +542,17 @@
+   }
+ 
+   function bind(root, data, options, state) {
++    function target() {
++      var side = data.sides[state.side];
++      var seg = side.segments.find(function (s) { return String(s.index) === String(state.segment); });
++      return {classe:side.class, itemId:seg && seg.id, beam:data.beam.name, segmento:seg && seg.index, pavimento:options.pavimento};
++    }
++    root.querySelector("[data-lv-delete-beam]").addEventListener("click", function () {
++      var t=target(); t.itemId=data.beam.name; window.ItemGeometry.delete(t, true);
++    });
++    var edit=root.querySelector("[data-lv-edit]"), del=root.querySelector("[data-lv-delete]");
++    if(edit) edit.addEventListener("click", function () { window.ItemGeometry.open(target()); });
++    if(del) del.addEventListener("click", function () { window.ItemGeometry.delete(target(), false); });
+     root.querySelectorAll('[data-lv-n3-field]').forEach(function(input){input.addEventListener('input',function(){
+       var side=input.dataset.lvN3Side,field=input.dataset.lvN3Field,panel=input.dataset.lvN3Panel;
+       var destination=panel===undefined?state.n3Draft.sides[side]:state.n3Draft.sides[side].panels[Number(panel)];
+--- a/portal/app/templates/obra_detalhe.html
++++ b/portal/app/templates/obra_detalhe.html
+@@ -588,7 +588,6 @@
+               <div><small>{{ classe }}</small><h3>{{ titulo }}</h3></div>
+               <span>{{ '✓ Aprovado' if aprovado else ('⏳ Pendente' if release else '— Não gerado') }}</span>
+             </div>
+-            {% if release %}
+             {% if classe == 'PL' %}
+             <nav class="n5-pav-tabs" role="tablist" aria-label="Conjuntos de pilares">
+               <button type="button" role="tab" data-pillar-group="PARA" aria-selected="true" class="active">Pilares Para</button>
+@@ -600,6 +599,7 @@
+               <button type="button" role="tab" data-n5-select-mode="{{ mode }}" aria-selected="{{ 'true' if mode == n5_modo_ativo else 'false' }}" class="{{ 'active' if mode == n5_modo_ativo else '' }}">{{ 'Nova' if mode == 'NOVA' else 'Ini' }}</button>
+               {% endfor %}
+             </nav>
++            {% if release %}
+             {% for group in (['PARA', 'PASSA'] if classe == 'PL' else ['']) %}
+             <section data-pillar-panel="{{ group }}" {% if group == 'PASSA' %}hidden{% endif %}>
+               {% if group %}<p>Cima · ABCD {{ group|title }} · Grade {{ group|title }}</p>{% endif %}
+@@ -624,7 +624,6 @@
+             <div class="n5-pav-empty">
+               <strong>Modo {{ 'Ini' if n5_modo_ativo == 'INI' else 'Nova' }} ainda não gerado.</strong>
+               Rode o motor N5 desta classe escolhendo esse modo para visualizar ou baixar.
+-              <button type="button" class="drawing-mode-missing-switch" data-n5-mode-switch>{{ 'Ver Nova' if n5_modo_ativo == 'INI' else 'Ver Ini' }}</button>
+             </div>
+             {% endif %}
+           </article>
+@@ -1006,6 +1005,7 @@
+     });
+     if (qual === 'n5-pavimento') ativarZoomEmContainer(document.getElementById('detalhe-n5-pavimento'));
+   }
++  window.fecharPolylineAtual = fecharPolylineAtual;
+   window.mostrarDetalhe = mostrarDetalhe;
+ 
+   document.querySelectorAll('[data-open-finalizados]').forEach(function (btn) {
+@@ -3244,7 +3244,6 @@
+           btns = '<div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">' +
+ '<button class="btn btn-sm" style="background:#28a745; color:white; border:none; padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'validar\')">Validar</button>' +
+ '<button class="btn btn-sm" style="background:#dc3545; color:white; border:none; padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'excluir\')">Excluir</button>' +
+-'<button class="btn btn-sm btn-sec" style="padding:4px 8px;" onclick="acaoFichaItem(\'' + itemId + '\', \'regenerar\')">Invalidar e Regenerar Geometria</button>' +
+ '</div>';
+         }
+ // Interpretação ABCD: 4 tabelinhas (A/B/C/D × laje/passa/chega/interior)
+@@ -3362,7 +3361,7 @@
+         }
+         function montarCamposN1() {
+           fieldsPilar.innerHTML = btns + resumoN1PilarHtml() +
+-            '<div class="abcd-review-actions" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0"><button type="button" class="btn btn-sec" style="padding:5px 9px;font-size:12px" data-abcd-edit>Editar Campos da Interpretação SA</button>' +
++            '<div class="abcd-review-actions" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:6px 0"><button type="button" class="btn btn-sec" style="padding:5px 9px;font-size:12px" data-abcd-edit>Editar Campos da Interpretação SA</button><button type="button" class="btn btn-sec" data-pillar-interpret>Solicitar interpretação SA deste item</button>' +
+             '<button type="button" class="btn" style="padding:5px 9px;font-size:12px" data-abcd-save hidden>Salvar correções</button>' +
+             '<button type="button" class="btn btn-sec" style="padding:5px 9px;font-size:12px" data-abcd-cancel hidden>Cancelar</button>' +
+             '<span data-abcd-status role="status"></span></div>' +
+@@ -3473,7 +3472,7 @@
+                 return '<button type="button" class="pillar-n1-subtab' + (i === 0 ? ' active' : '') +
+                   '" role="tab" aria-selected="' + (i === 0 ? 'true' : 'false') +
+                   '" data-pillar-n1-subtab="' + subtab[0] + '">' + subtab[1] + '</button>';
+-              }).join('') + '</div><div id="pillar-n1-subviewer"></div>';
++              }).join('') + '<button type="button" class="btn btn-sec" data-pillar-geometry>Editar geometria N1</button></div><div id="pillar-n1-subviewer"></div>';
+             viewerPilar.querySelectorAll('[data-pillar-n1-subtab]').forEach(function (button) {
+               button.addEventListener('click', function () {
+                 selecionarSubabaN1(button.getAttribute('data-pillar-n1-subtab'));
+@@ -5604,6 +5603,8 @@
+           '<input type="text" id="criar-item-nome" placeholder="' +
+             (showSeg ? 'Nome da viga (ex. V2)' : 'Nome (ex. P99)') +
+             '" autocomplete="off">' +
++          '<select id="criar-item-existente" aria-label="Itens já populados"><option value="">Itens já populados</option></select>' +
++          '<select id="editar-item-segmento" aria-label="Segmento existente" hidden></select>' +
+           '<span id="criar-item-seg-wrap" class="criar-item-seg-wrap"' +
+             (showSeg ? '' : ' hidden') + '>' +
+             '<label class="criar-item-seg-label" for="criar-item-segmento">Próx. SEG</label>' +
+@@ -5611,6 +5612,10 @@
+             '<input type="number" id="criar-item-segmento-livre" class="criar-item-seg-livre" ' +
+               'min="1" step="1" placeholder="nº" title="Número livre de segmento" hidden>' +
+           '</span>' +
++          '<button type="button" class="btn-sec btn" id="btn-item-redesenhar" disabled>Redesenhar item</button>' +
++          '<button type="button" class="btn-sec btn" id="btn-item-excluir" disabled>Excluir Item</button>' +
++          '<button type="button" class="btn-sec btn" id="btn-segmento-excluir" hidden disabled>Excluir Segmento</button>' +
++          '<button type="button" class="btn-sec btn" id="btn-item-cancelar" hidden>Cancelar edição</button>' +
+           '<button type="button" class="btn-sec btn" id="btn-criar-item-limpar">Limpar</button>' +
+           '<button type="button" class="btn" id="btn-criar-item-salvar">Criar item →</button>' +
+         '</div>' +
+@@ -5824,6 +5829,10 @@
+ 
+     /** Enter / duplo-clique fechou uma polyline → associa SEG e abre o próximo. */
+     window._onPolylineFechada = function (entry) {
++      if (window.ItemGeometry && window.ItemGeometry.isEditing()) {
++        window._polyGeoms = [entry];
++        return;
++      }
+       var classe = selClasse ? selClasse.value : '';
+       var viga = isClasseVigaCriar(classe);
+       window._polyGeoms = window._polyGeoms || [];
+@@ -6130,7 +6139,7 @@
+       '</details>' +
+       (permiteFerramentasEstruturais ?
+         '<details class="criar-item-coll" id="criar-item-coll"' + (prefClasse ? ' open' : '') + '>' +
+-          '<summary>✏️ Criar item no estrutural <span class="meta">· desenhe geometria SA</span></summary>' +
++          '<summary>✏️ Criar ou editar item no estrutural</summary>' +
+           '<div class="criar-item-body">' + htmlCriarItemPanel(prefClasse) + '</div>' +
+         '</details>'
+         : '') +
+@@ -6458,6 +6467,7 @@
+     try { pBoot = new URLSearchParams(window.location.search).get('pavimento'); } catch (e) {}
+     if (typeof setObraModo === 'function') setObraModo(pBoot ? 'pavimento' : 'pavs');
+   })();
++  window.fecharPolylineAtual = fecharPolylineAtual;
+   window.mostrarDetalhe = mostrarDetalhe;
+   window.selecionarPavimento = selecionarPavimento;
+   window.selecionarTriagemGeral = selecionarTriagemGeral;
+@@ -6514,4 +6524,5 @@
+ <script src="/static/lv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lv=20260928cores"></script>
+ <script src="/static/laje_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lj=20260918drawingmode"></script>
+ <script src="/static/pillar_ficha.js?v={{ request.app.state.static_versao | default('0') }}-pillar-actions-v20"></script>
++<script src="/static/item_geometry.js?v={{ request.app.state.static_versao | default('0') }}"></script>
+ {% endblock %}
+--- a/scripts/arete/headless_sa_analise.py
++++ b/scripts/arete/headless_sa_analise.py
+@@ -2489,7 +2489,10 @@
+         # É o mesmo método ligado ao botão "Iniciar Análise Geral".
+         # O modal não é aberto; decisões humanas persistidas já foram
+         # carregadas pelo projeto e permanecem protegidas na memória.
++        from portal.app.item_geometry import apply_window as apply_manual_geometry
++        apply_manual_geometry(window, _dados_obras_root() / obra, pavimento)
+         window.process_pillars_action(skip_pre_validation=True)
++        apply_manual_geometry(window, _dados_obras_root() / obra, pavimento)
+         if context_receipt is not None:
+             from portal.app.preprocessamento.context_resolver import consumption_evidence
+             from portal.app.preprocessamento.freshness import changed_sources
+@@ -2658,6 +2661,7 @@
+                 flush=True,
+             )
+         _log_selected_pillar_topology(window.pillars_found, item_names)
++        apply_manual_geometry(window, _dados_obras_root() / obra, pavimento)
+         report_stage('merge granular e saneamento N1')
+         if 'laterais_viga' in active_sections:
+             # LV: as quatro celulas pelas regras do guia TAMBEM no caminho

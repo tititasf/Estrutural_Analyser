@@ -8,6 +8,7 @@ fora de `{n1, n3}` ou SVG ausente recebem o mesmo 404 genérico da STORY-03.
 from __future__ import annotations
 
 import sqlite3
+from typing import Optional
 
 from fastapi import APIRouter, Depends, Request, Response
 from fastapi.responses import JSONResponse
@@ -35,6 +36,7 @@ def obter_svg_route(
     nivel: str,
     request: Request,
     response: Response,
+    seg: Optional[int] = None,
     conn: sqlite3.Connection = Depends(get_ro_conn),
 ):
     row = resolver_code(conn, code)
@@ -42,7 +44,7 @@ def obter_svg_route(
         return _nao_encontrado()
 
     settings = request.app.state.settings
-    svg = obter_svg(row, nivel, settings.dados_obras_root)
+    svg = obter_svg(row, nivel, settings.dados_obras_root, seg=seg)
     if svg is None:
         return _nao_encontrado()
 

@@ -1,0 +1,101 @@
+{
+  "number": "323",
+  "name": "V323_A_Para",
+  "beam_name": "V323",
+  "floor": "13_PAV",
+  "side": "A",
+  "behavior": "Para",
+  "contract_id": "LV_A_PARA",
+  "total_width": 19.0,
+  "total_height": 54.0,
+  "h_section": 50.0,
+  "h_face_rule": "section_depth + 4 cm",
+  "panels": [
+    {
+      "width": 122.0,
+      "height1": 54.0,
+      "height2": 54.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 1,
+      "segment_index": 1,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          3936.3825,
+          1982.038
+        ],
+        [
+          3936.3825,
+          2242.038
+        ]
+      ],
+      "contract_id": "LV_A_PARA",
+      "source_key": "viga_a_seg_1_comprimento_total"
+    },
+    {
+      "width": 138.0,
+      "height1": 54.0,
+      "height2": 54.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 1,
+      "segment_index": 1,
+      "panel_index_in_segment": 2,
+      "points": [
+        [
+          3936.3825,
+          1982.038
+        ],
+        [
+          3936.3825,
+          2242.038
+        ]
+      ],
+      "contract_id": "LV_A_PARA",
+      "source_key": "viga_a_seg_1_comprimento_total"
+    }
+  ],
+  "structural_segments": [
+    {
+      "width": 260.0,
+      "segment_index": 1,
+      "points": [
+        [
+          3936.3825,
+          1982.038
+        ],
+        [
+          3936.3825,
+          2242.038
+        ]
+      ],
+      "source_key": "viga_a_seg_1_comprimento_total",
+      "source_slot": "seg_side_a",
+      "contract_id": "LV_A_PARA"
+    }
+  ],
+  "structural_segment_count": 1,
+  "segment_count": 2,
+  "geometry_length": 260.0,
+  "start_adjustment": 0.0,
+  "end_adjustment": 0.0,
+  "endpoint_events": [],
+  "endpoint_labels": {
+    "start": "P26",
+    "end": "P26"
+  },
+  "total_length": 260.0,
+  "dimension_status": "sa_lv",
+  "generation_ready": true,
+  "_sa_meta": {
+    "source": "Structural Analyzer / N1 / beams.data_json.links",
+    "schema": "lv_generation_contract/v1",
+    "behavior_isolated": true,
+    "fv_dimension_fallback": false,
+    "dimension_source": "lv_dimension_text"
+  },
+  "behavior_distinct_from_other": true
+}

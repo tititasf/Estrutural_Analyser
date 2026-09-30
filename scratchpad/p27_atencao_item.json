@@ -1,0 +1,27 @@
+{
+  "text": "",
+  "updated_at": "2026-08-18T23:01:14.563355+00:00",
+  "notes": {
+    "aten_pil_ctx_human_Obra_TREINO_1_13_PAV_P27": "",
+    "aten_pil_struct_Obra_TREINO_1_13_PAV_P27": "",
+    "aten_pil_ctx_agent_l1_Obra_TREINO_1_13_PAV_P27": "[Camada 1 CORRIGIDA · 2026-08-05 00:30Z]\nA partir da atenção humana.\nFixes: PILAR EM L: ficha 6 faces (A B C D E F) + tags por face — vertical: A esq, B dir, E/F no ramo horizontal, C tampa horiz, D tampa vert. L1 não inventa geometria; validar layout especial.\nAtenção: é pilar especial em L tem que ter ficha para os 6 lados A B C D E F G  e tags para cada umdeles, a logica é a mesma  porem a diferença é que temmaislados,  , quando pilar em L vertical possui os lados a esquerda  b direita, e a parte horzontal é E F, as tampas do horizontal é C e do vertical é D\n\nPeço aprovação humana no destaque L1 (tags) + tabelas L1 abaixo. Após Validou L1, consolidamos no motor SA.",
+    "aten_pil_struct_l1_Obra_TREINO_1_13_PAV_P27": "",
+    "aten_pil_ctx_agent_l2_Obra_TREINO_1_13_PAV_P27": "[Camada 2 · 2026-08-07T20:07Z · base = Camada 1 (preservada integralmente)]\nAplicado sobre a L1 (evidência geométrica):\n- TROCADO C.passa@CA: V304 → V329 (gap real 19cm → 0cm)\nPendências (sem evidência suficiente p/ decidir sozinho):\n- pilar com 6 cantos reais (não-retangular) — candidato a formato L (6+ faces)\nVeredito: INVALIDOU (há pendências) — peço validação humana.\nGarantias desta rodada: nada que estava na Camada 1 foi removido sem regra explícita (gate de não-regressão). Se sobrar erro fora da lista acima, escreva a atenção — vira nova checagem no próximo refinamento.",
+    "aten_pil_struct_l2_Obra_TREINO_1_13_PAV_P27": "",
+    "aten_pil_ctx_agent_l3_Obra_TREINO_1_13_PAV_P27": "",
+    "aten_pil_struct_l3_Obra_TREINO_1_13_PAV_P27": "",
+    "aten_pil_n3_abcd_P27_aberturas_vigas": "A.chega: V305 dim=19/55 canto=AD d.esq=199cm d.dir=0cm\nA.chega: V304 dim=19/50 canto=AC d.esq=0cm d.dir=199cm\nB.chega: V331 dim=19/55 canto=BC d.esq=199cm d.dir=0cm\nB.chega: V329 dim=19/55 canto=BC d.esq=199cm d.dir=0cm\nC.passa: V304 dim=19/50 canto=CA d.esq=— d.dir=—\nC.passa: V329 dim=19/55 canto=CB d.esq=— d.dir=—\nC.passa: V331 dim=19/55 canto=CB d.esq=— d.dir=—\nD.chega: V327 dim=14/50 canto=DA d.esq=0cm d.dir=151cm\nD.chega: V328 dim=19/55 canto=DB d.esq=146cm d.dir=0cm",
+    "aten_pil_hl_sa_human_Obra_TREINO_1_13_PAV_P27": "invalidou",
+    "aten_pil_hl_l1_human_Obra_TREINO_1_13_PAV_P27": "invalidou",
+    "aten_pil_hl_l2_human_Obra_TREINO_1_13_PAV_P27": "invalidou",
+    "aten_pil_hl_l3_human_Obra_TREINO_1_13_PAV_P27": "validou",
+    "aten_pil_ctx_agent_verdict_l1_Obra_TREINO_1_13_PAV_P27": "invalidou",
+    "aten_pil_ctx_agent_verdict_l2_Obra_TREINO_1_13_PAV_P27": "invalidou"
+  },
+  "aten_pil_hl_sa_human_Obra_TREINO_1_13_PAV_P27": "invalidou",
+  "verdicts": {
+    "aten_pil_hl_sa_human_Obra_TREINO_1_13_PAV_P27": "invalidou",
+    "aten_pil_ctx_agent_verdict_l1_Obra_TREINO_1_13_PAV_P27": "invalidou",
+    "aten_pil_ctx_agent_verdict_l2_Obra_TREINO_1_13_PAV_P27": "invalidou"
+  }
+}

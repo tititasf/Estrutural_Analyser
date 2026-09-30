@@ -1,0 +1,20 @@
+{
+  "classe": "PL",
+  "obra": "Obra_DB",
+  "pavimento": "13_PAV",
+  "visual_mode": "NOVA",
+  "pillar_group": null,
+  "output": "D:\\Agente-cad-PYSIDE\\n5_modes_test_20260930_2210\\test_assemble_n5_item_no_banco0\\Obra_DB\\Fase-6_Execucao_CAD\\n5\\N5_PL_13_PAV_NOVA.dxf",
+  "ok_count": 0,
+  "missing_count": 1,
+  "extra_count": 0,
+  "extra_ids": [],
+  "items": [
+    {
+      "item_id": "P900",
+      "source": "",
+      "status": "missing",
+      "message": "conjunto N3 de pilares incompleto ou ausente"
+    }
+  ]
+}
