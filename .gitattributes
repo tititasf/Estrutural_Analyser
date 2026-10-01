@@ -1,0 +1,9 @@
+
+# Arquivos grandes do checkpoint multiagente; sem migrar branches ativas.
+"Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260718_minirag_d0d1/d3_review_baseline/decisoes.jsonl" filter=lfs diff=lfs merge=lfs -text
+"Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260718_minirag_d0d1/d3_review_with_b1/decisoes.jsonl" filter=lfs diff=lfs merge=lfs -text
+"Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/20260718_minirag_d0d1/mr1_review_14pav/decisoes.jsonl" filter=lfs diff=lfs merge=lfs -text
+"Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/qa_evidencias/laj_12pav_review_20260716/decisoes.jsonl" filter=lfs diff=lfs merge=lfs -text
+"Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/qa_evidencias/laj_1pav_review_20260716/decisoes.jsonl" filter=lfs diff=lfs merge=lfs -text
+"Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/qa_evidencias/laj_2pav_review_20260716/decisoes.jsonl" filter=lfs diff=lfs merge=lfs -text
+"Agente-cad-PYSIDE-Restored-main/scripts/arete/relatorios/qa_evidencias/laj_cobertura_review_20260716/decisoes.jsonl" filter=lfs diff=lfs merge=lfs -text
