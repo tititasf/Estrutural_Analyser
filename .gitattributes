@@ -1,0 +1,10 @@
+
+# Arquivos grandes do checkpoint multiagente; sem migrar branches ativas.
+"DADOS-OBRAS/Obra_TREINO_1/Fase-1_Ingestao/Projetos_Finalizados_para_Engenharia_Reversa/ALIMONTI - PARAISO - TÉRREO - LV - R00.dxf" filter=lfs diff=lfs merge=lfs -text
+"DADOS-OBRAS/Obra_TREINO_10/Fase-1_Ingestao/Projetos_Finalizados_para_Engenharia_Reversa/ROCONTEC - HOSPITAL ASSUNÇÃO - 1°SS - TRECHO 3- LV - R00_R2018_ASCII_ODA.dxf" filter=lfs diff=lfs merge=lfs -text
+"DADOS-OBRAS/Obra_TREINO_11/Fase-1_Ingestao/Estruturais_dos_Pavimentos_Estado_Bruto_DWG_DXF/T53-ARQ-BAS-PE-COMENT-STR-RESPOSTA_EST-R00_R2018_ASCII_ODA.dxf" filter=lfs diff=lfs merge=lfs -text
+"DADOS-OBRAS/Obra_TREINO_21/Fase-1_Ingestao/Projetos_Finalizados_para_Engenharia_Reversa/STOG - NIK SUNSET - 1° PAV.- LV - R00.dwg" filter=lfs diff=lfs merge=lfs -text
+"project_data.vision.bak-lv-v301-faceunits-20260622-135259" filter=lfs diff=lfs merge=lfs -text
+"project_data.vision.bak-lv-v301-reuse-20260622-142407" filter=lfs diff=lfs merge=lfs -text
+"project_data.vision.bak-viga-split-20260620-124336" filter=lfs diff=lfs merge=lfs -text
+"project_data.vision.etapa1_20260620_164443.bak" filter=lfs diff=lfs merge=lfs -text
