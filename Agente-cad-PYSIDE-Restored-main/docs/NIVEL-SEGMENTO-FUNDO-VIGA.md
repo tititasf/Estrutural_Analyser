@@ -22,3 +22,8 @@ dados como `nivel`, `nivel_origem`, `nivel_lajes` e `nivel_distancia_cm`, sem
 alterar a geometria ou a segmentação. Snapshots anteriores são enriquecidos em
 leitura pelo portal com a mesma função, permitindo exibir a cota sem inventar
 uma migração destrutiva dos dados existentes.
+
+
+### Consolidação de níveis — 2026-10-01
+
+Regra integrada: `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` (canônico). A ordem acima descreve o snapshot SA; a convenção derivada exige ainda corte válido, contato por região, suporte LV independente e correspondência por faixas. nearest_levelled_slab é estimativa (D-61), não medição, e ausência de fonte não autoriza inventar cota geral. Cortes com haste interrompida não fornecem offset absoluto da viga. Diferenciar nível superior FV e fundo físico; preservar status e source_fact_ids em toda transferência.

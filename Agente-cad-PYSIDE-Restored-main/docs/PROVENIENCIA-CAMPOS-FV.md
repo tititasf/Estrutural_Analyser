@@ -38,6 +38,21 @@ em massa.
 
 ## Promoção
 
+### Edição manual e SA granular — 01/10/2026
+
+Ao criar ou salvar um contorno manual, reconhecer somente os campos do segmento
+afetado (FV/LV) ou do item (PIL/LAJ). Não executar o SA completo da viga, não
+substituir pontos manuais nem reinterpretar segmentos vizinhos. A geometria
+manual permanece autoritativa; reconhecimento automático não é validação humana.
+Níveis/seções exigem evidência do estrutural e contexto N1 da mesma obra/pavimento;
+seções de pilares e valores ambíguos não podem preencher a seção da viga.
+Ausência de evidência fica pendente, com proveniência. Contornos positivos de
+1 cm também são aceitos: não existe corte mínimo de 15/25 cm neste fluxo.
+O viewer, lista e ficha N1 devem refletir o resultado persistido sem refresh
+da página. Percentuais de feedback representam etapas, não progresso fictício
+do motor. Referência: `portal/app/item_semantics.py` e relatório
+`scripts/arete/relatorios/20261001_manual_sa_granular/RELATORIO.md`.
+
 Para promoção a `validation_ready`: golden FV, G2-V, três geometrias representativas, zero falso positivo crítico e evidência de cada família acima.
 
 ## Sessão QA read-only — 2026-07-12

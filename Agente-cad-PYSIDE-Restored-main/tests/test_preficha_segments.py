@@ -43,6 +43,22 @@ def _beam():
     }
 
 
+def test_fv_automatic_side_value_yields_to_actual_slab_contact():
+    beam = _beam()
+    beam['fields'] = {'viga_a_seg_1_nivel_viga': '853.07'}
+    slabs = [{'name': 'L1', 'nivel': '852.12',
+              'points': [(0,20),(100,20),(100,80),(0,80)]}]
+    result = collect_preficha_segments([beam], slabs)['fundo'][0]
+    assert result['level'] == '852.12'
+    assert result['level_source'] == 'highest_touching_slab'
+    assert result['level_slabs'] == ['L1']
+    beam['validated_fields'] = ['viga_a_seg_1_nivel_viga']
+    result = collect_preficha_segments([beam], slabs)['fundo'][0]
+    assert result['level'] == '853.07'
+    assert result['level_source'] == 'explicit_beam_or_side'
+    assert result['level_evidence_fields'] == ['viga_a_seg_1_nivel_viga']
+
+
 def test_collects_all_five_segment_tabs_from_sa_contract():
     collected = collect_preficha_segments([_beam()])
 

@@ -2598,17 +2598,33 @@ def format_abcd_tables_portal_html(tables_payload: dict) -> str:
         label = data.get("label") or fid
         color = colors[fid]
         body = []
+        role_for_family = {"Lajes": "lajes", "Passam": "passa", "Chegam": "chega", "Interior": "interior"}
         for fam, r in _face_rows_unified(data):
+            role = role_for_family[fam]
+            index = next((i for i, source in enumerate(data.get(role) or []) if source is r), -1)
+            row_attrs = (f' data-face="{fid}" data-role="{role}" data-index="{index}"'
+                         if index >= 0 else "")
+            def cell(field):
+                value = html.escape(str(r.get(field) or '—'))
+                attr = (f' class="abcd-editable" data-field="{field}"'
+                        f' data-value="{html.escape(str(r.get(field) or ""), quote=True)}"'
+                        if index >= 0 and field in {'nome', 'dim', 'nivel', 'canto'} else '')
+                warning = ''
+                status_key = 'dist' if field in {'dist_esq', 'dist_dir'} else field
+                if r.get(f'{status_key}_status') in {'inferred', 'fallback', 'ambiguous', 'conflict', 'missing'}:
+                    reason = html.escape(str(r.get(f'{status_key}_motivo') or 'Requer revisão'), quote=True)
+                    warning = f' <span class="abcd-level-attention" role="img" aria-label="Atenção: {reason}" title="{reason}">⚠</span>'
+                return f'<td{attr}>{value}{warning}</td>'
             body.append(
-                "<tr>"
+                f"<tr{row_attrs}>"
                 f"<td class=\"abcd-p-fam-cell\">{html.escape(fam)}</td>"
-                f"<td>{html.escape(str(r.get('nome') or '—'))}</td>"
-                f"<td>{html.escape(str(r.get('dim') or '—'))}</td>"
-                f"<td>{html.escape(str(r.get('nivel') or '—'))}</td>"
-                f"<td>{html.escape(str(r.get('canto') or '—'))}</td>"
-                f"<td>{html.escape(str(r.get('dist_esq') or '—'))}</td>"
-                f"<td>{html.escape(str(r.get('dist_dir') or '—'))}</td>"
-                "</tr>"
+                + cell('nome')
+                + cell('dim')
+                + cell('nivel')
+                + cell('canto')
+                + cell('dist_esq')
+                + cell('dist_dir')
+                + "</tr>"
             )
         cards.append(
             f'<div class="abcd-p-card" style="border-left:4px solid {color}">'
@@ -2619,12 +2635,15 @@ def format_abcd_tables_portal_html(tables_payload: dict) -> str:
     style = """
 <style>
 .abcd-p-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin:10px 0}
-.abcd-p-card{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.abcd-p-card{background:#fff;border:1px solid #e2e8f0;border-radius:6px;padding:10px;min-width:0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
 .abcd-p-title{font-weight:700;font-size:13px;margin-bottom:8px}
-.abcd-p-tbl{width:100%;border-collapse:collapse;font-size:12px}
+.abcd-p-tbl{width:100%;table-layout:fixed;border-collapse:collapse;font-size:11px}
 .abcd-p-tbl th{text-align:left;color:#64748b;border-bottom:1px solid #cbd5e1;padding:4px 6px;font-weight:600;background:#f8fafc}
-.abcd-p-tbl td{padding:4px 6px;border-bottom:1px solid #f1f5f9;color:#1e293b}
+.abcd-p-tbl td{padding:4px 3px;border-bottom:1px solid #f1f5f9;color:#1e293b;overflow-wrap:anywhere}
 .abcd-p-tbl .abcd-p-fam-cell{color:#64748b;font-weight:600;white-space:nowrap}
+.abcd-level-attention{color:#b45309;font-weight:700;cursor:help}
+.abcd-p-tbl td.abcd-editable{background:#fbfdff}
+.abcd-p-tbl input.abcd-edit-input{width:68px;max-width:100%;box-sizing:border-box;font:inherit;padding:2px;border:1px solid #2563eb;border-radius:3px}
 .abcd-p-tbl tr:last-child td{border-bottom:none}
 </style>
 """
@@ -2633,7 +2652,9 @@ def format_abcd_tables_portal_html(tables_payload: dict) -> str:
         + '<div class="abcd-p-wrap"><div style="font-size:12px;font-weight:700;margin:6px 0;color:#334155">'
         "Interpretação ABCD por face "
         "<span style=\"font-weight:500;color:#94a3b8\">(d.esq/d.dir = dist. dos cantos esq/dir da face; "
-        "passantes = —)</span></div>"
+        "passantes = —)</span> <span style=\"font-weight:500;color:#92400e\">"
+        "⚠ = dado inferido, incompleto ou conflitante; passe o mouse para ver o motivo"
+        "</span></div>"
         f'<div class="abcd-p-grid">{"".join(cards)}</div></div>'
     )
 

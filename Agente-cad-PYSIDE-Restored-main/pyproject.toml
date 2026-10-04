@@ -17,6 +17,7 @@ dependencies = [
     "tufup",
     "pydantic",
     "python-dotenv",
+    "typesafe-sdk>=0.7.0",
     "mcp[cli]>=1.0.0",
     "email-validator>=2.0.0",
     "nuitka>=2.0.0"

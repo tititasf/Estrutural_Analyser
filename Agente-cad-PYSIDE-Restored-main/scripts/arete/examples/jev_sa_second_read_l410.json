@@ -1,0 +1,39 @@
+{
+  "schema": "jev_sa_second_read_request/1",
+  "identity": {
+    "project_id": "f28c3897-c8df-4bb9-a187-cb090f2c7ec7",
+    "pavimento": "14_PAV",
+    "classe": "LAJ",
+    "item": "L410",
+    "campo": "laje_nivel",
+    "source_dxf_sha256": "7ec8a5edd4e5aecc78d60002a7198906c83b0699a4a87084fb9fdc7ac5f36a3b"
+  },
+  "baseline_sa": {"value": "855.22", "source": "VPS N1 2026-09-25"},
+  "question": {
+    "instructions": "Which direct elevation text is supported for the named L410 h=14 region? Both text markers are inside the broad N1 polygon, which covers two drawn regions. Use the local h annotations and CAD fill membership. If the target region has no direct elevation marker, choose INSUFFICIENT. This is a second reading, not approval of the engineering level convention.",
+    "criteria": {
+      "DC7_855_25": "Direct 855.25 marker next to L410 h=14 in the main unfilled region.",
+      "E5C_855_22": "855.22 marker in the separate grey h=11 region belongs to L410 h=14.",
+      "INSUFFICIENT": "The supplied source evidence does not determine a direct elevation for the target region."
+    }
+  },
+  "evidence": {
+    "target": {"text": "L410", "handle": "DAD", "xy": [2295.72, 2381.61], "height_text": "h=14", "height_handle": "CB5"},
+    "direct_elevations": [
+      {"text": "855.25", "handle": "DC7", "xy": [2312.99, 2327.61], "inside_n1_polygon": true, "inside_raw_grey_solid": false},
+      {"text": "855.22", "handle": "E5C", "xy": [2161.35, 2582.85], "inside_n1_polygon": true, "inside_raw_grey_solid": true, "nearby_height_text": "h=11", "grey_solid_handle": "128"}
+    ]
+  },
+  "controls": [
+    {
+      "id": "target_elevation_removed",
+      "expected_choice": "INSUFFICIENT",
+      "evidence": {
+        "target": {"text": "L410", "handle": "DAD", "xy": [2295.72, 2381.61], "height_text": "h=14", "height_handle": "CB5"},
+        "direct_elevations": [
+          {"text": "855.22", "handle": "E5C", "xy": [2161.35, 2582.85], "inside_n1_polygon": true, "inside_raw_grey_solid": true, "nearby_height_text": "h=11", "grey_solid_handle": "128"}
+        ]
+      }
+    }
+  ]
+}

@@ -8,6 +8,10 @@ para E–H. `src/core/pillar_face_beams.py` enriquece as faces, e
 `src/core/beam_interpreters/pilar_viga.py` mantém contratos exclusivos: **Pilar com
 Viga Para** e **Pilar com Viga Passa**.
 
+**Jev opcional:** em dúvida de face/vínculo após topologia CAD, consultar por
+candidato e face com handle e contato local; dimensão retangular simples segue
+pela geometria. Ver [segunda leitura do SA](../JEV-SEGUNDA-LEITURA-OPCIONAL.md).
+
 | Família | Campos/slots | Pergunta que decide | Confusão proibida |
 |---|---|---|---|
 | identidade/geometria | `name.label`, `points_json`, `pilar_segs`, dimensão | nome, bbox e dimensão descrevem o volume? | nome correto com polígono alheio |
@@ -268,3 +272,18 @@ aprovado manualmente, e os 11 pilares sem ficha (`NASCE`) continuam honestamente
 - Validado contra 3 topologias reais: P35 (SEGUE/INDETERMINADO — para+passa+interior+
   chegada nas 4 faces), P1 (MORRE, 3 faces `REVISAR_HUMANO` reais por viga sem
   evidência geométrica) e P41 (NASCE, 5 relações confirmadas, nada aplicado ainda).
+
+
+### Consolidação de níveis — 2026-10-01
+
+Regra integrada: `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` (canônico). Topo final = maior nível válido de região de laje ou viga em contato real com a face. Exibir face(s) do contato mais alto e nível final; base em coluna separada. Região interna não certifica a face que toca a principal. Fonte estimada de viga não vira medida no pilar; nascimento no pavimento seguinte conserva Não se aplica.
+
+
+### Desenho N3 Nova dos pilares especiais — 2026-10-03
+
+Padrão visual aprovado do CIMA em L: [PADRAO-NOVA-PILARES-ESPECIAIS-CIMA.md](../../PADRAO-NOVA-PILARES-ESPECIAIS-CIMA.md). A geometria deve derivar do contorno SA e conservar a identidade das faces; dimensões do exemplo não são constantes. U/T ainda requerem aprovação de prévia. Este vínculo documenta o contrato, sem afirmar integração dos protótipos ao gerador de produção.
+
+
+### Referência padrão e treino de exceções — NIV-PADRAO-EXCECAO-20261003
+
+Aplicar o contrato global em `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`, seção Referência padrão e exceções explícitas. O padrão confirmado é topo da viga no nível principal da laje ou base de saída do pavimento quando não há laje, salvo indicação explícita diferente. Ausência de corte não torna esse padrão uma estimativa por si só. Preservar regiões de laje, datum da viga, contato por face do pilar e fontes independentes. QA distingue convenção de medida e verifica qualidade/cobertura da leitura antes de confirmar; não elevar score apenas renomeando status. Interpretação de vigas em níveis diferentes por hatch/corte está pendente de treino com exemplos reais futuros; não foi certificada neste caso.

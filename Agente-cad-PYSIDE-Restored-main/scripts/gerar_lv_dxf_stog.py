@@ -31,6 +31,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 from src.core.artifact_governance import guarded_saveas
+from scripts.drawing_mode_config import configure_subprocess
 
 _MOTOR_ID = "ROBOT_LV_N3_N4"
 _MOTOR_SOURCES = [Path(__file__)]
@@ -137,6 +138,42 @@ def comprimir_paineis_repetidos(larguras, largura_completa=PAINEL_COMPLETO_LV,
         return saida
     return ([(ws[0], 1), (float(largura_completa), k)]
             + [(w, 1) for w in ws[k + 1:]])
+
+
+def compress_lv_panels_with_factors(panels, largura_completa=PAINEL_COMPLETO_LV,
+                                     tol=0.6):
+    """Mesma regra de `comprimir_paineis_repetidos`, só que sobre os dicts de
+    painel reais (não larguras soltas) — é o que liga a regra ao desenho N3.
+
+    O N4 lê o fator "NX" do próprio texto que o humano já desenhou no N2
+    (`motor_reverso_lv._fatores_por_painel`): lá a sequência repetida já nasce
+    comprimida, porque o humano só desenhou UM painel representante. O N3
+    nasce do N1/SA com a sequência COMPLETA (todos os painéis reais, sem
+    anotação nenhuma) — esta função computa a mesma compressão, removendo do
+    desenho os painéis absorvidos e devolvendo o fator alinhado ao painel que
+    passa a representá-los, para `draw_lv_face` desenhar e cotar do mesmo
+    jeito que o N4.
+
+    Devolve ``(paineis_para_desenhar, fatores_painel)`` alinhados 1:1 — a
+    lista de painéis pode ficar mais curta que a original; os campos do
+    painel representante (altura, tipo etc.) são preservados como estão.
+    """
+    items = list(panels or [])
+    n = len(items)
+    fatores_default = [1] * n
+    if n < 4:
+        return items, fatores_default
+    ws = [float(p.get('width', 0) or 0) for p in items]
+    if abs(ws[1] - float(largura_completa)) > tol:
+        return items, fatores_default
+    k = 1
+    while k + 1 < n - 1 and abs(ws[k + 1] - float(largura_completa)) <= tol:
+        k += 1
+    if k < 2:
+        return items, fatores_default
+    compressed = [items[0], items[1]] + items[k + 1:]
+    fatores = [1, k] + [1] * (n - k - 1)
+    return compressed, fatores
 
 
 def _draw_laje_escalonada(msp, faixas):
@@ -4665,6 +4702,11 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
     if view not in {'ALL', 'CORTE', 'A', 'B'}:
         raise ValueError(f'Vista LV invalida: {view}')
     h = max(h_A, h_B, 1.0)
+    # N3 nasce do N1/SA com a sequencia de paineis COMPLETA (sem a anotacao
+    # "NX" que o N4 so' le do proprio desenho humano) -- aqui aplicamos a
+    # MESMA regra de compressao pra sair no mesmo formato/papel que o N4.
+    panels_A, fatores_A = compress_lv_panels_with_factors(panels_A or [])
+    panels_B, fatores_B = compress_lv_panels_with_factors(panels_B or [])
     comp_A = sum(p['width'] for p in panels_A)
     comp_B = sum(p['width'] for p in panels_B)
     comprimento = max(comp_A, comp_B, 1.0)
@@ -4712,7 +4754,8 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
                      laje_sup=_ls_A, laje_inf=_li_A,
                      border_strip_width=border_strip_A,
                      skip_layers=skip_layers, nota_face=nota_face_A,
-                     pontaletes_face=pontaletes_A)
+                     pontaletes_face=pontaletes_A,
+                     fatores_painel=fatores_A)
 
     x_B = x_A + comp_A + GAP_AB if view == 'ALL' else x_origin
     print(f"DEBUG gerar_lv: x_A={x_A}, comp_A={comp_A}, GAP_AB={GAP_AB}, x_B={x_B}")
@@ -4724,7 +4767,8 @@ def draw_viga_lateral(msp, x_origin, y_top, viga_nome,
                      laje_sup=_ls_B, laje_inf=_li_B,
                      border_strip_width=border_strip_B,
                      skip_layers=skip_layers, nota_face=nota_face_B,
-                     pontaletes_face=pontaletes_B)
+                     pontaletes_face=pontaletes_B,
+                     fatores_painel=fatores_B)
 
     face_width = comp_A if view == 'A' else comp_B
     x_max = (x_A if view == 'A' else x_B) + face_width + DIM_H_RIGHT + 40
@@ -5473,7 +5517,7 @@ def main():
                         help='Gerar só esta viga (ex: V001). Output: LV_preview_V001.dxf')
     parser.add_argument('--seg_idx', type=int, default=-1,
                         help='Índice do segmento para desenhar apenas aquele segmento (0-based).')
-    parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
+    parser.add_argument('--visual-mode', choices=["INI", "NOVA", "MOLDE_1", "MOLDE_2", "MOLDE_3"], default='NOVA',
                         help='Perfil visual do DXF (padrao: NOVA)')
     parser.add_argument(
         '--behavior', choices=['Para', 'Passa'], default=None,
@@ -5510,6 +5554,7 @@ def main():
         help='Exige ficha N4 completa e desabilita completamentos silenciosos.',
     )
     args = parser.parse_args()
+    configure_subprocess(globals(), args.visual_mode, 'LV_' + (args.behavior or 'Para').upper())
 
     obra_path = Path(args.obra)
     if args.input_dir:
@@ -6310,7 +6355,7 @@ def main():
             if remove:
                 msp.delete_entity(entity)
     out_dxf = out_dir / out_name
-    apply_visual_mode(doc, args.visual_mode, 'LV')
+    apply_visual_mode(doc, args.visual_mode, 'LV', args.behavior)
     try:
         out_dxf = guarded_saveas(
             doc, out_dxf,

@@ -1,0 +1,208 @@
+{
+  "schema": "pil.n3.web_ficha/v1",
+  "revision": 0,
+  "pillar": "P33",
+  "pavimento": "13_PAV",
+  "special": false,
+  "top_view": {
+    "points": [
+      [
+        3788.3825,
+        1963.038
+      ],
+      [
+        3888.3825,
+        1963.038
+      ],
+      [
+        3888.3825,
+        1982.038
+      ],
+      [
+        3788.3825,
+        1982.038
+      ],
+      [
+        3788.3825,
+        1963.038
+      ]
+    ],
+    "classification": "INDETERMINADO",
+    "orientation": "RETANGULAR HORIZONTAL"
+  },
+  "dimensions": {
+    "length": 100.0,
+    "width": 19.0,
+    "height": 280.0,
+    "nivel_chegada": 0.0,
+    "nivel_saida": 280.0
+  },
+  "faces": {
+    "A": {
+      "panels": [
+        {
+          "id": "A1-1",
+          "row": 1,
+          "column": 1,
+          "distance": 0.0,
+          "width": 100.0,
+          "height": 2.0,
+          "kind": "panel",
+          "hatch": "none"
+        },
+        {
+          "id": "A2-1",
+          "row": 2,
+          "column": 1,
+          "distance": 0.0,
+          "width": 100.0,
+          "height": 244.0,
+          "kind": "panel",
+          "hatch": "none"
+        },
+        {
+          "id": "A3-1",
+          "row": 3,
+          "column": 1,
+          "distance": 0.0,
+          "width": 100.0,
+          "height": 34.0,
+          "kind": "panel",
+          "hatch": "none"
+        }
+      ],
+      "openings": {
+        "left": [],
+        "right": []
+      }
+    },
+    "B": {
+      "panels": [
+        {
+          "id": "B1-1",
+          "row": 1,
+          "column": 1,
+          "distance": 0.0,
+          "width": 19.0,
+          "height": 2.0,
+          "kind": "panel",
+          "hatch": "none"
+        },
+        {
+          "id": "B2-1",
+          "row": 2,
+          "column": 1,
+          "distance": 0.0,
+          "width": 19.0,
+          "height": 244.0,
+          "kind": "panel",
+          "hatch": "none"
+        },
+        {
+          "id": "B3-1",
+          "row": 3,
+          "column": 1,
+          "distance": 0.0,
+          "width": 19.0,
+          "height": 34.0,
+          "kind": "panel",
+          "hatch": "none"
+        }
+      ],
+      "openings": {
+        "left": [],
+        "right": []
+      }
+    },
+    "C": {
+      "panels": [
+        {
+          "id": "C1-1",
+          "row": 1,
+          "column": 1,
+          "distance": 0.0,
+          "width": 100.0,
+          "height": 2.0,
+          "kind": "panel",
+          "hatch": "none"
+        },
+        {
+          "id": "C2-1",
+          "row": 2,
+          "column": 1,
+          "distance": 0.0,
+          "width": 100.0,
+          "height": 244.0,
+          "kind": "panel",
+          "hatch": "none"
+        },
+        {
+          "id": "C3-1",
+          "row": 3,
+          "column": 1,
+          "distance": 0.0,
+          "width": 100.0,
+          "height": 34.0,
+          "kind": "panel",
+          "hatch": "none"
+        }
+      ],
+      "openings": {
+        "left": [],
+        "right": []
+      }
+    },
+    "D": {
+      "panels": [
+        {
+          "id": "D1-1",
+          "row": 1,
+          "column": 1,
+          "distance": 0.0,
+          "width": 19.0,
+          "height": 2.0,
+          "kind": "panel",
+          "hatch": "none"
+        },
+        {
+          "id": "D2-1",
+          "row": 2,
+          "column": 1,
+          "distance": 0.0,
+          "width": 19.0,
+          "height": 244.0,
+          "kind": "panel",
+          "hatch": "none"
+        },
+        {
+          "id": "D3-1",
+          "row": 3,
+          "column": 1,
+          "distance": 0.0,
+          "width": 19.0,
+          "height": 34.0,
+          "kind": "panel",
+          "hatch": "none"
+        }
+      ],
+      "openings": {
+        "left": [],
+        "right": []
+      }
+    }
+  },
+  "grades": {
+    "grade_1": 0.0,
+    "distance_1": 0.0,
+    "grade_2": 0.0,
+    "distance_2": 0.0,
+    "grade_3": 0.0,
+    "vertical_slats": [],
+    "horizontal_slats": []
+  },
+  "source": {
+    "n1": true,
+    "fase4": false,
+    "human_override": false
+  }
+}

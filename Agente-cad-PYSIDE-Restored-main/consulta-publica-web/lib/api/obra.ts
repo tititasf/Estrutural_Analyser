@@ -4,6 +4,7 @@ export interface ObraItem {
   code: string;
   titulo: string;
   tipo: string;
+  modo?: "param" | "passa";
 }
 
 export interface ObraPavimento {

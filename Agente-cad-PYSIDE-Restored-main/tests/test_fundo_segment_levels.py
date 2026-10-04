@@ -93,3 +93,13 @@ def test_d61_slabs_touching_counts_partial_touch_and_rejects_distant_slab():
     ]
     assert slabs_touching(face, slabs) == ["L1"]
     assert slabs_touching([], slabs) is None
+
+
+def test_partial_contact_level_precedes_estimate_even_outside_axis_samples():
+    segment = [(0, 0), (200, 0)]
+    slab = {'name': 'L1', 'nivel': 852.19,
+            'points': [(190, .5), (300, .5), (300, 100), (190, 100)]}
+    result = derive_fundo_segment_level(segment, [slab], estimated_levels=(851.5,))
+    assert result['value'] == 852.19
+    assert result['source'] == 'highest_touching_slab'
+    assert result['slabs'] == ['L1']

@@ -248,3 +248,29 @@ Se nenhuma face tem laje: `laje_X=0, posicao_laje_X=0` para todas as faces.
 | B3 | `grade_h1`, `grade_h2` nas vigas | Sempre "0", extrator não implementado | DOCUMENTADO |
 | B4 | `h2_E..H` pilar | Faces E-H copiavam h2=244 do retangular | CORRIGIDO (motor_fase4 2026-06-04) |
 | B5 | `coordenadas[-1]` laje | Polígono com 3 vértices fechava em [0,0] em vez de [0,L] | CORRIGIDO (motor_fase4 2026-06-04) |
+
+## 7. Encaixe N5 na moldura Nova — decisão do dono, 2026-10-04
+
+O conjunto Cima, incluindo seu nome N3, fica ancorado pela extensão superior
+do desenho, a 24 cm da borda laranja superior da área útil. Mantém a centralização
+horizontal. Se a seção aumenta, cresce para baixo, sem deslocar o datum do ABCD.
+Aplica-se à folha Cima + ABCD dos comuns e à folha Cima separada dos especiais.
+
+O canto superior esquerdo recebe somente três linhas: NÍVEL DE CHEGADA,
+NÍVEL DE SAÍDA e PÉ-DIREITO, com os valores da ficha N3. O título genérico
+de composição da folha é omitido nessas folhas; continua no índice/manifesto.
+Os níveis absolutos usam a apresentação de metros e o pé-direito usa centímetros.
+As linhas azuis inferior/superior e a posição do ABCD/Grades não são alteradas.
+
+Implementação: `src/core/n5_pillar_frames.py`, `SheetBuilder.top_aligned` e
+`level_headers`. Evidência: `scripts/arete/relatorios/20261004_nova_top_anchor/`.
+Esta decisão trata de composição N5, sem certificar a interpretação SA ou
+declarar aprovação visual integral dos desenhos N3 de todos os pilares.
+
+## 8. Carimbos da obra atual (2026-10-04)
+
+Todas as folhas geradas a partir da moldura e as folhas iniciais do índice devem receber o nome e cliente da obra cadastrada no Portal de Formas, além do pavimento efetivamente gerado. Cliente vazio, ausente ou contendo somente espaços aparece como `NÃO INFORMADO`. Não reutilizar clientes/obras/pavimentos dos documentos de exemplo enviados. A revisão permanece `00`. Aplicar a substituição sobre cópias expandidas dos blocos, sem modificar os DXFs de moldura/índice enviados pelo usuário.
+
+## 9. Cotas horizontais de furação no ABCD (2026-10-04)
+
+A cadeia horizontal dos parafusos ocupa a altura antes usada pela cota total da largura do painel (43 cm abaixo da base no desenho atual). A cota total ocupa a altura antes usada pela cadeia dos parafusos (70 cm abaixo da base). Trocar somente essas duas posições; manter medidas, eixos dos furos, cotas parciais dos sarrafos e cotas verticais. O N5 preserva essa disposição das entidades nativas do N3. Implementação: `scripts/pl_panel_drilling.py`, `_dimension_drilling`.

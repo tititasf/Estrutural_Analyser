@@ -22,11 +22,13 @@ from src.core.cima_l_contract import (
 from src.core.pillar_special_faces import physical_ring
 
 
-TC = 2.0
-TS = 2.0
+# Sanduíche N2 CIMA (cm): concreto → chapa 1.8 → sarrafo 2.2 → madeira 7 → perfil 10.
+TC = 1.8
+TS = 2.2
 CORNER_W = 7.0
 CORNER_H = 2.0
 SARR_H = 7.0
+PERFIL_EXT = 18.0  # extra em cada ponta livre da face externa (N2 240+36≈276)
 
 
 def _centered_ring(points: Any, ox: float, oy: float) -> list[tuple[float, float]]:
@@ -304,8 +306,17 @@ def _cota_chain(msp, entities, origin, along, across, u0, segments, v_attach, v_
         cursor += float(seg)
 
 
-def _draw_face_strip(msp, entities, origin, along, across, arm: dict, *, outer: bool, book: CotaBook | None = None, thick: float = 19.0):
-    """Madeira + quadradinhos + G-labels + parafusos 7×7 (MEIO_PONT) numa face longa."""
+def _draw_face_strip(
+    msp, entities, origin, along, across, arm: dict, *,
+    outer: bool, book: CotaBook | None = None, thick: float = 19.0,
+    arm_id: str = "", globais: dict | None = None,
+):
+    """Uma face CIMA = o mesmo recorte do retângulo, 4 camadas:
+
+    concreto → chapa 1.8 → sarrafo 2.2 → madeira 7 → perfil 10
+    cotas (do perfil para fora): quadradinho → GRADE → PAINEL
+    parafuso: 7×7 na madeira nas juntas + traço só na espessura
+    """
     widths = [float(w) for w in (arm.get("grade_widths") or []) if w]
     if not widths:
         gw = float(arm.get("grade_width") or 0.0)
@@ -336,13 +347,22 @@ def _draw_face_strip(msp, entities, origin, along, across, arm: dict, *, outer: 
                 start + cumulative - CORNER_W / 4.0, madeira_v0,
                 CORNER_W / 2.0, madeira_h, "Madeira", 126,
             )
+            _rect(
+                msp, entities, origin, along, across,
+                start + cumulative - CORNER_W / 2.0, madeira_v0,
+                CORNER_W, madeira_h, "MEIO_PONT", 93,
+            )
 
     rot = 90.0 if abs(along[1]) >= abs(along[0]) else 0.0
     perfil_v0 = madeira_v0 + madeira_h
+    globais = globais or {}
     if outer:
-        perfil_u0, perfil_w = -18.0, panel + 36.0
+        # N2: canal 10cm com +18 em cada ponta livre (240+36≈276, 176+36≈212).
+        perfil_u0, perfil_w = -PERFIL_EXT, panel + 2 * PERFIL_EXT
     else:
-        perfil_u0, perfil_w = 0.0, panel + 11.0
+        # N2 interno: flush no canto; extra na ponta livre (haste +11, ramo +4.4).
+        extra = float(globais.get("chapa_one") or 11.0) if "haste" in arm_id else float(globais.get("sarrafo_thick") or 4.4)
+        perfil_u0, perfil_w = 0.0, panel + extra
     _rect(msp, entities, origin, along, across, perfil_u0, perfil_v0, perfil_w, PERFIL_H, "Perfil Metálico", 224)
     _rect(msp, entities, origin, along, across, perfil_u0, perfil_v0 + TC, perfil_w, PERFIL_H - 2 * TC, "Perfil Metálico", 224)
 
@@ -378,45 +398,21 @@ def _draw_face_strip(msp, entities, origin, along, across, arm: dict, *, outer: 
         v_attach, v_panel, [f"{_fmt_cm(panel)} PAINEL"], book=book,
     )
 
-    spacings = [float(v) for v in (arm.get("parafusos") or []) if v]
-    if not spacings and outer:
-        spacings = [45.0, 45.0]
-    if not spacings and not outer:
-        return
-    cursor = float(arm.get("parafuso_inicio") or 0.0) - 1.0
-    bolt_us = [cursor]
-    for spacing in spacings:
-        cursor += spacing
-        if cursor < panel + 1.0:
-            bolt_us.append(cursor)
-    if bolt_us[-1] < panel + 0.5:
-        bolt_us.append(panel + 1.0)
-    extra = 18.4 if panel < 223 else 20.6
-    bolt_v0 = -thick - extra - 6.0
-    bolt_v1 = extra + 6.0
-    for i, u in enumerate(bolt_us):
-        if outer:
-            intermediate = 0 < i < len(bolt_us) - 1
-            if intermediate:
-                _rect(msp, entities, origin, along, across, u - 0.5, bolt_v0, 1.0, (-thick - 2.0) - bolt_v0, "Hachura")
-                _rect(msp, entities, origin, along, across, u - 0.5, -thick - 2.0, 1.0, thick + 4.0, "Hachura")
-                _rect(msp, entities, origin, along, across, u - 0.5, 2.0, 1.0, bolt_v1 - 2.0, "Hachura")
-            else:
-                _rect(msp, entities, origin, along, across, u - 0.5, bolt_v0, 1.0, bolt_v1 - bolt_v0, "Hachura")
-        _rect(
-            msp, entities, origin, along, across,
-            u - CORNER_W / 2.0, madeira_v0, CORNER_W, madeira_h, "MEIO_PONT", 93,
-        )
-    if outer and len(bolt_us) >= 2:
-        segs = [bolt_us[i + 1] - bolt_us[i] for i in range(len(bolt_us) - 1)]
-        _cota_chain(
-            msp, entities, origin, along, across, bolt_us[0], segs,
-            v_attach, v_panel + 18.0, [_fmt_cm(s) for s in segs], book=book,
-        )
-        _cota_chain(
-            msp, entities, origin, along, across, bolt_us[0], [sum(segs)],
-            v_attach, v_panel + 36.0, [f"{_fmt_cm(sum(segs))} PARAFUSOS"], book=book,
-        )
+    stations: list[float] = []
+    for gi, start in enumerate(starts):
+        gw = widths[gi]
+        stations.extend([start, start + gw])
+        cursor = 0.0
+        for segment in (divs[gi] if gi < len(divs) else [])[:-1]:
+            cursor += float(segment)
+            stations.append(start + cursor)
+    seen: set[float] = set()
+    for u in stations:
+        key = round(u, 2)
+        if key in seen:
+            continue
+        seen.add(key)
+        _rect(msp, entities, origin, along, across, u - 0.5, -thick, 1.0, thick, "Hachura")
 
 
 def draw_cima_l(msp, ox, oy, nome, pj: dict) -> int:
@@ -484,6 +480,7 @@ def draw_cima_l(msp, ox, oy, nome, pj: dict) -> int:
             _draw_face_strip(
                 msp, entities, origin, along, across, arm,
                 outer=outer, book=book, thick=thick,
+                arm_id=name, globais=(contract or {}).get("globais") or {},
             )
 
     inner_h = float(paineis.get("haste") or secao["externa_y"])

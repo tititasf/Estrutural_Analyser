@@ -112,7 +112,7 @@ def load_profiles(path: Path | str = CONFIG_PATH) -> dict:
 
 
 def positions_for_mode(mode: object, path: Path | str = CONFIG_PATH) -> list[float]:
-    normalized = normalize_mode(mode)
+    normalized = normalize_mode("NOVA" if str(mode).upper().startswith("MOLDE_") else mode)
     return list(load_profiles(path)["modos"][normalized]["horizontal_positions_cm"])
 
 

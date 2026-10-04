@@ -158,19 +158,17 @@ def paineis_intervals_for_face(
     """Intervalos de malha H (acima de h1) para uma face — genérico.
 
     A/B (longas): módulos 122 + sobra até o topo da face.
-    C/D passantes (sem abertura lateral): painel contínuo até base do void de topo.
-    C/D com abertura lateral: mesma pilha 122 até o topo (como longas).
+    C/D: painéis contínuos de até 244 cm. Abertura lateral é recorte no
+    painel, nunca motivo para inserir uma junta de 122 cm.
     """
     h1 = float(h1_cm or 0.0)
     height = float(height_cm or 0.0)
     top_void = max(0.0, float(top_void_cm or 0.0))
     fid = str(face_id or "").upper()
-    if fid in FACES_CURTAS and not has_side_openings:
+    if fid in FACES_CURTAS:
         usable = max(0.0, height - h1 - top_void)
-        return distribute_paineis_nova(usable, split_modules=False)
-    # Faces longas (e curtas com abertura) recebem o mesmo desconto de void
-    # quando o chamador o publica: o guia ABCD manda a pilha usar a altura
-    # útil DEPOIS do vazio de topo. Chamadas legadas passam 0.0 aqui.
+        return distribute_paineis_nova(usable, module=244.0)
+    # Faces longas recebem o desconto do vazio publicado e seguem em 122 cm.
     usable = max(0.0, height - h1 - top_void)
     return distribute_paineis_nova(usable, split_modules=bool(split_long_faces))
 
@@ -294,6 +292,48 @@ def _iter_face_openings(payload: dict, face_id: str) -> list[tuple[str, dict]]:
     return out
 
 
+def _panel_widths(payload: dict) -> dict[str, float]:
+    """Mesmas larguras do N3; o recorte pertence à face, não à viga."""
+    comp = float(payload.get("comprimento") or 60.0)
+    larg = float(payload.get("largura") or 38.0)
+    widths = {"A": comp + 22, "B": comp + 22, "C": larg, "D": larg}
+    for fid in "EFGH":
+        widths[fid] = float(payload.get(f"larg1_{fid}") or 0.0)
+    from src.core.cima_l_contract import n3_faces_l
+    special_faces = n3_faces_l(payload)
+    if len(special_faces) >= 6:
+        widths.update({f["id"]: float(f["panel"]) for f in special_faces})
+    return widths
+
+
+def _clip_opening_to_panel(ab: dict, width: float) -> dict:
+    """Interseção horizontal; trabalha na cópia preparada para desenho."""
+    result = dict(ab)
+    size = max(0.0, float(ab.get("largura", ab.get("larg", 0.0)) or 0.0))
+    side = str(ab.get("lado") or "").lower()
+    if side == "meio":
+        start = float(ab.get("x_offset") or 0.0)
+    elif side == "direito":
+        start = width - size
+    else:
+        start = 0.0
+    left = min(width, max(0.0, start))
+    right = min(width, max(0.0, start + size))
+    result["largura"] = result["larg"] = round(max(0.0, right - left), 4)
+    if side == "meio":
+        result["x_offset"] = round(left, 4)
+    return result
+
+
+def _clip_void_rects(rects, x_left, x_right):
+    clipped = []
+    for x, y, w, h in rects:
+        left, right = max(x_left, x), min(x_right, x + w)
+        if right - left > 0.5 and h > 0.5:
+            clipped.append((left, y, right - left, h))
+    return clipped
+
+
 def _pillar_top_level_from_payload(payload: dict) -> float | None:
     """Topo de contato do pilar p/ rebaixo = maior nível de laje (N:), não PD/saída.
 
@@ -387,6 +427,7 @@ def enrich_payload_for_abcd_nova(
     if top is None:
         top = _pillar_top_level_from_payload(payload)
 
+    panel_widths = _panel_widths(payload)
     for fid in "ABCDEFGH":
         face = faces.get(fid) if isinstance(faces.get(fid), dict) else {}
         metrics = face_laje_metrics(face or {}, pillar_top_level=top)
@@ -453,6 +494,9 @@ def enrich_payload_for_abcd_nova(
         has_esq = has_dir = False
         openings_to_top = False
         for key, ab in openings:
+            width = panel_widths.get(fid, 0.0)
+            if width > 0.0:
+                ab = _clip_opening_to_panel(ab, width)
             lado = str(ab.get("lado") or "").lower()
             if lado in ("esquerdo", "direito", "meio"):
                 has_side = True
@@ -876,7 +920,9 @@ def draw_opening_sarrafos(
                 continue
             # L contínuo parede→vão→pé→pressão (1 polilinha → 1 MLINE no INI,
             # canto alinhado na parede sem quebra de eixo).
-            x_sarr = xi - corner  # 150 se xi=157
+            if xi <= x_left + 0.5:
+                continue  # vão ocupa toda a face: não existe parede interna
+            x_sarr = max(x_left, xi - corner)
             x_press_r = x_right - corner
             pts = [(xi, yb), (x_sarr, yb), (x_sarr, yb - corner)]
             if x_press_r - x_sarr > 0.5:
@@ -902,7 +948,9 @@ def draw_opening_sarrafos(
             xi = x_left + larg  # parede interna
             if _is_dual:
                 continue
-            x_sarr = xi + corner
+            if xi >= x_right - 0.5:
+                continue
+            x_sarr = min(x_right, xi + corner)
             x_press_l = x_left + corner
             pts = [(xi, yb), (x_sarr, yb), (x_sarr, yb - corner)]
             if x_sarr - x_press_l > 0.5:
@@ -968,8 +1016,8 @@ def void_rects_for_face(
         if lado == "esquerdo":
             return (x_left, yb, larg, yt - yb)
         if lado == "meio":
-            xl = float(ab.get("x_inn_l") or x_left)
-            xr = float(ab.get("x_inn_r") or x_right)
+            xl = float(ab.get("x_inn_l", x_left))
+            xr = float(ab.get("x_inn_r", x_right))
             return (xl, yb, max(0.0, xr - xl), yt - yb)
         return None
 
@@ -1021,7 +1069,7 @@ def void_rects_for_face(
                     extension = _top_opening_extension(ab, y_void_top, y_void_bot)
                     if extension:
                         rects.append(extension)
-        return [(x, y, w, h) for x, y, w, h in rects if w > 0.5 and h > 0.5]
+        return _clip_void_rects(rects, x_left, x_right)
 
     for ab in openings:
         r = _opening_void_rect(ab)
@@ -1039,7 +1087,7 @@ def void_rects_for_face(
                 extension = _top_opening_extension(ab, y_top_void, y_bot_void)
                 if extension:
                     rects.append(extension)
-    return [(x, y, w, h) for x, y, w, h in rects if w > 0.5 and h > 0.5]
+    return _clip_void_rects(rects, x_left, x_right)
 
 
 def _rects_touch(a, b, tol=1.0) -> bool:
@@ -1382,6 +1430,9 @@ def draw_dual_marco_sarrs(
     # paredes internas das aberturas
     x_inner_l = x_left + max(float(ab["larg"]) for ab in esq)   # 334
     x_inner_r = x_right - max(float(ab["larg"]) for ab in dir_)  # 382
+    if x_inner_r - x_inner_l < 0.5:
+        return 0  # aberturas se encontram: não há marco sólido entre elas
+    corner = min(corner, (x_inner_r - x_inner_l) / 2.0)
     # inset para o MARCO (centro)
     x_sarr_l = x_inner_l + corner  # 341
     x_sarr_r = x_inner_r - corner  # 375

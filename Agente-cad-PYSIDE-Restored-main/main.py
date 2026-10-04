@@ -198,7 +198,7 @@ class LicensingProxy:
         return True, "Débito Liberado (Temporário)"
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, db_path_override=None):
         super().__init__()
         self.setWindowTitle("Vision-Estrutural AI - Pro Dashboard")
         self.resize(1600, 1000)
@@ -210,7 +210,8 @@ class MainWindow(QMainWindow):
         # DB real fica um nível acima (D:/Agente-cad-PYSIDE/project_data.vision)
         parent_db = os.path.join(os.path.dirname(main_dir), "project_data.vision")
         local_db  = os.path.join(main_dir, "project_data.vision")
-        db_path = parent_db if os.path.exists(parent_db) and os.path.getsize(parent_db) > 200_000 else local_db
+        db_path = (str(db_path_override) if db_path_override is not None else
+                   parent_db if os.path.exists(parent_db) and os.path.getsize(parent_db) > 200_000 else local_db)
         self.db = DatabaseManager(db_path=db_path) # SQLite persistencia
         self.memory = HierarchicalMemory(self.db)
         self.auth_service = AuthService() # Initialize AuthService
@@ -6267,6 +6268,12 @@ class MainWindow(QMainWindow):
         self.pavimento_pillar_report = self._build_complete_pillar_report(self.slabs_found)
         # Aplica rejeições do histórico de pré-ficha antes da pré-validação
         self._apply_preficha_rejections(self.pavimento_pillar_report)
+        from src.core.pillar_sa_review import apply_report
+        preproc = getattr(self, "pavimento_preprocess", {}) or {}
+        if preproc.get("obra") and preproc.get("pavimento"):
+            from src.core.pillar_sa_review import resolve_obra
+            obra_ref = resolve_obra(preproc["obra"])
+            apply_report(self.pavimento_pillar_report, obra_ref, str(preproc["pavimento"]))
         n_report = len(self.pavimento_pillar_report)
         n_nasce = sum(1 for p in self.pavimento_pillar_report.values() if p.get('classification') == 'NASCE')
         self.log(f"📋 Relatório de pilares do pavimento: {n_report} pilar(es) detectados, {n_nasce} NASCE (a desconsiderar nas vigas/pilares).")
@@ -14049,16 +14056,18 @@ class MainWindow(QMainWindow):
                 own_df       = round(own_df_geo * scale_v, 1)
                 neigh_dt     = round(neigh_dt_geo * scale_v, 1)
                 neigh_df     = round(neigh_df_geo * scale_v, 1)
-                # Fallback: geo não detectou aba mas temos dimensão real da laje →
-                # usa laje_dim para own_slab_h e cruza para own_dist_bottom.
-                if own_slab_h == 0.0 and own_h_val > 0 and beam_h > 0:
+                # A anotação da laje prevalece mesmo com aba geométrica não nula.
+                # Preserva o desnível medido e recalcula a parede inferior.
+                if own_h_val > 0 and beam_h > 0:
+                    if own_slab_h == 0.0:
+                        own_dt = 0.0
                     own_slab_h = own_h_val
-                    own_dt = 0.0
-                    own_df = round(beam_h - own_slab_h, 1)
-                if neigh_slab_h == 0.0 and neigh_h_val > 0 and beam_h > 0:
+                    own_df = round(beam_h - own_slab_h - own_dt, 1)
+                if neigh_h_val > 0 and beam_h > 0:
+                    if neigh_slab_h == 0.0:
+                        neigh_dt = 0.0
                     neigh_slab_h = neigh_h_val
-                    neigh_dt = 0.0
-                    neigh_df = round(beam_h - neigh_slab_h, 1)
+                    neigh_df = round(beam_h - neigh_slab_h - neigh_dt, 1)
 
             # Campos informacionais são SEMPRE recomputados no re-analyze.
             # A proteção do link validado é geométrica (não duplica a geometria),
@@ -14230,6 +14239,19 @@ class MainWindow(QMainWindow):
                         pass
         except (ValueError, TypeError):
             pass
+
+        # A broken inverted web is schematic: never stretch its slab flange
+        # with the global height ratio. Retain measured regional slab thickness.
+        from src.core.beam_vertical_context import inverted_cut_evidence
+        from src.core.lv_cut_inventory import number as _cut_number
+        _inverted = inverted_cut_evidence(
+            pts, (self.dxf_data or {}).get('lines') or [], direction,
+            _cut_number(ficha.get('beam_bottom_dim')), _cut_number(ficha.get('beam_height')))
+        link.pop('section_semantics', None)
+        if _inverted:
+            link['section_semantics'] = _inverted
+            # N1 fields remain immutable. Conversion reconstructs measured
+            # regional profiles from this derived context on a separate copy.
 
         # --- Campos com painel (2 cm), sarrafo de fundo (+4 cm) e fórmulas explicativas ---
         # A distância TOPO e FUNDO têm como referência a ALTURA DA LAJE (H_laje),
@@ -14827,7 +14849,7 @@ class MainWindow(QMainWindow):
             if not hist_entry:
                 continue
             classification = (hist_entry.get('classification') or '').strip()
-            if not classification:
+            if not classification or classification.upper() == 'INDETERMINADO':
                 continue
             physical_type = _physical_type_for_history(
                 classification,
@@ -15204,6 +15226,16 @@ class MainWindow(QMainWindow):
                 except Exception:
                     entry['bbox'] = entry.get('bbox')
                 derived_lajes = self._pillar_laje_entries(points, slabs)
+                if entry['classification'] == 'INDETERMINADO':
+                    from src.core.pillar_convention_recognition import recognize, convention_for_source
+                    convention = (getattr(self, 'pavimento_preprocess', {}) or {}).get('convention', {})
+                    if not convention:
+                        convention = convention_for_source(getattr(self, 'current_dxf_path', None))
+                    classification, evidence = recognize(points, self.dxf_data or {}, convention)
+                    entry['classification_evidence'] = evidence
+                    if classification != 'INDETERMINADO':
+                        entry['classification'] = classification
+                        entry['ignore_in_beams'] = classification.upper() == 'NASCE'
                 existing = {x.get('laje'): x for x in entry.get('lajes', [])}
                 for item in derived_lajes:
                     existing.setdefault(item.get('laje'), item)
@@ -15383,6 +15415,12 @@ class MainWindow(QMainWindow):
           - Se as posições diferem, a diferença das dist_top dá o delta vertical.
         """
         if not isinstance(cut_link, dict):
+            return None
+        semantics = cut_link.get('section_semantics') or {}
+        if semantics.get('confirmed') and semantics.get('beam_type') == 'inverted':
+            # Regional transport is handled by paired_cut_level_source with
+            # both physical slab polygons. The schematic top distances are
+            # not an independent fallback for an inverted, broken web.
             return None
         ficha = cut_link.get('ficha') or {}
         try:
@@ -16280,7 +16318,7 @@ class MainWindow(QMainWindow):
                     validated.pop('laje_vizinhas_niveis', None)
         return removed
 
-    def _choose_consensus_level(self, sources: list[dict], tol: float = 0.05) -> dict | None:
+    def _choose_consensus_level(self, sources: list[dict], tol: float = 0.0025) -> dict | None:
         if not sources:
             return None
         groups = []
@@ -16326,10 +16364,18 @@ class MainWindow(QMainWindow):
     def _infer_slab_levels_from_context(self, slabs: list[Dict]) -> None:
         if not slabs:
             return
+        if getattr(self, '_sa_preprocessed_item_levels', None):
+            from portal.app.preprocessamento.sa_levels import consume_item_levels
+            self._sa_level_consumer_calls = consume_item_levels(slabs, self._sa_preprocessed_item_levels)
         auto_cuts, auto_pillars = self._auto_link_slab_cut_views(slabs)
         poly_map = self._slab_polygon_map(slabs)
         self._prune_stale_neighbor_level_links(slabs)
         auto_neighbor_levels = self._auto_link_slab_neighbor_level_texts(slabs, poly_map)
+
+        source_dxf = getattr(self, 'current_dxf_path', None)
+        if source_dxf and Path(source_dxf).is_file():
+            from src.core.slab_steps import collect_sa_steps
+            collect_sa_steps(slabs, source_dxf)
 
         level_sources = {}
         for slab in slabs:
@@ -16372,9 +16418,13 @@ class MainWindow(QMainWindow):
                             continue
                         for other_cut in self._slab_cut_links(other):
                             if isinstance(other_cut, dict) and self._same_cut_view_signature(own_cut, other_cut):
-                                sources.append(dict(other_src))
+                                from src.core.slab_level_inference import paired_cut_level_source
+                                transported = paired_cut_level_source(own_cut, slab.get('name') or '', other_src,
+                                    own_slab=slab, source_slab=other)
+                                if transported is not None:
+                                    sources.append(transported)
                                 break
-                reason = 'cut_view_paired_with_validated_slab'
+                reason = 'cut_view_paired_geometry_delta'
             else:
                 for _dist, other in self._neighbor_slabs(slab, slabs, poly_map):
                     if self._slab_has_cut_view(other):

@@ -120,4 +120,8 @@ Relacionado:
 
 ---
 
+## 7. Seleção de modo N3 (2026-09-30)
+
+Nos viewers N3 que oferecem Nova/Ini (pilares, fundos de viga e lajes), o seletor fica fora do viewport SVG, em subabas horizontais com o mesmo estilo das subabas N5. O modo ativo aparece selecionado; trocar modo recarrega o desenho correspondente e atualiza `modo_desenho` na URL. O controle compartilhado reutiliza a barra existente ao renderizar novamente, evitando duplicatas. Fundos removem a barra ao sair da camada N3.
+
 *Registro de desenvolvimento — padrão UI web SVG pan/zoom.*

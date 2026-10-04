@@ -500,3 +500,13 @@ def test_ini_opening_l_mline_flushes_to_wall():
     # L desceu th/2: topo do H em -224 (face) → centro -227.5
     assert l_ys, "L MLINE multi-vertex esperado"
     assert max(l_ys) == pytest.approx(-227.5, abs=0.2)
+
+def test_ini_rectangle_detection_handles_duplicate_horizontal_lines():
+    from visual_modes import _line_rectangles
+    doc = ezdxf.new('R2018')
+    msp = doc.modelspace()
+    for start, end in [((0,0),(10,0)), ((0,0),(10,0)), ((0,20),(10,20)), ((0,0),(0,20)), ((10,0),(10,20))]:
+        msp.add_line(start, end)
+    rectangles = _line_rectangles(list(msp))
+    assert len(rectangles) == 1
+    assert rectangles[0][1] == (0.0, 0.0, 10.0, 20.0)

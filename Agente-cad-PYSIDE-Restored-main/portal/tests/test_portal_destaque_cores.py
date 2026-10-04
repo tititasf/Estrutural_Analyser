@@ -29,4 +29,5 @@ def test_cores_antigas_de_classe_nao_permanecem_nos_viewers():
 def test_linha_azul_tem_espessura_dobrada_e_erro_preserva_sua_espessura():
     for template in ("obra_detalhe.html", "viewer.html"):
         html = (TEMPLATES / template).read_text(encoding="utf-8")
-        assert "fora_do_frame ? '4.6' : '6'" in html or 'fora_do_frame ? "4.6" : "6"' in html
+        assert ("fora_do_frame ? '4.6' : '6'" in html or 'fora_do_frame ? "4.6" : "6"' in html
+                or "fora_do_frame ? 4.6 : 6" in html)

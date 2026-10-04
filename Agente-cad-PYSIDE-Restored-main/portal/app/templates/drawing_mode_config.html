@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Configuração de Modos — Portal de Formas de Concretagem{% endblock %}
+{% block sidebar_obras_extra %}
+<li><a href="{{ retorno }}" title="Voltar ao desenho"><span aria-hidden="true">←</span><span class="nav-texto">Voltar ao desenho</span></a></li>
+{% endblock %}
+{% block conteudo %}
+<section id="drawing-mode-config-dialog" class="drawing-config-dialog drawing-config-page" aria-labelledby="drawing-config-title">
+  <div class="drawing-config-head"><h2 id="drawing-config-title">Configuração de Modos</h2><a class="btn-sec btn" href="{{ retorno }}">Voltar ao desenho</a></div>
+  <p>Configuração global dos desenhos. As alterações valem para as próximas gerações; gere o N3 novamente e depois o N5.</p>
+  <div id="drawing-config-modes" class="n5-pav-tabs" role="tablist" aria-label="Modo de desenho"></div>
+  <div id="drawing-config-classes" class="n5-pav-tabs" role="tablist" aria-label="Classe de desenho"></div>
+  <form id="drawing-config-form"><div id="drawing-config-fields">Carregando configurações…</div><div class="drawing-config-actions"><button type="submit" class="btn" disabled>Salvar configuração</button><span id="drawing-config-status" role="status" aria-live="polite"></span></div></form>
+</section>
+{% endblock %}
+{% block scripts %}
+<link rel="stylesheet" href="/static/drawing_mode_config.css?v={{ request.app.state.static_versao | default('0') }}">
+<script src="/static/drawing_mode_config.js?v={{ request.app.state.static_versao | default('0') }}&crop=20261004documents"></script>
+{% endblock %}

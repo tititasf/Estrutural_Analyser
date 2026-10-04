@@ -221,7 +221,7 @@ def derive_fundo_segment_level(
         if level is None or len(polygon) < 3:
             continue
         levelled_slabs.append((level, str(slab.get("name") or ""), polygon))
-        if _touches(axis, polygon):
+        if _touches(axis, polygon) or _polygon_distance(clean, polygon) <= TOUCH_TOL_CM:
             touching.append((level, str(slab.get("name") or "")))
 
     if not touching:

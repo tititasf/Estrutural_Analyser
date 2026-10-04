@@ -31,7 +31,12 @@ CREATE TABLE IF NOT EXISTS public_codes (
     obra_rotulo     TEXT,
     revoked         INTEGER NOT NULL DEFAULT 0,
     created_at      TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
-    publish_batch   TEXT
+    publish_batch   TEXT,
+    -- [2026-09-28] JSON por item: LV = {"modo": "param"|"passa", "viga",
+    -- "segmentos": [...]} (1 código por viga), pilar = {"modo_pilar": ...}
+    -- (2 códigos por pilar). Bancos antigos ganham a coluna via
+    -- `publisher.db._migrar` (CREATE IF NOT EXISTS não adiciona coluna).
+    payload_json    TEXT
 );
 
 CREATE INDEX IF NOT EXISTS idx_public_codes_batch ON public_codes(publish_batch);

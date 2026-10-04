@@ -12,6 +12,45 @@ from src.core.beam_interpreters.lateral_viga_cells import (
 from src.core.lv_beam_scene import LvScene, build_scenes
 
 
+def test_passa_full_concave_endpoint_walls_core_and_exterior_junction():
+    from shapely.geometry import Polygon
+    from src.core.lv_beam_scene import _attach_context
+
+    scene = LvScene("V1", True, 0.0, 19.0, 165.0, 450.0)
+    scene.sections = [{"start": 165.0, "end": 450.0, "dim": "19/55", "depth": 55.0}]
+    left = Polygon([(0, 0), (165, 0), (165, 19), (19, 19), (19, 218), (0, 218)])
+    right = Polygon([(450, 0), (615, 0), (615, 218), (596, 218), (596, 19), (450, 19)])
+    other = LvScene("V2", False, 450.0, 464.0, -200.0, 0.0)
+    other.sections = [{"start": -200.0, "end": 0.0, "dim": "14/50", "depth": 50.0}]
+    _attach_context(scene, [("P1", "SEGUE", left), ("P2", "SEGUE", right)], [scene, other], [])
+    a = segment_cell(scene, "A", "passa")
+    b = segment_cell(scene, "B", "passa")
+    assert [(s.start, s.end) for s in a] == [(0.0, 464.0), (464.0, 615.0)]
+    assert [(s.start, s.end) for s in b] == [(596.0, 19.0)]
+    assert all(s.dim == "19/55" for s in a + b)
+    assert not any("G8_pilar_partido" in flag for s in a for flag in s.flags)
+    # A new measurement cannot alter either Para cell.
+    import copy
+    from dataclasses import asdict
+    legacy = copy.copy(scene)
+    legacy.passa_pillars = legacy.passa_incidents = None
+    for side in ("A", "B"):
+        assert [asdict(s) for s in segment_cell(scene, side, "para")] == [
+            asdict(s) for s in segment_cell(legacy, side, "para")]
+
+
+def test_passa_vertical_exterior_face_stops_at_concave_pillar_core():
+    from shapely.geometry import Polygon
+    from src.core.lv_beam_scene import _attach_context
+
+    scene = LvScene("V1", False, 596.0, 615.0, 218.0, 400.0)
+    scene.sections = [{"start": 218.0, "end": 400.0, "dim": "19/60", "depth": 60.0}]
+    pillar = Polygon([(450, 0), (615, 0), (615, 218), (596, 218), (596, 19), (450, 19)])
+    _attach_context(scene, [("P1", "SEGUE", pillar)], [scene], [])
+    assert [(s.start, s.end) for s in segment_cell(scene, "A", "passa")] == [(400.0, 19.0)]
+    assert [(s.start, s.end) for s in segment_cell(scene, "B", "passa")] == [(0.0, 400.0)]
+
+
 def _scene(**kw) -> LvScene:
     scene = LvScene("V1", True, 0.0, 19.0, 0.0, 1000.0)
     scene.sections = kw.get("sections", [

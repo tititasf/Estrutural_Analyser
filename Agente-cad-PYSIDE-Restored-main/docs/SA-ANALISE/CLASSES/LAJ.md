@@ -8,6 +8,11 @@ uniões. `src/core/slab_tracer.py` captura/interpreta; a ficha é
 N2/N4. A ordem é imutável: **identidade → contorno/área → apoios → contexto/exceções
 → panelização → desenho**.
 
+**Jev opcional:** em nível/espessura ou apoio por aresta com marcadores
+concorrentes, enviar handles, região física, `h=` e contorno; se a convenção do
+desnível permanecer ambígua, usar ficha visual para decisão humana. Ver
+[segunda leitura do SA](../JEV-SEGUNDA-LEITURA-OPCIONAL.md).
+
 | Família | Campos/prova | Aceite | Anti-padrão |
 |---|---|---|---|
 | identidade | `name.label`, `laje_dim.label`, `laje_nivel.label` | nome, espessura e nível do mesmo item | nível copiado de vizinha |
@@ -31,6 +36,54 @@ vision = **ruído**. g2v_harness.py --backend cli + inventário.
 docs/QA-VISAO-EVIDENCIA-CANONICA.md.
 
 ## 2. Diagnóstico e S5: o que o automatismo não fecha
+
+### Degraus internos e cortes de laje (2026-10-01)
+
+O dono pediu destaque amarelo dos trechos internos demarcados com `h=` diferente,
+inclusive sem símbolo de corte. A região vem do contorno interno real do DXF,
+contido na laje, com espessuras explícitas dentro e fora. A cota interna pertence
+ao trecho: não vira automaticamente o nível de toda a laje. Comparar os fundos
+em metros, `nível − h/100`, conforme D-52: iguais mantêm uma laje; diferentes
+comprovados recebem vermelho no destaque das lajes e indicação de separação.
+Uma cota ausente permanece pendente, sinalizada em amarelo.
+
+Cortes próprios de laje entram em Visão de Cortes com o nome da laje e amarelo,
+sem associação FV/LV nem identidade de viga. Reconhecimento exige seção estreita
+atravessando a região interna, duas larguras compatíveis com os `h=` e uma borda
+contínua; se apenas uma cota estiver presente, essa continuidade do fundo permite
+transportar o desnível. Seção T de viga não é corte de laje. Cada resultado conserva
+handles, cotas, espessuras, método e pendências. O contorno principal e os dados
+humanamente validados permanecem preservados. Implementação: `src/core/slab_steps.py`.
+
+### Referências FV/LV na ficha de Visão de Cortes (2026-09-30)
+
+Pedido do dono: fundos e laterais ajudam a identificar o nome e os segmentos
+representados pelo corte, como referência e nunca como regra rígida. A associação
+anterior usa o texto de viga mais próximo do símbolo e pode escolher outra viga.
+O portal compara o polígono reconhecido com as geometrias dos segmentos do SA,
+sem filtrar pelo nome atual. Exibe nome sugerido, divergência/concordância e os
+IDs/índices reais de fundo e de laterais A/B × Para/Passa, com links às fichas.
+
+A hipótese exige contato com fundo e lateral do mesmo nome no entorno local,
+sem nome concorrente. Só fundo, só lateral, proximidade sem contato de fundo,
+ausência de fonte ou nomes concorrentes permanecem pendentes. A largura da faixa
+delimita a busca; não impõe altura, número ou comprimento ao símbolo da seção.
+Não se escolhe uma viga distante só por ser a mais próxima, nem se contam as
+variantes Para/Passa como votos independentes. FV/LV derivam do mesmo SA e podem
+compartilhar um erro: concordância não substitui conferência do rótulo e da posição
+no DXF. Os campos derivados são referências de leitura, sem selo de validação;
+os dados originais no arquivo SA permanecem intactos. Implementação:
+`portal/app/corte_references.py`, integração em `ficha_reader.listar_itens_n1`.
+
+Atualização por orientação do dono (2026-09-30): a associação FV/LV única e
+consistente agora define o nome do corte no portal: campo Viga, título da ficha,
+lista e rótulo do destaque estrutural. O nome anterior fica somente no campo
+“Nome anterior · diagnóstico”. Sem associação suficiente ou com nomes
+concorrentes, o nome fica “Pendente”; não se reutiliza o nome antigo como verdade.
+Os arquivos SA e a geometria reconhecida não são sobrescritos. O critério local
+de associação permanece o mesmo; FV/LV não impõem dimensão ou formato ao corte.
+
+### Diagnóstico canônico
 
 `diagnostico_laj_n1_n2.py` alerta comparabilidade/dimensão; não dá veredito de
 polígono, hachura de apoio, posição de cota, obstáculo ou linha de painel. Para S5,
@@ -160,3 +213,13 @@ O RAG continua consultivo e nunca substitui a evidência geométrica local.
   apenas pelo escopo explícito obra+pavimento+classe e identificadas como
   comparação histórica;
 - smoke N3 e diagnóstico numérico não criam selo nem substituem G2-V/N1-V/G5-V.
+
+
+### Consolidação de níveis — 2026-10-01
+
+Regra integrada: `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` (canônico). Cotas pertencem à região interna ou principal, não ao contorno inteiro. Comparar fundos em metros. Delta entre abas intactas de um corte pode resolver laje sem cota mesmo com haste interrompida, após conferir espessuras e contato real. L317 é prova local (L316/BD4 852,16 + 3 cm = 852,19); não hardcode. Revisões de fundo contínuo exigem UID e SHA do DXF; conflito CAD não é sobrescrito. A ficha lista principal e cada degrau separadamente.
+
+
+### Referência padrão e treino de exceções — NIV-PADRAO-EXCECAO-20261003
+
+Aplicar o contrato global em `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`, seção Referência padrão e exceções explícitas. O padrão confirmado é topo da viga no nível principal da laje ou base de saída do pavimento quando não há laje, salvo indicação explícita diferente. Ausência de corte não torna esse padrão uma estimativa por si só. Preservar regiões de laje, datum da viga, contato por face do pilar e fontes independentes. QA distingue convenção de medida e verifica qualidade/cobertura da leitura antes de confirmar; não elevar score apenas renomeando status. Interpretação de vigas em níveis diferentes por hatch/corte está pendente de treino com exemplos reais futuros; não foi certificada neste caso.

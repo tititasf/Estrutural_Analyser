@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block titulo %}Base Global — Portal de Formas{% endblock %}
+{% block titulo %}Base Global — Portal de Formas de Concretagem{% endblock %}
 
 {% block conteudo %}
 <style>main.conteudo { max-width: none !important; }</style>
@@ -10,6 +10,18 @@
     regras e código, e como se ligam. Gerado por <code>scripts/kb/kb_grafo.py</code>;
     <span id="bg-gerado"></span></p>
 </div>
+
+<div class="card" style="margin: 1rem 0;">
+  <h2>Buscar no conhecimento</h2>
+  <p>Busca textual no índice global publicado. Este snapshot usa as decisões da VPS e os demais documentos indexados no workspace; abra a fonte vigente antes de usar um resultado como regra ou prova.</p>
+  <form id="bg-kb-form" role="search">
+    <label for="bg-kb-q">Pergunta ou termo</label>
+    <input id="bg-kb-q" type="search" maxlength="160" required placeholder="Ex.: quando usar Jev no SA?" style="width: min(36rem, 100%);">
+    <button type="submit" class="btn">Buscar</button>
+  </form>
+  <div id="bg-kb-resultado" aria-live="polite"></div>
+</div>
+<script src="/static/base_global_search.js?v={{ request.app.state.static_versao | default('0') }}"></script>
 
 {% if not tem_grafo %}
 <div class="card"><p><em>O grafo ainda não foi gerado no servidor. Rode

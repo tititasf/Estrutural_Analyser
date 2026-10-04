@@ -50,6 +50,8 @@ class Settings:
     """Configuracao imutavel do processo (montada uma vez em create_app)."""
 
     repo_root: Path = REPO_ROOT
+    preprocess_enabled: bool = field(default_factory=lambda: _env_bool("PORTAL_PREPROCESS_ENABLED", False))
+    preprocess_sa_enabled: bool = field(default_factory=lambda: _env_bool("PORTAL_PREPROCESS_SA_ENABLED", False))
 
     # --- Banco ---
     # None => portal.db.connection.DEFAULT_DB_PATH (raiz do repo). Testes injetam tmp.

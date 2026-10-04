@@ -804,19 +804,23 @@ def _point_in_polygon(point: tuple[float, float], polygon: list[tuple[float, flo
 def _slab_info(slab: dict) -> dict[str, str]:
     fields = slab.get("fields") or {}
     name = slab.get("name") or slab.get("laje_name") or fields.get("nome") or ""
-    height_raw = (
-        fields.get("laje_dim") or slab.get("laje_dim") or slab.get("height")
-        or slab.get("altura") or ""
-    )
     level = fields.get("laje_nivel") or slab.get("laje_nivel") or slab.get("nivel") or ""
     return {
         "name": str(name),
         "level": str(level),
-        "height": _dimension_height(height_raw),
+        "height": slab_height_cm(slab),
     }
 
 
-def _touching_slabs(points: list, side: str, slabs: list[dict] | None) -> list[dict[str, str]]:
+def slab_height_cm(slab: dict) -> str:
+    """Read the canonical interpreted thickness for exports and consumers."""
+    fields = slab.get("fields") or {}
+    raw = (fields.get("laje_dim") or slab.get("laje_dim")
+           or fields.get("laje_h") or slab.get("height") or slab.get("altura") or "")
+    return _dimension_height(raw)
+
+
+def _touching_slabs(points: list, side: str, slabs: list[dict] | None, limit: int | None = 3) -> list[dict[str, str]]:
     line = _clean_points(points)
     if len(line) < 2:
         return []
@@ -875,7 +879,7 @@ def _touching_slabs(points: list, side: str, slabs: list[dict] | None) -> list[d
         if key and key not in seen:
             seen.add(key)
             unique.append(info)
-        if len(unique) == 3:
+        if limit is not None and len(unique) == limit:
             break
     return unique
 
@@ -1062,6 +1066,7 @@ def collect_preficha_segments(
                 level = ""
                 level_source = "unresolved"
                 level_slabs: list[str] = []
+                level_evidence_fields: list[str] = []
                 cell_attention = ""
                 if kind == "fundo":
                     # Gate D-60: fundo reparado/anulado por estar fora da
@@ -1071,25 +1076,32 @@ def collect_preficha_segments(
                     from src.core.fundo_segment_levels import derive_fundo_segment_level
                     # D-61: nivel de lado marcado como estimado nao passa na
                     # frente da laje encostada ao fundo.
-                    estimados = beam.get("nivel_viga_estimado")
-                    estimados = estimados if isinstance(estimados, dict) else {}
                     lado_keys = [f"viga_{s}_seg_{segment_index}_nivel_viga" for s in ("a", "b")]
+                    level_keys = [f"viga_fundo_seg_{segment_index}_nivel_viga", *lado_keys,
+                                  "nivel_lado_a", "nivel_lado_b", "nivel_viga"]
+                    validated = beam.get('validated_fields') or []
+                    validated_slots = beam.get('validated_link_classes') or {}
+                    def is_explicit_level(key):
+                        if key in validated or 'label' in (validated_slots.get(key) or []):
+                            return True
+                        return any(isinstance(row, dict) and (row.get('human') or row.get('validated') or row.get('source') == 'human')
+                                   for row in ((beam.get('links') or {}).get(key) or {}).get('label', []))
+                    # Automatic LV fields are derived values, even when their
+                    # name contains nivel_viga. They must not override actual
+                    # slab contact or masquerade as a measured FV altitude.
+                    explicit_keys = [k for k in level_keys if is_explicit_level(k)]
                     level_result = derive_fundo_segment_level(
                         points,
                         slabs,
-                        explicit_levels=(
-                            fields.get(f"viga_fundo_seg_{segment_index}_nivel_viga"),
-                            *(fields.get(k) for k in lado_keys if k not in estimados),
-                            fields.get("nivel_lado_a"),
-                            fields.get("nivel_lado_b"),
-                            fields.get("nivel_viga"),
-                        ),
-                        estimated_levels=[fields.get(k) for k in lado_keys if k in estimados],
+                        explicit_levels=[fields.get(k) for k in explicit_keys],
+                        estimated_levels=[fields.get(k) for k in level_keys if k not in explicit_keys],
                     )
                     if level_result["value"] is not None:
                         level = f'{float(level_result["value"]):g}'
                     level_source = str(level_result["source"])
                     level_slabs = list(level_result["slabs"])
+                    if level_source == 'explicit_beam_or_side':
+                        level_evidence_fields = explicit_keys
                 if kind != "fundo":
                     dimension_raw = _first_value(
                         beam,
@@ -1208,6 +1220,7 @@ def collect_preficha_segments(
                     "level": level,
                     "level_source": level_source,
                     "level_slabs": level_slabs,
+                    "level_evidence_fields": level_evidence_fields,
                     "points": points,
                     "measure_source": str(link.get("fv_measure_source") or ""),
                     "tag": str(link.get("tag") or spec["side"]),

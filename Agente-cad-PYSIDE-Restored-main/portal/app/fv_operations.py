@@ -141,7 +141,7 @@ def update_n3_override(
 
 
 def save_notes(obra_dir: Path, pavimento: str, beam: str, notes: dict[str, Any]) -> dict[str, str]:
-    cleaned = {name: str(notes.get(name) or "")[:8000] for name in ("sa", "c1", "c2", "c3")}
+    cleaned = {name: str(notes.get(name) or "")[:8000] for name in ("sa", "c1", "c2", "c3", "n3")}
     with _MUTATION_LOCK:
         payload = load_override(obra_dir, pavimento, beam)
         payload["notes"] = cleaned
@@ -499,13 +499,52 @@ def rename_ficha_artifacts(html_path: Path, beam: str, new_name: str) -> Path:
     return target
 
 
+def normalize_manual_sa_svg(svg: str) -> str:
+    """Map legacy/manual pixel overlays into the structural SVG user units.
+
+    Matplotlib exports points (72/in), while drawing transforms use pixels
+    (100/in). Never change the saved DXF contour to compensate for this.
+    """
+    marker = '<g class="fv-web-human-sa-layer"'
+    if marker not in svg or 'data-fv-space="svg"' in svg:
+        return svg
+    root = re.search(r'<svg\b[^>]*>', svg)
+    if not root:
+        return svg
+    attrs = dict(re.findall(r'([\w:]+)="([^"]*)"', root.group()))
+    view = [float(v) for v in re.split(r'[ ,]+', attrs.get('viewBox', '').strip()) if v]
+    if len(view) != 4:
+        return svg
+    def pixels(value: str) -> float:
+        match = re.fullmatch(r'([\d.]+)(pt|px)?', value)
+        if not match:
+            raise ValueError('unsupported SVG physical size')
+        return float(match[1]) * (100 / 72 if match[2] == 'pt' else 1)
+    try:
+        width, height = pixels(attrs['width']), pixels(attrs['height'])
+        sx, sy = view[2] / width, view[3] / height
+    except (KeyError, ValueError, ZeroDivisionError):
+        return svg
+    replacement = (marker + ' data-fv-space="svg"'
+                   f' transform="translate({view[0]:.12g} {view[1]:.12g}) scale({sx:.12g} {sy:.12g})"')
+    svg = svg.replace(marker, replacement, 1)
+    # The structural renderer's global thin-strokes CSS must not thin the
+    # editable class highlight. Match the normal class overlay's translucency.
+    style = ('<style>.fv-web-human-sa-layer polygon{stroke-width:2px!important;'
+             'fill-opacity:.15!important}.fv-web-human-sa-layer text{'
+             'font-size:3px!important;paint-order:stroke;stroke:#000;'
+             'stroke-width:.5px!important}</style>')
+    return svg.replace('</svg>', style + '</svg>', 1)
+
+
 def write_sa_visual(html_path: Path, beam: str, transform: Any, raw_segments: list[dict[str, Any]]) -> Path:
     """Materializa o SA editado sobre o estrutural completo, em coordenadas px."""
     svg = transform.svg.decode("utf-8", errors="strict")
     if "</svg>" not in svg:
         raise ValueError("SVG do estrutural limpo invalido")
     drawings = []
-    for index, row in enumerate(raw_segments, 1):
+    for fallback_index, row in enumerate(raw_segments, 1):
+        index = int(str(row.get("segment_label") or fallback_index))
         points = _points(row.get("points"))
         pixels = [transform.dxf_para_px(point[0], point[1]) for point in points]
         coords = " ".join(f"{x:.3f},{y:.3f}" for x, y in pixels)
@@ -521,5 +560,5 @@ def write_sa_visual(html_path: Path, beam: str, transform: Any, raw_segments: li
     overlay = '<g class="fv-web-human-sa-layer">' + "".join(drawings) + "</g>"
     svg = re.sub(r"</svg>\s*$", overlay + "</svg>", svg, count=1)
     target = html_path.parent / "adotados" / f"{beam}_sa.svg"
-    _atomic_text(target, svg)
+    _atomic_text(target, normalize_manual_sa_svg(svg))
     return target

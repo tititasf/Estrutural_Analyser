@@ -26,7 +26,7 @@ BBox = tuple[float, float, float, float]  # (x0, y0, x1, y1)
 # Hash de cache inclui PREVIEW_CACHE_TAG — muda a tag → regenera, não reusa
 # cache gordo/grosso.
 PREVIEW_ALVO_PX = 1200
-PREVIEW_CACHE_TAG = "v5structThin"
+PREVIEW_CACHE_TAG = "v6structThin-one-decimal-levels-v6"
 # Multiplica stroke-width do matplotlib (tipicamente ~0.72).
 # v5: fator baixo + CSS non-scaling-stroke em px (linhas do estrutural
 # ficam finas em QUALQUER zoom — antes só o overlay de vínculos era fino).
@@ -174,6 +174,9 @@ def renderizar_dxf_png(
     doc = ezdxf.readfile(str(dxf_path))
     msp = doc.modelspace()
 
+    from src.core.number_presentation import apply_dxf_number_presentation
+    apply_dxf_number_presentation(doc)
+
     fig = plt.figure(figsize=(largura_px / 100, altura_px / 100), dpi=100)
     ax = fig.add_axes((0, 0, 1, 1))
     ax.set_facecolor("black")
@@ -221,6 +224,9 @@ def renderizar_dxf_svg_com_transform(
 
     doc = ezdxf.readfile(str(dxf_path))
     msp = doc.modelspace()
+
+    from src.core.number_presentation import apply_dxf_number_presentation
+    apply_dxf_number_presentation(doc)
 
     fig = plt.figure(figsize=(largura_px / 100, altura_px / 100), dpi=100)
     ax = fig.add_axes((0, 0, 1, 1))

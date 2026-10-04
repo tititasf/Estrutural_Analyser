@@ -818,9 +818,114 @@ Reextrair o recorte e uma nova operacao do interpretador. Ela so ocorre com
 
 ## 8. Regra para evolucao
 
+### Portal: N3 por Visão Corte (2026-10-01)
+
+O portal materializa cada entrada do inventário SA (identificada ou calculada
+por pares A/B) com `lv_n3_cut_contract.py` e o adaptador
+`scripts/arete/lv_n3_cut_draw.py`. O adaptador reutiliza layers, cotas e
+distribuição SCR do gerador certificado, que permanece inalterado. A vista
+global antiga por viga deixou de representar os cortes individuais; “Todos”
+reúne os SVGs derivados de cada contrato.
+
+Acabamento visual conferido no HTML `g2v/lv_debug/LV_DEBUG.html`, cujo corte
+V301 aponta para `lv_13pav_rodada_20260911/n4_AQ/LV_preview_V301_CORTE.dxf`.
+Cotas ciano, números vermelhos, marcas diagonais rosa, painéis violetas,
+concreto cinza e sarrafos/montantes verdes. O corte usa contornos sem hachura
+nos dois modos. Os sarrafos laterais têm perfil 2.2×7, com montantes externos
+separados e travessa inferior; foram removidos os blocos genéricos de fixação
+sem correspondência nessa referência. Mesa e prolongamento dos montantes são
+representativos, sem cota executiva de comprimento. N4 é referência de QA
+visual, não entrada de medidas do motor N3. A existência da montagem não
+certifica dimensionamento executivo de madeira ou fixações.
+
+As espessuras e os desníveis das lajes modificam o contorno do concreto e a
+altura de montagem de cada lado. O alcance lateral da mesa é representativo,
+sem cota executiva. O contrato não consulta N2/N4. Ausência de medida obrigatória
+bloqueia o N3 correspondente; inconsistências entre textos e medidas geométricas,
+associações descartadas por ausência explícita e níveis estimados são avisos
+visíveis como “Revisar medidas”. Um SVG gerado não é aprovação do SA.
+
+Na união de evidências de duas lajes do mesmo corte, `own_*` continua pertencendo
+à direção da ficha que mediu o símbolo: Norte/Leste corresponde ao lado A,
+Sul/Oeste ao lado B. Não usar `own_laje` de outro registro para inverter essas
+medidas. A espessura anotada em `side_a/b_laje_height` tem precedência sobre a
+espessura geométrica; preservar o desnível e recompor o resíduo inferior.
+Diferença anotação/símbolo continua registrada para revisão. Causa comprovada
+no recorte original L328/L321: N3 passa a 10/13 cm, painéis 40/44 cm e alma
+19×55 cm, sem consultar medidas N2/N4 como entrada.
+
+Validação publicada: 250 entradas do estado atual do 13_PAV geradas, das quais
+110 têm avisos. Não há certificação de paridade integral N3×N4 ou selo G5-V nesta
+rodada. A referência N4 é independente e serve para QA, nunca para completar
+campos do N3. Evidência e próximos FAILs:
+`scripts/arete/relatorios/20261001_lv_n3_cortes/RELATORIO.md`.
+
 Uma correcao no motor precisa ser expressa como regra universal de ficha e ter
 teste positivo e de controle. Condicao pelo nome `V301`, coordenada do recorte
 ou score visual nao e regra de motor. Se a informacao necessaria nao existe na
 ficha, primeiro corrige-se o interpretador/contrato; so depois o motor aplica o
 campo de forma deterministica.
+
+### Ferragens de Visão Corte LV — evidência do legado (01/10/2026)
+
+Escopo exclusivo de laterais/seção de viga; regras de Visão Cima de pilares
+não se aplicam. Os SCRs originais do robô LV contêm `PAR_FUNDO_ESQ`,
+`PAR_FUNDO_DIR`, `par_int_esq`, `par_int_dir`, `PAR_ESQ` e geometria associada
+em `BARRA_ANCORAGEM`. A quantidade varia: exemplos originais têm 2, 5 e 8
+INSERTs; no exemplo de 8 há dois conjuntos internos separados por 100 unidades
+do desenho legado em escala 2×, ou **50 cm físicos**. O molde confirma
+`COTAX2.DIMLFAC=0.5`; ferragens importadas usam escala 0.5 no N3 1:1.
+Esses exemplos não estabelecem a condição universal de quantidade/altura.
+
+Antes desta recuperação, o N3 não inseria essas ferragens. A biblioteca compartilhada representa
+os blocos por cruzes de duas linhas; seu detalhe antigo de cinco INSERTs e
+duas barras em 1/3 e 2/3 da altura é uma simplificação diferente dos SCRs.
+O gerador de cenários HEADLESS também não é fonte das condições originais.
+Recuperar geometria do molde e condição de montagem antes de aplicar aos
+cortes; não completar fixações por quantidade fixa ou por regra de pilares.
+Inventário, medições e comparação:
+`scripts/arete/relatorios/20261001_lv_n3_cortes/COMPARACAO-PARAFUSOS-LV.md`.
+
+Atualização após resposta do dono: sarrafos devem reproduzir os N3 de cada
+lado; parafusos obedecem medidas. A montagem inferior é sempre presente;
+não foi confirmada medida mínima inferior. O adaptador agora importa os
+blocos originais do molde e desenha `PAR_FUNDO_ESQ`, `PAR_FUNDO_DIR` e barra
+inferior de 1 cm, com eixo 3.7 cm abaixo do painel de fundo. Removidos dois
+sarrafos extras exclusivos da perspectiva; distribuição usa a função lateral
+`_get_sarrafo_positions` na altura local do painel sob a laje. Isso ainda não
+prova igualdade com o N3 lateral correspondente: o contrato lateral pode
+conter a face inteira, enquanto o corte mostra apenas o corpo sob a laje.
+Essa correspondência permanece pendente de validação por segmento.
+
+Os limiares foram recuperados por consulta Git somente leitura autorizada:
+commit `ef43f8e01`, `_ROBOS_ABAS/Robo_Laterais_de_Vigas/gerador_script_viga.py`,
+função `_gerar_secao_corte`, linhas 1837–1839, confirmados no PySide do mesmo
+commit. Ambos H1 > 40 cm permitem o conjunto a 25 cm; ambos H1 > 90 cm
+permitem também o conjunto a 75 cm. Comparações estritas. Os conjuntos usam
+`par_int_esq`, `par_int_dir`, `PAR_ESQ`, placa interna de 2 cm, barra externa
+de 1 cm, encaixe vertical 1.2×6 e sarrafos de apoio; intervalo cotado 50 cm.
+Laje inferior em qualquer lado suprime TODAS as fixações: exceção confirmada
+pelo dono após recuperar o legado, substituindo a afirmação de inferior
+sempre presente. Não há mínimo de H1 para a inferior sem laje inferior.
+
+Contrato N3 deriva H1 da altura local do painel e reconhece laje inferior
+quando a superfície inferior da laje coincide com o fundo da viga (tolerância
+0.5 cm). Painel nesse lado inicia acima da laje e compensado, não abaixo dela.
+Não usar altura total da viga no limiar. Condições geométricas vêm do SA/N1.
+23 testes focados passaram, incluindo limites 40/90 e exceção em A ou B.
+Evidência da implementação completa e publicação:
+`scripts/arete/relatorios/20261001_lv_cut_complete/RELATORIO.md`.
+Na publicação anterior, 236 entradas geradas não constituem selo G5.
+Evidência: `scripts/arete/relatorios/20261001_lv_cut_fittings/RELATORIO.md`.
+
+Agrupamento dinâmico (2026-10-01): após unir cortes identificados e calculados,
+`lv_cut_equivalence.group_equivalent_cuts` reúne seções da mesma viga com
+largura, altura e perfis de laje A/B idênticos (espessura e desnível). Nome da
+laje, nível absoluto, origem e número de vínculos não multiplicam a seção.
+Orientação A/B é preservada: seção assimétrica espelhada permanece distinta.
+Medidas inválidas/incompletas nunca autorizam equivalência. Todos os pares,
+origens, IDs de evidência, avisos e aliases das lajes são preservados, com
+`section_members` registrando os cortes de origem. Não altera N1 nem DB.
+Auditoria por viga do 13_PAV: 236 entradas → 202 seções, sem perda de pares
+ou evidências; V301 Para e Passa: 12 → 10. 27 testes focados passaram.
 

@@ -77,6 +77,10 @@ Uma linha por termo, com a fonte onde a definição completa mora (caminhos rela
 | **Microciclo** | rodada curta de um item/classe para descobrir e reverificar uma causa; nunca certifica | `docs/LOOPING-CANONICO.md` |
 | **Dossiê QA** | prova primária de uma rodada de QA (grafo de fontes, hashes, adaptador, veredito) | skill `qa-global-evidencias` |
 | **Aegis** | orquestrador da squad QA Global de Evidências | `squads/qa-global-evidencias/agents/aegis.md` |
+| **Jev / TypeSafe** | modelo de julgamento tipado usado como **segunda leitura opcional** de dúvidas localizadas SA/N1; escolhe entre candidatos da fonte ou aponta evidência insuficiente, sem escrever N1 nem selar QA | `docs/SA-ANALISE/JEV-SEGUNDA-LEITURA-OPCIONAL.md`; `docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md` §5; D-08 |
+| **Pacote de evidência Jev** | JSON pequeno por item/campo/segmento com candidatos reais do DXF (handle, layer, coordenada, relação espacial) e pergunta fechada; hipótese SA fica fora do estado enviado ao modelo | `scripts/arete/examples/jev_sa_second_read_l410.json`; `scripts/arete/jev_sa_second_read.py` |
+| **Controle de retirada** | segunda consulta que remove evidência decisiva para testar se Jev se abstém ou muda a leitura; não é gabarito da obra | `docs/SA-ANALISE/JEV-SEGUNDA-LEITURA-OPCIONAL.md` |
+| **INSUFFICIENT** | opção explícita de uma pergunta `Choice` quando os candidatos/dados da fonte não sustentam a escolha; sinal para recuperar evidência ou revisar, não para preencher N1 | `scripts/arete/jev_sa_second_read.py`; `docs/SA-ANALISE/JEV-SEGUNDA-LEITURA-OPCIONAL.md` |
 
 ## Conhecimento e RAG
 
@@ -96,4 +100,3 @@ Uma linha por termo, com a fonte onde a definição completa mora (caminhos rela
 | **DP-n** | decisões de produto numeradas (DP-1…DP-14) | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` |
 | **P0–P6 / P0–P7** | gates de produto (P0–P6, soberania) e etapas do caminho crítico de entrega (P0–P7) | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md`; `CLAUDE.md` item 5 |
 | **VPS** | servidor Hetzner (cad-analyzer.duckdns.org) que hospeda o portal | `docs/HANDOFF-DEVOPS-VPS-HETZNER.md` |
-| **Jev** | ferramenta em exploração para ajudar a interpretação SA/N1; não substitui o motor | `docs/MASTERPLAN-JEV-SA-EXPLORACAO.md` |

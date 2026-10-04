@@ -14,9 +14,9 @@ O que a cena carrega (tudo em coordenadas do DXF):
   13_PAV e' um "U" de 165 cm cuja unica parede na V304 tem 19 cm);
 * vigas que tocam cada face (chegando ou atravessando) com a secao delas;
 * zonas de secao ao longo da viga (G1), lidas nos rotulos ``b/h`` da propria
-  viga. Fronteiras entre rotulos diferentes usam os divisores do fundo apenas
-  como REFERENCIA (regra do dono 2026-09-25: FV e' referencia, nunca lei); sem
-  referencia, o ponto medio entre os rotulos, marcado como tal;
+  viga. Um divisor estrutural entre as duas faces marca a mudança medida;
+  sem divisor inequívoco, usa FV como referência (nunca lei) e depois o
+  ponto médio entre os rótulos, identificado como estimativa;
 * lajes encostadas em cada face.
 
 Nada aqui le N2/N4.
@@ -109,6 +109,10 @@ class LvScene:
     # Diagonal: cada face termina onde a PROPRIA linha termina (pontas em
     # esquadro obliquo deixam as duas faces com comprimentos diferentes).
     face_extent: dict[str, tuple[float, float]] = field(default_factory=dict)
+    # Full, per-face measurements retained before endpoint trimming. Only Passa
+    # consumes these; Para continues using its existing topology.
+    passa_pillars: Optional[dict[str, list[dict]]] = None
+    passa_incidents: Optional[dict[str, list[dict]]] = None
 
     def to_world(self, x: float, y: float) -> tuple[float, float]:
         if not self.angle:
@@ -377,6 +381,7 @@ class _EdgeIndex:
 
 def _find_band(
     label: dict, horizontal: bool, edges: _EdgeIndex, width_hint: Optional[float],
+    *, require_pair_at_label: bool = False,
 ) -> Optional[tuple[float, float]]:
     lx, ly = float(label["pos"][0]), float(label["pos"][1])
     la, lt = (lx, ly) if horizontal else (ly, lx)
@@ -392,6 +397,12 @@ def _find_band(
             if w < 8.0 or w > 60.0:
                 continue
             if width_hint and abs(w - width_hint) > 1.5:
+                continue
+            if require_pair_at_label and not all(
+                any(abs(tt - t) <= 0.1 and a - 5.0 <= la <= b + 5.0
+                    for tt, a, b in near)
+                for t in (t0, t1)
+            ):
                 continue
             gap = 0.0 if t0 <= lt <= t1 else min(abs(lt - t0), abs(lt - t1))
             score = (0 if width_hint else abs(w - 19.0) / 50.0) + gap
@@ -458,6 +469,7 @@ def _pillar_polygons(pillar_report: Any) -> list[tuple[str, str, Any]]:
 
 
 def _slab_polygons(slabs: Any) -> list[tuple[dict, Any]]:
+    from src.core.lv_cut_inventory import _slab_regions
     out = []
     for slab in slabs or []:
         if not isinstance(slab, dict):
@@ -470,7 +482,11 @@ def _slab_polygons(slabs: Any) -> list[tuple[dict, Any]]:
         except (TypeError, ValueError):
             continue
         if not poly.is_empty:
-            out.append((slab, poly))
+            # Share the physical regions used by the cut inventory. A step's
+            # height/level must never be spread over the owner's whole face.
+            for region_poly, region in _slab_regions(slab):
+                if not region_poly.is_empty:
+                    out.append((region, make_valid(region_poly)))
     return out
 
 
@@ -556,6 +572,7 @@ def build_band_scene(
     pillars: list[tuple[str, str, Any]],
     only_label: Optional[dict] = None,
     combined_section_hint: bool = False,
+    allow_width_hint_fallback: bool = False,
 ) -> Optional[LvScene]:
     name = _norm_name(beam.get("name"))
     labels = (
@@ -572,8 +589,13 @@ def build_band_scene(
     candidates = []
     for label in labels:
         width = _nearest_section_width(label, horizontal, section_texts, combined_section_hint)
-        band = _find_band(label, horizontal, edges, width) or (
-            _find_band(label, horizontal, edges, None) if width is None else None
+        band = _find_band(
+            label, horizontal, edges, width,
+            require_pair_at_label=allow_width_hint_fallback and width is None,
+        ) or (
+            _find_band(label, horizontal, edges, None,
+                       require_pair_at_label=allow_width_hint_fallback)
+            if width is None or allow_width_hint_fallback else None
         )
         if band:
             candidates.append((label, band))
@@ -626,7 +648,8 @@ def build_band_scene(
     return scene
 
 
-def _sections(scene: LvScene, beam: dict, section_texts: list[dict], pillar_texts: list[dict]) -> None:
+def _sections(scene: LvScene, beam: dict, section_texts: list[dict], pillar_texts: list[dict],
+              edges: Optional[_EdgeIndex] = None) -> None:
     labels = []
     for s in section_texts:
         if _rotation_axis(s.get("rotation")) is not scene.is_horizontal:
@@ -649,16 +672,25 @@ def _sections(scene: LvScene, beam: dict, section_texts: list[dict], pillar_text
         scene.sections = []
         return
     refs = _fv_reference_boundaries(beam, scene)
+    # A structural transverse divider ending at both measured walls is direct
+    # evidence. Long crossing-beam edges and dimension witnesses are not.
+    dividers = sorted({a for a, lo, hi in edges.along(not scene.is_horizontal)
+                       if abs(lo-scene.t_lo) <= .15 and abs(hi-scene.t_hi) <= .15}) if edges else []
     zones = []
     cur_start = scene.start
     for i, (sa, s) in enumerate(labels):
         depth = s["section"][1]
         if zones and abs(zones[-1]["depth"] - depth) < 0.01:
+            zones[-1]["_label_axis"] = sa
             continue
         if zones:
             prev_label = zones[-1]["_label_axis"]
             between = [r for r in refs if prev_label < r < sa]
-            if between:
+            measured = [a for a in dividers if prev_label < a < sa]
+            if len(measured) == 1:
+                boundary = measured[0]
+                source = "structural_transverse_divider"
+            elif between:
                 boundary = max(between)
                 source = "fv_reference_boundary"
             else:
@@ -752,8 +784,31 @@ def _attach_context(
     # Tudo chega em coordenadas do DXF; a cena diagonal mede no proprio referencial.
     pillars = [(n, c, scene.to_local_geom(p)) for n, c, p in pillars]
     slabs = [(s, scene.to_local_geom(p)) for s, p in slabs]
+    scene.passa_pillars = {"A": [], "B": []}
+    scene.passa_incidents = {"A": [], "B": []}
     for side in ("A", "B"):
         inside, outside = _face_strips(scene, side, scene.start - margin, scene.end + margin)
+        for name, classification, poly in pillars:
+            lo, hi = scene.axis_bounds(poly)
+            pin, pout = _face_strips(scene, side, lo, hi)
+            inner = poly.intersection(pin)
+            outer = poly.intersection(pout)
+            outer_ranges = [scene.axis_bounds(g) for g in getattr(outer, "geoms", [outer]) if not g.is_empty]
+            for g in getattr(inner, "geoms", [inner]):
+                if g.is_empty or g.area <= 1e-6:
+                    continue
+                a0, a1 = scene.axis_bounds(g)
+                cores = _merge((max(a0, x), min(a1, y)) for x, y in outer_ranges
+                               if min(a1, y) - max(a0, x) >= 0.5)
+                cursor = a0
+                for x, y in cores + [[a1, a1]]:
+                    if x - cursor >= 0.5:
+                        scene.passa_pillars[side].append(dict(name=name, classification=classification,
+                                                            start=cursor, end=x, miolo=False))
+                    if y - x >= 0.5:
+                        scene.passa_pillars[side].append(dict(name=name, classification=classification,
+                                                            start=x, end=y, miolo=True))
+                    cursor = y
         for name, classification, poly in pillars:
             inter = poly.intersection(inside)
             if inter.is_empty or inter.area <= 1e-6:
@@ -822,6 +877,12 @@ def _attach_context(
                 "width": other.width, "crossing": crossing, "axis_center": junction,
                 "obliqua": delta < 85.0,
             }
+            # A beam reaching an exterior pillar wall is a real junction. It
+            # must not inherit the rule for a beam embedded inside the pillar.
+            item_passa = dict(item, embedded_in_pillar=any(
+                poly.covers(hit) for _, _, poly in pillars
+            ))
+            scene.passa_incidents[side].append(item_passa)
             if a1 <= scene.start + 1.0:
                 scene.end_supports["start"].append(dict(item, type="viga"))
             elif a0 >= scene.end - 1.0:
@@ -837,16 +898,21 @@ def _attach_context(
             inter = poly.intersection(far)
             if inter.is_empty or inter.area <= 1e-6:
                 continue
-            a0, a1 = scene.axis_bounds(inter)
-            if a1 - a0 < 5.0:
-                continue
             fields = slab.get("fields") or {}
-            scene.slabs[side].append({
-                "name": str(slab.get("name") or fields.get("nome") or ""),
-                "level": str(fields.get("laje_nivel") or slab.get("laje_nivel") or slab.get("nivel") or ""),
-                "height": str(fields.get("laje_dim") or slab.get("laje_dim") or slab.get("height") or ""),
-                "start": a0, "end": a1,
-            })
+            scoped = slab.get("_region_scoped", False)
+            for part in getattr(inter, "geoms", [inter]):
+                a0, a1 = scene.axis_bounds(part)
+                if a1 - a0 < 5.0:
+                    continue
+                scene.slabs[side].append({
+                    "name": str(slab.get("name") or fields.get("nome") or ""),
+                    "level": str((slab.get("nivel") if scoped else
+                        fields.get("laje_nivel") or slab.get("laje_nivel") or slab.get("nivel")) or ""),
+                    "height": str((slab.get("height") if scoped else
+                        fields.get("laje_dim") or slab.get("laje_dim") or slab.get("height")) or ""),
+                    "region_id": slab.get("region_id"),
+                    "start": a0, "end": a1,
+                })
     for key in ("A", "B"):
         scene.pillars[key].sort(key=lambda i: i["start"])
         scene.incidents[key].sort(key=lambda i: i["start"])
@@ -1039,7 +1105,7 @@ def _diagonal_scene(
         "angulo_eixo_graus": round(angle, 3),
         "regra": "guia_caso_8_normal_do_eixo",
     })
-    _sections(scene, beam, rot_sections, rot_pillar_texts)
+    _sections(scene, beam, rot_sections, rot_pillar_texts, edges)
     dim_edges = _EdgeIndex(_rotate_segs(dimension_segs, angle), tol=0.3)
     scene.dimension_coverage = {
         "A": dim_edges.coverage(True, scene.t_lo),
@@ -1296,6 +1362,7 @@ def build_scene_runs(
     lines: list[dict],
     pillar_report: Any,
     slabs: Any = None,
+    *, allow_width_hint_fallback: bool = False,
 ) -> dict[str, list[LvScene]]:
     """Um ou mais TRECHOS por viga: cada rotulo ortogonal abre uma faixa.
 
@@ -1340,6 +1407,7 @@ def build_scene_runs(
             else:
                 scene = build_band_scene(
                     beam, texts, edges, section_texts, beam_labels, pillars, only_label=label,
+                    allow_width_hint_fallback=allow_width_hint_fallback,
                 )
             if scene is None:
                 continue
@@ -1358,7 +1426,7 @@ def build_scene_runs(
         for scene in scenes:
             if scene.angle:
                 continue  # diagonal ja' mediu secoes e cotas no proprio referencial
-            _sections(scene, by_name[name], section_texts, pillar_texts)
+            _sections(scene, by_name[name], section_texts, pillar_texts, edges)
             scene.dimension_coverage = {
                 "A": dim_edges.coverage(scene.is_horizontal, scene.t_lo),
                 "B": dim_edges.coverage(scene.is_horizontal, scene.t_hi),

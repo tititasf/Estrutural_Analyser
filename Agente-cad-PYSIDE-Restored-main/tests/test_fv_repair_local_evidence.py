@@ -81,6 +81,52 @@ def test_secao_do_pilar_empilhada_sob_o_rotulo_nao_vira_secao_da_viga():
     assert "80/19" not in texts and "19/120" in texts
 
 
+def test_dimensao_global_fv_volta_para_cota_da_propria_faixa():
+    # 13_PAV: VF301 herdava 19/66 de P1; o tracer ja tinha provado 14/55
+    # contra o fundo real em y=3193..3207.
+    correct = {"text": "14/55", "pos": (1534.8, 3209.8)}
+    pillar_dim = {"text": "19/66", "pos": (1110.1, 3168.8)}
+    beam = {
+        "name": "VF301", "dim": "19/66", "is_h": True, "fv_is_h": True,
+        "fields": {"dimensao": "19/66"},
+        "geometry": {
+            "lv_dimension_text": correct,
+            "dimension_texts": [pillar_dim, correct],
+            "texts": [{"text": "P1", "pos": (1120.4, 3183.3)}],
+            "classified": {
+                "merged_bottom_groups_coords": [[1159.0, 4649.9]],
+                "seg_bottom": [[(1159.0, 3193.0), (4649.9, 3193.0)],
+                               [(1159.0, 3207.0), (4649.9, 3207.0)]],
+            },
+        },
+        "links": {},
+    }
+    assert FundoVigaInterpreter.normalize_dimension_from_own_geometry(beam)
+    assert beam["fields"]["dimensao"] == "14/55"
+    assert beam["dim"] == "14/55"
+    assert beam["geometry"]["fv_dimension_source"] == "own_classified_geometry"
+
+
+def test_dimensao_global_fv_validada_nao_muda():
+    candidate = {"text": "14/55", "pos": (150.0, 10.0)}
+    beam = {
+        "name": "V1", "dim": "19/66", "is_h": True,
+        "validated_fields": ["dimensao"],
+        "fields": {"dimensao": "19/66"},
+        "geometry": {
+            "lv_dimension_text": candidate,
+            "dimension_texts": [candidate],
+            "classified": {
+                "merged_bottom_groups_coords": [[0.0, 300.0]],
+                "seg_bottom": [[(0.0, 0.0), (300.0, 0.0)]],
+            },
+        },
+        "links": {},
+    }
+    assert not FundoVigaInterpreter.normalize_dimension_from_own_geometry(beam)
+    assert beam["fields"]["dimensao"] == "19/66"
+
+
 def test_parede_partida_por_viga_que_chega_continua_cobrindo_o_vao():
     # V321 do 13_PAV: face esquerda interrompida em 2047..2066 (viga chega).
     left = [[(3788.4, 1982.0), (3788.4, 2047.0)], [(3788.4, 2066.0), (3788.4, 2380.0)]]

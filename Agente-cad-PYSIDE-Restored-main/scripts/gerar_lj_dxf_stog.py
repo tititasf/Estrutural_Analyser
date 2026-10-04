@@ -36,6 +36,8 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 from src.core.artifact_governance import guarded_saveas
+from scripts.drawing_mode_config import configure_subprocess
+from visual_modes import apply_visual_mode
 
 _MOTOR_ID = "ROBOT_LJ_N3_N4"
 _MOTOR_SOURCES = [Path(__file__)]
@@ -2421,7 +2423,9 @@ def main():
                         help='Diretorio alternativo de fichas JSON_Lajes')
     parser.add_argument('--out-dir', type=str, default=None,
                         help='Diretorio alternativo de saida DXF')
+    parser.add_argument('--visual-mode', choices=["INI", "NOVA", "MOLDE_1", "MOLDE_2", "MOLDE_3"], default='NOVA')
     args = parser.parse_args()
+    configure_subprocess(globals(), args.visual_mode, 'LJ')
 
     obra_path = Path(args.obra)
     lj_dir    = Path(args.json_dir) if args.json_dir else obra_path / 'Fase-4_Sincronizacao' / 'JSON_Lajes'
@@ -2485,6 +2489,7 @@ def main():
 
         if args.item:
             out_dxf = out_dir / f'LJ_preview_{args.item}.dxf'
+            apply_visual_mode(doc, args.visual_mode, 'LJ')
             out_dxf = guarded_saveas(
                 doc, out_dxf,
                 motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
@@ -2659,6 +2664,7 @@ def main():
 
         out_name = f'LJ_preview_{args.item}.dxf' if args.item else 'LJ_stog_quality.dxf'
         out_dxf = out_dir / out_name
+        apply_visual_mode(doc, args.visual_mode, 'LJ')
         out_dxf = guarded_saveas(
             doc, out_dxf,
             motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,
@@ -2754,6 +2760,7 @@ def main():
 
     out_name = f'LJ_preview_{args.item}.dxf' if args.item else 'LJ_stog_quality.dxf'
     out_dxf = out_dir / out_name
+    apply_visual_mode(doc, args.visual_mode, 'LJ')
     out_dxf = guarded_saveas(
         doc, out_dxf,
         motor_id=_MOTOR_ID, source_paths=_MOTOR_SOURCES,

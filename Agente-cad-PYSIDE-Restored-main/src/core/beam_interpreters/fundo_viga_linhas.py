@@ -52,7 +52,7 @@ def gate_frozen(item: Any) -> bool:
     return isinstance(gate, dict) and gate.get("status") in (STATUS_REPARADO, STATUS_ANULADO)
 
 
-def _rect(points: Iterable[Any]):
+def _rect(points: Iterable[Any], horizontal_hint: bool | None = None):
     pts = []
     for p in points or []:
         try:
@@ -76,7 +76,9 @@ def _rect(points: Iterable[Any]):
         (xa, ya), (xb, yb) = pts[i], pts[i + 1]
         if abs(xa - xb) > ORTHO_TOL and abs(ya - yb) > ORTHO_TOL:
             return None  # aresta obliqua
-    horizontal = (x1 - x0) >= (y1 - y0)
+    # Comprimento pode ser menor que a largura (painel isolado de 1 cm).
+    # O eixo estrutural vem da viga/trecho, nao do maior lado do retangulo.
+    horizontal = horizontal_hint if horizontal_hint is not None else (x1 - x0) >= (y1 - y0)
     if horizontal:
         return horizontal, (x0, x1), (y0, y1)
     return horizontal, (y0, y1), (x0, x1)
@@ -274,7 +276,10 @@ def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) 
     index = _Lines(list(texts or []), list(lines or []))
     try:
         from src.core.lv_beam_scene import build_scene_runs
-        runs = build_scene_runs(list(beams or []), list(texts or []), list(lines or []), {}, None)
+        runs = build_scene_runs(
+            list(beams or []), list(texts or []), list(lines or []), {}, None,
+            allow_width_hint_fallback=True,
+        )
     except Exception:  # cena indisponivel: cai no vinculo lateral (comportamento anterior)
         runs = {}
     report: dict[str, Any] = {"ok": 0, STATUS_REPARADO: [], STATUS_ANULADO: [],
@@ -292,7 +297,10 @@ def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) 
                 if not isinstance(item, dict) or gate_frozen(item):
                     continue
                 item.pop("fv_line_gate", None)
-                rect = _rect(item.get("points"))
+                orientation = item.get("fv_axis_is_horizontal")
+                if not isinstance(orientation, bool):
+                    orientation = beam.get("fv_is_h", beam.get("is_h"))
+                rect = _rect(item.get("points"), orientation if isinstance(orientation, bool) else None)
                 if rect is None:
                     if item.get("points"):
                         report["nao_auditavel"].append(f"{name} S{seg}")
@@ -318,6 +326,7 @@ def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) 
                     "antes": item.get("points"),
                 }
                 entry = {"viga": name, "seg": seg, "cobertura_antes": list(cov)}
+                entry["fora_laterais_proprias"] = alheio
                 if item.get("validated"):
                     gate["status"] = STATUS_VALIDADO_FORA
                     gate["motivo"] = "contorno validado por humano fora da linha: revisar (nao alterado)"
@@ -483,7 +492,11 @@ def gate_attention(item: Any) -> str:
 def report_summary(report: dict[str, Any]) -> str:
     """Uma linha de log com o que o gate fez (nomes, nao so' contagem)."""
     def names(key: str) -> str:
-        return ", ".join(f"{e['viga']} S{e['seg']}" for e in report.get(key) or []) or "-"
+        return ", ".join(
+            f"{e['viga']} S{e['seg']} cov={e.get('cobertura_antes')}"
+            + (" alheio" if e.get("fora_laterais_proprias") else "")
+            for e in report.get(key) or []
+        ) or "-"
     return (
         f"ok {report.get('ok', 0)}; reparados [{names(STATUS_REPARADO)}]; "
         f"anulados [{names(STATUS_ANULADO)}]; validados fora [{names(STATUS_VALIDADO_FORA)}]; "

@@ -17,7 +17,7 @@ import hashlib
 from pathlib import Path
 from typing import Optional
 
-from services.ficha_service import resolver_item_e_fichas
+from services.ficha_service import classe_das_fotos, resolver_item_e_fichas, segmento_do_row
 from portal.app import ficha_reader
 
 NIVEIS_VALIDOS = {"n1", "n3"}
@@ -31,16 +31,27 @@ def _dentro_da_raiz(obra_dir: Path, dados_obras_root: Path) -> bool:
         return False
 
 
-def obter_svg(row, nivel: str, dados_obras_root: Path) -> Optional[str]:
+def obter_svg(row, nivel: str, dados_obras_root: Path, seg: Optional[int] = None) -> Optional[str]:
     """Retorna o SVG puro (string) do `nivel` pedido, ou None se: nível
     inválido, código não é item, item não existe mais na fonte, obra_dir
     foge da raiz permitida, ou o SVG daquele nível simplesmente não existe
     ainda (N3 não gerado). O router trata todos esses casos como o mesmo
-    404 genérico — nunca diferencia o motivo."""
+    404 genérico — nunca diferencia o motivo. `seg` = índice do segmento no
+    payload de uma viga lateral (1 código por viga, 2026-09-28)."""
     if nivel not in NIVEIS_VALIDOS:
         return None
 
-    resolvido = resolver_item_e_fichas(row)
+    classe = row["classe"]
+    item_id = None
+    if seg is not None:
+        segmento = segmento_do_row(row, seg)
+        if segmento is None:
+            return None
+        classe, item_id = segmento.get("classe"), segmento.get("item_id")
+        if not classe or not item_id:
+            return None
+
+    resolvido = resolver_item_e_fichas(row, classe=classe, item_id=item_id)
     if resolvido is None:
         return None
     obra_dir, item, dir_fichas = resolvido
@@ -48,8 +59,7 @@ def obter_svg(row, nivel: str, dados_obras_root: Path) -> Optional[str]:
     if not _dentro_da_raiz(obra_dir, dados_obras_root):
         return None
 
-    classe = row["classe"]
-    fotos = ficha_reader.extrair_fotos_ficha(dir_fichas, classe, item)
+    fotos = ficha_reader.extrair_fotos_ficha(dir_fichas, classe_das_fotos(classe), item)
     return fotos.get(nivel)
 
 

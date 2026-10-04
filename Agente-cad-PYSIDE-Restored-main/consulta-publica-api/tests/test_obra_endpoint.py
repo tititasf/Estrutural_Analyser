@@ -107,7 +107,7 @@ def test_indice_obra_estrutura_completa(tmp_path: Path):
     assert pav["pavimento_label"] == "Térreo"
     assert {it["code"] for it in pav["itens"]} == {"ITEMP1", "ITEMP2"}
     for item in pav["itens"]:
-        assert set(item.keys()) == {"code", "titulo", "tipo"}
+        assert set(item.keys()) == {"code", "titulo", "tipo", "modo"}
 
     # nunca item_id/pavimento crus na resposta
     corpo_str = json.dumps(body)

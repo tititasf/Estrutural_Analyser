@@ -9,6 +9,7 @@ canônico; saídas parciais continuam sendo falha técnica.
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 from pathlib import Path
 from typing import Iterable
@@ -39,7 +40,7 @@ class ResilientAntigravityInvoker:
             "--print",
             prompt,
             "--output-format",
-            "json",
+            "stream-json",
             "--model",
             self.config.model,
             "--mode",
@@ -67,20 +68,36 @@ class ResilientAntigravityInvoker:
         except OSError as exc:
             raise base.TechnicalFailure("executable", str(exc)) from exc
 
-        recovered = _recover_valid_response(proc.stdout) if proc.stdout.strip() else None
-        if recovered is not None:
-            return recovered, self.config.model
+        # Preserve tool receipts even when sandbox shutdown returns nonzero.
+        # A legacy final JSON alone cannot prove the required evidence reads.
+        if proc.stdout.strip():
+            try:
+                recovered, model = base.antigravity_stream_response(proc.stdout, cwd)
+                payload = base._find_json_object(recovered)
+                if str(payload.get("verdict", "")).lower() in base.VALID_VERDICTS:
+                    return recovered, model or self.config.model
+            except base.TechnicalFailure:
+                pass
         if proc.returncode != 0:
             category = base.classify_process_failure(proc.returncode, proc.stderr, proc.stdout)
             detail = base._compact_error(proc.stderr or proc.stdout or f"exit {proc.returncode}")
             raise base.TechnicalFailure(category, detail)
         if not proc.stdout.strip():
             raise base.TechnicalFailure("invalid_output", "CLI retornou stdout vazio")
-        return proc.stdout, self.config.model
+        raise base.TechnicalFailure("invalid_output", "CLI sem resposta final auditável")
+
+
+# Ordem viva da fila de CLIs. Claude fica fora por decisão do dono (03/10/2026):
+# a cota dele é do trabalho interativo. Reativar via CAD_QA_PROVIDERS no env do serviço.
+DEFAULT_ORDER = "antigravity,grok,codex"
 
 
 def default_providers(timeout_s: int = 600) -> list[ProviderInvoker]:
-    providers = base.default_providers(timeout_s)
+    available = {provider.config.name: provider for provider in base.default_providers(timeout_s)}
+    order = [name.strip() for name in os.environ.get("CAD_QA_PROVIDERS", DEFAULT_ORDER).split(",") if name.strip()]
+    providers = [available[name] for name in order if name in available]
+    if not providers:
+        raise ValueError(f"CAD_QA_PROVIDERS sem CLI conhecida: {order}; disponíveis: {sorted(available)}")
     return [
         ResilientAntigravityInvoker(provider.config)
         if provider.config.name == "antigravity" else provider

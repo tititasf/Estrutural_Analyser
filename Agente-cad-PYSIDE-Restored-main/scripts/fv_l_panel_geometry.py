@@ -120,7 +120,9 @@ def detect_left_angled_l_panel(vertices, tolerance=0.25):
         main_height <= tolerance
         or outer_mid[0] >= bottom_left[0] - tolerance
         or tip_top[0] >= top_left[0] - tolerance
-        or bottom_right[0] <= top_right[0] + tolerance
+        # A stock cut in the straight body creates a vertical right edge;
+        # that does not erase the angular fold at the opposite end.
+        or bottom_right[0] < top_right[0] - tolerance
     ):
         return None
 

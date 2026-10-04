@@ -12,7 +12,7 @@ import binascii
 import json
 import sqlite3
 from typing import Optional
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import BaseModel, Field
@@ -33,6 +33,11 @@ class ComentarioIn(BaseModel):
     item_id: Optional[str] = None
 
 
+class AnexoUIIn(BaseModel):
+    nome: str = Field(min_length=1, max_length=255)
+    data_url: str = Field(max_length=20_000_100)
+
+
 class ApontamentoUIIn(BaseModel):
     obra_id: Optional[str] = Field(default=None, max_length=200)
     texto: str = Field(min_length=1, max_length=4000)
@@ -50,6 +55,38 @@ class ApontamentoUIIn(BaseModel):
     viewport_largura: int = Field(gt=0, le=20000)
     viewport_altura: int = Field(gt=0, le=20000)
     captura_data_url: Optional[str] = None
+    anexos: list[AnexoUIIn] = Field(default_factory=list, max_length=10)
+
+
+class ApontamentoUIPontoIn(BaseModel):
+    texto: str = Field(min_length=1, max_length=4000)
+    pagina_url: str = Field(min_length=1, max_length=4000)
+    pagina_titulo: Optional[str] = Field(default=None, max_length=500)
+    seletor_elemento: Optional[str] = Field(default=None, max_length=2000)
+    elemento_tag: Optional[str] = Field(default=None, max_length=100)
+    elemento_role: Optional[str] = Field(default=None, max_length=200)
+    elemento_texto: Optional[str] = Field(default=None, max_length=2000)
+    elemento: dict = Field(default_factory=dict)
+    clique_x: float
+    clique_y: float
+    pagina_x: float
+    pagina_y: float
+    viewport_largura: int = Field(gt=0, le=20000)
+    viewport_altura: int = Field(gt=0, le=20000)
+    captura_data_url: Optional[str] = None
+    anexos: list[AnexoUIIn] = Field(default_factory=list, max_length=10)
+
+
+class ApontamentoUIPaginaIn(BaseModel):
+    pagina_url: str = Field(min_length=1, max_length=4000)
+    pagina_titulo: Optional[str] = Field(default=None, max_length=500)
+    pontos: list[ApontamentoUIPontoIn] = Field(min_length=1, max_length=20)
+
+
+class ApontamentoUISessaoIn(BaseModel):
+    obra_id: Optional[str] = Field(default=None, max_length=200)
+    titulo: Optional[str] = Field(default=None, max_length=500)
+    paginas: list[ApontamentoUIPaginaIn] = Field(min_length=1, max_length=10)
 
 
 _CAPTURA_MAX_BYTES = 2_500_000
@@ -87,6 +124,32 @@ def _decodificar_captura(data_url: Optional[str]) -> tuple[Optional[str], Option
     return mime, blob
 
 
+def _decodificar_anexos(items: list[AnexoUIIn]) -> list[dict]:
+    anexos = []
+    for item in items:
+        header, separator, encoded = item.data_url.partition(',')
+        if not separator or not header.startswith('data:') or not header.endswith(';base64'):
+            raise HTTPException(422, 'anexo deve ser um arquivo base64')
+        try:
+            blob = base64.b64decode(encoded, validate=True)
+        except (ValueError, binascii.Error) as exc:
+            raise HTTPException(422, 'anexo base64 invalido') from exc
+        if not blob or len(blob) > 15_000_000:
+            raise HTTPException(413, 'cada anexo deve ter entre 1 byte e 15 MB')
+        nome = item.nome.replace('\\', '/').split('/')[-1].strip()
+        if not nome or any(ord(c) < 32 for c in nome):
+            raise HTTPException(422, 'nome de anexo invalido')
+        mime = 'application/octet-stream'
+        if blob.startswith(b'\x89PNG\r\n\x1a\n'): mime = 'image/png'
+        elif blob.startswith(b'\xff\xd8\xff'): mime = 'image/jpeg'
+        elif blob.startswith(b'RIFF') and blob[8:12] == b'WEBP': mime = 'image/webp'
+        elif blob.startswith((b'GIF87a', b'GIF89a')): mime = 'image/gif'
+        anexos.append({'nome': nome, 'mime': mime, 'blob': blob})
+        if sum(len(a['blob']) for a in anexos) > 25_000_000:
+            raise HTTPException(413, 'anexos do ponto excedem 25 MB')
+    return anexos
+
+
 def _obra_do_membro(conn: sqlite3.Connection, obra_id: str, membro: dict) -> dict:
     obra = repo.obter_obra(conn, obra_id)
     if obra is None:
@@ -94,6 +157,37 @@ def _obra_do_membro(conn: sqlite3.Connection, obra_id: str, membro: dict) -> dic
     if not access.pode_ver_obra(obra, membro):
         raise HTTPException(status_code=403, detail="obra de outro membro")
     return obra
+
+
+def _validar_url_pagina(value: str) -> None:
+    pagina = urlsplit(value)
+    if pagina.scheme not in {"http", "https"} or not pagina.netloc:
+        raise HTTPException(status_code=422, detail="URL da pagina invalida")
+
+
+def _normalizar_ponto(body: ApontamentoUIIn | ApontamentoUIPontoIn) -> tuple[dict, int]:
+    texto = body.texto.strip()
+    if not texto:
+        raise HTTPException(status_code=422, detail="escreva o comentario do apontamento")
+    _validar_url_pagina(body.pagina_url)
+    elemento_json = json.dumps(body.elemento, ensure_ascii=False, sort_keys=True)
+    if len(elemento_json) > 20_000:
+        raise HTTPException(status_code=422, detail="contexto do elemento excede 20 KB")
+    captura_mime, captura_blob = _decodificar_captura(body.captura_data_url)
+    anexos = _decodificar_anexos(body.anexos)
+    return ({
+        "texto": texto, "pagina_url": body.pagina_url,
+        "pagina_titulo": body.pagina_titulo,
+        "seletor_elemento": body.seletor_elemento,
+        "elemento_tag": body.elemento_tag, "elemento_role": body.elemento_role,
+        "elemento_texto": body.elemento_texto, "elemento_json": elemento_json,
+        "clique_x": body.clique_x, "clique_y": body.clique_y,
+        "pagina_x": body.pagina_x, "pagina_y": body.pagina_y,
+        "viewport_largura": body.viewport_largura,
+        "viewport_altura": body.viewport_altura,
+        "captura_mime": captura_mime, "captura_blob": captura_blob,
+        "anexos": anexos,
+    }, len(captura_blob or b"") + sum(len(a["blob"]) for a in anexos))
 
 
 @router.post("/{obra_id}/comentarios")
@@ -129,27 +223,87 @@ def criar_apontamento_ui(
     obra_id = None
     if body.obra_id:
         obra_id = _obra_do_membro(conn, body.obra_id, membro)["id"]
-    texto = body.texto.strip()
-    if not texto:
-        raise HTTPException(status_code=422, detail="escreva o comentario do apontamento")
-    pagina = urlsplit(body.pagina_url)
-    if pagina.scheme not in {"http", "https"} or not pagina.netloc:
-        raise HTTPException(status_code=422, detail="URL da pagina invalida")
-    elemento_json = json.dumps(body.elemento, ensure_ascii=False, sort_keys=True)
-    if len(elemento_json) > 20_000:
-        raise HTTPException(status_code=422, detail="contexto do elemento excede 20 KB")
-    captura_mime, captura_blob = _decodificar_captura(body.captura_data_url)
+    point, _ = _normalizar_ponto(body)
     apontamento_id = repo.inserir_apontamento_ui(
-        conn, obra_id=obra_id, membro_id=membro["id"], texto=texto,
-        pagina_url=body.pagina_url, pagina_titulo=body.pagina_titulo,
-        seletor_elemento=body.seletor_elemento, elemento_tag=body.elemento_tag,
-        elemento_role=body.elemento_role, elemento_texto=body.elemento_texto,
-        elemento_json=elemento_json, clique_x=body.clique_x, clique_y=body.clique_y,
-        pagina_x=body.pagina_x, pagina_y=body.pagina_y,
-        viewport_largura=body.viewport_largura, viewport_altura=body.viewport_altura,
-        captura_mime=captura_mime, captura_blob=captura_blob,
+        conn, obra_id=obra_id, membro_id=membro["id"], **point,
     )
     return {"status": "ok", "apontamento_id": apontamento_id}
+
+
+@ui_router.post("/sessoes")
+def criar_sessao_apontamento_ui(
+    body: ApontamentoUISessaoIn,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    obra_id = _obra_do_membro(conn, body.obra_id, membro)["id"] if body.obra_id else None
+    paginas = []
+    total_bytes = 0
+    total_points = 0
+    for page in body.paginas:
+        _validar_url_pagina(page.pagina_url)
+        points = []
+        for point_body in page.pontos:
+            point, capture_bytes = _normalizar_ponto(point_body)
+            # A página pai é canônica; evita pontos agrupados sob URL divergente.
+            point["pagina_url"] = page.pagina_url
+            point["pagina_titulo"] = page.pagina_titulo
+            points.append(point)
+            total_bytes += capture_bytes
+            total_points += 1
+        paginas.append({
+            "pagina_url": page.pagina_url,
+            "pagina_titulo": page.pagina_titulo,
+            "pontos": points,
+        })
+    if total_points > 40:
+        raise HTTPException(status_code=422, detail="sessao excede 40 pontos")
+    if total_bytes > 25_000_000:
+        raise HTTPException(status_code=413, detail="capturas da sessao excedem 25 MB")
+    sessao_id = repo.inserir_sessao_apontamento_ui(
+        conn, obra_id=obra_id, membro_id=membro["id"],
+        titulo=(body.titulo or "").strip() or None, paginas=paginas,
+    )
+    return {"status": "ok", "sessao_id": sessao_id, "paginas": len(paginas), "pontos": total_points}
+
+
+@ui_router.get("/sessoes")
+def listar_sessoes_apontamento_ui(
+    meus: bool = Query(default=False), membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    sessions = repo.listar_sessoes_apontamento_ui(conn, membro=membro, somente_meus=meus)
+    for session in sessions:
+        for page in session["paginas"]:
+            for point in page["pontos"]:
+                point["anexos"] = repo.listar_anexos_apontamento_ui(conn, point["id"])
+                point["tem_captura"] = bool(point.pop("captura_mime", None))
+                try:
+                    point["elemento"] = json.loads(point.pop("elemento_json") or "{}")
+                except (TypeError, json.JSONDecodeError):
+                    point["elemento"] = {}
+    # Registros v1 continuam aparecendo como sessões unitárias.
+    for legacy in repo.listar_apontamentos_ui(conn, membro=membro, somente_meus=meus):
+        if legacy.get("sessao_id"):
+            continue
+        legacy["tem_captura"] = bool(legacy.pop("captura_mime", None))
+        try:
+            legacy["elemento"] = json.loads(legacy.pop("elemento_json") or "{}")
+        except (TypeError, json.JSONDecodeError):
+            legacy["elemento"] = {}
+        sessions.append({
+            "id": legacy["id"], "obra_id": legacy.get("obra_id"),
+            "membro_id": legacy["membro_id"], "titulo": legacy["texto"],
+            "created_at": legacy["created_at"], "autor_login": legacy["autor_login"],
+            "autor_nome": legacy["autor_nome"], "obra_nome": legacy.get("obra_nome"),
+            "paginas": [{
+                "id": "legacy-" + legacy["id"], "ordem": 1,
+                "pagina_url": legacy["pagina_url"], "pagina_titulo": legacy.get("pagina_titulo"),
+                "pontos": [legacy],
+            }],
+        })
+    sessions.sort(key=lambda row: (row.get("created_at") or "", row["id"]), reverse=True)
+    return {"total": len(sessions), "sessoes": sessions}
 
 
 @ui_router.get("")
@@ -166,6 +320,26 @@ def listar_apontamentos_ui(
         except (TypeError, json.JSONDecodeError):
             row["elemento"] = {}
     return {"total": len(rows), "apontamentos": rows}
+
+
+@ui_router.get("/{apontamento_id}/anexos/{anexo_id}")
+def baixar_anexo_apontamento_ui(
+    apontamento_id: str, anexo_id: str, preview: bool = False,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    point = repo.obter_apontamento_ui(conn, apontamento_id)
+    if point is None or not repo.pode_ver_apontamento_ui(conn, point, membro):
+        raise HTTPException(404, 'apontamento nao encontrado')
+    row = conn.execute('SELECT * FROM portal_apontamento_anexos WHERE id=? AND apontamento_id=?',
+                       (anexo_id, apontamento_id)).fetchone()
+    if row is None:
+        raise HTTPException(404, 'anexo nao encontrado')
+    inline = preview and row['mime'] in {'image/png', 'image/jpeg', 'image/webp', 'image/gif'}
+    return Response(content=row['blob'], media_type=row['mime'] if inline else 'application/octet-stream',
+                    headers={'Content-Disposition': ('inline' if inline else 'attachment') +
+                             "; filename*=UTF-8''" + quote(row['nome'], safe=''),
+                             'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, max-age=300'})
 
 
 @ui_router.get("/{apontamento_id}/captura")

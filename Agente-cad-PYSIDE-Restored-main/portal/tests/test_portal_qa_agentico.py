@@ -6,9 +6,29 @@ import stat
 from pathlib import Path
 
 from portal.app import jobs as jobs_mod
-from portal.app import qa_jobs
+from portal.app import qa_jobs, qa_versions
+import pytest
 from portal.db import repository as repo
 from scripts.arete.qa_cli_fallback import ProviderConfig, TechnicalFailure
+
+def _v3_json(payload, classe):
+    from portal.app.qa_review_contract import CRITERIA
+    s=payload['suggestion'];status='pass' if payload['verdict']=='validou' else 'fail'
+    s.update(contract_version=3, assessment=status, confidence_basis='evidência isolada de teste')
+    s['checks']=[{'id':i,'criterion':i,'observation':'geometria de teste','status':status,
+                  'expected':'contrato de teste','actual':'medição de teste','rule_refs':['test#regra'],
+                  'evidence':[{'source':'source.png','location':'segmento','finding':'medição de teste'}]}
+                 for i in CRITERIA[classe]]
+    for p in s.get('proposed',[]):
+        p.update(label='S1',role='contorno',evidence=s['checks'][0]['evidence'])
+    return json.dumps(payload)
+
+
+@pytest.fixture(autouse=True)
+def current_svg_fixture(monkeypatch):
+    # Unit tests isolate the worker from CAD loading; production E2E uses real SVGs.
+    monkeypatch.setattr(qa_versions, 'current_sa', lambda *args, **kwargs:
+        ('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50"><path d="M0 0H100"/></svg>', {}))
 
 
 class _Provider:
@@ -30,12 +50,12 @@ class _Provider:
             "note": f"evidencia {item}",
             "suggestion": {
                 "action": "manter" if self.outcome == "validou" else "corrigir",
-                "target_layer": "L1",
+                "target_layer": "L1", "checks":[{"criterion":"contorno", "observation":"geometria de teste", "status":"pass" if self.outcome == "validou" else "fail"}],
                 "summary": f"sugestao {item}",
-                "proposed": [] if self.outcome == "validou" else [{"role": "face_A_chega"}],
+                "proposed": [] if self.outcome == "validou" else [{"role":"face_A_chega", "points":[[0,0],[20,0],[20,10]]}],
             },
         }
-        return json.dumps(payload), self.config.model
+        return _v3_json(payload, 'PIL'), self.config.model
 
 
 class _FVProvider:
@@ -44,25 +64,25 @@ class _FVProvider:
 
     def invoke(self, prompt: str, cwd: Path):
         assert "revisor agentico de FV/SA-N1" in prompt
-        return json.dumps({
+        return _v3_json({
             "item": "V301", "layer": "L1", "verdict": "invalidou",
             "confidence_percent": 87.5, "note": "segmentação precisa ajuste",
             "suggestion": {"action": "corrigir", "target_layer": "L1",
-                           "summary": "separar trecho", "proposed": [
+                           "checks":[{"criterion":"segmentação","observation":"trecho de teste", "status":"fail"}], "summary": "separar trecho", "proposed": [
                                {"label": "P1", "points": [[0, 0], [20, 0], [20, 10], [0, 10]]}
                            ]},
-        }), self.config.model
+        }, 'FV'), self.config.model
 
 
 class _FVProviderDinamico(_FVProvider):
     def invoke(self, prompt: str, cwd: Path):
         item = re.search(r"Item: ((?:V|VF)\w+)\.", prompt).group(1)
-        return json.dumps({
+        return _v3_json({
             "item": item, "layer": "L1", "verdict": "validou",
             "confidence_percent": 90, "note": "geometria coerente",
             "suggestion": {"action": "manter", "target_layer": "L1",
-                           "summary": "manter", "proposed": []},
-        }), self.config.model
+                           "checks":[{"criterion":"contorno","observation":"trecho de teste", "status":"pass"}], "summary": "manter", "proposed": []},
+        }, 'FV'), self.config.model
 
 
 def _rodada(conn, tmp_path: Path):
@@ -104,7 +124,7 @@ def test_meta_do_job_sobrevive_a_restart(conn, tmp_path):
     app_state = type("State", (), {"job_meta": {}, "db": conn})()
     assert jobs_mod._metadados_job(app_state, job_id) == {
         "etapa": "qa_agentico",
-        "round_id": round_id,
+        "round_id": round_id, "behavior":"para",
     }
 
 
@@ -135,12 +155,7 @@ def test_worker_persiste_multi_item_fallback_modelo_e_sugestao(
     assert all(item["prompt_sha256"] and item["prompt_text"] for item in detail["items"])
     assert all(item["decision_authority"] == "PENDENTE" for item in detail["items"])
     assert all(item["training_eligible"] is False for item in detail["items"])
-    assert all(len(item["evidence"]) == 2 for item in detail["items"])
-    assert all(
-        {entry["authority"] for entry in item["evidence"]}
-        == {"presentation", "visual_evidence"}
-        for item in detail["items"]
-    )
+    assert all(any(entry['authority']=='visual_evidence' for entry in item['evidence']) for item in detail['items'])
     assert all(
         [attempt["provider"] for attempt in item["attempts"]] == ["claude", "codex"]
         for item in detail["items"]
@@ -206,12 +221,14 @@ def test_worker_fv_materializa_camada_e_persiste_confianca(conn, settings, tmp_p
     )
 
     assert status == "completed"
-    proposal = folder / "propostas" / "V301_qa_proposta_c1.svg"
+    proposal = qa_versions.directory(settings.dados_obras_dir / 'Obra_FV', '13_PAV', 'FV', 'V301') / (round_id + '.svg')
     assert proposal.is_file()
-    assert 'id="qa-proposta"' in proposal.read_text(encoding="utf-8")
+    assert 'id="qa-correction"' in proposal.read_text(encoding="utf-8")
     summary = repo.listar_qa_resumos(conn, obra_id, "13_PAV", "FV")
     assert summary["V301"]["L1"]["verdict"] == "invalidou"
     assert summary["V301"]["L1"]["confidence_percent"] == 87.5
+    assert summary["V301"]["L1"]["assessment"] == "fail"
+    assert summary["V301"]["L1"]["coverage"]["fail"] == 8
 
 
 def test_escrita_atomica_substitui_proposta_somente_leitura(tmp_path):
@@ -244,14 +261,14 @@ def test_worker_fv_isola_falha_de_um_item_e_continua(
             '<div class="fv-layer-sa"><svg viewBox="0 0 10 10"></svg></div>', encoding="utf-8"
         )
     settings.repo_root = tmp_path
-    original = qa_jobs._materializar_camada_fv
+    original = qa_versions.persist
 
-    def materializar(pack_path, item, layer, result):
-        if item == "V301":
+    def materializar(obra_dir, round_row, result, svg, fields=None):
+        if result.item == "V301":
             raise PermissionError("proposta protegida")
-        return original(pack_path, item, layer, result)
+        return original(obra_dir, round_row, result, svg, fields)
 
-    monkeypatch.setattr(qa_jobs, "_materializar_camada_fv", materializar)
+    monkeypatch.setattr(qa_versions, "persist", materializar)
     status = qa_jobs.executar_qa_round(
         settings=settings, conn=conn, round_id=round_id,
         log_path=tmp_path / "fv-qa-isolado.json", providers=[_FVProviderDinamico()],

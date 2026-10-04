@@ -139,6 +139,41 @@ def test_structured_sa_state_overlays_lengths_without_losing_supports():
     assert segments[0]["nivel_lajes"] == ["L301"]
 
 
+def test_current_sa_membership_replaces_partial_extraction_for_n3():
+    original = [{"viga_nome": "V306", "dim_text": "19/55", "segmentos_fundo": [
+        {"seg_index": 1, "length": 254, "apoio_inicial": "V307", "apoio_final": "V311"},
+    ]}]
+    rows = [
+        {"beam_name": "V306", "segment_label": str(index), "length": length,
+         "width": 19, "points": [[index * 500, 0], [index * 500 + length, 0],
+                                   [index * 500 + length, 19], [index * 500, 19]]}
+        for index, length in enumerate([254.104, 418, 417.98, 417.98, 417.98, 417.98], 1)
+    ]
+    overlaid = overlay_fv_state_measurements(original, rows[::-1])
+    contract = build_fv_generation_contract("V306", overlaid[0])
+    assert len(contract["segments_rich"]) == 6
+    assert [row["comprimento_total_fundo"] for row in contract["segments_rich"]] == [
+        254.104, 418, 417.98, 417.98, 417.98, 417.98,
+    ]
+    assert contract["segments_rich"][0]["texto_esq"] == "V307"
+    assert contract["segments_rich"][1]["texto_esq"] == ""
+    assert all(row["altura_total"] == 55 for row in contract["segments_rich"])
+    assert original[0]["segmentos_fundo"][0]["length"] == 254
+
+
+def test_current_sa_removal_does_not_reappear_in_n3():
+    original = [{"viga_nome": "V301", "segmentos_fundo": [
+        {"seg_index": 1, "length": 100, "apoio_inicial": "P1"},
+        {"seg_index": 2, "length": 200, "apoio_inicial": "P2"},
+    ]}]
+    result = overlay_fv_state_measurements(original, [
+        {"beam_name": "V301", "segment_label": "2", "length": 201, "width": 19},
+    ])
+    assert len(result[0]["segmentos_fundo"]) == 1
+    assert result[0]["segmentos_fundo"][0]["apoio_inicial"] == "P2"
+    assert result[0]["segmentos_fundo"][0]["length"] == 201
+
+
 def test_n1_adapter_delegates_panel_rules_to_the_current_fv_engine():
     contract = build_fv_generation_contract("V305", _source())
     assert all("panels" not in segment for segment in contract["segments_rich"])
@@ -151,6 +186,37 @@ def test_n1_adapter_delegates_panel_rules_to_the_current_fv_engine():
     assert preserved["segments_rich"][0]["panels"] == [
         {"width": 286, "tiers": [[244, 42], [286]]}
     ]
+
+
+def test_contract_preserves_orthogonal_l_as_body_modules_and_drop():
+    source = {
+        "dim_text": "19/55",
+        "is_horizontal": True,
+        "segmentos_fundo": [{
+            "length": 437,
+            # A bbox do L mede 29, mas a secao declarada continua 19/55.
+            "dim_width": 29,
+            "dim_height": 55,
+            "dim_text": "19/55",
+            "special_geometry": "orthogonal_l",
+            "fv_l_incident": "V319",
+            "geometry": [
+                [100, 10], [518, 10], [518, 0], [537, 0],
+                [537, 29], [518, 29], [518, 10], [100, 10],
+            ],
+        }],
+    }
+
+    contract = build_fv_generation_contract("V303", source)
+
+    segment = contract["segments_rich"][0]
+    assert segment["special_geometry"] == "orthogonal_l"
+    assert [panel["width"] for panel in segment["panels"]] == [244.0, 174.0, 19.0]
+    drop = segment["panels"][-1]
+    assert drop["fv_l_incident"] == "V319"
+    assert drop["is_L_drop"] is True
+    assert drop["height"] == 29.0
+    assert drop["l_drop_depth"] == 10.0
 
 
 def test_n3_and_n4_use_the_same_fv_ficha_schema_without_losing_n4_details():

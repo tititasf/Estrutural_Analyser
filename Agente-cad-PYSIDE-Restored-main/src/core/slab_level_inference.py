@@ -20,18 +20,25 @@ def select_supported_cut_delta(
     if not usable:
         return None
     direct = [row for row in usable if row.get("human_source") or float(row.get("confidence") or 0) >= 0.80]
+    tolerance_m = max(float(tolerance_cm), 0.01) / 100.0
     if direct:
+        if max(float(r['value']) for r in direct) - min(float(r['value']) for r in direct) > tolerance_m + 1e-9:
+            return None
         return sorted(direct, key=lambda row: float(row.get("confidence") or 0), reverse=True)[0]
 
-    groups: dict[int, list[dict[str, Any]]] = defaultdict(list)
-    scale = 1.0 / max(float(tolerance_cm), 0.01)
-    for row in usable:
-        groups[round(float(row["value"]) * scale)].append(row)
+    # Candidate altitudes are metres; the agreement tolerance is centimetres.
+    # Fixed rounding buckets also split close values across bucket boundaries.
+    groups = [[other for other in usable
+               if abs(float(other['value'])-float(row['value'])) <= tolerance_m + 1e-9]
+              for row in usable]
     supported = [
-        rows for rows in groups.values()
+        rows for rows in groups
         if len({str(row.get("source_slab") or "") for row in rows}) >= 2
     ]
     if not supported:
+        return None
+    # Two independently supported but contradictory answers do not form a consensus.
+    if max(float(r['value']) for g in supported for r in g) - min(float(r['value']) for g in supported for r in g) > tolerance_m + 1e-9:
         return None
     supported.sort(key=lambda rows: (len(rows), max(float(row.get("confidence") or 0) for row in rows)), reverse=True)
     return sorted(supported[0], key=lambda row: float(row.get("confidence") or 0), reverse=True)[0]
@@ -317,6 +324,40 @@ CUT_DELTA_TOL_ROTULO_M = 0.02  # 2 cm: arredondamento da cota escrita na planta
 def cut_delta_level(source_level_m: float, delta_cm: float) -> float:
     """Nível desta laje = nível da vizinha (m) + delta do corte (cm → m)."""
     return round(float(source_level_m) + float(delta_cm) / 100.0, 2)
+
+
+def paired_cut_level_source(cut: dict, own_name: str, source: dict, *, own_slab=None, source_slab=None) -> dict | None:
+    """Transport a neighbour altitude through the actual step of a shared cut.
+
+    Matching section shapes alone does not mean matching slab altitudes.
+    Require the named opposite slab and both measured distances; missing
+    dimensions must never be interpreted as a zero step.
+    """
+    import math
+    semantics = cut.get('section_semantics') or {}
+    if semantics.get('confirmed') and semantics.get('beam_type') == 'inverted':
+        if own_slab is None or source_slab is None:
+            return None
+        from .beam_vertical_context import inverted_slab_level_source
+        return inverted_slab_level_source(cut, own_slab, source_slab, source)
+    ficha = cut.get('ficha') or {}
+    sides = [str(ficha.get(k) or '').strip() for k in ('side_a_laje_name', 'side_b_laje_name')]
+    neighbor = str(source.get('slab') or '').strip()
+    if not own_name or not neighbor or own_name == neighbor or sorted(sides) != sorted([own_name, neighbor]):
+        return None
+    try:
+        own = float(ficha['own_dist_top'])
+        other = float(ficha['neighbor_dist_top'])
+        altitude = float(source['value'])
+    except (KeyError, ValueError, TypeError):
+        return None
+    if not all(math.isfinite(v) for v in (own, other, altitude)) or min(own, other) < 0:
+        return None
+    delta = other - own
+    if abs(delta) >= CUT_DELTA_MAX_CM:
+        return None
+    return {**source, 'value': cut_delta_level(altitude, delta),
+            'source_level': altitude, 'delta_cm': delta, 'kind': 'paired_cut_geometry'}
 
 
 def gate_cut_delta_level(

@@ -13,7 +13,9 @@ renderizando de verdade, não só que "não dá erro de import".
 from __future__ import annotations
 
 import contextlib
+import re
 import sqlite3
+import subprocess
 import sys
 from pathlib import Path
 
@@ -127,7 +129,7 @@ async def test_pagina_obras_mostra_codigo_publico_quando_ja_publicada(settings):
 
 
 @pytest.mark.asyncio
-async def test_pagina_obra_detalhe_renderiza(settings):
+async def test_pagina_obra_detalhe_renderiza(settings, tmp_path):
     async with _app_cliente(settings) as (_app, client):
         c = connection.init_db(settings.db_path)
         ana = repo.obter_membro_por_login(c, "ana")
@@ -141,6 +143,60 @@ async def test_pagina_obra_detalhe_renderiza(settings):
         r = await client.get(f"/app/obras/{obra_id}")
         assert r.status_code == 200
         assert "TorreCentral" in r.text
+        assert 'id="docs-upload-pavimento-padrao"' not in r.text
+        scripts = re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", r.text, re.DOTALL)
+        script = max(scripts, key=len)
+        assert 'class="doc-pavimento-sel"' in script
+        assert 'Criar e associar' in script
+        assert "nomes.push('TIPO')" in script
+        script_path = tmp_path / "obra_detalhe.js"
+        script_path.write_text(script, encoding="utf-8")
+        checked = subprocess.run(["node", "--check", str(script_path)], capture_output=True, text=True)
+        assert checked.returncode == 0, checked.stderr
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("arquivo_nome", "formato", "texto_fluxo"),
+    [
+        ("Torre-14P.dwg", "dwg", "Converter DWG → DXF"),
+        ("Torre-14P.dxf", "dxf", "Conversão dispensada"),
+    ],
+)
+async def test_onboarding_upload_rapido_mantem_lista_documentos(
+    settings, arquivo_nome, formato, texto_fluxo,
+):
+    """O modo de 1 pavimento usa a mesma ficha progressiva de uma obra completa."""
+    async with _app_cliente(settings) as (_app, client):
+        c = connection.init_db(settings.db_path)
+        ana = repo.obter_membro_por_login(c, "ana")
+        obra_dir = settings.dados_obras_dir / "ana" / "torre-14p"
+        entrada = obra_dir / "entrada"
+        entrada.mkdir(parents=True)
+        arquivo = entrada / arquivo_nome
+        arquivo.write_bytes(b"cad-teste")
+        obra_id = repo.criar_obra(
+            c, membro_id=ana["id"], nome="Torre-14P", pasta_drive_id="folder-ana/torre",
+            arquivo_hash=f"hash-onboarding-{formato}", estado="aguardando_ingestao",
+            local_path=str(obra_dir),
+        )
+        repo.criar_documento(
+            c, obra_id=obra_id, arquivo_nome=arquivo_nome,
+            arquivo_hash=f"hash-doc-{formato}", local_path=str(arquivo),
+            tipo_documento_sugerido="Bruto", tipo_documento_confirmado="Bruto",
+            status="pendente",
+        )
+        c.close()
+
+        await client.post("/login", json={"login": "ana", "senha": "segredo123"})
+        r = await client.get(f"/app/obras/{obra_id}?onboarding=1&novo=1")
+        assert r.status_code == 200
+        assert "Revise o nome e siga o processamento" in r.text
+        assert texto_fluxo in r.text
+        assert "Documentos da obra" in r.text
+        assert arquivo_nome in r.text
+        assert 'data-auto-edit="1"' in r.text
+        assert f'data-formato="{formato}"' in r.text
 
 
 @pytest.mark.asyncio
@@ -192,6 +248,10 @@ async def test_pagina_obra_detalhe_nao_pula_recortes_apos_so_triagem(settings):
             c, membro_id=ana["id"], nome="ObraSoTriagem", pasta_drive_id="folder-ana",
             arquivo_hash="hash-so-triagem", estado="aguardando_ingestao",
         )
+        doc_id = repo.criar_documento(
+            c, obra_id=obra_id, arquivo_nome="14P.dxf",
+            classe_sugerida="PIL", pavimento_sugerido="14_PAV", status="pendente",
+        )
         job_id = repo.enfileirar_job(c, obra_id=obra_id)
         job = repo.consumir_job(c)
         assert job["id"] == job_id
@@ -204,8 +264,14 @@ async def test_pagina_obra_detalhe_nao_pula_recortes_apos_so_triagem(settings):
 
         import unittest.mock as mock
         with mock.patch.object(
-            jobs_mod.pipeline_runner, "executar_etapa",
-            return_value=type("R", (), {"ok": True, "log_tail": "", "artefatos": {}})(),
+            jobs_mod.pipeline_runner, "executar_triagem_documentos",
+            return_value=type("R", (), {
+                "ok": True, "log_tail": "",
+                "artefatos": {"documentos": [{
+                    "doc_id": doc_id, "ok": True,
+                    "dxf_path": "14P.dxf", "erro_msg": None,
+                }]},
+            })(),
         ), mock.patch.object(jobs_mod, "wait_for_lock", return_value=(object(), None)), \
            mock.patch.object(jobs_mod, "release_lock", lambda *a, **k: None):
             jobs_mod.processar_um_job(_AppStateFake(settings, c), job)

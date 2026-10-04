@@ -113,6 +113,13 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 
 ## Conhecimento — base global (2026-09-25)
 
+- **Apresentação numérica (dono, 2026-10-03):** níveis absolutos em metros usam
+  exatamente duas casas, inclusive `852,00`. Demais medidas usam no máximo uma
+  casa, omitindo `,0`. Não inferir unidades pela magnitude nem arredondar dados
+  internos/geometria. Deslocamentos locais em cm não são níveis absolutos.
+  Todas as classes, campos, tags, desenhos e evidências seguem
+  `docs/CONHECIMENTO/APRESENTACAO-NUMERICA.md`.
+
 - **Entrada do conhecimento:** `docs/CONHECIMENTO/MAPA-DO-CONHECIMENTO.md` (onde mora cada
   saber, quem vence em conflito, o que é legado). Termos: `GLOSSARIO.md`. Decisões do dono
   já tomadas: `DECISOES-DO-DONO.md` — consultar **antes** de perguntar de novo.
@@ -138,5 +145,9 @@ Especificação completa: `../docs/PYTHON-3.12-RUNTIME.md`.
 Autônomo (autorizado pelo usuário): executar, validar, corrigir e instalar dependências
 sem pedir permissão. Parar apenas para: decisão de produto ambígua (exceção legítima vs
 bug), ação destrutiva fora de escopo, ou bloqueio externo real.
+**Portal (dono, 2026-09-28):** o agente tem autonomia e autoridade para rodar no portal da
+VPS, sozinho e pelo navegador interno, o que precisar (motores SA/N3/unificação, fichas).
+Fix de motor só volta ao dono depois de publicado, **rodado no portal e avaliado** pelo
+agente — nunca "publiquei, rode você". Checar jobs ativos antes; não destruir nada.
 Toda rodada termina com `RELATORIO.md` em `scripts/arete/relatorios/{timestamp}/` +
 golden selado + nota do próximo FAIL a atacar.

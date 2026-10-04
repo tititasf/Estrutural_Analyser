@@ -2794,6 +2794,10 @@ def generic_class_review(
 
 def cmd_review(args: argparse.Namespace) -> int:
     """Revisão global por item/campo; LAJ/PIL/FV/LV usam adaptadores com decisões confirmáveis."""
+    if args.jev_execute and not args.jev_request:
+        raise ValueError("--jev-execute requires --jev-request")
+    if args.jev_request and not args.jev_source_dxf:
+        raise ValueError("--jev-request requires --jev-source-dxf")
     db = Path(args.db)
     requested = list(CLASS_REGISTRY) if args.classe == "ALL" else [args.classe]
     run_id = args.run_id or datetime.now().strftime("%Y%m%d_%H%M%S") + "_review_" + uuid.uuid4().hex[:8]
@@ -2906,6 +2910,10 @@ def cmd_review(args: argparse.Namespace) -> int:
             record["name"]: {"id": record["id"], "hash": record["snapshot_hash"], "classe": record.get("classe")}
             for record in records
         },
+        "snapshots_by_class": {
+            f"{record['classe']}:{record['name']}": {"id": record["id"], "hash": record["snapshot_hash"]}
+            for record in records
+        },
         "authority": "read_only; apply path resolves table/columns per item from CLASS_REGISTRY[classe]; validation_ready classes only",
         "rag": {
             "mode": args.rag_evidence,
@@ -2925,7 +2933,17 @@ def cmd_review(args: argparse.Namespace) -> int:
             },
         },
     }
+    jev_prepared = []
+    if args.jev_request:
+        from scripts.arete.jev_qa_bridge import validate_packets
+        jev_prepared = validate_packets(
+            [Path(path) for path in args.jev_request], Path(args.jev_source_dxf),
+            manifest, decisions,
+        )
     write_reports(out_dir, manifest, decisions, findings, questions)
+    if jev_prepared:
+        from scripts.arete.jev_qa_bridge import write_advice
+        write_advice(out_dir, jev_prepared, execute=args.jev_execute)
     write_jsonl(
         out_dir / "rag_consultas.jsonl",
         (entry for entries in rag_context.values() for entry in entries),
@@ -3235,6 +3253,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     review.add_argument("--run-id")
     review.add_argument("--out-dir")
+    review.add_argument("--jev-request", action="append", help="pacote Jev por campo; repetível; opt-in")
+    review.add_argument("--jev-source-dxf", help="DXF N1 original, conferido por SHA-256")
+    review.add_argument("--jev-execute", action="store_true", help="chama API após validar fonte e snapshot")
     review.set_defaults(func=cmd_review)
 
     apply_cmd = sub.add_parser("apply", help="aplica decisões high do mesmo snapshot")

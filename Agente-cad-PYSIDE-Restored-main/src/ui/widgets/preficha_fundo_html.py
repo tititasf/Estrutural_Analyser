@@ -1444,12 +1444,14 @@ def write_fundo_pages(
             _table_rows = chain_linear_segment_apoios(
                 [_collect_seg_table_row(m, dialog) for m in _seg_meta]
             )
-            _n3_robot = render_n3_svg_from_seg_rows(
-                _table_rows, beam, out_svg=_n3_out
-            ) or materialize_fv_n3_svg(
+            # The generated DXF owns profile partitions, LISO and openings.
+            # Table rows describe N1 and cannot reconstruct that N3 contract.
+            _n3_robot = materialize_fv_n3_svg(
                 n3_path,
                 _n3_out,
                 inline_svg=n3_b64 or "",
+            ) or render_n3_svg_from_seg_rows(
+                _table_rows, beam, out_svg=_n3_out
             )
             _n3_inline = overlay_n3_segment_tags(_n3_robot, _table_rows) or _n3_robot
             _seg_labels = [str(m.get("label") or i + 1) for i, m in enumerate(_seg_meta)]
@@ -2117,10 +2119,13 @@ def relayout_existing_fv_page(html_text: str, *, n3_dir: str = "") -> str:
         )
         n_segs = len(seg_rows)
 
-    generated = render_n3_svg_from_seg_rows(
-        seg_rows, beam, out_svg=disk_n3 or ""
-    )
-    n3_src_svg = generated or _n3_svg_from_viewer(viewer_html)
+    n3_src_svg = _n3_svg_from_viewer(viewer_html)
+    if not n3_src_svg and disk_n3 and os.path.isfile(disk_n3):
+        n3_src_svg = Path(disk_n3).read_text(encoding="utf-8")
+    if not n3_src_svg:
+        n3_src_svg = render_n3_svg_from_seg_rows(
+            seg_rows, beam, out_svg=disk_n3 or ""
+        )
     n3_tagged = overlay_n3_segment_tags(n3_src_svg, seg_rows) or n3_src_svg
     if n3_tagged and "<svg" in n3_tagged:
         viewer_html = _replace_n3_layer_inner(viewer_html, n3_tagged)

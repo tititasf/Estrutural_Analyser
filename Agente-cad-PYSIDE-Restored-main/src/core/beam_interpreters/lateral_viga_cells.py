@@ -39,7 +39,7 @@ from typing import Any, Optional
 
 from src.core.lv_beam_scene import LvScene
 
-CELL_RULES_VERSION = "guia_lv_cells_v7"
+CELL_RULES_VERSION = "guia_lv_cells_v9_slab_beam_reference"
 PILLAR_OPENING_EXTRA = 11.0     # G8/G9: 11 cm de cada lado
 BEAM_OPENING_EXTRA_W = 8.0      # G8: largura da viga incidente + 8
 BEAM_OPENING_EXTRA_H = 4.0      # G8: altura + 4
@@ -97,7 +97,13 @@ def _level_value(text: str) -> Optional[float]:
         return None
 
 
-def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
+def segment_cell(
+    scene: LvScene,
+    side: str,
+    behavior: str,
+    *,
+    minimum_segment: float = MIN_SEGMENT,
+) -> list[CellSegment]:
     behavior = behavior.lower()
     ascending = reading_ascending(scene, side)
     hard: list[tuple[float, float, dict]] = []
@@ -105,7 +111,9 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
     pillar_events: list[dict] = []
     flags_global: list[str] = []
 
-    for pillar in scene.pillars[side]:
+    measured_passa = behavior == "passa" and scene.passa_pillars is not None
+    pillar_source = scene.passa_pillars[side] if measured_passa else scene.pillars[side]
+    for pillar in pillar_source:
         # Para para na face do pilar; Passa corre pela PAREDE do pilar, mas se a
         # face passaria pelo MIOLO do pilar, para tambem (dono 2026-09-26).
         # G10/D-48 (dono 2026-09-28): Para NUNCA para nas faces C/D (curtas) —
@@ -125,8 +133,26 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
     # Para continua terminando na face do pilar — exceto face C/D (G10).
     # Diagonal (Caso 8): cada face ate' onde a propria linha vai.
     ext_start, ext_end = scene.face_extent.get(side, (scene.start, scene.end))
+    if measured_passa:
+        # Extend along a connected exterior wall, never across a core or a
+        # pillar ceded to the deeper collinear beam.
+        ceded = {s["name"] for end in scene.end_supports.values() for s in end
+                 if s.get("type") == "pilar" and s.get("cede_para")}
+        inherited = {s["name"]: (s.get("engloba_ini", s["start"]), s.get("engloba_fim", s["end"]))
+                     for end in scene.end_supports.values() for s in end
+                     if s.get("type") == "pilar" and not s.get("cede_para")
+                     and ("engloba_ini" in s or "engloba_fim" in s)}
+        pillar_events = [p for p in pillar_events if p["name"] not in ceded
+                         and ((p["end"] >= ext_start - 1.0 and p["start"] <= ext_end + 1.0)
+                              or (p["name"] in inherited and p["end"] >= inherited[p["name"]][0]
+                                  and p["start"] <= inherited[p["name"]][1]))]
+        for p in pillar_events:
+            ext_start = min(ext_start, p["start"])
+            ext_end = max(ext_end, p["end"])
 
     def _wall(sup: dict) -> bool:
+        if measured_passa:
+            return False  # Full per-face wall/core intervals already measured.
         # Pilar entre duas vigas colineares: so' a mais profunda o engloba
         # (dono 2026-09-28); a que cede para na face.
         if sup.get("cede_para"):
@@ -158,9 +184,15 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         ),
     }
 
-    for inc in scene.incidents[side]:
+    incident_source = scene.passa_incidents[side] if measured_passa else scene.incidents[side]
+    for inc in incident_source:
         own = _own_depth(scene, inc["start"], inc["end"])
         inc_depth = inc.get("depth")
+        if measured_passa and (inc["end"] <= scene.start + 0.5 or inc["start"] >= scene.end - 0.5):
+            # Existing endpoint supports stay supports. Retain the shallow
+            # junctions encountered only after following a pillar wall.
+            if own is None or inc_depth is None or inc_depth >= own - 0.01:
+                continue
         info = dict(inc, type="viga")
         if own is None or inc_depth is None:
             info["rule"] = "G7_profundidade_desconhecida_termina"
@@ -196,6 +228,27 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
             "source": left.get("end_source", ""),
         }))
 
+    # Physical slab steps split both Para and Passa, with touching endpoints.
+    # Only a change between regions of the SAME slab is a step; a slab edge
+    # beside a void or an inset not contacting this face is not a divider.
+    contacts = scene.slabs[side]
+    for inset in contacts:
+        if not inset.get("region_id") or inset["region_id"] == "principal":
+            continue
+        for pos in (inset["start"], inset["end"]):
+            principal = next((s for s in contacts
+                if s["name"] == inset["name"] and s.get("region_id") != inset["region_id"]
+                and min(abs(s["start"]-pos), abs(s["end"]-pos)) <= .5
+                and (s["height"], s["level"]) != (inset["height"], inset["level"])), None)
+            if principal is None:
+                continue
+            soft.append((pos, {
+                "type": "degrau_laje", "name": inset["name"],
+                "start": pos, "end": pos, "boundary": "degrau_laje",
+                "rule": "degrau_laje_secciona_para_e_passa",
+                "embedded_in_pillar": False,
+            }))
+
     # Passa: viga que chega DENTRO de um pilar (V302 no P10 da V309A) nao
     # corta a lateral — o pilar e' englobado inteiro; a viga vira abertura
     # desse segmento e a fronteira vai para a face final do pilar (Q3).
@@ -204,7 +257,8 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         for c0, c1, info in hard:
             host = next(
                 (pl for pl in pillar_events
-                 if info.get("type") == "viga" and pl["start"] - 0.5 <= c0 and c1 <= pl["end"] + 0.5),
+                 if info.get("type") == "viga" and info.get("embedded_in_pillar", True)
+                 and pl["start"] - 0.5 <= c0 and c1 <= pl["end"] + 0.5),
                 None,
             )
             if host is None:
@@ -221,27 +275,28 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         moved = []
         for pos, info in soft:
             for pillar in pillar_events:
-                if pillar["start"] + 0.5 < pos < pillar["end"] - 0.5:
+                if info.get("embedded_in_pillar", True) and pillar["start"] + 0.5 < pos < pillar["end"] - 0.5:
                     pos = pillar["end"] if ascending else pillar["start"]
                     info = dict(info, moved_to_pillar_face=pillar["name"])
             moved.append((pos, info))
         soft = moved
 
     # Pedacos livres = extensao menos cortes duros.
-    cuts = sorted(hard, key=lambda item: item[0])
+    cuts = sorted((item for item in hard if not measured_passa
+                   or (item[1] > ext_start and item[0] < ext_end)), key=lambda item: item[0])
     pieces: list[list[Any]] = []
     cursor = ext_start
     left_info: dict = {"type": "extremidade", "supports": scene.end_supports["start"]}
     for c0, c1, info in cuts:
         if c1 <= cursor + 0.01:
             continue  # corte contido em outro (V312 dentro do P42): a face e' do maior
-        if c0 > cursor + MIN_SEGMENT:
+        if c0 > cursor + minimum_segment:
             pieces.append([cursor, min(c0, ext_end), left_info, info])
         cursor = max(cursor, c1)
         left_info = info
         if cursor >= ext_end:
             break
-    if ext_end - cursor > MIN_SEGMENT:
+    if ext_end - cursor > minimum_segment:
         pieces.append([cursor, ext_end, left_info, {"type": "extremidade", "supports": scene.end_supports["end"]}])
 
     # Fronteiras moles (borda final das aberturas de viga).
@@ -252,10 +307,10 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         # nao ha' segmento anterior para recebe-la (contrato §5.2.3).
         inner: dict[float, dict] = {}
         for pos, info in soft:
-            if not (a0 + MIN_SEGMENT < pos < a1 - MIN_SEGMENT):
+            if not (a0 + minimum_segment < pos < a1 - minimum_segment):
                 continue
             if info["type"] == "viga" and not (
-                info["start"] > a0 + MIN_SEGMENT and info["end"] < a1 - MIN_SEGMENT
+                info["start"] > a0 + minimum_segment and info["end"] < a1 - minimum_segment
             ):
                 continue
             key = next((k for k in inner if abs(k - pos) < 0.5), round(pos, 3))
@@ -288,18 +343,26 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         split = [
             item for item in split
             if sum(y - x for x, y in _outside_pillars(item[0], item[1])) >= 10.0
+            or (measured_passa and any(info.get("type") == "viga"
+                                      and info.get("embedded_in_pillar") is False
+                                      for info in item[2:]))
         ]
 
     if not ascending:
         split = [[a0, a1, rinfo, linfo] for a0, a1, linfo, rinfo in reversed(split)]
 
     segments: list[CellSegment] = []
+    section_source = scene.sections
+    if measured_passa and scene.sections:
+        section_source = [dict(z) for z in sorted(scene.sections, key=lambda z: z["start"])]
+        section_source[0]["start"] = min(section_source[0]["start"], ext_start)
+        section_source[-1]["end"] = max(section_source[-1]["end"], ext_end)
     for index, (a0, a1, first_info, last_info) in enumerate(split, start=1):
         start, end = (a0, a1) if ascending else (a1, a0)
         zones = [
             {"start": max(z["start"], a0), "end": min(z["end"], a1), "dim": z["dim"],
              "depth": z["depth"], "source": z.get("end_source", "")}
-            for z in scene.sections if z["end"] > a0 + 0.5 and z["start"] < a1 - 0.5
+            for z in section_source if z["end"] > a0 + 0.5 and z["start"] < a1 - 0.5
         ]
         governing = max(zones, key=lambda z: z["depth"]) if zones else None
         seg = CellSegment(
@@ -370,8 +433,13 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
                 "rule": "G8_passa_abertura_pilar_mais_22",
             }
             if comp + 0.5 < pillar["end"] - pillar["start"]:
-                opening["pilar_partido_por_corte"] = True
-                seg.flags.append(f"G8_pilar_partido:{pillar['name']}")
+                external_junction = measured_passa and any(
+                    info.get("type") == "viga" and info.get("embedded_in_pillar") is False
+                    for info in (first_info, last_info)
+                )
+                if not external_junction:
+                    opening["pilar_partido_por_corte"] = True
+                    seg.flags.append(f"G8_pilar_partido:{pillar['name']}")
             seg.pillar_openings.append(opening)
         for pos, info in soft:
             if info.get("type") != "viga":
@@ -406,9 +474,29 @@ def segment_cell(scene: LvScene, side: str, behavior: str) -> list[CellSegment]:
         ]
         slabs.sort(key=lambda s: s["start"], reverse=not ascending)
         seg.slabs = [
-            {"name": s["name"], "level": s["level"], "height": s["height"]} for s in slabs[:3]
+            {"name": s["name"], "level": s["level"], "height": s["height"],
+             "region_id": s.get("region_id")} for s in slabs
         ]
-        levels = [v for v in (_level_value(s["level"]) for s in slabs) if v is not None]
+        # A slab inset changes the slab, not automatically the beam. Keep its
+        # regional altitude in ``slabs`` for the upper closing panel. Use the
+        # owner's principal region as the beam reference only within the same
+        # measured section zone; an actual cut is resolved independently later.
+        references = []
+        for slab in slabs:
+            reference = slab
+            if slab.get("region_id") not in (None, "principal"):
+                reference = {"level": ""}
+                principal = [p for face in scene.slabs.values() for p in face
+                    if p["name"] == slab["name"] and p.get("region_id") == "principal"
+                    and any(z["start"] <= min(a0, p["start"]) + .5
+                            and z["end"] >= max(a1, p["end"]) - .5
+                            for z in scene.sections)]
+                values = {_level_value(p["level"]) for p in principal}
+                if len(values) == 1 and None not in values:
+                    reference = principal[0]
+                    seg.flags.append("slab_step_keeps_beam_reference_requires_cut_for_change")
+            references.append(reference)
+        levels = [v for v in (_level_value(s["level"]) for s in references) if v is not None]
         seg.level = f"{max(levels):g}" if levels else ""
         segments.append(seg)
     return segments

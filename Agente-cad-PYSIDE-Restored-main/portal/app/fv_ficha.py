@@ -190,16 +190,25 @@ def _parse_hifi(path: Optional[Path]) -> dict[str, Any]:
         return {"segments": [], "layers": {}, "html_version": None}
 
 
-def _current_n3_contract(obra_dir: Path, pavimento: str, beam: str) -> tuple[Optional[Path], dict[str, Any]]:
-    run = ficha_reader._latest_production_run(Path(obra_dir), pavimento)
-    if run is None:
-        return None, {}
-    path = run / "n3" / "contracts" / f"{beam}_fundo.json"
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return None, {}
-    return path, payload if isinstance(payload, dict) else {}
+def _current_n3_contract(
+    obra_dir: Path, pavimento: str, beam: str, visual_mode: str | None = None,
+) -> tuple[Optional[Path], dict[str, Any]]:
+    # Match the production preview's per-item/per-mode lookup. A newer run
+    # for another beam must not erase this beam's panel table.
+    root = Path(obra_dir) / "Fase-6_Execucao_CAD" / "production_sa" / pavimento
+    for manifest in sorted(root.glob("*/production_manifest.json"), reverse=True):
+        run = manifest.parent
+        if visual_mode and ficha_reader._production_run_visual_mode(run) != visual_mode.upper():
+            continue
+        path = run / "n3" / "contracts" / f"{beam}_fundo.json"
+        if not path.is_file():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            return None, {}
+        return path, payload if isinstance(payload, dict) else {}
+    return None, {}
 
 
 def _contract_segments(contract: dict[str, Any]) -> list[dict[str, Any]]:
@@ -212,9 +221,14 @@ def _contract_segments(contract: dict[str, Any]) -> list[dict[str, Any]]:
         width = _number(row.get("largura_total_fundo") or contract.get("total_width"))
         modules = row.get("panels") if isinstance(row.get("panels"), list) else compute_panel_modules(length)
         panels = []
+        chamfers = []
         for panel_index, module in enumerate(modules, 1):
             if isinstance(module, dict):
                 module_length = _number(module.get("length") or module.get("width"))
+                for position, size in (module.get("chanfros") or {}).items():
+                    if _number(size) > 0:
+                        chamfers.append({"position": position, "size_cm": _number(size),
+                                         "panel_index": panel_index})
             else:
                 module_length = _number(module)
             panels.append({
@@ -230,7 +244,7 @@ def _contract_segments(contract: dict[str, Any]) -> list[dict[str, Any]]:
             "level": _display_number(_number(row.get("nivel") or row.get("level"))),
             "support_start": row.get("texto_esq") or row.get("apoio_inicial") or None,
             "support_end": row.get("texto_dir") or row.get("apoio_final") or None,
-            "n3": {"available": bool(panels), "panels": panels, "chamfers": {}, "openings": {}},
+            "n3": {"available": bool(panels), "panels": panels, "chamfers": chamfers, "openings": {}},
         })
     return result
 
@@ -247,7 +261,7 @@ def _state_segment(item: dict, slabs: list[dict[str, Any]] | None = None) -> dic
         "index": _segment_number(fields.get("Segmento")),
         "length_cm": _display_number(_number(fields.get("Comprimento"))),
         "width_cm": _display_number(_number(fields.get("Largura"))),
-        "beam_height_cm": None,
+        "beam_height_cm": _display_number(_number(fields.get("Altura da viga"))),
         "level": _display_number(level_result["value"]),
         "level_source": (item.get("level_source") if stored_level is not None else level_result["source"]),
         "level_slabs": (item.get("level_slabs") if stored_level is not None else level_result["slabs"]),
@@ -289,6 +303,8 @@ def _merge_segment(base: dict[str, Any], rich: Optional[dict[str, Any]]) -> dict
     # Comprimento e largura permanecem os valores do SA atual. O HI-FI so'
     # completa os campos ausentes e o N3 quando a geometria corresponde.
     for key in ("beam_height_cm", "level", "support_start", "support_end", "n3"):
+        if key in {"beam_height_cm", "level"} and base.get(key) is not None:
+            continue
         if rich.get(key) is not None:
             merged[key] = rich[key]
     merged["enrichment_status"] = "matched"
@@ -301,6 +317,7 @@ def montar_ficha_fv(
     beam: str,
     estado: dict,
     html_fichas_root: Optional[Path] = None,
+    visual_mode: str | None = None,
 ) -> dict[str, Any]:
     """Monta uma ficha por viga, sem alterar qualquer artefato da obra."""
     if not _BEAM_RE.fullmatch(str(beam or "")):
@@ -321,9 +338,9 @@ def montar_ficha_fv(
 
     override = fv_operations.load_override(obra_dir, pavimento, beam)
     source_beam = str(override.get("source_beam") or beam)
-    contract_path, contract = _current_n3_contract(obra_dir, pavimento, beam)
+    contract_path, contract = _current_n3_contract(obra_dir, pavimento, beam, visual_mode)
     if not contract_path and source_beam != beam:
-        contract_path, contract = _current_n3_contract(obra_dir, pavimento, source_beam)
+        contract_path, contract = _current_n3_contract(obra_dir, pavimento, source_beam, visual_mode)
     current_segments = _contract_segments(contract)
     html_path = encontrar_ficha_fv(obra_dir, pavimento, beam, html_fichas_root)
     hifi = _parse_hifi(html_path)
@@ -358,7 +375,10 @@ def montar_ficha_fv(
     if hifi_sa.get("available") and hifi_sa.get("svg"):
         # A camada SA dos fundos é a representação contextual completa. Os
         # dados tabulares continuam vindo exclusivamente do estado SA atual.
-        layers["sa"] = {"available": True, "svg": hifi_sa["svg"], "segments": []}
+        from .fv_tag_layout import separate_chips
+        from .qa_versions import safe_svg
+        # HTML parsing lowercases viewBox. Normalize before computing chip bounds.
+        layers["sa"] = {"available": True, "svg": separate_chips(safe_svg(hifi_sa["svg"])), "segments": []}
         sa_visual_origin = "hifi_contextual"
     else:
         # Não desenhar o polígono mínimo: ele aparenta ser uma ficha válida,
@@ -367,6 +387,7 @@ def montar_ficha_fv(
     if html_path:
         adopted_svg = _safe_read_svg(html_path.parent / "adotados" / f"{beam}_sa.svg")
         if adopted_svg:
+            adopted_svg = fv_operations.normalize_manual_sa_svg(adopted_svg)
             layers["sa"] = {"available": True, "svg": adopted_svg, "segments": []}
             sa_visual_origin = "human_adopted_agent_layer"
         proposals = html_path.parent / "propostas"
@@ -389,15 +410,33 @@ def montar_ficha_fv(
         photo_item = dict(first)
         if source_beam != beam:
             photo_item["beam_name"] = source_beam
-        current = ficha_reader.extrair_fotos_producao(obra_dir, pavimento, "fundo", photo_item)
+        current = ficha_reader.extrair_fotos_producao(
+            obra_dir, pavimento, "fundo", photo_item, visual_mode,
+        )
         layers["n3"] = {
             "available": bool(current.get("n3")), "svg": current.get("n3"),
             "segments": [{"index": row["index"]} for row in segments],
         }
     layers["sa"]["segments"] = [{"index": row["index"]} for row in segments]
 
+    from .qa_versions import availability
+    records, qa_layers = availability(obra_dir, pavimento, "FV", beam)
+    layers.update(qa_layers)
+    from .qa_interpretation import effective_svg
+    effective = effective_svg(obra_dir, pavimento, 'FV', beam, estado)
+    if effective:
+        layers['sa']['svg'] = effective
+        layers['sa']['available'] = True
+        sa_visual_origin = 'human_validated_qa'
     return {
         "schema": SCHEMA,
+        "visual_mode": ficha_reader.modo_visual_n3(
+            obra_dir, pavimento, "fundo", state_items[0] if state_items else {"beam_name": beam},
+            visual_mode=visual_mode,
+        ),
+        "available_visual_modes": ficha_reader.modos_visuais_n3_disponiveis(
+            obra_dir, pavimento, "fundo", state_items[0] if state_items else {"beam_name": beam},
+        ),
         "obra": {"pavimento": pavimento},
         "beam": {
             "name": beam,

@@ -6,6 +6,10 @@ const nextConfig = {
   reactStrictMode: true,
   // Produção compartilha o domínio do portal sem expor novas portas.
   basePath: process.env.CONSULTA_PUBLICA_BASE_PATH || "",
+  // Nginx location /consulta/ exige trailing slash — sem isso Next.js
+  // faz 308 /consulta/ → /consulta que cai no location / do portal,
+  // criando redirect loop infinito.
+  trailingSlash: true,
   async headers() {
     return [
       {

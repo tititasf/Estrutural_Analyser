@@ -109,6 +109,26 @@ def _write_current_contract(obra: Path) -> Path:
     return path
 
 
+def test_n3_contract_survives_newer_partial_run_for_another_beam(tmp_path):
+    path = _write_current_contract(tmp_path)
+    later = path.parents[2].parent / "20261003_140000_2"
+    later.mkdir()
+    (later / "production_manifest.json").write_text('{"visual_mode":"NOVA"}')
+    selected, payload = fv_ficha._current_n3_contract(tmp_path, "13_PAV", "V301", "NOVA")
+    assert selected == path
+    assert len(payload["segments_rich"]) == 2
+
+
+def test_n3_contract_uses_requested_visual_mode(tmp_path):
+    path = _write_current_contract(tmp_path)
+    later = path.parents[2].parent / "20261003_140000_2"
+    (later / "n3" / "contracts").mkdir(parents=True)
+    (later / "production_manifest.json").write_text('{"visual_mode":"INI"}')
+    (later / "n3" / "contracts" / "V301_fundo.json").write_text('{"name":"V301","segments_rich":[]}')
+    assert fv_ficha._current_n3_contract(tmp_path, "13_PAV", "V301", "NOVA")[0] == path
+    assert fv_ficha._current_n3_contract(tmp_path, "13_PAV", "V301", "INI")[0].parents[2] == later
+
+
 def test_montar_ficha_fv_agrupa_viga_e_enriquece_com_contrato_atual(tmp_path):
     html_path = _write_hifi(tmp_path / "html")
     contract_path = _write_current_contract(tmp_path / "obra")
@@ -162,6 +182,25 @@ def test_ficha_fv_usa_svg_sa_contextual_como_camada_visual(tmp_path):
 
     assert result["source"]["sa_visual_origin"] == "hifi_contextual"
     assert "<text>S1</text>" in result["context"]["layers"]["sa"]["svg"]
+
+
+def test_ficha_fv_separates_chips_after_html_parser_lowercases_viewbox(tmp_path):
+    from portal.tests.test_fv_tag_layout import drawing
+    from portal.app.fv_tag_layout import separate_chips
+    import xml.etree.ElementTree as ET
+    path = _write_hifi(tmp_path / "html", include_extra_segment=False)
+    path.write_text(path.read_text().replace(
+        '<svg viewBox="0 0 100 40"><text>S1</text></svg>', drawing()), encoding='utf-8')
+    raw = fv_ficha._parse_hifi(path)['layers']['sa']['svg']
+    assert 'viewbox=' in raw and 'viewBox=' not in raw
+    result = fv_ficha.montar_ficha_fv(
+        tmp_path / 'obra', '13_PAV', 'V301', _estado_v301(),
+        html_fichas_root=tmp_path / 'html')
+    svg = result['context']['layers']['sa']['svg']
+    assert svg.count('separated-v1') == 2
+    assert ET.fromstring(svg).get('viewBox') == '0 0 100 100'
+    assert separate_chips(svg) == svg
+    assert result['source']['sa_visual_origin'] == 'hifi_contextual'
 
 
 def test_ficha_fv_deriva_nivel_do_segmento_de_snapshot_antigo(tmp_path):

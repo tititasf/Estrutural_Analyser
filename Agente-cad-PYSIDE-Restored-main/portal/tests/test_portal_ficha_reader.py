@@ -318,6 +318,42 @@ def test_resolver_camadas_qa_pilar_nao_inventa_fallback(monkeypatch, tmp_path):
     assert layers["L3"] == {"svg": None, "tables": None, "disponivel": False}
 
 
+def test_camadas_pilar_exibem_snapshot_candidato_sem_rederivar(monkeypatch, tmp_path):
+    from portal.app import qa_versions
+    pack = tmp_path / "pack"
+    propostas = pack / "propostas"
+    propostas.mkdir(parents=True)
+    (propostas / "P7_qa_L1_tables.json").write_text('{"faces":{"B":{"canto":"BB"}}}')
+    tables = {"faces": {"B": {"lajes": [{"canto": "BD"}]}}}
+    candidate = {"collections": {"pilares": [{"name": "P7", "nivel_str": "852.19",
+                                               "interpretacao_abcd": tables}]}}
+    monkeypatch.setattr(fr, "_encontrar_dir_ficha_item", lambda *_args: pack)
+    monkeypatch.setattr(qa_versions, "availability", lambda *_args: (
+        {"L1": {"candidate_interpretation": candidate}},
+        {"c1": {"svg": '<svg viewBox="0 0 10 10"/>', "available": True}},
+    ))
+    layer = fr.resolver_camadas_qa_pilar(tmp_path, "13_PAV", "pilares", {"beam_name": "P7"})["L1"]
+    assert layer["interpretation"] == candidate
+    assert layer["tables"] == tables
+    assert layer["disponivel"] is True
+    assert layer["tables"]["faces"]["B"]["lajes"][0]["canto"] == "BD"
+
+
+def test_camadas_pilar_nao_reutilizam_tabela_legada_sem_snapshot(monkeypatch, tmp_path):
+    from portal.app import qa_versions
+    pack = tmp_path / "pack"
+    propostas = pack / "propostas"
+    propostas.mkdir(parents=True)
+    (propostas / "P7_qa_L1_tables.json").write_text('{"faces":{"B":{"canto":"BB"}}}')
+    monkeypatch.setattr(fr, "_encontrar_dir_ficha_item", lambda *_args: pack)
+    monkeypatch.setattr(qa_versions, "availability", lambda *_args: (
+        {"L1": {}}, {"c1": {"svg": '<svg viewBox="0 0 10 10"/>', "available": True}},
+    ))
+    layer = fr.resolver_camadas_qa_pilar(tmp_path, "13_PAV", "pilares", {"beam_name": "P7"})["L1"]
+    assert layer["tables"] is None
+    assert "interpretation" not in layer
+
+
 def test_resolver_visualizacoes_n1_pilar_separa_proximo_distante_e_tag(monkeypatch, tmp_path):
     pack = tmp_path / "13_PAV_pack"
     pilares = pack / "pilares"
@@ -371,3 +407,33 @@ def test_resolver_visualizacoes_n1_pilar_le_paineis_reais_sem_classe_svg(monkeyp
     assert 'id="plain"' in views["proximo"]
     assert 'id="tag"' not in views["proximo"]
     assert 'id="contexto"' in views["distante"]
+
+
+def test_resolver_visualizacoes_n1_pilar_le_paineis_do_pack_central_sem_pack_na_obra(tmp_path):
+    central = tmp_path / "html_fichas"
+    pack = central / "14_PAV_20260923_pilares_abcd"
+    pilares = pack / "pilares"
+    propostas = pack / "propostas"
+    pilares.mkdir(parents=True)
+    propostas.mkdir()
+    (pilares / "P10.html").write_text(
+        '<div data-n1panel="near"><div data-layer="sa_plain">'
+        '<svg viewBox="0 0 10 10"><path id="plain"/></svg></div>'
+        '<div data-layer="sa"><svg><path id="tag-no-html"/></svg></div></div>'
+        '<div data-n1panel="far"><svg viewBox="0 0 100 100">'
+        '<path id="contexto"/></svg></div>',
+        encoding="utf-8",
+    )
+    (propostas / "P10_sa_motor.svg").write_text(
+        '<svg viewBox="0 0 20 20"><path id="tag"/></svg>', encoding="utf-8",
+    )
+
+    views = fr.resolver_visualizacoes_n1_pilar(
+        tmp_path / "obra_sem_pack", "14_PAV", "pilares", {"beam_name": "P10"},
+        foto_n1_fallback='<svg id="fallback"/>', html_fichas_root=central,
+    )
+
+    assert 'id="plain"' in views["proximo"]
+    assert 'id="tag-no-html"' not in views["proximo"]
+    assert 'id="contexto"' in views["distante"]
+    assert 'id="tag"' in views["com_tag"]

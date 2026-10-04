@@ -35,6 +35,7 @@ _PROJECT_ROOT = Path(__file__).resolve().parents[1]
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 from src.core.artifact_governance import guarded_saveas
+from scripts.drawing_mode_config import configure_subprocess
 from src.core.fv_generation_contract import FV_ENGINE_ID, compute_panel_modules
 
 _MOTOR_ID = FV_ENGINE_ID
@@ -625,6 +626,19 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
     angled_l_panel = None
     if panel_items and len(panel_items) == 1 and isinstance(panel_items[0], dict):
         angled_l_panel = panel_items[0].get('angled_l')
+    elif panel_items and all(p.get('source') == 'sa_outline' for p in panel_items):
+        # Manufacturing modules share one physical fold. Recover the union
+        # for joined rails, without inventing a rail at the fold or a SA gap.
+        from shapely.geometry import Polygon
+        from shapely.ops import unary_union
+        polygons = []
+        offset = 0.0
+        for panel in panel_items:
+            polygons.append(Polygon([(offset+v['x'], v['y']) for v in panel['vertices']]))
+            offset += float(panel['width'])
+        outline = unary_union(polygons).simplify(1e-7, preserve_topology=True)
+        if outline.geom_type == 'Polygon':
+            angled_l_panel = detect_left_angled_l_panel(list(outline.exterior.coords))
     if angled_l_panel:
         _draw_left_angled_l_sarr(
             msp, x0, y0, angled_l_panel,
@@ -1027,6 +1041,37 @@ def draw_chanfro_cotas(msp, xp, y0, pw, b, chanfros):
 
     if fd > 0:
         _lin(xp + pw - fd, y0, xp + pw, y0, xp + pw - fd / 2, y0 - OFFS)
+
+
+def draw_angled_l_cotas(msp, xp, y0, geometry):
+    """Dimension fold projections from its contour, not a beam-specific table."""
+    def pt(key):
+        point = geometry[key]
+        return xp + float(point['x']), y0 + float(point['y'])
+
+    outer, bottom, inner, tip = [pt(k) for k in (
+        'outer_mid', 'bottom_left', 'top_left', 'tip_top')]
+    top_y = y0 + float(geometry['total_height'])
+    left_x = min(outer[0], tip[0])
+    specs = [
+        (outer, bottom, (left_x, y0-10), 0),
+        (tip, inner, (left_x, top_y+12), 0),
+        (inner, tip, (max(inner[0], tip[0])+14, y0), 90),
+        ((left_x, y0), tip, (left_x-32, y0), 90),
+        ((left_x, y0), outer, (left_x-12, y0), 90),
+        (outer, tip, (left_x-12, y0), 90),
+    ]
+    right_bottom, right_top = pt('bottom_right'), pt('top_right')
+    if abs(right_bottom[0]-right_top[0]) > 0.15:
+        specs.append((right_top, right_bottom, (right_top[0], top_y+12), 0))
+    for p1, p2, base, angle in specs:
+        if abs(p2[0 if angle == 0 else 1]-p1[0 if angle == 0 else 1]) <= 0.15:
+            continue
+        dimension = msp.add_linear_dim(
+            base=base, p1=p1, p2=p2, angle=angle, dimstyle='PAINEL',
+            override={'dimtxt': 3.0, 'dimasz': 1.0, 'dimgap': 1.0},
+            dxfattribs={'layer': 'COTA'})
+        dimension.render()
 
 
 def _panel_height(panel, default_b):
@@ -1483,6 +1528,9 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
                 _seg_panels = seg_item.get('panels', [])
                 if i < len(_seg_panels) and isinstance(_seg_panels[i], dict):
                     _ch = _seg_panels[i].get('chanfros')
+                    _angled = _seg_panels[i].get('angled_l')
+                    if _angled:
+                        draw_angled_l_cotas(msp, xp, y0, _angled)
                     if _ch and any(_ch.get(k, 0) > 0 for k in ('te', 'fe', 'td', 'fd')):
                         draw_chanfro_cotas(msp, xp, y0, pw, b, _ch)
 
@@ -1734,7 +1782,13 @@ def draw_viga(msp, x0, y0, panels_json, viga_b, viga_nome,
             )
             if nom_left_clearance > 0:
                 nom_left_clearance += NOM_H
-    add_text(msp, x0 + nom_left_clearance + 3, y0 + b + NOM_ABOVE, nom_text,
+    nom_y = y0 + b + NOM_ABOVE
+    for seg in segments:
+        if isinstance(seg, dict):
+            for panel in seg.get('panels', []):
+                if panel.get('angled_l'):
+                    nom_y = max(nom_y, y0 + float(panel['angled_l']['total_height']) + 32)
+    add_text(msp, x0 + nom_left_clearance + 3, nom_y, nom_text,
              NOM_H, 'NOMENCLATURA', style='Standard')
 
 
@@ -1894,7 +1948,7 @@ def main():
                         help='Caminho para JSON no formato get_current_data() do robô. '
                              'Gera DXF preview completo (chanfros, sarrafos, painel L, aberturas) '
                              'sem precisar de Fase-4 JSON. Requer também --obra e --item.')
-    parser.add_argument('--visual-mode', choices=['NOVA', 'INI'], default='NOVA',
+    parser.add_argument('--visual-mode', choices=["INI", "NOVA", "MOLDE_1", "MOLDE_2", "MOLDE_3"], default='NOVA',
                         help='Perfil visual do DXF (padrao: NOVA)')
     parser.add_argument(
         '--output-dir', type=str, default=None,
@@ -1905,6 +1959,7 @@ def main():
         help='Diretorio isolado com contratos FV N3/N4; substitui JSON_Vigas_Fundo.',
     )
     args = parser.parse_args()
+    configure_subprocess(globals(), args.visual_mode, 'FV')
 
     # -- Modo robot_json: geração direta a partir dos dados do robô ---------------
     if args.robot_json:

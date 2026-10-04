@@ -139,6 +139,35 @@ def _fundo_row(label: str, segment_index: int, points: list[tuple]) -> dict:
     }
 
 
+def test_generated_inverted_n3_survives_writer_and_relayout(tmp_path, monkeypatch):
+    from src.ui.widgets import preficha_fundo_html as module
+
+    generated = '<svg viewBox="0 0 100 50"><text>LISO</text><text>355,1</text><text>171,9</text></svg>'
+
+    def materialize(path, out_svg, **kwargs):
+        Path(out_svg).write_text(generated, encoding="utf-8")
+        return generated
+
+    def forbidden_reconstruction(*args, **kwargs):
+        raise AssertionError("N1 rows must not replace the generated inverted N3")
+
+    monkeypatch.setattr(module, "materialize_fv_n3_svg", materialize)
+    monkeypatch.setattr(module, "render_n3_svg_from_seg_rows", forbidden_reconstruction)
+    write_fundo_pages(
+        dialog=_FakeDialog(), title="Fundos",
+        rows=[_fundo_row("1", 1, [(0, 0), (10, 0), (10, 4), (0, 4)])],
+        output_dir=str(tmp_path), page_css="", javascript="",
+        photo_fn=lambda points: "", metrics_fn=_segment_geometry_metrics,
+    )
+    page = tmp_path / "fundos_viga" / "V301.html"
+    raw = page.read_text(encoding="utf-8")
+    revised = relayout_existing_fv_page(raw, n3_dir=str(page.parent / "n3"))
+    for content in (raw, revised):
+        assert "LISO" in content
+        assert "355,1" in content
+        assert "171,9" in content
+
+
 def test_fundo_writer_creates_granular_page_with_four_visual_stages(tmp_path: Path):
     rows = [_fundo_row(
         "1", 1, [(0, 0), (10, 0), (10, 4), (0, 4), (0, 0)]

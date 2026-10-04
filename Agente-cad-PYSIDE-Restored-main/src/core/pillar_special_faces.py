@@ -677,9 +677,21 @@ def format_tables_portal_dynamic(formatter, tables: dict) -> str:
             for row in real:
                 cells = [label, row.get("nome"), row.get("dim"), row.get("nivel"),
                          row.get("canto"), row.get("dist_esq"), row.get("dist_dir")]
-                rows.append("<tr>" + "".join(
-                    f"<td>{html.escape(str(value or '—'))}</td>" for value in cells
-                ) + "</tr>")
+                index = next((i for i, source in enumerate(data.get(family) or []) if source is row), -1)
+                rendered = []
+                for column, value in enumerate(cells):
+                    field = {1: "nome", 2: "dim", 3: "nivel", 4: "canto", 5: "dist_esq", 6: "dist_dir"}.get(column)
+                    attrs = (f' class="abcd-editable" data-field="{field}"'
+                             f' data-value="{html.escape(str(value or ""), quote=True)}"'
+                             if index >= 0 and field in {"nome", "dim", "nivel", "canto"} else "")
+                    warning = ""
+                    status_key = "dist" if field in {"dist_esq", "dist_dir"} else field
+                    if status_key and row.get(f"{status_key}_status") in {"inferred", "fallback", "ambiguous", "conflict", "missing"}:
+                        reason = html.escape(str(row.get(f"{status_key}_motivo") or "Requer revisão"), quote=True)
+                        warning = f' <span class="abcd-level-attention" role="img" aria-label="Atenção: {reason}" title="{reason}">⚠</span>'
+                    rendered.append(f"<td{attrs}>{html.escape(str(value or '—'))}{warning}</td>")
+                row_attrs = f' data-face="{fid}" data-role="{family}" data-index="{index}"' if index >= 0 else ""
+                rows.append(f"<tr{row_attrs}>" + "".join(rendered) + "</tr>")
         cards.append(
             f'<div class="abcd-p-card" style="border-left:4px solid {colors[fid]}">'
             f'<div class="abcd-p-title" style="color:{colors[fid]}">'

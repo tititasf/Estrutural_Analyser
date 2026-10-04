@@ -23,8 +23,10 @@ obsoleto**. Serve a humanos, agentes (Claude Code, Codex) e à busca semântica
 
 1. **Decisão do dono registrada** ([DECISOES-DO-DONO.md](DECISOES-DO-DONO.md), com fonte).
    Uma decisão mais nova revoga a mais antiga sobre o mesmo ponto.
-2. **Números e estado** → sempre gerados: `docs/STATUS.md` (`scripts/arete/gerar_status.py`)
-   e o relatório mais recente em `scripts/arete/relatorios/`. Número escrito à mão envelhece.
+2. **Números e estado** → inventário vivo com ledger/set-diff e relatório datado mais
+   recente em `scripts/arete/relatorios/`, conferidos contra o ambiente de execução.
+   `docs/STATUS.md`/`scripts/arete/gerar_status.py` estão desconectados conforme
+   `CLAUDE.md`; não são autoridade atual de estado. Número escrito à mão envelhece.
 3. **Regras de trabalho** → `CLAUDE.md` do workspace e do repo (fonte única; `AGENTS.md`
    e `GEMINI.md` são ponteiros).
 4. **Procedimento e scripts válidos** → `docs/LOOPING-CANONICO.md` §1 (fora dele = não usar).
@@ -113,6 +115,27 @@ Robôs SCR legados (semântica original): `ROBO_SCR_PATTERNS.md`, `CALCULOS_ALGO
 | Entrega ponta a ponta com qualidade máxima | `docs/REGRA-ENTREGA-E2E-QUALIDADE-MAXIMA.md` |
 | Dúvida ao dono como ficha visual | `CLAUDE.md` regra 5d, `scripts/arete/gerar_duvida_html.py` |
 | Triagem de erros | `docs/ARETE-TRIAGEM-ERROS.md` |
+| QA SA, autoajuste, gates independentes e adoção humana | [QA-SA-AUTOAJUSTE-E-ADOCAO-HUMANA.md](../QA-SA-AUTOAJUSTE-E-ADOCAO-HUMANA.md) — contrato global; resultados e limites em relatórios datados |
+| Segunda leitura Jev opcional para dúvidas SA/N1 | `docs/SA-ANALISE/JEV-SEGUNDA-LEITURA-OPCIONAL.md` (procedimento), `.agents/skills/cad-jev-sa/SKILL.md` (uso por agentes), `scripts/arete/jev_sa_second_read.py` (CLI); companheira do Eixo B, sem escrita N1 |
+
+### Jev no vocabulário da KB global
+
+**O que representa:** Jev, modelo System One da TypeSafe, responde perguntas tipadas e pequenas sobre **evidência já recuperada**. Para nós, é uma segunda leitura semântica opcional do SA/N1: ajuda a selecionar entre candidatos reais do DXF, verificar se uma atribuição local tem suporte e identificar quando falta evidência. Soma-se a geometria CAD, SA, QA e leitura PNG agentica; não é parser DXF, motor N1, fonte de verdade, selo Arete nem treinamento por si só. Decisão do dono: [D-08](DECISOES-DO-DONO.md). D-08 registra a soma de forças (incluindo revisão humana como fato histórico do produto); a calibração Jev × SA/N1 adjudica com fonte+PNG agentico, regra determinística ou abstenção.
+
+**Quando procurar/usar:** conflito entre duas leituras plausíveis; divergência SA × CAD/QA; face ou célula de PIL/LV ambígua; abertura/apoio de FV sem prova **por segmento**; nível, `h=` ou apoio por aresta de LAJ com marcadores concorrentes. A pergunta deve citar item/campo, candidatos, handles, coordenadas e relação espacial do DXF fonte. Cálculo exato e topologia inequívoca continuam no código. Se faltar candidato ou contexto, `INSUFFICIENT` é resultado útil; não forçar uma escolha. O QA/PNG agentico decide a revisão; convenção física irresolúvel permanece indeterminada na calibração. D-07 continua a valer para dúvida de produto ao dono.
+
+**Onde encontrar a resposta certa:**
+
+| Necessidade | Documento ou ferramenta |
+|---|---|
+| Decidir gatilho, preparar JSON, comparar com SA e interpretar abstenção/controle | [`JEV-SEGUNDA-LEITURA-OPCIONAL.md`](../SA-ANALISE/JEV-SEGUNDA-LEITURA-OPCIONAL.md) — manual canônico; CLI `scripts/arete/jev_sa_second_read.py` e exemplo `scripts/arete/examples/jev_sa_second_read_l410.json` |
+| Aplicar em uma classe | `docs/SA-ANALISE/CLASSES/{PIL,LV,FV,LAJ}.md` — critérios físicos e campos; o manual Jev roteia as dúvidas |
+| Usar por agente ou evoluir integração | [skill CAD](../../.agents/skills/cad-jev-sa/SKILL.md) + [skill oficial TypeSafe](https://github.com/typesafe-ai/skills/tree/main/skills/typesafe-ai); para API/primitivas atuais, [índice vivo TypeSafe](https://docs.typesafe.ai/llms.txt) |
+| Entender hipóteses, pilotos 13/14_PAV, limites e próximos experimentos | `docs/MASTERPLAN-JEV-SA-EXPLORACAO.md` (estado de execução 2026-09-29) e o closeout de cobertura [`20260929_jev_calibracao_cobertura_closeout/RELATORIO.md`](../../scripts/arete/relatorios/20260929_jev_calibracao_cobertura_closeout/RELATORIO.md); catálogo v2 LV face×behavior [`20260929_jev_calibracao_catalog_v2_lv_cell/RELATORIO.md`](../../scripts/arete/relatorios/20260929_jev_calibracao_catalog_v2_lv_cell/RELATORIO.md) (13 `N1_DECISION_RELEVANT` **retirados**; auditoria [`20260929_jev_catalog_v2_lv_independent_audit/RELATORIO.md`](../../scripts/arete/relatorios/20260929_jev_catalog_v2_lv_independent_audit/RELATORIO.md)); Stage 1 source-first LV [`20260929_jev_catalog_v3_lv_source_encounter/RELATORIO.md`](../../scripts/arete/relatorios/20260929_jev_catalog_v3_lv_source_encounter/RELATORIO.md) (packed **0**); paridade VPS 25/09 e L410 históricos em `scripts/arete/relatorios/20260924_jev_14pav/vps_parity/RELATORIO.md` (evidência congelada, não estado ao vivo da VPS) |
+| Inventariar o que Jev/CAD/PNG/N1/QA extraem, medem e avaliam | [`JEV-CAPACIDADES-E-REGISTRO-DE-MEDICAO.md`](../SA-ANALISE/JEV-CAPACIDADES-E-REGISTRO-DE-MEDICAO.md) — registro durável; dados observados separados de hipóteses; gates para chamadas Jev futuras |
+| Saber se uma chamada aprova ou altera N1 | [D-08](DECISOES-DO-DONO.md) e `docs/LOOPING-CANONICO.md` §1: **não**; é sidecar de revisão, sem escrita automática |
+
+**Aprendizado cumulativo:** registre fonte/versão/hash, pergunta, candidatos, resposta Jev, controle sem evidência, veredito PNG agentico (dois revisores independentes) e efeito na triagem. Avalie ganho incremental do conjunto SA + CAD + Jev + visão por classe/gatilho, tempo e custo. Confiança de `Choice` é concentração entre opções, não prova física; saídas Jev não viram rótulo de treino. Corpus futuro usa consenso agentico fonte+PNG ou regra determinística, com proveniência; caso indeterminado fica fora do treino. A KB aponta esses documentos; o sqlite NIM vigente foi restaurado byte-a-byte de `KB-GLOBAL/kb_global.sqlite.bak-20260929_closeout` (SHA-256 `52B45E527032DD262865A9C9298A0F16CC423901BF12B9E8D19E16D623EF4DB9`). O texto de closeout de 29/09 **ainda não** está no FTS/vetores. Sem rebuild nesta rodada. Um resultado de busca ou de Jev não é prova.
 
 ---
 
@@ -169,3 +192,31 @@ a fonte e, em QA, evidência local da obra.
 3. Fonte com status `legado`/`candidato_obsoleto` não se segue; `historico` só explica.
 4. Conhecimento novo vai para o doc canônico do tema (nunca para a KB direto); a KB é
    reconstruída do texto. Decisão nova do dono → linha nova em DECISOES-DO-DONO.
+`docs/CONFIGURACAO-MODOS-N3.md` — configurações globais por modo/classe, controles ligados ao motor, preservação do padrão e limites da equivalência legada.
+
+
+### Consolidação de níveis — 2026-10-01
+
+Níveis integrados PIL/FV/LV/LAJ: [INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md](../INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md). Contém regras de regiões, degraus, cortes, match FV/LV, topo PIL, confiança e QA. Exemplos e decisões locais têm escopo; relatórios datados comprovam comportamento. Para estado atual, usar relatório recente + golden; `docs/STATUS.md`/gerar_status.py estão desconectados conforme CLAUDE.md e não são autoridade de estado. A nota de índice congelado em 29/09 é histórica: esta consolidação exige rebuild e verificação do índice publicado.
+
+
+### Pilares especiais — desenho Nova, 2026-10-03
+
+[Padrão Nova do CIMA especial](../PADRAO-NOVA-PILARES-ESPECIAIS-CIMA.md): aprovação L v26, regras de posicionamento, encontros, grades, parafusos, hachuras e cotas. U/T exigem avaliação própria e integração do motor exige regressão. Decisão N3-NOVA-PIL-ESPECIAL-CIMA-20261003.
+
+
+### Harmonia de níveis e confiança explicada — NIV-HARMONIA-GATES-20261003
+
+Fonte canônica: [manual integrado de níveis](../INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md), seção Harmonia de fontes, gates e explicação. Decisões NIV-HARMONIA-GATES-20261003 e NIV-CONFIANCA-EXPLICADA-20261003 em DECISOES-DO-DONO.md. QA: agente Aegis, evidence-gate-checklist e tarefa review-n1. Separar regra aprovada, implementação e resultado datado; RAG não confirma uma observação atual. Registro da consolidação documental: scripts/arete/relatorios/20261003-harmonia-conhecimento/RELATORIO.md. Desenvolvimento do motor está delegado a outra IA; esta atualização não implementa nem certifica o plano.
+
+### Caminho de evidência explicado — NIV-EVIDENCIA-CAMINHOS-20261003
+
+Implementação v18 do plano de harmonia: explicação por fato (`support_explanation`), salto de corte como fato próprio, melhor caminho validado, origem única por handles CAD. Fonte: [manual integrado de níveis](../INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md), seção NIV-EVIDENCIA-CAMINHOS-20261003; resultado datado em scripts/arete/relatorios/20261003-evidencia-caminhos/RELATORIO.md.
+
+### Datum comum com laje vizinha mais baixa — NIV-DATUM-COMUM-20261003
+
+Motor v19: fundo de viga entre laje no datum do pavimento e laje mais baixa fica no datum (degrau fechado pelo painel); laje acima → abstém. Fonte: [manual integrado de níveis](../INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md), seção NIV-DATUM-COMUM-20261003; resultado datado em scripts/arete/relatorios/20261003-faixas-sem-raiz/RELATORIO.md.
+
+### Nível de laje em camadas — NIV-LAJE-CAMADAS-20261003
+
+Motor v20: laje sem cota recebe nível por camadas. As vizinhas através de viga votam, com uma origem por voto e sem ciclicidade: unânimes têm teto 85, maioria tem teto 75, empate abstém; viga com degrau provado por pares CAD não transmite voto (v21). Asa de corte ≠ h só re-prova, porque o h declarado vence. Fonte: [manual integrado de níveis](../INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md), seção NIV-LAJE-CAMADAS-20261003; decisão em DECISOES-DO-DONO.md; resultado datado em scripts/arete/relatorios/20261003-camadas-laje/RELATORIO.md.

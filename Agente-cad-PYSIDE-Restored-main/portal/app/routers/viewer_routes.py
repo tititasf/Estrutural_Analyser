@@ -50,6 +50,7 @@ GRUPOS_VIEWER: tuple[tuple[str, str, tuple[str, ...]], ...] = (
     ("lat_b_passa", "Lat. B · Passa", ("lateral_b_passa",)),
     ("fundos", "Fundos de viga", ("fundo",)),
     ("lajes", "Lajes", ("lajes",)),
+    ("cortes", "Visão de Cortes", ("cortes",)),
 )
 
 # Recorte de torre = estrutural limpo. "detalhes" é a faixa de convenções, que
@@ -195,6 +196,8 @@ def _geometria_dos_itens(estado: dict, classe: str, transform) -> list[dict]:
     cliente é justamente como o recorte manual ficou acoplado no passado.
     """
     saida: list[dict] = []
+    classifications = {str(p.get("name") or p.get("key")): p.get("classification")
+                       for p in estado.get("pilares", [])} if classe == "pilares" else {}
     for item in ficha_reader.listar_itens_n1(estado, classe):
         pontos = item.get("points") or []
         if not pontos:
@@ -222,6 +225,11 @@ def _geometria_dos_itens(estado: dict, classe: str, transform) -> list[dict]:
         saida.append({
             "item_id": item.get("item_id"),
             "classe_sa": classe,
+            "classification": classifications.get(str(item.get("item_id"))),
+            "highlight_color": item.get("highlight_color"),
+            "cut_kind": item.get("cut_kind"),
+            "degraus": [{**step, "pontos_px": [transform.dxf_para_px(float(p[0]), float(p[1]))
+                         for p in step['points']]} for step in item.get('slab_steps') or []],
             "rotulo": _rotulo(item, classe),
             "beam_name": item.get("beam_name"),
             "segmento": campos.get("Segmento"),
@@ -269,6 +277,9 @@ def viewer_pavimento_endpoint(
     grupos: list[dict] = []
     if estado is not None:
         for grupo, rotulo, classes_sa in GRUPOS_VIEWER:
+            modo = str(obra.get("comportamento") or "misto").lower()
+            if modo != "misto" and grupo.startswith("lat_") and not grupo.endswith("_" + modo):
+                continue
             itens: list[dict] = []
             for classe in classes_sa:
                 itens.extend(_geometria_dos_itens(estado, classe, transform))
@@ -278,6 +289,26 @@ def viewer_pavimento_endpoint(
                     "fora_do_frame": sum(1 for i in itens if i["fora_do_frame"]),
                     "itens": itens,
                 })
+
+    from ..structural_cut_overlay import viewer_groups
+    # The preprocessing collection is source/revision scoped and remains usable
+    # before a production SA has ever run. Later SA snapshots regenerate pairs.
+    from ..preprocessamento.service import read_floor, read_tower
+    from ..preprocessamento.freshness import changed_sources
+    floor_package = read_floor(obra_dir, pavimento)
+    frozen = None
+    if floor_package:
+        matches = [s for s in floor_package['sources'] if s['kind'] == 'tower'
+                   and (obra_dir / s['relative_path']).resolve() == caminho.resolve()]
+        if len(matches) == 1:
+            package = read_tower(obra_dir, floor_package, matches[0]['source_id'])
+            if not changed_sources(obra_dir, package['sources']):
+                frozen = package.get('beam_sections') or None
+    if estado is not None:
+        grupos = viewer_groups(obra_dir, pavimento, estado, transform, grupos,
+                               str(obra.get('comportamento') or 'misto').lower())
+    elif frozen:
+        grupos = viewer_groups(obra_dir, pavimento, {}, transform, grupos, inventory=frozen)
 
     return {
         "obra_id": obra_id,
@@ -505,6 +536,9 @@ def criar_item_endpoint(
     obra_dir = _obra_dir(request, obra)
 
     classe = _GRUPO_PARA_CLASSE.get(payload.grupo)
+    modo = str(obra.get("comportamento") or "misto").lower()
+    if modo != "misto" and payload.grupo.startswith("lat_") and not payload.grupo.endswith("_" + modo):
+        raise HTTPException(status_code=404, detail="grupo indisponível para esta obra")
     if classe is None:
         raise HTTPException(status_code=422, detail=f"grupo desconhecido: {payload.grupo}")
     if len(payload.poligono_px) < 3:

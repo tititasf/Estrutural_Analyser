@@ -51,7 +51,7 @@ describe("Ficha do Item — renderização por combinação de abas", () => {
     render(<FichaPage params={{ code: "ITEMCODE01" }} />);
 
     expect(await screen.findByText("Pilar P1")).toBeInTheDocument();
-    for (const nome of ["Estrutural Limpo", "Destaque no Estrutural", "Desenho Técnico", "PAINÉIS", "Materiais e Construção"]) {
+    for (const nome of ["Estrutural Limpo", "Destaque no Estrutural", "Desenho Técnico, Materiais e Construção"]) {
       expect(screen.getByRole("tab", { name: nome })).toBeInTheDocument();
     }
   });
@@ -67,7 +67,7 @@ describe("Ficha do Item — renderização por combinação de abas", () => {
     await screen.findByText("Pilar P1");
     expect(screen.getByRole("tab", { name: "Estrutural Limpo" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "Destaque no Estrutural" })).toBeInTheDocument();
-    expect(screen.queryByRole("tab", { name: "Desenho Técnico" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("tab", { name: "Desenho Técnico, Materiais e Construção" })).not.toBeInTheDocument();
     expect(screen.queryByRole("tab", { name: "Materiais e Construção" })).not.toBeInTheDocument();
   });
 

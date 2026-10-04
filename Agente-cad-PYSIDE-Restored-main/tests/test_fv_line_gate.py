@@ -32,6 +32,21 @@ def test_fundo_sobre_as_paredes_passa_intocado():
     assert "fv_line_gate" not in item and item["points"] == _rect(20, 280, 0, 19)
 
 
+def test_painel_de_um_cm_e_auditado_no_eixo_da_viga():
+    for horizontal in (True, False):
+        points = _rect(20, 21, 0, 19) if horizontal else _rect(0, 19, 20, 21)
+        walls = LINES if horizontal else [
+            {"start": (0, 0), "end": (0, 300)},
+            {"start": (19, 0), "end": (19, 300)},
+        ]
+        beam, item = _beam(points)
+        beam["fv_is_h"] = horizontal
+        report = audit_fv_lines_all([beam], [], walls)
+        assert report["ok"] == 1
+        assert item["points"] == points
+        assert not report[STATUS_ANULADO]
+
+
 def test_fundo_deslocado_uma_largura_e_reparado_no_par_de_linhas():
     # Caso V304/V308 do 13_PAV: uma borda na parede, a outra 19 cm para fora.
     beam, item = _beam(_rect(20, 280, -19, 0))

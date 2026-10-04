@@ -821,6 +821,7 @@ class FundoVigaInterpreter:
         Vínculos realmente validados nunca são tocados. O vão vem da topologia
         interpretada e a largura vem da dimensão estrutural do próprio segmento.
         """
+        cls.normalize_dimension_from_own_geometry(beam)
         # Topologia: quebrar vãos onde viga mais funda cruza (antes de reparar
         # contornos). Idempotente; preserva validated. Headless e load-on-open
         # passam por aqui — o desktop já aplica em process_beam_fv, mas a
@@ -1835,6 +1836,107 @@ class FundoVigaInterpreter:
         return (min(ys), max(ys), sum(xs) / len(xs))
 
     @classmethod
+    def normalize_dimension_from_own_geometry(cls, beam: dict) -> bool:
+        """Corrige a cota global FV quando ela veio da secao de um pilar.
+
+        O tracer guarda em ``lv_dimension_text`` a cota B/H escolhida contra
+        o fundo classificado da propria viga (o nome e' historico: nao e' um
+        resultado LV nem uma copia da ficha de laterais). A selecao generica
+        de campos ainda podia usar o primeiro texto B/H da nuvem e capturar a
+        secao empilhada sob um pilar — VF301 recebia ``19/66`` de P1 no lugar
+        de ``14/55``.
+
+        A troca exige prova local: o texto sobrevive ao filtro de pilar, cai
+        no vao axial e fica perto de uma linha/contorno do proprio fundo.
+        Campo validado por humano congela a dimensao.
+        """
+        if not isinstance(beam, dict):
+            return False
+        frozen = {
+            str(item) for item in (beam.get("validated_fields") or []) if item
+        }
+        if "dimensao" in frozen:
+            return False
+        geometry = beam.get("geometry") or {}
+        if not isinstance(geometry, dict):
+            return False
+        candidate = geometry.get("lv_dimension_text")
+        if not isinstance(candidate, dict):
+            return False
+        text = str(candidate.get("text") or "").strip()
+        if cls._parse_height_pair(text) is None:
+            return False
+        pos = candidate.get("pos")
+        if not isinstance(pos, (list, tuple)) or len(pos) < 2:
+            return False
+        try:
+            point = (float(pos[0]), float(pos[1]))
+        except (TypeError, ValueError):
+            return False
+
+        pool = [candidate]
+        pool.extend(geometry.get("dimension_texts") or [])
+        pool.extend(geometry.get("texts") or [])
+        if not any(item is candidate for item in cls.drop_pillar_section_texts(pool)):
+            return False
+
+        classified = geometry.get("classified") or {}
+        is_horizontal = bool(beam.get("fv_is_h", beam.get("is_h", True)))
+        axis = 0 if is_horizontal else 1
+        trans_axis = 1 - axis
+        coords = cls._coords_as_tuples(
+            classified.get("merged_bottom_groups_coords") or []
+        )
+        if not coords:
+            return False
+        axis_min = min(start for start, _ in coords)
+        axis_max = max(end for _, end in coords)
+        if not (
+            axis_min - cls._DIM_AXIS_END_PAD
+            <= point[axis]
+            <= axis_max + cls._DIM_AXIS_END_PAD
+        ):
+            return False
+
+        transverse_refs: list[float] = []
+        for line in (
+            list(classified.get("seg_bottom") or [])
+            + list(classified.get("seg_side_a") or [])
+            + list(classified.get("seg_side_b") or [])
+        ):
+            for raw_point in line or []:
+                try:
+                    transverse_refs.append(float(raw_point[trans_axis]))
+                except (TypeError, ValueError, IndexError):
+                    continue
+        for slots_key, slots in (beam.get("links") or {}).items():
+            if not re.match(r"^viga_fundo_seg_\d+_area_segs$", str(slots_key)):
+                continue
+            contour = ((slots or {}).get("contour") or [{}])[0]
+            if not isinstance(contour, dict):
+                continue
+            for raw_point in contour.get("points") or []:
+                try:
+                    transverse_refs.append(float(raw_point[trans_axis]))
+                except (TypeError, ValueError, IndexError):
+                    continue
+        if not transverse_refs or min(
+            abs(point[trans_axis] - value) for value in transverse_refs
+        ) > cls._DIM_TRANSVERSE_PAD:
+            return False
+
+        fields = beam.setdefault("fields", {})
+        previous = fields.get("dimensao")
+        if str(previous or "").strip() == text:
+            return False
+        fields["dimensao"] = text
+        if not beam.get("dim") or beam.get("dim") == previous:
+            beam["dim"] = text
+        geometry["fv_dimension_text"] = dict(candidate)
+        geometry["fv_dimension_source"] = "own_classified_geometry"
+        return True
+
+    @classmethod
     def assign_segment_dimensions_from_texts(cls, beam: dict) -> int:
         """Associa cada painel FV à cota W/H mais próxima no próprio vão.
 
@@ -2269,6 +2371,7 @@ class FundoVigaInterpreter:
         """
         if not isinstance(beam, dict):
             return False
+        cls.normalize_dimension_from_own_geometry(beam)
         if cls._beam_has_validated_fundo(beam):
             return False
         geometry = beam.setdefault("geometry", {})

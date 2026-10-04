@@ -38,6 +38,29 @@ def test_cut_ficha_rejects_geometric_neighbor_height_that_creates_negative_clear
     assert "d_topo(30) = 11 cm" in ficha["neigh_dist_fundo_formula"]
 
 
+def test_annotated_height_wins_even_with_positive_geometric_clearances():
+    window = MainWindow.__new__(MainWindow)
+    window._points_bbox_tuple = lambda pts: (0, 0, 10, 10)
+    window._bbox_center_tuple = lambda bbox: (5, 5)
+    window._slab_cut_direction = lambda slab, pts: 'Sul'
+    window._neighbor_by_direction = lambda *args: {'name': 'L2'}
+    window._slab_height_value = lambda slab: '12'
+    window._slab_dim_text = lambda slab: 'h=12'
+    window._find_cut_view_cotas = lambda *args: dict(all_cotas=[], beam_height_cota=None, scale_v=1.0, bw_cota=None)
+    window._parse_cut_poly_sections = lambda *args: dict(beam_height=55, bw=19,
+        own_slab_h=10, neigh_slab_h=10, own_dist_topo=7, own_dist_fundo=38,
+        neigh_dist_topo=0, neigh_dist_fundo=45)
+    window._nearest_dxf_text = lambda *args, **kwargs: None
+    link = {'points': [[0,0],[1,0],[1,1],[0,1]], 'ficha': {}}
+    window._auto_fill_cut_view_ficha({'name': 'L1'}, link, [], {})
+    ficha = link['ficha']
+    assert float(ficha['own_slab_height']) == 12
+    assert float(ficha['own_dist_top']) == 7
+    assert float(ficha['own_dist_bottom']) == 36
+    assert float(ficha['neigh_slab_height']) == 12
+    assert float(ficha['neighbor_dist_bottom']) == 43
+
+
 def test_sealed_slab_preserves_cut_geometry_but_refreshes_inferred_cut_formula():
     points = [[0, 0], [10, 0], [10, 5], [0, 5], [0, 0]]
     old = {

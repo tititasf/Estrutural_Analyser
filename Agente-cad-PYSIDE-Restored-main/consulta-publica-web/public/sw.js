@@ -11,9 +11,22 @@ const ULTIMO_ITEM_CACHE = "consulta-publica-ultimo-item-v1";
 const SVG_RE = /\/api\/v1\/ficha\/[^/]+\/svg\/(n1|n3)$/;
 const JSON_FICHA_OU_OBRA_RE = /\/api\/v1\/(ficha|obra)\//;
 
+// Paths do app-shell com o basePath correto (/consulta/).
+// Usamos fetch individual em vez de addAll para não abortar tudo se
+// uma URL falhar (addAll é atômico — 1 falha = nenhum item cacheado).
+const APP_SHELL_URLS = ["/consulta/", "/consulta/manifest.json"];
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(APP_SHELL_CACHE).then((cache) => cache.addAll(["/", "/manifest.json"])),
+    caches.open(APP_SHELL_CACHE).then(async (cache) => {
+      await Promise.allSettled(
+        APP_SHELL_URLS.map((url) =>
+          fetch(url)
+            .then((resp) => { if (resp.ok) return cache.put(url, resp); })
+            .catch(() => {}),
+        ),
+      );
+    }),
   );
   self.skipWaiting();
 });

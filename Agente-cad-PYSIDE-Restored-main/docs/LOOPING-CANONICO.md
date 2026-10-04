@@ -160,6 +160,23 @@ O RAG é parceiro consultivo do QA, não um segundo juiz: regras/exemplos T1/T2
 citam fonte e ajudam a formular hipótese; evidência do item atual e veredito
 visual continuam mandatórios. Ver `CONTRATO-QA-RAG-LOOPINGS.md`.
 
+#### Segunda leitura Jev (opcional, companheira do Eixo B)
+
+Quando um dossiê N1 trouxer uma dúvida **localizada** com candidatos do DXF fonte,
+o agente pode preparar um JSON pequeno e consultar
+`scripts/arete/jev_sa_second_read.py --request ... --execute --output ...`.
+O helper grava um sidecar com escolha, abstenção/controle e proveniência; **não**
+é headless, gate visual, scorer, `apply` nem fonte para escrever N1. Seu uso é
+opt-in e não requer que Jev supere CAD/SA isolados: ele soma uma segunda leitura
+à triagem. O fluxo de diagnóstico, PNG, correção e reverificação acima permanece
+o único loop. Gatilhos, exemplo L410, limites e integração futura:
+`docs/SA-ANALISE/JEV-SEGUNDA-LEITURA-OPCIONAL.md`.
+
+Desde 29/09, `qa_evidence_auditor.py review` também aceita pacotes Jev preparados
+com `--jev-request`, `--jev-source-dxf` e `--jev-execute`, validando fonte e
+snapshot antes da chamada. Choice/Noul/Score e seus controles geram somente
+sidecars consultivos; `scores_itens.jsonl`, decisões e gates não mudam.
+
 Microciclos com múltiplas tentativas usam o estado persistente oficial:
 
 ```bash

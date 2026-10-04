@@ -11,8 +11,18 @@ def test_human_source_or_two_independent_cuts_are_supported():
     direct = {"value": 852.19, "confidence": 0.80, "source_slab": "L1", "human_source": True}
     assert select_supported_cut_delta([direct]) is direct
     a = {"value": 852.19, "confidence": 0.55, "source_slab": "L1", "human_source": False}
-    b = {"value": 852.20, "confidence": 0.55, "source_slab": "L2", "human_source": False}
+    b = {"value": 852.192, "confidence": 0.55, "source_slab": "L2", "human_source": False}
     assert select_supported_cut_delta([a, b]) in (a, b)
+
+
+def test_cut_consensus_tolerance_is_centimetres_not_metres():
+    def cut(value, source):
+        return {'value': value, 'confidence': .55, 'source_slab': source}
+    assert select_supported_cut_delta([cut(852.12,'L1'),cut(852.19,'L2')]) is None
+    assert select_supported_cut_delta([cut(852.12,'L1'),cut(852.13,'L2')]) is None
+    assert select_supported_cut_delta([cut(852.12,'L1'),cut(852.122,'L2')]) is not None
+    assert select_supported_cut_delta([cut(852.12,'L1'),cut(852.12,'L2'),
+                                       cut(852.19,'L3'),cut(852.19,'L4')]) is None
 
 
 from src.core.slab_level_inference import (  # noqa: E402
@@ -260,3 +270,10 @@ def test_continuar_a_faixa_distingue_vizinha_lateral_de_empilhada():
 
     assert _continues_strip(alvo, lateral, 25.0) is True
     assert _continues_strip(alvo, empilhada, 25.0) is False
+
+
+def test_conflicting_human_cut_sources_require_review():
+    from src.core.slab_level_inference import select_supported_cut_delta
+    assert select_supported_cut_delta([
+        {'value': 852.12, 'human_source': True, 'source_slab': 'L1'},
+        {'value': 852.19, 'human_source': True, 'source_slab': 'L2'}]) is None

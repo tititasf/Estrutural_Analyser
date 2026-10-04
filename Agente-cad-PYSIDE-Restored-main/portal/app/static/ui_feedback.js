@@ -4,7 +4,6 @@
   if (!cfg) return;
 
   var startButton = document.getElementById('ui-feedback-start');
-  var addPageNavButton = document.getElementById('ui-feedback-add-page');
   var openButton = document.getElementById('ui-feedback-open');
   var dialog = document.getElementById('ui-feedback-dialog');
   var editor = document.getElementById('ui-feedback-editor');
@@ -461,7 +460,6 @@
     var label=startButton.querySelector('.nav-texto');
     if (label) label.textContent=draft?'Continuar apontamento':'Fazer apontamento';
     startButton.title=draft?'Abrir o rascunho do apontamento':'Selecione qualquer elemento desta página para registrar um comentário';
-    addPageNavButton.hidden=!draft;
   }
 
   function syncDraftFromEditor() {
@@ -545,6 +543,44 @@
     });
   }
 
+  function attachmentHtml(point, pointIndex, saved) {
+    return '<div class="ui-feedback-attachments">'+(point.anexos||[]).map(function(file,index){
+      var url=saved?'/apontamentos-ui/'+encodeURIComponent(point.id)+'/anexos/'+encodeURIComponent(file.id):file.data_url;
+      var image=saved?/^image\/(png|jpeg|webp|gif)$/.test(file.mime):/^data:image\/(png|jpeg|webp|gif);base64,/.test(url);
+      return '<div class="ui-feedback-attachment">'+(image?'<img src="'+esc(url+(saved?'?preview=true':''))+'" alt="'+esc(file.nome)+'">':'')+
+        '<a href="'+esc(url)+'" download="'+esc(file.nome)+'">'+esc(file.nome)+'</a>'+
+        (!saved?'<button type="button" data-ui-feedback-remove-file="'+pointIndex+':'+index+'">Remover anexo</button>':'')+'</div>';
+    }).join('')+'</div>';
+  }
+
+  function addFilesToPoint(files, pointIndex) {
+    syncDraftFromEditor();
+    var page=draft&&draft.pages[activePageIndex], point=page&&page.points[pointIndex];
+    if(!point)return;
+    var work=Promise.resolve();
+    Array.from(files).forEach(function(file){work=work.then(function(){
+      if(!file.size||file.size>15000000)throw new Error('Cada arquivo deve ter entre 1 byte e 15 MB.');
+      if((point.anexos||[]).length>=10)throw new Error('Máximo de 10 anexos por ponto.');
+      var total=draft.pages.reduce(function(n,p){return n+p.points.reduce(function(m,pt){return m+(pt.anexos||[]).reduce(function(t,a){return t+(a.tamanho||0);},0);},0);},0);
+      if(total+file.size>25000000)throw new Error('Os anexos do apontamento excedem 25 MB.');
+      return new Promise(function(resolve,reject){var reader=new FileReader();
+        reader.onerror=function(){reject(new Error('Não foi possível ler '+file.name));};
+        reader.onload=function(){
+          if(!draft||!draft.pages.includes(page)||!page.points.includes(point)){resolve();return;}
+          point.anexos=point.anexos||[];
+          point.anexos.push({nome:file.name.slice(0,255),data_url:reader.result,tamanho:file.size});
+          storeDraft().then(resolve,reject);
+        };
+        reader.readAsDataURL(file);
+      });
+    });});
+    work=work.then(function(){syncDraftFromEditor();renderDraft();}).catch(function(error){
+      renderDraft();message.className='ui-feedback-message error';message.textContent=error.message;
+    });
+    pendingWork.push(work);
+    work.finally(function(){var index=pendingWork.indexOf(work);if(index>=0)pendingWork.splice(index,1);});
+  }
+
   function renderDraft() {
     if (!draft || !draft.pages.length) return;
     editor.hidden=false; history.hidden=true; sessionViewer.hidden=true;
@@ -556,13 +592,21 @@
     var activePoint=page.points[activePointIndex];
     var capture='<div class="ui-feedback-capture-loading">Preparando captura…</div>';
     if(activePoint&&activePoint.screenshot) capture='<img src="'+activePoint.screenshot+'" alt="Captura marcada do ponto '+(activePointIndex+1)+' da página '+(activePageIndex+1)+'">';
-    pointsBox.innerHTML='<section class="ui-feedback-capture-stage" aria-label="Captura da página selecionada"><div class="ui-feedback-page-summary"><div><b>Página '+(activePageIndex+1)+' · ponto '+(activePointIndex+1)+' de '+page.points.length+pointNav(activePointIndex,page.points.length,'data-ui-feedback-step-point')+'</b><span>'+esc(page.url)+'</span></div><a href="'+esc(page.url)+'">Abrir localização ↗</a></div><div class="ui-feedback-point-media" data-ui-feedback-zoom tabindex="0" aria-label="Captura com zoom. Use a roda do mouse para ampliar ou reduzir e arraste para mover."><div class="ui-feedback-zoom-tools"><span data-ui-feedback-zoom-level>100%</span><button type="button" data-ui-feedback-zoom-reset>Redefinir zoom</button></div>'+capture+'</div></section><section class="ui-feedback-comments-pane" aria-label="Apontamentos desta página"><div class="ui-feedback-comments-head"><div><b>Apontamentos desta página</b><span>Selecione um ponto para visualizar sua captura acima.</span></div><strong>'+page.points.length+' ponto(s)</strong></div><div class="ui-feedback-comments-scroll">'+page.points.map(function(point,index){var context=pointContext(point);return '<article class="ui-feedback-point-card'+(index===activePointIndex?' active':'')+'"><div class="ui-feedback-point-card-head"><button type="button" class="ui-feedback-point-select" data-ui-feedback-show-point="'+index+'" aria-pressed="'+(index===activePointIndex?'true':'false')+'"><span class="ui-feedback-point-number">'+(index+1)+'</span><span>Ver captura do ponto '+(index+1)+'</span></button><button type="button" class="ui-feedback-remove-point" data-ui-feedback-remove-point="'+index+'">Remover ponto</button></div><div class="ui-feedback-point-form"><div class="ui-feedback-selected-meta"><b>'+esc(point.info.tag+(point.info.role?' · '+point.info.role:''))+'</b><span>'+esc(point.info.selector)+'</span>'+(context?'<span><strong>Contexto:</strong> '+esc(context)+'</span>':'')+(point.info.text?'<span>“'+esc(point.info.text.slice(0,260))+(point.info.text.length>260?'…':'')+'”</span>':'')+'</div><label>O que deve ser ajustado neste ponto?<textarea maxlength="4000" rows="3" data-ui-feedback-point-text="'+index+'" placeholder="Descreva o comportamento esperado ou o problema observado">'+esc(point.text||'')+'</textarea></label></div></article>';}).join('')+'</div></section>';
+    pointsBox.innerHTML='<section class="ui-feedback-capture-stage" aria-label="Captura da página selecionada"><div class="ui-feedback-page-summary"><div><b>Página '+(activePageIndex+1)+' · ponto '+(activePointIndex+1)+' de '+page.points.length+pointNav(activePointIndex,page.points.length,'data-ui-feedback-step-point')+'</b><span>'+esc(page.url)+'</span></div><a href="'+esc(page.url)+'">Abrir localização ↗</a></div><div class="ui-feedback-point-media" data-ui-feedback-zoom tabindex="0" aria-label="Captura com zoom. Use a roda do mouse para ampliar ou reduzir e arraste para mover."><div class="ui-feedback-zoom-tools"><span data-ui-feedback-zoom-level>100%</span><button type="button" data-ui-feedback-zoom-reset>Redefinir zoom</button></div>'+capture+'</div></section><section class="ui-feedback-comments-pane" aria-label="Apontamentos desta página"><div class="ui-feedback-comments-head"><div><b>Apontamentos desta página</b><span>Selecione um ponto para visualizar sua captura acima.</span></div><strong>'+page.points.length+' ponto(s)</strong></div><div class="ui-feedback-comments-scroll">'+page.points.map(function(point,index){var context=pointContext(point);return '<article class="ui-feedback-point-card'+(index===activePointIndex?' active':'')+'"><div class="ui-feedback-point-card-head"><button type="button" class="ui-feedback-point-select" data-ui-feedback-show-point="'+index+'" aria-pressed="'+(index===activePointIndex?'true':'false')+'"><span class="ui-feedback-point-number">'+(index+1)+'</span><span>Ver captura do ponto '+(index+1)+'</span></button><button type="button" class="ui-feedback-remove-point" data-ui-feedback-remove-point="'+index+'">Remover ponto</button></div><div class="ui-feedback-point-form"><div class="ui-feedback-selected-meta"><b>'+esc(point.info.tag+(point.info.role?' · '+point.info.role:''))+'</b><span>'+esc(point.info.selector)+'</span>'+(context?'<span><strong>Contexto:</strong> '+esc(context)+'</span>':'')+(point.info.text?'<span>“'+esc(point.info.text.slice(0,260))+(point.info.text.length>260?'…':'')+'”</span>':'')+'</div><label>O que deve ser ajustado neste ponto?<textarea maxlength="4000" rows="3" data-ui-feedback-point-text="'+index+'" placeholder="Descreva o comportamento esperado ou o problema observado">'+esc(point.text||'')+'</textarea></label><small>Cole um print aqui (Ctrl+V) ou use Subir arquivo para anexar ao ponto selecionado.</small>'+attachmentHtml(point,index,false)+'</div></article>';}).join('')+'</div></section>';
     setupImageZoom(pointsBox);
     pageTabs.querySelectorAll('[data-ui-feedback-page]').forEach(function(button){button.addEventListener('click',function(){syncDraftFromEditor();activePageIndex=Number(button.dataset.uiFeedbackPage);renderDraft();storeDraft();});});
     pointsBox.querySelectorAll('[data-ui-feedback-step-point]').forEach(function(button){button.addEventListener('click',function(){syncDraftFromEditor();page.activePoint=Math.max(0,Math.min(page.points.length-1,activePointIndex+Number(button.dataset.uiFeedbackStepPoint)));renderDraft();storeDraft();});});
     pointsBox.querySelectorAll('[data-ui-feedback-show-point]').forEach(function(button){button.addEventListener('click',function(){syncDraftFromEditor();page.activePoint=Number(button.dataset.uiFeedbackShowPoint);renderDraft();storeDraft();});});
     pointsBox.querySelectorAll('[data-ui-feedback-remove-point]').forEach(function(button){button.addEventListener('click',function(){syncDraftFromEditor();var index=Number(button.dataset.uiFeedbackRemovePoint);page.points.splice(index,1);page.activePoint=Math.max(0,Math.min(Number(page.activePoint)||0,page.points.length-1));if(!page.points.length){draft.pages.splice(activePageIndex,1);activePageIndex=Math.max(0,activePageIndex-1);}if(!draft.pages.length){draft=null;if(dialog.open)dialog.close();}else renderDraft();storeDraft();});});
     pointsBox.querySelectorAll('[data-ui-feedback-point-text]').forEach(function(field){field.addEventListener('input',function(){syncDraftFromEditor();storeDraft();});});
+    pointsBox.querySelectorAll('[data-ui-feedback-point-text]').forEach(function(field){field.addEventListener('paste',function(event){
+      var files=Array.from(event.clipboardData&&event.clipboardData.items||[]).filter(function(item){return item.kind==='file'&&item.type.startsWith('image/');}).map(function(item){return item.getAsFile();}).filter(Boolean);
+      if(files.length){event.preventDefault();addFilesToPoint(files,Number(field.dataset.uiFeedbackPointText));}
+    });});
+    pointsBox.querySelectorAll('[data-ui-feedback-remove-file]').forEach(function(button){button.addEventListener('click',function(){
+      syncDraftFromEditor();var indexes=button.dataset.uiFeedbackRemoveFile.split(':').map(Number);
+      page.points[indexes[0]].anexos.splice(indexes[1],1);renderDraft();storeDraft();
+    });});
     message.className='ui-feedback-message'; message.textContent='Rascunho salvo automaticamente. Você pode minimizar e navegar sem perder as capturas.';
     document.getElementById('ui-feedback-dialog-title').textContent='Montar apontamento';
     document.getElementById('ui-feedback-dialog-subtitle').textContent='Várias páginas e pontos dentro do mesmo apontamento';
@@ -791,7 +835,10 @@
   }
 
   function beginSelection(intent) {
-    lastTrigger=intent==='new'?addPageNavButton:startButton; syncDraftFromEditor();
+    lastTrigger=startButton; syncDraftFromEditor();
+    // Navegar após minimizar já determina a página do próximo ponto.
+    var currentPage=draft&&draft.pages[activePageIndex];
+    if(!currentPage || currentPage.url!==window.location.href) intent='new';
     storeDraft().then(function(){if(dialog.open)dialog.close();cancelSelection();selectionIntent=intent||'same';selecting=true;document.body.classList.add('ui-feedback-selecting');modeHint.hidden=false;modeHint.textContent=(selectionIntent==='new'?'Clique no primeiro ponto da nova página':'Clique em outro ponto desta página')+' ou arraste um box · Esc cancela';document.addEventListener('pointermove',hoverTarget,true);document.addEventListener('pointerdown',startBox,true);document.addEventListener('click',chooseTarget,true);document.addEventListener('keydown',cancelWithEscape,true);});
   }
 
@@ -815,7 +862,7 @@
     return copy;
   }
 
-  function pointPayload(point,page) { return {texto:pointText(point).slice(0,4000),pagina_url:page.url,pagina_titulo:page.title,seletor_elemento:point.info.selector,elemento_tag:point.info.tag,elemento_role:point.info.role,elemento_texto:point.info.text,elemento:{version:3,target:point.info,pageState:point.pageState,selection:fitSelection(point),capture:{mime:point.screenshot?point.screenshot.slice(5,point.screenshot.indexOf(';')):null,scale:captureScale(),width:Math.round(point.viewportWidth*captureScale()),height:Math.round(point.viewportHeight*captureScale())}},clique_x:point.clickX!=null?point.clickX:(point.info.rect?point.info.rect.left+point.info.rect.width/2:null),clique_y:point.clickY!=null?point.clickY:(point.info.rect?point.info.rect.top+point.info.rect.height/2:null),pagina_x:point.pageX,pagina_y:point.pageY,viewport_largura:point.viewportWidth,viewport_altura:point.viewportHeight,captura_data_url:point.screenshot}; }
+  function pointPayload(point,page) { return {texto:pointText(point).slice(0,4000),pagina_url:page.url,pagina_titulo:page.title,seletor_elemento:point.info.selector,elemento_tag:point.info.tag,elemento_role:point.info.role,elemento_texto:point.info.text,elemento:{version:3,target:point.info,pageState:point.pageState,selection:fitSelection(point),capture:{mime:point.screenshot?point.screenshot.slice(5,point.screenshot.indexOf(';')):null,scale:captureScale(),width:Math.round(point.viewportWidth*captureScale()),height:Math.round(point.viewportHeight*captureScale())}},clique_x:point.clickX!=null?point.clickX:(point.info.rect?point.info.rect.left+point.info.rect.width/2:null),clique_y:point.clickY!=null?point.clickY:(point.info.rect?point.info.rect.top+point.info.rect.height/2:null),pagina_x:point.pageX,pagina_y:point.pageY,viewport_largura:point.viewportWidth,viewport_altura:point.viewportHeight,captura_data_url:point.screenshot,anexos:(point.anexos||[]).map(function(file){return {nome:file.nome,data_url:file.data_url};})}; }
 
   function saveSession() {
     if(pendingWork.length){message.className='ui-feedback-message';message.textContent='Lendo o estrutural do box…';Promise.all(pendingWork).then(saveSession,saveSession);return;}
@@ -933,7 +980,7 @@
     viewerMeta.textContent=(viewedSession.autor_nome||viewedSession.autor_login)+' · '+formatDate(viewedSession.created_at)+' · '+pages.length+' página(s)';
     viewerTabs.innerHTML=pages.map(function(item,index){return '<button type="button" role="tab" aria-selected="'+(index===viewedPageIndex?'true':'false')+'" data-ui-feedback-view-page="'+index+'">Página '+(index+1)+'<small>'+esc(item.pagina_titulo||'Página do portal')+'</small><b>'+item.pontos.length+' ponto(s)</b></button>';}).join('');
     var capture=point&&point.tem_captura?'<img src="/apontamentos-ui/'+encodeURIComponent(point.id)+'/captura" alt="Captura marcada do ponto '+(viewedPointIndex+1)+' da página '+(viewedPageIndex+1)+'">':'<div class="ui-feedback-capture-loading">Este ponto não possui captura.</div>';
-    viewerPoints.innerHTML='<section class="ui-feedback-capture-stage" aria-label="Captura registrada"><div class="ui-feedback-page-summary"><div><b>Página '+(viewedPageIndex+1)+' · ponto '+(viewedPointIndex+1)+' de '+points.length+pointNav(viewedPointIndex,points.length,'data-ui-feedback-step-view-point')+'</b><span>'+esc(page.pagina_url)+'</span></div>'+(point?'<a href="'+esc(feedbackRestoreUrl(page.pagina_url,point))+'" data-ui-feedback-view-restore="'+esc(point.id)+'">Abrir estado registrado ↗</a>':'')+'</div><div class="ui-feedback-point-media" data-ui-feedback-zoom tabindex="0" aria-label="Captura com zoom. Use a roda do mouse para ampliar ou reduzir e arraste para mover."><div class="ui-feedback-zoom-tools"><span data-ui-feedback-zoom-level>100%</span><button type="button" data-ui-feedback-zoom-reset>Redefinir zoom</button></div>'+capture+'</div></section><section class="ui-feedback-comments-pane" aria-label="Comentários registrados"><div class="ui-feedback-comments-head"><div><b>Apontamentos desta página</b><span>Selecione um ponto para visualizar sua captura acima.</span></div><strong>'+points.length+' ponto(s)</strong></div><div class="ui-feedback-comments-scroll">'+points.map(function(item,index){var state=item.elemento&&item.elemento.pageState,context=state&&state.context,contextText=context?[context.item,context.layer,context.side,context.segment].filter(Boolean).join(' · '):'';return '<article class="ui-feedback-point-card'+(index===viewedPointIndex?' active':'')+'"><div class="ui-feedback-point-card-head"><button type="button" class="ui-feedback-point-select" data-ui-feedback-view-point="'+index+'" aria-pressed="'+(index===viewedPointIndex?'true':'false')+'"><span class="ui-feedback-point-number">'+(index+1)+'</span><span>Ver captura do ponto '+(index+1)+'</span></button><a href="'+esc(feedbackRestoreUrl(page.pagina_url,item))+'" data-ui-feedback-view-restore="'+esc(item.id)+'">Abrir estado deste ponto ↗</a></div><div class="ui-feedback-selected-meta">'+(contextText?'<span><strong>Contexto:</strong> '+esc(contextText)+'</span>':'')+(item.elemento_texto?'<span>“'+esc(item.elemento_texto.slice(0,260))+(item.elemento_texto.length>260?'…':'')+'”</span>':'')+'</div><div class="ui-feedback-saved-comment"><b>Comentário</b><p>'+esc(item.texto)+'</p></div></article>';}).join('')+'</div></section>';
+    viewerPoints.innerHTML='<section class="ui-feedback-capture-stage" aria-label="Captura registrada"><div class="ui-feedback-page-summary"><div><b>Página '+(viewedPageIndex+1)+' · ponto '+(viewedPointIndex+1)+' de '+points.length+pointNav(viewedPointIndex,points.length,'data-ui-feedback-step-view-point')+'</b><span>'+esc(page.pagina_url)+'</span></div>'+(point?'<a href="'+esc(feedbackRestoreUrl(page.pagina_url,point))+'" data-ui-feedback-view-restore="'+esc(point.id)+'">Abrir estado registrado ↗</a>':'')+'</div><div class="ui-feedback-point-media" data-ui-feedback-zoom tabindex="0" aria-label="Captura com zoom. Use a roda do mouse para ampliar ou reduzir e arraste para mover."><div class="ui-feedback-zoom-tools"><span data-ui-feedback-zoom-level>100%</span><button type="button" data-ui-feedback-zoom-reset>Redefinir zoom</button></div>'+capture+'</div></section><section class="ui-feedback-comments-pane" aria-label="Comentários registrados"><div class="ui-feedback-comments-head"><div><b>Apontamentos desta página</b><span>Selecione um ponto para visualizar sua captura acima.</span></div><strong>'+points.length+' ponto(s)</strong></div><div class="ui-feedback-comments-scroll">'+points.map(function(item,index){var state=item.elemento&&item.elemento.pageState,context=state&&state.context,contextText=context?[context.item,context.layer,context.side,context.segment].filter(Boolean).join(' · '):'';return '<article class="ui-feedback-point-card'+(index===viewedPointIndex?' active':'')+'"><div class="ui-feedback-point-card-head"><button type="button" class="ui-feedback-point-select" data-ui-feedback-view-point="'+index+'" aria-pressed="'+(index===viewedPointIndex?'true':'false')+'"><span class="ui-feedback-point-number">'+(index+1)+'</span><span>Ver captura do ponto '+(index+1)+'</span></button><a href="'+esc(feedbackRestoreUrl(page.pagina_url,item))+'" data-ui-feedback-view-restore="'+esc(item.id)+'">Abrir estado deste ponto ↗</a></div><div class="ui-feedback-selected-meta">'+(contextText?'<span><strong>Contexto:</strong> '+esc(contextText)+'</span>':'')+(item.elemento_texto?'<span>“'+esc(item.elemento_texto.slice(0,260))+(item.elemento_texto.length>260?'…':'')+'”</span>':'')+'</div><div class="ui-feedback-saved-comment"><b>Comentário</b><p>'+esc(item.texto)+'</p></div>'+attachmentHtml(item,index,true)+'</article>';}).join('')+'</div></section>';
     viewerPoints.querySelectorAll('[data-ui-feedback-step-view-point]').forEach(function(button){button.addEventListener('click',function(){viewedPointIndex=Math.max(0,Math.min(points.length-1,viewedPointIndex+Number(button.dataset.uiFeedbackStepViewPoint)));renderSavedSession();});});
     setupImageZoom(viewerPoints);
     viewerTabs.querySelectorAll('[data-ui-feedback-view-page]').forEach(function(button){button.addEventListener('click',function(){viewedPageIndex=Number(button.dataset.uiFeedbackViewPage);viewedPointIndex=0;renderSavedSession();});});
@@ -968,14 +1015,19 @@
     loadHistory();
   }
 
+  var filesInput=document.getElementById('ui-feedback-files');
+  dialog.querySelector('[data-ui-feedback-upload]').addEventListener('click',function(){filesInput.click();});
+  filesInput.addEventListener('change',function(){
+    var page=draft&&draft.pages[activePageIndex];
+    if(page)addFilesToPoint(filesInput.files,Number(page.activePoint)||0);
+    filesInput.value='';
+  });
   startButton.addEventListener('click', function(){if(draft)renderDraft();else beginSelection('new');});
-  addPageNavButton.addEventListener('click', function(){beginSelection('new');});
   openButton.addEventListener('click', showHistory);
   dialog.querySelector('[data-ui-feedback-close]').addEventListener('click', closeDialog);
   dialog.querySelector('[data-ui-feedback-minimize]').addEventListener('click', minimizeDialog);
   dialog.querySelector('[data-ui-feedback-discard]').addEventListener('click', discardDraft);
   dialog.querySelector('[data-ui-feedback-add-point]').addEventListener('click', function(){beginSelection('same');});
-  dialog.querySelector('[data-ui-feedback-add-page]').addEventListener('click', function(){beginSelection('new');});
   dialog.querySelector('[data-ui-feedback-save]').addEventListener('click', saveSession);
   dialog.querySelector('[data-ui-feedback-refresh]').addEventListener('click', loadHistory);
   dialog.querySelector('[data-ui-feedback-back-list]').addEventListener('click', showHistory);

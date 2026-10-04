@@ -8,7 +8,7 @@ import { useEffect } from "react";
 export function RegisterServiceWorker() {
   useEffect(() => {
     if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
+    navigator.serviceWorker.register("/consulta/sw.js").catch(() => {});
   }, []);
 
   return null;

@@ -82,6 +82,8 @@ def _single_corner(fid: str, canto: str, *, kind: str) -> str:
     - passa sem canto → esquina padrão da face (uma só)
     """
     c = (canto or "").upper().strip()
+    if c == fid + fid:
+        return c
     # se veio composto "AC-AD" / "AC/AD", pega o primeiro
     if c and c not in _CORNER_OK:
         m = re.search(r"\b(AC|AD|BC|BD|CA|CB|DA|DB)\b", c)
@@ -109,7 +111,11 @@ def _fmt_nivel(nivel: Any) -> str:
     m = re.search(r"(\d+(?:[.,]\d+)?)", s)
     if not m:
         return ""
-    return f"{m.group(1).replace(',', '.')}cm"
+    # Níveis absolutos SA são metros; o sufixo cm é legado de apresentação,
+    # não uma conversão do datum. Dimensões locais continuam em centímetros.
+    from decimal import Decimal, ROUND_HALF_UP
+    value = Decimal(m.group(1).replace(',', '.')).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+    return f"{value:.1f}m".replace('.', ',')
 
 
 def _row_bits(r: dict, kind: str, *, fid: str = "") -> str:
@@ -117,7 +123,7 @@ def _row_bits(r: dict, kind: str, *, fid: str = "") -> str:
     V.chega BC
     VF301
     19/66
-    852.19cm
+    852.19m
     """
     nome = str(r.get("nome") or "").strip()
     if nome in ("", "—", "nenhuma"):

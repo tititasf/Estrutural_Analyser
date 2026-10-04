@@ -70,8 +70,16 @@ validados sem uma regressão comprovada.
 
 ### 4.1 Identidade e conteúdo (antes de desenhar)
 
+Atualização do dono (2026-10-03): medidas exibidas nas tags usam uma casa decimal
+com arredondamento, por exemplo `852,2m`. Valores originais em campos, geometria
+e cálculos permanecem com precisão integral; os exemplos antigos abaixo descrevem
+as unidades, sem revogar este formato de apresentação.
+
 - `nome`, `dim` e `nivel` devem vir da **mesma entidade** associada ao vínculo.
 - A dimensão é canônica (`largura/altura`, sem concatenação acidental com nome ou ID).
+- Nível absoluto é exibido em **metros** (`852.19m`); dimensões locais são cm.
+  O sufixo `cm` em níveis dos payloads antigos é legado de apresentação, sem
+  conversão do valor. Prevalece `INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md §1`.
 - O papel mostrado é exatamente um entre `laje`, `V.chega`, `V.passa` e
   `V.interior`; corrigir papel não autoriza trocar silenciosamente a viga.
 - A marca começa pela face proprietária da linha: uma linha de A usa `AC`, `AD` ou
@@ -140,21 +148,21 @@ validados sem uma regressão comprovada.
 V.chega BC
 VF301
 19/66
-852.19cm
+852.19m
 ```
 
 ```
 V.passa AD
 V309A
 19/120
-852.19cm
+852.19m
 ```
 
 ```
 laje
 L301
 12
-852.12cm
+852.12m
 ```
 
 ---

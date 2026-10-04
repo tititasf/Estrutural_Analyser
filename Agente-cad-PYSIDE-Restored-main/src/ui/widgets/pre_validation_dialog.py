@@ -36,6 +36,7 @@ from src.core.preficha_segments import (
     SEGMENT_TAB_SPECS,
     collect_preficha_segments,
     serializable_segment,
+    slab_height_cm,
 )
 from src.ui.widgets.svg_embed_utils import (
     strip_fixed_size as _svg_strip_fixed_size,
@@ -119,6 +120,62 @@ def _n3_opening_y_rel(
         return max(0.0, min(max_y, top_local - opening_height - h1))
     except (TypeError, ValueError):
         return max(0.0, fallback)
+
+
+def _n3_apply_height_contract(
+    base: dict,
+    contract: dict,
+    *,
+    fallback_height: float = 280.0,
+) -> float:
+    """Aplica a altura absoluta do contrato antes de posicionar aberturas N3.
+
+    O ``y_rel`` das vigas e limitado pela altura desenhavel do painel. Portanto,
+    calcular as aberturas ainda com a altura legada (normalmente 280 cm) e so
+    depois promover o pilar para o pe-direito real (por exemplo, 321 cm) deixa
+    todo recorte PARA 41 cm abaixo do topo. O gerador de GRADES interpreta esse
+    recorte como interno e nao encurta os montantes afetados.
+
+    Retorna a altura efetiva para que contrato, payload e geometria usem a mesma
+    referencia desde o inicio da projecao.
+    """
+    alt = contract.get("altura_pilar") or {}
+    saida = alt.get("nivel_saida_abs")
+    chegada = alt.get("nivel_chegada_abs")
+    if saida is not None:
+        base["nivel_saida_abs"] = saida
+    if chegada is not None:
+        base["nivel_chegada_abs"] = chegada
+
+    try:
+        if saida is not None and chegada is not None:
+            ns = float(saida)
+            nc = float(chegada)
+            resolved = abs(ns - nc) * 100.0 if ns > 20 and nc > 20 else abs(ns - nc)
+            if resolved > 0.0:
+                base["pd_pavimento_cm"] = resolved
+                base["altura"] = resolved
+        elif saida is not None:
+            ns = float(saida)
+            height = float(
+                base.get("pd_pavimento_cm")
+                or base.get("altura")
+                or fallback_height
+            )
+            if ns > 20:
+                base["nivel_saida_abs"] = ns
+                base["nivel_chegada_abs"] = ns - (height / 100.0)
+    except (TypeError, ValueError):
+        pass
+
+    if contract.get("manual_height_cm") is not None:
+        base["pd_pavimento_cm"] = base["altura"] = float(contract["manual_height_cm"])
+
+    return float(
+        base.get("pd_pavimento_cm")
+        or base.get("altura")
+        or fallback_height
+    )
 
 
 def _n3_variant_web_override(saved: object, mode: str) -> dict | None:
@@ -5160,7 +5217,7 @@ class PreValidationDialog(QDialog):
                 {
                     'name':   s.get('name') or '',
                     'nivel':  (s.get('fields') or {}).get('laje_nivel') or s.get('nivel') or '',
-                    'height': (s.get('fields') or {}).get('laje_h') or s.get('height') or '',
+                    'height': slab_height_cm(s),
                     # Geometria bruta (antes ausente do snapshot) — necessária para o
                     # diagnóstico numérico headless N1×N2 comparar bbox sem depender de
                     # self.slabs_found (só existe com UI aberta). Aditivo: nenhum
@@ -5209,6 +5266,7 @@ class PreValidationDialog(QDialog):
                         'status':        cb.currentText() if cb else seg.get('status', 'valid'),
                         'atencao':       self._segment_attention.get(seg['uid'], seg.get('attention', '')),
                         'points':        seg.get('points') or [],
+                        'lv_cell':       (seg.get('details') or {}).get('lv_cell') or {},
                     })
 
             state = {
@@ -6154,7 +6212,9 @@ class PreValidationDialog(QDialog):
             print(f'[HTML] _render_pilar_dxf_context_b64 falhou: {exc}', flush=True)
             return ''
 
-    def materialize_pl_n3_variants(self) -> tuple[list[str], list[str]]:
+    def materialize_pl_n3_variants(
+        self, visual_mode: str = "NOVA",
+    ) -> tuple[list[str], list[str]]:
         """N3 de pilares: **sempre** PARA e PASSA (sem escolha manual).
 
         Publica contratos + DXF em
@@ -6165,6 +6225,10 @@ class PreValidationDialog(QDialog):
         Returns:
             (generated_labels, failed_labels) ex.: ``['P1_para', 'P1_passa']``
         """
+        visual_mode = str(visual_mode or "NOVA").strip().upper()
+        if visual_mode not in {"NOVA", "INI", "MOLDE_1", "MOLDE_2", "MOLDE_3"}:
+            raise ValueError(f"modo de desenho invalido: {visual_mode!r}")
+        self._pl_n3_visual_mode = visual_mode
         # Reset flag para forçar batch neste call (mesmo se export anterior
         # na mesma instância já tiver materializado).
         self._pl_n3_materialized_once = False
@@ -8097,7 +8161,8 @@ class PreValidationDialog(QDialog):
                     fid for fid in 'ABCDEFGH' if fid in face_interp
                 ] or list('ABCD')
                 visual_mode = str(
-                    _load_n3_pilar_json(str(row.get('_nome') or '')).get(
+                    getattr(self, '_pl_n3_visual_mode', None)
+                    or _load_n3_pilar_json(str(row.get('_nome') or '')).get(
                         'modo_distribuicao', 'NOVA'
                     ) or 'NOVA'
                 ).upper()
@@ -8174,6 +8239,17 @@ class PreValidationDialog(QDialog):
                     )
                     _pav = str(row.get('pavimento') or '13_PAV')
                     _nabs = _gpna(_obra, _pav)
+                    if not _nabs:
+                        # O headless fixa essa referência ao hash, torre e
+                        # pavimento antes de construir o diálogo. É apenas a
+                        # altura geral do painel PL; não atribui nível a item.
+                        _direct = getattr(self, '_sa_floor_level_reference', None)
+                        if _direct and _direct.get('unit') == 'm':
+                            _nabs = {'saida_abs': _direct['base'],
+                                     'chegada_abs': _direct['top']}
+                            if not getattr(self, '_sa_level_reference_logged', False):
+                                print('[PL-N3] Referência direta fixada aplicada à altura do pavimento', flush=True)
+                                self._sa_level_reference_logged = True
                     if _nabs:
                         if _nabs.get('saida_abs') is not None:
                             _pillar_bot_level_abs = _nabs['saida_abs']
@@ -8465,11 +8541,10 @@ class PreValidationDialog(QDialog):
                 base['modo'] = mode
                 base['modo_variante'] = mode
                 visual_mode = str(contract.get('modo_visual') or 'NOVA').upper()
-                height = float(
-                    base.get('pd_pavimento_cm')
-                    or base.get('altura')
-                    or 280.0
-                )
+                # A altura final precisa existir ANTES de calcular/clamp-ar y_rel.
+                # Caso contrario, um contrato 321 cm herdando JSON 280 cm publica
+                # as aberturas PARA 41 cm abaixo do topo e GRADES as ignora.
+                height = _n3_apply_height_contract(base, contract)
                 _pillar_base_level_abs = (
                     (contract.get('altura_pilar') or {}).get('nivel_saida_abs')
                 )
@@ -8575,32 +8650,6 @@ class PreValidationDialog(QDialog):
                     # NOVA trata abertura como recorte (malha = 122+sobra).
                     for index, opening in enumerate(openings, 1):
                         base[f'abertura_{fid}_{index}'] = opening
-                # Níveis absolutos para header do DXF
-                alt = contract.get('altura_pilar') or {}
-                if alt.get('nivel_saida_abs') is not None:
-                    base['nivel_saida_abs'] = alt['nivel_saida_abs']
-                if alt.get('nivel_chegada_abs') is not None:
-                    base['nivel_chegada_abs'] = alt['nivel_chegada_abs']
-                # PD: se temos abs, recalcula
-                try:
-                    if alt.get('nivel_saida_abs') is not None and alt.get('nivel_chegada_abs') is not None:
-                        ns = float(alt['nivel_saida_abs'])
-                        nc = float(alt['nivel_chegada_abs'])
-                        # metros → cm de PD
-                        if ns > 20 and nc > 20:
-                            base['pd_pavimento_cm'] = abs(ns - nc) * 100.0
-                            base['altura'] = base['pd_pavimento_cm']
-                        else:
-                            base['pd_pavimento_cm'] = abs(ns - nc)
-                    elif alt.get('nivel_saida_abs') is not None:
-                        # só topo de laje: chegada = topo − altura relativa
-                        ns = float(alt['nivel_saida_abs'])
-                        h = float(base.get('altura') or height or 280.0)
-                        if ns > 20:
-                            base['nivel_saida_abs'] = ns
-                            base['nivel_chegada_abs'] = ns - (h / 100.0)
-                except Exception:
-                    pass
                 base['_sa_mode_contract'] = contract
                 base['_sa_mode_variant'] = contract.get('modo_semantico')
                 base['modo_distribuicao'] = 'NOVA'
@@ -8653,10 +8702,34 @@ class PreValidationDialog(QDialog):
                 JSON publicado já vem enriquecido (motor NOVA). DXF usa o mesmo
                 payload via generate_pilar_zone (re-enrich idempotente).
                 """
+                from src.core.pillar_sa_review import eligible, load as load_sa_review, apply_robot
+                if not eligible(pillar):
+                    return {'contract': {}, 'payload': {}, 'paths': {}, 'excluded': 'NASCE'}
                 contract = _build_n3_mode_contract(row, pillar, mode)
-                payload = _variant_payload(contract)
+                from src.core.pillar_sa_review import resolve_obra
+                obra_ref = resolve_obra(self._obra)
+                fields = load_sa_review(obra_ref, str(self._pavimento), str(contract['item']))
+                altitude = contract['altura_pilar']
+                for level_key in ('nivel_saida', 'nivel_chegada'):
+                    if level_key in fields:
+                        altitude[level_key + '_abs'] = fields[level_key]
+                if 'pe_direito' in fields:
+                    altitude['altura'] = fields['pe_direito']
+                    contract['manual_height_cm'] = fields['pe_direito']
+                    contract['n1_base']['altura'] = fields['pe_direito']
+                    contract['n1_base']['pd_pavimento_cm'] = fields['pe_direito']
+                payload = apply_robot(_variant_payload(contract), fields)
                 result = {'contract': contract, 'payload': payload, 'paths': {}}
                 if not payload:
+                    altitude = contract.get('altura_pilar') or {}
+                    print(
+                        f'[HTML] N3 PL {contract.get("item")}/{mode} sem base: '
+                        f'contorno={bool(row.get("_points") or pillar.get("points"))}, '
+                        f'nivel_saida_abs={altitude.get("nivel_saida_abs")}, '
+                        f'nivel_chegada_abs={altitude.get("nivel_chegada_abs")}, '
+                        f'altura={altitude.get("altura")}',
+                        flush=True,
+                    )
                     return result
                 item = str(contract.get('item') or 'P?')
                 mode_slug = str(mode).lower()
@@ -8713,11 +8786,20 @@ class PreValidationDialog(QDialog):
                         _stable_obra / 'Fase-6_Execucao_CAD' /
                         'n3_variants' / mode_slug
                     )
-                    os.makedirs(stable_dir, exist_ok=True)
-                    shutil.copy2(json_path, os.path.join(stable_dir, f'{item}.json'))
+                    stable_mode_dir = str(
+                        _stable_obra / 'Fase-6_Execucao_CAD' /
+                        'n3_modes' / visual_mode / 'pilares' / mode_slug
+                    )
+                    os.makedirs(stable_mode_dir, exist_ok=True)
+                    shutil.copy2(json_path, os.path.join(stable_mode_dir, f'{item}.json'))
+                    if visual_mode == 'NOVA':
+                        os.makedirs(stable_dir, exist_ok=True)
+                        shutil.copy2(json_path, os.path.join(stable_dir, f'{item}.json'))
                     for zone, path in (result.get('paths') or {}).items():
                         if zone in ('cima', 'abcd', 'grades') and path and os.path.exists(path):
-                            shutil.copy2(path, os.path.join(stable_dir, os.path.basename(path)))
+                            shutil.copy2(path, os.path.join(stable_mode_dir, os.path.basename(path)))
+                            if visual_mode == 'NOVA':
+                                shutil.copy2(path, os.path.join(stable_dir, os.path.basename(path)))
                 except Exception as exc:
                     print(f'[HTML] publicação CE N3 {item}/{mode_slug} falhou: {exc}', flush=True)
                 return result
@@ -8741,6 +8823,9 @@ class PreValidationDialog(QDialog):
                     or self._pillar_report.get(nome_m)
                     or {}
                 )
+                from src.core.pillar_sa_review import eligible
+                if not eligible(pillar_m):
+                    continue
                 for mode in ('para', 'passa'):
                     label = f'{nome_m}_{mode}'
                     if (nome_m, mode) in _pl_n3_cache:
@@ -9855,6 +9940,16 @@ class PreValidationDialog(QDialog):
                 n3_para_abcd_b64 = self._render_ezdxf_b64(n3_para_abcd_path, width=1500, height=1100, fmt='svg') if n3_para_abcd_path else ''
                 n3_passa_abcd_b64 = self._render_ezdxf_b64(n3_passa_abcd_path, width=1500, height=1100, fmt='svg') if n3_passa_abcd_path else ''
                 n4_abcd_b64 = self._render_ezdxf_b64(n4_abcd_path, width=1500, height=1100, fmt='svg') if n4_abcd_path else ''
+                # Faltava a irma' desta serie: `n2b64` era USADA no cartao de
+                # evidencia logo abaixo e nunca definida — `NameError` que
+                # derrubava a exportacao inteira de fichas de pilar e, por
+                # tabela, a persistencia do headless ("Persistencia recusada
+                # pelo gate: secoes ausentes=[...], html_dir=None").
+                # O metodo ja' existia e e' usado assim em outros dois pontos
+                # do arquivo (linhas ~5613 e ~6396).
+                n2b64 = self._render_n2_recorte_b64(
+                    nome, width=1500, height=1100, fmt='svg',
+                )
                 evidence_section = (
                     '<div class="sec" style="display:none" aria-hidden="true">'
                     '<div class="sec-title">Evid&ecirc;ncia multimodal N1-N4 (g2v_harness)</div>'

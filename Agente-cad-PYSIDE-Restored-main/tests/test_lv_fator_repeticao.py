@@ -87,3 +87,53 @@ def test_soma_com_fator_preserva_o_total_real():
     """Comprimir nao pode mudar a soma — e' so' representacao."""
     for reais in ([244] * 8 + [66.5, 244], [80, 244, 244, 122], [244] * 6):
         assert abs(sum(w * f for w, f in _c(reais)) - sum(reais)) < 0.05
+
+
+# ─── Wiring: a regra chega no desenho N3, nao so' fica testada isolada ──────
+#
+# [2026-09-25] `comprimir_paineis_repetidos` (acima) sempre esteve certa e
+# testada, mas nunca era CHAMADA por ninguem — o N3 desenhava a sequencia
+# inteira, sem NX e sem comprimir. `compress_lv_panels_with_factors` e' o
+# adaptador que liga a mesma regra aos dicts de painel reais, e
+# `draw_viga_lateral` (o montador N3) agora chama esse adaptador antes de
+# desenhar cada face.
+
+def _painel(largura):
+    return {'width': float(largura), 'height1': 102.0, 'height2': 102.0,
+            'grade_h1': 0.0, 'grade_h2': 0.0, 'panel_type': 'Sarrafeado'}
+
+
+def test_compress_com_dicts_bate_com_a_regra_de_larguras():
+    reais = [244, 244, 244, 244]
+    paineis, fatores = lv.compress_lv_panels_with_factors([_painel(w) for w in reais])
+    assert [p['width'] for p in paineis] == [244.0, 244.0, 244.0]
+    assert fatores == [1, 2, 1]
+    assert sum(p['width'] * f for p, f in zip(paineis, fatores)) == sum(reais)
+
+
+def test_compress_preserva_outros_campos_do_painel_representante():
+    paineis, fatores = lv.compress_lv_panels_with_factors(
+        [_painel(w) for w in (244, 244, 244, 244)]
+    )
+    assert paineis[1]['panel_type'] == 'Sarrafeado'
+    assert paineis[1]['height1'] == 102.0
+
+
+def test_draw_viga_lateral_desenha_a_sequencia_comprimida_com_nx():
+    """Fim a fim: 4 paineis de 244 no N3 saem como 3 caixas + o texto "7X"/"2X".
+
+    Sem o wiring, sairiam 4 caixas soltas e a cota total nunca precisaria de
+    fator (bug que o dono apontou: N3 nao usava a regra que ja construimos).
+    """
+    doc = lv.setup_doc()
+    msp = doc.modelspace()
+    panels = [_painel(w) for w in (244, 244, 244, 244)]
+    lv.draw_viga_lateral(
+        msp, 0.0, 0.0, 'V999',
+        h_A=102.0, h_B=102.0, b=19,
+        panels_A=panels, panels_B=list(panels),
+    )
+    # Cota LV usa DIMENSION (`emitir_cota`/`add_linear_dim`), nao TEXT solto.
+    textos_dim = [str(e.dxf.text or '') for e in msp.query('DIMENSION')]
+    assert textos_dim.count('2X') == 2  # uma por face (A e B)
+    assert '976' in textos_dim  # 244 + 244x2 + 244 = 976, nao 732 (3 caixas soltas)

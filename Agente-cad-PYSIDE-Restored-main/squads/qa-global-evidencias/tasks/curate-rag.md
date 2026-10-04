@@ -28,3 +28,8 @@ com tier).
 - Materialize **não** escreve memória confiável.
 - T3 **nunca** confirma campo.
 - RAG **nunca** é prova única do item atual.
+
+
+### Consolidação de níveis — 2026-10-01
+
+Regra integrada: `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` (canônico). Indexar regras documentadas aprovadas e decisões locais com escopo/revisão; exemplo L317 não é constante nem regra por nome. Não promover as 68 estimativas do pacote de 01/10 a T1 por estarem preenchidas. A confirmação de fundo contínuo é limitada às seis regiões examinadas; registrar SHA e UID. A indexação textual/vetorial de documentos não altera validação N1 nem tier de hipóteses na semantic_rag_kb.

@@ -12,6 +12,40 @@ from pathlib import Path
 import httpx
 import pytest
 
+
+def test_dependencia_sa_do_recorte_e_detectada_sem_afetar_outros_projetos(tmp_path):
+    import sqlite3
+    from types import SimpleNamespace
+
+    from portal.app.routers.recortes_routes import _projetos_sa_que_usam_recorte
+
+    db_path = tmp_path / "sa.vision"
+    recorte = tmp_path / "torre_1.dxf"
+    outro = tmp_path / "torre_2.dxf"
+    recorte.write_text("0\nEOF\n", encoding="ascii")
+    outro.write_text("0\nEOF\n", encoding="ascii")
+    conn = sqlite3.connect(db_path)
+    conn.executescript(
+        """
+        CREATE TABLE projects (id TEXT PRIMARY KEY, name TEXT, dxf_path TEXT);
+        CREATE TABLE pillars (id TEXT, project_id TEXT);
+        CREATE TABLE beams (id TEXT, project_id TEXT);
+        CREATE TABLE slabs (id TEXT, project_id TEXT);
+        """
+    )
+    conn.executemany(
+        "INSERT INTO projects(id, name, dxf_path) VALUES (?, ?, ?)",
+        [("p1", "14_PAV", str(recorte.resolve())), ("p2", "14_PAV", str(outro.resolve()))],
+    )
+    conn.execute("INSERT INTO pillars(id, project_id) VALUES ('P1', 'p1')")
+    conn.execute("INSERT INTO pillars(id, project_id) VALUES ('P2', 'p2')")
+    conn.commit()
+    conn.close()
+
+    deps = _projetos_sa_que_usam_recorte(SimpleNamespace(sa_db_path=db_path), recorte)
+
+    assert deps == [{"project_id": "p1", "pavimento": "14_PAV", "pillars": 1, "beams": 0, "slabs": 0}]
+
 from portal.app import auth
 from portal.app.main import create_app
 from portal.db import connection, repository as repo

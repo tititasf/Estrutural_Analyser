@@ -8,6 +8,17 @@ código foi alterado ao escrevê-lo — outros agentes seguiram trabalhando no
 repositório depois desta sessão (ver §6) e não devem ser sobrescritos sem
 reconciliar.
 
+> **ATUALIZAÇÃO 2026-09-25 — §3, §5 e §6 abaixo estão PARCIALMENTE DESATUALIZADOS.**
+> O modelo "tar+ssh manual, código parado em 10/08" descrito abaixo não é mais o
+> estado real. Ver **§10** para o que foi verificado e feito nesta data. Resumo:
+> a VPS hoje é um repositório git de verdade (`vps-producao`, **sem remote** — só
+> serve de "livro-razão"/diff local, não sincroniza com o GitHub), já recebeu
+> deploys manuais de várias sessões depois de 10/08 sem disciplina de commit
+> (muito arquivo `modified`/`??` sem nunca ter sido commitado no ledger), e já
+> tem `html_fichas`/dados reais de produção rodando (rodou pilares do 14_PAV
+> nesta mesma data, sem relação com o deploy desta sessão). Não editar §3/§5/§6
+> como se ainda fossem a realidade sem checar §10 primeiro.
+
 ## 0. Isto substitui uma decisão anterior — registrar por quê
 
 O `HANDOFF-DEVOPS-PORTAL.md` (2026-07-05) manda **não migrar para VPS** até o
@@ -267,3 +278,134 @@ pode apagar estado que só existe na VPS.
 6. **RAM da VPS**: 8GB, com margem calculada para rodar 1 motor SA pesado por
    vez (DXFs de até ~650MB observados, proporção ~4,7x em RAM). Não testado
    sob carga real ainda.
+
+## 10. Estado real verificado em 2026-09-25 — §3/§5/§6 estavam desatualizados
+
+Sessão local (Claude, portal LV) precisou publicar um fix de LV na VPS e, ao
+conferir, achou o modelo descrito em §3/§6 completamente ultrapassado. Tudo
+abaixo foi confirmado por SSH antes de qualquer alteração; só depois disso
+o deploy descrito no fim desta seção foi feito.
+
+### 10.1 A VPS não está mais "parada em 10/08"
+
+`/opt/cad-analyzer` **é hoje um repositório git de verdade**, branch
+`vps-producao`, com **um único commit** (`e7ce0b9 chore(vps): livro-razao do
+que esta rodando em producao`) e **nenhum remote configurado**
+(`git remote -v` vazio). Ou seja: esse git não sincroniza com o GitHub nem com
+a máquina local — existe só para permitir `git diff`/`git status` na própria
+VPS entre deploys manuais sucessivos (um "livro-razão", não um clone).
+
+Só que ninguém manteve a disciplina de commitar depois de cada deploy manual:
+em 2026-09-25, ANTES de qualquer coisa desta sessão, `git status` já mostrava
+dezenas de arquivos `modified` nunca commitados desde `e7ce0b9`
+(`main.py`, `portal/app/config.py`, `portal/app/dxf_preview.py`,
+`portal/app/jobs.py`, `portal/app/pipeline_runner.py`, várias fichas
+JS/CSS de Pilar/Laje/Fundo, `portal/db/schema.sql`, etc.) e vários arquivos
+`??` (não rastreados) genuinamente novos (`portal/app/drawing_modes.py`,
+`portal/app/pillar_abcd_review.py`, `portal/app/preprocessamento/`,
+migrations `013`/`014`, entre outros). **O ledger não reflete o binário real
+que está rodando há um tempo indeterminado.** Isso não foi causado por esta
+sessão — já estava assim ao chegar. Também há lixo aparente na raiz do repo:
+uma entrada `?? " portal_data.db "` (nome com espaços/aspas) e uma pasta
+`?? "C:\Temp\dwg_convert_tmp/"` (path literal do Windows criado como diretório
+num servidor Linux — quase certamente de um comando `scp`/`rsync` com
+escaping quebrado numa sessão anterior). Nenhum dos dois foi tocado; sinalizar
+para o dono decidir se limpa.
+
+### 10.2 A VPS já roda produção de verdade, com dado real
+
+Ao contrário do que §3 registra ("não deve armazenar dados de obra"),
+`/opt/cad-analyzer/scripts/arete/html_fichas/` **existe e tem conteúdo real**
+— nesta mesma data (2026-09-25, ~15:14 UTC) rodou um job de pilares ABCD do
+14_PAV de `TMC-EST-PE-6000-7000-14P-R03`, gerando fichas P48–P51 com SVG. Isso
+aconteceu antes e independente de qualquer ação desta sessão. Ou seja, o
+modelo "código só, dado nunca" de §3 já não é o modelo em uso.
+
+### 10.3 Deploy feito nesta sessão (escopo: fix de LV do portal)
+
+Arquivos copiados via `scp` direto (mesmo padrão manual de §3, sem script
+novo) e depois commitados no ledger, **isolando só o que foi copiado** (não
+um `git add -A`, que teria misturado o deploy com todo o drift de §10.1):
+
+```
+portal/app/static/drill_grade.js
+portal/app/static/lv_ficha.js
+portal/app/lv_ficha.py
+portal/app/ficha_reader.py
+portal/app/routers/n1_routes.py
+scripts/gerar_lv_dxf_stog.py
+portal/app/lv_n3_operations.py      # dependência de import obrigatória de
+                                     # n1_routes.py; feature própria ainda em
+                                     # andamento noutra sessão local — só este
+                                     # arquivo foi publicado, o resto
+                                     # (jobs.py, pipeline_runner.py,
+                                     # drawing_modes.py, n5_release.py, fichas
+                                     # JS de Pilar/Laje/Fundo) NÃO foi, por
+                                     # não ter sido revisado/testado aqui
+portal/tests/test_portal_lv_ficha.py
+```
+
+Commit: `11db081 feat(lv): SA com contexto real+tag, fator NX no N3, fix nav
+estrutural limpo` (autor `VPS-Producao <vps@cad-analyzer.local>`, mesma
+identidade do commit inicial). Antes do `systemctl restart cad-portal`:
+sintaxe verificada com `ast.parse` nos 5 arquivos `.py` copiados, e conferido
+por `SELECT status FROM portal_jobs` que não havia job em andamento (todos os
+status eram terminais: `concluido`/`falhou`/`cancelado`). Restart levou ~1-2s
+de indisponibilidade; log pós-restart confirma `Application startup complete`
+e respostas 200 imediatas para tráfego real já em curso.
+
+### 10.4 Dois processos órfãos matados
+
+`ps` mostrou 2 processos `bash -c 'while true; ... sleep 30; done'` com
+`PPID=1` (órfãos — a sessão interativa que os criou, em 26/08 e 27/08, já
+tinha terminado) fazendo `SELECT` read-only em `portal_jobs` a cada 30s. Sem
+systemd/cron por trás — confirmado que nada os reinicia. Mortos (`kill`) nesta
+sessão; não devem reaparecer sozinhos.
+
+### 10.5 O que NÃO foi tocado
+
+`portal_data.db` (nem lido em modo escrita nem sobrescrito), o resto do drift
+de §10.1, o lixo de `10.1` (`" portal_data.db "`, `C:\Temp\dwg_convert_tmp\`),
+os serviços `consulta-publica-api`/`consulta-publica-web` (rodando normalmente,
+não fazem parte deste escopo).
+
+### 10.6 Lição para a próxima sessão que for publicar algo na VPS
+
+1. `git status` na VPS ANTES de mexer — se aparecer muito mais drift do que o
+   esperado, é sinal de que outra sessão publicou algo sem commitar; não
+   presumir que o ledger (`git log`) reflete o binário rodando.
+2. Nunca `git add -A` nesse repo — commitar só os arquivos que você mesmo
+   copiou, senão o "livro-razão" perde o valor de auditoria.
+3. Checar `portal_jobs` por status não-terminal antes de qualquer
+   `systemctl restart` — reiniciar no meio de um job real corrompe o
+   resultado.
+4. Este documento (§3/§5/§6) precisa de uma reescrita completa por alguém que
+   tenha tempo de reconciliar todo o drift de §10.1 — o que está aqui é só um
+   remendo pontual do que foi tocado em 2026-09-25.
+
+### 10.7 Deploy 2026-09-27 (UTC) — aba Base Global
+
+Arquivos novos copiados por `scp` (`base_global_routes.py`, `base_global.html`,
+`base_global.{js,css}`, `cytoscape.min.js`, `test_base_global.py`,
+`docs/CONHECIMENTO/grafo.json`). Em `portal/app/main.py` e `templates/base.html`
+(que já tinham drift de outras sessões) **só foram inseridas as linhas da aba**,
+com backup em `/root/{main.py,base.html}.bak-baseglobal`. Import do app e templates
+conferidos, `portal_jobs` sem job ativo, restart OK, smoke 200/303/401.
+Ledger: `25e6fad` (só as linhas próprias; o fim de linha misto CRLF/LF do HEAD
+foi preservado). Atualizar o grafo = rodar `kb_grafo.py` local e recopiar `grafo.json`.
+
+### 10.8 Deploy 2026-09-27 (UTC) — gate FV D-60 (fundo fora das linhas do estrutural)
+
+Arquivos: `src/core/beam_interpreters/fundo_viga_linhas.py` (novo) + trechos
+em `fundo_viga.py` (CRLF na VPS: patch convertido p/ CRLF), `preficha_segments.py`
+e `scripts/arete/headless_sa_analise.py` (ambos com drift de outras sessões:
+inserção por âncora de 4 linhas, só os 3 blocos do gate). Backup em
+`/root/bak_gate_d60_202609270244/`. Testes do gate rodados na VPS sem pytest
+(12 ok, chamando as funções). `portal_jobs` sem job ativo → restart; smoke:
+`/` 303, `/login` 200, `/app/base-global` 303, `/obras` 401. Ledger `6d89cfc`
+(+364/−0, `VPS-Producao`). A VPS não tem `tests/` — o teste do gate não foi copiado.
+
+Armadilha: `git apply --cached --unidiff-zero` (commit atômico em índice
+temporário) pode ancorar um hunk sem contexto no lugar errado — o commit local
+9e2f8f170 gravou o headless sem compilar (corrigido em 83a436788). Depois de
+commit por índice temporário, compilar o blob: `git show HEAD:<arquivo>`.

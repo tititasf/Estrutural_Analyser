@@ -26,7 +26,7 @@ from typing import Iterable
 
 VISUAL_MODE_NOVA = "NOVA"
 VISUAL_MODE_INI = "INI"
-VISUAL_MODES = (VISUAL_MODE_NOVA, VISUAL_MODE_INI)
+VISUAL_MODES = (VISUAL_MODE_NOVA, VISUAL_MODE_INI, "MOLDE_1", "MOLDE_2", "MOLDE_3")
 
 # Linetypes que ficam como LINE no INI (nunca MLINE).
 _LINE_KEEP_LINETYPES = (
@@ -309,7 +309,7 @@ def _line_rectangles(lines: list) -> list[tuple[list, tuple]]:
     found = []
     for (layer, x0, x1), entries in horizontal.items():
         for (y0, bottom), (y1, top) in sorted(
-            combinations(sorted(entries), 2),
+            combinations(sorted(entries, key=lambda entry: entry[0]), 2),
             key=lambda pair: abs(pair[1][0] - pair[0][0]),
         ):
             if y0 == y1 or id(bottom) in used or id(top) in used:
@@ -603,7 +603,7 @@ def _align_panel_centerline(
 
 
 def _add_solid_mline(msp, vertices, layer: str, thickness: float) -> None:
-    msp.add_mline(
+    return msp.add_mline(
         vertices,
         close=False,
         dxfattribs={
@@ -623,7 +623,7 @@ def _iter_modelspace_entities(doc) -> Iterable:
 
 
 def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
-                      robot_class: str = "") -> VisualModeStats:
+                      robot_class: str = "", behavior=None) -> VisualModeStats:
     """Aplica o perfil solicitado a um documento ezdxf.
 
     NOVA retorna imediatamente e preserva byte/semantica do motor atual.
@@ -631,17 +631,24 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
     normalized = normalize_visual_mode(mode)
     cls = str(robot_class or "").strip().upper()
     stats = VisualModeStats(normalized, cls)
-    if normalized == VISUAL_MODE_NOVA:
+    from scripts.drawing_mode_config import effective
+    special = effective(normalized, robot_class if robot_class != 'LV' else 'LV_' + str(behavior or 'PARA').upper()).get('special', {}) if robot_class in {'PL','LV','FV','LJ'} else {}
+    as_mline = special.get('sarrafo_representation','PADRAO')
+    convert_mline = (normalized == 'INI' and as_mline != 'LINE') or as_mline == 'MLINE'
+    if normalized != 'INI' and not convert_mline:
+        from scripts.drawing_mode_config import apply_config
+        if cls in {'PL', 'LV', 'FV', 'LJ'}:
+            apply_config(doc, normalized, cls, behavior)
         return stats
 
-    layer_map = _INI_LAYER_MAP.get(cls, {})
+    layer_map = _INI_LAYER_MAP.get(cls, {}) if normalized == "INI" else {}
     _ensure_sar3_style(doc)
 
     msp = doc.modelspace()
     original_entities = _iter_modelspace_entities(doc)
     pl_cima_madeira = (
         _pl_cima_madeira_layers(original_entities)
-        if cls == "PL"
+        if cls == "PL" and normalized == 'INI'
         else {}
     )
     panel_boxes = (
@@ -663,11 +670,11 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
             stats.remapped_entities += 1
 
         # INI historico usa a paleta do layer, nao cores individuais.
-        if entity.dxf.is_supported("color"):
+        if normalized == 'INI' and entity.dxf.is_supported("color"):
             entity.dxf.color = 256
 
         if (
-            _should_convert_to_mline(doc, entity, new_layer)
+            convert_mline and _should_convert_to_mline(doc, entity, new_layer)
             and not (cls == "LV" and _is_lv_layer_sentinel(entity))
         ):
             sarrafo_entities.append(entity)
@@ -685,7 +692,9 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
         centerline, thickness = _centerline_for_visual_class(
             box, entity.dxf.layer, cls
         )
-        _add_solid_mline(msp, centerline, entity.dxf.layer, thickness)
+        new_entity = _add_solid_mline(msp, centerline, entity.dxf.layer, thickness)
+        from scripts.drawing_semantics import copy_role
+        if new_entity is not None: copy_role(entity, new_entity)
         consumed.add(id(entity))
         stats.mlines_created += 1
         stats.rectangles_collapsed += 1
@@ -699,7 +708,9 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
         centerline, thickness = _centerline_for_visual_class(
             box, group[0].dxf.layer, cls
         )
-        _add_solid_mline(msp, centerline, group[0].dxf.layer, thickness)
+        new_entity = _add_solid_mline(msp, centerline, group[0].dxf.layer, thickness)
+        from scripts.drawing_semantics import copy_role
+        if new_entity is not None: copy_role(group[0], new_entity)
         consumed.update(id(entity) for entity in group)
         stats.mlines_created += 1
         stats.rectangles_collapsed += 1
@@ -726,7 +737,9 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
                 panel_boxes,
                 edge_extra=2.5 if cls == "PL" else 0.5,
             )
-        _add_solid_mline(msp, vertices, entity.dxf.layer, thickness)
+        new_entity = _add_solid_mline(msp, vertices, entity.dxf.layer, thickness)
+        from scripts.drawing_semantics import copy_role
+        if new_entity is not None: copy_role(entity, new_entity)
         consumed.add(id(entity))
         stats.mlines_created += 1
 
@@ -739,7 +752,10 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
         name = str(layer.dxf.name)
         mapped = layer_map.get(name.casefold(), name)
         _ensure_layer(doc, mapped)
-        if name in _LEGACY_COLORS:
+        if normalized == 'INI' and name in _LEGACY_COLORS:
             layer.dxf.color = _LEGACY_COLORS[name]
 
+    from scripts.drawing_mode_config import apply_config
+    if cls in {'PL', 'LV', 'FV', 'LJ'}:
+        apply_config(doc, normalized, cls, behavior)
     return stats

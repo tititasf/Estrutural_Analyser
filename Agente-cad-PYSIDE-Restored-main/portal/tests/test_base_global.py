@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sqlite3
+
 import pytest
 
 from portal.app.routers import base_global_routes
@@ -39,3 +41,31 @@ async def test_sem_sessao_vai_para_login(settings):
         r = await client.get("/app/base-global")
         assert r.status_code == 303 and r.headers["location"] == "/login"
         assert (await client.get("/app/base-global/grafo.json")).status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_busca_global_dono_e_isolamento(settings, tmp_path, monkeypatch):
+    db = tmp_path / "kb_global.sqlite"
+    with sqlite3.connect(db) as con:
+        con.executescript("""
+            CREATE TABLE chunks (
+                rowid INTEGER PRIMARY KEY, tipo TEXT, path TEXT, titulo TEXT,
+                secao TEXT, status TEXT, tier TEXT, texto TEXT
+            );
+            CREATE VIRTUAL TABLE chunks_fts USING fts5(
+                titulo, secao, texto, content='chunks', content_rowid='rowid');
+            INSERT INTO chunks VALUES
+                (1, 'doc', 'docs/SA-ANALISE/JEV.md', 'Jev SA', 'Uso',
+                 'canonico', NULL, 'Jev ajuda no SA com evidência do DXF.');
+            INSERT INTO chunks_fts(chunks_fts) VALUES('rebuild');
+        """)
+    monkeypatch.setattr(base_global_routes, "KB_DB", db)
+    async with _app_cliente(settings) as (_app, client):
+        assert (await client.get("/app/base-global/buscar?q=Jev")).status_code == 401
+        await _login(client, "ana", "segredo123")
+        assert (await client.get("/app/base-global/buscar?q=Jev")).status_code == 404
+        await _login(client, "chefe", "segredosuper")
+        result = await client.get("/app/base-global/buscar?q=Jev")
+        assert result.status_code == 200
+        assert result.json()["resultados"][0]["path"] == "docs/SA-ANALISE/JEV.md"
+        assert (await client.get("/app/base-global/buscar?q=" + "x" * 161)).status_code == 400

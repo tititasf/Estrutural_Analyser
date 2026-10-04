@@ -11,6 +11,21 @@
     return value === null || value === undefined || value === '' ? '—' : esc(value);
   }
 
+  function lengthText(value) {
+    if (value === null || value === undefined || value === '') return '—';
+    var number = Number(String(value).replace(',', '.'));
+    return Number.isFinite(number) ? number.toLocaleString('pt-BR', {
+      minimumFractionDigits: 0, maximumFractionDigits: 1, useGrouping: false
+    }) : shown(value);
+  }
+
+  function panelLengthValue(input) {
+    // A display-only rounding must not silently shorten an unedited panel.
+    if (input.dataset && input.dataset.exactNumber !== undefined) return window.PortalNumbers.inputValue(input);
+    return input.value === input.getAttribute('data-display-length')
+      ? input.getAttribute('data-exact-length') : input.value.replace(',', '.');
+  }
+
   function cleanSvg(raw) {
     if (!raw) return '';
     var doc = new DOMParser().parseFromString(raw, 'image/svg+xml');
@@ -42,12 +57,13 @@
 
   function reviewBadge(layer, review) {
     if (!review || !review.verdict) return '';
-    var approved = review.verdict === 'validou';
+    var pending = review.assessment === 'inconclusive';
+    var approved = review.verdict === 'validou' && !pending;
     var confidence = review.confidence_percent === null || review.confidence_percent === undefined
-      ? '' : ' · ' + shown(review.confidence_percent) + '%';
+      ? '' : ' · confiança declarada ' + shown(review.confidence_percent) + '%';
     var target = ({L1: 'SA', L2: 'C1', L3: 'C2'})[layer] || layer;
-    return '<span class="fv-qa-badge ' + (approved ? 'approved' : 'rejected') + '">' +
-      target + ' ' + (approved ? 'aprovado' : 'reprovado') + confidence + '</span>';
+    return '<span class="fv-qa-badge ' + (pending ? 'pending' : (approved ? 'approved' : 'rejected')) + '">' +
+      target + ' ' + (pending ? 'inconclusivo' : (approved ? 'aprovado' : 'reprovado')) + confidence + '</span>';
   }
 
   function qaStatusHtml(reviews) {
@@ -82,8 +98,9 @@
     return '<section class="fv-web-mini"><h5>Painéis N3 <small>máx. 244 × 122</small></h5>' +
       '<table><thead><tr><th>#</th><th>Comprimento</th><th>Largura</th></tr></thead><tbody>' +
       panels.map(function (panel) {
-        return '<tr data-fv-panel><td>' + shown(panel.index) + '</td><td><input type="number" min="0.001" step="0.1" value="' +
-          esc(panel.length_cm) + '" aria-label="Comprimento do painel"></td><td><input type="number" min="0.001" step="0.1" value="' +
+        return '<tr data-fv-panel><td>' + shown(panel.index) + '</td><td><input type="text" inputmode="decimal" data-exact-length="' +
+          esc(panel.length_cm) + '" data-display-length="' + lengthText(panel.length_cm) + '" value="' +
+          lengthText(panel.length_cm) + '" aria-label="Comprimento do painel"></td><td><input type="number" min="0.001" step="0.1" value="' +
           esc(panel.width_cm) + '" aria-label="Largura do painel"></td></tr>';
       }).join('') + '</tbody></table></section>';
   }
@@ -96,8 +113,8 @@
       return '<tr class="fv-web-seg-row" data-fv-segment="' + esc(segment.index) + '" tabindex="0" ' +
         'aria-expanded="false" aria-controls="' + detailId + '">' +
         '<td class="fv-web-chev" aria-hidden="true">›</td><td><b>S' + shown(segment.index) + '</b></td>' +
-        '<td>' + shown(segment.length_cm) + '</td><td>' + shown(segment.width_cm) + '</td>' +
-        '<td>' + shown(segment.beam_height_cm) + '</td><td>' + shown(segment.level) + '</td>' +
+        '<td>' + lengthText(segment.length_cm) + '</td><td>' + lengthText(segment.width_cm) + '</td>' +
+        '<td>' + lengthText(segment.beam_height_cm) + '</td><td>' + window.PortalNumbers.levelHtml(segment.level) + '</td>' +
         '<td>' + shown(segment.support_start) + '</td><td>' + shown(segment.support_end) + '</td>' +
         '<td><span class="fv-web-count' + (n3.available ? '' : ' empty') + (mismatch ? ' mismatch' : '') + '" ' +
           (mismatch ? 'title="A ficha HI-FI pertence a outra segmentação; prevalece o SA atual"' : '') + '>' +
@@ -126,24 +143,17 @@
     return '<article class="fv-web-ficha" aria-label="Ficha de fundo de viga ' + esc(beam.name) + '">' +
       '<header class="fv-web-head"><div>' +
         '<p class="fv-web-kicker">Fundo de viga · ficha HI-FI</p><h2>' + esc(beam.name) + '</h2>' +
-        '<span>' + beam.segment_count + ' segmento(s)</span><button type="button" class="fv-rename" data-fv-rename>Renomear fundo de viga</button></div>' +
-        '<div class="fv-web-nav"><button type="button" data-fv-nav="previous" ' + (!beam.previous ? 'disabled' : '') +
+        '<span>' + beam.segment_count + ' segmento(s)</span><button type="button" class="fv-rename" data-fv-rename>Renomear fundo de viga</button><button type="button" class="fv-rename danger" style="color:#dc2626;border-color:#fca5a5" data-fv-delete-beam>Excluir viga</button></div>' +
+        '<div class="fv-web-nav"><button type="button" data-fv-nav="previous" data-fv-target="' + esc(beam.previous || '') + '" ' + (!beam.previous ? 'disabled' : '') +
           ' aria-label="Viga anterior">←</button><b>' + beam.position + '/' + beam.total_beams + '</b>' +
-          '<button type="button" data-fv-nav="next" ' + (!beam.next ? 'disabled' : '') +
+          '<button type="button" data-fv-nav="next" data-fv-target="' + esc(beam.next || '') + '" ' + (!beam.next ? 'disabled' : '') +
           ' aria-label="Próxima viga">→</button></div></header>' +
       (mismatchCount ? '<aside class="fv-web-integrity" role="status"><strong>SA atual preservado</strong><span>' +
         mismatchCount + ' segmento(s) diferem da ficha HI-FI de referência. Medidas e painéis antigos não foram aplicados; ' +
         'as camadas de desenho permanecem disponíveis somente para comparação.</span></aside>' : '') +
-      '<section class="fv-web-table-card"><div class="fv-web-section-title"><div><h3>Interpretação dos segmentos</h3>' +
-        '<p>Selecione uma linha para abrir os painéis e enquadrar o segmento.</p></div>' +
-        '<span>medidas em cm</span></div><div class="fv-web-table-scroll"><table class="fv-web-table">' +
-        '<thead><tr><th></th><th>Seg.</th><th>Comprimento</th><th>Largura</th><th>Altura da viga</th>' +
-        '<th>Nível</th><th>Ponto inicial</th><th>Ponto final</th><th>Painéis N3</th>' +
-        '<th>Selo validação<br><button type="button" data-fv-table-validate-all>Validar todos</button></th></tr></thead>' +
-        '<tbody>' + segmentRows(data.segments) + '</tbody></table></div></section>' +
       '<section class="fv-web-viewer-card"><div class="fv-web-layerbar" role="toolbar" aria-label="Camadas do fundo de viga">' +
         layerOrder.map(function (name) {
-          var available = layers[name] && layers[name].available;
+          var available = name === 'n3' || (layers[name] && layers[name].available);
           var referenceOnly = available && name !== 'sa' && mismatchCount > 0;
           return '<button type="button" class="fv-web-layer ' + name + (name === 'sa' ? ' active' : '') + '" data-fv-layer="' + name + '" ' +
             (!available ? 'disabled title="Camada não materializada"' : (referenceOnly ? 'title="Referência visual de outra segmentação"' : '')) +
@@ -151,6 +161,11 @@
             '<small>' + (available ? (referenceOnly ? 'referência' : 'disponível') : 'ausente') + '</small></button>';
         }).join('') + '</div>' +
         '<div class="fv-web-segtabs" role="tablist" data-fv-segtabs></div>' +
+        '<section class="fv-web-table-card lv-interpretation-card fv-interpretation-card"><div class="fv-web-table-scroll"><table class="fv-web-table">' +
+        '<thead><tr><th></th><th>Seg.</th><th>Comprimento</th><th>Largura</th><th>Altura da viga</th>' +
+        '<th>Nível</th><th>Ponto inicial</th><th>Ponto final</th><th>Painéis N3</th>' +
+        '<th>Selo validação<br><button type="button" data-fv-table-validate-all>Validar todos</button></th></tr></thead>' +
+        '<tbody>' + segmentRows(data.segments) + '</tbody></table></div></section>' +
         '<div class="fv-web-layer-actions" data-fv-layer-actions></div>' +
         '<div class="fv-web-canvas" tabindex="0"><div class="fv-web-canvas-inner"></div>' +
           '<div class="fv-web-canvas-actions"><span data-fv-view-label>SA · Todos</span>' +
@@ -159,14 +174,7 @@
         '<p class="fv-web-view-help">Scroll para zoom · arraste para mover · na edição, botão do meio arrasta · duplo-clique reseta</p>' +
       '</section>' +
       '<section class="fv-qa-below" aria-label="QA agentivo e humano do fundo de viga">' +
-        '<div><strong>QA agentivo e Humano</strong><span>Cada revisão recebe as notas e apontamentos humanos salvos.</span></div>' +
-        '<div class="fv-qa-version-grid">' + ['sa', 'c1', 'c2', 'c3'].map(function (name, index) {
-          var qaLayer = index ? 'L' + index : '';
-          return '<article class="fv-qa-version"><button type="button" ' + (qaLayer ? 'data-fv-qa-layer="' + qaLayer + '"' : 'disabled') + '>' +
-            (name === 'sa' ? 'Interpretação Motor SA' : 'Solicitar revisão · Camada ' + index) + '</button>' +
-            '<label>Anotações humanas · ' + name.toUpperCase() + '<textarea data-fv-note="' + name + '" placeholder="Opinião humana sobre esta versão">' +
-            esc((data.human_notes || {})[name] || '') + '</textarea></label></article>';
-        }).join('') + '</div><button type="button" data-fv-save-notes>Salvar anotações humanas</button>' +
+        '<div data-human-qa></div>' +
         '<div class="fv-qa-status" data-fv-qa-status>' + qaStatusHtml(data.qa_reviews || {}) + '</div>' +
         '<section class="fv-annotations"><h4>Apontamentos humanos</h4><div data-fv-annotation-editor hidden>' +
           '<span data-fv-point-label>Selecione um elemento no viewer</span><input type="text" data-fv-point-text placeholder="Escreva o que deseja registrar sobre este ponto">' +
@@ -267,6 +275,19 @@
     if (!target || typeof target.getBBox !== 'function') return;
     try {
       var box = target.getBBox();
+      // getBBox is local to the node; adopted SVGs may scale their overlay
+      // from preview pixels to SVG points. Focus in the root coordinate space.
+      var matrix = svg.getScreenCTM().inverse().multiply(target.getScreenCTM());
+      var corners = [[box.x, box.y], [box.x + box.width, box.y],
+        [box.x, box.y + box.height], [box.x + box.width, box.y + box.height]].map(function (xy) {
+          var point = svg.createSVGPoint(); point.x = xy[0]; point.y = xy[1];
+          return point.matrixTransform(matrix);
+        });
+      var xs = corners.map(function (p) { return p.x; });
+      var ys = corners.map(function (p) { return p.y; });
+      box = {x: Math.min.apply(null, xs), y: Math.min.apply(null, ys),
+        width: Math.max.apply(null, xs) - Math.min.apply(null, xs),
+        height: Math.max.apply(null, ys) - Math.min.apply(null, ys)};
       var pad = Math.max(12, Math.max(box.width, box.height) * 1.4);
       var width = Math.max(box.width + pad * 2, pz.home.w * 0.12);
       var height = width * pz.home.h / pz.home.w;
@@ -277,7 +298,7 @@
   }
 
   function bind(root, options, data) {
-    var state = {layer: 'sa', segment: String(options.initialSegment || 'todos'), pz: null,
+    var state = {layer: String(options.initialLayer || 'sa'), segment: String(options.initialSegment || 'todos'), pz: null,
       editing: null, pointing: null, hiddenHighlights: []};
     var layers = data.context.layers || {};
     var canvas = root.querySelector('.fv-web-canvas');
@@ -425,13 +446,13 @@
     function detailPayload(detail) {
       return {
         panels: Array.prototype.slice.call(detail.querySelectorAll('[data-fv-panel]')).map(function (row) {
-          var fields = row.querySelectorAll('input'); return {length_cm: fields[0].value, width_cm: fields[1].value};
+          var fields = row.querySelectorAll('input'); return {length_cm: panelLengthValue(fields[0]), width_cm: window.PortalNumbers.inputValue(fields[1])};
         }),
         chamfers: Array.prototype.slice.call(detail.querySelectorAll('[data-fv-chamfer]')).map(function (row) {
-          return {position: row.querySelector('select').value, size_cm: row.querySelector('input').value};
+          return {position: row.querySelector('select').value, size_cm: window.PortalNumbers.inputValue(row.querySelector('input'))};
         }),
         openings: Array.prototype.slice.call(detail.querySelectorAll('[data-fv-opening]')).map(function (row) {
-          var fields = row.querySelectorAll('input'); return {position_cm: fields[0].value, width_cm: fields[1].value, height_cm: fields[2].value};
+          var fields = row.querySelectorAll('input'); return {position_cm: window.PortalNumbers.inputValue(fields[0]), width_cm: window.PortalNumbers.inputValue(fields[1]), height_cm: window.PortalNumbers.inputValue(fields[2])};
         })
       };
     }
@@ -446,19 +467,28 @@
 
     function regenerateN3(detail, button) {
       var index = detail.getAttribute('data-fv-detail'); button.disabled = true; button.textContent = 'Salvando e enfileirando…';
-      saveN3(detail, button).then(function () {
+      var chooser = window.escolherModoDesenho ? window.escolherModoDesenho({currentMode:data.visual_mode,description:'Escolha o estilo para regenerar este fundo de viga e manter no N5.'}) : Promise.resolve('NOVA');
+      chooser.then(function (visualMode) {
+        if (!visualMode) { button.disabled=false; button.textContent='Regenerar N3 deste segmento'; return null; }
+        options.visualMode = visualMode;
+        // Regenerate from SA unless the user actually edited the N3 fields.
+        // An empty first-generation form is not a rectangular panel override.
+        var save = detail.getAttribute('data-fv-n3-dirty') === 'true' ? saveN3(detail, button) : Promise.resolve();
+        return save.then(function () {
         return api('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(data.beam.name) +
-          '/segmentos/' + index + '/regenerar-n3' + querySuffix(), {method:'POST'});
+          '/segmentos/' + index + '/regenerar-n3' + querySuffix(), {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({visual_mode:visualMode})});
+        });
       }).then(function (job) {
+        if (!job) return;
         qaStatus.textContent = 'Regeneração N3 de S' + index + ' enfileirada · aguardando processamento…';
         function pollJob() {
           fetch('/jobs/' + encodeURIComponent(job.job_id)).then(function(response){return response.json();}).then(function(status){
             var current = status.status || status.estado;
-            if (['na_fila','queued','rodando','running'].indexOf(current) >= 0) {
+            if (['na_fila','queued','rodando','running','executando'].indexOf(current) >= 0) {
               qaStatus.textContent = 'Regenerando N3 de S' + index + ' · ' + current + '…'; window.setTimeout(pollJob,2500); return;
             }
             button.textContent = 'Regenerar N3 deste segmento'; button.disabled = false;
-            if (['concluido','completed','sucesso'].indexOf(current) >= 0) load(root,Object.assign({},options,{initialSegment:index}));
+            if (['concluido','completed','done','sucesso'].indexOf(current) >= 0) load(root,Object.assign({},options,{initialSegment:index}));
             else { qaStatus.className='fv-qa-status error'; qaStatus.textContent='Regeneração não concluída: '+(status.erro_msg||current||'falha'); }
           }).catch(function(error){button.disabled=false;qaStatus.className='fv-qa-status error';qaStatus.textContent='Falha ao acompanhar N3: '+error.message;});
         }
@@ -558,19 +588,9 @@
     function deleteSegment(button) {
       var segment = selectedSaSegment();
       if (!segment) return;
-      if (!window.confirm('Excluir definitivamente o segmento S' + state.segment + ' de ' + data.beam.name + '?')) return;
-      button.disabled = true;
-      api('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(data.beam.name) +
-          '/segmentos/' + encodeURIComponent(state.segment) + querySuffix(), {method: 'DELETE'})
-        .then(function () {
-          if (window.DrillGrade && window.DrillGrade.refreshItems) window.DrillGrade.refreshItems();
-          load(root, Object.assign({}, options, {initialSegment: 'todos'}));
-        }).catch(function (error) {
-          button.disabled = false; qaStatus.className = 'fv-qa-status error';
-          qaStatus.textContent = 'Falha ao excluir segmento: ' + error.message;
-        });
+      window.ItemGeometry.delete({classe:'fundo',itemId:segment.id,beam:data.beam.name,
+        segmento:segment.index,pavimento:options.pavimento}, false);
     }
-
     function deleteLayer(button) {
       var layer = state.layer;
       if (['c1', 'c2', 'c3'].indexOf(layer) < 0) return;
@@ -652,10 +672,7 @@
         return [bbox[0] + point.x / transform.largura_px * (bbox[2] - bbox[0]),
                 bbox[3] - point.y / transform.altura_px * (bbox[3] - bbox[1])];
       });
-      api('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(data.beam.name) +
-          '/segmentos/' + encodeURIComponent(state.segment) + querySuffix(), {
-            method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({points: points})
-          }).then(function () {
+      window.ItemGeometry.save({classe:'fundo',itemId:selectedSaSegment().id,pavimento:options.pavimento}, points).then(function () {
         if (window.DrillGrade && window.DrillGrade.refreshItems) window.DrillGrade.refreshItems();
         load(root, Object.assign({}, options, {initialSegment: state.segment}));
       }).catch(function (error) {
@@ -698,16 +715,21 @@
     }
 
     function showLayer(name) {
-      if (!layers[name] || !layers[name].available) return;
+      if (!layers[name] || (!layers[name].available && name !== 'n3')) return;
       restoreHighlights();
       state.layer = name;
-      inner.innerHTML = cleanSvg(layers[name].svg);
+      inner.innerHTML = cleanSvg(layers[name].svg) || (name === 'n3'
+        ? '<div class="lv-canvas-empty"><strong>Modo ' + (data.visual_mode === 'INI' ? 'Ini' : 'Nova') + ' ainda não gerado.</strong><br>Solicite a regeneração deste fundo nesse modo para visualizar ou baixar.</div>'
+        : '');
       root.querySelectorAll('[data-fv-layer]').forEach(function (button) {
         button.classList.toggle('active', button.getAttribute('data-fv-layer') === name);
       });
       state.editing = null; canvas.classList.remove('fv-editing');
       renderSegmentTabs(); renderLayerActions();
       state.pz = initPanZoom(canvas);
+      var modeTabs = canvas.previousElementSibling;
+      if (name !== 'n3' && modeTabs && modeTabs.classList.contains('drawing-mode-tabs')) modeTabs.remove();
+      if (name === 'n3' && window.aplicarTagModoDesenho) window.aplicarTagModoDesenho(canvas, data.visual_mode,{onChange:function(mode){load(root,Object.assign({},options,{initialLayer:'n3',visualMode:mode}));}});
       renderAnnotationMarkers();
       label.textContent = layerLabel(name) + ' · ' + (state.segment === 'todos' ? 'Todos' : 'S' + state.segment);
       window.requestAnimationFrame(function () { focusSegment(state.pz, name, state.segment); });
@@ -821,8 +843,13 @@
     }
 
     function selectSegment(segment, expand) {
-      restoreHighlights();
       state.segment = String(segment);
+      restoreHighlights();
+      root.querySelectorAll('[data-fv-segment], [data-fv-detail]').forEach(function (row) {
+        var key = row.getAttribute('data-fv-segment') || row.getAttribute('data-fv-detail');
+        if (row.hasAttribute('data-fv-segment')) row.hidden = state.segment !== 'todos' && key !== state.segment;
+        else if (state.segment !== 'todos' && key !== state.segment) row.hidden = true;
+      });
       root.querySelectorAll('[data-fv-focus]').forEach(function (button) {
         button.classList.toggle('active', button.getAttribute('data-fv-focus') === state.segment);
       });
@@ -907,10 +934,19 @@
         if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); activate(); }
       });
     });
+    ['input', 'change'].forEach(function (eventName) {
+      root.querySelector('.fv-web-table-card').addEventListener(eventName, function (event) {
+        var detail = event.target.closest('[data-fv-detail]');
+        if (detail) detail.setAttribute('data-fv-n3-dirty', 'true');
+      });
+    });
     root.querySelector('.fv-web-table-card').addEventListener('click', function (event) {
       var button = event.target.closest('button'); if (!button) return;
       if (button.matches('[data-fv-table-validate-all]')) { validateHuman(button); return; }
       var detail = button.closest('[data-fv-detail]'); if (!detail) return;
+      if (button.matches('[data-fv-add-chamfer], [data-fv-add-opening], [data-fv-remove-feature]')) {
+        detail.setAttribute('data-fv-n3-dirty', 'true');
+      }
       if (button.matches('[data-fv-add-chamfer]')) {
         var list = detail.querySelector('[data-fv-feature-list="chamfer"]');
         list.querySelectorAll('.fv-web-empty').forEach(function(n){n.remove();});
@@ -941,8 +977,12 @@
     root.querySelectorAll('[data-fv-qa-layer]').forEach(function (button) {
       button.addEventListener('click', function () { requestQa(button, button.getAttribute('data-fv-qa-layer')); });
     });
-    root.querySelector('[data-fv-save-notes]').addEventListener('click', function () { saveNotes(true); });
+    window.HumanQa.mount(root.querySelector('[data-human-qa]'), {obraId:options.obraId, classe:'FV',
+      item:data.beam.name, pavimento:options.pavimento, onReviewed:function(){load(root,options);}});
     root.querySelector('[data-fv-rename]').addEventListener('click', renameBeam);
+    root.querySelector('[data-fv-delete-beam]').addEventListener('click', function () {
+      window.ItemGeometry.delete({classe:'fundo',itemId:data.beam.name,beam:data.beam.name,pavimento:options.pavimento}, true);
+    });
     root.querySelector('[data-fv-cancel-point]').addEventListener('click', function () {
       state.pointing=null; canvas.classList.remove('fv-pointing'); root.querySelector('[data-fv-annotation-editor]').hidden=true;
     });
@@ -961,13 +1001,19 @@
       api('/obras/'+encodeURIComponent(options.obraId)+'/fv/'+encodeURIComponent(data.beam.name)+'/apontamentos/'+encodeURIComponent(id)+querySuffix(),{method:'DELETE'})
         .then(function(){load(root,Object.assign({},options,{initialSegment:state.segment}));});
     });
-    showLayer(layers.sa && layers.sa.available ? 'sa' : Object.keys(layers).filter(function (key) { return layers[key].available; })[0]);
+    var requestedLayer = state.layer;
+    showLayer(layers[requestedLayer] && (layers[requestedLayer].available || requestedLayer === 'n3')
+      ? requestedLayer
+      : (layers.sa && layers.sa.available ? 'sa' : Object.keys(layers).filter(function (key) { return layers[key].available; })[0]));
     if (state.segment !== 'todos') selectSegment(state.segment, true);
   }
 
   function load(root, options) {
+    root._fvOptions=options;
+    root.setAttribute('data-fv-mounted','');
     root.innerHTML = '<div class="fv-web-loading"><i></i><span>Montando ficha HI-FI de ' + esc(options.beam) + '…</span></div>';
     var query = options.pavimento ? '?pavimento=' + encodeURIComponent(options.pavimento) : '';
+    if (options.visualMode) query += (query ? '&' : '?') + 'visual_mode=' + encodeURIComponent(options.visualMode);
     fetch('/obras/' + encodeURIComponent(options.obraId) + '/fv/' + encodeURIComponent(options.beam) + query)
       .then(function (response) {
         return response.json().then(function (body) {
@@ -984,4 +1030,11 @@
   }
 
   window.FvFicha = {mount: load, cleanSvg: cleanSvg};
+  document.addEventListener('portal:item-saved',function(event){
+    if(event.detail.classe!=='fundo') return;
+    document.querySelectorAll('[data-fv-mounted]').forEach(function(root){
+      var options=root._fvOptions;
+      if(options && options.beam===event.detail.beam && options.pavimento===event.detail.pavimento) load(root,options);
+    });
+  });
 })();

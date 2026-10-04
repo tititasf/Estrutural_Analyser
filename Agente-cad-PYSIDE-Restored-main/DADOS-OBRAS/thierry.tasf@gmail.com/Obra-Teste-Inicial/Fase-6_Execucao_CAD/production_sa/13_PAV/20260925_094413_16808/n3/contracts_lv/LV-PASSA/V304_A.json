@@ -1,0 +1,247 @@
+{
+  "number": "304",
+  "name": "V304_A_Passa",
+  "beam_name": "V304",
+  "floor": "13_PAV",
+  "side": "A",
+  "behavior": "Passa",
+  "contract_id": "LV_A_PASSA",
+  "total_width": 19.0,
+  "total_height": 59.0,
+  "h_section": 55.0,
+  "h_face_rule": "section_depth + 4 cm",
+  "panels": [
+    {
+      "width": 129.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 1,
+      "segment_index": 1,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          3807.3825,
+          2441.038
+        ],
+        [
+          3936.3825,
+          2441.038
+        ]
+      ],
+      "contract_id": "LV_A_PASSA",
+      "source_key": "viga_a_seg_1_comp_total_passa"
+    },
+    {
+      "width": 34.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 2,
+      "segment_index": 2,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          4101.3825,
+          2441.038
+        ],
+        [
+          4135.3825,
+          2441.038
+        ]
+      ],
+      "contract_id": "LV_A_PASSA",
+      "source_key": "viga_a_seg_2_comp_total_passa"
+    },
+    {
+      "width": 180.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 3,
+      "segment_index": 3,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          4154.3825,
+          2441.038
+        ],
+        [
+          4334.3825,
+          2441.038
+        ]
+      ],
+      "contract_id": "LV_A_PASSA",
+      "source_key": "viga_a_seg_3_comp_total_passa"
+    },
+    {
+      "width": 34.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 4,
+      "segment_index": 4,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          4353.3825,
+          2441.038
+        ],
+        [
+          4387.3825,
+          2441.038
+        ]
+      ],
+      "contract_id": "LV_A_PASSA",
+      "source_key": "viga_a_seg_4_comp_total_passa"
+    },
+    {
+      "width": 49.0,
+      "height1": 59.0,
+      "height2": 59.0,
+      "grade_h1": 0.0,
+      "grade_h2": 0.0,
+      "panel_type": "Sarrafeado",
+      "structural_segment_index": 5,
+      "segment_index": 5,
+      "panel_index_in_segment": 1,
+      "points": [
+        [
+          4552.3825,
+          2441.038
+        ],
+        [
+          4601.3825,
+          2441.038
+        ]
+      ],
+      "contract_id": "LV_A_PASSA",
+      "source_key": "viga_a_seg_5_comp_total_passa"
+    }
+  ],
+  "structural_segments": [
+    {
+      "width": 129.0,
+      "segment_index": 1,
+      "points": [
+        [
+          3807.3825,
+          2441.038
+        ],
+        [
+          3936.3825,
+          2441.038
+        ]
+      ],
+      "source_key": "viga_a_seg_1_comp_total_passa",
+      "source_slot": "seg_side_a",
+      "contract_id": "LV_A_PASSA"
+    },
+    {
+      "width": 34.0,
+      "segment_index": 2,
+      "points": [
+        [
+          4101.3825,
+          2441.038
+        ],
+        [
+          4135.3825,
+          2441.038
+        ]
+      ],
+      "source_key": "viga_a_seg_2_comp_total_passa",
+      "source_slot": "seg_side_a",
+      "contract_id": "LV_A_PASSA"
+    },
+    {
+      "width": 180.0,
+      "segment_index": 3,
+      "points": [
+        [
+          4154.3825,
+          2441.038
+        ],
+        [
+          4334.3825,
+          2441.038
+        ]
+      ],
+      "source_key": "viga_a_seg_3_comp_total_passa",
+      "source_slot": "seg_side_a",
+      "contract_id": "LV_A_PASSA"
+    },
+    {
+      "width": 34.0,
+      "segment_index": 4,
+      "points": [
+        [
+          4353.3825,
+          2441.038
+        ],
+        [
+          4387.3825,
+          2441.038
+        ]
+      ],
+      "source_key": "viga_a_seg_4_comp_total_passa",
+      "source_slot": "seg_side_a",
+      "contract_id": "LV_A_PASSA"
+    },
+    {
+      "width": 49.0,
+      "segment_index": 5,
+      "points": [
+        [
+          4552.3825,
+          2441.038
+        ],
+        [
+          4601.3825,
+          2441.038
+        ]
+      ],
+      "source_key": "viga_a_seg_5_comp_total_passa",
+      "source_slot": "seg_side_a",
+      "contract_id": "LV_A_PASSA"
+    }
+  ],
+  "structural_segment_count": 5,
+  "segment_count": 5,
+  "geometry_length": 426.0,
+  "start_adjustment": 0.0,
+  "end_adjustment": 0.0,
+  "endpoint_events": [
+    {
+      "endpoint": "start",
+      "pillar": "P24",
+      "pillar_side": "A",
+      "affected_side": "B",
+      "adjustment_cm": 0.0,
+      "reason": "Passa: lado oposto ao volume do pilar recua 4 cm"
+    }
+  ],
+  "endpoint_labels": {
+    "start": "P24",
+    "end": "P26"
+  },
+  "total_length": 426.0,
+  "dimension_status": "sa_lv",
+  "generation_ready": true,
+  "_sa_meta": {
+    "source": "Structural Analyzer / N1 / beams.data_json.links",
+    "schema": "lv_generation_contract/v1",
+    "behavior_isolated": true,
+    "fv_dimension_fallback": false,
+    "dimension_source": "lv_dimension_text"
+  },
+  "behavior_distinct_from_other": false
+}

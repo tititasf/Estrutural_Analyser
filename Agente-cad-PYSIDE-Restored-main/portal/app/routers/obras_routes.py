@@ -6,12 +6,14 @@ import logging
 import shutil
 import sqlite3
 import tempfile
+import uuid
 from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Literal
 
 from .. import access, auth, certification, classificador, drive_poller
 from ..dbdep import get_db_conn
@@ -38,6 +40,14 @@ _MEDIA_IMAGEM = {
 class CriarObraIn(BaseModel):
     nome: str
     descricao: Optional[str] = None
+    cliente: Optional[str] = None
+    data_solicitacao: Optional[str] = None
+    data_entrega: Optional[str] = None
+    criterios_cliente: Optional[str] = None
+    observacoes: Optional[str] = None
+    comportamento_laterais_vigas: Optional[Literal["", "gradeadas", "sarrafeadas"]] = None
+    fundos_vigas_possui_garfos: Optional[Literal["", "sim", "nao"]] = None
+    comportamento: Literal["para", "passa", "misto"] = "misto"
 
 
 class ClassificarDocumentoIn(BaseModel):
@@ -64,6 +74,18 @@ class AtualizarCabecalhoObraIn(BaseModel):
     data_entrega: Optional[str] = None
     criterios_cliente: Optional[str] = None
     observacoes: Optional[str] = None
+    comportamento: Optional[Literal["para", "passa", "misto"]] = None
+    comportamento_laterais_vigas: Optional[Literal["", "gradeadas", "sarrafeadas"]] = None
+    fundos_vigas_possui_garfos: Optional[Literal["", "sim", "nao"]] = None
+
+
+class PavimentoOrdemIn(BaseModel):
+    pavimento: str = Field(min_length=1, max_length=100)
+    tipo: Optional[dict[str, int]] = None
+
+
+class OrdemPavimentosIn(BaseModel):
+    pavimentos: list[PavimentoOrdemIn]
 
 
 class RenomearDocumentoIn(BaseModel):
@@ -178,24 +200,74 @@ def upload_obra(
                     )
                 fh.write(pedaco)
 
+        arquivo_hash = drive_poller._md5_arquivo(tmp_path)
+        existente = repo.obter_obra_por_hash(conn, arquivo_hash)
+        if existente is not None and access.pode_ver_obra(existente, membro):
+            return {
+                "file_id": existente.get("arquivo_drive_id"),
+                "novas_obras": 0,
+                "obra_id": existente["id"],
+                "formato": ext.removeprefix("."),
+                "duplicado": True,
+            }
+
+        # O modo rápido agora cria uma obra-container normal com o primeiro
+        # pavimento como portal_documentos. Assim o usuário pode continuar
+        # adicionando pavimentos na mesma ficha, sem ficar preso ao legado
+        # "1 arquivo = 1 obra".
         cliente = drive_poller.montar_drive_client(settings)
+        slug = drive_poller._safe_slug(nome)
+        sufixo = uuid.uuid4().hex[:8]
+        pasta_nome = f"{slug}-{sufixo}"
         try:
-            file_id = cliente.enviar_arquivo(membro["drive_folder_id"], tmp_path, nome)
+            pasta_id = cliente.obter_ou_criar_pasta(
+                pasta_nome, pasta_pai_id=membro["drive_folder_id"]
+            )
+            file_id = cliente.enviar_arquivo(pasta_id, tmp_path, nome)
         except Exception as exc:  # noqa: BLE001 - Drive pode falhar de varias formas (R8)
             raise HTTPException(
-                status_code=502, detail=f"falha ao enviar para o Drive: {exc}"
+                status_code=502, detail=f"falha ao criar a obra no Drive: {exc}"
             ) from exc
 
-        # registra a obra JA' (nao espera o poller de fundo) — reusa a mesma
-        # variedade/dedup do fluxo normal, so' escopado a este membro.
-        try:
-            novas = drive_poller.varrer_uma_vez(conn, cliente, settings, membros=[membro])
-        except Exception:  # noqa: BLE001 - degradacao R8: upload no Drive ja' funcionou
-            novas = []
+        obra_dir = settings.dados_obras_dir / membro["login"] / pasta_nome
+        entrada_dir = obra_dir / "entrada"
+        entrada_dir.mkdir(parents=True, exist_ok=True)
+        destino = entrada_dir / nome
+        shutil.copy2(tmp_path, destino)
+
+        obra_id = repo.criar_obra(
+            conn,
+            membro_id=membro["id"],
+            nome=slug,
+            pasta_drive_id=pasta_id,
+            arquivo_hash=arquivo_hash,
+            estado="aguardando_ingestao",
+            local_path=str(obra_dir),
+        )
+        sugestao = classificador.classificar_arquivo(nome)
+        doc_id = repo.criar_documento(
+            conn,
+            obra_id=obra_id,
+            arquivo_nome=nome,
+            arquivo_drive_id=file_id,
+            arquivo_hash=arquivo_hash,
+            local_path=str(destino),
+            classe_sugerida=sugestao["classe_sugerida"],
+            pavimento_sugerido=sugestao["pavimento_sugerido"],
+            tipo_documento_sugerido=sugestao["tipo_documento_sugerido"],
+            tipo_documento_confirmado="Bruto",
+            status="pendente",
+        )
     finally:
         shutil.rmtree(tmp_dir, ignore_errors=True)
 
-    return {"file_id": file_id, "novas_obras": len(novas)}
+    return {
+        "file_id": file_id,
+        "novas_obras": 1,
+        "obra_id": obra_id,
+        "doc_id": doc_id,
+        "formato": ext.removeprefix("."),
+    }
 
 
 @router.post("/criar")
@@ -234,6 +306,14 @@ def criar_obra_endpoint(
     obra_id = repo.criar_obra(
         conn, membro_id=membro["id"], nome=nome, descricao=body.descricao,
         pasta_drive_id=pasta_id, estado="aguardando_ingestao", local_path=str(local_path),
+    )
+    repo.atualizar_cabecalho_obra(
+        conn, obra_id, cliente=body.cliente,
+        data_solicitacao=body.data_solicitacao, data_entrega=body.data_entrega,
+        criterios_cliente=body.criterios_cliente, observacoes=body.observacoes,
+        comportamento=body.comportamento,
+        comportamento_laterais_vigas=body.comportamento_laterais_vigas,
+        fundos_vigas_possui_garfos=body.fundos_vigas_possui_garfos,
     )
     return {"obra_id": obra_id, "nome": nome, "descricao": body.descricao, "pasta_drive_id": pasta_id}
 
@@ -530,8 +610,39 @@ def atualizar_cabecalho_obra_endpoint(
         conn, obra_id, nome=nome, cliente=body.cliente,
         data_solicitacao=body.data_solicitacao, data_entrega=body.data_entrega,
         criterios_cliente=body.criterios_cliente, observacoes=body.observacoes,
+        comportamento=body.comportamento,
+        comportamento_laterais_vigas=body.comportamento_laterais_vigas,
+        fundos_vigas_possui_garfos=body.fundos_vigas_possui_garfos,
     )
     return repo.obter_obra(conn, obra_id)
+
+
+@router.get("/{obra_id}/pavimentos/ordem")
+def obter_ordem_pavimentos(obra_id: str, membro: dict = Depends(auth.exige_login),
+                           conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = repo.obter_obra(conn, obra_id)
+    if obra is None or not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=404, detail="obra não encontrada")
+    rows = repo.listar_pavimentos_obra(conn, obra_id)
+    return {"obra_id": obra_id, "definida_pelo_dono": bool(rows), "pavimentos": rows}
+
+
+@router.put("/{obra_id}/pavimentos/ordem")
+def atualizar_ordem_pavimentos(obra_id: str, body: OrdemPavimentosIn,
+                               membro: dict = Depends(auth.exige_login),
+                               conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = repo.obter_obra(conn, obra_id)
+    if obra is None or not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=404, detail="obra não encontrada")
+    if not access.eh_dono(membro):
+        raise HTTPException(status_code=403, detail="Somente o dono define a ordem dos pavimentos")
+    try:
+        rows = repo.salvar_pavimentos_obra(
+            conn, obra_id, [row.model_dump() for row in body.pavimentos],
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return {"obra_id": obra_id, "definida_pelo_dono": bool(rows), "pavimentos": rows}
 
 
 @router.post("/{obra_id}/documentos/{doc_id}/renomear")
@@ -644,3 +755,34 @@ def validar_sa_endpoint(
         raise HTTPException(status_code=403, detail="obra de outro membro")
     repo.set_sa_validado(conn, obra_id, bruto_id, payload.validado, validado_por=membro.get("login"))
     return repo.obter_sa_validacao(conn, obra_id, bruto_id)
+
+
+class VigasPavimentoIn(BaseModel):
+    comportamento_laterais_vigas: Literal['gradeadas', 'sarrafeadas']
+    fundos_vigas_possui_garfos: Literal['sim', 'nao']
+
+
+@router.get('/{obra_id}/pavimentos/vigas-config')
+def obter_vigas_pavimento(obra_id: str, pavimento: str,
+                          membro: dict = Depends(auth.exige_login),
+                          conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = repo.obter_obra(conn, obra_id)
+    if not obra or not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=404, detail='obra não encontrada')
+    try:
+        return repo.obter_config_vigas_pavimento(conn, obra_id, pavimento)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.put('/{obra_id}/pavimentos/vigas-config')
+def salvar_vigas_pavimento(obra_id: str, pavimento: str, body: VigasPavimentoIn,
+                           membro: dict = Depends(auth.exige_login),
+                           conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = repo.obter_obra(conn, obra_id)
+    if not obra or not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=404, detail='obra não encontrada')
+    try:
+        return repo.salvar_config_vigas_pavimento(conn, obra_id, pavimento, body.model_dump())
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc

@@ -71,6 +71,7 @@ def canonical_fundo_section_dim(beam: dict) -> str:
     viga_segs = links.get("viga_segs") if isinstance(links.get("viga_segs"), dict) else {}
     bottom = viga_segs.get("seg_bottom") if isinstance(viga_segs.get("seg_bottom"), list) else []
     candidates: list[str] = []
+    measured_widths: list[float] = []
     for segment in bottom:
         if not isinstance(segment, dict):
             continue
@@ -79,6 +80,8 @@ def canonical_fundo_section_dim(beam: dict) -> str:
             continue
         width = _format_section_number(ficha.get("largura_total_fundo"))
         height = _format_section_number(ficha.get("altura_total"))
+        if width:
+            measured_widths.append(float(width))
         if width and height:
             candidates.append(f"{width}/{height}")
     if candidates:
@@ -97,8 +100,26 @@ def canonical_fundo_section_dim(beam: dict) -> str:
         for label in labels or []:
             text = label.get("text") if isinstance(label, dict) else None
             cleaned = clean_beam_section_dim(text)
-            if cleaned and ("/" in cleaned or "x" in cleaned.lower()):
+            width = beam_section_width(cleaned)
+            if (cleaned and ("/" in cleaned or "x" in cleaned.lower())
+                    and (not measured_widths or any(abs(width-w)<.5 for w in measured_widths))):
                 candidates.append(cleaned)
+    if not candidates and measured_widths:
+        # A label copied from a neighbouring pillar cannot override the own
+        # bottom width. Cross-check only the attached labels of this beam's
+        # sides; require a unique section consistent with that measured width.
+        side_candidates = set()
+        for key, payload in links.items():
+            if not re.fullmatch(r"viga_[ab]_seg_\d+_dim", str(key)):
+                continue
+            for label in (payload.get("label") or []) if isinstance(payload, dict) else []:
+                cleaned = clean_beam_section_dim(label.get("text") if isinstance(label, dict) else None)
+                width = beam_section_width(cleaned)
+                if (cleaned and ("/" in cleaned or "x" in cleaned.lower())
+                        and any(abs(width-w)<.5 for w in measured_widths)):
+                    side_candidates.add(cleaned)
+        if len(side_candidates)==1:
+            candidates.extend(side_candidates)
     if not candidates:
         return ""
     # Segmentos de uma mesma viga normalmente repetem a seção. Em caso de

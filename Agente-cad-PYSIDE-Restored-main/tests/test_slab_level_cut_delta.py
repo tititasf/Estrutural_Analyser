@@ -3,6 +3,68 @@
 Casos reais do 13_PAV (Obra_TREINO_1) que o bug de unidade deslocou em 2026-09.
 """
 from src.core.slab_level_inference import cut_delta_level, gate_cut_delta_level
+from src.core.slab_level_inference import paired_cut_level_source
+
+
+def test_shared_cut_transports_step_instead_of_copying_neighbor_level():
+    cut = {'ficha': {'side_a_laje_name': 'own', 'side_b_laje_name': 'other',
+                     'own_dist_top': '7', 'neighbor_dist_top': '0'}}
+    source = {'slab': 'other', 'value': 852.19, 'human': False}
+    result = paired_cut_level_source(cut, 'own', source)
+    assert result['value'] == 852.12
+    assert result['source_level'] == 852.19 and result['delta_cm'] == -7
+    assert result['human'] is False
+    assert source['value'] == 852.19
+    assert paired_cut_level_source(cut, 'unrelated', source) is None
+
+
+def test_shared_cut_requires_both_dimensions_and_named_opposite_slab():
+    ficha = {'side_a_laje_name': 'own', 'side_b_laje_name': 'other',
+             'own_dist_top': 0, 'neighbor_dist_top': 0}
+    source = {'slab': 'other', 'value': 852.12}
+    assert paired_cut_level_source({'ficha': ficha}, 'own', source)['value'] == 852.12
+    del ficha['neighbor_dist_top']
+    assert paired_cut_level_source({'ficha': ficha}, 'own', source) is None
+    ficha['neighbor_dist_top'] = float('nan')
+    assert paired_cut_level_source({'ficha': ficha}, 'own', source) is None
+
+
+def test_inverted_delta_requires_physical_regional_slab_contact():
+    cut = {'section_semantics': {'confirmed':True,'beam_type':'inverted',
+        'width_cm':19,'frame':{'base_center':[0,0],'ex':[1,0],'ey':[0,1]},
+        'flanges':{'left':{'height_cm':10,'bottom_cm':0},
+                   'right':{'height_cm':13,'bottom_cm':0}}}}
+    own = {'name':'own','points':[(10,0),(30,0),(30,15),(10,15)]}
+    other = {'name':'other','points':[(-30,0),(-10,0),(-10,15),(-30,15)],
+             'fields':{'laje_dim':'h=13'},'slab_steps':[
+                 {'points':[(-30,0),(-10,0),(-10,15),(-30,15)],
+                  'height_cm':10,'level_m':852.16,'status':'same_bottom'}]}
+    source = {'slab':'other','value':852.19}
+    result = paired_cut_level_source(cut,'own',source,own_slab=own,source_slab=other)
+    assert result['value']==852.19 and result['source_level']==852.16
+    assert result['delta_cm']==3
+    assert source['value']==852.19
+    assert paired_cut_level_source(cut,'own',source) is None
+    remote = {**other,'points':[(-30,100),(-10,100),(-10,115),(-30,115)]}
+    assert paired_cut_level_source(cut,'own',source,own_slab=own,source_slab=remote) is None
+    assert paired_cut_level_source(cut,'own',source,own_slab=own,source_slab={**other,'slab_steps':[]}) is None
+
+
+def test_canonical_context_consensus_keeps_distinct_centimetre_levels_separate():
+    # Execute the canonical method without importing the desktop window.
+    import ast
+    from pathlib import Path
+    tree = ast.parse((Path(__file__).parents[1] / 'main.py').read_text(encoding='utf8'))
+    method = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)
+                  and n.name == '_choose_consensus_level')
+    namespace = {}
+    exec(compile(ast.Module(body=[method], type_ignores=[]), 'main.py', 'exec'), namespace)
+    consensus = namespace['_choose_consensus_level']
+    result = consensus(None, [{'value': 852.12}, {'value': 852.16}])
+    assert result['ambiguous'] is True
+    result = consensus(None, [{'value': 852.12}, {'value': 852.122}])
+    assert not result.get('ambiguous')
+    assert len(result['items']) == 2
 
 
 def test_delta_em_cm_vira_metro():
