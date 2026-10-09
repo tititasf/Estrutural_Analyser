@@ -1,0 +1,30 @@
+{
+  "verified_utc": "2026-10-09T06:56:03.070718+00:00",
+  "capture_finished_utc": "2026-10-09T06:48:53Z",
+  "encrypted_objects": 202,
+  "encrypted_bytes": 13418190992,
+  "archives": [
+    {
+      "sequence": 0,
+      "entries": 407727,
+      "payload_bytes": 55473029443
+    },
+    {
+      "sequence": 1,
+      "entries": 4923,
+      "payload_bytes": 9460983525
+    },
+    {
+      "sequence": 2,
+      "entries": 27897,
+      "payload_bytes": 11244272412
+    }
+  ],
+  "sqlite_databases_verified": 19,
+  "git_history_cloned_and_fsck_passed": true,
+  "recovered_code_checkpoint": "c156743baca5080c0033f5c85d3c1be5f3c6aa87",
+  "production_branch_preserved": true,
+  "remote_lfs_all_objects_available": true,
+  "live_capture_directory_change_warnings": 3,
+  "data_file_read_errors": 0
+}
