@@ -542,6 +542,7 @@
         '<button type="button" class="fv-rename danger" style="color:#dc2626;border-color:#fca5a5" data-lv-delete-beam>Excluir viga</button></div>' +
         '<div class="fv-web-nav"><button type="button" data-lv-beam="' + esc(data.beam.previous || '') + '" ' + (!data.beam.previous ? 'disabled' : '') + '>←</button>' +
         '<b>' + data.beam.position + '/' + data.beam.total_beams + '</b><button type="button" data-lv-beam="' + esc(data.beam.next || '') + '" ' + (!data.beam.next ? 'disabled' : '') + '>→</button></div></header>' +
+      (window.gateCadHtml ? window.gateCadHtml(data.gate_cad) : '') +
       '<section class="fv-web-viewer-card">' +
       '<nav class="lv-side-tabs fv-web-layerbar" role="tablist" aria-label="Lados da lateral de viga">' + ['A','B'].map(function (side) {
         return '<button type="button" role="tab" aria-selected="' + (state.section !== 'cut' && state.side === side) + '" class="fv-web-layer lv-side-tab ' + (state.section !== 'cut' && state.side === side ? 'active' : '') + '" data-lv-side="' + side + '">' +

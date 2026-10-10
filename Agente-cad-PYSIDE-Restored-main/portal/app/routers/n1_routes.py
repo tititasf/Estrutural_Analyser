@@ -290,6 +290,15 @@ def listar_itens_n1_endpoint(obra_id: str, classe: str, request: Request,
     }
 
 
+def _gate_cad_ficha(obra_dir, pav, classe, beam, estado):
+    """Gate CAD pós-SA da viga (FV ou LV por comportamento); nunca derruba a ficha."""
+    from ..qa_cad_gate_run import item_status
+    try:
+        return item_status(obra_dir, pav, classe, beam, estado, beam_name=beam)
+    except Exception:
+        return None
+
+
 @router.get("/{obra_id}/fv/{beam}")
 def obter_ficha_fv_endpoint(
     obra_id: str,
@@ -329,6 +338,7 @@ def obter_ficha_fv_endpoint(
     result["obra"]["id"] = obra_id
     result["obra"]["name"] = obra.get("nome")
     result["qa_reviews"] = repo.listar_qa_resumos(conn, obra_id, pav, "FV").get(beam.upper(), {})
+    result["gate_cad"] = _gate_cad_ficha(obra_dir, pav, "fundo", beam, estado)
     validated_ids = {
         row["item_id"] for row in repo.listar_campos_validados_por_obra(conn, obra_id)
         if row["pavimento"] == pav and row["classe"] == "FUNDO" and row["field_id"] == "_item_"
@@ -371,6 +381,7 @@ def obter_ficha_lv_endpoint(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     from ..qa_versions import availability
     result["qa_layers"] = availability(obra_dir, pav, "LV", beam, behavior)[1]
+    result["gate_cad"] = _gate_cad_ficha(obra_dir, pav, f"lateral_a_{behavior.lower()}", beam, estado)
     validated = {
         (row["classe"].lower(), row["item_id"])
         for row in repo.listar_campos_validados_por_obra(conn, obra_id)

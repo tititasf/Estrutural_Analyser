@@ -175,6 +175,7 @@
       '</section>' +
       '<section class="fv-qa-below" aria-label="QA agentivo e humano do fundo de viga">' +
         '<div data-human-qa></div>' +
+        (window.gateCadHtml ? window.gateCadHtml(data.gate_cad) : '') +
         '<div class="fv-qa-status" data-fv-qa-status>' + qaStatusHtml(data.qa_reviews || {}) + '</div>' +
         '<section class="fv-annotations"><h4>Apontamentos humanos</h4><div data-fv-annotation-editor hidden>' +
           '<span data-fv-point-label>Selecione um elemento no viewer</span><input type="text" data-fv-point-text placeholder="Escreva o que deseja registrar sobre este ponto">' +

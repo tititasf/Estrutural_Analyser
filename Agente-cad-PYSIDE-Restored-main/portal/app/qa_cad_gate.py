@@ -419,7 +419,8 @@ def _measure_slabs(source, snapshot):
 SECTION_TEXT = re.compile(r'(\d+(?:[.,]\d+)?)\s*/\s*(\d+(?:[.,]\d+)?)')
 BEAM_LABEL = re.compile(r'V[A-Z]?\d+[A-Z]?')
 FV_GUARDS = ['identidade_contorno', 'dimensoes', 'apoios_limites', 'inventario_segmentos', 'niveis']
-LV_GUARDS = ['identidade_contorno', 'dimensoes', 'altura_util', 'apoios_limites', 'inventario_segmentos']
+LV_GUARDS = ['identidade_contorno', 'dimensoes', 'laje_face', 'apoios_limites', 'inventario_segmentos',
+             'consistencia_alertas']
 
 
 def _straight_walls(doc):
@@ -1519,325 +1520,274 @@ def _fmt(value):
     return f'{value:.1f}'.rstrip('0').rstrip('.').replace('.', ',')
 
 
-def measure_lateral_beams(source, snapshot, slabs=None, floor=None):
-    """Lateral de viga LV: arestas sobre paredes de viga, filtro de visão de corte
-    e validação de altura útil (h_viga - h_laje).
-    """
-    from shapely.geometry import LineString, Polygon, Point, box as sbox
-    source = Path(source)
-    doc = _readfile(source)
-    walls = _cached('walls', source, lambda: list(_straight_walls(doc)))
-    texts = _cached('beam_texts', source, lambda: _beam_texts(doc))
-    strokes = _cached('strokes', source, lambda: _strokes(doc, source))
-
-    # Preenchimentos e sólidos originais para identificar cortes e exceções
-    try:
-        original, extent = _original_dxf(source)
-        marks = _cached('marks', original, lambda: _exception_marks(original, extent), str(extent))
-        original_fills = [(h, shape) for h, shape in marks['hatches']] + \
-                         [(handles[0] if handles else '?', part) for handles, part in marks['fills']]
-        original_solids = list(marks.get('solids') or [])
-    except (ValueError, OSError, KeyError, json.JSONDecodeError):
-        original_fills, original_solids = [], []
-
-    # Extrai sólidos diretamente do doc se não encontrados
-    local_solids = []
-    for e in doc.modelspace():
-        if e.dxftype() == 'SOLID':
+def _lv_rows(snapshot):
+    """Segmentos LV do snapshot SA (lateral_{a,b}_{para,passa}), com a linha da face alinhada a um eixo."""
+    parsed = []
+    for key, rows in sorted((snapshot.get('collections') or {}).items()):
+        if not key.startswith('lateral_') or not isinstance(rows, list):
+            continue
+        for index, row in enumerate(rows):
+            rec = dict(key=key, row=row, unit=f'/collections/{key}/{index}', name=str(row.get('beam_name') or ''),
+                       label=f"{row.get('beam_name')} {row.get('side') or key.split('_')[1].upper()} "
+                             f"{row.get('behavior') or key.split('_')[2].capitalize()} seg {row.get('segment_label', index+1)}")
             try:
-                pts = [(float(e.dxf.vtx0.x), float(e.dxf.vtx0.y)),
-                       (float(e.dxf.vtx1.x), float(e.dxf.vtx1.y)),
-                       (float(e.dxf.vtx3.x), float(e.dxf.vtx3.y)),
-                       (float(e.dxf.vtx2.x), float(e.dxf.vtx2.y))]
-                poly = Polygon(pts)
-                if not poly.is_valid:
-                    poly = Polygon([(float(e.dxf.vtx0.x), float(e.dxf.vtx0.y)),
-                                   (float(e.dxf.vtx1.x), float(e.dxf.vtx1.y)),
-                                   (float(e.dxf.vtx2.x), float(e.dxf.vtx2.y)),
-                                   (float(e.dxf.vtx3.x), float(e.dxf.vtx3.y))])
-                if poly.is_valid and poly.area > EPS:
-                    local_solids.append((e.dxf.handle, poly))
-            except Exception:
-                pass
-    all_solids = original_solids + local_solids
-
-    # Extrai coleções de laterais
-    collections = snapshot.get('collections', {})
-    rows = []
-    if 'laterais' in collections:
-        rows = collections['laterais']
-    else:
-        for k, v in collections.items():
-            if k.startswith('lateral_') and isinstance(v, list):
-                rows.extend(v)
-
-    contacts = []
-    parsed_rows = []
-    for index, row in enumerate(rows):
-        unit = f'/collections/laterais/{index}'
-        name = str(row.get('beam_name') or row.get('beam') or '')
-        face = str(row.get('face') or row.get('side') or 'A')
-        seg_lbl = str(row.get('segment_label', index + 1))
-        label = f"{name} {face} seg {seg_lbl}"
-
-        points = row.get('points') or []
-        if points:
-            try:
-                xs = [float(p[0]) for p in points]
-                ys = [float(p[1]) for p in points]
-                xmin, xmax, ymin, ymax = min(xs), max(xs), min(ys), max(ys)
-                if xmax - xmin >= ymax - ymin:
-                    axis = 'x'
-                    lo, hi = xmin, xmax
-                    pos = (ymin + ymax) / 2.0
-                else:
-                    axis = 'y'
-                    lo, hi = ymin, ymax
-                    pos = (xmin + xmax) / 2.0
+                (x0, y0), (x1, y1) = [(float(p[0]), float(p[1])) for p in row.get('points') or []]
             except (ValueError, TypeError):
-                lo, hi, pos, axis = 0.0, 0.0, 0.0, 'x'
-        else:
-            axis = str(row.get('axis', 'x'))
-            lo = float(row.get('start', 0.0))
-            hi = float(row.get('end', 0.0))
-            pos = float(row.get('pos', 0.0))
+                parsed.append(rec)
+                continue
+            if abs(y1 - y0) < EPS and abs(x1 - x0) > EPS:
+                rec.update(axis='x', pos=(y0 + y1) / 2, lo=min(x0, x1), hi=max(x0, x1))
+            elif abs(x1 - x0) < EPS and abs(y1 - y0) > EPS:
+                rec.update(axis='y', pos=(x0 + x1) / 2, lo=min(y0, y1), hi=max(y0, y1))
+            parsed.append(rec)
+    return parsed
 
-        length = hi - lo
-        parsed_rows.append((index, row, unit, name, face, label, axis, pos, lo, hi, length))
 
-    for index, row, unit, name, face, label, axis, pos, lo, hi, length in parsed_rows:
-        if length <= EPS:
+def _thickness(value):
+    """Espessura de laje escrita como 13, '13.0' ou 'h=12'."""
+    match = re.search(r'\d+(?:[.,]\d+)?', str(value if value is not None else ''))
+    return number(match[0].replace(',', '.')) if match else None
+
+
+def _section(value):
+    match = SECTION_TEXT.fullmatch(str(value or '').strip())
+    return (number(match[1]), number(match[2])) if match else None
+
+
+def measure_lateral_beams(source, snapshot, slabs=None, floor=None):
+    """Lateral de viga LV: cada segmento é a linha de uma face da viga.
+
+    Mede no DXF original, só por geometria (nunca por nome de layer):
+    identidade_contorno: a linha coincide com uma parede original e a parede oposta
+    está a bw dela (lado do corpo da viga). dimensoes: seção bw/h escrita na faixa da
+    viga = lv_cell.dim/sections. laje_face: lajes que encostam pelo lado de fora da
+    face (contornos LAJ, que o gate LAJ mede no CAD) = lv_cell.slabs e espessuras.
+    apoios_limites: traço original perpendicular em cada extremo tocando a face.
+    inventario_segmentos/consistencia_alertas: sobreposição e coerência dos campos.
+    A altura do painel não é declarada pelo SA (o gerador N3 a calcula): não é medida.
+    """
+    from shapely.geometry import Polygon, box as sbox
+    source = Path(source)
+    walls = _cached('walls', source, lambda: list(_straight_walls(_readfile(source))))
+    texts = _cached('beam_texts', source, lambda: _beam_texts(_readfile(source)))
+    slab_shapes = []
+    for slab in slabs or []:
+        try:
+            shape = Polygon([(float(p[0]), float(p[1])) for p in slab.get('points') or []])
+        except (ValueError, TypeError):
+            continue
+        if not (shape.is_valid and shape.area > EPS):
+            continue
+        steps = []  # regiões rebaixadas da laje (slab_steps) têm espessura própria
+        for step in slab.get('slab_steps') or []:
+            try:
+                part = Polygon([(float(p[0]), float(p[1])) for p in step.get('points') or []])
+            except (ValueError, TypeError):
+                continue
+            if part.is_valid and part.area > EPS:
+                steps.append((_thickness(step.get('height_cm')), part))
+        slab_shapes.append((str(slab.get('name')), _thickness(slab.get('height')), shape, steps))
+    # Seção escrita logo abaixo de rótulo de pilar (P8 / 19/66) é do pilar, não da viga.
+    pillar_labels = [t for t in texts if re.fullmatch(r'P\d+[A-Z]?', t['text'])]
+    texts = [t for t in texts if not (SECTION_TEXT.fullmatch(t['text']) and any(
+        abs(p['x'] - t['x']) <= 1.5 * p['margin'] and 0 < p['y'] - t['y'] <= 1.5 * p['margin'] for p in pillar_labels))]
+    parsed = _lv_rows(snapshot)
+    contacts = []
+    for seg in parsed:
+        row, unit, label, name = seg['row'], seg['unit'], seg['label'], seg['name']
+        if 'axis' not in seg:
             contacts.append(dict(unit_path=unit, item=label, aspect='contorno', status='uncertain', errors={},
                                  guards=LV_GUARDS, blocks_promotion=False,
-                                 reason='contorno degenerado/inválido; medir no CAD manualmente'))
+                                 reason='linha da face degenerada ou fora dos eixos; medir no CAD manualmente'))
             continue
+        axis, pos, lo, hi = seg['axis'], seg['pos'], seg['lo'], seg['hi']
+        across = 'y' if axis == 'x' else 'x'
+        length = hi - lo
+        cell = row.get('lv_cell') or {}
+        dim = _section(cell.get('dim') or row.get('width'))
+        bw = dim[0] if dim else None
 
-        cross_axis = 'y' if axis == 'x' else 'x'
-
-        # 1. Identidade de contorno (arestas sobre traços de parede originais)
-        hits = [w for w in walls if w['axis'] == axis and abs(w['pos'] - pos) < EPS and w['hi'] > lo and w['lo'] < hi]
-        cov = _covered([(w['lo'], w['hi']) for w in hits], lo, hi) / length if length > EPS else 0.0
-        edge_rec = dict(unit_path=unit, item=label, aspect='arestas', status='uncertain', errors={},
-                        guards=['identidade_contorno'], blocks_promotion=False,
-                        coverage=round(cov, 3), wall_handles=sorted({w['handle'] for w in hits}))
-        if cov <= 0 or not hits:
-            edge_rec['status'] = 'measured'
-            edge_rec['errors']['identidade_contorno'] = (
-                'identidade_contorno: face lateral sem traço original colinear; segmento pode estar deslocado da viga desenhada'
-            )
-        elif cov >= 0.5:
-            edge_rec['status'] = 'measured'
+        # 1. Face sobre parede original + parede oposta a bw (lado do corpo da viga).
+        def parallel(at):
+            hits = [w for w in walls if w['axis'] == axis and abs(w['pos'] - at) < EPS and w['hi'] > lo and w['lo'] < hi]
+            return _covered([(w['lo'], w['hi']) for w in hits], lo, hi) / length, hits
+        cov, hits = parallel(pos)
+        body = None
+        edge = dict(unit_path=unit, item=label, aspect='arestas', status='uncertain', errors={},
+                    guards=['identidade_contorno'], blocks_promotion=False, coverage=round(cov, 3),
+                    wall_handles=sorted({w['handle'] for w in hits}))
+        if bw:
+            opposite = {sign: parallel(pos + sign * bw)[0] for sign in (1, -1)}
+            sign = max(opposite, key=opposite.get)
+            edge['opposite_coverage'] = round(opposite[sign], 3)
+            if opposite[sign] > 0:
+                body = sign
+        if cov <= 0:
+            edge['status'] = 'measured'
+            close = sorted((abs(w['pos'] - pos), w['pos']) for w in walls if w['axis'] == axis and
+                           abs(w['pos'] - pos) <= 5 and w['hi'] > lo and w['lo'] < hi)
+            edge['errors']['identidade_contorno'] = (
+                f'face sem traço original colinear; parede original mais próxima a {_fmt(close[0][0])} cm '
+                f'({across}={_fmt(close[0][1])})' if close else
+                'face sem traço original colinear; segmento pode estar deslocado da viga desenhada')
+        elif cov < .5:
+            edge['reason'] = f'face coberta só em {cov:.0%} por traços originais; conferir no CAD'
+        elif body is None:
+            edge['status'] = 'measured'
+            near = sorted({round(abs(w['pos'] - pos), 2) for w in walls if w['axis'] == axis and
+                           5 <= abs(w['pos'] - pos) <= 100 and w['hi'] > lo and w['lo'] < hi})
+            edge['errors']['identidade_contorno'] = (
+                f'nenhuma parede paralela a bw={_fmt(bw)} cm da face'
+                + (f' (paredes paralelas a {", ".join(_fmt(n) for n in near[:3])} cm)' if near else '')
+                if bw else 'seção bw/h ausente; parede oposta não verificável')
         else:
-            edge_rec['reason'] = f'face lateral coberta só em {cov:.0%} por traços originais; conferir no CAD'
-        contacts.append(edge_rec)
+            edge['status'] = 'measured'
+        contacts.append(edge)
 
-        # 2. Dimensões (comprimento)
-        declared_len = number(row.get('length'))
-        dim_rec = dict(unit_path=unit, item=label, aspect='dimensões', status='measured', errors={},
-                       guards=['dimensoes'], blocks_promotion=False,
-                       measured_length_cm=round(length, 2))
-        if declared_len is not None and abs(declared_len - length) > EPS:
-            dim_rec['errors']['dimensoes'] = f'length {row.get("length")} ≠ extensão medida {_fmt(length)} cm'
-        contacts.append(dim_rec)
-
-        # 3. Apoios / Limites e Filtro de Visão de Corte / Cotas Explodidas
-        cut_solids = [poly for _h, poly in all_solids]
-
-        dim_ticks = []
-        for s in strokes:
-            if 'a' in s and 'b' in s:
-                dx, dy = abs(s['b'][0] - s['a'][0]), abs(s['b'][1] - s['a'][1])
-                dist = math.hypot(dx, dy)
-                if 2.0 <= dist <= 20.0 and min(dx, dy) >= 0.5 * max(dx, dy):
-                    dim_ticks.append(s)
-
-        corte_layers = {layer.dxf.name for layer in doc.layers
-                        if re.search(r'CORTE|SECTION|SECAO|SEÇÃO', layer.dxf.name, re.I)}
-        cota_layers = {layer.dxf.name for layer in doc.layers
-                       if re.search(r'COTA|DIM', layer.dxf.name, re.I)}
-
-        def is_spurious_cut_or_dim_at(end_coord):
-            # Se há parede estrutural perpendicular real com comprimento >= 10cm, é apoio real
-            real_supports = []
-            for w in walls:
-                if w['axis'] == cross_axis and abs(w['pos'] - end_coord) < EPS and w['hi'] - w['lo'] >= 10.0 - EPS:
-                    ent = doc.entitydb.get(w.get('handle'))
-                    lay = ent.dxf.get('layer', '') if ent else ''
-                    if not re.search(r'CORTE|SECTION|SECAO|SEÇÃO|COTA|DIM', lay, re.I):
-                        real_supports.append(w)
-            touches_face = [w for w in real_supports if w['lo'] - EPS <= pos <= w['hi'] + EPS]
-            if touches_face:
-                return False, None
-
-            # Sólidos de corte
-            for poly in cut_solids:
-                minx, miny, maxx, maxy = poly.bounds
-                p_lo, p_hi = (minx, maxx) if axis == 'x' else (miny, maxy)
-                p_trans_lo, p_trans_hi = (miny, maxy) if axis == 'x' else (minx, maxx)
-                if abs(p_lo - end_coord) <= 2.0 or abs(p_hi - end_coord) <= 2.0 or (p_lo - EPS <= end_coord <= p_hi + EPS):
-                    if p_trans_lo - 20 <= pos <= p_trans_hi + 20:
-                        return True, 'símbolo de visão de corte'
-
-            # Tiques de cota explodida
-            for tick in dim_ticks:
-                mid_long = (tick['a'][0] + tick['b'][0]) / 2.0 if axis == 'x' else (tick['a'][1] + tick['b'][1]) / 2.0
-                mid_trans = (tick['a'][1] + tick['b'][1]) / 2.0 if axis == 'x' else (tick['a'][0] + tick['b'][0]) / 2.0
-                if abs(mid_long - end_coord) <= 2.0 and abs(mid_trans - pos) <= 20.0:
-                    return True, 'cota explodida'
-
-            # Linhas em layer de corte ou cota
-            for entity in doc.modelspace():
-                layer_name = entity.dxf.get('layer', '')
-                is_corte = bool(re.search(r'CORTE|SECTION|SECAO|SEÇÃO', layer_name, re.I))
-                is_cota = bool(re.search(r'COTA|DIM', layer_name, re.I))
-                if is_corte or is_cota:
-                    kind = entity.dxftype()
-                    if kind == 'LINE':
-                        p1_long = entity.dxf.start.x if axis == 'x' else entity.dxf.start.y
-                        p2_long = entity.dxf.end.x if axis == 'x' else entity.dxf.end.y
-                        p1_trans = entity.dxf.start.y if axis == 'x' else entity.dxf.start.x
-                        p2_trans = entity.dxf.end.y if axis == 'x' else entity.dxf.end.x
-                        if (abs(p1_long - end_coord) <= 2.0 or abs(p2_long - end_coord) <= 2.0 or
-                            min(p1_long, p2_long) - EPS <= end_coord <= max(p1_long, p2_long) + EPS):
-                            if min(p1_trans, p2_trans) - 20 <= pos <= max(p1_trans, p2_trans) + 20:
-                                return True, 'símbolo de visão de corte' if is_corte else 'cota explodida'
-
-            # Textos com palavra CORTE ou SEC perto do extremo
-            for t in texts:
-                if re.search(r'\bCORTE\b|\bSEC\b|\bSEÇÃO\b', t['text'], re.I):
-                    t_long = t['x'] if axis == 'x' else t['y']
-                    t_trans = t['y'] if axis == 'x' else t['x']
-                    if abs(t_long - end_coord) <= 25.0 and abs(t_trans - pos) <= 40.0:
-                        return True, 'símbolo de visão de corte'
-
-            return False, None
-
-        for end_name, end_val in (('início', lo), ('fim', hi)):
-            is_spurious, spurious_kind = is_spurious_cut_or_dim_at(end_val)
-            rec_ext = dict(unit_path=unit, item=label, aspect=f'extremo {end_name}', status='measured', errors={},
-                           guards=['apoios_limites'], blocks_promotion=False)
-            if is_spurious:
-                msg = (f'extremo {end_name} coincide com {spurious_kind}; '
-                       f'anotação não secciona lateral de viga (LV-VISAO-CORTE-NAO-SECCIONA-20261008)')
-                rec_ext['errors']['apoios_limites'] = msg
-            contacts.append(rec_ext)
-
-        # Verifica se símbolo de corte atravessa o segmento contínuo sem interrompê-lo
-        cut_through = False
-        for poly in cut_solids:
-            minx, miny, maxx, maxy = poly.bounds
-            p_lo, p_hi = (minx, maxx) if axis == 'x' else (miny, maxy)
-            p_trans_lo, p_trans_hi = (miny, maxy) if axis == 'x' else (minx, maxx)
-            if p_trans_lo - 20 <= pos <= p_trans_hi + 20 and lo + 2.0 < (p_lo + p_hi) / 2.0 < hi - 2.0:
-                cut_through = True
-                break
-        if not cut_through:
-            for entity in doc.modelspace():
-                layer_name = entity.dxf.get('layer', '')
-                if re.search(r'CORTE|SECTION|SECAO|SEÇÃO', layer_name, re.I):
-                    kind = entity.dxftype()
-                    if kind == 'LINE':
-                        p_long = (entity.dxf.start.x + entity.dxf.end.x) / 2.0 if axis == 'x' else (entity.dxf.start.y + entity.dxf.end.y) / 2.0
-                        p_trans = (entity.dxf.start.y + entity.dxf.end.y) / 2.0 if axis == 'x' else (entity.dxf.start.x + entity.dxf.end.x) / 2.0
-                        if lo + 2.0 < p_long < hi - 2.0 and abs(p_trans - pos) <= 20.0:
-                            cut_through = True
-                            break
-
-        if cut_through:
-            contacts.append(dict(unit_path=unit, item=label, aspect='visão corte', status='measured',
-                                 guards=['apoios_limites'], blocks_promotion=False, errors={},
-                                 basis='visão corte atravessa a lateral sem interrompê-la; o símbolo é anotação e não segmenta painéis nem sarrafos/garfos'))
-
-        # 4. Altura Útil (h_viga - h_laje)
-        beam_sections = []
-        for t in texts:
-            m = SECTION_TEXT.fullmatch(t['text'])
-            if m:
-                t_long = t['x'] if axis == 'x' else t['y']
-                t_trans = t['y'] if axis == 'x' else t['x']
-                if lo - 100 <= t_long <= hi + 100 and abs(t_trans - pos) <= 150:
-                    beam_sections.append((float(m[1].replace(',', '.')), float(m[2].replace(',', '.'))))
-        if beam_sections:
-            bw, h_viga = beam_sections[0]
+        # 2. Seção escrita na faixa da viga (mesmo critério do FV: rótulo só desta viga).
+        sec = dict(unit_path=unit, item=label, aspect='seção', status='uncertain', errors={}, guards=['dimensoes'],
+                   blocks_promotion=False)
+        if body is None:
+            sec['reason'] = 'faixa da viga não identificada (parede oposta não medida)'
         else:
-            bw, h_viga = None, None
-            dim_str = str(row.get('dim') or row.get('section') or row.get('beam_section') or '')
-            m = SECTION_TEXT.search(dim_str)
-            if m:
-                bw, h_viga = float(m[1].replace(',', '.')), float(m[2].replace(',', '.'))
-            if h_viga is None and row.get('h_viga'):
-                h_viga = number(row.get('h_viga'))
-            if h_viga is None and row.get('beam_height'):
-                h_viga = number(row.get('beam_height'))
+            band = sorted((pos, pos + body * bw))
+            chain = [s for s in parsed if s.get('axis') == axis and s['name'] == name and abs(s['pos'] - pos) < EPS]
+            c_lo, c_hi = min(s['lo'] for s in chain), max(s['hi'] for s in chain)
 
-        h_laje = 0.0
-        slab_name = None
-        if 'slabs' in row and isinstance(row['slabs'], list):
-            if len(row['slabs']) == 0:
-                h_laje = 0.0
+            def in_band(t, a, b):
+                return (t['axis'] == axis and a - EPS <= t[axis] <= b + EPS and
+                        band[0] - t['margin'] <= t[across] <= band[1] + t['margin'])
+            names = {t['text'] for t in texts if in_band(t, c_lo, c_hi) and BEAM_LABEL.fullmatch(t['text'])}
+            declared = [(s.get('start', lo), s.get('end', hi), _section(s.get('dim'))) for s in cell.get('sections') or []] \
+                or [(lo, hi, dim)]
+            problems, written = [], []
+            for start, end, want in declared:
+                a, b = max(lo, min(number(start), number(end))), min(hi, max(number(start), number(end)))
+                found = sorted({_section(t['text']) for t in texts if in_band(t, a, b) and SECTION_TEXT.fullmatch(t['text'])}) \
+                    or (sorted({_section(t['text']) for t in texts if in_band(t, c_lo, c_hi) and
+                                SECTION_TEXT.fullmatch(t['text'])}) if len(declared) == 1 else [])
+                written += found
+                if len(found) != 1:
+                    continue
+                if want != found[0]:
+                    problems.append(f'seção {_fmt(found[0][0])}/{_fmt(found[0][1])} escrita na faixa difere da '
+                                    f'declarada {cell.get("dim") or row.get("width") or "ausente"}')
+            sec.update(names=sorted(names), sections=sorted({f'{_fmt(w[0])}/{_fmt(w[1])}' for w in written}))
+            if names and names != {name}:
+                sec['reason'] = f'rótulos na faixa {sorted(names)} não identificam só {name}; seção não atribuída'
+            elif not written or len(set(written)) > len(declared):
+                sec['reason'] = ('nenhuma seção bw/h escrita na faixa' if not written else
+                                 f'seções distintas na faixa {sec["sections"]}') + '; conferir no CAD'
             else:
-                first = row['slabs'][0]
-                if isinstance(first, dict):
-                    slab_name = first.get('name')
-                    if first.get('height') is not None:
-                        h_laje = float(first['height'])
-                elif isinstance(first, str):
-                    slab_name = first
-        elif row.get('slab') or row.get('laje'):
-            s_val = row.get('slab') or row.get('laje')
-            if str(s_val).strip().lower() in {'', 'nenhuma', 'nenhum', 'vazio', 'bordo_livre', 'livre', 'none', '-'}:
-                h_laje = 0.0
+                sec['status'] = 'measured'
+                if problems:
+                    sec['errors']['dimensoes'] = '; '.join(problems)
+        contacts.append(sec)
+
+        # 3. Laje da face: contornos LAJ que encostam pelo lado de fora da face.
+        if slabs is not None:
+            slab_rec = dict(unit_path=unit, item=label, aspect='laje da face', status='uncertain', errors={},
+                            guards=['laje_face'], blocks_promotion=False)
+            declared = {}
+            for s in cell.get('slabs') or []:
+                if s.get('name'):
+                    declared.setdefault(str(s['name']), set()).add(_thickness(s.get('height')))
+            if not cell:  # SA sem lv_cell (versão antiga): só os nomes de level_slabs, sem espessura
+                declared = {str(n): None for n in row.get('level_slabs') or []}
+            if body is None:
+                slab_rec['reason'] = 'lado de fora da face não identificado (parede oposta não medida)'
             else:
-                slab_name = str(s_val)
+                # Mesma faixa do SA (lv_beam_scene): 0,5 a 6 cm fora da face, trechos < 5 cm não contam.
+                a, b = sorted((pos - body * .5, pos - body * 6))
+                strip = sbox(lo, a, hi, b) if axis == 'x' else sbox(a, lo, b, hi)
 
-        if slab_name and h_laje == 0.0:
-            if row.get('slab_h') is not None:
-                h_laje = float(row['slab_h'])
-            elif row.get('h_laje') is not None:
-                h_laje = float(row['h_laje'])
-            elif slabs:
-                for s in slabs:
-                    if s.get('name') == slab_name:
-                        h_laje = float(s.get('height') or 0.0)
-                        break
+                def runs(geom):
+                    parts = [] if geom.is_empty else getattr(geom, 'geoms', [geom])
+                    return any((p.bounds[2] - p.bounds[0] if axis == 'x' else p.bounds[3] - p.bounds[1]) >= 5
+                               for p in parts if p.area > 1e-6)
+                touched = {}
+                for slab_name, height, shape, steps in slab_shapes:
+                    inside = shape.intersection(strip)
+                    if not runs(inside):
+                        continue
+                    found = {h for h, part in steps if runs(inside.intersection(part))}
+                    rest = inside
+                    for _h, part in steps:
+                        rest = rest.difference(part)
+                    if runs(rest) or not found:
+                        found.add(height)
+                    touched[slab_name] = found
+                slab_rec.update(declared=sorted(declared), touched=sorted(touched))
+                if set(touched) == set(declared):
+                    slab_rec['status'] = 'measured'
+                    def heights(values):
+                        if values is None:
+                            return '?'
+                        return '/'.join(_fmt(v) if v is not None else 'vazio' for v in sorted(values, key=lambda v: (v is None, v)))
+                    wrong = [f'{n} h={heights(declared[n])} (LAJ h={heights(touched[n])})' for n in sorted(touched)
+                             if declared[n] is not None and None not in touched[n] and declared[n] != touched[n]]
+                    if wrong:
+                        slab_rec['errors']['laje_face'] = 'espessura da laje na face difere do LAJ: ' + ', '.join(wrong)
+                    if not touched:
+                        slab_rec['basis'] = 'face voltada para vazio: nenhuma laje encosta e o SA não declara laje'
+                elif touched:
+                    slab_rec['status'] = 'measured'
+                    slab_rec['errors']['laje_face'] = (f'lajes que encostam na face {sorted(touched)}; '
+                                                       f'SA declara {sorted(declared) or "nenhuma"}')
+                else:
+                    slab_rec['reason'] = (f'SA declara {sorted(declared)} mas nenhum contorno LAJ encosta na face; '
+                                          'conferir no CAD')
+            contacts.append(slab_rec)
 
-        h_rec = dict(unit_path=unit, item=label, aspect='altura útil', status='uncertain', errors={},
-                     guards=['altura_util'], blocks_promotion=False)
-        if h_viga is None:
-            h_rec['reason'] = 'altura total da viga (h_viga) não localizada no DXF nem no snapshot'
-        else:
-            h_util_medida = h_viga - h_laje
-            declared_h = number(row.get('height') or row.get('altura_util') or row.get('h_body') or
-                                (row.get('lv_cell') or {}).get('depth'))
-            h_rec.update(status='measured', h_viga=h_viga, h_laje=h_laje,
-                         h_util_medida=h_util_medida, h_util_declarada=declared_h)
-            if declared_h is None or abs(declared_h - h_util_medida) > EPS:
-                h_rec['errors']['altura_util'] = (
-                    f'altura útil declarada {_fmt(declared_h) if declared_h is not None else "ausente"} cm '
-                    f'difere da medida {_fmt(h_util_medida)} cm (h_viga={_fmt(h_viga)} - h_laje={_fmt(h_laje)})'
-                )
+        # 4. Extremos: traço original perpendicular no extremo tocando a linha da face.
+        for end_name, end in (('início', lo), ('fim', hi)):
+            at = [w for w in walls if w['axis'] == across and abs(w['pos'] - end) < EPS and
+                  w['lo'] - EPS <= pos <= w['hi'] + EPS]
+            rec = dict(unit_path=unit, item=label, aspect=f'extremo {end_name}', status='uncertain', errors={},
+                       guards=['apoios_limites'], blocks_promotion=False, wall_handles=sorted({w['handle'] for w in at}))
+            if at:
+                rec['status'] = 'measured'
             else:
-                h_rec['basis'] = (
-                    f'altura útil h_util={_fmt(h_util_medida)} cm confere com h_viga={_fmt(h_viga)} cm '
-                    f'menos laje {slab_name or "adjacente"} h={_fmt(h_laje)} cm'
-                    if h_laje > 0 else 'face voltada para vazio, sem desconto de laje'
-                )
-        contacts.append(h_rec)
+                near = sorted({round(w['pos'], 2) for w in walls if w['axis'] == across and 0 < abs(w['pos'] - end) <= 40
+                               and w['lo'] - EPS <= pos <= w['hi'] + EPS}, key=lambda p: abs(p - end))
+                rec['nearest_limit'] = near[0] if near else None
+                rec['reason'] = ('nenhum traço original perpendicular toca a face no extremo' +
+                                 (f'; limite desenhado mais próximo a {_fmt(abs(near[0] - end))} cm' if near else '') +
+                                 ' (pilar/viga que nasce, corte por rótulo?)')
+            contacts.append(rec)
 
-        # 5. Inventário de Segmentos / Sobreposição
-        overlaps = []
-        for o_idx, o_row, _o_unit, o_name, o_face, o_lbl, o_axis, o_pos, o_lo, o_hi, _o_len in parsed_rows:
-            if o_idx != index and o_name == name and o_face == face and o_axis == axis and abs(o_pos - pos) < EPS:
-                if min(hi, o_hi) - max(lo, o_lo) > EPS:
-                    overlaps.append(o_lbl)
-        contacts.append(dict(
-            unit_path=unit, item=label, aspect='sobreposição', status='measured',
-            guards=['inventario_segmentos'], blocks_promotion=False, overlaps=overlaps,
-            errors={'inventario_segmentos': f'segmento sobreposto a {overlaps} da mesma face da viga'}
-            if overlaps else {}
-        ))
+        # 5. Sobreposição na mesma face/comportamento.
+        overlaps = [s['row'].get('segment_label') for s in parsed if s is not seg and s['key'] == seg['key'] and
+                    s.get('axis') == axis and abs(s['pos'] - pos) < EPS and min(hi, s['hi']) - max(lo, s['lo']) > EPS]
+        contacts.append(dict(unit_path=unit, item=label, aspect='sobreposição', status='measured',
+                             guards=['inventario_segmentos'], blocks_promotion=False, overlaps=overlaps,
+                             errors={'inventario_segmentos': f'segmento sobreposto a {overlaps} da mesma face'}
+                             if overlaps else {}))
 
-    return dict(schema='cad.qa_original_laterais/v1', source_sha256=_sha256(source),
+        # 6. Coerência dos campos do SA.
+        problems = []
+        if number(row.get('length')) is None or abs(number(row.get('length')) - length) > EPS:
+            problems.append(f'length {row.get("length")} ≠ extensão da linha {_fmt(length)}')
+        if row.get('status') == 'valid' and number(row.get('level')) is None:
+            problems.append('status valid sem nível')
+        if cell.get('level') not in (None, '') and number(cell.get('level')) != number(row.get('level')):
+            problems.append(f'level {row.get("level")} ≠ lv_cell.level {cell.get("level")}')
+        cell_slabs = {str(s.get('name')) for s in cell.get('slabs') or []}
+        extra = sorted(set(map(str, row.get('level_slabs') or [])) - cell_slabs) if cell else []
+        if extra:
+            problems.append(f'level_slabs {extra} fora de lv_cell.slabs')
+        if row.get('width') and cell.get('dim') and _section(row.get('width')) != _section(cell.get('dim')):
+            problems.append(f'width {row.get("width")} ≠ lv_cell.dim {cell.get("dim")}')
+        if not cell:  # SA antigo: campos incompletos são do formato, não do desenho
+            contacts.append(dict(unit_path=unit, item=label, aspect='coerência', guards=['consistencia_alertas'],
+                                 blocks_promotion=False, status='uncertain',
+                                 reason='SA sem lv_cell (versão antiga): rodar o SA de novo'
+                                        + (f' ({"; ".join(problems)})' if problems else '')))
+            continue
+        contacts.append(dict(unit_path=unit, item=label, aspect='coerência', guards=['consistencia_alertas'],
+                             blocks_promotion=False, status='measured',
+                             errors={'consistencia_alertas': '; '.join(problems)} if problems else {}))
+    return dict(schema='cad.qa_original_laterais/v2', source_sha256=_sha256(source),
                 tolerance_cm=EPS, contacts=contacts, guards=LV_GUARDS, measured_accuracy=False)
 
 
@@ -1846,8 +1796,7 @@ def for_snapshot(obra_dir, pavimento, snapshot):
         'PIL': measure,
         'LAJ': measure_slabs,
         'FV': measure_beams,
-        # LV fora do gate de adoção: measure_lateral_beams ainda usa nome de
-        # layer e laje por proximidade (ver QA-GATE-MECANISMOS-E-EVOLUCAO §LV).
+        'LV': measure_lateral_beams,
     }.get((snapshot or {}).get('classe'))
     if not measurer:
         return None

@@ -1,337 +1,84 @@
+"""Gate CAD LV: segmentos no formato real do SA (lateral_{a,b}_{para,passa})."""
 import ezdxf
-import pytest
-from pathlib import Path
 
 from portal.app import qa_cad_gate as gate
+from portal.app import qa_cad_gate_run as run
 
 
-def _create_sample_beam_dxf(path, length=300, bw=19, height=55, beam_name='V301'):
-    """Helper que gera um DXF com viga retangular de 0 a length em X e 0 a bw em Y."""
+def _dxf(path, extra=None):
+    """Viga V301 19/55 de x=0 a 300 entre y=0 e y=19, fechada nos extremos."""
     doc = ezdxf.new()
     ms = doc.modelspace()
-    # Paredes longitudinais da viga (Face A em Y=19, Face B em Y=0)
-    ms.add_line((0, 0), (length, 0))
-    ms.add_line((0, bw), (length, bw))
-    # Paredes de fechamento nas extremidades (apoios)
-    ms.add_line((0, 0), (0, bw))
-    ms.add_line((length, 0), (length, bw))
-    # Rótulo e seção
-    ms.add_text(beam_name, dxfattribs={'insert': (20, bw + 10), 'height': 3})
-    ms.add_text(f'{bw}/{height}', dxfattribs={'insert': (50, bw / 2), 'height': 3})
+    for a, b in (((0, 0), (300, 0)), ((0, 19), (300, 19)), ((0, 0), (0, 19)), ((300, 0), (300, 19))):
+        ms.add_line(a, b)
+    ms.add_text('V301', dxfattribs={'insert': (20, 8), 'height': 3})
+    ms.add_text('19/55', dxfattribs={'insert': (60, 8), 'height': 3})
+    for text, insert in (extra or []):
+        ms.add_text(text, dxfattribs={'insert': insert, 'height': 3})
     doc.saveas(path)
-    return doc
+    return path
 
 
-def test_lv_correct_segment_with_slab_discount_passes(tmp_path):
-    """T1: Viga 19/55, Face A com laje L1 (h=12). Segmento declara h_útil = 43 cm (55 - 12)."""
-    dxf_path = tmp_path / 'viga_lv1.dxf'
-    _create_sample_beam_dxf(dxf_path, length=300, bw=19, height=55, beam_name='V301')
+def _slab(steps=None):
+    return {'name': 'L1', 'height': '12', 'points': [[0, 19], [300, 19], [300, 200], [0, 200]],
+            'slab_steps': steps or []}
 
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [{
-                'beam_name': 'V301',
-                'face': 'A',
-                'segment_label': '1',
-                'points': [[0, 19], [300, 19]],
-                'length': '300cm',
-                'height': '43cm',
-                'slabs': [{'name': 'L1', 'height': 12.0}],
-            }]
-        }
-    }
-    report = gate.measure_lateral_beams(dxf_path, snapshot)
-    assert report['schema'] == 'cad.qa_original_laterais/v1'
-    h_contact = next(c for c in report['contacts'] if c['aspect'] == 'altura útil')
-    assert h_contact['status'] == 'measured'
-    assert h_contact['h_viga'] == 55.0
-    assert h_contact['h_laje'] == 12.0
-    assert h_contact['h_util_medida'] == 43.0
-    assert h_contact['h_util_declarada'] == 43.0
+
+def _snapshot(y=19.0, slabs=({'name': 'L1', 'height': 'h=12'},)):
+    row = {'beam_name': 'V301', 'behavior': 'Para', 'side': 'A', 'segment_label': '1', 'status': 'valid',
+           'length': 300.0, 'level': '852.19', 'level_slabs': [s['name'] for s in slabs], 'width': '19/55',
+           'points': [[0.0, y], [300.0, y]],
+           'lv_cell': {'dim': '19/55', 'level': '852.19', 'slabs': list(slabs)}}
+    return {'classe': 'LV', 'collections': {'lateral_a_para': [row], 'lateral_b_para': []}}
+
+
+def _by_aspect(report, aspect):
+    return next(c for c in report['contacts'] if c['aspect'] == aspect)
+
+
+def test_segmento_correto_confere(tmp_path):
+    report = gate.measure_lateral_beams(_dxf(tmp_path / 'a.dxf'), _snapshot(), [_slab()])
+    assert report['schema'] == 'cad.qa_original_laterais/v2'
     assert not gate.errors(report)
+    assert _by_aspect(report, 'laje da face')['status'] == 'measured'
+    assert _by_aspect(report, 'seção')['status'] == 'measured'
+    assert all(c['aspect'] != 'altura útil' for c in report['contacts'])
 
 
-def test_lv_segment_without_slab_discount_fails_altura_util(tmp_path):
-    """T2: Viga 19/55, Face A com laje L1 (h=12). Segmento declara h_útil = 55 cm (sem desconto)."""
-    dxf_path = tmp_path / 'viga_lv2.dxf'
-    _create_sample_beam_dxf(dxf_path, length=300, bw=19, height=55, beam_name='V301')
-
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [{
-                'beam_name': 'V301',
-                'face': 'A',
-                'segment_label': '1',
-                'points': [[0, 19], [300, 19]],
-                'length': '300cm',
-                'height': '55cm',  # Erro: deveria ser 43 cm
-                'slabs': [{'name': 'L1', 'height': 12.0}],
-            }]
-        }
-    }
-    report = gate.measure_lateral_beams(dxf_path, snapshot)
-    h_contact = next(c for c in report['contacts'] if c['aspect'] == 'altura útil')
-    assert h_contact['status'] == 'measured'
-    assert 'altura_util' in h_contact['errors']
-    errs = gate.errors(report)
-    assert any('difere da medida 43' in e for e in errs)
+def test_regiao_rebaixada_nao_declarada_diverge(tmp_path):
+    step = {'height_cm': 10.0, 'points': [[0, 19], [100, 19], [100, 120], [0, 120]]}
+    report = gate.measure_lateral_beams(_dxf(tmp_path / 'b.dxf'), _snapshot(), [_slab([step])])
+    assert 'laje_face' in _by_aspect(report, 'laje da face')['errors']
 
 
-def test_lv_segment_facing_void_keeps_full_beam_height(tmp_path):
-    """T3: Viga 19/55, Face B voltada para vazio. Segmento declara h_útil = 55 cm (sem desconto)."""
-    dxf_path = tmp_path / 'viga_lv3.dxf'
-    _create_sample_beam_dxf(dxf_path, length=300, bw=19, height=55, beam_name='V301')
+def test_laje_que_encosta_sem_declaracao_diverge(tmp_path):
+    report = gate.measure_lateral_beams(_dxf(tmp_path / 'c.dxf'), _snapshot(slabs=()), [_slab()])
+    assert 'L1' in _by_aspect(report, 'laje da face')['errors']['laje_face']
 
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [{
-                'beam_name': 'V301',
-                'face': 'B',
-                'segment_label': '1',
-                'points': [[0, 0], [300, 0]],
-                'length': '300cm',
-                'height': '55cm',
-                'slabs': [],  # Face para vazio
-            }]
-        }
-    }
-    report = gate.measure_lateral_beams(dxf_path, snapshot)
-    h_contact = next(c for c in report['contacts'] if c['aspect'] == 'altura útil')
-    assert h_contact['status'] == 'measured'
-    assert h_contact['h_laje'] == 0.0
-    assert h_contact['h_util_medida'] == 55.0
+
+def test_face_deslocada_meio_centimetro_diverge(tmp_path):
+    report = gate.measure_lateral_beams(_dxf(tmp_path / 'd.dxf'), _snapshot(y=18.5), [_slab()])
+    assert '0,5 cm' in _by_aspect(report, 'arestas')['errors']['identidade_contorno']
+
+
+def test_secao_de_pilar_na_faixa_nao_vale_para_viga(tmp_path):
+    path = _dxf(tmp_path / 'e.dxf', extra=[('P8', (150, 27)), ('19/66', (150, 22))])
+    report = gate.measure_lateral_beams(path, _snapshot(), [_slab()])
+    sec = _by_aspect(report, 'seção')
+    assert sec['status'] == 'measured' and not sec['errors']
+
+
+def test_sa_antigo_sem_lv_cell_usa_level_slabs(tmp_path):
+    snap = _snapshot()
+    row = snap['collections']['lateral_a_para'][0]
+    row.update(lv_cell=None, level='')
+    report = gate.measure_lateral_beams(_dxf(tmp_path / 'f.dxf'), snap, [_slab()])
     assert not gate.errors(report)
+    assert _by_aspect(report, 'laje da face')['status'] == 'measured'
+    assert _by_aspect(report, 'coerência')['status'] == 'uncertain'
 
 
-def test_lv_segment_facing_void_with_spurious_discount_fails(tmp_path):
-    """T4: Viga 19/55, Face B para vazio. Segmento declara h_útil = 43 cm (desconto indevido)."""
-    dxf_path = tmp_path / 'viga_lv4.dxf'
-    _create_sample_beam_dxf(dxf_path, length=300, bw=19, height=55, beam_name='V301')
-
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [{
-                'beam_name': 'V301',
-                'face': 'B',
-                'segment_label': '1',
-                'points': [[0, 0], [300, 0]],
-                'length': '300cm',
-                'height': '43cm',  # Erro: não tem laje
-                'slab': 'vazio',
-            }]
-        }
-    }
-    report = gate.measure_lateral_beams(dxf_path, snapshot)
-    h_contact = next(c for c in report['contacts'] if c['aspect'] == 'altura útil')
-    assert 'altura_util' in h_contact['errors']
-    errs = gate.errors(report)
-    assert any('difere da medida 55' in e for e in errs)
-
-
-def test_lv_cut_symbol_does_not_segment_lateral_passes(tmp_path):
-    """T5: Viga com símbolo de corte desenhado no meio (X=100..112). Lateral contínua (0..300) passa sem erro."""
-    dxf_path = tmp_path / 'viga_lv5.dxf'
-    doc = ezdxf.new()
-    ms = doc.modelspace()
-    ms.add_line((0, 0), (300, 0))
-    ms.add_line((0, 19), (300, 19))
-    ms.add_line((0, 0), (0, 19))
-    ms.add_line((300, 0), (300, 19))
-    ms.add_text('V301', dxfattribs={'insert': (20, 25), 'height': 3})
-    ms.add_text('19/55', dxfattribs={'insert': (50, 10), 'height': 3})
-    # Símbolo de corte desenhado em layer CORTE no meio do vão
-    ms.add_line((100, -5), (100, 25), dxfattribs={'layer': 'CORTE'})
-    ms.add_line((112, -5), (112, 25), dxfattribs={'layer': 'CORTE'})
-    doc.saveas(dxf_path)
-
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [{
-                'beam_name': 'V301',
-                'face': 'A',
-                'segment_label': '1',
-                'points': [[0, 19], [300, 19]],
-                'length': '300cm',
-                'height': '55cm',
-                'slabs': [],
-            }]
-        }
-    }
-    report = gate.measure_lateral_beams(dxf_path, snapshot)
-    cut_contact = next(c for c in report['contacts'] if c['aspect'] == 'visão corte')
-    assert cut_contact['status'] == 'measured'
-    assert 'atravessa a lateral sem interrompê-la' in cut_contact['basis']
-    assert not gate.errors(report)
-
-
-def test_lv_spurious_segmentation_at_cut_symbol_fails(tmp_path):
-    """T6: Símbolo de corte em X=100..112. SA seccionou indevidamente a lateral em 2 segmentos."""
-    dxf_path = tmp_path / 'viga_lv6.dxf'
-    doc = ezdxf.new()
-    ms = doc.modelspace()
-    ms.add_line((0, 0), (300, 0))
-    ms.add_line((0, 19), (300, 19))
-    ms.add_line((0, 0), (0, 19))
-    ms.add_line((300, 0), (300, 19))
-    ms.add_text('V301', dxfattribs={'insert': (20, 25), 'height': 3})
-    ms.add_text('19/55', dxfattribs={'insert': (50, 10), 'height': 3})
-    ms.add_line((100, -5), (100, 25), dxfattribs={'layer': 'CORTE'})
-    ms.add_line((112, -5), (112, 25), dxfattribs={'layer': 'CORTE'})
-    doc.saveas(dxf_path)
-
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [
-                {
-                    'beam_name': 'V301',
-                    'face': 'A',
-                    'segment_label': '1',
-                    'points': [[0, 19], [100, 19]],
-                    'length': '100cm',
-                    'height': '55cm',
-                    'slabs': [],
-                },
-                {
-                    'beam_name': 'V301',
-                    'face': 'A',
-                    'segment_label': '2',
-                    'points': [[112, 19], [300, 19]],
-                    'length': '188cm',
-                    'height': '55cm',
-                    'slabs': [],
-                }
-            ]
-        }
-    }
-    report = gate.measure_lateral_beams(dxf_path, snapshot)
-    errs = gate.errors(report)
-    assert any('coincide com símbolo de visão de corte' in e for e in errs)
-    assert any('LV-VISAO-CORTE-NAO-SECCIONA-20261008' in e for e in errs)
-
-
-def test_lv_exploded_dimension_tick_does_not_segment_lateral(tmp_path):
-    """T7: Tique de cota explodida em 45° corta falso segmento; deve falhar em apoios_limites."""
-    dxf_path = tmp_path / 'viga_lv7.dxf'
-    doc = ezdxf.new()
-    ms = doc.modelspace()
-    ms.add_line((0, 0), (300, 0))
-    ms.add_line((0, 19), (300, 19))
-    ms.add_line((0, 0), (0, 19))
-    ms.add_line((300, 0), (300, 19))
-    ms.add_text('V301', dxfattribs={'insert': (20, 25), 'height': 3})
-    ms.add_text('19/55', dxfattribs={'insert': (50, 10), 'height': 3})
-    # Tique oblíquo a 45° em X=150, Y=19 (dx=3, dy=3)
-    ms.add_line((148.5, 17.5), (151.5, 20.5))
-    doc.saveas(dxf_path)
-
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [{
-                'beam_name': 'V301',
-                'face': 'A',
-                'segment_label': '1',
-                'points': [[0, 19], [150, 19]],  # Interrompido no tique de cota
-                'length': '150cm',
-                'height': '55cm',
-                'slabs': [],
-            }]
-        }
-    }
-    report = gate.measure_lateral_beams(dxf_path, snapshot)
-    errs = gate.errors(report)
-    assert any('cota explodida' in e for e in errs)
-
-
-def test_lv_overlapping_segments_fail_inventory(tmp_path):
-    """T8: Dois segmentos na mesma face sobrepostos longitudinalmente por 50 cm falham inventário."""
-    dxf_path = tmp_path / 'viga_lv8.dxf'
-    _create_sample_beam_dxf(dxf_path, length=300, bw=19, height=55, beam_name='V301')
-
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [
-                {
-                    'beam_name': 'V301',
-                    'face': 'A',
-                    'segment_label': '1',
-                    'points': [[0, 19], [150, 19]],
-                    'length': '150cm',
-                    'height': '55cm',
-                    'slabs': [],
-                },
-                {
-                    'beam_name': 'V301',
-                    'face': 'A',
-                    'segment_label': '2',
-                    'points': [[100, 19], [250, 19]],  # Sobreposição de 100 a 150 (50 cm)
-                    'length': '150cm',
-                    'height': '55cm',
-                    'slabs': [],
-                }
-            ]
-        }
-    }
-    report = gate.measure_lateral_beams(dxf_path, snapshot)
-    errs = gate.errors(report)
-    assert any('segmento sobreposto' in e for e in errs)
-
-
-def test_lv_segment_offset_from_beam_wall_fails_identity(tmp_path):
-    """T9: Segmento lateral posicionado em Y=25 (fora da parede Y=19) falha em identidade_contorno."""
-    dxf_path = tmp_path / 'viga_lv9.dxf'
-    _create_sample_beam_dxf(dxf_path, length=300, bw=19, height=55, beam_name='V301')
-
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [{
-                'beam_name': 'V301',
-                'face': 'A',
-                'segment_label': '1',
-                'points': [[0, 25], [300, 25]],  # Y=25 não tem traço original
-                'length': '300cm',
-                'height': '55cm',
-                'slabs': [],
-            }]
-        }
-    }
-    report = gate.measure_lateral_beams(dxf_path, snapshot)
-    errs = gate.errors(report)
-    assert any('identidade_contorno' in e for e in errs)
-
-
-def test_lv_for_snapshot_dispatch_integration(tmp_path, monkeypatch):
-    """T10: LV não é despachada por for_snapshot (fora do gate de adoção)."""
-    dxf_path = tmp_path / 'viga_lv10.dxf'
-    _create_sample_beam_dxf(dxf_path, length=300, bw=19, height=55, beam_name='V301')
-
-    from portal.app import ficha_reader
-    monkeypatch.setattr(ficha_reader, '_fonte_estrutural_producao', lambda obra, pav: dxf_path)
-    monkeypatch.setattr(ficha_reader, 'ler_estado_pavimento', lambda obra, pav: {})
-    monkeypatch.setattr(ficha_reader, 'listar_itens_n1', lambda state, key: [])
-
-    snapshot = {
-        'classe': 'LV',
-        'collections': {
-            'laterais': [{
-                'beam_name': 'V301',
-                'face': 'A',
-                'segment_label': '1',
-                'points': [[0, 19], [300, 19]],
-                'length': '300cm',
-                'height': '55cm',
-                'slabs': [],
-            }]
-        }
-    }
-    # LV fica fora do gate de adoção até deixar de usar nome de layer e laje
-    # por proximidade; measure_lateral_beams segue testável isoladamente.
-    assert gate.for_snapshot(tmp_path, '13_PAV', snapshot) is None
+def test_item_lv_do_portal_e_viga_mais_comportamento():
+    assert run.CLASSE_PORTAL['lateral_b_passa'] == 'LV'
+    assert run.item_name('lateral_b_passa', 'lateral_b_passa|x|1|1', 'V301') == 'V301|passa'
+    assert run.item_name('lateral_a_para', 'lateral_a_para|x|1|1', 'V301') == 'V301|para'

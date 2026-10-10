@@ -22,9 +22,20 @@ SECOES = {
     'pilares': ('PIL', 'pilares', 'name'),
     'lajes': ('LAJ', 'lajes', 'name'),
     'fundos_viga': ('FV', 'fundo', 'beam_name'),
+    # LV: um item por viga e comportamento ("V301|para"), faces A e B juntas.
+    'laterais_viga': ('LV', 'lateral_a_para', 'beam_name'),
 }
 # classe da ficha no portal -> classe do gate
-CLASSE_PORTAL = {'pilares': 'PIL', 'pilares_especiais': 'PIL', 'lajes': 'LAJ', 'fundo': 'FV'}
+CLASSE_PORTAL = {'pilares': 'PIL', 'pilares_especiais': 'PIL', 'lajes': 'LAJ', 'fundo': 'FV',
+                 **{f'lateral_{lado}_{beh}': 'LV' for lado in 'ab' for beh in ('para', 'passa')}}
+LV_COLECOES = [f'lateral_{lado}_{beh}' for beh in ('para', 'passa') for lado in 'ab']
+
+
+def _snapshot(state, classe, name):
+    if classe == 'LV':
+        beam, behavior = name.split('|')
+        return interp.snapshot(state, 'LV', beam, behavior)
+    return interp.snapshot(state, classe, name)
 
 
 def sidecar_path(obra_dir, pav):
@@ -82,17 +93,22 @@ def run_pavimento(obra_dir, pav, secao=None, item_names=None):
     for sec, (classe, colecao, nome) in SECOES.items():
         if secao and secao != sec:
             continue
-        rows = item_geometry.collection(state, colecao) or []
-        names = sorted({str(r.get(nome)) for r in rows if r.get(nome)})
-        if item_names:
-            names = [n for n in names if n in item_names]
+        if classe == 'LV':
+            pares = {(str(r.get(nome)), col.split('_')[2]) for col in LV_COLECOES
+                     for r in item_geometry.collection(state, col) or [] if r.get(nome)}
+            names = sorted(f'{b}|{beh}' for b, beh in pares if not item_names or b in item_names)
+        else:
+            rows = item_geometry.collection(state, colecao) or []
+            names = sorted({str(r.get(nome)) for r in rows if r.get(nome)})
+            if item_names:
+                names = [n for n in names if n in item_names]
         bucket = classes.setdefault(classe, {})
         if not (secao or item_names):
             bucket.clear()
         t0 = time.perf_counter()
         for name in names:
             try:
-                snap = interp.snapshot(state, classe, name)
+                snap = _snapshot(state, classe, name)
                 if not source:
                     report = dict(error='DXF original indisponível', contacts=[])
                 elif classe == 'PIL':
@@ -103,7 +119,8 @@ def run_pavimento(obra_dir, pav, secao=None, item_names=None):
                     if slabs is None:
                         slabs = [row for item in ficha_reader.listar_itens_n1(state, 'lajes')
                                  for row in interp.snapshot(state, 'LAJ', item['item_id'])['collections']['lajes']]
-                    report = gate.measure_beams(source, snap, slabs, pav)
+                    report = (gate.measure_lateral_beams if classe == 'LV' else gate.measure_beams)(
+                        source, snap, slabs, pav)
                 bucket[name] = dict(resumo(report), snapshot_sha256=interp.fingerprint(snap),
                                     medido_em=time.strftime('%Y-%m-%dT%H:%M:%S'))
             except Exception as exc:  # um item ruim não derruba os outros
@@ -130,6 +147,8 @@ def best_effort(obra_dir, pav, secao=None, item_names=None):
 def item_name(classe_portal, item_id, beam_name=None):
     if classe_portal == 'fundo':
         return beam_name or item_id
+    if CLASSE_PORTAL.get(classe_portal) == 'LV':
+        return f"{beam_name or item_id}|{classe_portal.split('_')[2]}"
     return item_id.removesuffix('_Para').removesuffix('_Passa')
 
 
@@ -154,7 +173,7 @@ def item_status(obra_dir, pav, classe_portal, item_id, state=None, beam_name=Non
     entry = dict(entry)
     if state is not None and entry.get('snapshot_sha256'):
         try:
-            entry['desatualizado'] = interp.fingerprint(interp.snapshot(state, classe, name)) != entry['snapshot_sha256']
+            entry['desatualizado'] = interp.fingerprint(_snapshot(state, classe, name)) != entry['snapshot_sha256']
         except Exception:
             entry['desatualizado'] = True
     return entry

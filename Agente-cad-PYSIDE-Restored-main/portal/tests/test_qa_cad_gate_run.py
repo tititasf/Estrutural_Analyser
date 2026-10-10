@@ -6,13 +6,13 @@ from portal.app import qa_cad_gate_run as run
 
 def _fake(monkeypatch, tmp_path, reports, fail=()):
     state = {'pilares': [{'name': 'P1'}, {'name': 'P2'}], 'lajes': [{'name': 'L1'}],
-             'fundo': [{'beam_name': 'V1'}]}
+             'fundo': [{'beam_name': 'V1'}], 'lateral_a_passa': [{'beam_name': 'V1'}]}
     monkeypatch.setattr(run.ficha_reader, 'ler_estado_pavimento', lambda o, p: state)
     monkeypatch.setattr(run.ficha_reader, '_fonte_estrutural_producao', lambda o, p: tmp_path / 'torre.dxf')
     monkeypatch.setattr(run.ficha_reader, 'listar_itens_n1', lambda s, c: [{'item_id': 'L1'}])
-    monkeypatch.setattr(run.item_geometry, 'collection', lambda s, c: s.get(c))
+    monkeypatch.setattr(run.item_geometry, 'collection', lambda s, c: s.get(c) or [])
     monkeypatch.setattr(run.gate, '_sha256', lambda p: 'sha')
-    monkeypatch.setattr(run.interp, 'snapshot', lambda s, c, n: {'classe': c, 'item': n, 'v': reports.get('v', 1),
+    monkeypatch.setattr(run.interp, 'snapshot', lambda s, c, n, b='para': {'classe': c, 'item': n, 'v': reports.get('v', 1),
                                                                   'collections': {'lajes': [{'name': n}]}})
     monkeypatch.setattr(run.interp, 'fingerprint', lambda snap: f"{snap['item']}:{snap['v']}")
 
@@ -23,6 +23,7 @@ def _fake(monkeypatch, tmp_path, reports, fail=()):
     monkeypatch.setattr(run.gate, 'measure', measure)
     monkeypatch.setattr(run.gate, 'measure_slabs', measure)
     monkeypatch.setattr(run.gate, 'measure_beams', lambda source, snap, slabs, pav: dict(measure(source, snap), slabs=slabs))
+    monkeypatch.setattr(run.gate, 'measure_lateral_beams', lambda source, snap, slabs, pav: measure(source, snap))
     return state
 
 
@@ -49,7 +50,9 @@ def test_run_pavimento_grava_sidecar_e_item_ruim_nao_derruba(monkeypatch, tmp_pa
     assert data['classes']['PIL']['P2']['status'] == 'indisponivel'
     assert data['classes']['LAJ']['L1']['status'] == 'incerto'
     assert data['classes']['FV']['V1']['status'] == 'confere'
-    assert set(data['tempos_s']) == {'PIL', 'LAJ', 'FV'}
+    assert data['classes']['LV'] == {'V1|passa': data['classes']['LV']['V1|passa']}
+    assert data['classes']['LV']['V1|passa']['status'] == 'confere'
+    assert set(data['tempos_s']) == {'PIL', 'LAJ', 'FV', 'LV'}
 
 
 def test_microciclo_mescla_sem_apagar_outros_itens(monkeypatch, tmp_path):
