@@ -425,6 +425,20 @@ smoke `/` 303, `/login` 200, `/obras` 401; 148 passed já em `/opt`. Ledger `e11
 `/opt` vence, o systemd não lê `PYTHONPATH` e a pasta guarda probes de outras sessões.
 O gate roda só na adoção (`qa_versions.read`) e no `prepare` da rodada de QA.
 
+### 10.11 Deploys 2026-10-10 (UTC) — gate automático após o SA, selos e LV
+
+O gate passou a rodar sozinho no fim do job SA (`qa_cad_gate_run.run_pavimento`,
+sidecar `<obra>/.portal_overrides/qa_cad_gate/<pav>.json`) e aparece como selo na lista
+lateral e como caixa nas fichas PIL/LAJ/FV/LV. LV religado com `measure_lateral_beams`
+v2 (schema real do SA, sem nome de layer; SA antigo sem `lv_cell` → coerência incerta).
+Backups: `/root/bak_gate_auto_202610100026`, `/root/bak_gate_auto2_202610100044`,
+`/root/bak_gate_lv_202610100108`, `/root/bak_gate_lv2_202610100416`. Cada um com
+`portal_jobs` sem job ativo antes do restart. Ledger `9fb348e`, `9df13d5`, `5f3d183`;
+local `59954cf7c`, `f3e8342d6`, `5f6497993`. Os arquivos copiados do Windows chegam com
+CRLF: normalizar para LF (`sed -i 's/\r$//'`) antes do `git add` no ledger.
+LV medido: 13_PAV TREINO 63 confere/9 diverge, 14_PAV TREINO 62/4, thierry 14_PAV 60/4,
+~1 s por pavimento.
+
 ### 10.9 Retenção de HTML — 2026-10-09
 
 Depois de erros de disco cheio, o dono autorizou limpar backups antigos e
