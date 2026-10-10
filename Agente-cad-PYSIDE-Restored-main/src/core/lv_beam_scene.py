@@ -113,6 +113,8 @@ class LvScene:
     # consumes these; Para continues using its existing topology.
     passa_pillars: Optional[dict[str, list[dict]]] = None
     passa_incidents: Optional[dict[str, list[dict]]] = None
+    # Lajes na faixa da extensão Passa (parede do pilar), sem corte na cena (D-91).
+    passa_slabs: Optional[dict[str, list[dict]]] = None
 
     def to_world(self, x: float, y: float) -> tuple[float, float]:
         if not self.angle:
@@ -786,6 +788,7 @@ def _attach_context(
     slabs = [(s, scene.to_local_geom(p)) for s, p in slabs]
     scene.passa_pillars = {"A": [], "B": []}
     scene.passa_incidents = {"A": [], "B": []}
+    scene.passa_slabs = {"A": [], "B": []}
     for side in ("A", "B"):
         inside, outside = _face_strips(scene, side, scene.start - margin, scene.end + margin)
         for name, classification, poly in pillars:
@@ -889,34 +892,41 @@ def _attach_context(
                 scene.end_supports["end"].append(dict(item, type="viga"))
             elif not any(i["name"] == item["name"] and abs(i["start"] - a0) < 1.0 for i in scene.incidents[side]):
                 scene.incidents[side].append(item)
+        # Passa também tem laje no trecho que corre pela parede do pilar (D-91):
+        # a mesma faixa de 0,5-6 cm, medida na extensão Passa, vai para passa_slabs.
+        passa_lo = min(scene.start, wall_start)
+        passa_hi = max(scene.end, wall_end)
         for slab, poly in slabs:
-            far = scene.rect(
-                scene.start, scene.end,
-                scene.face_t(side) - (1.0 if side == "A" else -1.0) * 0.5,
-                scene.face_t(side) - (1.0 if side == "A" else -1.0) * 6.0,
-            )
-            inter = poly.intersection(far)
-            if inter.is_empty or inter.area <= 1e-6:
-                continue
             fields = slab.get("fields") or {}
             scoped = slab.get("_region_scoped", False)
-            for part in getattr(inter, "geoms", [inter]):
-                a0, a1 = scene.axis_bounds(part)
-                if a1 - a0 < 5.0:
+            for target, lo, hi in ((scene.slabs, scene.start, scene.end),
+                                   (scene.passa_slabs, passa_lo, passa_hi)):
+                far = scene.rect(
+                    lo, hi,
+                    scene.face_t(side) - (1.0 if side == "A" else -1.0) * 0.5,
+                    scene.face_t(side) - (1.0 if side == "A" else -1.0) * 6.0,
+                )
+                inter = poly.intersection(far)
+                if inter.is_empty or inter.area <= 1e-6:
                     continue
-                scene.slabs[side].append({
-                    "name": str(slab.get("name") or fields.get("nome") or ""),
-                    "level": str((slab.get("nivel") if scoped else
-                        fields.get("laje_nivel") or slab.get("laje_nivel") or slab.get("nivel")) or ""),
-                    "height": str((slab.get("height") if scoped else
-                        fields.get("laje_dim") or slab.get("laje_dim") or slab.get("height")) or ""),
-                    "region_id": slab.get("region_id"),
-                    "start": a0, "end": a1,
-                })
+                for part in getattr(inter, "geoms", [inter]):
+                    a0, a1 = scene.axis_bounds(part)
+                    if a1 - a0 < 5.0:
+                        continue
+                    target[side].append({
+                        "name": str(slab.get("name") or fields.get("nome") or ""),
+                        "level": str((slab.get("nivel") if scoped else
+                            fields.get("laje_nivel") or slab.get("laje_nivel") or slab.get("nivel")) or ""),
+                        "height": str((slab.get("height") if scoped else
+                            fields.get("laje_dim") or slab.get("laje_dim") or slab.get("height")) or ""),
+                        "region_id": slab.get("region_id"),
+                        "start": a0, "end": a1,
+                    })
     for key in ("A", "B"):
         scene.pillars[key].sort(key=lambda i: i["start"])
         scene.incidents[key].sort(key=lambda i: i["start"])
         scene.slabs[key].sort(key=lambda i: i["start"])
+        scene.passa_slabs[key].sort(key=lambda i: i["start"])
     _trim_end_pillars(scene)
     _trim_oblique_slivers(scene)
 

@@ -1,146 +1,173 @@
-# QA Gate Pós-SA: Mecanismos de Funcionamento, Classes e Roteiro de Evolução
+# Gate CAD pós-SA — funcionamento, classes, funções e descobertas
 
-**Status:** canônico · **Criado:** 2026-10-09 · **Escopo:** global (todas as obras e pavimentos)  
-**Autoridade:** Complementa [Mapa do Conhecimento](MAPA-DO-CONHECIMENTO.md), [Decisões do Dono](DECISOES-DO-DONO.md) e manuais de classe em `docs/SA-ANALISE/CLASSES/`.  
-**Evidência Datada:** Relatório consolidado `scripts/arete/relatorios/20261004_qa_jev_fv_f0_f2/RELATORIO_FINAL_20261009_R1_R6.md` (pid 27236, 13_PAV, Obra_TREINO_1).
-
----
-
-## 1. O que é o QA Gate e por que ele é Evolutivo
-
-O **QA Gate** (`portal/app/qa_cad_gate.py`) é a camada de verificação e auditoria que atua **imediatamente após a interpretação do Structural Analyzer (SA)** e antes da consolidação final de fôrmas (N3/N5).
-
-Historicamente, a revisão de divergências pós-SA dependia de filas lentas de CLIs agentivas ou inspeção humana manual, demorando minutos ou horas por pavimento. O QA Gate substitui essa dependência por uma arquitetura em duas camadas:
-1. **Núcleo Determinístico (Alta Velocidade, Custo Zero)**: Varredura topológica no DXF bruto/recorte em milissegundos, aplicando regras matemáticas rígidas de contato, cotas e quiralidade.
-2. **Camada de Raciocínio Delimitado (Opt-in, Apenas Resíduo)**: Para o resíduo onde há ambiguidade real de desenho, o gate formula perguntas de lista fechada com opções ancoradas em *handles* do DXF e controle de remoção negativo obrigatório.
-
-### Por que o Gate é Evolutivo?
-O gate não é estático nem depende de re-treinamento de redes neurais pesadas. Sua evolução segue o **ciclo Aretê**:
-- Cada pavimento ou obra processada que gera resíduo não certificado ou dúvida humana tem sua geometria dissecada;
-- A regra geométrica que resolve o caso é codificada no gate com teste de mutação;
-- O percentual de cobertura automática aumenta progressivamente (de 80% para 95%+), mantendo **zero aprovações falsas**.
+**Status:** canônico · **Criado:** 2026-10-09 · **Reescrito:** 2026-10-10 (estado publicado na VPS)
+**Escopo:** global (todas as obras e pavimentos), classes PIL, LAJ, FV e LV
+**Autoridade:** complementa o [Mapa do Conhecimento](MAPA-DO-CONHECIMENTO.md), as [Decisões do Dono](DECISOES-DO-DONO.md) e os manuais de classe em `docs/SA-ANALISE/CLASSES/`. Em conflito sobre **o que o gate mede e como roda**, este doc vence; sobre **a regra de interpretação** de cada classe, vence o manual da classe.
+**Deploy:** `docs/HANDOFF-DEVOPS-VPS-HETZNER.md` §10.10–10.11.
 
 ---
 
-## 2. Princípios Norteadores Inegociáveis
+## 1. O que é
 
-1. **A Medida continua dona do número**: Se o algoritmo geométrico encontra uma cota ou geometria consistente no CAD, esse valor é soberano. Nenhuma LLM ou estimativa visual pode sobrescrever uma medida.
-2. **Tolerância Zero a Aprovações Falsas**: Em fôrmas para concreto armado, validar uma dimensão errada causa fabricação de peça incorreta, montagem no vazio e colapso na concretagem. Uma única aprovação falsa elimina o caminho do modelo.
-3. **Resíduo Não Certificado vs. Alucinação**: Se não há candidatos determinísticos no desenho, o veredito correto é `nao_certificado`, abrindo ficha técnica humana (HTML). Chutar respostas por proximidade é expressamente proibido.
-4. **Isolamento de Produção**: O QA Gate audita o estado gerado pelo SA sem sobrescrever arquivos de projeto em `DADOS-OBRAS` até que haja validação formal.
+O **gate CAD pós-SA** mede no **DXF original** o que o Structural Analyzer (SA) declarou e diz, por item, se **confere**, **diverge** ou está **incerto**. É determinístico: lê linhas, polilinhas, textos e hachuras do desenho, sem modelo de IA, sem nome de layer e sem tocar no estado do SA.
 
----
+Ele **substituiu as camadas QA por CLI** (L1/L2/L3), que eram lentas (15–40 min por item, fila parada em 04/10, ver `project_qa_fila_clis`). O gate leva segundos por pavimento:
 
-## 3. Mecanismos de Funcionamento por Classe Estrutural
+| Classe | Tempo típico por pavimento (13_PAV) |
+|---|---|
+| PIL | ~0,6 s |
+| LAJ | ~0,3 s |
+| FV | ~9–16 s |
+| LV | ~1 s |
 
-### 3.1 Fundo de Viga (FV)
-No 13º pavimento (Obra_TREINO_1), o gate auditou 321 campos em **49,2 segundos**, atingindo **81,3% de resolução automática**:
+### 1.1 Quando roda (automático)
 
-* **Cotas de Nível**:
-  * O gate extrai marcadores de cota de nível e datum na vizinhança imediata de cada trecho de viga (ex.: cotas de rebaixo BD1-BDA).
-  * Regra: Se todas as cotas identificadas para o trecho forem coincidentes com handles válidos, o valor é certificado a 100% de confiança.
-  * *Resultado comprovado*: O gate identificou com 100% de certeza que V301 (trechos 7, 8, 15, 16) e V306 (trecho 4) possuíam nível 852.16 (rebaixo de desnível), corrigindo o erro do SA que havia inferido 852.19.
-* **Lajes Adjacentes de Topo**:
-  * O gate verifica o contato geométrico das lajes vizinhas no nível exato de apoio da viga.
-  * *Resultado comprovado*: Corrigiu lajes atribuídas incorretamente pelo SA fora da zona de contato em V302 (trechos 4 e 8), V303 (t4), V315 (t2), V317 (t2) e V318 (t1).
-* **Seção Transversal**:
-  * Compara a anotação de texto (ex.: `19/55`) com a largura medida entre os contornos de fundo.
-* **Visão de Corte vs. Abertura no Fundo**:
-  * Peças locais com vão próprio $\le 100\text{ cm}$ e saída $\le 50\text{ cm}$, agrupadas por distância $\le 4\text{ cm}$ e com preenchimento interno residual $\le 1\text{ cm}^2$ são **visão de corte**, nunca furos ou aberturas no fundo da viga. Não segmentam o fundo.
+1. O job SA do portal termina (`portal/app/pipeline_runner.py`, bloco "Gate CAD pós-SA"). O gancho existe nos **dois** ramos: SA+N3 e SA sem N3 (`--sa-only`, o botão SA do portal). Até 10/10 o ramo `--sa-only` não chamava o gate, e o selo ficava velho depois de rodar só o SA.
+2. `qa_cad_gate_run.best_effort(obra_dir, pav, secao, item_names)` roda o gate da seção e dos itens do job. Ele **nunca derruba o job**: em erro, só registra no log.
+3. O resultado vai para o **sidecar** `<obra>/.portal_overrides/qa_cad_gate/<pav>.json` (schema, pavimento, source, source_sha256, `classes.{PIL,LAJ,FV,LV}`, `tempos_s`, `gerado_em`).
+4. O portal lê o sidecar:
+   - **selo CAD** na lista lateral de cada classe: ✓ confere, ✕ diverge, ? incerto (`drill_grade.js` → `renderGateCadBadge`);
+   - **caixa do gate** dentro das fichas PIL, LAJ, FV e LV (`obra_detalhe.html` → `window.gateCadHtml`; `fv_ficha.js`, `lv_ficha.js`);
+   - API: `n1_routes.py` → `classe_status` (lista) e `item_status` / `_gate_cad_ficha` (ficha).
+5. **Desatualizado:** cada item guarda o `snapshot_sha256` do que foi medido. Se o SA mudou depois, `item_status` marca `desatualizado=true`: o selo fica velho até rodar de novo.
 
-### 3.2 Pilar (PIL)
-Auditado em **0,7 segundos** (85 campos no corpus):
+Não há botão manual: rodar o SA já roda o gate.
 
-* **Geometria de Seção**:
-  * Valida contornos poligonais retangulares e polilinhas (`LWPOLYLINE`), verificando fechamento geométrico real mesmo quando a flag nativa do DXF indica `Closed=false`.
-* **Quiralidade Orientada (`dist_esq` e `dist_dir`)**:
-  * O gate corrigiu a limitação da lista ordenada cega `[0, 52]`, que destruía a orientação física da peça de fôrma.
-  * O modelo formal agora utiliza o vetor orientador ao longo do eixo da viga de apoio:
-    $$\text{P1 Face B / VF301}: \quad \text{dist\_esq} = 52.0\text{ cm}, \quad \text{dist\_dir} = 0.0\text{ cm}, \quad \text{espessura} = 14.0\text{ cm}$$
-* **Regra Anti-Proximidade**:
-  * É proibido atribuir posições ou recuos de pilares por mera proximidade euclidiana de textos de chamada. A associação exige correspondência vetorial com a parede de contato.
-* **Estado verificado em 2026-10-10 (publicado na VPS, ledger `e11ef77`):**
-  * A comparação de distâncias com o SA é **sem orientação** (`sorted`): `dist_esq_cm`/`dist_dir_cm` são gravados no relatório, mas a convenção esq/dir por face ainda não foi conferida contra o SA, então não bloqueiam.
-  * Parede que **atravessa** a face conta (viga com a largura do pilar, P42/P46/P48/P51 no 13_PAV); só o trecho externo vale para achar o rótulo. Com dois rótulos na parede contínua, vale o do **primeiro vão** até a primeira parede perpendicular que encosta no corredor.
-  * Face sem parede que chegue ou atravesse **não é link fantasma**: fica `uncertain` com `ghost_suspect` (bloqueia a promoção até conferência). Nada é removido do snapshot. Motivo: no 13_PAV, 11 dos 13 "fantasmas" do desenho anterior eram vigas reais.
+### 1.2 Status por item (`qa_cad_gate_run.resumo`)
 
-### 3.3 Extensões em Planejamento: Lateral de Viga (LV) e Lajes (LAJ)
+| Status | Quando |
+|---|---|
+| `confere` | todos os contatos medidos sem erro |
+| `diverge` | algum contato **medido** com erro (o desenho diz outra coisa) |
+| `incerto` | nada diverge, mas algum contato não pôde ser medido **e bloqueia promoção** |
+| `indisponivel` | sem DXF original ou erro de leitura |
 
-* **Lateral de Viga (LV)**:
-  * Verificação de sarrafos e garfos conforme padrão STOG/Formascia.
-  * Validação de desconto de altura útil da lateral com base na espessura $h$ da laje de apoio adjacente.
-  * Aplicação do contrato de cortes interpretados (eliminar duplicatas de símbolos de corte).
-  * **No gate desde 2026-10-10 (v2, `cad.qa_original_laterais/v2`):** um item por viga e comportamento (`V301|para`). Mede por segmento: arestas sobre parede colinear (lado do corpo pela parede oposta a bw); seção bw/h escrita na faixa (`lv_cell.sections`), descartando seção logo abaixo de rótulo `P\d+`; laje da face na faixa 0,5–6 cm fora dela (trecho ≥ 5 cm, igual ao `lv_beam_scene`), com espessura própria das regiões rebaixadas (`slab_steps`), contra `lv_cell.slabs`; traço perpendicular nos extremos; sobreposição; coerência dos campos. A altura do painel não é medida (o SA não a declara: era alucinação da v1). SA antigo sem `lv_cell`: usa `level_slabs` e deixa a coerência incerta. Achados reais conferidos em PNG: regiões rebaixadas não declaradas (L313 h=10, L410 h=11), face 0,5 cm fora da parede (V324, V422). Dúvida aberta ao dono: segmento Passa sobre pilar com laje encostando (V309A, V330 4-A), onde o SA declara nenhuma laje.
-* **Lajes (LAJ)**:
-  * Cruzamento da espessura anotada (ex.: `L309 h=13`) com polígonos fechados de contorno.
-  * Tratamento de múltiplos marcadores de nível dentro do mesmo pano de laje (ex.: 852.19 e 852.16 em regiões com rebaixo para impermeabilização/área molhada).
+Contato `uncertain` com `blocks_promotion=False` (usado em FV e LV para o que é informativo) **não** derruba o item para incerto.
 
 ---
 
-## 4. Integração Delimitada de Raciocínio LLM (Jev / NVIDIA)
+## 2. Princípios (inegociáveis)
 
-O QA Gate **não delega cálculos numéricos nem medições a modelos de IA**. A IA é utilizada estritamente como juiz auxiliar em dúvidas de classificação fechada do resíduo, sob regras formais:
-
-```
-                  ┌─────────────────────────────────────────┐
-                  │          ESTADO BRUTO PÓS-SA            │
-                  └────────────────────┬────────────────────┘
-                                       │
-                                       ▼
-                  ┌─────────────────────────────────────────┐
-                  │    MEDIÇÃO DETERMINÍSTICA NO DXF        │
-                  │        (portal/app/qa_cad_gate.py)      │
-                  └────────────┬───────────────────────┬────┘
-                               │                       │
-                     [Valor Encontrado]       [Ambiguidade / Resíduo]
-                               │                       │
-                               ▼                       ▼
-                  ┌─────────────────────────┐ ┌─────────────────────────┐
-                  │   VEREDITO DO GATE      │ │ PERGUNTA LISTA FECHADA  │
-                  │  - Acordo (medido)      │ │  (schema v1 + handles)  │
-                  │  - Divergente (aplicar) │ └────────────┬────────────┘
-                  └─────────────────────────┘              │
-                                                           ▼
-                                              ┌─────────────────────────┐
-                                              │   CONTROLE DE REMOÇÃO   │
-                                              │   (Evidência suprimida) │
-                                              └────────────┬────────────┘
-                                                           │
-                                                [Retornou INSUFFICIENT?]
-                                                    │             │
-                                                  (Sim)         (Não)
-                                                    │             │
-                                                    ▼             ▼
-                                              ┌──────────┐  ┌───────────┐
-                                              │ Consulta │  │ Descarte  │
-                                              │ Jev/LLM  │  │ Sumário   │
-                                              └──────────┘  │ (Ficha)   │
-                                                            └───────────┘
-```
-
-### Regras do Pacote de Consulta:
-1. **Schema Obrigatório**: `cad.qa_pergunta_residuo/v1`.
-2. **Alternativas Ancoradas**: Cada opção deve referenciar entidades explícitas com *handles* do DXF.
-3. **Opção `INSUFFICIENT`**: Obrigatória em todas as perguntas.
-4. **Controle Negativo de Remoção**: A pergunta é duplicada sem a evidência textual/vetorial. Se o modelo não responder `INSUFFICIENT` no controle, o modelo falhou e a pergunta é descartada para evitar alucinação.
-5. **Confiança Probabilística**: Confiança de modelo só pode ser expressa após calibração em conjunto disjunto (ex.: 14_PAV cego). Declarações em texto ("tenho 95% de certeza") têm valor nulo.
+1. **A medida é dona do número.** Valor medido no CAD vence estimativa, IA ou visão.
+2. **Zero aprovação falsa.** Na dúvida, `uncertain`; nunca aprovar por proximidade.
+3. **Sem nome de layer.** Classificação por geometria e texto (`feedback_motor_layer_independence`).
+4. **Só leitura.** O gate não altera o estado do SA, `project_data.vision` nem os DXFs.
+5. **Não inventar campo.** O gate só confere o que o SA **declara**. A v1 do LV media uma "altura útil" que o SA não declara e gerou 274 divergências falsas; foi removida.
+6. **Divergência precisa de prova.** Antes de declarar um achado como real, renderizar o DXF e ler o PNG (`feedback_ler_png_antes_de_perguntar`).
 
 ---
 
-## 5. Roteiro de Progressão e Evolução Contínua (Roadmap Aretê)
+## 3. Arquitetura e funções
 
-| Fase | Escopo | Mecanismo de Avanço | Meta de Cobertura | Status |
-|:---:|---|---|:---:|:---:|
-| **Fase 1** | FV Nível, Seção e Lajes + PIL básico | Medição algorítmica no DXF (`qa_cad_gate.py`) | 80%+ automático | **Concluído (13_PAV)** |
-| **Fase 2** | Quiralidade de PIL (`dist_esq`/`dist_dir`) e paredes paralelas | Vetores direcionais e desempate geométrico | 90%+ em PIL | Em implementação |
-| **Fase 3** | LV (Laterais de Viga) e Encontros | Integração do filtro de visão de corte com N3/N5 | 85%+ em LV | Planejado |
-| **Fase 4** | LAJ (Lajes, espessuras e rebaixos) | Extração de contornos e marcadores múltiplos | 90%+ em LAJ | Planejado |
-| **Fase 5** | Pós-SA Integrado no Portal | Execução automática pós-análise; fichas HTML apenas para resíduo $\le 5\%$ | **100% Aretê** | Planejado |
+| Arquivo | Função | Papel |
+|---|---|---|
+| `portal/app/qa_cad_gate.py` | `measure` | PIL: paredes, rótulos e contornos de pilar |
+| | `measure_slabs` / `_measure_slabs` | LAJ: rótulo, `h=` e cota escritos dentro do contorno |
+| | `measure_beams` | FV: arestas, seção, apoios, inventário, níveis (`_beam_levels`) |
+| | `measure_fv_tags` | FV: âncora das tags no SVG da ficha (só na evidência) |
+| | `measure_lateral_beams` | LV: arestas, seção, laje da face, extremos, sobreposição, coerência |
+| | `for_snapshot` | despacho por classe (PIL/LAJ/FV/LV) com o DXF de produção |
+| | `for_evidence` | medição para o pacote de revisão (FV inclui tags) |
+| | `errors` | lista de erros de um relatório |
+| `portal/app/qa_cad_gate_run.py` | `run_pavimento` / `best_effort` | roda o pavimento e grava o sidecar |
+| | `measure_state` | mede por seção (`SECOES`) e itens |
+| | `resumo`, `classe_status`, `item_status`, `item_name` | leitura para lista e ficha |
+| `portal/app/pipeline_runner.py` | bloco pós-SA | chamada automática |
+| `portal/app/routers/n1_routes.py` | `_gate_cad_ficha`, uso de `classe_status` | API das fichas e da lista |
+| `portal/app/qa_versions.py`, `qa_review_contract.py` | uso na adoção/QA | trava CAD na rodada de QA |
+
+**Seções e itens** (`SECOES`, `CLASSE_PORTAL`):
+- PIL: `pilares`, `pilares_especiais`; item = nome do pilar.
+- LAJ: `lajes`; item = nome da laje.
+- FV: `fundo`; item = nome da viga.
+- LV: `laterais_viga`; item = `VIGA|para` ou `VIGA|passa`, com as faces A e B juntas e as quatro coleções `lateral_{a,b}_{para,passa}`.
+
+**Testes:** `portal/tests/test_qa_cad_gate*.py` (gate, run, lv, fv, fv_nivel, pil, laj).
 
 ---
 
-## 6. Governança e Salvaguardas no Portal
+## 4. Por classe
 
-- **Não alteração da VPS em experimentação**: Nenhuma rotina de teste deve ser publicada na VPS sem overlay `/tmp/ovl` e sem validação prévia em testes locais (mínimo de 72 testes verdes no gate).
-- **RAG e Base Global**: Este documento serve como fonte canônica de recuperação pelo RAG. O RAG recupera os contratos, mas quem executa o teste é o script determinístico local.
-- **Transparência de Divergências**: Toda divergência encontrada pelo gate deve registrar o valor antigo do SA, o valor medido no CAD, os handles de prova e a causa-raiz física.
+### 4.1 Pilar (PIL) — `measure`
+
+- **Mede:** contorno do pilar (polilinha fechada, mesmo com `Closed=false` e ponto repetido); paredes de viga que **chegam ou atravessam** cada face; rótulo da viga na parede; distâncias da viga à quina.
+- **Guardas:** identidade do contorno, vínculo face↔viga, distâncias.
+- **Descobertas:**
+  - **"Link fantasma" era alucinação** do dossiê de outra IA: no 13_PAV, 11 dos 13 eram vigas reais atravessando o pilar com a mesma largura (P42/P46/P48/P51). Face sem parede fica `uncertain` + `ghost_suspect`; **nada é removido**.
+  - Parede que atravessa a face conta; para achar o rótulo vale só o trecho externo. Com dois rótulos na parede contínua, vale o do **primeiro vão**.
+  - `dist_esq`/`dist_dir` são gravados, mas comparados **sem orientação** (`sorted`): a convenção esq/dir por face ainda não foi conferida contra o SA.
+  - VF301 "19/66" no SA de 10/08 era a seção do pilar P8 (texto vizinho), não a da viga.
+
+### 4.2 Laje (LAJ) — `measure_slabs`
+
+- **Mede:** rótulo, espessura `h=` e cota de nível escritos **dentro** do contorno da própria laje (E1). Regiões rebaixadas (`slab_steps`) têm espessura própria.
+- **Guardas:** `identidade_contorno`, `dimensoes_espessura`, `niveis`.
+- **Limite:** sem texto dentro do contorno, fica incerto (E1 ausente); não procura texto por proximidade.
+
+### 4.3 Fundo de viga (FV) — `measure_beams`
+
+- **Mede:** arestas longas sobre paredes originais; seção bw/h escrita na faixa; apoios e limites (pilar, viga, laje); inventário de segmentos (sem lacuna ou sobreposição); **níveis** por segmento (`_beam_levels`: laje que toca, cota escrita, datum do pavimento, exceções hachuradas do original).
+- **Guardas:** `identidade_contorno`, `dimensoes`, `apoios_limites`, `inventario_segmentos`, `niveis`.
+- **Visão de corte no fundo:** peça local com vão ≤ 100 cm e saída ≤ 50 cm, agrupada por ≤ 4 cm e preenchimento residual ≤ 1 cm², é **visão de corte**, não abertura; não segmenta o fundo (`_visao_corte_t`, `_section_view_unions`).
+- **T de mesma altura (D-90):** a viga que chega atravessa a outra; a trava de chegada lateral está em `measure_beams`.
+- **Evidência:** `measure_fv_tags` exige a âncora da tag no SVG a ≤ 0,5 cm (só na revisão).
+
+### 4.4 Lateral de viga (LV) — `measure_lateral_beams` (v2, `cad.qa_original_laterais/v2`)
+
+Por segmento das quatro coleções (A/B × Para/Passa):
+
+| Aspecto | Guarda | O que confere |
+|---|---|---|
+| arestas | `identidade_contorno` | a face está sobre uma parede colinear do original; o lado do corpo é dado pela parede oposta a bw |
+| seção | `dimensoes` | bw/h escritos na faixa = `lv_cell.sections`/`dim`; descarta seção logo abaixo de rótulo `P\d+` (texto de pilar) |
+| laje da face | `laje_face` | lajes na faixa de 0,5–6 cm fora da face (trecho ≥ 5 cm, a mesma regra do `lv_beam_scene`) = `lv_cell.slabs`, inclusive a espessura das regiões rebaixadas |
+| extremo início/fim | `apoios_limites` | traço perpendicular tocando a face; se não houver, fica incerto |
+| sobreposição | `inventario_segmentos` | segmentos da mesma face sem sobreposição |
+| coerência | `consistencia_alertas` | length, nível em segmento valid, level × `lv_cell.level`, `level_slabs` ⊆ `lv_cell.slabs`, width × `lv_cell.dim` |
+
+- **Não mede a altura do painel:** o SA não a declara; quem calcula é o gerador N3.
+- **SA antigo sem `lv_cell`:** as lajes declaradas vêm de `level_slabs`, sem espessura, e a coerência fica `uncertain` com o aviso "rodar o SA de novo". Na obra thierry 14_PAV, o resultado foi de 64/64 diverge para 60/4.
+- **Resultados (10/10):** 13_PAV TREINO 63 confere / 9 diverge; 14_PAV TREINO 62/4; thierry 14_PAV 60/4.
+- **Achados reais, conferidos em PNG:**
+  - regiões rebaixadas não declaradas pelo SA: L313 h=10 (V302, V318), L410 h=11 (V406, V409, V411);
+  - face 0,5 cm fora da parede: V324 B, V422 B;
+  - L316 a mais no V330 2-A;
+  - Passa sobre pilar sem laje (V309A B seg 1 → L319; V330 A seg 4-A → L318). O dono decidiu (**D-91**) que o Passa sobre pilar também tem laje, e o SA foi corrigido em 10/10 (`lv_beam_scene.passa_slabs`).
+
+---
+
+## 5. Próxima etapa pedida pelo dono — Visão Corte (D-92)
+
+O dono pediu (10/10) que o gate revise também as **Visões Corte**, originais e interpretadas. Divergência ali aponta **erro de nível**, que é grave. O escopo pedido funciona como um gate de **níveis e dimensões das lajes e de cada segmento de viga**:
+
+- **Visão Corte original:** os cortes desenhados no DXF (símbolo de corte, seção da viga, lajes dos dois lados, cotas de nível escritas).
+- **Visão Corte interpretada:** o que o SA/N3 monta para cada corte (`docs/SA-ANALISE/CLASSES/LV.md`, Visão Corte; D-87 agrupa pares A/B com a mesma seção).
+- **Conferir:** nível de topo de cada laje e da viga, espessuras, **degraus de laje** (`slab_steps`) e **degraus de viga** (mudança de seção ou de fundo), bw/h por segmento, e a coerência entre o corte e os segmentos FV/LV vizinhos.
+- **Regras a reaproveitar:** `_beam_levels` e `_section_level` (FV), faixa de laje da face (LV), manual de níveis `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`, apresentação numérica (níveis com duas casas).
+- **Status:** registrado, **não implementado**. Entra como classe/seção nova do gate, com sidecar, selo e caixa iguais às demais.
+
+---
+
+## 6. Camada Jev / IA (fora do gate automático)
+
+O gate automático **não usa IA**. A consulta delimitada a Jev (pergunta de lista fechada, alternativas ancoradas em handles, opção `INSUFFICIENT`, controle negativo de remoção) é trilha separada, documentada em `docs/MASTERPLAN-QA-JEV.md`. Haiku é proibido no QA (`feedback_qa_sem_haiku`).
+
+---
+
+## 7. Governança
+
+- **Deploy:** sempre na VPS, pelo §10.6 do handoff: backup, `portal_jobs` sem job ativo, restart e smoke. **Nunca** usar overlay `/tmp/ovl`: o pacote regular de `/opt` vence e o systemd não lê `PYTHONPATH`.
+- **Arquivos copiados do Windows** chegam com CRLF: normalizar para LF antes de commitar no ledger.
+- **Fix de gate** termina com a rodada no portal e a leitura dos achados, não só com testes verdes (`feedback_qa_loop_to_seal`).
+- Toda divergência mostra o valor do SA, o valor medido e onde (face, segmento, coordenada).
+
+## 8. Histórico
+
+| Data | Marco | Commits (local / ledger VPS) |
+|---|---|---|
+| 2026-10-10 | gate PIL/LAJ/FV publicado; "link fantasma" vira `uncertain` | 13a391ce1 / e11ef77 |
+| 2026-10-10 | gate roda sozinho após o SA; FV 2x mais rápido | 59954cf7c / 9fb348e |
+| 2026-10-10 | selo CAD na lista e caixa na ficha de pilar | f3e8342d6 / 9df13d5 |
+| 2026-10-10 | LV v2 religado; caixa nas fichas FV/LV; SA antigo sem `lv_cell` | 5f6497993 / 5f3d183 |
+| 2026-10-10 | D-91: Passa sobre pilar declara a laje da face (SA corrigido) | ver git log / arquivo vivo (backup `/root/bak_lv_d91_202610101650`) |
+| 2026-10-10 | gate também no ramo `--sa-only` (botão SA) | árvore (ramo sa-only ainda sem commit) / arquivo vivo (backup `/root/bak_saonly_gate_202610101718`) |

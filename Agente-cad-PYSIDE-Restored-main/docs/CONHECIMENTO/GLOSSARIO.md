@@ -100,3 +100,6 @@ Uma linha por termo, com a fonte onde a definição completa mora (caminhos rela
 | **DP-n** | decisões de produto numeradas (DP-1…DP-14) | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md` |
 | **P0–P6 / P0–P7** | gates de produto (P0–P6, soberania) e etapas do caminho crítico de entrega (P0–P7) | `docs/MASTERPLAN-PRODUCAO-SOBERANIA.md`; `CLAUDE.md` item 5 |
 | **VPS** | servidor Hetzner (cad-analyzer.duckdns.org) que hospeda o portal | `docs/HANDOFF-DEVOPS-VPS-HETZNER.md` |
+| **Gate CAD pós-SA** | medição determinística no DXF original, por item, do que o SA declarou (PIL/LAJ/FV/LV); roda sozinho no fim do job SA e substitui as camadas QA por CLI. Status: confere / diverge / incerto / indisponível | [QA-GATE-MECANISMOS-E-EVOLUCAO.md](QA-GATE-MECANISMOS-E-EVOLUCAO.md); `portal/app/qa_cad_gate.py`, `qa_cad_gate_run.py` |
+| **Sidecar do gate** | arquivo `<obra>/.portal_overrides/qa_cad_gate/<pav>.json` com o resultado do gate por classe e item, mais `snapshot_sha256` para marcar item desatualizado | `qa_cad_gate_run.sidecar_path` |
+| **Selo CAD** | marca ✓/✕/? do gate na lista lateral do portal; a mesma informação aparece como caixa dentro da ficha | `drill_grade.js` `renderGateCadBadge`; `obra_detalhe.html` `gateCadHtml` |

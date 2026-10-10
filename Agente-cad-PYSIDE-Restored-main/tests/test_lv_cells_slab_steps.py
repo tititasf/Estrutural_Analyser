@@ -52,3 +52,19 @@ def test_step_reference_does_not_cross_a_beam_section_change():
     inset = next(s for s in cells if s.slabs and s.slabs[0]['region_id']=='inset')
     assert inset.level == ''
     assert inset.slabs[0]['level']=='8.47'
+
+
+def test_passa_along_pillar_wall_declares_the_touching_slab():
+    """D-91: o trecho Passa que corre pela parede do pilar também tem laje."""
+    from shapely.geometry import box
+    scene = LvScene('V', True, 0, 19, 0, 300)
+    scene.sections = [dict(start=0, end=300, dim='19/55', depth=55)]
+    slabs = [dict(name='L1', height=13, nivel=8.5, fields={'laje_dim': '13', 'laje_nivel': '8.5'},
+                  points=[[0, -100], [300, -100], [300, 0], [0, 0]]),
+             dict(name='L2', height=12, nivel=8.5, fields={'laje_dim': '12', 'laje_nivel': '8.5'},
+                  points=[[300, -100], [360, -100], [360, 0], [300, 0]])]
+    _attach_context(scene, [('P1', 'RETANGULAR', box(300, 0, 360, 60))], [scene], _slab_polygons(slabs))
+    passa = segment_cell(scene, 'A', 'passa')
+    assert max(max(s.start, s.end) for s in passa) >= 359.5
+    assert 'L2' in {sl['name'] for s in passa for sl in s.slabs}
+    assert 'L2' not in {sl['name'] for s in segment_cell(scene, 'A', 'para') for sl in s.slabs}

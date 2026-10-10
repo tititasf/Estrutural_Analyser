@@ -468,8 +468,11 @@ def segment_cell(
                 "pos_inicio": round((info["start"] - a0) if ascending else (a1 - info["end"]), 2),
                 "rule": info.get("rule"),
             })
+        # Passa usa as lajes da extensão inteira (parede do pilar inclusive, D-91).
+        slab_source = (scene.passa_slabs[side] if behavior == "passa" and scene.passa_slabs is not None
+                       else scene.slabs[side])
         slabs = [
-            s for s in scene.slabs[side]
+            s for s in slab_source
             if min(s["end"], a1) - max(s["start"], a0) > 5.0
         ]
         slabs.sort(key=lambda s: s["start"], reverse=not ascending)
