@@ -167,10 +167,15 @@ def item_status(obra_dir, pav, classe_portal, item_id, state=None, beam_name=Non
     if not classe:
         return None
     name = item_name(classe_portal, item_id, beam_name)
-    entry = (_read(sidecar_path(obra_dir, pav)).get('classes') or {}).get(classe, {}).get(name)
+    classes = _read(sidecar_path(obra_dir, pav)).get('classes') or {}
+    entry = classes.get(classe, {}).get(name)
+    # Visão Corte (D-92) da viga ou da laje, numa caixa própria da mesma ficha.
+    vc = classes.get('VC', {}).get(name.split('|')[0]) if classe in ('FV', 'LV', 'LAJ') else None
     if not entry:
-        return None
+        return dict(status=None, visao_corte=vc) if vc else None
     entry = dict(entry)
+    if vc:
+        entry['visao_corte'] = vc
     if state is not None and entry.get('snapshot_sha256'):
         try:
             entry['desatualizado'] = interp.fingerprint(_snapshot(state, classe, name)) != entry['snapshot_sha256']

@@ -2901,8 +2901,10 @@
     confere: 'confere com o CAD original', diverge: 'diverge do CAD original',
     incerto: 'não deu para medir tudo no CAD', indisponivel: 'CAD original indisponível',
   };
-  function gateCadHtml(g) {
-    if (!g || !g.status) return '';
+  function gateCadHtml(g, titulo) {
+    if (!g) return '';
+    var vc = g.visao_corte && !titulo ? gateCadHtml(g.visao_corte, 'Gate Visão Corte (níveis e degraus)') : '';
+    if (!g.status) return vc;
     var esc = function (s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); };
     var lista = function (titulo, itens) {
       return itens && itens.length ? '<div style="margin-top:4px;"><b>' + titulo + ':</b><ul style="margin:2px 0 0 16px; padding:0;">' +
@@ -2912,9 +2914,9 @@
     var velho = g.desatualizado ? '<div class="muted" style="font-size:11px;">⚠ item mudou depois da medição; rode o SA de novo para atualizar.</div>' : '';
     var cor = ({confere: '#16a34a', diverge: '#dc2626', incerto: '#d97706'})[g.status] || '#9ca3af';
     return '<div class="gate-cad-box" style="text-align:left; border:1px solid #e5e7eb; border-left:4px solid ' + cor +
-      '; border-radius:6px; padding:8px 10px; margin:0 0 10px; font-size:13px;"><b>Gate CAD pós-SA</b> · ' +
+      '; border-radius:6px; padding:8px 10px; margin:0 0 10px; font-size:13px;"><b>' + esc(titulo || 'Gate CAD pós-SA') + '</b> · ' +
       (GATE_CAD_ICONE[g.status] || '') + ' ' + esc(GATE_CAD_TEXTO[g.status] || g.status) + quando + velho +
-      lista('Divergências', g.divergencias) + lista('Sem medição', g.incertos) + '</div>';
+      lista('Divergências', g.divergencias) + lista('Sem medição', g.incertos) + '</div>' + vc;
   }
   window.gateCadHtml = gateCadHtml;
   window.GATE_CAD_ICONE = GATE_CAD_ICONE;

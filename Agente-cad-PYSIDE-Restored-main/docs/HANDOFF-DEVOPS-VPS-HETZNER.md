@@ -445,6 +445,7 @@ LV medido: 13_PAV TREINO 63 confere/9 diverge, 14_PAV TREINO 62/4, thierry 14_PA
 - **Fora do ledger:** os dois trechos dependem de drift que nunca entrou no ledger (cena LV +479 linhas, ramo sa-only). Ficam só no arquivo vivo até alguém consolidar esse drift.
 - **Validação:** SA de laterais do 13_PAV pelo portal (job `4ff40c73`). O sidecar foi atualizado sozinho: LV 70 confere / 2 diverge, só V330 2-A com L316 a mais.
 - **Disco:** às 17:19 a VPS chegou a 100% (`/tmp/sa-dev-validation`, `dev_sa_cycle.py`, 1,5 GB por ciclo) e o `POST /sa` deu 500. O dono liberou espaço.
+- **D-92, gate Visão Corte (classe `VC`):** publicados o novo `qa_cad_gate_cortes.py`, `qa_cad_gate_run.py`, `templates/obra_detalhe.html` (caixa "Gate Visão Corte") e os testes. Backup `/root/bak_vc_gate_202610101609`, 41 testes passando na VPS. Job `766f8b05` (SA de laterais, 13_PAV): VC 46 itens, 39 confere / 4 diverge / 3 incertos, 6,5 s. Também fora do ledger, porque `qa_cad_gate_run.py` e o template carregam drift (`measure_state`).
 
 ### 10.9 Retenção de HTML — 2026-10-09
 

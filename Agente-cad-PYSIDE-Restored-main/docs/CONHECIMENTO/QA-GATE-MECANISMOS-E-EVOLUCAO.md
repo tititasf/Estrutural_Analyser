@@ -24,7 +24,7 @@ Ele **substituiu as camadas QA por CLI** (L1/L2/L3), que eram lentas (15–40 mi
 
 1. O job SA do portal termina (`portal/app/pipeline_runner.py`, bloco "Gate CAD pós-SA"). O gancho existe nos **dois** ramos: SA+N3 e SA sem N3 (`--sa-only`, o botão SA do portal). Até 10/10 o ramo `--sa-only` não chamava o gate, e o selo ficava velho depois de rodar só o SA.
 2. `qa_cad_gate_run.best_effort(obra_dir, pav, secao, item_names)` roda o gate da seção e dos itens do job. Ele **nunca derruba o job**: em erro, só registra no log.
-3. O resultado vai para o **sidecar** `<obra>/.portal_overrides/qa_cad_gate/<pav>.json` (schema, pavimento, source, source_sha256, `classes.{PIL,LAJ,FV,LV}`, `tempos_s`, `gerado_em`).
+3. O resultado vai para o **sidecar** `<obra>/.portal_overrides/qa_cad_gate/<pav>.json` (schema, pavimento, source, source_sha256, `classes.{PIL,LAJ,FV,LV,VC}`, `tempos_s`, `gerado_em`).
 4. O portal lê o sidecar:
    - **selo CAD** na lista lateral de cada classe: ✓ confere, ✕ diverge, ? incerto (`drill_grade.js` → `renderGateCadBadge`);
    - **caixa do gate** dentro das fichas PIL, LAJ, FV e LV (`obra_detalhe.html` → `window.gateCadHtml`; `fv_ficha.js`, `lv_ficha.js`);
@@ -72,6 +72,7 @@ Contato `uncertain` com `blocks_promotion=False` (usado em FV e LV para o que é
 | `portal/app/qa_cad_gate_run.py` | `run_pavimento` / `best_effort` | roda o pavimento e grava o sidecar |
 | | `measure_state` | mede por seção (`SECOES`) e itens |
 | | `resumo`, `classe_status`, `item_status`, `item_name` | leitura para lista e ficha |
+| `portal/app/qa_cad_gate_cortes.py` | `measure_obra` / `measure_pavimento` | VC: cortes originais, interpretados, cobertura e degraus (seção 5) |
 | `portal/app/pipeline_runner.py` | bloco pós-SA | chamada automática |
 | `portal/app/routers/n1_routes.py` | `_gate_cad_ficha`, uso de `classe_status` | API das fichas e da lista |
 | `portal/app/qa_versions.py`, `qa_review_contract.py` | uso na adoção/QA | trava CAD na rodada de QA |
@@ -136,17 +137,34 @@ Por segmento das quatro coleções (A/B × Para/Passa):
 
 ---
 
-## 5. Próxima etapa pedida pelo dono — Visão Corte (D-92)
+## 5. Visão Corte (VC) — `qa_cad_gate_cortes.py` (D-92, implementado 10/10)
 
-O dono pediu (10/10) que o gate revise também as **Visões Corte**, originais e interpretadas. Divergência ali aponta **erro de nível**, que é grave. O escopo pedido funciona como um gate de **níveis e dimensões das lajes e de cada segmento de viga**:
+O dono pediu (10/10) que o gate revise também as **Visões Corte**, originais e interpretadas: divergência ali aponta **erro de nível**, que é grave. Funciona como o gate de **níveis e dimensões das lajes e de cada segmento de viga**.
 
-- **Visão Corte original:** os cortes desenhados no DXF (símbolo de corte, seção da viga, lajes dos dois lados, cotas de nível escritas).
-- **Visão Corte interpretada:** o que o SA/N3 monta para cada corte (`docs/SA-ANALISE/CLASSES/LV.md`, Visão Corte; D-87 agrupa pares A/B com a mesma seção).
-- **Conferir:** nível de topo de cada laje e da viga, espessuras, **degraus de laje** (`slab_steps`) e **degraus de viga** (mudança de seção ou de fundo), bw/h por segmento, e a coerência entre o corte e os segmentos FV/LV vizinhos.
-- **Regras a reaproveitar:** `_beam_levels` e `_section_level` (FV), faixa de laje da face (LV), manual de níveis `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`, apresentação numérica (níveis com duas casas).
-- **Status:** registrado, **não implementado**. Entra como classe/seção nova do gate, com sidecar, selo e caixa iguais às demais.
+**Quando roda:** no mesmo pós-SA, sempre que a seção do job for `lajes`, `fundos_viga`, `laterais_viga` ou o pavimento inteiro (`qa_cad_gate_run.VC_SECOES`). A seção `pilares` não refaz os cortes. Classe `VC` no sidecar; item = viga (`V302`) ou laje com degrau (`L319`). Custo: ~6,5 s no 13_PAV, porque inclui `structural_cut_overlay.collect_sections`.
 
----
+**Onde aparece:** caixa própria, "Gate Visão Corte (níveis e degraus)", logo abaixo da caixa do gate nas fichas FV, LV e LAJ (`item_status` devolve `visao_corte`; `gateCadHtml` desenha). O selo "desatualizado" usa `inputs_fingerprint`, a impressão digital do que o SA declarou para o item.
+
+| Parte | Função | O que confere | Guarda |
+|---|---|---|---|
+| Corte original | `measure_original` | O polígono do corte lido pelo SA vira a união das peças fechadas do DXF contidas nele. O perfil T/L é medido nas 4 orientações (`profile`): bw, h e braços de laje por lado (desnível do topo, espessura). Fica a orientação com menos erros contra a ficha do SA (`beam_w/h`, `side_*_laje_name`, `beam_lajes_side_*`, `own/neighbor_dist_top`, `*_slab_height`, `direction`). | `dimensoes`, `niveis` |
+| Corte interpretado | `measure_calculated` | Para cada corte calculado (`section_contract`): desnível = (topo − cota escrita na laje)×100 e espessura contra o `h=` escrito dentro do contorno (E1, `slab_values` reaproveita `measure_slabs`). No corte relativo, confere o degrau entre os lados. | `niveis`, `dimensoes` |
+| Cobertura | — | Segmento de fundo sem corte (`soffit_coverage` pending) e corte que o SA não montou (`blocked`) ficam **incertos bloqueantes**. | `inventario_segmentos` |
+| Degrau de laje | `measure_slab_step` | Corte original do degrau: duas espessuras e os dois offsets (topo/fundo) contra `slab_steps` (Δnível e Δfundo). Degrau sem corte no DXF é aviso não bloqueante. | `degraus` |
+
+**Regras aprendidas na calibração (13_PAV):**
+- **Alma por peso de comprimento:** a alma é o intervalo transversal que ocupa mais comprimento ao longo da altura. Pela interseção, a quebra inclinada estreitava a alma, e o corte 19/120 era lido deitado (bw 12, braço 19–30).
+- **Espora ≤ 3 cm não é braço** (`ARM_MIN_CM`).
+- **Alma quebrada** (símbolo de quebra): h não é medível, aviso não bloqueante. Braço na metade de baixo do desenho (viga invertida) é medido **a partir do fundo da viga**. Assim o V330 19/120 (lajes no fundo, desnível 107/110) confere.
+- **Espessura esquemática:** se o símbolo desenha uma espessura diferente da declarada, mas a declarada é o `h=` da planta, vira **nota** ("vale a planta"), não divergência. Vale para o corte original e para o degrau (ex.: L319 BD5 com símbolo 10/13 e planta 11/14).
+- **Ficha vazia** (o SA não leu direção nem lajes): incerto bloqueante, não divergência.
+
+**Resultado 10/10 no portal** (job 766f8b05, 13_PAV): 46 itens, **39 confere / 4 diverge / 3 incerto**.
+- V302 e V303 (interpretado): o corte usa laje de 10 cm com desnível de 3 cm, mas a planta diz `h=13` com a cota no topo (L309, L312, L316, L321–L324). Possível erro de nível no SA; a investigar.
+- V314 e V320 (original 19/55): o desenho tem laje dos dois lados; o SA declara um lado "nulo". Conferido em PNG.
+- Incertos: V316 (ficha do corte não lida, beam_w ausente); VF203 e VF301 ("topo + laje + fundo não fecha a altura da viga").
+
+**Não faz ainda:** coerência `top_level_m` do corte × nível do segmento FV; degraus de viga sem corte desenhado (mudança de fundo entre segmentos), que hoje só aparecem quando há corte.
 
 ## 6. Camada Jev / IA (fora do gate automático)
 
@@ -171,3 +189,4 @@ O gate automático **não usa IA**. A consulta delimitada a Jev (pergunta de lis
 | 2026-10-10 | LV v2 religado; caixa nas fichas FV/LV; SA antigo sem `lv_cell` | 5f6497993 / 5f3d183 |
 | 2026-10-10 | D-91: Passa sobre pilar declara a laje da face (SA corrigido) | ver git log / arquivo vivo (backup `/root/bak_lv_d91_202610101650`) |
 | 2026-10-10 | gate também no ramo `--sa-only` (botão SA) | árvore (ramo sa-only ainda sem commit) / arquivo vivo (backup `/root/bak_saonly_gate_202610101718`) |
+| 2026-10-10 | D-92 implementada: gate Visão Corte (classe VC), caixa nas fichas FV/LV/LAJ | ver git log / arquivo vivo (backup `/root/bak_vc_gate_202610101609`) |
