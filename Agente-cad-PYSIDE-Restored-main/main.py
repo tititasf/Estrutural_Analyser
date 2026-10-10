@@ -13740,11 +13740,52 @@ class MainWindow(QMainWindow):
         if d.startswith('o') or d.startswith('w'): return 'left'
         return ''
 
-    def _neighbor_by_direction(self, slab: Dict, slabs: list[Dict], poly_map: dict, direction: str):
+    def _neighbor_by_direction(self, slab: Dict, slabs: list[Dict], poly_map: dict, direction: str, anchor=None):
         target_key = self._opposite_direction_key(direction)
+        if anchor:
+            # A vizinha é a laje que está do outro lado da viga, no ponto do
+            # corte. Os centros das lajes enganam numa laje longa: a L318
+            # (corredor) fica mais "a leste" que "ao norte" das lajes abaixo
+            # dela e não era achada; o corte saía com o outro lado "nulo".
+            hit = self._neighbor_across_cut(slab, slabs, poly_map, target_key, anchor)
+            if hit is not None:
+                return hit
         best = None
         for dist, dir_key, other in self._orthogonal_neighbor_slabs(slab, slabs, poly_map, max_dist=85.0):
             if dir_key == target_key and (best is None or dist < best[0]):
+                best = (dist, other)
+        return best[1] if best else None
+
+    def _neighbor_across_cut(self, slab: Dict, slabs: list[Dict], poly_map: dict,
+                             target_key: str, anchor, reach: float = 150.0,
+                             max_gap: float = 85.0):
+        """Primeira laje cruzada por uma sonda que sai do corte na direção da viga."""
+        step = {'top': (0.0, 1.0), 'bottom': (0.0, -1.0),
+                'right': (1.0, 0.0), 'left': (-1.0, 0.0)}.get(target_key)
+        own_poly = poly_map.get(slab.get('id') or slab.get('name'))
+        if not step or not own_poly:
+            return None
+        try:
+            from shapely.geometry import LineString, Point
+            ax, ay = float(anchor[0]), float(anchor[1])
+            probe = LineString([(ax, ay), (ax + step[0] * reach, ay + step[1] * reach)])
+            origin = Point(ax, ay)
+        except Exception:
+            return None
+        best = None
+        for other in slabs:
+            if other is slab:
+                continue
+            other_poly = poly_map.get(other.get('id') or other.get('name'))
+            if not other_poly:
+                continue
+            try:
+                if not other_poly.intersects(probe) or own_poly.distance(other_poly) > max_gap:
+                    continue
+                dist = origin.distance(other_poly.intersection(probe))
+            except Exception:
+                continue
+            if best is None or dist < best[0]:
                 best = (dist, other)
         return best[1] if best else None
 
@@ -13948,7 +13989,7 @@ class MainWindow(QMainWindow):
             direction = stored_dir
         elif stored_dir != direction:
             ficha['direction'] = direction
-        neighbor =self._neighbor_by_direction(slab, slabs, poly_map, direction) if direction else None
+        neighbor = self._neighbor_by_direction(slab, slabs, poly_map, direction, anchor=center) if direction else None
         own_h_str = self._slab_height_value(slab)
         neigh_h_str = self._slab_height_value(neighbor) if neighbor else ''
 

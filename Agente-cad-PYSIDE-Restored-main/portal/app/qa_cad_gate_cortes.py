@@ -404,6 +404,26 @@ def measure_slab_step(source, slab, step, section, unit, written=None):
 # Pavimento
 # --------------------------------------------------------------------------
 
+def _cut_owner(state, source_cut, beams):
+    """Entre as vigas candidatas, a de fundo mais perto do centro do corte."""
+    if len(beams) < 2:
+        return next(iter(beams), None)
+    from shapely.geometry import Point, Polygon
+    pts = source_cut.get('points') or source_cut.get('pts') or []
+    if len(pts) < 3:
+        return None
+    center = Polygon(pts).centroid
+    best = None
+    for seg in (state.get('segmentos') or {}).get('fundo', []):
+        name = str(seg.get('beam_name') or '')
+        if name not in beams or len(seg.get('points') or []) < 3:
+            continue
+        dist = Polygon(seg['points']).buffer(0).distance(Point(center.x, center.y))
+        if best is None or dist < best[0]:
+            best = (dist, name)
+    return best[1] if best else None
+
+
 def measure_pavimento(source, state, inventory, slabs, item_names=None):
     """{item: report} da Visão Corte: vigas (cortes) e lajes (degraus)."""
     reports = defaultdict(lambda: dict(schema='cad.qa_original_cortes/v1', contacts=[], guards=VC_GUARDS, inputs=[]))
@@ -412,12 +432,19 @@ def measure_pavimento(source, state, inventory, slabs, item_names=None):
 
     written = slab_values(source, slabs)
     # 1. Cortes originais que o SA leu (um por polígono, mesmo repetido em Para/Passa).
+    # O nome da viga na ficha do SA vem do texto "V..." mais próximo e pode ser
+    # de outra viga; com mais de um candidato, vale o fundo que está sob o corte.
+    owners = defaultdict(set)
+    for row in inventory.get('relative_originals') or []:
+        owners[str(row.get('id') or (row.get('source_cut') or {}).get('uid'))].add(str(row.get('beam') or ''))
     done = set()
     for row in inventory.get('relative_originals') or []:
         sc = row.get('source_cut') or {}
         key = str(row.get('id') or sc.get('uid'))
-        beam = str(row.get('beam') or '')
-        if key in done or not beam or not wanted(beam):
+        if key in done:
+            continue
+        beam = _cut_owner(state, sc, owners[key] - {''}) or str(row.get('beam') or '')
+        if not beam or not wanted(beam):
             continue
         done.add(key)
         reports[beam]['inputs'].append(sc)

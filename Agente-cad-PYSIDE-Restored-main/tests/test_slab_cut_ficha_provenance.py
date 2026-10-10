@@ -9,7 +9,7 @@ def test_cut_ficha_rejects_geometric_neighbor_height_that_creates_negative_clear
     window._points_bbox_tuple = lambda pts: (0, 0, 10, 10)
     window._bbox_center_tuple = lambda bbox: (5, 5)
     window._slab_cut_direction = lambda slab, pts: "Leste"
-    window._neighbor_by_direction = lambda slab, slabs, poly_map, direction: {
+    window._neighbor_by_direction = lambda slab, slabs, poly_map, direction, **_kw: {
         "name": "L324", "fields": {"laje_dim": "h=14"},
     }
     window._slab_height_value = lambda slab: "12" if slab and slab.get("name") == "L318" else ("14" if slab else "")
@@ -43,7 +43,7 @@ def test_annotated_height_wins_even_with_positive_geometric_clearances():
     window._points_bbox_tuple = lambda pts: (0, 0, 10, 10)
     window._bbox_center_tuple = lambda bbox: (5, 5)
     window._slab_cut_direction = lambda slab, pts: 'Sul'
-    window._neighbor_by_direction = lambda *args: {'name': 'L2'}
+    window._neighbor_by_direction = lambda *args, **_kw: {'name': 'L2'}
     window._slab_height_value = lambda slab: '12'
     window._slab_dim_text = lambda slab: 'h=12'
     window._find_cut_view_cotas = lambda *args: dict(all_cotas=[], beam_height_cota=None, scale_v=1.0, bw_cota=None)
@@ -83,3 +83,15 @@ def test_sealed_slab_preserves_cut_geometry_but_refreshes_inferred_cut_formula()
     assert cut["points"] == points
     assert cut["ficha"]["neigh_slab_height"] == "14"
     assert cut["ficha"]["neighbor_dist_bottom"] == "11"
+
+
+def test_cut_neighbor_is_slab_across_beam_not_by_slab_centers():
+    # L318 (corredor longo) fica ao norte da L321, mas o centro dela está mais
+    # a leste que ao norte: pelos centros ela não era vizinha e o corte saía "nulo".
+    from shapely.geometry import box
+    window = MainWindow.__new__(MainWindow)
+    own = {'name': 'L321'}
+    corridor = {'name': 'L318'}
+    poly_map = {'L321': box(2060, 2100, 2440, 2489), 'L318': box(1394, 2509, 4533, 2661)}
+    found = window._neighbor_by_direction(own, [own, corridor], poly_map, 'Norte', anchor=(2231, 2500))
+    assert found is corridor
