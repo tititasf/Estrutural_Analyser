@@ -463,6 +463,7 @@ O dono pediu trocar a altura da cadeia horizontal dos parafusos com a cota total
 ### FV-T-MESMA-ALTURA-20261004 (D-90/FV)
 
 | D-90/FV | 2026-10-04 | FV | **T de vigas de mesma altura: a viga que chega atravessa a outra e a outra é dividida nela.** Caso V303 × viga vertical 19/55 do P23 (13_PAV): a V303 não toca o P23 e segue reta; como o toco entre a V303 e o P23 é pequeno (10 cm), o fundo da viga que chega passa pela faixa da V303 (fica 29 cm) e a V303 para nas paredes dela (seg 5 fim / seg 6 início). Critério do dono: evitar segmento minúsculo. T com alturas diferentes segue "viga mais funda cruza" (FV.md §4) | dono, chat 04/10 com print do P23 | vigente — trava QA de chegada lateral implementada 04/10 (`qa_cad_gate.measure_beams`, não publicada) |
+| D-91/LV | 2026-10-10 | LV | **Para e Passa têm laje igualmente, inclusive no trecho que passa pelo pilar.** Passar pelo pilar não impede laje encostando na face: o segmento Passa sobre o pilar deve declarar a laje que encosta, como qualquer outro. Casos 13_PAV: V309A B Passa seg 1 (L319) e V330 A Passa seg 4-A (L318), onde o SA declara nenhuma | dono, chat 10/10 (“mesmo no caso de passaram pelo pilar essa parte que passou tem laje também”) | vigente — o gate CAD LV (`measure_lateral_beams`, laje da face) já diverge nesses casos; correção do SA pendente |
 
 ### FV-NORMAL-CRUZA-INVERTIDA-FACE-B-20261004
 

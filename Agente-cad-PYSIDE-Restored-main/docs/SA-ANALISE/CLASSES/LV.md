@@ -139,6 +139,8 @@ medida em `lv_beam_scene.py` (regras do guia G0/G1/G6-G9, Casos 9 e 11). Estado,
 defeitos corrigidos e prova: `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md` §6.1.1.
 Dúvidas abertas: `docs/QUESTIONARIO-LV-SA-2026-09-25.md`.
 
+**Passa sobre pilar tem laje (D-91, 2026-10-10):** o trecho Passa que segue a parede do pilar declara a laje que encosta na face, igual ao Para; não ficar sem laje só por estar no pilar.
+
 **Passa — decisão do dono de 2026-09-30:** a lateral pode seguir toda a parede
 externa do pilar (inclusive faces A–H), mas nunca atravessar seu interior.
 Pilares côncavos exigem intervalos separados de parede e miolo por lado; um
