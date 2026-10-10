@@ -2910,9 +2910,11 @@
     };
     var quando = g.medido_em ? ' <span class="muted" style="font-size:11px;">(' + esc(g.medido_em.replace('T', ' ')) + ')</span>' : '';
     var velho = g.desatualizado ? '<div class="muted" style="font-size:11px;">⚠ item mudou depois da medição; rode o SA de novo para atualizar.</div>' : '';
-    return '<div class="n1-campo"><span class="n1-campo-label">Gate CAD</span><span class="n1-campo-valor">' +
+    var cor = ({confere: '#16a34a', diverge: '#dc2626', incerto: '#d97706'})[g.status] || '#9ca3af';
+    return '<div class="gate-cad-box" style="text-align:left; border:1px solid #e5e7eb; border-left:4px solid ' + cor +
+      '; border-radius:6px; padding:8px 10px; margin:0 0 10px; font-size:13px;"><b>Gate CAD pós-SA</b> · ' +
       (GATE_CAD_ICONE[g.status] || '') + ' ' + esc(GATE_CAD_TEXTO[g.status] || g.status) + quando + velho +
-      lista('Divergências', g.divergencias) + lista('Sem medição', g.incertos) + '</span></div>';
+      lista('Divergências', g.divergencias) + lista('Sem medição', g.incertos) + '</div>';
   }
   window.gateCadHtml = gateCadHtml;
   window.GATE_CAD_ICONE = GATE_CAD_ICONE;
@@ -3265,7 +3267,8 @@
           ['abcd-passa', 'N3 ABCD Passa'], ['grades-para', 'N3 Grades Para'],
           ['grades-passa', 'N3 Grades Passa']
         ].filter(function (tab) { return (item.resumo_pilar_n1 || {}).classificacao !== 'NASCE' || tab[0] === 'sa'; }).filter(function (tab) { return OBRA_COMPORTAMENTO === 'misto' || !/-(para|passa)$/.test(tab[0]) || tab[0].endsWith('-' + OBRA_COMPORTAMENTO); });
-        camposEl.innerHTML = '<div id="pillar-tab-fields"></div>' +
+        camposEl.innerHTML = (window.gateCadHtml ? window.gateCadHtml(item.gate_cad) : '') +
+          '<div id="pillar-tab-fields"></div>' +
           '<div class="pillar-viewer-shell">' +
             '<div class="pillar-main-tabs" role="tablist">' + tabsPilar.map(function (tab, i) {
               return '<button type="button" class="pillar-main-tab' + (i === 0 ? ' active' : '') +

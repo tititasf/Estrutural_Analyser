@@ -1523,7 +1523,8 @@
         var humanOk = g.segs.length && g.segs.every(function (s) { return !!s.item.validado; });
         html += '<button type="button" class="drill-pi' + on + (humanOk ? ' human-ok' : '') + '" data-drill="viga" data-id="' +
           esc(g.key) + '">' + esc(g.key) + '<span class="subn">' + g.segs.length + ' seg</span>' +
-          renderQaBadges((g.segs[0] && g.segs[0].item.qa_reviews) || {}) + '</button>';
+          renderQaBadges((g.segs[0] && g.segs[0].item.qa_reviews) || {}) +
+          renderGateCadBadge(g.segs[0] && g.segs[0].item.gate_cad) + '</button>';
       });
       html += '</div>';
       if (!groups.length) html += '<div class="drill-empty">Nenhuma viga nesta classe.</div>';
@@ -1548,7 +1549,8 @@
         var convention = String(it.classification || '').toUpperCase();
         var conventionClass = /^pilares/.test(state.classe) ? ' pillar-convention-' + (convention === 'NASCE' ? 'nasce' : convention === 'MORRE' ? 'morre' : /^(SEGUE|CONTINUA|PASSA)$/.test(convention) ? 'segue' : 'unknown') : '';
         html += '<button type="button" class="drill-pi' + on + conventionClass + (it.validado ? ' human-ok' : '') + '" title="' + esc(convention) + '" data-drill="item" data-id="' +
-          esc(it.item_id) + '">' + esc(it.titulo || it.item_id) + renderQaBadges(it.qa_reviews || {}) + '</button>';
+          esc(it.item_id) + '">' + esc(it.titulo || it.item_id) + renderQaBadges(it.qa_reviews || {}) +
+          renderGateCadBadge(it.gate_cad) + '</button>';
       });
       html += '</div>';
       if (!state.itens.length) html += '<div class="drill-empty">Nenhum item nesta classe.</div>';
@@ -1637,6 +1639,16 @@
       classMotorButton('n5', 'Rodar motor de unificação') +
       '<button type="button" class="drill-unified" data-drill="unificados">Visualizar unificados</button>' +
       '</div>';
+  }
+
+  // Gate CAD pós-SA: medido sozinho no DXF original depois do SA (só avisa).
+  function renderGateCadBadge(status) {
+    var cls = ({confere: 'ok', diverge: 'bad', incerto: 'pending'})[status];
+    if (!cls) return '';
+    var txt = ({confere: 'CAD ✓', diverge: 'CAD ✕', incerto: 'CAD ?'})[status];
+    var tip = ({confere: 'confere com o CAD original', diverge: 'diverge do CAD original',
+      incerto: 'não deu para medir tudo no CAD original'})[status];
+    return '<span title="Gate CAD pós-SA: ' + tip + '" class="drill-qa-tag ' + cls + '">' + txt + '</span>';
   }
 
   function renderQaBadges(reviews) {
