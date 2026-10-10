@@ -347,8 +347,10 @@ def prepare(settings, obra, round_row, item):
         (folder / 'reference.svg').write_text(safe_svg(reference), encoding='utf-8')
         render_png(folder / 'reference.svg', folder / 'reference.png')
     from . import qa_cad_gate
-    if isinstance(fields, dict) and fields.get('sa_snapshot', {}).get('classe') in ('PIL', 'LAJ'):
-        fields['original_cad_measurements'] = qa_cad_gate.for_snapshot(obra_dir, round_row['pavimento'], fields['sa_snapshot'])
+    snap = fields.get('sa_snapshot') if isinstance(fields, dict) else None
+    if isinstance(snap, dict) and snap.get('classe') in ('PIL', 'LAJ', 'FV'):
+        fields['original_cad_measurements'] = qa_cad_gate.for_evidence(
+            obra_dir, round_row['pavimento'], snap, svg if snap.get('classe') == 'FV' else None)
     (folder / 'source.svg').write_text(safe_svg(svg), encoding='utf-8')
     (folder / 'fields.json').write_text(json.dumps(fields, ensure_ascii=False, default=str, indent=2), encoding='utf-8')
     render_png(folder / 'source.svg', folder / 'source.png')
@@ -374,6 +376,11 @@ def prepare(settings, obra, round_row, item):
         context += '\nO candidato PIL desenha exatamente interpretacao_abcd do snapshot. Se mudar papel, canto, dimensão ou nível de uma ligação, corrija também essa tabela nas collections; um patch em nivel_str sozinho não muda seus vínculos. Não aprove BB/BD por concordância com JSON: confira a regra de chega/laje no manual vigente e o contato CAD.'
     if round_row['classe'] == 'LAJ' and fields.get('original_cad_measurements'):
         context += '\nMedições independentes em fields.json.original_cad_measurements: rótulo, h= e cota escritos DENTRO do contorno de cada laje/degrau no DXF original (E1), com handles e hash. Divergência medida obriga fail do critério (identidade_contorno, dimensoes_espessura, niveis). Status uncertain = nada escrito ou valores ambíguos: aí niveis só pode passar com outra prova independente citada (corte/delta E3, validação humana E8); vizinhas com mesmo nível (E4) nunca bastam sozinhas. Não invente cotas.'
+    if round_row['classe'] == 'FV' and fields.get('original_cad_measurements'):
+        context += ('\nMedições independentes em fields.json.original_cad_measurements: arestas, seção bw, '
+                    'apoios, nível pelas lajes que tocam, aberturas e tags S# no source.svg, com handles. '
+                    'Divergência medida obriga fail do critério. Status uncertain não vira pass. '
+                    'Não invente medida nem atribua nível de laje a partir do corte.')
     context += '\nNOTAS HUMANAS POR VERSÃO: ' + json.dumps(notes, ensure_ascii=False)
     return context, svg, obra_dir
 
@@ -504,7 +511,8 @@ def materialize_candidate(settings, obra, round_row, result, fields, obra_dir):
     (folder/'source.svg').write_text(safe_svg(svg), encoding='utf-8')
     render_png(folder/'source.svg', folder/'source.png')
     from . import qa_cad_gate
-    original_cad = qa_cad_gate.for_snapshot(obra_dir, round_row['pavimento'], candidate)
+    original_cad = qa_cad_gate.for_evidence(
+        obra_dir, round_row['pavimento'], candidate, svg if round_row['classe'] == 'FV' else None)
     candidate_fields = {'sa_snapshot':candidate}
     if original_cad is not None:
         candidate_fields['original_cad_measurements'] = original_cad

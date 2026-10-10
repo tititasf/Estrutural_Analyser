@@ -315,10 +315,147 @@ def test_tags_from_stale_render_fail(tmp_path):
     assert all('tags_lideres' in c['errors'] for c in g.measure_fv_tags(path, swapped, svg))
 
 
+def test_evidence_report_carries_the_sa_tags(tmp_path, monkeypatch):
+    from portal.app import ficha_reader
+    path, snap, svg = _tags_case(tmp_path)
+    monkeypatch.setattr(ficha_reader, '_fonte_estrutural_producao', lambda *_a, **_k: path)
+    monkeypatch.setattr(ficha_reader, 'ler_estado_pavimento', lambda *_a, **_k: {'slabs': []})
+    report = g.for_evidence(tmp_path, '13_PAV', snap, svg)
+    tags = [c for c in report['contacts'] if c['aspect'] == 'tag']
+    assert [c['status'] for c in tags] == ['measured', 'measured']
+    assert all(not c['errors'] for c in tags)
+
+
+def test_evidence_without_svg_leaves_tags_out(tmp_path, monkeypatch):
+    from portal.app import ficha_reader
+    path, snap, _svg = _tags_case(tmp_path)
+    monkeypatch.setattr(ficha_reader, '_fonte_estrutural_producao', lambda *_a, **_k: path)
+    monkeypatch.setattr(ficha_reader, 'ler_estado_pavimento', lambda *_a, **_k: {'slabs': []})
+    report = g.for_evidence(tmp_path, '13_PAV', snap, None)
+    assert report and not any(c['aspect'] == 'tag' for c in report['contacts'])
+
+
+def test_passing_a_stale_tag_contradicts_the_dxf(tmp_path, monkeypatch):
+    from portal.app import ficha_reader, qa_cad_gate
+    path, snap, svg = _tags_case(tmp_path)
+    monkeypatch.setattr(ficha_reader, '_fonte_estrutural_producao', lambda *_a, **_k: path)
+    monkeypatch.setattr(ficha_reader, 'ler_estado_pavimento', lambda *_a, **_k: {'slabs': []})
+    moved = copy.deepcopy(snap)
+    moved['collections']['fundo'][0]['points'] = [[x, y + 19] for x, y in moved['collections']['fundo'][0]['points']]
+    report = g.for_evidence(tmp_path, '13_PAV', moved, svg)
+    scoped = dict(report, contacts=[c for c in report['contacts'] if c['unit_path'] == '/collections/fundo/0'])
+    messages = qa_cad_gate.errors(scoped, [{'id': 'tags_lideres', 'status': 'pass'}])
+    assert any('tags' in message or 'líder' in message or 'S' in message for message in messages)
+
+
 def test_tags_without_measured_frame_are_not_certified(tmp_path):
     path, snap, svg = _tags_case(tmp_path)
     blind = svg.replace('>V1<', '>?<').replace('>V2<', '>?<').replace('>V3<', '>?<').replace('>V4<', '>?<')
     assert {c['status'] for c in g.measure_fv_tags(path, snap, blind)} == {'uncertain'}
+
+
+def _t_solids(msp, x0, y_lo, y_hi, stem=12, length=55):
+    """T preenchido: haste atravessa a faixa e a barra segue ao longo dela."""
+    y_mid0, y_mid1 = min(y_lo, y_hi), max(y_lo, y_hi)
+    msp.add_solid([(x0, y_mid0 - 30), (x0 + stem, y_mid0 - 30), (x0 + stem, y_mid1 + 30), (x0, y_mid1 + 30)])
+    msp.add_solid([(x0 + stem, y_mid0), (x0 + length, y_mid0), (x0 + length, y_mid1), (x0 + stem, y_mid1)])
+
+
+def test_filled_t_with_matching_cota_is_section_view(tmp_path):
+    def original(m):
+        _t_solids(m, 100, 0, 19)
+        m.add_text('55', dxfattribs={'insert': (120, -40), 'height': 8})
+    c = _aspect(_interior_dxf(tmp_path, 'visao', lambda m: None, original), 'aberturas')
+    assert c['status'] == 'measured' and not c['errors'], c
+    assert c['visao_corte_handles']
+    assert 'visão corte' in c['basis']
+
+
+def test_section_view_outline_does_not_open_the_beam(tmp_path):
+    def draw(m):
+        m.add_line((100, 0), (100, 19))
+        m.add_line((155, 0), (155, 19))
+        m.add_lwpolyline([(100, -30), (112, -30), (112, 0), (155, 0), (155, 19),
+                          (112, 19), (112, 49), (100, 49), (100, -30)])
+
+    def original(m):
+        _t_solids(m, 100, 0, 19)
+        m.add_text('55', dxfattribs={'insert': (120, -40), 'height': 8})
+
+    c = _aspect(_interior_dxf(tmp_path, 'visao_contorno', draw, original), 'aberturas')
+    assert c['status'] == 'measured' and not c['element_handles'], c
+    assert c['visao_corte_handles']
+
+
+def test_filled_t_without_cota_is_section_view(tmp_path):
+    c = _aspect(_interior_dxf(tmp_path, 'visao_sem_cota', lambda m: None, lambda m: _t_solids(m, 100, 0, 19)), 'aberturas')
+    assert c['status'] == 'measured' and c.get('visao_corte_handles'), c
+
+
+def test_section_label_does_not_block_section_view(tmp_path):
+    def original(m):
+        _t_solids(m, 100, 0, 19)
+        m.add_text('19/55', dxfattribs={'insert': (120, -40), 'height': 8})
+    c = _aspect(_interior_dxf(tmp_path, 'visao_secao', lambda m: None, original), 'aberturas')
+    assert c['status'] == 'measured' and c.get('visao_corte_handles'), c
+
+
+def test_one_sided_t_is_section_view(tmp_path):
+    def original(m):
+        m.add_solid([(100, 0), (112, 0), (112, 49), (100, 49)])
+        m.add_solid([(112, 0), (167, 0), (167, 19), (112, 19)])
+    c = _aspect(_interior_dxf(tmp_path, 'visao_um_lado', lambda m: None, original), 'aberturas')
+    assert c['status'] == 'measured' and c.get('visao_corte_handles'), c
+
+
+def test_deep_section_flange_is_section_view(tmp_path):
+    def original(m):
+        m.add_solid([(100, -30), (133, -30), (133, 49), (100, 49)])
+        m.add_solid([(133, 0), (193, 0), (193, 19), (133, 19)])
+    c = _aspect(_interior_dxf(tmp_path, 'visao_120', lambda m: None, original), 'aberturas')
+    assert c['status'] == 'measured' and c.get('visao_corte_handles'), c
+
+
+def test_pillar_fill_across_the_beam_is_not_section_view(tmp_path):
+    def original(m):
+        m.add_solid([(100, -40), (140, -40), (140, 59), (100, 59)])
+    c = _aspect(_interior_dxf(tmp_path, 'pilar_cheio', lambda m: None, original), 'aberturas')
+    assert c['status'] == 'uncertain' and 'visao_corte_handles' not in c
+
+
+def test_filled_t_on_vertical_beam_is_section_view(tmp_path):
+    import json
+    crop_dir = tmp_path / 'visao_y' / 'Fase-2_Triagem' / 'recortes' / 'P'
+    raw_dir = tmp_path / 'visao_y' / 'Fase-1_Ingestao' / 'Brutos'
+    crop_dir.mkdir(parents=True)
+    raw_dir.mkdir(parents=True)
+    for path, extra in ((crop_dir / 'torre_1.dxf', False), (raw_dir / 'P.dxf', True)):
+        doc = ezdxf.new()
+        msp = doc.modelspace()
+        for x in (0, 19):
+            msp.add_line((x, 0), (x, 300))
+        for y in (0, 300):
+            msp.add_line((0, y), (19, y))
+        msp.add_text('V1', dxfattribs={'insert': (22, 20), 'height': 10})
+        msp.add_text('19/55', dxfattribs={'insert': (22, 200), 'height': 10})
+        if extra:
+            msp.add_solid([(0 - 30, 100), (19 + 30, 100), (19 + 30, 112), (0 - 30, 112)])
+            msp.add_solid([(0, 112), (19, 112), (19, 155), (0, 155)])
+            msp.add_text('55', dxfattribs={'insert': (-40, 120), 'height': 8})
+        doc.saveas(path)
+    (crop_dir / 'crop_result.json').write_text(json.dumps({'dxf_bruto': 'C:/obra/P.dxf'}), encoding='utf-8')
+    snap = dict(classe='FV', collections={'fundo': [_seg('1', 0, 19, y0=0, y1=300)]})
+    c = _aspect(crop_dir / 'torre_1.dxf', 'aberturas', snap)
+    assert c['status'] == 'measured' and c.get('visao_corte_handles'), c
+
+
+def test_stroke_beside_section_view_stays_uncertified(tmp_path):
+    def original(m):
+        _t_solids(m, 100, 0, 19)
+        m.add_text('55', dxfattribs={'insert': (120, -40), 'height': 8})
+    c = _aspect(_interior_dxf(tmp_path, 'visao_traco', lambda m: m.add_line((140, 3), (180, 16)), original), 'aberturas')
+    assert c['status'] == 'uncertain' and c['element_handles']
+    assert c['visao_corte_handles']
 
 
 def test_fill_only_in_original_inside_fundo_is_not_certified(tmp_path):

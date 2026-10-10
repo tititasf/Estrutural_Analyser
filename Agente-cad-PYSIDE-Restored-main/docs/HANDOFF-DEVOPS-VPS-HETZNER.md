@@ -409,3 +409,33 @@ Armadilha: `git apply --cached --unidiff-zero` (commit atômico em índice
 temporário) pode ancorar um hunk sem contexto no lugar errado — o commit local
 9e2f8f170 gravou o headless sem compilar (corrigido em 83a436788). Depois de
 commit por índice temporário, compilar o blob: `git show HEAD:<arquivo>`.
+
+### 10.10 Deploy 2026-10-10 (UTC) — QA CAD gate pós-SA (PIL/LAJ/FV)
+
+Arquivos: `portal/app/qa_cad_gate.py` e `portal/app/qa_versions.py` (sem drift na
+VPS: substituídos inteiros, LF) + testes `test_qa_cad_gate_{fv,fv_nivel,pil,lv,laj}.py`
+e `test_qa_review_contract.py` (o `test_qa_cad_gate.py` importa helper dele). Backup
+em `/root/bak_qa_cad_gate_202610100255/`. Antes de gravar em `/opt`, testado em
+cópia-sombra (`/root/shadow_qagate_{base,202610100255}`): mesmas 10 falhas antigas
+nas duas (módulo `publisher` ausente, fallback de CLI), +82 testes passando; gate +
+contrato 148/148. Medição real do 13_PAV na sombra (antigo→novo): PIL 3→50
+medidos, LAJ idêntico, FV 640 medidos. `portal_jobs` sem job ativo → restart;
+smoke `/` 303, `/login` 200, `/obras` 401; 148 passed já em `/opt`. Ledger `e11ef77`.
+**Não** usar overlay `/tmp/ovl` para deploy: sem `__init__.py` o pacote regular de
+`/opt` vence, o systemd não lê `PYTHONPATH` e a pasta guarda probes de outras sessões.
+O gate roda só na adoção (`qa_versions.read`) e no `prepare` da rodada de QA.
+
+### 10.9 Retenção de HTML — 2026-10-09
+
+Depois de erros de disco cheio, o dono autorizou limpar backups antigos e
+versões de HTML descartadas/substituídas. Backups antigos: 4,94 GiB liberados.
+Instalado `cad-html-retention.timer` na VPS (a cada dez minutos): mantém duas
+versões por artefato, protege rodadas parciais e referências QA, descarta
+staging/reprovados com sete dias, e adia com jobs/locks ativos. Não requer
+restart do portal. Fonte, política e limites em `RETENCAO-ARTEFATOS-PORTAL.md`;
+auditoria da execução em `/opt/cad-analyzer/runtime/html_pack_retention/`.
+Não limpa DXFs originais, dados de obras, QA/aprendizado nem bases.
+Primeira execução: 14 packs removidos, 5,03 GiB liberados; 368 artefatos
+selecionados pelos leitores reais do portal permaneceram presentes com SHA-256
+idêntico. Portal ativo, login HTTP 200; disco 85%, 11 GiB disponíveis após o
+reprocessamento concorrente. Nove testes de segurança passaram na VPS.
