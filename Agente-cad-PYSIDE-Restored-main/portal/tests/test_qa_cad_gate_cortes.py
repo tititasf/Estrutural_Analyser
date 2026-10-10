@@ -80,3 +80,15 @@ def test_vc_status_reaches_beam_and_slab_fichas(tmp_path):
     lv = run.item_status(tmp_path, '13_PAV', 'lateral_a_para', 'V1', beam_name='V1')
     assert lv == {'status': None, 'visao_corte': {'status': 'diverge', 'divergencias': ['x']}}
     assert run.item_status(tmp_path, '13_PAV', 'lajes', 'L1')['visao_corte']['status'] == 'confere'
+
+
+def test_grouped_cut_takes_slab_region_from_any_pair():
+    # D-87: um corte agrupa pares; a L2 rebaixada (BD1) está no segundo par.
+    prof = lambda name, rid: {'B': {'slabs': [{'name': name, 'region_id': rid}]}}
+    entry = {'beam': 'V1', 'section_contract': {'top_level_m': 852.19, 'slabs': {
+        'A': [], 'B': [{'name': 'L2', 'height_cm': 10.0, 'drop_cm': 3.0}]}},
+        'pairs': [{'profiles': prof('L9', 'slab-step:L9:BD9')}, {'profiles': prof('L2', 'slab-step:L2:BD1')}]}
+    written = {('L2', 'principal'): {'h': 13.0, 'nivel': 852.19}, ('L2', 'BD1'): {'h': 10.0, 'nivel': 852.16}}
+    contacts = vc.measure_calculated(entry, written, '/u', 'corte')
+    assert [c['errors'] for c in contacts] == [{}]
+    assert 'degrau BD1' in contacts[0]['aspect']

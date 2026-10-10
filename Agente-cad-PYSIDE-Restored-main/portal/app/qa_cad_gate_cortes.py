@@ -298,17 +298,24 @@ def measure_calculated(entry, written, unit, label):
     beam = entry['beam']
     top = _num(contract.get('top_level_m'))
     base = dict(unit_path=unit, item=beam, guards=['niveis', 'dimensoes'], errors={})
+    # Corte agrupado (D-87): vários pares A/B com a mesma seção; a região de
+    # cada laje vem do par em que ela aparece, não só do primeiro.
     pairs = entry.get('pairs') or []
-    profiles = (pairs[0].get('profiles') if pairs else None) or {}
     contacts = []
     seen = []
     for side in ('A', 'B'):
         declared = contract.get('slabs', {}).get(side) or []
-        regions = {str(s.get('name')): _region(s) for s in (profiles.get(side) or {}).get('slabs') or []}
+        regions = defaultdict(list)
+        for p in pairs:
+            for s in ((p.get('profiles') or {}).get(side) or {}).get('slabs') or []:
+                if _region(s) not in regions[str(s.get('name'))]:
+                    regions[str(s.get('name'))].append(_region(s))
         for slab in declared:
             names = [n.strip() for n in str(slab.get('name') or '').split(',') if n.strip()]
             for name in names:
-                region = regions.get(name, 'principal')
+                cands = regions.get(name) or ['principal']
+                region = next((r for r in cands if (written.get((name, r)) or {}).get('h') is not None
+                               and abs(written[(name, r)]['h']-_num(slab['height_cm'])) <= TOL_CM), cands[0])
                 got = written.get((name, region)) or {}
                 where = f'{label} lado {side} {name}' + (f' (degrau {region})' if region != 'principal' else '')
                 errs = []

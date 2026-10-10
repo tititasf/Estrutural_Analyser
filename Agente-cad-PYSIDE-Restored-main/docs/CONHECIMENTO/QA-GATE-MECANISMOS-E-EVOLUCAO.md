@@ -159,10 +159,10 @@ O dono pediu (10/10) que o gate revise também as **Visões Corte**, originais e
 - **Espessura esquemática:** se o símbolo desenha uma espessura diferente da declarada, mas a declarada é o `h=` da planta, vira **nota** ("vale a planta"), não divergência. Vale para o corte original e para o degrau (ex.: L319 BD5 com símbolo 10/13 e planta 11/14).
 - **Ficha vazia** (o SA não leu direção nem lajes): incerto bloqueante, não divergência.
 
-**Resultado 10/10 no portal** (job 766f8b05, 13_PAV): 46 itens, **39 confere / 4 diverge / 3 incerto**.
-- V302 e V303 (interpretado): o corte usa laje de 10 cm com desnível de 3 cm, mas a planta diz `h=13` com a cota no topo (L309, L312, L316, L321–L324). Possível erro de nível no SA; a investigar.
+**Resultado 10/10 no portal** (job 55b1927a, 13_PAV): 46 itens, **40 confere / 2 diverge / 4 incerto**; os 173 cortes interpretados conferem.
 - V314 e V320 (original 19/55): o desenho tem laje dos dois lados; o SA declara um lado "nulo". Conferido em PNG.
-- Incertos: V316 (ficha do corte não lida, beam_w ausente); VF203 e VF301 ("topo + laje + fundo não fecha a altura da viga").
+- Incertos: V316 (ficha do corte não lida, beam_w ausente); V302, VF203 e VF301 (o SA não montou corte: "topo + laje + fundo não fecha a altura da viga").
+- **Falso alarme corrigido (V302/V303):** o corte agrupado (D-87) junta vários pares A/B. O gate lia a região da laje só no primeiro par, e a L309 rebaixada (BD1, `h=10`, 852,16) caía na região principal (`h=13`, 852,19). Agora a região vem do par em que a laje aparece; com mais de uma região, vale a de `h=` igual ao do corte.
 
 **Não faz ainda:** coerência `top_level_m` do corte × nível do segmento FV; degraus de viga sem corte desenhado (mudança de fundo entre segmentos), que hoje só aparecem quando há corte.
 
