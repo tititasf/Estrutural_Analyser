@@ -259,6 +259,8 @@ def listar_itens_n1_endpoint(obra_id: str, classe: str, request: Request,
         if row["pavimento"] == pav and row["classe"] == classe.upper()
         and row["field_id"] == "_item_"
     }
+    from ..qa_cad_gate_run import classe_status, item_name as gate_item_name
+    gate_cad = classe_status(obra_dir, pav, classe)
     # beam_name + Segmento: painel "Criar item" (fundo/laterais) monta o
     # combobox de SEG por viga — sem isto o front só via o título.
     def _item_lista(i: dict) -> dict:
@@ -273,6 +275,7 @@ def listar_itens_n1_endpoint(obra_id: str, classe: str, request: Request,
         }
         qa_key = out["beam_name"] if classe == "fundo" else i["item_id"]
         out["qa_reviews"] = qa_reviews.get(str(qa_key or "").upper(), {})
+        out["gate_cad"] = gate_cad.get(gate_item_name(classe, i["item_id"], out["beam_name"]))
         if classe == "cortes":
             # [2026-07-13, Fase 3.5] motor de cruzamento corte->laje (main.py)
             if i.get("own_laje") is not None:
@@ -1114,7 +1117,18 @@ def obter_item_n1_endpoint(obra_id: str, classe: str, item_id: str, request: Req
         settings.public_consulta_db_path, obra_id, pav, classe, item_id,
     )
     referencia = f"{obra.get('nome', '')} › {ficha_reader.pavimento_label(pav)} › {item['titulo']}"
+    from ..qa_cad_gate_run import item_status as gate_item_status
+    try:
+        campos_item = item.get("campos") or {}
+        gate_cad = gate_item_status(
+            obra_dir, pav, classe, item_id, estado,
+            beam_name=item.get("beam_name") or campos_item.get("Nome") or campos_item.get("Viga"),
+        )
+    except Exception:
+        logging.getLogger(__name__).exception("gate CAD indisponível para %s/%s", pav, item_id)
+        gate_cad = None
     return {
+        "gate_cad": gate_cad,
         "obra_id": obra_id, "classe": classe, "pavimento": pav, "item_id": item_id,
         "titulo": item["titulo"], "campos": item["campos"], "atencao": item["atencao"],
         "campos_field_id": item.get("campos_field_id") or {},

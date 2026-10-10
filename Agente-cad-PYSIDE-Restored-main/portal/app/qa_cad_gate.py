@@ -234,6 +234,14 @@ def _texts(doc):
                         yield dict(text=part, x=ins_x, y=ins_y, handle=entity.dxf.handle)
 
 
+def _height_error(written, declared, suffix=''):
+    if declared is None:
+        return f'SA não preencheu a espessura{suffix}; o CAD escreve h={_fmt(written)}'
+    if abs(written-declared) <= EPS:
+        return None
+    return f'h={_fmt(written)} escrito{suffix} difere da espessura declarada {_fmt(declared)}'
+
+
 def measure_slabs(source, snapshot):
     """Rótulo, h= e cota escritos DENTRO do contorno da própria laje (E1).
 
@@ -319,8 +327,7 @@ def _measure_slabs(source, snapshot):
 
             if len(unique_h_vals) <= 1 or region is not None or lbl_pos is None:
                 record('espessura' + suffix, 'dimensoes_espessura', [(v, h) for v, h, _ in raw_heights],
-                       lambda v, h=declared_h, s=suffix: None if h is not None and abs(v-h) <= EPS else
-                       f'h={_fmt(v)} escrito{s} difere da espessura declarada {_fmt(h) if h is not None else "ausente"}')
+                       lambda v, h=declared_h, s=suffix: _height_error(v, h, s))
             else:
                 # Clusterização espacial determinística (<= 60 cm do rótulo da laje)
                 with_dist = [(v, h, math.hypot(t['x'] - lbl_pos[0], t['y'] - lbl_pos[1]), t) for v, h, t in raw_heights]
@@ -331,8 +338,7 @@ def _measure_slabs(source, snapshot):
                     nominal_items = [(v, h) for v, h, d, t in with_dist if v == nominal_val]
                     drop_items = [(v, h, t) for v, h, d, t in with_dist if v != nominal_val]
                     record('espessura' + suffix, 'dimensoes_espessura', nominal_items,
-                           lambda v, h=declared_h, s=suffix: None if h is not None and abs(v-h) <= EPS else
-                           f'h={_fmt(v)} escrito{s} difere da espessura declarada {_fmt(h) if h is not None else "ausente"}')
+                           lambda v, h=declared_h, s=suffix: _height_error(v, h, s))
                     if drop_items:
                         drop_vals = sorted({v for v, _, _ in drop_items})
                         contacts.append(dict(
@@ -343,8 +349,7 @@ def _measure_slabs(source, snapshot):
                         ))
                 else:
                     record('espessura' + suffix, 'dimensoes_espessura', [(v, h) for v, h, _ in raw_heights],
-                           lambda v, h=declared_h, s=suffix: None if h is not None and abs(v-h) <= EPS else
-                           f'h={_fmt(v)} escrito{s} difere da espessura declarada {_fmt(h) if h is not None else "ausente"}')
+                           lambda v, h=declared_h, s=suffix: _height_error(v, h, s))
 
             raw_levels = [(number(t['text'].lstrip('+')), t['handle'], t) for t in pool if LEVEL_TEXT.fullmatch(t['text'])]
             unique_n_vals = sorted({v for v, _, _ in raw_levels})
@@ -1380,7 +1385,8 @@ def measure_beams(source, snapshot, slabs=None, floor=None):
         if row.get('status') == 'valid' and number(row.get('level')) is None:
             problems.append('status valid sem nível')
         source_kind = row.get('level_source')
-        if (source_kind == 'highest_touching_slab') != bool(row.get('level_slabs')):
+        # fundo_segment_levels: laje que toca e laje mais próxima (D-61) citam as lajes; estimado/sem fonte não.
+        if (source_kind in ('highest_touching_slab', 'nearest_levelled_slab')) != bool(row.get('level_slabs')):
             problems.append(f'level_source {source_kind} incoerente com level_slabs {row.get("level_slabs")}')
         contacts.append(dict(unit_path=unit, item=label, aspect='coerência', guards=['consistencia_alertas'],
                              blocks_promotion=False, status='measured',

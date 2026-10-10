@@ -52,12 +52,18 @@ def recognize(points, data, convention):
     short = min(poly.minimum_rotated_rectangle.length / 4, math.sqrt(poly.area))
     tolerance = max(1e-5, short * 1e-5)
     full, clipped, partial = [], [], []
+    # Buffers do polígono uma vez só; traço fora da caixa não toca o interior.
+    inner, outer = poly.buffer(-tolerance), poly.buffer(tolerance)
+    bx0, by0, bx1, by1 = poly.bounds
     for line in data.get('lines', []):
         try:
+            (x0, y0), (x1, y1) = line['start'][:2], line['end'][:2]
+            if max(x0, x1) < bx0 or min(x0, x1) > bx1 or max(y0, y1) < by0 or min(y0, y1) > by1:
+                continue
             stroke = LineString([line['start'][:2], line['end'][:2]])
             if stroke.length <= tolerance:
                 continue
-            interior = stroke.intersection(poly.buffer(-tolerance))
+            interior = stroke.intersection(inner)
             if interior.length <= tolerance:
                 continue
             angle = math.degrees(math.atan2(line['end'][1]-line['start'][1],
@@ -65,11 +71,12 @@ def recognize(points, data, convention):
             if min(angle, abs(angle-90), 180-angle) <= 8:
                 continue
             record = (stroke, angle, line.get('layer', ''), interior)
-            if poly.buffer(tolerance).covers(stroke):
+            covered = outer.covers(stroke)
+            if covered:
                 full.append(record)
             if interior.length / stroke.length >= .8:
                 clipped.append(record)
-            elif not poly.buffer(tolerance).covers(stroke):
+            elif not covered:
                 partial.append(record)
         except (KeyError, TypeError, ValueError):
             continue

@@ -964,6 +964,16 @@ def _rodar_subprocess_sa(
                     settings, obra, project_id=project_id,
                     pavimento=str(pav or settings.pav_default), itens=itens_cmd,
                 )
+            # Gate CAD pós-SA: mede no DXF original e só avisa (nunca derruba o job).
+            from .qa_cad_gate_run import best_effort as gate_cad_best_effort
+            gate_path = gate_cad_best_effort(
+                obra_dir, str(pav or settings.pav_default),
+                secao=secoes_cmd[0] if len(secoes_cmd) == 1 else None,
+                item_names=set(itens_cmd) or None,
+            )
+            artefatos["qa_cad_gate"] = str(gate_path) if gate_path else None
+            if gate_path:
+                saida += f"\n[portal] GATE CAD pós-SA: {gate_path.name}\n"
             log.info("fichas PIL N1/N3 materializadas: %s", ficha_stats)
         except Exception as exc:
             posprocessamento_ok = False
