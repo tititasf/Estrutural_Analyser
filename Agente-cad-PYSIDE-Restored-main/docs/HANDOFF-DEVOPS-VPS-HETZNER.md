@@ -439,6 +439,13 @@ CRLF: normalizar para LF (`sed -i 's/\r$//'`) antes do `git add` no ledger.
 LV medido: 13_PAV TREINO 63 confere/9 diverge, 14_PAV TREINO 62/4, thierry 14_PAV 60/4,
 ~1 s por pavimento.
 
+**Mais tarde, no mesmo dia:**
+- **D-91 (Passa sobre pilar declara a laje):** `lv_beam_scene.py` e `lateral_viga_cells.py` publicados no arquivo vivo. Backup `/root/bak_lv_d91_202610101650`; commit local `55853e266`.
+- **Gancho do gate no ramo `--sa-only`** do `pipeline_runner.py` (o botão SA não chamava o gate): backup `/root/bak_saonly_gate_202610101718`.
+- **Fora do ledger:** os dois trechos dependem de drift que nunca entrou no ledger (cena LV +479 linhas, ramo sa-only). Ficam só no arquivo vivo até alguém consolidar esse drift.
+- **Validação:** SA de laterais do 13_PAV pelo portal (job `4ff40c73`). O sidecar foi atualizado sozinho: LV 70 confere / 2 diverge, só V330 2-A com L316 a mais.
+- **Disco:** às 17:19 a VPS chegou a 100% (`/tmp/sa-dev-validation`, `dev_sa_cycle.py`, 1,5 GB por ciclo) e o `POST /sa` deu 500. O dono liberou espaço.
+
 ### 10.9 Retenção de HTML — 2026-10-09
 
 Depois de erros de disco cheio, o dono autorizou limpar backups antigos e
