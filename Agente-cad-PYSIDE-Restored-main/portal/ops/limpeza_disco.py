@@ -18,6 +18,8 @@ Regras:
                                       que não sejam .md (o texto/evidência fica)
   R8 /tmp/sa-dev-validation/*/project_snapshot.sqlite3  > 6 h e nenhum dev_sa_cycle rodando
                                       (cópia descartável do banco; o resto do ciclo fica)
+  R9 scripts/arete/html_fichas/<obra>/<PAV>_<ts>_*  3 mais novas por obra/PAV/escopo + < 1 dia
+                                      + referenciadas no DB; .staging/<obra>/* > 1 dia
 Nunca toca: estado_<PAV>.json canônico, recortes, preprocessamento, .db/.sqlite/.vision fora de backups.
 """
 from __future__ import annotations
@@ -287,6 +289,32 @@ def r8_snapshots_dev(plan: Plan):
             plan.add("R8_snapshot_dev", f)
 
 
+def r9_html_fichas(plan: Plan):
+    # Cada rodada de pilares ABCD gera ~2,5 GB de SVG (volume extra lotou em 10/10).
+    # Por obra: 3 mais novas por (PAV, escopo) + < 1 dia + referenciadas no DB.
+    # Rodada que é symlink para historical_* perde só o link.
+    # .staging/<obra>/<run> = export interrompido; sai com > 1 dia.
+    base = ROOT / "scripts" / "arete" / "html_fichas"
+    if not base.is_dir():
+        return
+    groups = defaultdict(list)
+    for obra in base.iterdir():
+        if not obra.is_dir() or obra.name == ".staging":
+            continue
+        for p in obra.iterdir():
+            m = RUN_RE.match(p.name)
+            if m and (p.is_dir() or p.is_symlink()):
+                groups[(obra.name, m["pav"], p.name[m.end("ts"):].strip("_"))].append(p)
+    candidatos = [p for runs in groups.values() for p in keep_newest(runs, 3, 1)]
+    refs = db_referenced_names({p.name for p in candidatos})
+    for p in candidatos:
+        if p.name not in refs:
+            plan.add("R9_html_fichas", p)
+    for p in (base / ".staging").glob("*/*"):
+        if NOW - newest_mtime(p) > 1 * DAY:
+            plan.add("R9_html_staging", p)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true", help="apaga de fato (padrão: simulação)")
@@ -319,6 +347,7 @@ def main() -> int:
         r4_r5_obras(plan, kept, falhas)
     r7_relatorios(plan)
     r8_snapshots_dev(plan)
+    r9_html_fichas(plan)
     plan.run(a.apply, log)
     st = shutil.disk_usage("/")
     log(f"DISCO: {st.used/1e9:.1f}/{st.total/1e9:.1f} GB ({st.used*100//st.total}%)")
