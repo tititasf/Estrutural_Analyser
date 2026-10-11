@@ -116,6 +116,30 @@ def identified_frame(cut, width, height):
         if min(depths) >= -.1 and max(depths) > .1:
             measured_height = max(depths)
             candidates.append(([mid[i]+ey[i]*measured_height/2 for i in (0,1)],ex,ey,measured_height))
+    if len(candidates) > 1:
+        # Topo e fundo têm a mesma largura: a laje desenhada no símbolo diz
+        # qual é o topo.  Primeiro as duas faces da laje; se o símbolo for
+        # genérico (espessura desenhada diferente da laje real, VF301/L303),
+        # só a face superior da laje, que é a que fixa a orientação.
+        # O rebaixo conta do topo DESENHADO (measured_h): a altura do SA pode
+        # diferir do símbolo (V408 14_PAV: desenho 60, SA 55).
+        from src.core.lv_n3_cut_contract import build_cut_contract
+        contract = build_cut_contract(cut)
+        slabs = [s for side in ('A','B') for s in contract['slabs'][side]]
+
+        def matching(offsets):
+            found = []
+            for candidate in candidates:
+                center, ex, ey, measured_h = candidate
+                expected = {round(measured_h/2-s['drop_cm']-offset(s), 3) for s in slabs for offset in offsets}
+                actual = {round(sum((p[i]-center[i])*ey[i] for i in (0,1)), 3)
+                          for p in polygon
+                          if abs(sum((p[i]-center[i])*ex[i] for i in (0,1))) > width/2+.1}
+                if expected and expected <= actual:
+                    found.append(candidate)
+            return found
+        full = matching((lambda s: 0, lambda s: s['height_cm']))
+        candidates = full or matching((lambda s: 0,))
     if len(candidates) != 1:
         raise ValueError('fundo original do corte não identificado univocamente')
     return (*candidates[0],polygon)
