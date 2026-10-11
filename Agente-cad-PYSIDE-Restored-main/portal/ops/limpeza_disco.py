@@ -13,8 +13,11 @@ Regras:
   R4 DADOS-OBRAS/<obra>/<PAV>_<ts>_*  histórico de HTML de ficha: 3 mais novas por PAV/escopo + < 3 dias
   R5 DADOS-OBRAS/<obra>/estado_<PAV>_*pid<N>.json  mantém pids de rodadas mantidas + 5 mais novos + < 3 dias
   R6 production_sa/<PAV>/<run>        3 mais novas por PAV + < 1 dia + referenciadas no DB
+  (R5/R6 só apagam depois de capturar a rodada em historico_rodadas.sqlite; falhou = mantém)
   R7 scripts/arete/relatorios/<dir>   (exceto qa_portal) > 1 dia: apaga só *.dxf e arquivos > 20 MB
                                       que não sejam .md (o texto/evidência fica)
+  R8 /tmp/sa-dev-validation/*/project_snapshot.sqlite3  > 6 h e nenhum dev_sa_cycle rodando
+                                      (cópia descartável do banco; o resto do ciclo fica)
 Nunca toca: estado_<PAV>.json canônico, recortes, preprocessamento, .db/.sqlite/.vision fora de backups.
 """
 from __future__ import annotations
@@ -28,6 +31,9 @@ import sys
 import time
 from collections import defaultdict
 from pathlib import Path
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import historico_rodadas  # noqa: E402
 
 ROOT = Path(os.environ.get("CAD_ROOT", "/opt/cad-analyzer"))
 TMP = Path("/tmp")
@@ -96,6 +102,16 @@ def db_referenced_names(names: set[str]) -> set[str]:
     return hit
 
 
+class _SemEstado:
+    """Encaminha ao plano tudo exceto R5 (usado quando o histórico falhou)."""
+    def __init__(self, plan):
+        self.plan = plan
+
+    def add(self, rule, p):
+        if rule != "R5_estado_pid":
+            self.plan.add(rule, p)
+
+
 class Plan:
     def __init__(self):
         self.items: list[tuple[str, Path, int]] = []
@@ -106,6 +122,9 @@ class Plan:
     def run(self, apply: bool, log):
         tot = defaultdict(int)
         for rule, p, sz in self.items:
+            if apply and rule == 'R1_historical' and p in historical_pinned_versions([p]):
+                log(f"KEEP R1_historical referenced asset {p}")
+                continue
             tot[rule] += sz
             log(f"{'DEL' if apply else 'SIM'} {rule} {sz/1e6:9.1f}MB {p}")
             if apply:
@@ -127,11 +146,40 @@ def keep_newest(entries, n, min_age_days, key=lambda p: p.name):
     return [p for p in ordered[n:] if NOW - newest_mtime(p) > min_age_days * DAY]
 
 
+def historical_pinned_versions(versions):
+    """Relocated packs are live assets while a portal link or DB refers to them."""
+    pinned = set()
+    physical = {p: p.resolve(strict=True) for p in versions}
+    html_root = ROOT / 'scripts/arete/html_fichas'
+    if html_root.exists():
+        def onerror(error):
+            raise error
+        for directory, dirs, files in os.walk(html_root.resolve(strict=True), onerror=onerror):
+            for name in dirs + files:
+                link = Path(directory) / name
+                if not link.is_symlink():
+                    continue
+                target = link.resolve()
+                for version, base in physical.items():
+                    if target == base or target.is_relative_to(base):
+                        pinned.add(version)
+    names_by_version = {
+        version: {version.name} | {p.name for p in version.glob('*/*') if p.is_dir()}
+        for version in versions
+    }
+    refs = db_referenced_names(set().union(*names_by_version.values())) if versions else set()
+    pinned.update(v for v, names in names_by_version.items() if names & refs)
+    return pinned
+
+
 def r1_historical(plan: Plan):
     vs = [p for p in ROOT.glob("historical_ficha_storage_v*") if p.is_dir()]
+    # Any inspection error aborts cleanup rather than deleting an unknown asset.
+    pinned = historical_pinned_versions(vs)
     num = lambda p: int(re.sub(r"\D", "", p.name.rsplit("_v", 1)[-1]) or 0)  # noqa: E731
     for p in keep_newest(vs, 1, 1, key=num):
-        plan.add("R1_historical", p)
+        if p not in pinned:
+            plan.add("R1_historical", p)
 
 
 def r2_tmp(plan: Plan):
@@ -150,7 +198,7 @@ def r3_backups(plan: Plan):
                 plan.add("R3_backups", p)
 
 
-def r4_r5_obras(plan: Plan, kept_pids: set[str]):
+def r4_r5_obras(plan: Plan, kept_pids: set[str], falhas: set[str]):
     for obra in (ROOT / "DADOS-OBRAS").iterdir():
         if not obra.is_dir():
             continue
@@ -177,11 +225,14 @@ def r4_r5_obras(plan: Plan, kept_pids: set[str]):
                 est[(m["pav"], m["scope"])].append(p)
         for _k, files in est.items():
             for p in keep_newest(files, 5, 3, key=lambda p: p.stat().st_mtime):
-                if ESTADO_RE.match(p.name)["pid"] not in kept_pids:
+                rid = f"{obra.name}/{ESTADO_RE.match(p.name)['pav']}/estado:{p.stem}"
+                pid = ESTADO_RE.match(p.name)["pid"]
+                pids_falhos = {f.rsplit("_", 1)[-1] for f in falhas}
+                if pid not in kept_pids and pid not in pids_falhos and rid not in falhas:
                     plan.add("R5_estado_pid", p)
 
 
-def r6_production_sa(plan: Plan, kept_pids: set[str]):
+def r6_production_sa(plan: Plan, kept_pids: set[str], falhas: set[str]):
     runs_by_pav = defaultdict(list)
     for p in (ROOT / "DADOS-OBRAS").glob("*/Fase-6_Execucao_CAD/production_sa/*/*"):
         if p.is_dir():
@@ -192,7 +243,8 @@ def r6_production_sa(plan: Plan, kept_pids: set[str]):
         for p in sorted(runs, key=lambda p: p.name, reverse=True)[:3]:
             kept_pids.add(p.name.rsplit("_", 1)[-1])
         for p in keep_newest(runs, 3, 1):
-            if p.name not in refs:
+            rid = f"{p.parents[3].name}/{p.parent.name}/{p.name}"
+            if p.name not in refs and rid not in falhas:
                 plan.add("R6_production_sa", p)
 
 
@@ -214,6 +266,27 @@ def r7_relatorios(plan: Plan):
                     plan.add("R7_relatorios", f)
 
 
+def _processo_rodando(trecho: str) -> bool:
+    for c in Path("/proc").glob("[0-9]*/cmdline"):
+        try:
+            if trecho in c.read_bytes().decode(errors="ignore"):
+                return True
+        except OSError:
+            continue
+    return False
+
+
+def r8_snapshots_dev(plan: Plan):
+    # dev_sa_cycle.py copia o banco inteiro (~1,4 GB) para cada ciclo e não apaga
+    # no fim: 20 ciclos lotaram o disco em 11/10.  O resto do ciclo (relatório,
+    # contexto, pre) fica; só a cópia do banco sai, e nunca com ciclo rodando.
+    if _processo_rodando("dev_sa_cycle"):
+        return
+    for f in (TMP / "sa-dev-validation").glob("*/project_snapshot.sqlite3"):
+        if NOW - f.stat().st_mtime > 6 * 3600:
+            plan.add("R8_snapshot_dev", f)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true", help="apaga de fato (padrão: simulação)")
@@ -227,14 +300,25 @@ def main() -> int:
         if out:
             out.write(line + "\n")
 
+    # Registro histórico ANTES de apagar; rodada cuja captura falhou não é apagada.
+    try:
+        falhas = historico_rodadas.capturar_tudo(log=log)
+    except Exception as e:  # noqa: BLE001
+        log(f"HIST indisponível ({e}); rodadas e estados não serão apagados nesta execução")
+        falhas = None
     plan = Plan()
     kept: set[str] = set()
     r1_historical(plan)
     r2_tmp(plan)
     r3_backups(plan)
-    r6_production_sa(plan, kept)
-    r4_r5_obras(plan, kept)
+    if falhas is None:
+        r6_production_sa(Plan(), kept, set())   # só para saber quais pids manter
+        r4_r5_obras(_SemEstado(plan), kept, set())
+    else:
+        r6_production_sa(plan, kept, falhas)
+        r4_r5_obras(plan, kept, falhas)
     r7_relatorios(plan)
+    r8_snapshots_dev(plan)
     plan.run(a.apply, log)
     st = shutil.disk_usage("/")
     log(f"DISCO: {st.used/1e9:.1f}/{st.total/1e9:.1f} GB ({st.used*100//st.total}%)")
