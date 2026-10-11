@@ -92,3 +92,27 @@ def test_grouped_cut_takes_slab_region_from_any_pair():
     contacts = vc.measure_calculated(entry, written, '/u', 'corte')
     assert [c['errors'] for c in contacts] == [{}]
     assert 'degrau BD1' in contacts[0]['aspect']
+
+
+def test_plan_link_uses_fundo_segment_nearest_to_cut_symbol():
+    # V408 14_PAV: seg 2 escreve 14/55, seg 6 escreve 19/55; o corte sobre o seg 2 vincula 14/55.
+    plan = [((2982, 3395, 2056, 2070), {(14.0, 55.0)}), ((4809, 5062, 2056, 2075), {(19.0, 55.0)})]
+    symbol = [(3124, 2041), (3184, 2041), (3184, 2120), (3124, 2120)]
+    assert vc._plan_at(plan, symbol) == {(14.0, 55.0)}
+    assert vc._plan_at([], symbol) is None
+
+
+def test_original_cut_owner_follows_lv_association(monkeypatch):
+    # 14_PAV: L419_3154_2078 vem rotulado V413 pelo SA, mas a ficha LV o associa à V408.
+    from portal.app import corte_references
+    monkeypatch.setattr(corte_references, 'preparar_segmentos', lambda state: [])
+    monkeypatch.setattr(corte_references, 'associar_referencias',
+                        lambda raw, refs: {'nome_sugerido': 'V408'})
+    seen = []
+    monkeypatch.setattr(vc, 'measure_original', lambda source, sc, beam, *a, **k: seen.append(beam) or [])
+    monkeypatch.setattr(vc, 'slab_values', lambda source, slabs: {})
+    monkeypatch.setattr(vc, 'plan_sections', lambda source, state: {})
+    inventory = {'relative_originals': [dict(id='L419_3154_2078', beam='V413',
+                                             source_cut={'uid': 'L419_3154_2078'})]}
+    vc.measure_pavimento('x.dxf', {}, inventory, [])
+    assert seen == ['V408']

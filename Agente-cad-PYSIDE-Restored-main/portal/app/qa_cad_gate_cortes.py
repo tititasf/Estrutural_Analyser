@@ -219,7 +219,48 @@ def _arm_errors(measured, declared, plan_h=lambda name: None):
     return best
 
 
-def measure_original(source, source_cut, beam, unit, written=None):
+def plan_sections(source, state):
+    """{viga: [(caixa do fundo, {(bw, h)})]} escritos em planta na faixa de cada segmento, sem rótulo de outra viga.
+
+    É o vínculo exigido por NIV-ALTURA-NUMERICA-VINCULADA: a altura escrita na viga
+    prevalece sobre a medida no corte desenhado. Faixa disputada não vincula nada.
+    """
+    from pathlib import Path
+    source = Path(source)
+    walls = gate._cached('walls', source, lambda: list(gate._straight_walls(gate._readfile(source))))
+    texts = gate._cached('beam_texts', source, lambda: gate._beam_texts(gate._readfile(source)))
+    pillar_sections = gate._cached('proved_pillar_sections', source,
+                                   lambda: gate._proved_pillar_section_handles(gate._readfile(source), texts))
+    texts = [t for t in texts if t['handle'] not in pillar_sections]
+    found = defaultdict(list)
+    for row in (state.get('segmentos') or {}).get('fundo', []):
+        name = str(row.get('beam_name') or '')
+        box = gate._exact_axis_rectangle(row.get('points'))
+        if not name or box is None:
+            continue
+        axis = gate._fv_rectangle_axis(box, walls)
+        across = 'y' if axis == 'x' else 'x'
+        lo, hi, edges = (box[0], box[1], box[2:4]) if axis == 'x' else (box[2], box[3], box[0:2])
+        band = [t for t in texts if t['axis'] == axis and lo - gate.EPS <= t[axis] <= hi + gate.EPS
+                and edges[0] - t['margin'] <= t[across] <= edges[1] + t['margin']]
+        if {t['text'] for t in band if gate.BEAM_LABEL.fullmatch(t['text'])} - {name}:
+            continue
+        found[name].append((box, {gate._section(t['text']) for t in band if gate.SECTION_TEXT.fullmatch(t['text'])}))
+    return dict(found)
+
+
+def _plan_at(plan, pts):
+    """Seções escritas no segmento de fundo mais próximo do símbolo do corte (V408: 14/55 × 19/55)."""
+    if not plan or not pts:
+        return None
+    cx = sum(p[0] for p in pts) / len(pts)
+    cy = sum(p[1] for p in pts) / len(pts)
+    gap = lambda b: math.hypot(max(b[0] - cx, 0, cx - b[1]), max(b[2] - cy, 0, cy - b[3]))
+    nearest = min(gap(box) for box, _ in plan)
+    return set().union(*(values for box, values in plan if gap(box) <= nearest + gate.EPS))
+
+
+def measure_original(source, source_cut, beam, unit, written=None, plan=None):
     """Contatos de um corte original: dimensões e braços de laje contra a ficha do SA."""
     pts = source_cut.get('points') or source_cut.get('pts') or []
     base = dict(unit_path=unit, item=beam, guards=['dimensoes', 'niveis'], blocks_promotion=True, errors={})
@@ -251,10 +292,18 @@ def measure_original(source, source_cut, beam, unit, written=None):
         scored.append((len(errs)+len(arm_errs), bw_off, errs+arm_errs, c, mapping, notes))
     scored.sort(key=lambda s: (s[0], s[1]))
     _, _, errs, c, mapping, notes = scored[0]
+    linked = None
+    if declared['bw'] is not None and declared['h'] is not None and _plan_at(plan, pts) == {(declared['bw'], declared['h'])}:
+        linked = [e for e in errs if e.startswith('h declarado ')]
+        errs = [e for e in errs if not e.startswith('h declarado ')]
     contacts = [dict(base, aspect=where, status='measured', handles=handles,
                      measured=dict(bw=c['bw'], h=None if c['broken'] else c['h'], arms=c['arms'],
                                    lados={k: v for k, v in (mapping or {}).items()}),
                      errors={'dimensoes': '; '.join(errs)} if errs else {})]
+    if linked:
+        # NIV-ALTURA-NUMERICA-VINCULADA: o número vinculado vence; a discrepância fica como evidência.
+        contacts[0]['basis'] = (f"{_fmt(declared['bw'])}/{_fmt(declared['h'])} escrito na faixa da viga prevalece "
+                                f"sobre o desenho do corte ({'; '.join(linked)})")
     if notes:
         contacts.append(dict(base, aspect=where + ' espessura', status='uncertain', blocks_promotion=False,
                              handles=handles, reason='; '.join(notes)))
@@ -411,17 +460,27 @@ def measure_pavimento(source, state, inventory, slabs, item_names=None):
     labels = {s['uid']: str(s.get('segment_label') or '') for s in (state.get('segmentos') or {}).get('fundo', [])}
 
     written = slab_values(source, slabs)
+    try:
+        plan = plan_sections(source, state)
+    except (OSError, ValueError, KeyError):
+        plan = {}
     # 1. Cortes originais que o SA leu (um por polígono, mesmo repetido em Para/Passa).
+    # Dono do corte = a mesma associação geométrica que a ficha LV consome
+    # (lv_ficha._cut_views), não o rótulo bruto do SA (14_PAV: L419_3154_2078 é da V408).
+    from . import corte_references
+    references = corte_references.preparar_segmentos(state)
     done = set()
     for row in inventory.get('relative_originals') or []:
         sc = row.get('source_cut') or {}
         key = str(row.get('id') or sc.get('uid'))
-        beam = str(row.get('beam') or '')
+        beam = str(corte_references.associar_referencias(sc, references).get('nome_sugerido')
+                   or row.get('beam') or '')
         if key in done or not beam or not wanted(beam):
             continue
         done.add(key)
         reports[beam]['inputs'].append(sc)
-        reports[beam]['contacts'] += measure_original(source, sc, beam, f'/cortes/original/{key}', written)
+        reports[beam]['contacts'] += measure_original(source, sc, beam, f'/cortes/original/{key}', written,
+                                                      plan.get(beam))
 
     # 2. Cortes interpretados (calculados) contra cotas/h= das lajes.
     for index, entry in enumerate(inventory.get('entries') or []):
