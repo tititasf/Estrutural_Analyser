@@ -543,6 +543,29 @@ def enrich_special_pillar_tables(
             source="SA/N1 special six-face geometry",
         ))
 
+    # A tabela ABCD da caixa grava as mesmas chegadas na tampa D (com
+    # ``sides_data`` vazio, só ali).  A D da caixa é a face sul inteira; a D
+    # física é a tampa curta, cujo canto com A não existe (`V327` "DA" e
+    # `V328` "DB" no `P27`, 151+14 e 146+19 = 165 cm = E).  Canto impossível e
+    # viga sem contato com a tampa: a chegada é de E.
+    e_names = {str(row.get("nome") or "") for row in faces["E"]["chega"]}
+    bucket_d = faces.get("D") or {}
+    kept_d = []
+    for row in bucket_d.get("chega") or []:
+        name = str(row.get("nome") or "")
+        corner = str(row.get("canto") or "").upper().strip()
+        valid_corner = len(corner) == 2 and corner[0] == "D" and corner[1] in (*neighbors["D"], "D")
+        if valid_corner or _beam_touches_edge(segments["D"], by_name.get(name)):
+            kept_d.append(row)
+            continue
+        if name not in e_names:
+            moved = dict(row)
+            moved["canto"] = _arrival_corner_on_edge(segments["E"], neighbors["E"], by_name.get(name), "E")
+            faces["E"]["chega"].append(moved)
+            e_names.add(name)
+    if bucket_d:
+        bucket_d["chega"] = kept_d
+
     # Viga que corre no braço pertence a E/F. A tabela ABCD, montada sobre a
     # caixa envolvente, também a colocava numa face longa — o mesmo trecho
     # aparecia duas vezes, com o papel errado na segunda (V305 em A/B de
