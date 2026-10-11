@@ -14142,6 +14142,16 @@ class MainWindow(QMainWindow):
         beam_name = self._nearest_dxf_text(center, r'^(VF?\d+|V\d+)$', max_dist=1400.0)
         if beam_name:
             ficha.setdefault('beam_name', str(beam_name.get('text') or ''))
+        # A viga cujo fundo cobre o símbolo vence o rótulo mais próximo; um
+        # nome diferente do automático foi digitado à mão e é mantido.
+        from src.core.cut_beam_owner import fundo_polygons, owner_by_fundo
+        fundo_owner, _ = owner_by_fundo(pts, fundo_polygons(getattr(self, 'beams_found', None)))
+        if fundo_owner and ficha.get('beam_name') in ('', None, str((beam_name or {}).get('text') or '')):
+            ficha['beam_name'] = fundo_owner
+            beam_name = None
+            fl = link.get('ficha_links') or {}
+            if all(lk.get('role') == 'Ficha_beam_name' for lk in fl.get('beam_name') or []):
+                fl.pop('beam_name', None)
         beam_dim_txt = self._nearest_dxf_text(center, r'\d+\s*[xX/]\s*\d+', max_dist=450.0)
         if beam_dim_txt:
             txt = str(beam_dim_txt.get('text') or '')

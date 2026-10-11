@@ -2468,7 +2468,7 @@ class PreValidationDialog(QDialog):
                 neigh_dist_bot = ficha.get('neighbor_dist_bottom') or '—'
 
                 own_lado = self._DIR_TO_LADO.get(direction.upper(), ('A', 'B'))[0]
-                beam_name, conf_pct, candidates = self._associate_beam_name(cx, cy, ficha)
+                beam_name, conf_pct, candidates = self._associate_beam_name(cx, cy, ficha, pts)
                 cuts.append({
                     '_pos_key':      pos_key,   # chave interna de dedup geométrico
                     'uid':           uid,
@@ -2498,16 +2498,31 @@ class PreValidationDialog(QDialog):
         return cuts
 
     def _associate_beam_name(self, cx: float, cy: float,
-                              ficha: dict) -> tuple[str, int, list[dict]]:
+                              ficha: dict, pts: list | None = None) -> tuple[str, int, list[dict]]:
         """
         Encontra o nome de viga mais provável para um corte em (cx, cy).
         Retorna (beam_name, confidence_pct, candidates_sorted_by_dist).
+
+        A viga cujo fundo cobre o símbolo do corte vence o rótulo mais
+        próximo (ver ``src.core.cut_beam_owner``); com fundos empatados, o
+        rótulo decide só entre as vigas empatadas.
         """
+        from src.core.cut_beam_owner import fundo_polygons, owner_by_fundo
+        if getattr(self, '_cut_fundos', None) is None:
+            self._cut_fundos = fundo_polygons(self._beams)
+        owner, tied = owner_by_fundo(pts, self._cut_fundos)
+        if owner:
+            # Mantém os rótulos próximos como alternativas no combo.
+            _, _, near = self._associate_beam_name(cx, cy, ficha) if self._beam_texts else ('', 0, [])
+            fundo = {'text': owner, 'dist': 0.0, 'pos': None, 'conf_pct': 100, 'source': 'fundo'}
+            return owner, 100, [fundo] + [c for c in near if c['text'] != owner][:7]
         if not self._beam_texts:
             return '', 0, []
 
         scored: list[tuple[float, dict]] = []
         for bt in self._beam_texts:
+            if tied and str(bt.get('text', '')) not in tied:
+                continue
             pos = bt.get('pos') or [0, 0]
             try:
                 dx = float(pos[0]) - cx
