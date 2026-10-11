@@ -1246,6 +1246,14 @@ def measure_beams(source, snapshot, slabs=None, floor=None):
                                    'atravessar exige provar viga mais funda (FV.md §4)'))
             elif kind:
                 rec.update(status='measured', limit=kind)
+            elif not at_end and all(
+                    any(abs(w['pos']-e) < EPS and min(abs(w['lo']-end), abs(w['hi']-end)) < EPS
+                        for w in walls if w['axis'] == axis) and
+                    not any(abs(w['pos']-e) < EPS and w['lo'] < end-EPS and w['hi'] > end+EPS
+                            for w in walls if w['axis'] == axis) for e in edges):
+                # As duas arestas da faixa terminam no extremo sem traço de fecho (TIPO_TESTE V513:
+                # viga que morre na laje): o fim é o do desenho, a natureza do limite não se mede.
+                rec['reason'] = 'extremo aberto: as duas arestas da viga terminam aqui sem traço de fecho'
             elif not at_end:
                 # Sem traço algum no extremo: procura o limite original mais próximo na faixa.
                 near = sorted({round(w['pos'], 4) for w in walls if w['axis'] == cross_axis and

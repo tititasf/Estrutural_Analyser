@@ -469,3 +469,21 @@ def test_without_original_dxf_absence_is_not_proven(tmp_path):
     path = _interior_dxf(tmp_path, 'sem_original', lambda m: None)
     (path.parent / 'crop_result.json').unlink()
     assert _aspect(path, 'aberturas')['status'] == 'uncertain'
+
+
+def test_open_end_where_both_edges_stop_is_uncertain_not_failure(tmp_path):
+    # TIPO_TESTE V513: a viga morre na laje; as duas arestas terminam no extremo sem traço de fecho.
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    for y in (0, 19):
+        msp.add_line((0, y), (300, y))
+    msp.add_line((300, 0), (300, 19))
+    msp.add_line((20, -80), (20, 90))  # limite transversal a 20 cm (não é o fim da viga)
+    msp.add_text('V1', dxfattribs={'insert': (100, 22), 'height': 10})
+    msp.add_text('19/55', dxfattribs={'insert': (200, 22), 'height': 10})
+    path = tmp_path / 'aberto.dxf'
+    doc.saveas(path)
+    snap = dict(classe='FV', collections={'fundo': [_seg('1', 0, 300)]})
+    end = _ends(path, snap)[('V1 seg 1', 'extremo início')]
+    assert end['status'] == 'uncertain' and not end['errors']
+    assert 'extremo aberto' in end['reason']
