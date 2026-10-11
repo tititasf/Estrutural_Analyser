@@ -438,8 +438,16 @@ def measure_slab_step(source, slab, step, section, unit, written=None):
         plan = sorted(v.get('h') for v in ((written or {}).get((name, 'principal')) or {},
                                            (written or {}).get((name, uid)) or {}) if v.get('h') is not None)
         msg = f'espessuras declaradas {"/".join(_fmt(t) if t is not None else "?" for t in want_t)} cm, desenho {_fmt(t1)}/{_fmt(t2)}'
+        principal = ((written or {}).get((name, 'principal')) or {}).get('h')
         if None not in want_t and len(plan) == 2 and all(abs(a-b) <= TOL_CM for a, b in zip(plan, want_t)):
             notes.append(msg + f', planta h={"/".join(_fmt(v) for v in plan)} (vale a planta)')
+        elif (None not in want_t and step.get('method') == 'flat_bottom_section_written_step'
+              and principal is not None and abs(principal-_num(step.get('owner_height_cm'))) <= TOL_CM
+              and abs((t2-t1)-(want_t[1]-want_t[0])) <= TOL_CM):
+            # Região sem h= próprio (L406/96B): símbolo genérico; vale o h= da
+            # planta no principal e o degrau desenhado = degrau escrito.
+            notes.append(msg + f', planta h={_fmt(principal)} e degrau desenhado {_fmt(t2-t1)} cm '
+                         '= escrito (vale o número)')
         else:
             errs.append(msg + (f', planta h={"/".join(_fmt(v) for v in plan)}' if plan else ''))
     if any(abs(g-w) > TOL_CM for g, w in zip(offsets, sorted([level_d, bottom_d]))):

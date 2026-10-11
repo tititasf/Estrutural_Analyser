@@ -116,3 +116,17 @@ def test_original_cut_owner_follows_lv_association(monkeypatch):
                                              source_cut={'uid': 'L419_3154_2078'})]}
     vc.measure_pavimento('x.dxf', {}, inventory, [])
     assert seen == ['V408']
+
+
+def test_written_step_cut_uses_plan_principal_and_drawn_step(monkeypatch):
+    from shapely.geometry import Polygon
+    b1d = [(3659.6, 2845.7), (3595.6, 2845.7), (3595.6, 2858.7), (3629.6, 2858.7),
+           (3629.6, 2855.7), (3659.6, 2855.7)]
+    monkeypatch.setattr(vc, '_source_shape', lambda source, pts: (Polygon(b1d), ['B1D']))
+    step = dict(uid='slab-step:L406:96B', method='flat_bottom_section_written_step', height_cm=12.,
+                owner_height_cm=15., level_m=855.22, owner_level_m=855.25, bottom_m=855.10, owner_bottom_m=855.10)
+    written = {('L406', 'principal'): {'h': 15.}}
+    got = vc.measure_slab_step('x.dxf', {'name': 'L406'}, step, {'points': b1d}, '/u', written)
+    assert got['errors'] == {} and 'vale o número' in got['notes'][0]
+    step['method'] = 'direct_scoped_cad'
+    assert vc.measure_slab_step('x.dxf', {'name': 'L406'}, step, {'points': b1d}, '/u', written)['errors']

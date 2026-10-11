@@ -4,7 +4,8 @@ Contours remain immutable. D-52 compares bottom elevations in metres, with
 thickness in centimetres. Missing altitude is never replaced by the slab's
 aggregate altitude (which may itself belong to the inset region).
 """
-from functools import lru_cache
+from functools import lru_cache, wraps
+from threading import Lock
 from pathlib import Path
 import re
 import json
@@ -50,7 +51,75 @@ def _drawing(path, mtime_ns, size):
             if color == 256:
                 color = doc.layers.get(e.dxf.layer).dxf.color
             polygons.append(dict(handle=e.dxf.handle, points=pts, color=color))
-    return polygons, texts
+    from src.core.dxf_loader import DXFLoader
+    from src.core.cad_object_recognition import thickness_references
+    data = DXFLoader.load_dxf(path)
+    refs = thickness_references(data.get('texts', []),
+                                data.get('lines', [])+data.get('polylines', []))
+    original_heights = {tuple(round(v, 6) for v in t['position']): t
+                        for t in texts if t['kind'] == 'height'}
+    resolved = []
+    for reference, value in refs:
+        if reference.get('target_class') == 'foundation_block':
+            continue
+        source = reference.get('source_position', reference['pos'])
+        original = original_heights.get(tuple(round(v, 6) for v in source))
+        if original:
+            resolved.append(dict(original, position=reference['pos']))
+    return polygons, [t for t in texts if t['kind'] != 'height']+resolved
+
+
+_STEP_NUMBER = re.compile(r"^\d{1,2}(?:[.,]\d+)?$")
+
+
+@lru_cache(maxsize=16)
+def _step_numbers(path, mtime_ns, size):
+    """Plain small numbers (degrau escrito, ex. "3" junto ao corte B1D)."""
+    import ezdxf
+    rows = []
+    for e in ezdxf.readfile(path).modelspace().query('TEXT MTEXT'):
+        raw = (e.dxf.text if e.dxftype() == 'TEXT' else e.plain_text()).strip()
+        if _STEP_NUMBER.fullmatch(raw):
+            rows.append(dict(handle=e.dxf.handle, position=list(e.dxf.insert)[:2],
+                             value=float(raw.replace(',', '.'))))
+    return rows
+
+
+def _written_step_section(points, region, numbers, tol=.2, reach=30.):
+    """Flat-bottom section whose drawn top step equals a written number.
+
+    The region has no h= of its own (14_PAV L406/96B, corte B1D): the section
+    gives a continuous underside, a drawn step on the region boundary and the
+    number written beside that step. Same convention as _flat_bottom_section:
+    the continuous edge is the underside. Returns (top_drop_cm, number), the
+    drop positive when the region top is lower, or None.
+    """
+    shape = Polygon(points)
+    x0, y0, x1, y1 = shape.bounds
+    if y1-y0 > x1-x0 or (x1-x0) < 3*(y1-y0):
+        return None  # vertical: sem convenção de qual lado é o fundo
+    stations = []
+    for ratio in (.2, .35, .65, .8):
+        v = x0+(x1-x0)*ratio
+        hit = shape.intersection(LineString([(v, y0-1), (v, y1+1)]))
+        if hit.geom_type != 'LineString' or hit.length <= 0:
+            continue
+        stations.append((region.buffer(.2).covers(hit.centroid), hit.bounds[1], hit.bounds[3]))
+    inner = {(round(a, 3), round(b, 3)) for flag, a, b in stations if flag}
+    outer = {(round(a, 3), round(b, 3)) for flag, a, b in stations if not flag}
+    if len(inner) != 1 or len(outer) != 1:
+        return None
+    (a, b), (c, d) = inner.pop(), outer.pop()
+    # Underside = the lower drawn edge, continuous across the step.
+    if not (abs(a-c) < tol and abs(b-d) >= tol):
+        return None
+    drop = d-b
+    step = shape.boundary.intersection(region.boundary)
+    if step.is_empty:
+        return None
+    hits = [n for n in numbers if abs(n['value']-abs(drop)) <= tol and
+            step.distance(Point(n['position'])) <= reach]
+    return (round(drop, 3), hits[0]) if len(hits) == 1 else None
 
 
 def _unique(rows, kind):
@@ -96,6 +165,7 @@ def recognize_slabs(slabs, dxf_path):
     path = Path(dxf_path)
     stat = path.stat()
     outlines, texts = _drawing(str(path.resolve()), stat.st_mtime_ns, stat.st_size)
+    striped = _striped_drawing(str(path.resolve()), stat.st_mtime_ns, stat.st_size)
     review_path = path.with_suffix('.slab-region-review.json')
     reviews = {}
     if review_path.is_file():
@@ -142,7 +212,7 @@ def recognize_slabs(slabs, dxf_path):
             method = 'direct_scoped_cad'
             inferred = False
             local_owner_level = owner_level
-            evidence_checks = dict(contained_region=True, internal_height=True,
+            evidence_checks = dict(contained_region=True, closed_cad_boundary=True, internal_height=True,
                 principal_height=True, direct_internal_level=level is not None,
                 direct_principal_level=local_owner_level is not None)
             if cuts and (level is None) != (local_owner_level is None):
@@ -167,10 +237,82 @@ def recognize_slabs(slabs, dxf_path):
                 evidence_checks=evidence_checks,
                 evidence_handles=list(dict.fromkeys(ids)), sections=cuts,
                 color='#ff4545' if status == 'different_bottom' else '#ffe033'))
+        # Região sem h= próprio: só um corte com fundo contínuo e degrau
+        # escrito junto ao degrau desenhado dá altura e desnível (B1D/96B).
+        if owner_height is not None:
+            numbers = _step_numbers(str(path.resolve()), stat.st_mtime_ns, stat.st_size)
+            for row in outlines:
+                if row['color'] != 3 or any(row['handle'] == c[0]['handle'] for c in candidates):
+                    continue
+                region = Polygon(row['points'])
+                if not (0 < region.area < owner.area*.85 and owner.buffer(.5).covers(region)):
+                    continue
+                if any(region.covers(Point(t['position'])) for t in texts):
+                    continue
+                if any(region.symmetric_difference(Polygon(s['points'])).area < .5 for s in steps):
+                    continue
+                found = []
+                for section in outlines:
+                    shape = Polygon(section['points'])
+                    if (section['color'] == 8 and owner.buffer(.5).covers(shape)
+                            and shape.intersects(region.boundary)):
+                        hit = _written_step_section(section['points'], region, numbers)
+                        if hit:
+                            found.append((section, *hit))
+                if len({round(f[1], 3) for f in found}) != 1:
+                    continue
+                drop = found[0][1]
+                height = round(owner_height-drop, 6)
+                level = None if owner_level is None else round(owner_level-drop/100, 6)
+                bottom = None if level is None else round(level-height/100, 6)
+                owner_bottom = None if owner_level is None else round(owner_level-owner_height/100, 6)
+                ids = [row['handle'], *[t['handle'] for t in outside],
+                       *[f[0]['handle'] for f in found], *[f[2]['handle'] for f in found]]
+                steps.append(dict(uid=f"slab-step:{slab['name']}:{row['handle']}",
+                    owner=slab['name'], points=row['points'], height_cm=height,
+                    owner_height_cm=owner_height, level_m=level, owner_level_m=owner_level,
+                    bottom_m=bottom, owner_bottom_m=owner_bottom,
+                    bottom_delta_m=None if bottom is None else 0.,
+                    status='unknown' if bottom is None else 'same_bottom',
+                    method='flat_bottom_section_written_step', top_drop_cm=drop,
+                    evidence_coverage_pct=100.,
+                    evidence_checks=dict(contained_region=True, closed_cad_boundary=True,
+                        internal_height=False, principal_height=True, direct_internal_level=False,
+                        direct_principal_level=owner_level is not None, written_step=True,
+                        flat_bottom_section=True),
+                    evidence_handles=list(dict.fromkeys(ids)), sections=[f[0] for f in found],
+                    color='#ffe033'))
+        # Stripes signal attention even when altitude/cut evidence is absent.
+        # A measured region already recognized above has precedence.
+        from src.core.slab_regions import scoped_thickness
+        seeds=[({'pos':t['position']},t['value']) for t in texts if t['kind']=='height']
+        scope=scoped_thickness(owner,seeds,striped)
+        if scope:
+            for region in scope[1]:
+                shape=Polygon(region['points'])
+                if any(shape.symmetric_difference(Polygon(s['points'])).area < .5 for s in steps):
+                    continue
+                steps.append(dict(region, owner=slab['name']))
         if steps:
             apply_region_reviews(steps, reviews)
             result[slab['name']] = steps
     return result
+
+
+@lru_cache(maxsize=16)
+def _striped_drawing(path, mtime_ns, size):
+    from src.core.dxf_loader import DXFLoader
+    from src.core.slab_tracer import SlabTracer
+    from src.core.slab_regions import striped_regions
+    from src.core.spatial_index import SpatialIndex
+    from shapely import set_precision
+    data=DXFLoader.load_dxf(path)
+    items=data.get('lines',[])+data.get('polylines',[])
+    tracer=SlabTracer(SpatialIndex())
+    _,_,rows=tracer._collect_laje_candidate_lines(items)
+    structural=[set_precision(g,.001) for g,i in rows if i['support']=='structural'
+                and (i['accepted'] or i['reasons']==['too_short'])]
+    return striped_regions(items,structural)
 
 
 def apply_region_reviews(steps, reviews):
@@ -178,6 +320,8 @@ def apply_region_reviews(steps, reviews):
     for step in steps:
         review = reviews.get(step['uid']) or {}
         if review.get('same_bottom') is not True or not review.get('decision_id'):
+            continue
+        if step.get('height_cm') is None or step.get('owner_height_cm') is None:
             continue
         principal = review.get('principal_level_m', step.get('owner_level_m'))
         if principal is None and step.get('level_m') is not None:
@@ -216,23 +360,78 @@ def fill_region_levels(steps, regions):
         if step.get('owner_level_m') is None and principal is not None:
             step['owner_level_m'] = principal
             filled.append('owner_level_m')
+        if (step.get('level_m') is None and step.get('top_drop_cm') is not None
+                and step.get('owner_level_m') is not None):
+            # Degrau escrito no corte (B1D): o nível da região é derivado,
+            # nunca a cópia do nível da laje.
+            step['level_m'] = round(step['owner_level_m']-step['top_drop_cm']/100, 6)
+            filled.append('level_m')
         if not filled:
             continue
         level, owner = step['level_m'], step['owner_level_m']
-        bottom = None if level is None else round(level-step['height_cm']/100, 6)
-        owner_bottom = None if owner is None else round(owner-step['owner_height_cm']/100, 6)
+        # An h-only region has no level mark and no cut view indicating a level.
+        # Copying the slab level onto it is not a different-level step, and the
+        # thickness difference alone does not prove a different bottom.
+        height_only = (not step.get('sections')
+                       and not (step.get('evidence_checks') or {}).get('direct_internal_level')
+                       and level is not None and owner is not None
+                       and abs(level-owner) <= .0025)
+        evidence = {k: regions[k] for k in (step.get('uid'), 'principal') if k in regions}
+        if height_only:
+            step.update(bottom_m=None, bottom_delta_m=None, status='unknown',
+                        method='preprocess_layered_region_level', preprocess_filled=filled,
+                        preprocess_region_evidence=evidence)
+            step['color'] = '#ffe033'
+            continue
+        bottom = None if level is None or step.get('height_cm') is None else round(level-step['height_cm']/100, 6)
+        owner_bottom = None if owner is None or step.get('owner_height_cm') is None else round(owner-step['owner_height_cm']/100, 6)
         delta = None if bottom is None or owner_bottom is None else round(bottom-owner_bottom, 6)
         step.update(bottom_m=bottom, owner_bottom_m=owner_bottom, bottom_delta_m=delta,
                     status='unknown' if delta is None else 'same_bottom' if abs(delta) <= .001 else 'different_bottom',
                     method='preprocess_layered_region_level', preprocess_filled=filled,
-                    preprocess_region_evidence={k: regions[k] for k in (step.get('uid'), 'principal') if k in regions})
+                    preprocess_region_evidence=evidence)
         step['color'] = '#ff4545' if step['status'] == 'different_bottom' else '#ffe033'
 
 
+def _singleflight_regions(cached):
+    locks = [Lock() for _ in range(32)]
+    @wraps(cached)
+    def shared(*args):
+        # lru_cache allows duplicate concurrent misses. Serialize lookup for
+        # each revision so publisher and viewer share one cold recognition.
+        with locks[hash(args) % len(locks)]:
+            return cached(*args)
+    shared.cache_clear = cached.cache_clear
+    shared.cache_info = cached.cache_info
+    return shared
+
+
+@_singleflight_regions
+@lru_cache(maxsize=4)
+def _cached_regions(serialized_slabs, path, source_revision, review_revision):
+    return recognize_slabs(json.loads(serialized_slabs), path)
+
+
 def enrich_state(state, dxf_path):
-    detected = recognize_slabs(state.get('slabs', []), dxf_path)
+    """Re-detect contours, then refill only altitudes the DXF left empty.
+
+    The portal snapshot keeps preprocess_region_levels and not the step
+    geometry. A fresh recognition must not drop the region vote: the LV cut
+    reads these steps and fails closed when a touched region has no level.
+    """
+    from copy import deepcopy
+    path = Path(dxf_path).resolve()
+    stat = path.stat() if path.is_file() else None
+    review = path.with_suffix('.slab-region-review.json')
+    review_stat = review.stat() if review.is_file() else None
+    detected = deepcopy(_cached_regions(json.dumps(state.get('slabs', []), sort_keys=True),
+        str(path), (stat.st_mtime_ns, stat.st_size),
+        (review_stat.st_mtime_ns, review_stat.st_size) if review_stat else None)
+        if stat else recognize_slabs(state.get('slabs', []), dxf_path))
     for slab in state.get('slabs', []):
-        slab['slab_steps'] = detected.get(slab.get('name'), [])
+        steps = detected.get(slab.get('name'), [])
+        fill_region_levels(steps, slab.get('preprocess_region_levels') or {})
+        slab['slab_steps'] = steps
     return state
 
 
