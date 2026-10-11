@@ -18,7 +18,7 @@ def _tee(bw=19, h=55, left=(0, 12), right=(0, 12), arm=30):
 def _best(shape, declared):
     scored = []
     for c in vc.orientations(shape):
-        errs, mapping, notes = vc._arm_errors(c, declared)
+        errs, mapping, notes, _ = vc._arm_errors(c, declared)
         bad = abs(c['bw']-declared['bw']) > vc.TOL_CM or (not c['broken'] and abs(c['h']-declared['h']) > vc.TOL_CM)
         scored.append((len(errs)+bad, errs, c))
     return min(scored, key=lambda s: s[0])
@@ -55,9 +55,9 @@ def test_wrong_level_is_divergence():
 
 def test_schematic_thickness_is_note_when_plan_agrees():
     c = vc.profile(_tee(left=(0, 12), right=(0, 12)), 'y', -1)
-    errs, _, notes = vc._arm_errors(c, _declared((0, 13), (0, 12)), plan_h=lambda n: 13 if n == 'L1' else None)
+    errs, _, notes, _ = vc._arm_errors(c, _declared((0, 13), (0, 12)), plan_h=lambda n: 13 if n == 'L1' else None)
     assert errs == [] and 'vale a planta' in notes[0]
-    errs, _, _ = vc._arm_errors(c, _declared((0, 13), (0, 12)), plan_h=lambda n: 14)
+    errs, _, _, _ = vc._arm_errors(c, _declared((0, 13), (0, 12)), plan_h=lambda n: 14)
     assert errs and 'planta h=14' in errs[0]
 
 
@@ -67,7 +67,7 @@ def test_broken_stem_measures_bottom_slab_from_beam_bottom():
     shape = unary_union([stem, box(-30, 0, 0, 10), box(19, 0, 49, 13)])
     c = vc.profile(shape, 'y', -1)
     assert c['broken']
-    errs, _, _ = vc._arm_errors(c, _declared((110, 10), (107, 13), h=120))
+    errs, _, _, _ = vc._arm_errors(c, _declared((110, 10), (107, 13), h=120))
     assert errs == []
 
 
@@ -130,3 +130,25 @@ def test_written_step_cut_uses_plan_principal_and_drawn_step(monkeypatch):
     assert got['errors'] == {} and 'vale o número' in got['notes'][0]
     step['method'] = 'direct_scoped_cad'
     assert vc.measure_slab_step('x.dxf', {'name': 'L406'}, step, {'points': b1d}, '/u', written)['errors']
+
+
+def test_slab_piece_shared_by_two_beam_symbols_is_clipped_to_each(monkeypatch):
+    # TIPO_TESTE: L2 (12 cm) é uma peça só entre V501 (deitada, 120×19) e V502;
+    # o polígono do SA para a V501 leva só a metade de cima da laje.
+    from shapely.geometry import Polygon
+    v501, slab, other = box(1225, 3711, 1345, 3730), box(1300, 3630, 1312, 3711), box(1400, 3711, 1420, 3730)
+    monkeypatch.setattr(vc, '_closed_polygons', lambda source: [(v501, 'B'), (slab, 'L'), (other, 'X')])
+    pts = [(1225, 3730), (1345, 3730), (1345, 3711), (1312, 3711), (1312, 3670), (1300, 3670), (1300, 3711), (1225, 3711)]
+    shape, handles = vc._source_shape('x.dxf', pts)
+    assert handles == ['B', 'L']
+    assert shape.area == 120*19 + 12*41
+    arms = [c['arms'] for c in vc.orientations(shape) if c['bw'] == 19 and c['sign'] == 1]
+    assert arms == [{'-': [{'drop': 75.0, 'thick': 12.0}], '+': []}]
+
+
+def test_declared_slab_without_any_drawn_arm_is_silence_not_divergence():
+    # TIPO_TESTE V522 (L17): símbolo em L só com a laje do rótulo; o SA põe L18 do outro lado pela planta.
+    ell = unary_union([box(0, 0, 19, 65), box(19, 53, 60, 65)])
+    c = next(c for c in vc.orientations(ell) if c['bw'] == 19 and c['arms']['+'] and c['arms']['+'][0]['drop'] == 0)
+    errs, _, _, silent = vc._arm_errors(c, _declared((0, 12), (0, 12), h=65))
+    assert errs == [] and len(silent) == 1 and 'sem braço no símbolo' in silent[0]

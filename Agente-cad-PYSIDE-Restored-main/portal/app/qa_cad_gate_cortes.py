@@ -73,11 +73,22 @@ def _source_shape(source, points):
     hint = Polygon(points).buffer(.5)
     if not hint.is_valid or hint.area <= 1:
         return None, []
-    parts = [(p, h) for p, h in _closed_polygons(source)
-             if p.intersects(hint) and p.intersection(hint).area >= .9*p.area]
+    exact = Polygon(points)
+    parts, shared = [], []
+    for p, h in _closed_polygons(source):
+        if not p.intersects(hint):
+            continue
+        if p.intersection(hint).area >= .9*p.area:
+            parts.append((p, h))
+        else:
+            # Laje entre duas vigas desenhada como uma peça só (TIPO_TESTE L2
+            # entre V501 e V502): cada símbolo do SA leva a sua metade.
+            clip = p.intersection(exact)
+            if clip.area >= max(20., .05*exact.area):
+                shared.append((clip, h))
     if not parts:
         return None, []
-    return unary_union([p for p, _ in parts]), [h for _, h in parts]
+    return unary_union([p for p, _ in parts + shared]), [h for _, h in parts + shared]
 
 
 def _slices(shape, axis, sign):
@@ -188,13 +199,20 @@ def _arm_errors(measured, declared, plan_h=lambda name: None):
 
     Espessura: o símbolo de corte costuma ser esquemático; se o valor declarado
     é o h= escrito na planta, a diferença é nota (vale a planta), não erro.
+    Lado sem braço nenhum com laje declarada (TIPO_TESTE: o projetista desenha
+    só a laje do rótulo do corte) é silêncio do desenho, não contradição: vai
+    em ``silent`` e o corte fica incerto.
     """
     best = None
     for mapping in (({'-': 'A', '+': 'B'}), ({'-': 'B', '+': 'A'})):
-        errs, notes = [], []
+        errs, notes, silent = [], [], []
         for side_m, side_d in mapping.items():
             got = measured['arms'][side_m]
             want = declared['slabs'][side_d]
+            if not got and want:
+                silent.append(f"lado {side_d}: {', '.join(str(s['name']) for s in want)} declarada(s) pelo SA, "
+                              'sem braço no símbolo (corte desenha só o outro lado)')
+                continue
             if len(got) != len(want):
                 errs.append(f'lado {side_d}: {len(want)} laje(s) declarada(s), {len(got)} braço(s) no desenho'
                             + (f" ({', '.join(f'{_fmt(a['thick'])} cm a {_fmt(a['drop'])} cm do topo' for a in got)})" if got else ''))
@@ -214,8 +232,8 @@ def _arm_errors(measured, declared, plan_h=lambda name: None):
                     drop = declared['h'] - (measured['h'] - a['drop'] - a['thick']) - s['thick']
                 if s['drop'] is None or abs(drop-s['drop']) > TOL_CM:
                     errs.append(f"lado {side_d} {s['name']}: desnível declarado {_fmt(s['drop']) if s['drop'] is not None else 'ausente'}, desenho {_fmt(drop)} cm do topo")
-        if best is None or len(errs) < len(best[0]):
-            best = (errs, mapping, notes)
+        if best is None or (len(errs), len(silent)) < (len(best[0]), len(best[3])):
+            best = (errs, mapping, notes, silent)
     return best
 
 
@@ -286,12 +304,12 @@ def measure_original(source, source_cut, beam, unit, written=None, plan=None):
         if not c['broken'] and (declared['h'] is None or abs(c['h']-declared['h']) > TOL_CM):
             errs.append(f"h declarado {_fmt(declared['h']) if declared['h'] else 'ausente'}, desenho {_fmt(c['h'])} cm")
         plan_h = lambda name: ((written or {}).get((str(name), 'principal')) or {}).get('h')
-        arm_errs, mapping, notes = _arm_errors(c, declared, plan_h) if declared['own_side'] else (
-            ['orientação da laje ausente na ficha (direção)'], None, [])
+        arm_errs, mapping, notes, silent = _arm_errors(c, declared, plan_h) if declared['own_side'] else (
+            ['orientação da laje ausente na ficha (direção)'], None, [], [])
         bw_off = abs(c['bw']-declared['bw']) if declared['bw'] else 99
-        scored.append((len(errs)+len(arm_errs), bw_off, errs+arm_errs, c, mapping, notes))
-    scored.sort(key=lambda s: (s[0], s[1]))
-    _, _, errs, c, mapping, notes = scored[0]
+        scored.append((len(errs)+len(arm_errs), len(silent), bw_off, errs+arm_errs, c, mapping, notes, silent))
+    scored.sort(key=lambda s: s[:3])
+    _, _, _, errs, c, mapping, notes, silent = scored[0]
     linked = None
     if declared['bw'] is not None and declared['h'] is not None and _plan_at(plan, pts) == {(declared['bw'], declared['h'])}:
         linked = [e for e in errs if e.startswith('h declarado ')]
@@ -307,6 +325,9 @@ def measure_original(source, source_cut, beam, unit, written=None, plan=None):
     if notes:
         contacts.append(dict(base, aspect=where + ' espessura', status='uncertain', blocks_promotion=False,
                              handles=handles, reason='; '.join(notes)))
+    if silent:
+        contacts.append(dict(base, aspect=where + ' lajes', status='uncertain', handles=handles,
+                             reason='; '.join(silent)))
     if c['broken']:
         contacts.append(dict(base, aspect=where + ' altura', status='uncertain', blocks_promotion=False,
                              handles=handles, reason='alma interrompida (símbolo de quebra): h não medível no desenho'))
