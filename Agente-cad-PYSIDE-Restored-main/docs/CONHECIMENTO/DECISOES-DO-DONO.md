@@ -1102,3 +1102,17 @@ inventário global. A comprovação pelo QA ainda precisa ser validada; não
 alterar a geometria confirmada só para eliminar um aviso de inventário.
 As seis fichas estão respondidas; isso não aprova o pavimento nem substitui
 as correções de V406, do encontro V407/V413 e a revisão dos vínculos de P28.
+
+
+## FV-UNIAO-NIVEL-PELO-CORTE-20261012
+
+| ID | Data | Decisão vigente | Fonte |
+|---|---|---|---|
+| FV-UNIAO-NIVEL-PELO-CORTE-20261012 | 2026-10-12 | O nível do fundo de uma união sob invertida se decide comparando a visão corte da própria viga com a das vigas vizinhas; não se pergunta. | Resposta do dono neste chat sobre a VF301 seg 8; medição em `scripts/arete/relatorios/20261011_frente2_gate_cad/RELATORIO.md`. |
+
+Medido no 13_PAV (prova local, não regra por nome). Os cortes da VF301 (14/55)
+mostram 7 + 48 com a laje de 852,12: topo 852,19 m, fundo 851,64 m (mesmo
+padrão do VF202 já confirmado). O corte da V332 (19/55) tem o topo rente à
+L317 (852,19 m): fundo 851,64 m. Logo o fundo da VF301 seg 8 é um plano só,
+igual ao seg 7, sem degrau sob a V330. Lajes de níveis diferentes dos dois
+lados não criam degrau quando o corte da viga fixa o topo.
