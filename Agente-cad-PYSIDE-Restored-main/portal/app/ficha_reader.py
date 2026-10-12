@@ -24,10 +24,13 @@ resto do portal).
 
 from __future__ import annotations
 
+import copy
 import json
 import logging
 import html
 import re
+from contextlib import contextmanager
+from contextvars import ContextVar
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional
@@ -169,8 +172,38 @@ def descobrir_pavimentos(obra_dir: Path) -> list[str]:
     )
 
 
+_ESTADO_LOTE: ContextVar[Optional[dict]] = ContextVar("estado_lote", default=None)
+
+
+@contextmanager
+def estado_compartilhado():
+    """Uma etapa da cadeia (N3 pós-SA, N5) lê o estado efetivo uma vez só.
+
+    Cada leitor recebe uma cópia; fora do bloco (e em outras threads do portal)
+    toda leitura continua indo ao disco.
+    """
+    if _ESTADO_LOTE.get() is not None:
+        yield
+        return
+    token = _ESTADO_LOTE.set({})
+    try:
+        yield
+    finally:
+        _ESTADO_LOTE.reset(token)
+
+
 def ler_estado_pavimento(obra_dir: Path, pavimento: str, *, apply_qa: bool = True) -> Optional[dict]:
     """Lê `estado_<pavimento>.json` (estado real do SA). None se não existe ainda."""
+    lote = _ESTADO_LOTE.get()
+    if lote is None:
+        return _ler_estado_pavimento(obra_dir, pavimento, apply_qa=apply_qa)
+    chave = (str(Path(obra_dir).resolve()), pavimento, apply_qa)
+    if chave not in lote:
+        lote[chave] = _ler_estado_pavimento(obra_dir, pavimento, apply_qa=apply_qa)
+    return copy.deepcopy(lote[chave])
+
+
+def _ler_estado_pavimento(obra_dir: Path, pavimento: str, *, apply_qa: bool = True) -> Optional[dict]:
     caminho = obra_dir / f"estado_{pavimento}.json"
     if not caminho.is_file():
         return None
