@@ -46,10 +46,10 @@ def test_corrected_contact_passes_without_changing_original(contact):
     assert report['measured_accuracy'] is False
 
 
-def test_repeated_wrong_section_also_blocks(contact):
+def test_unproved_other_reference_does_not_override_local_section(contact):
     path, snapshot = contact
     snapshot['collections']['pilares'][0]['lajes'] = [{'viga': {'name':'V1', 'dim':'20/66'}}]
-    assert 'dimensoes' in gate.measure(path, snapshot)['contacts'][0]['errors']
+    assert 'dimensoes' not in gate.measure(path, snapshot)['contacts'][0]['errors']
 
 
 def test_rounded_display_zero_does_not_hide_numeric_error(contact):

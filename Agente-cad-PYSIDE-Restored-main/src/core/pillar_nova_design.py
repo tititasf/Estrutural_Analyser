@@ -124,6 +124,10 @@ def grades(ms, entities):
 
 
 def special_payload(pj):
+    from src.core.pillar_u_nova_contract import u_nova_payload
+    u_payload = u_nova_payload(pj)
+    if u_payload:
+        return u_payload
     from src.core.cima_l_contract import secao_l_do_payload
     sec=secao_l_do_payload(pj)
     if not sec: return None

@@ -1,0 +1,28 @@
+<div id="docs-unificados-panel" role="tabpanel" aria-label="Unificados da obra" hidden>
+  <style>
+    .docs-n5-floor { margin:8px 0; border:1px solid #c6d5ed; border-radius:9px; background:#fff; }
+    .docs-n5-floor > summary { display:flex; align-items:center; gap:9px; padding:12px; cursor:pointer; color:#102442; font-weight:700; font-size:.85rem; list-style:none; }
+    .docs-n5-floor > summary::-webkit-details-marker { display:none; }
+    .docs-n5-floor > summary::before { content:'+'; display:grid; place-items:center; width:22px; height:22px; border:1px solid #c6d5ed; border-radius:5px; color:#2457ef; background:#edf3ff; }
+    .docs-n5-floor[open] > summary::before { content:'−'; }
+    .docs-n5-floor > summary:focus-visible { outline:2px solid #2457ef; outline-offset:2px; }
+    .docs-n5-floor > summary small { margin-left:auto; color:#64748b; font-size:.7rem; font-weight:400; }
+    .docs-n5-floor-body { padding:0 10px 10px; }
+  </style>
+  <p class="muted">Expanda um pavimento para baixar seus unificados por classe e modo de desenho.</p>
+  {% set floors = namespace(names=[]) %}
+  {% for floor in ordem_pavimentos %}
+    {% if floor.pavimento not in floors.names %}{% set floors.names = floors.names + [floor.pavimento] %}{% endif %}
+  {% endfor %}
+  {% for floor in n5_pavimentos %}
+    {% if floor.pavimento not in floors.names %}{% set floors.names = floors.names + [floor.pavimento] %}{% endif %}
+  {% endfor %}
+  {% for floor in floors.names %}
+  <details class="docs-n5-floor" data-n5-floor="{{ floor }}">
+    <summary><span>{{ floor }}</span><small>Unificados · N5</small></summary>
+    <div class="docs-n5-floor-body">
+      {% with pavimento = floor %}{% include 'n5_download_matrix.html' %}{% endwith %}
+    </div>
+  </details>
+  {% else %}<p class="docs-lista-empty">Nenhum pavimento cadastrado nesta obra.</p>{% endfor %}
+</div>

@@ -1,0 +1,101 @@
+{% set modes = [('INI', 'iNI'), ('NOVA', 'Nova'), ('MOLDE_1', 'Formascia'), ('MOLDE_2', 'Molde 2'), ('MOLDE_3', 'Molde 3')] %}
+{% set rows = [
+  ('PL', 'Pilares', 2, 'PARA', 1, '', '—'),
+  ('PL', '', 0, 'PASSA', 1, '', ''),
+  ('LV', 'Laterais de viga', 4, 'PARA', 2, 'gradeadas', 'Gradeadas'),
+  ('LV', '', 0, 'PARA', 0, 'sarrafeadas', 'Sarrafeadas'),
+  ('LV', '', 0, 'PASSA', 2, 'gradeadas', 'Gradeadas'),
+  ('LV', '', 0, 'PASSA', 0, 'sarrafeadas', 'Sarrafeadas'),
+  ('FV', 'Fundos de viga', 2, '—', 2, 'sim', 'Com garfos'),
+  ('FV', '', 0, '—', 0, 'nao', 'Sem garfos'),
+  ('LJ', 'Lajes', 1, '—', 1, '', '—')
+] %}
+<style>
+  .n5-download-scroll { max-width:100%; overflow-x:auto; border:1px solid #c6d5ed; border-radius:10px; background:#fff; }
+  .n5-download-matrix { width:100%; min-width:860px; border-collapse:separate; border-spacing:0; table-layout:fixed; color:#102442; font-size:.78rem; }
+  .n5-download-matrix caption { text-align:left; padding:12px 14px; color:#526581; font-size:.75rem; }
+  .n5-download-matrix col.n5-class-col { width:120px; }
+  .n5-download-matrix col.n5-behavior-col { width:70px; }
+  .n5-download-matrix col.n5-option-col { width:105px; }
+  .n5-download-matrix th, .n5-download-matrix td { padding:8px; border-right:1px solid #e1e8f2; border-bottom:1px solid #e1e8f2; vertical-align:middle; text-align:left; }
+  .n5-download-matrix tr > :last-child { border-right:0; }
+  .n5-download-matrix thead th { background:#102a4c; color:#fff; font-size:.73rem; padding:12px 8px; }
+  .n5-download-matrix tbody th { background:#f1f5fc; }
+  .n5-download-matrix .n5-class-cell { background:#eaf0fc; font-size:.83rem; }
+  .n5-class-cell small { display:block; color:#2457ef; font-size:.68rem; margin-bottom:5px; }
+  .n5-download-matrix tr.n5-class-start > * { border-top:2px solid #c6d5ed; }
+  .n5-download-card { display:flex; flex-direction:column; justify-content:center; align-items:flex-start; gap:6px; min-height:60px; padding:9px; border:1px solid #a7dbc0; border-radius:7px; background:#f0fdf6; }
+  .n5-download-card small { font-size:.65rem; line-height:1.35; color:#526581; }
+  .n5-download-status { color:#166534; font-size:.68rem; font-weight:700; }
+  .n5-download-card .n5-download-link { display:inline-block; padding:6px 9px; border-radius:5px; background:#2457ef; color:#fff; font-size:.7rem; font-weight:700; text-decoration:none; }
+  .n5-download-card .n5-download-link:hover { background:#143ed0; }
+  .n5-download-card .n5-download-link:focus-visible { outline:3px solid #102a4c; outline-offset:2px; }
+  .n5-download-card.empty { background:#f8fafc; border:1px dashed #d2dce9; }
+  .n5-download-card.empty .n5-download-status { color:#718096; font-weight:400; }
+  .n5-download-matrix tfoot th, .n5-download-matrix tfoot td { background:#eef3fd; border-bottom:0; }
+  .n5-download-matrix tfoot .n5-download-card { background:#fff; }
+</style>
+<div class="n5-download-scroll" role="region" aria-label="Downloads N5 por classe e modo" tabindex="0">
+  <table class="n5-download-matrix">
+    <caption>Escolha a combinação e baixe o DXF. Os cinco modos ficam disponíveis lado a lado.</caption>
+    <colgroup><col class="n5-class-col"><col class="n5-behavior-col"><col class="n5-option-col"><col span="5"></colgroup>
+    <thead><tr>
+      <th scope="col">Classe</th><th scope="col">PARA / PASSA</th><th scope="col">Montagem / garfos</th>
+      {% for mode, label in modes %}<th scope="col">{{ label }}</th>{% endfor %}
+    </tr></thead>
+    <tbody>
+    {% for classe, title, class_span, behavior, behavior_span, option, option_label in rows %}
+      {% set effective_behavior = behavior %}
+      <tr class="{{ 'n5-class-start' if class_span else '' }}" data-n5-download-row="{{ classe }}:{{ effective_behavior }}:{{ option }}">
+        {% if class_span %}<th scope="rowgroup" rowspan="{{ class_span }}" class="n5-class-cell"><small>{{ classe }}</small>{{ title }}</th>{% endif %}
+        {% if behavior_span %}<th scope="{{ 'rowgroup' if behavior_span > 1 else 'row' }}" rowspan="{{ behavior_span }}">{{ behavior }}</th>{% endif %}
+        {% if classe == 'PL' %}
+          {% if class_span %}<td rowspan="2">—</td>{% endif %}
+        {% else %}<th scope="row">{{ option_label }}</th>{% endif %}
+        {% for mode, label in modes %}
+          {% set release = n5_por_pav_classe_modo.get(pavimento, {}).get(classe, {}).get(mode) %}
+          {% set available = release and release.download_available %}
+          {% set unknown_garfos = classe == 'FV' and available and not release.fundos_garfos %}
+          {% if not (unknown_garfos and option == 'nao') %}
+          <td {% if unknown_garfos %}rowspan="2"{% endif %}>
+            {% set params = '' %}
+            {% if classe == 'PL' %}
+              {% set available = available and effective_behavior in release.get('pillar_groups_available', []) %}
+              {% set params = '&pillar_group=' ~ effective_behavior %}
+            {% elif classe == 'LV' %}
+              {% set available = available and (effective_behavior ~ ':' ~ option) in release.lateral_variants_available %}
+              {% set params = '&lateral_behavior=' ~ effective_behavior ~ '&lateral_assembly=' ~ option %}
+            {% elif classe == 'FV' and not unknown_garfos %}
+              {% set available = available and release.fundos_garfos == option %}
+            {% endif %}
+            <div class="n5-download-card {{ '' if available else 'empty' }}">
+              <span class="n5-download-status">{{ '✓ Gerado' if available else 'Não gerado' }}</span>
+              {% if unknown_garfos %}<small>Garfos não informados neste arquivo</small>{% endif %}
+              {% if available %}
+              <a class="n5-download-link" href="/obras/{{ obra.id }}/n5/{{ classe }}/download?pavimento={{ pavimento|urlencode }}&amp;visual_mode={{ mode }}{{ params }}"
+                 aria-label="Baixar DXF · {{ {'PL':'Pilares','LV':'Laterais','FV':'Fundos','LJ':'Lajes'}[classe] }} · {{ effective_behavior if classe in ['PL','LV'] else '' }} {{ 'Garfos não informados' if unknown_garfos else (option_label if option else '') }} · {{ label }}">Baixar DXF</a>
+              {% endif %}
+            </div>
+          </td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+    {% endfor %}
+    </tbody>
+    <tfoot><tr>
+      <th colspan="3" scope="row">ZIP do pavimento<small style="display:block;font-weight:400;margin-top:5px">As quatro classes em cada modo</small></th>
+      {% for mode, label in modes %}
+        {% set zip = namespace(available=true) %}
+        {% for classe in ['PL','LV','FV','LJ'] %}
+          {% set release = n5_por_pav_classe_modo.get(pavimento, {}).get(classe, {}).get(mode) %}
+          {% if not release or not release.download_available %}{% set zip.available = false %}{% endif %}
+        {% endfor %}
+        <td><div class="n5-download-card {{ '' if zip.available else 'empty' }}">
+          {% if zip.available %}
+          <a class="n5-download-link" href="/obras/{{ obra.id }}/n5/download?pavimento={{ pavimento|urlencode }}&amp;visual_mode={{ mode }}" aria-label="Baixar ZIP do pavimento · {{ label }}">Baixar ZIP</a>
+          {% else %}<span class="n5-download-status">Aguardando classes</span>{% endif %}
+        </div></td>
+      {% endfor %}
+    </tr></tfoot>
+  </table>
+</div>

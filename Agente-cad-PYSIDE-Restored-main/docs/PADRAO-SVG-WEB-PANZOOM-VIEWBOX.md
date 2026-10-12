@@ -45,6 +45,14 @@ Fichas: `scripts/arete/export_pilares_abcd_fichas.py` + `serve_abcd_fichas.py`
 4. **Reset / dblclick:** restaurar home.
 5. **Nunca** aplicar `style.transform = scale(...)` no inner para zoom.
 
+**Agrupamento por quadro (PIL, 2026-10-10):** wheel e mousemove acumulam o
+estado da câmera e aplicam o `viewBox` por `requestAnimationFrame`, no máximo
+uma vez por quadro. Como a câmera exibida pode estar um quadro atrás, converter
+o ponto do cursor e o delta do arraste da câmera exibida para a câmera pendente.
+Reset, mouseup e sincronização explícita de camada aplicam imediatamente e
+cancelam o quadro pendente. Não descartar eventos nem mudar a âncora do zoom.
+Evidência: `scripts/arete/relatorios/20261009_reprocessamento/PIL-NAVEGACAO-FRAMES-20261010.md`.
+
 ### 2.3 Dual layer (SA + Agêntico)
 - Ambos HI-FI matplotlib costumam ser `viewBox="0 0 W H"` → classe **`fv-sync-vb` / `pil-sync-vb`** e **mesmo viewBox** no pan/zoom.
 - Proposta CAD com viewBox distinto: sincronizar **relativamente** (razão de zoom + offset normalizado) — ver `applyAgentRelative` no FV.

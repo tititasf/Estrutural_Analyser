@@ -11,6 +11,48 @@ def _entry(length, dim="14/50"):
     return entry
 
 
+def test_current_sa_endpoint_adjustments_apply_once_to_each_physical_segment():
+    from copy import deepcopy
+    rows = [_entry(100), _entry(80)]
+    rows[1]['points'] = [[100, 0], [180, 0]]
+    for row, values in zip(rows, ((0., -4.), (11., 4.))):
+        row['lv_cell'] = dict(rules='guia_lv_cells_v12_endpoint_owner_rules',
+                              adjustment_start=values[0], adjustment_end=values[1])
+    beam = dict(name='V1', links={
+        'viga_a_seg_1_comprimento_total': dict(seg_side_a=[rows[0]]),
+        'viga_a_seg_2_comprimento_total': dict(seg_side_a=[rows[1]]),
+        'viga_a_seg_1_comp_total_passa': dict(seg_side_a=[rows[0]]),
+        'viga_a_seg_2_comp_total_passa': dict(seg_side_a=[rows[1]])})
+    before = deepcopy(beam)
+    contracts = build_lv_generation_contracts(beam)
+    for behavior in ('Para', 'Passa'):
+        panels = contracts[behavior]['A']['panels']
+        lengths = [sum(p['width'] for p in panels if p['physical_segment_index'] == i) for i in (1, 2)]
+        assert lengths == [96., 95.]
+    assert beam == before
+
+
+def test_headless_attaches_contracts_to_fundacao_beams_and_regular_beams():
+    from scripts.arete.headless_sa_analise import _attach_lv_generation_contracts
+    from copy import deepcopy
+    beams = [dict(name=name, links={
+        'viga_a_seg_1_comprimento_total': {'seg_side_a': [_entry(100)]},
+        'viga_b_seg_1_comprimento_total': {'seg_side_b': [_entry(100)]},
+        'viga_a_seg_1_comp_total_passa': {'seg_side_a': [_entry(100)]},
+        'viga_b_seg_1_comp_total_passa': {'seg_side_b': [_entry(100)]},
+    }) for name in ('VF202', 'vf203', 'V301', 'V301A', 'P1', 'VF')]
+    originals = deepcopy(beams)
+    assert _attach_lv_generation_contracts(beams, [], '13_PAV') == 4
+    for beam, original in zip(beams[:4], originals[:4]):
+        assert beam['links'] == original['links']
+        for behavior in ('Para', 'Passa'):
+            for side in ('A', 'B'):
+                contract = beam['lv_generation_contracts'][behavior][side]
+                assert contract['panels']
+                assert contract['geometry_length'] == 100
+    assert beams[4:] == originals[4:]
+
+
 def _inverted_context(end=100):
     return {'physical_entries': [{
         'beam': 'V330', 'pairs': [{'start': [0, 0], 'end': [end, 0]}],
@@ -51,6 +93,35 @@ def test_inverted_lateral_gap_blocks_common_depth_fallback():
     assert contract['panels'] == []
     assert contract['geometry_length'] == 100.
     assert contract['vertical_pending']
+
+
+def test_passa_confirms_terminal_pillar_span_without_mutating_source():
+    from copy import deepcopy
+    rows = [_entry(90, '19/71'), _entry(10, '19/71')]
+    rows[1]['points'] = [[90,0],[100,0]]
+    for row in rows:
+        row['lv_cell'] = {'depth':71, 'pillar_openings':[{'name':'P1'}]}
+    beam = {'name':'V330', 'links':{
+        f'viga_a_seg_{i}_comp_total_passa':{'seg_side_a':[row]}
+        for i,row in enumerate(rows,1)}}
+    context = _inverted_context(80)
+    before = deepcopy((beam, context))
+    result = build_lv_generation_contracts(beam, section_context=context,
+        pillar_bboxes={'P1':(80,-19,100,0)})['Passa']['A']
+    assert result['generation_ready'] and result['geometry_length'] == 100
+    assert result['total_length'] == 100
+    assert any(p['section_contract'].get('pillar_coverage') for p in result['panels'])
+    assert (beam,context) == before
+    # Neither a name alone, nor a non-touching pillar can establish coverage.
+    for boxes in ({}, {'P1':(85,-19,100,0)}):
+        blocked = build_lv_generation_contracts(beam, section_context=context,
+            pillar_bboxes=boxes)['Passa']['A']
+        assert not blocked['generation_ready'] and not blocked['panels']
+    for row in rows:
+        row['lv_cell']['depth'] = 120
+    blocked = build_lv_generation_contracts(beam, section_context=context,
+        pillar_bboxes={'P1':(80,-19,100,0)})['Passa']['A']
+    assert not blocked['generation_ready']
 
 
 def test_inverted_pending_inventory_retains_every_uncovered_segment():

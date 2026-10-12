@@ -29,6 +29,31 @@ def test_pending_lateral_profiles_are_reported_as_failed_not_zero_missing(tmp_pa
         assert (tmp_path / 'contracts_lv' / f'LV-{behavior}' / 'V330_A.json').exists()
 
 
+def test_missing_measure_in_one_beam_does_not_abort_other_beams(tmp_path, monkeypatch):
+    import json
+    from copy import deepcopy
+    import src.core.vigas_drawing_config as config
+    def beam(name):
+        sides={side:{'beam_name':name,'side':side,'panels':[{'width':100}],
+                      'structural_segments':[]} for side in ('A','B')}
+        return {'name':name,'lv_generation_contracts':{'Para':sides}}
+    def prepare(sides, **kwargs):
+        if sides['A']['beam_name']=='V301':
+            raise ValueError('A.L320.level: nível ausente')
+        return deepcopy(sides)
+    monkeypatch.setattr(config,'prepare_lv_sources',prepare)
+    monkeypatch.setattr(runner,'_run_n3_subprocess_tasks',lambda *a,**k:([],[]))
+    def draw(*args):
+        args[1].write_text('generated')
+    monkeypatch.setattr('scripts.arete.lv_n3_cut_draw.generate_local_sections',draw)
+    monkeypatch.setattr('scripts.arete.lv_n3_cut_draw.generate_local_panels',draw)
+    generated,failed=runner._generate_lv_n3_nova_previews(tmp_path,[beam('V301'),beam('V302')],tmp_path/'dxf')
+    assert failed==['V301_Para']
+    assert len(generated)==6 and all(label.startswith('V302_Para_') for label in generated)
+    pending=json.loads((tmp_path/'contracts_lv/LV-PARA/V301_A.json').read_text(encoding='utf8'))
+    assert pending['vertical_pending']=='A.L320.level: nível ausente'
+
+
 def test_granular_context_keeps_selected_geometry_and_adds_only_incident_spans():
     from copy import deepcopy
     selected = {'beam_name': 'V330', 'points': [[10, 0], [10, 100]],
@@ -47,7 +72,7 @@ def test_granular_context_keeps_selected_geometry_and_adds_only_incident_spans()
     assert records == before
 
 
-def test_inverted_preview_routes_corte_to_local_adapter_and_keeps_side_generator(tmp_path, monkeypatch):
+def test_inverted_preview_routes_all_views_to_local_adapters(tmp_path, monkeypatch):
     section = {'beam_type': 'inverted'}
     sides = {side: {'panels': [{'width': 100}], 'structural_segments': [
         {'section_contract': section}]} for side in ('A', 'B')}
@@ -55,16 +80,25 @@ def test_inverted_preview_routes_corte_to_local_adapter_and_keeps_side_generator
     calls = []
 
     def local(contracts, target, mode, behavior):
-        assert contracts == sides
+        assert contracts['A']['structural_segments'] == sides['A']['structural_segments']
+        assert contracts['A']['assembly_variant'] in ('gradeadas','sarrafeadas')
         target.write_text('adapter called')
         calls.append((mode, behavior))
 
     def subprocesses(tasks, **kwargs):
-        assert [task[1][task[1].index('--view')+1] for task in tasks] == ['A', 'B']
+        assert tasks == []
         return [task[0] for task in tasks], []
 
+    def panels(contracts, target, side, mode, behavior):
+        assert contracts[side]['structural_segments'] == sides[side]['structural_segments']
+        assert contracts[side]['assembly_variant'] in ('gradeadas','sarrafeadas')
+        target.write_text('local panels called')
+        calls.append((mode, behavior, side))
+
     monkeypatch.setattr('scripts.arete.lv_n3_cut_draw.generate_local_sections', local)
+    monkeypatch.setattr('scripts.arete.lv_n3_cut_draw.generate_local_panels', panels)
     monkeypatch.setattr(runner, '_run_n3_subprocess_tasks', subprocesses)
     generated, failed = runner._generate_lv_n3_nova_previews(tmp_path, [beam], tmp_path/'dxf')
-    assert generated == ['V330_Para_CORTE', 'V330_Para_VIEW_A', 'V330_Para_VIEW_B']
-    assert failed == [] and calls == [('NOVA', 'Para')]
+    assert generated == [f'V330_Para_{view}_{kind}' for kind in ('gradeadas','sarrafeadas')
+                         for view in ('CORTE','VIEW_A','VIEW_B')]
+    assert failed == [] and calls == [('NOVA', 'Para'), ('NOVA', 'Para', 'A'), ('NOVA', 'Para', 'B')]*2

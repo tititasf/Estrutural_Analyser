@@ -3,6 +3,16 @@
   var drafts = Object.create(null);
   var labels = {sa:'SA', c1:'Camada 1', c2:'Camada 2', c3:'Camada 3', n3:'N3'};
   function esc(value) { return String(value || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  window.confirmQaTestRun = function (layer, classe, itemCount) {
+    var cLayer = String(layer || '').toUpperCase().replace(/^L/, 'C');
+    var scope = itemCount === 1 ? '1 item' : String(itemCount || 0) + ' itens';
+    var confirmation = window.prompt(
+      'Revisão agentiva ' + cLayer + ' · ' + String(classe || '').toUpperCase() + ' · ' + scope + '\n' +
+      'Desativado para uso normal; disponível apenas para testes.\n' +
+      'Digite CONFIRMO para iniciar esta rodada.'
+    );
+    return String(confirmation || '').trim().toLowerCase() === 'confirmo';
+  };
   function api(url, method, body) {
     return fetch(url, {method:method || 'GET', cache:'no-store', headers:{'Content-Type':'application/json'},
       body:body ? JSON.stringify(body) : undefined}).then(function(r) {
@@ -17,7 +27,7 @@
     var available=true;
     root.innerHTML='<div><strong>QA agentivo e Humano</strong><span>'+
       (available ? 'Cada revisão recebe as notas humanas salvas. Confiança declarada pelo agente; ainda não calibrada com acertos reais.' : 'Anotações disponíveis. A fila de revisão desta classe ainda não está integrada.')+
-      '</span></div><div class="fv-qa-version-grid">'+Object.keys(labels).map(function(key,index) {
+      '</span></div><div class="human-qa-disabled-notice" role="note">Desativado para uso normal; disponível apenas para testes. Digite CONFIRMO para cada execução.</div><div class="fv-qa-version-grid">'+Object.keys(labels).map(function(key,index) {
         var review=index>0 && index<4;
         return '<article class="fv-qa-version"><button type="button" '+
           (review && available ? 'data-human-review="L'+index+'" disabled' : 'disabled')+
@@ -98,10 +108,13 @@
     save.addEventListener('click',function() { saveNotes().catch(function(e) { message('Falha ao salvar: '+e.message,true); }); });
     root.querySelectorAll('[data-human-review]').forEach(function(button) {
       button.addEventListener('click',function() {
-        var layer=button.dataset.humanReview; button.disabled=true;
+        var layer=button.dataset.humanReview;
+        if (!window.confirmQaTestRun || !window.confirmQaTestRun(layer, options.classe, 1)) return;
+        button.disabled=true;
         message('Salvando notas e enfileirando revisão '+layer+'…');
         saveNotes().then(function() { return api(base+'/qa-agentico','POST',{
-          items:[options.item], classe:options.classe, pavimento:options.pavimento, layer:layer, behavior:options.behavior || 'para'});
+          items:[options.item], classe:options.classe, pavimento:options.pavimento, layer:layer,
+          behavior:options.behavior || 'para', confirmacao:'confirmo'});
         }).then(function(round) {
           function poll() {
             if (!root.isConnected) return;

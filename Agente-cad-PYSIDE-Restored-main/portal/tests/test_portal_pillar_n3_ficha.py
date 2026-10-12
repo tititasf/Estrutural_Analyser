@@ -452,6 +452,42 @@ def test_n3_recebe_dimensao_atual_do_sa_e_preserva_ajuste_humano():
     assert separate["faces"]["B"]["slabs"][0]["height"] == 16
 
 
+def test_physical_contact_does_not_promote_fallback_level_and_keeps_zero():
+    interval={'left_distance_cm':0,'right_distance_cm':60,'width_cm':40,
+              'thickness_cm':10,'level_m':None,'region_ids':[],'conflict':False}
+    for status, expected in [('fallback',None),('conflict',None),('sa',0.0)]:
+        ficha={'faces':{'B':{'panels':[],'openings':{}}}}
+        robot={'nivel_chegada_abs':0,'_sa_mode_contract':{'altura_pilar':{'nivel_chegada_abs':99},'faces':{}}}
+        abcd={'faces':{'B':{'lajes':[{'nome':'L','nivel':0,'nivel_status':status,'_contact_intervals':[interval]}]}}}
+        _anexar_lajes_n3(ficha,robot,abcd)
+        assert ficha['source']['pillar_top_level']==0
+        assert ficha['faces']['B']['slabs'][0]['level']==expected
+
+
+def test_multiple_slabs_keep_independent_identity_geometry_and_level():
+    from portal.app.routers.n1_routes import _anexar_lajes_n3
+    from src.core.pillar_n3_ficha import validate_ficha
+    ficha = {'faces': {'B': {'panels': [], 'openings': {}, 'slabs': [
+        {'slab_name':'L1','slab_dimension':'10','left_distance':0,'right_distance':60,
+         'width':40,'height':12,'level':852.0,'top_distance':19},
+        {'slab_name':'L2','slab_dimension':'12','left_distance':60,'right_distance':0,
+         'width':40,'height':14,'level':851.8,'top_distance':39},
+    ]}}}
+    robot = {'nivel_chegada_abs':852.19, '_sa_mode_contract': {'faces': {'B': {
+        'fontes_n1': {'lajes':['Laje: L1 · esp: 10cm', 'Laje: L2 · esp: 12cm']},
+        'espessura_laje':10,'vazio_laje_cm':12,'nivel_laje':852.0,
+    }}}}
+    abcd = {'faces': {'B': {'lajes': [{'nome':'L1','dim':'10'}, {'nome':'L2','dim':'12'}]}}}
+    _anexar_lajes_n3(ficha, robot, abcd)
+    contacts = ficha['faces']['B']['slabs']
+    assert [(c['slab_name'],c['slab_dimension'],c['height'],c['level']) for c in contacts] == [
+        ('L1','10',12,852.0),('L2','12',14,851.8)]
+    # Validation must retain each identity for subsequent regeneration.
+    ficha.update(dimensions={'width':20,'length':100,'height':280},schema_version=1)
+    clean = validate_ficha(ficha)
+    assert [c['slab_name'] for c in clean['faces']['B']['slabs']] == ['L1','L2']
+
+
 @pytest.mark.asyncio
 async def test_lajes_por_face_persistem_separadas_dos_paineis(settings):
     async with _client(settings) as (client, obra_id, _obra_dir):
@@ -548,12 +584,14 @@ async def test_item_n1_pilar_expoe_somente_resumo_visual_canonico(settings):
         )
         assert response.status_code == 200
         resumo = response.json()["resumo_pilar_n1"]
+        # A altura do robô N3 não constitui referência absoluta consumida pelo SA.
+        # Esta fixture não contém pré-contexto nem override humano de níveis.
         assert resumo == {
             "classificacao": "Pilar",
             "orientacao": "—",
-            "nivel_chegada": 0.0,
-            "nivel_saida": 280.0,
-            "pe_direito": 280.0,
+            "nivel_chegada": None,
+            "nivel_saida": None,
+            "pe_direito": None,
         }
 
 

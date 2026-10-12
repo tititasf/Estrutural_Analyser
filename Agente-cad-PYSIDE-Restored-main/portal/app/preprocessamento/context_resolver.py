@@ -85,14 +85,19 @@ def pin_context(*, obra_dir, obra_id, pavimento, project_id, dxf_path):
     if changed_sources(obra_dir, package["sources"]):
         return None, "stale_context"
     convention, reason = convention_input(package)
-    if not convention and not item_level_input(package):
+    item_levels = item_level_input(package)
+    reference = level_reference_input(package)
+    if not convention and not item_levels and not reference:
         return None, reason
-    reason = 'accepted' if convention else 'accepted_item_levels'
+    reason = ('accepted' if convention else 'accepted_item_levels' if item_levels
+              else 'accepted_floor_reference')
+    from .knowledge_qa import retrieve_context_qa
+    knowledge_qa = retrieve_context_qa(obra_dir, package)
     payload = {"schema": "cad.sa.context/v1", "context_run_id": floor["run_id"],
                "scope": package["scope"], "project_id": project_id,
                "obra_dir": str(obra_dir), "source_dxf": str(Path(dxf_path).resolve()),
                "package_hash": digest(package), "package": package,
-               "convention": convention, "reason": reason}
+               "convention": convention, "reason": reason, "knowledge_qa": knowledge_qa}
     payload["context_hash"] = digest(payload)
     path = obra_dir / "preprocessamento/v1/sa_inputs" / f"{uuid.uuid4().hex}.json"
     _write_atomic(path, payload)
@@ -124,17 +129,24 @@ def load_context(path, *, expected_hash, obra_dir, pavimento, project_id, dxf_pa
         if _revision(Path(dxf_path)) != scope["source_revision"] or changed_sources(Path(obra_dir), package["sources"]):
             raise RunnerError("stale_context")
         convention, reason = convention_input(package)
-        if (not convention and not item_level_input(package)) or convention != payload["convention"]:
+        item_levels = item_level_input(package)
+        reference = level_reference_input(package)
+        if (not convention and not item_levels and not reference) or convention != payload["convention"]:
             raise RunnerError(reason if not convention else "context_translation_mismatch")
+        from .lateral_level_consumption import parcel_input
         return copy.deepcopy(convention), {
             "status": "accepted", "context_run_id": payload["context_run_id"],
             "context_hash": expected_hash, "package_hash": payload["package_hash"],
             "scope": scope, "sources": package["sources"], "convention": convention,
-            "level_reference": level_reference_input(package),
-            "item_levels": item_level_input(package),
+            "level_reference": reference,
+            "knowledge_qa": payload.get("knowledge_qa"),
+            "item_levels": item_levels,
+            "lateral_level_parcels": parcel_input(package),
             "beam_sections": copy.deepcopy(package.get('beam_sections') or {}),
+            "local_pillar_details": copy.deepcopy(package.get('local_pillar_details') or {}),
             "obra_dir": str(obra_dir),
-            "cache": "disabled", "reason": "validated_source_signature_to_raw_term",
+            "cache": "disabled", "reason": ("validated_source_signature_to_raw_term" if convention
+                else "validated_item_levels" if item_levels else "validated_floor_reference"),
         }
     except (OSError, ValueError, KeyError, TypeError, RunnerError) as exc:
         rejected["reason"] = str(exc)
@@ -150,6 +162,11 @@ def consumption_evidence(runner, receipt):
              if call.get('used_external_convention')]
     result['consumer_calls'] = calls
     result['level_consumer_calls'] = copy.deepcopy(getattr(runner, '_sa_level_consumer_calls', []))
+    from .adapters.local_pillar_details import crosscheck_sa_details
+    result['pillar_detail_crosscheck'] = crosscheck_sa_details(
+        result.pop('local_pillar_details', {}),
+        getattr(runner, 'pavimento_pillar_report', {}) or {},
+        result.get('scope', {}).get('source_revision'))
     frozen_sections = result.pop('beam_sections', {})
     if frozen_sections:
         from ..structural_cut_overlay import runner_sections, compare_sections

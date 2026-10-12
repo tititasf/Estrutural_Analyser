@@ -31,6 +31,14 @@ def _make_fv_preview(path: Path, x0: float = 1000.0, add_dim: bool = False) -> N
     doc.saveas(path)
 
 
+def _write_production_manifest(preview: Path, *, failed=()) -> None:
+    """A production preview includes its current success/failure ledger."""
+    (preview.parent.parent.parent / "production_manifest.json").write_text(
+        json.dumps({"visual_mode": "NOVA", "n3": {"fv_failed": list(failed)}}),
+        encoding="utf-8",
+    )
+
+
 def _make_lj_preview(path: Path, x0: float = 0.0, y0: float = 0.0) -> None:
     doc = ezdxf.new("R2018")
     msp = doc.modelspace()
@@ -166,6 +174,8 @@ def test_assemble_fv_n5_reads_latest_production_sa_run(tmp_path):
     latest = production / "20260914_120000_2" / "n3" / "dxf" / "FV_preview_V8.dxf"
     _make_fv_preview(old, x0=100)
     _make_fv_preview(latest, x0=800)
+    _write_production_manifest(old)
+    _write_production_manifest(latest)
 
     assert "V8" in _discover_item_ids(obra, "FV", "13_PAV")
     assert _find_n3_preview(obra, "FV", "V8", "13_PAV") == latest
@@ -174,6 +184,18 @@ def test_assemble_fv_n5_reads_latest_production_sa_run(tmp_path):
     assert result.ok_count == 1
     assert result.missing_count == 0
     assert result.items[0].source == str(latest)
+
+
+def test_failed_current_fv_item_does_not_reuse_older_success(tmp_path):
+    obra = tmp_path / "Obra_TESTE"
+    production = obra / "Fase-6_Execucao_CAD" / "production_sa" / "13_PAV"
+    old = production / "20260913_120000_1" / "n3" / "dxf" / "FV_preview_V8.dxf"
+    latest = production / "20260914_120000_2" / "n3" / "dxf" / "FV_preview_V8.dxf"
+    _make_fv_preview(old, x0=100)
+    _make_fv_preview(latest, x0=800)
+    _write_production_manifest(old)
+    _write_production_manifest(latest, failed=["V8"])
+    assert _find_n3_preview(obra, "FV", "V8", "13_PAV") is None
 
 
 def test_assemble_fv_n5_prefers_web_production_over_legacy_root(tmp_path):
@@ -186,6 +208,7 @@ def test_assemble_fv_n5_prefers_web_production_over_legacy_root(tmp_path):
     )
     _make_fv_preview(legacy, x0=100)
     _make_fv_preview(current, x0=800)
+    _write_production_manifest(current)
 
     assert _find_n3_preview(obra, "FV", "V8", "13_PAV") == current
     result = assemble_n5(obra, "FV", item_ids=["V8"], pavimento="13_PAV")
@@ -211,6 +234,7 @@ def test_assemble_lj_n5_prefers_web_production_geometry_over_legacy_root(tmp_pat
         body_height=210,
         downward_step=35,
     )
+    _write_production_manifest(current)
 
     assert "L312" in _discover_item_ids(obra, "LJ", "13_PAV")
     assert _find_n3_preview(obra, "LJ", "L312", "13_PAV") == current
@@ -242,7 +266,7 @@ def _make_sarrafo_preview(path: Path, layer: str = "SARR_2.2x7") -> None:
     doc.saveas(path)
 
 
-def test_assemble_pl_n5_accepts_zone_previews_and_applies_ini(tmp_path):
+def test_assemble_pl_n5_accepts_zone_previews_and_preserves_ini(tmp_path):
     obra = tmp_path / "Obra_TESTE"
     fase6 = obra / "Fase-6_Execucao_CAD"
     mode_root = fase6 / "n3_modes" / "INI" / "pilares"
@@ -254,9 +278,17 @@ def test_assemble_pl_n5_accepts_zone_previews_and_applies_ini(tmp_path):
         ("para", "GRADES"),
     ]
     sources = []
-    for semantic, part in ordered:
+    for index, (semantic, part) in enumerate(ordered):
         source = mode_root / semantic / f"PL_{part}_preview_P1.dxf"
         _make_sarrafo_preview(source)
+        doc = ezdxf.readfile(source)
+        list(doc.modelspace().query('LINE'))[0].dxf.end = (100 + index, 0, 0)
+        apply_visual_mode(doc, "INI", "PL")
+        if part == "GRADES":
+            doc.modelspace().add_text("P1.A", dxfattribs={
+                "layer": "NOMENCLATURA", "insert": (-10, 0), "height": 5,
+            })
+        doc.saveas(source)
         sources.append(source)
 
     result = assemble_n5(
@@ -266,8 +298,9 @@ def test_assemble_pl_n5_accepts_zone_previews_and_applies_ini(tmp_path):
     assert result.ok_count == 1
     assert result.items[0].source.split(";") == [str(path) for path in sources]
     out_doc = ezdxf.readfile(str(result.output_path))
-    mlines = list(out_doc.modelspace().query("MLINE"))
-    assert len(mlines) == 5
+    mlines = [e for e in out_doc.modelspace().query("MLINE") if e.dxf.style_name == "SAR3"]
+    # Each PARA/PASSA cell includes CIMA plus its own elevation and grade.
+    assert len(mlines) == 6
     assert all(entity.dxf.scale_factor == 7.0 for entity in mlines)
     style = out_doc.mline_styles.get("SAR3")
     assert style.dxf.flags & style.FILL
@@ -479,8 +512,21 @@ def test_assemble_fv_n5_preserves_existing_mline(tmp_path):
     source = run / "n3" / "dxf" / "FV_preview_V4.dxf"
     _make_sarrafo_preview(source)
     source_doc = ezdxf.readfile(str(source))
+    source_doc.modelspace().add_lwpolyline(
+        [(0, 0), (100, 0), (100, 20), (0, 20)], close=True,
+        dxfattribs={"layer": "Paineis"},
+    )
     apply_visual_mode(source_doc, "INI", "FV")
+    from scripts.visual_modes import _add_solid_mline, _ensure_sar3_style
+    _ensure_sar3_style(source_doc)
+    _add_solid_mline(source_doc.modelspace(), [(0, 0), (100, 0)], "SARR_2.2x7", 7)
     source_doc.saveas(source)
+    source_doc.saveas(source.with_name("FV_preview_V4_seg0.dxf"))
+    contracts = run / "n3" / "contracts"
+    contracts.mkdir()
+    (contracts / "V4_fundo.json").write_text(json.dumps({
+        "segments_rich": [{"length": 100, "width": 20}],
+    }), encoding="utf-8")
     (run / "production_manifest.json").write_text(
         json.dumps({"visual_mode": "INI"}), encoding="utf-8"
     )

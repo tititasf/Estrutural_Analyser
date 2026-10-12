@@ -7,13 +7,7 @@
 <section aria-labelledby="n5-h">
   <h2 id="n5-h">Liberar N5 — DXF consolidado por classe e pavimento</h2>
 
-  {% if not validacao_concluida %}
-  <div class="faixa faixa-aviso" role="alert">
-    <span aria-hidden="true">⚠</span> Conclua a validação (etapa 4) para liberar o N5.
-    <a href="/app/obras/{{ obra.id }}?etapa=4">Ir para validação</a>
-  </div>
-  {% else %}
-  <p class="subtitulo">Sua validação está concluída. Você pode baixar os arquivos.</p>
+  <p class="subtitulo">Gere e baixe o N5 quando os desenhos N3 estiverem completos. A revisão humana é opcional.</p>
 
   {# R9 — aviso fixo, não ignorável, ANTES dos botões #}
   <div class="n5-aviso" role="note">
@@ -21,7 +15,7 @@
     <p style="margin:0">
       <strong>“CERTIFICADO”</strong> = o motor daquela classe passou nos gates de
       qualidade do Arete. <strong>“BETA”</strong> = ainda em treino: confira o DXF
-      antes de usar em obra. Você validou <em>sua</em> parte — isso não certifica o motor.
+      antes de usar em obra. Gerar ou revisar os arquivos não certifica o motor.
     </p>
   </div>
 
@@ -64,7 +58,6 @@
   <p class="muted" style="margin-top:12px">
     Classes: PL = Pilar · LJ = Laje · LV = Lat. Viga · FV = Fundo Viga
   </p>
-  {% endif %}
 </section>
 
 <div id="n5-resultado" role="status" aria-live="polite"></div>

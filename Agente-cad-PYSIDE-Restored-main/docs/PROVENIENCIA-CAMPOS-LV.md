@@ -1,5 +1,7 @@
 # Proveniência de campos LV — contrato completo
 
+> **NOVA/LV — padrão aprovado em 2026-10-05:** para o desenho N3 AB e Visão Corte, prevalece a [especificação vigente](PADRAO-NOVA-LATERAIS-APROVADO.md). Para/Passa conservam contratos independentes; gradeadas/sarrafeadas conservam artefatos independentes. As descrições do motor anterior abaixo continuam como referência de interpretação/contrato e não substituem as regras visuais aprovadas. Integração local em validação; geração publicada N3/N5 ainda não comprovada.
+
 **Classe:** Laterais de Viga (LV)  
 **Estado:** `validation_ready` via `LvEvidenceAuditor` (`scripts/arete/qa_fv_lv_adapters.py`)  
 **Matriz:** 4 contratos independentes: `A_PARA`, `B_PARA`, `A_PASSA`, `B_PASSA`  

@@ -6158,6 +6158,7 @@ class MainWindow(QMainWindow):
             valid_layers=None,
             search_radius=learned_contour_radius,
             teacher_dims=None,
+            floor_name=getattr(self, 'current_project_name', None) or self._current_pavement_name(),
         )
         self.slabs_found.sort(key=nat_key)
         self.log(f"🔎 Lajes detectadas: {len(self.slabs_found)} (Busca por textos L#)")
@@ -6484,6 +6485,9 @@ class MainWindow(QMainWindow):
             b['id_item'] = f"{i+1:02}"
             b['id_num'] = i+1
             b['project_id'] = self.current_project_id
+
+        from src.core.cut_declared_section import refresh_declared_sections
+        refresh_declared_sections(self)
 
         # 1.0b Finalizar Lista de Vigas Hierárquica
         self._populate_beam_tree(self.list_beams, self.beams_found, "lateral")
@@ -13205,14 +13209,21 @@ class MainWindow(QMainWindow):
             if not isinstance(link, dict):
                 continue
             raw_candidates.append(('label', link.get('text'), bool(link.get('validated')) or 'label' in level_valid_slots))
-        if include_neighbor_context:
-            for slot in ('neighbor_north', 'neighbor_east', 'neighbor_west', 'neighbor_south'):
-                for link in neighbor_links.get(slot, []) or []:
-                    if isinstance(link, dict):
-                        raw_candidates.append((slot, link.get('text'), bool(link.get('validated')) or slot in cut_valid_slots))
+        # A neighbour's altitude (or a cut's local dimension) is not this slab's
+        # altitude. Context inference must first resolve the relation/delta and
+        # publish its provenance; copied neighbour text cannot seed that inference.
+        # Keep the argument for callers, but never promote those links to own level.
 
         best = None
         for kind, raw, is_human in raw_candidates:
+            # A rejected automatic reading cannot become independent evidence
+            # merely by being copied to a field, link or neighbouring slab.
+            if not is_human and (
+                ((slab.get('_nivel_provenance') or {}).get('needs_human_review')
+                 and (slab.get('_nivel_provenance') or {}).get('provenance') != 'sem_evidencia_local')
+                or (slab.get('level_inference') or {}).get('status') in ('needs_review', 'blocked')
+            ):
+                continue
             value = self._parse_slab_level_value(raw)
             if value is None:
                 continue
@@ -14194,7 +14205,13 @@ class MainWindow(QMainWindow):
                     # e o valor é compatível com altura de viga (20-600 cm)
                     _in_box = (_tx0 - 80 <= float(_lpos[0]) <= _tx1 + 80 and
                                _ty0 - 30 <= float(_lpos[1]) <= _ty1 + 30)
-                    if _in_box and 20.0 <= _lv_f <= 600.0:
+                    from src.core.section_dimension_evidence import partial_height_dimension
+                    _partial_height = partial_height_dimension(
+                        pts, direction, _label_txt,
+                        (getattr(self, 'dxf_data', None) or {}).get('lines') or [])
+                    if _partial_height:
+                        link.setdefault('cut_dimension_debug', {})['partial_height_label'] = _partial_height
+                    if _in_box and 20.0 <= _lv_f <= 600.0 and not _partial_height:
                         ficha['beam_height_label'] = str(_lv_f)
                         _old_bh_str = ficha.get('beam_height')
                         # Override beam_height com o valor anotado (mais preciso).
@@ -14303,6 +14320,39 @@ class MainWindow(QMainWindow):
             link['section_semantics'] = _inverted
             # N1 fields remain immutable. Conversion reconstructs measured
             # regional profiles from this derived context on a separate copy.
+
+        if link.get('source') == 'connected_closed_contours' and link.get('is_inferred'):
+            # These are complete, actual-size closed pieces. A nearby dimension
+            # can describe only the wall below a flange (e.g. 75 of a 120 beam).
+            # Preserve the measured full outline and its relative flange levels.
+            expected_width = float(ficha.get('beam_bottom_dim') or 0)
+            options = [(d, self._parse_cut_poly_sections(pts, d))
+                       for d in ('Norte', 'Sul', 'Leste', 'Oeste')]
+            options = [(d, m) for d, m in options
+                       if m.get('own_slab_h', 0) > 0 and
+                       m.get('beam_height', 0) > m.get('bw', 0) and
+                       abs(m.get('bw', 0)-expected_width) <= .5]
+            slab_center = self._bbox_center_tuple(self._points_bbox_tuple(slab.get('points') or []))
+            def toward_owner(option):
+                d, m = option
+                delta = slab_center[1]-center[1] if d in ('Norte', 'Sul') else slab_center[0]-center[0]
+                own_positive = d in ('Sul', 'Oeste')
+                return (delta > 0) == own_positive
+            measured = next((m for d, m in options if toward_owner((d, m))), {})
+            if measured.get('beam_height', 0) > 0:
+                ficha['beam_height'] = str(measured['beam_height'])
+                ficha['beam_bottom_dim'] = str(measured['bw'])
+                ficha['scale_v'] = '1.0'
+                for prefix, key in [('own', 'own'), ('neighbor', 'neigh')]:
+                    ficha[prefix+'_dist_top'] = str(measured[key+'_dist_topo'])
+                    ficha[prefix+'_dist_bottom'] = str(measured[key+'_dist_fundo'])
+                ficha['own_slab_height'] = str(measured['own_slab_h'])
+                ficha['neigh_slab_height'] = str(measured['neigh_slab_h'])
+                link['measurement_source'] = 'connected_closed_contours'
+
+        # Altura declarada só vence o desenho com vínculo à faixa e ao fundo próprios.
+        from src.core.cut_declared_section import apply_declared_section
+        apply_declared_section(self, link, geo, direction)
 
         # --- Campos com painel (2 cm), sarrafo de fundo (+4 cm) e fórmulas explicativas ---
         # A distância TOPO e FUNDO têm como referência a ALTURA DA LAJE (H_laje),
@@ -15126,6 +15176,37 @@ class MainWindow(QMainWindow):
                     best = (uniq, pid)
         if best:
             return best[0], best[1]
+        # Circular columns have no POLYLINE. Require a pillar layer and the
+        # same physical size limits as polygon columns; grid dots are excluded.
+        import math
+        circles = (getattr(self, 'dxf_data', None) or {}).get('circles', []) or []
+        if not positions:
+            return None, None
+        candidates = []
+        for circle in circles:
+            if id(circle) in claimed_ids:
+                continue
+            layer = str(circle.get('layer') or '').upper()
+            radius = float(circle.get('radius') or 0)
+            if not any(token in layer for token in ('PILAR', 'COLUMN', 'PILLAR')):
+                continue
+            if not 80 <= math.pi * radius ** 2 <= 60000:
+                continue
+            cx, cy = circle['center']
+            distance = min(max(0, math.hypot(ax-cx, ay-cy)-radius) for ax, ay in positions)
+            if distance <= max_dist:
+                candidates.append((distance, circle))
+        candidates.sort(key=lambda pair: pair[0])
+        if candidates and (len(candidates) == 1 or candidates[1][0] > candidates[0][0] + 1.0):
+            circle = candidates[0][1]
+            cx, cy = circle['center']
+            radius = circle['radius']
+            # Inscribed polygon with a maximum sagitta of 0.05 drawing units.
+            count = max(32, math.ceil(math.pi / math.acos(max(-1, 1-0.05/radius))))
+            points = [(cx + radius*math.cos(2*math.pi*i/count),
+                       cy + radius*math.sin(2*math.pi*i/count)) for i in range(count)]
+            points.append(points[0])
+            return points, id(circle)
         return None, None
 
     def _enrich_pillar_report_with_beams(self, report: dict, beams: list) -> None:
@@ -15137,6 +15218,15 @@ class MainWindow(QMainWindow):
         reconcile_beam_fundo_facts(beams)
         self._recover_beam_corridors_for_report(report, beams)
         enrich_pillar_report_with_beams(report, beams)
+        source_path = getattr(self, 'current_dxf_path', None)
+        if source_path:
+            from src.core.pil_original_contact_identity import reconcile_original_contact_identity
+            self._pil_original_identity_changes = reconcile_original_contact_identity(
+                source_path, report, beams)
+            if self._pil_original_identity_changes:
+                import json
+                print('[PIL] original contact identity evidence: ' + json.dumps(
+                    self._pil_original_identity_changes, ensure_ascii=False), flush=True)
 
     def _recover_beam_corridors_for_report(self, report: dict, beams: list) -> None:
         """Mede o corredor físico de cada viga no par de paredes do DXF.
@@ -15176,6 +15266,8 @@ class MainWindow(QMainWindow):
                 continue
             name = str(beam.get("name") or "")
             corridor = repaired.get(name)
+            beam.pop("_recovered_corridor", None)
+            beam.pop("_measured_corridor", None)
             if corridor:
                 beam["_recovered_corridor"] = corridor
             medido = measured.get(name)
@@ -15237,6 +15329,19 @@ class MainWindow(QMainWindow):
                 if not str(_nm).endswith('__ALT'):
                     plan_names[_nm] = list(_entry.get('name_positions') or [])
 
+        # First association is retained as evidence; the second pass uses the
+        # source conventions and independent dimensions across the whole plan.
+        initial = {}
+        initial_claimed = set()
+        for name, positions in plan_names.items():
+            pts = list((linked_report.get(name) or {}).get('points') or [])
+            if not pts:
+                pts, source_id = self._find_pillar_geom_near_text(positions, initial_claimed)
+                if pts:
+                    initial_claimed.add(source_id)
+            initial[name] = pts or []
+        from src.core.pillar_geometry_association import reassociate
+        refined = reassociate(self.dxf_data or {}, plan_names, initial, self._is_pillar_like_polygon)
         result: dict = {}
         claimed_geom_ids: set = set()
 
@@ -15253,7 +15358,17 @@ class MainWindow(QMainWindow):
                     points = list(points)
                     source = 'name_proximity'
 
+            if name in refined:
+                points = list(refined[name]['points'])
+                source = 'source_convention_second_pass'
             entry = dict(linked or {})
+            if name in refined:
+                entry['_geometry_repaired'] = dict(method=source, **refined[name]['evidence'])
+                if initial.get(name) != points:
+                    entry['classification'] = 'INDETERMINADO'
+                    entry['ignore_in_beams'] = False
+                    entry['lajes'] = []
+                    entry.pop('orientation', None)
             entry.update({
                 'name': name,
                 'points': points or [],
@@ -15473,16 +15588,10 @@ class MainWindow(QMainWindow):
             # both physical slab polygons. The schematic top distances are
             # not an independent fallback for an inverted, broken web.
             return None
-        ficha = cut_link.get('ficha') or {}
-        try:
-            own_dt = float(ficha.get('own_dist_top') or 0)
-            neigh_dt = float(ficha.get('neighbor_dist_top') or 0)
-        except Exception:
+        from src.core.slab_level_inference import paired_cut_delta_cm, principal_cut_wings_match
+        if not principal_cut_wings_match(cut_link, slab, neighbor):
             return None
-        if own_dt == 0.0 and neigh_dt == 0.0:
-            return None
-        # delta positivo = esta laje está mais acima que a vizinha
-        return round(neigh_dt - own_dt, 2)
+        return paired_cut_delta_cm(cut_link, slab.get('name') or '', neighbor.get('name') or '')
 
     def _infer_slab_level_from_cut_deltas(self, slabs: list[Dict],
                                           level_sources: dict,
@@ -15501,6 +15610,14 @@ class MainWindow(QMainWindow):
                 continue
             if level_sources.get(slab.get('id') or slab.get('name')):
                 continue  # já tem nível por outro caminho
+            # Part A may have resolved the paired geometry after the source map
+            # was frozen. Preserve that result without adding it as a source for
+            # another slab in this pass (which would create circular support).
+            inference = slab.get('level_inference') or {}
+            if (inference.get('status') in ('inferred', 'confirmed')
+                    and inference.get('reason') == 'cut_view_paired_geometry_delta'
+                    and self._slab_level_source(slab, include_neighbor_context=False)):
+                continue
 
             cuts = self._slab_cut_links(slab)
             if not cuts:
@@ -15680,15 +15797,17 @@ class MainWindow(QMainWindow):
                 if is_human:
                     source_type = 'human_direct'
                     confidence = 1.0
-                elif kind == 'cut_view_delta':
+                elif (kind == 'cut_view_delta' or (
+                        inference.get('status') in ('inferred', 'confirmed')
+                        and str(inference.get('reason') or '').startswith('cut_view_'))):
                     source_type = 'cut_view_delta'
                     confidence = float(inference.get('confidence', 0.80))
-                elif kind in ('field', 'flat', 'label'):
-                    source_type = 'text_label'
-                    confidence = 0.90
                 elif inference.get('status') == 'inferred':
                     source_type = 'neighbor_inferred'
                     confidence = float(inference.get('confidence', 0.55))
+                elif kind in ('field', 'flat', 'label'):
+                    source_type = 'text_label'
+                    confidence = 0.90
                 else:
                     source_type = 'auto_linked'
                     confidence = 0.65
@@ -15813,27 +15932,16 @@ class MainWindow(QMainWindow):
                     lv_links = slab.get('links', {}).get('laje_nivel', {})
                     if isinstance(lv_links, dict):
                         lv_links['label'] = []
+                    # A rejected value must not survive only in the report.
+                    entry = lajes_report[name]
+                    entry.update(level=None, level_str='', confidence=0.0,
+                                 source_type='unknown')
                     cleared_slabs.append(slab)
 
                 if cleared_slabs:
                     # Re-infere: agora os slabs limpos são elegíveis para
                     # receberem nivel via delta de corte e consenso de vizinhos
                     self._infer_slab_levels_from_context(slabs)
-
-                    # Mapa de niveis válidos dos slabs sem warning (para fallback)
-                    valid_slab_positions: list[tuple[float, float, float]] = []
-                    for s in slabs:
-                        sn = s.get('name') or str(s.get('id') or id(s))
-                        e = lajes_report.get(sn)
-                        # Exclui suspeitos e os slabs que acabamos de limpar
-                        if not e or e.get('warnings') or s in cleared_slabs:
-                            continue
-                        lv = e.get('level')
-                        if lv is None or abs(lv - median_level) > 4.0:
-                            continue
-                        pos = s.get('pos')
-                        if pos:
-                            valid_slab_positions.append((pos[0], pos[1], lv))
 
                     for slab in cleared_slabs:
                         name = slab.get('name') or str(slab.get('id') or id(slab))
@@ -15858,24 +15966,8 @@ class MainWindow(QMainWindow):
                                 entry['warnings'] = []
                                 continue
 
-                        # Tentativa 2: proximidade espacial 2D — slab mais próximo
-                        # com nivel válido. Último recurso quando sem corte ou vizinho.
-                        own_pos = slab.get('pos')
-                        if own_pos and valid_slab_positions:
-                            ox, oy = own_pos
-                            best_lv: float | None = None
-                            best_dist = float('inf')
-                            for sx, sy, slv in valid_slab_positions:
-                                d = ((sx - ox) ** 2 + (sy - oy) ** 2) ** 0.5
-                                if d < best_dist:
-                                    best_dist = d
-                                    best_lv = slv
-                            if best_lv is not None:
-                                entry['level'] = best_lv
-                                entry['level_str'] = self._format_slab_level_value(best_lv)
-                                entry['source_type'] = 'spatial_proximity_fallback'
-                                entry['confidence'] = 0.40
-                                entry['warnings'] = []
+                        # Spatial proximity alone cannot establish altitude.
+                        # Keep unknown and the diagnostic when no source resolves it.
 
         # ── 3. Pilares ────────────────────────────────────────────────────────
         pr = pillar_report or {}
@@ -15950,7 +16042,25 @@ class MainWindow(QMainWindow):
         added_cuts = 0
         added_pillars = 0
         candidates = []
-        for item in self.dxf_data.get('polylines', []) or []:
+        from src.core.composite_cut_contours import composite_cut_contours
+        polylines = self.dxf_data.get('polylines', []) or []
+        composites = composite_cut_contours(polylines, self.dxf_data.get('texts') or [])
+        replaced_contours = [c['replaces_contour'] for c in composites if c.get('replaces_contour')]
+        consumed = {(c['layer'], tuple(tuple(p) for p in key))
+                    for c in composites for key in c['source_piece_keys']}
+        remaining = [p for p in polylines if
+                     (str(p.get('layer') or ''), tuple(sorted(set(tuple(q) for q in p.get('points') or []))))
+                     not in consumed]
+        # Peças que são miolo do encontro de vigas em planta (paredes seguem
+        # para fora de cada uma) não formam corte; continuam consumidas para
+        # não voltarem como candidatas isoladas.
+        from src.core.plan_corridor_cells import corridor_cell_pieces, plan_segments
+        _plan_segs = plan_segments(self.dxf_data)
+        _corridor = [c for c in composites if all(corridor_cell_pieces(c['source_piece_keys'], _plan_segs))]
+        composites = [c for c in composites if c not in _corridor]
+        # Inferência antiga do mesmo contorno sai junto (vínculo humano fica).
+        replaced_contours += [c['points'] for c in _corridor]
+        for item in composites + remaining:
             pts = item.get('points') or []
             if len(pts) < 5 or len(pts) > 24:
                 continue
@@ -15996,10 +16106,18 @@ class MainWindow(QMainWindow):
             for _e in existing:
                 if not isinstance(_e, dict):
                     continue
+                # Refresh only machine inference when a merged glyph was
+                # decomposed into independently dimensioned source bodies.
+                if _e.get('is_inferred') and any(
+                    self._same_cut_view_signature(_e, {'points': old})
+                    for old in replaced_contours
+                ):
+                    continue
                 _epts = _e.get('points') or []
                 _orig_epts = _e.get('original_pts') or _epts
                 # Rejeita entradas com pontos insuficientes para T (apenas se não validado)
-                if not _e.get('validated') and len(_epts) < 8 and len(_orig_epts) < 8:
+                min_points = 7 if _e.get('source') == 'connected_closed_contours' else 8
+                if not _e.get('validated') and len(_epts) < min_points and len(_orig_epts) < min_points:
                     continue
                 try:
                     _exs = [float(p[0]) for p in _epts]
@@ -16042,7 +16160,7 @@ class MainWindow(QMainWindow):
 
             for link in existing:
                 # Tenta completar o T com o retângulo companheiro (fundo do web).
-                if not link.get('extended_by_companion') and len(link.get('points') or []) >= 7:
+                if link.get('source') != 'connected_closed_contours' and not link.get('extended_by_companion') and len(link.get('points') or []) >= 7:
                     _ext = self._find_cut_view_web_extension(link.get('points') or [])
                     if _ext:
                         link['original_pts'] = list(link.get('points') or [])
@@ -16144,7 +16262,10 @@ class MainWindow(QMainWindow):
                     continue
             cut_count = 0
             pillar_count = 0
-            for dist, item, marker_kind in sorted(ranked, key=lambda x: x[0])[:10]:
+            for rank, (dist, item, marker_kind) in enumerate(sorted(ranked, key=lambda x: x[0])):
+                composite = item.get('source') == 'connected_closed_contours'
+                if rank >= 10 and not composite:
+                    continue
                 pts = item.get('points') or []
                 duplicate = False
                 probe = {'points': pts}
@@ -16162,7 +16283,7 @@ class MainWindow(QMainWindow):
                     continue
 
                 # Visão de corte (T) precisa de ao menos 8 pontos de contorno
-                if marker_kind != 'pillar' and len(pts) < 8:
+                if marker_kind != 'pillar' and len(pts) < (7 if composite else 8):
                     continue
 
                 if marker_kind == 'pillar':
@@ -16195,7 +16316,7 @@ class MainWindow(QMainWindow):
 
                 if has_validated_cut:
                     continue
-                if cut_count >= 4:
+                if cut_count >= 4 and not composite:
                     continue
                 new_link = {
                     'type': 'poly',
@@ -16203,12 +16324,14 @@ class MainWindow(QMainWindow):
                     'text': 'Visao de corte detectada',
                     'role': 'Cut_view_geom_auto',
                     'is_inferred': True,
-                    'source': 'geometry_near_slab_boundary',
+                    'source': item.get('source') or 'geometry_near_slab_boundary',
+                    'source_piece_count': item.get('source_piece_count'),
+                    'source_entity_handles': list(item.get('source_entity_handles') or []),
                     'distance_to_slab': round(float(dist), 3),
                     'layer': item.get('layer'),
                 }
                 # Completa o T com o retângulo companheiro do fundo do web, se existir.
-                if len(pts) >= 7:
+                if item.get('source') != 'connected_closed_contours' and len(pts) >= 7:
                     _ext = self._find_cut_view_web_extension(pts)
                     if _ext:
                         new_link['original_pts'] = list(pts)
@@ -16498,6 +16621,8 @@ class MainWindow(QMainWindow):
 
         # Part B — segunda passagem: usa delta geométrico dos cortes de viga
         delta_count = self._infer_slab_level_from_cut_deltas(slabs, level_sources, poly_map)
+        from src.core.slab_level_graph import infer_measured_cut_network
+        delta_count += infer_measured_cut_network(self, slabs)
 
         if auto_cuts or auto_pillars or auto_neighbor_levels or inferred_count or delta_count:
             self.log(f"🧭 Lajes: {auto_cuts} visão(ões) de corte, {auto_pillars} pilar(es) de apoio, {auto_neighbor_levels} texto(s) de nível vizinho; {inferred_count} nível(is) por contexto, {delta_count} por delta de corte.")
@@ -16511,6 +16636,9 @@ class MainWindow(QMainWindow):
         4. Geometria (Contorno)
         """
         import re
+        from src.core.level_text_semantics import elevation_value
+        for key in ('_nivel_candidates', '_nivel_provenance', 'level_inference', 'laje_nivel'):
+            s.pop(key, None)
         
         # --- ESTRUTURA BASE ---
         s.update({
@@ -16611,7 +16739,7 @@ class MainWindow(QMainWindow):
                         or re.search(r'\b(?:n[ií]vel|level|el\s*[:=])', txt_val, re.IGNORECASE)
                     )
                     trusted_level_layer = bool(learned_level_layers and t_layer in learned_level_layers)
-                    if (explicit_level_notation or trusted_level_layer) and re_level.search(txt_val):
+                    if elevation_value(t, trusted_layer=trusted_level_layer) is not None:
                         s['links']['laje_nivel']['label'].append(t)
                         s['fields']['laje_nivel'] = txt_val
                         found_level = True

@@ -51,11 +51,14 @@ def load_sources(obra_dir, floor, state, records):
                 full = []
                 for name, links, extra, points in db.execute(
                     'SELECT name,links_json,extra_data_json,points_json FROM slabs WHERE project_id=?', (pid,)):
+                    if snapshot and name not in snapshot:
+                        continue
                     base = {**json.loads(extra or '{}'), 'name':name, 'points':json.loads(points or '[]'),
                             'links':json.loads(links or '{}')}
                     base.update({k:v for k,v in snapshot.get(name,{}).items() if v not in (None,'',[],{})})
                     full.append(base)
-                slabs = full or slabs
+                present = {s['name'] for s in full}
+                slabs = [*full, *(s for s in slabs if s['name'] not in present)] or slabs
             columns = {r[1] for r in db.execute('PRAGMA table_info(projects)')}
             if {'id','dxf_path'} <= columns:
                 row = db.execute('SELECT dxf_path FROM projects WHERE id=?',(pid,)).fetchone()
@@ -77,6 +80,8 @@ def load_sources(obra_dir, floor, state, records):
                     preprocessing = (package.get('cuts') or {}).get('items') or []
                     receipt['items']=len(preprocessing)
     cuts = collect_explicit_cuts(state.get('cortes') or [], slabs, preprocessing)
+    from .item_geometry import apply_cut_sources
+    cuts = apply_cut_sources(cuts, obra_dir, floor)
     lines = []
     if source_dxf and source_dxf.is_file():
         stat = source_dxf.stat()

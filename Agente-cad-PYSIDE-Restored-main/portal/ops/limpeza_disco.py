@@ -20,6 +20,8 @@ Regras:
                                       (cópia descartável do banco; o resto do ciclo fica)
   R9 scripts/arete/html_fichas/<obra>/<PAV>_<ts>_*  3 mais novas por obra/PAV/escopo + < 1 dia
                                       + referenciadas no DB; .staging/<obra>/* > 1 dia
+  R10 /dev/shm/*                      (RAM, não disco) parado há > 1 dia e sem arquivo aberto
+                                      por processo; fica LEIA-ME* e semáforos do Python (sem.*, mp-*)
 Nunca toca: estado_<PAV>.json canônico, recortes, preprocessamento, .db/.sqlite/.vision fora de backups.
 """
 from __future__ import annotations
@@ -332,6 +334,26 @@ def r9_html_fichas(plan: Plan):
             plan.add("R9_html_staging", p)
 
 
+SHM = Path("/dev/shm")
+SHM_KEEP = re.compile(r"^(LEIA-ME.*|sem\..*|mp-.*|psm_.*)$")
+
+
+def r10_dev_shm(plan: Plan):
+    # /dev/shm é memória RAM. Em 10–12/10 ciclos dev deixaram 3 GB ali, e o N5 PL
+    # caiu de 3 variantes em paralelo para 1 (339 s contra 179 s).  Sai o que não
+    # muda há > 1 dia e não tem arquivo aberto por nenhum processo.
+    if not SHM.is_dir():
+        return
+    abertos = _arquivos_abertos()
+    for p in SHM.iterdir():
+        if SHM_KEEP.match(p.name) or NOW - newest_mtime(p) <= 1 * DAY:
+            continue
+        prefixo = str(p)
+        if any(a == prefixo or a.startswith(prefixo + "/") for a in abertos):
+            continue
+        plan.add("R10_dev_shm", p)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true", help="apaga de fato (padrão: simulação)")
@@ -365,6 +387,7 @@ def main() -> int:
     r7_relatorios(plan)
     r8_snapshots_dev(plan)
     r9_html_fichas(plan)
+    r10_dev_shm(plan)
     plan.run(a.apply, log)
     st = shutil.disk_usage("/")
     log(f"DISCO: {st.used/1e9:.1f}/{st.total/1e9:.1f} GB ({st.used*100//st.total}%)")

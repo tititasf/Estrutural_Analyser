@@ -1,4 +1,5 @@
 """Testes das tabelas ABCD (laje/passa/chega/interior + dualidade CA/CB)."""
+import pytest
 from src.core.pillar_abcd_tables import (
     apply_c_dualidade,
     apply_c_interior_suppress_top_dual,
@@ -7,7 +8,35 @@ from src.core.pillar_abcd_tables import (
     fill_cantos_all_rows,
     format_abcd_tables_html,
     lines_from_tables,
+    measured_arrival_dists,
 )
+
+
+def test_arrival_uses_actual_walls_instead_of_corner_label():
+    beam = {"name": "VX", "dim": "19/120", "_verified_wall_runs": [((22, 40, 482, 59), "19/120")],
+            "_measured_corridor": (22, 40, 482, 59)}
+    # O contato está 40 cm acima da base, embora seja da metade inferior.
+    assert measured_arrival_dists("B", (0, 0, 22, 154), [beam], "VX") == pytest.approx((40, 95))
+    assert measured_arrival_dists("A", (482, 0, 504, 154), [beam], "VX") == pytest.approx((95, 40))
+    assert measured_arrival_dists("B", (0, 0, 22, 154), [beam], "ausente") == (None, None)
+
+
+def test_interior_uses_verified_local_walls_without_padded_bbox():
+    beam = {"name": "VX", "dim": "14/55", "bbox": [0, -12, 260, 12],
+            "_verified_wall_runs": [((0, 0, 100, 19), "19/55"),
+                                    ((160, 0, 260, 19), "19/55")]}
+    pillar = {"points": [[100, 0], [160, 0], [160, 19], [100, 19]],
+              "face_beams": {f: {"para": [], "interior": [], "passa_esq": None,
+                                  "passa_dir": None} for f in "ABCD"}}
+    for f in "CD":
+        pillar["face_beams"][f]["interior"] = [{"name": "VX", "dim": "19/55"}]
+    tables = build_abcd_tables_from_pillar(pillar, beams=[beam])
+    for f in "CD":
+        row = next(r for r in tables["faces"][f]["interior"] if r["nome"] == "VX")
+        assert row["dist_esq"] == row["dist_dir"] == "0cm"
+    beam.pop("_verified_wall_runs")
+    assert measured_arrival_dists("C", (100, 0, 160, 19), [beam], "VX",
+                                  vertical=False, verified_only=True) == (None, None)
 
 
 def test_fill_cantos_laje_interior_passa():
@@ -1166,3 +1195,52 @@ def test_vem_de_fora_usa_o_corredor_recuperado_e_nao_a_caixa_do_tracador():
 
     assert _beam_comes_from_outside("VF301", "A", p2, viga, vertical=True)
     assert _beam_comes_from_outside("VF301", "B", p2, viga, vertical=True)
+
+
+def test_exact_corner_arrival_keeps_r4_short_face_dual():
+    from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar
+    pillar = {'points': [(100, 0), (119, 0), (119, 114), (100, 114)],
+              'orientation': 'vertical', 'face_beams': {
+                  'A': {'para': [{'name': 'V900', 'dim': '19/50', 'corner': 'AC'}]}}}
+    beam = {'name': 'V900', 'dim': '19/50', 'is_h': True,
+            '_recovered_corridor': (0, 95, 100, 114)}
+    tables = build_abcd_tables_from_pillar(pillar, beams=[beam])['faces']
+    assert any(r['nome'] == 'V900' and r['canto'] == 'AC' for r in tables['A']['chega'])
+    assert any(r['nome'] == 'V900' and r['canto'] == 'CA' for r in tables['C']['passa'])
+    assert all(r['nome'] != 'V900' for r in tables['B']['chega'])
+    assert all(r['nome'] != 'V900' for r in tables['C']['passa'] if r['canto'] == 'CB')
+
+
+def test_corner_dual_does_not_survive_a_real_gap_to_corner():
+    from src.core.pillar_abcd_tables import prune_beams_without_face_occupancy
+    tables = {f: {'passa': [], 'chega': []} for f in 'ABCD'}
+    tables['A']['chega'] = [{'nome': 'V900', 'canto': 'AC'}]
+    tables['C']['passa'] = [{'nome': 'V900', 'canto': 'CA'}]
+    beam = {'name': 'V900', 'dim': '19/50', 'is_h': True,
+            '_recovered_corridor': (0, 90, 100, 109)}
+    prune_beams_without_face_occupancy(tables, (100, 0, 119, 114), [beam])
+    assert tables['C']['passa'] == []
+
+
+def test_arrival_padded_corridor_does_not_override_local_corner_width():
+    from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar
+    pillar = {'points': [(100, 0), (124, 0), (124, 80), (100, 80)],
+              'orientation': 'vertical', 'face_beams': {
+                  'A': {'para': [{'name': 'V900', 'dim': '14/55', 'corner': 'AD'}]}}}
+    beam = {'name': 'V900', 'dim': '14/55', 'is_h': True,
+            'geometry': {'classified': {'seg_bottom': [
+                {'points': [(0, -12), (200, -12)]},
+                {'points': [(0, 12), (200, 12)]}]}}}
+    faces = build_abcd_tables_from_pillar(pillar, beams=[beam])['faces']
+    row = next(r for r in faces['A']['chega'] if r['nome'] == 'V900')
+    assert (row['dist_esq'], row['dist_dir']) == ('66cm', '0cm')
+
+
+def test_arrival_verified_local_section_overrides_global_section_for_measurement():
+    from src.core.pillar_abcd_tables import measured_arrival_dists
+    beam = {'name': 'V900', 'dim': '19/55',
+            '_verified_wall_runs': [((0, 22, 200, 36), '14/50')]}
+    assert measured_arrival_dists('A', (100, 0, 124, 80), [beam], 'V900',
+                                  section_dim='14/50', verified_only=True) == (44, 22)
+    assert measured_arrival_dists('A', (100, 0, 124, 80), [beam], 'V900',
+                                  section_dim='19/55', verified_only=True) == (None, None)

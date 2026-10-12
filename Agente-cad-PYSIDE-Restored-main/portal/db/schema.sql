@@ -188,3 +188,15 @@ CREATE INDEX IF NOT EXISTS idx_coment_obra ON portal_comentarios_equipe(obra_id,
 CREATE INDEX IF NOT EXISTS idx_n5_obra ON portal_n5_releases(obra_id, classe, pavimento, liberado_em DESC);
 CREATE INDEX IF NOT EXISTS idx_n5_auditoria ON portal_n5_releases(liberado_em DESC);
 CREATE INDEX IF NOT EXISTS idx_n5_validacoes_obra_pav ON portal_n5_validacoes(obra_id, pavimento, classe);
+
+
+-- Escolha persistida do modo visual N3 por pavimento e classe (migration 023).
+CREATE TABLE IF NOT EXISTS portal_pavimento_modo_desenho (
+    obra_id TEXT NOT NULL REFERENCES portal_obras(id) ON DELETE CASCADE,
+    pavimento TEXT NOT NULL CHECK (length(trim(pavimento)) > 0),
+    classe_ui TEXT NOT NULL CHECK (classe_ui IN ('ALL','pilares','lajes','fundo','laterais_para','laterais_passa')),
+    visual_mode TEXT NOT NULL DEFAULT 'NOVA'
+        CHECK (visual_mode IN ('INI','NOVA','MOLDE_1','MOLDE_2','MOLDE_3')),
+    updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ','now')),
+    PRIMARY KEY (obra_id, pavimento, classe_ui)
+);

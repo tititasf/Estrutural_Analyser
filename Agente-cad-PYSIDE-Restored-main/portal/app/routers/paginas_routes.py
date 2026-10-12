@@ -29,6 +29,7 @@ from starlette.templating import Jinja2Templates
 
 from .. import access, auth, certification, public_codes_lookup, viewer_pavimentos
 from ..dbdep import get_db_conn
+from ..n5_result_inventory import download_availability, result_inventory
 from ...db import repository as repo
 
 router = APIRouter(tags=["paginas"], include_in_schema=False)
@@ -347,12 +348,18 @@ def pagina_obra_detalhe(
                 manifest_path = Path(release.get("dxf_path") or "").with_suffix(".json")
                 if manifest_path.is_file():
                     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-                    if str(manifest.get("visual_mode") or "").upper() == "INI":
-                        release["visual_mode"] = "INI"
+                    manifest_mode = str(manifest.get("visual_mode") or "").upper()
+                    if manifest_mode in {"INI", "NOVA", "MOLDE_1", "MOLDE_2", "MOLDE_3"}:
+                        release["visual_mode"] = manifest_mode
             except (OSError, ValueError, json.JSONDecodeError):
                 pass
             release_pav = str(release.get("pavimento") or "GERAL")
             release_classe = str(release.get("classe") or "").upper()
+            release.update(download_availability(release))
+            if release_classe == "PL":
+                base_path = Path(release.get("dxf_path") or "")
+                release["pillar_groups_available"] = [group for group in ("PARA", "PASSA")
+                    if base_path.name and base_path.with_name(f"{base_path.stem}_{group}.dxf").is_file()]
             if release_classe:
                 n5_por_pav_classe.setdefault(release_pav, {}).setdefault(
                     release_classe, release
@@ -439,6 +446,7 @@ def pagina_obra_detalhe(
             "n5_releases": n5_releases,
             "n5_por_pav_classe": n5_por_pav_classe,
             "n5_por_pav_classe_modo": n5_por_pav_classe_modo,
+            "n5_resultados_por_pav_classe": result_inventory(n5_releases),
             "n5_modo_ativo": requested_n5_mode,
             "n5_pavimentos": n5_pavimentos,
             "n5_validacoes": n5_validacoes,

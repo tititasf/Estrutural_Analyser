@@ -5,10 +5,10 @@
     "projects": 9,
     "reverse_fichas": 0,
     "reverse_recortes": 0,
-    "semantic_rules": 117
+    "semantic_rules": 126
   },
   "documents": [],
-  "generated_at": "2026-10-03T00:58:48.808338+00:00",
+  "generated_at": "2026-10-08T21:43:45.004519+00:00",
   "obra_name": "D:\\Agente-cad-PYSIDE\\Agente-cad-PYSIDE-Restored-main\\DADOS-OBRAS\\thierry.tasf@gmail.com\\Obra-Teste-Inicial",
   "obra_recortes": [],
   "paths": {
@@ -1494,6 +1494,123 @@
         "sprint_validated": true,
         "tags": "robo,fundo,nova,fv,fase4,lv,viga,rag,scr",
         "text": "## 8. Bugs Conhecidos (Viga)\n\n| # | Campo | Problema | Status |\n|---|-------|----------|--------|\n| LV-B1 | `grade_h1`, `grade_h2` | Extrator não implementado, sempre \"0\" | ABERTO |\n| LV-B2 | `panels[].width` | `MAX_PANEL_WIDTH=120cm` fixo; deveria ser 244cm se h<122, 122cm se h≥122 | ABERTO |\n| LV-B3 | `pillar_left/right` | Interseção pilar×viga não detectada | ABERTO |\n| LV-B4 | `holes` | Aberturas não detectadas | ABERTO |"
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 336,
+      "obra_contexto": "human_design_t1:NOVA:LV:20261005",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 337,
+      "obra_contexto": "human_design_t1:NOVA:LV:20261005",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 338,
+      "obra_contexto": "human_design_t1:NOVA:LV:20261005",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 339,
+      "obra_contexto": "human_design_t1:NOVA:LV:20261005",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 340,
+      "obra_contexto": "human_design_t1:NOVA:LV:20261005",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 341,
+      "obra_contexto": "human_design_t1:NOVA:LV:20261005",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 342,
+      "obra_contexto": "human_design_t1:NOVA:LV:20261005",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 343,
+      "obra_contexto": "human_design_t1:NOVA:LV:20261005",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
+      }
+    },
+    {
+      "classe": "LV",
+      "confianca": 1.0,
+      "id": 344,
+      "obra_contexto": "human_design_t1:NOVA:LV:20261005",
+      "rule": {
+        "section": null,
+        "source_doc": null,
+        "sprint_validated": null,
+        "tags": null,
+        "text": ""
       }
     },
     {

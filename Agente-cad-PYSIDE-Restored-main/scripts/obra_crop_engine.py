@@ -79,15 +79,26 @@ def _entity_center(entity) -> Optional[tuple[float, float]]:
         elif t in ("CIRCLE", "ARC"):
             c = entity.dxf.center
             return (c.x, c.y)
-        elif t in ("INSERT", "POINT"):
+        elif t == "INSERT":
             p = entity.dxf.insert
             return (p.x, p.y)
-        elif t in ("LWPOLYLINE", "POLYLINE"):
+        elif t == "POINT":
+            p = entity.dxf.location
+            return (p.x, p.y)
+        elif t == "LWPOLYLINE":
             pts = list(entity.get_points())
             if pts:
                 xs = [p[0] for p in pts]
                 ys = [p[1] for p in pts]
                 return (sum(xs) / len(xs), sum(ys) / len(ys))
+        elif t == "POLYLINE":
+            pts = list(entity.points_in_wcs())
+            if pts:
+                return (sum(p.x for p in pts) / len(pts), sum(p.y for p in pts) / len(pts))
+        elif t in ("SOLID", "TRACE"):
+            pts = list(entity.wcs_vertices())
+            if pts:
+                return (sum(p.x for p in pts) / len(pts), sum(p.y for p in pts) / len(pts))
         elif t == "TEXT":
             p = entity.dxf.insert
             return (p.x, p.y)
@@ -97,11 +108,12 @@ def _entity_center(entity) -> Optional[tuple[float, float]]:
         elif t == "DIMENSION":
             p = entity.dxf.defpoint
             return (p.x, p.y)
-        elif t in ("HATCH", "SOLID"):
+        elif t == "HATCH":
             # Aproximação pelo bounding box do hatch
             try:
-                bb = entity.bounding_box()
-                if bb:
+                from ezdxf import bbox as ezbbox
+                bb = ezbbox.extents([entity], fast=True)
+                if bb.has_data:
                     return ((bb.extmin.x + bb.extmax.x) / 2, (bb.extmin.y + bb.extmax.y) / 2)
             except Exception:
                 pass
@@ -345,6 +357,47 @@ def detect_regions(
 
 # ─── Extração de recorte (crop) ───────────────────────────────────────────────
 
+def _save_selection(doc, output_path, selected):
+    """Keep original entities and resources, including INSERT/DIMENSION blocks.
+
+    Handles also remain stable so the automatic partition can prove coverage.
+    Copying entities into an empty document silently loses referenced resources.
+    """
+    handles = {entity.dxf.handle for entity in selected}
+    msp = doc.modelspace()
+    for entity in list(msp):
+        if entity.dxf.handle not in handles:
+            msp.delete_entity(entity)
+    if len(msp) != len(handles):
+        raise ValueError("Recorte perdeu entidades selecionadas")
+    # R12 sources may disable handle export. Enable it in the derived file so
+    # reading a crop cannot renumber entities and destroy source provenance.
+    doc.header['$HANDLING'] = 1
+    doc.saveas(str(output_path))
+
+
+def crop_dxf_complement(input_path, output_path, tower_paths):
+    """Details are every source entity absent from the published towers.
+
+    DBSCAN noise and unsupported spatial types must remain available as evidence.
+    Refuse foreign handles instead of declaring a corrupt partition complete.
+    """
+    try:
+        doc = ezdxf.readfile(str(input_path))
+        original = {entity.dxf.handle for entity in doc.modelspace()}
+        assigned = set()
+        for path in tower_paths:
+            assigned.update(entity.dxf.handle for entity in ezdxf.readfile(str(path)).modelspace())
+        if not assigned <= original:
+            raise ValueError("Torre sem rastreabilidade ao bruto; regenere os recortes juntos")
+        selected = [entity for entity in doc.modelspace() if entity.dxf.handle not in assigned]
+        _save_selection(doc, output_path, selected)
+        return {"output": str(output_path), "entities_copied": len(selected),
+                "source_entities": len(original), "tower_entities": len(assigned),
+                "uncovered_entities": 0, "error": None}
+    except Exception as exc:
+        return {"error": f"Falha na cobertura dos recortes: {exc}"}
+
 def crop_dxf(
     input_path: str | Path,
     output_path: str | Path,
@@ -389,10 +442,11 @@ def crop_dxf(
 
     new_msp = new_doc.modelspace()
     copied = 0
+    selected = []
 
     if selection_mode == "contained":
         from ezdxf import bbox as ezbbox
-        caixas = ezbbox.multi_flat(msp, fast=True)
+        caixas = (ezbbox.extents([entity], fast=True) for entity in msp)
     else:
         caixas = (None for _ in msp)
 
@@ -413,11 +467,8 @@ def crop_dxf(
             c = _entity_center(entity)
             incluir = bool(c and _point_in_bbox(c[0], c[1], (x1, y1, x2, y2), padding))
         if incluir:
-            try:
-                new_msp.add_entity(entity.copy())
-                copied += 1
-            except Exception:
-                pass
+            selected.append(entity)
+            copied += 1
         else:
             skipped_outside += 1
 
@@ -425,7 +476,7 @@ def crop_dxf(
         return {"error": "Nenhuma entidade ficou integralmente dentro do recorte"}
 
     try:
-        new_doc.saveas(str(output_path))
+        _save_selection(doc, output_path, selected)
     except Exception as e:
         return {"error": f"Falha ao salvar DXF: {e}"}
 
@@ -490,10 +541,11 @@ def crop_dxf_multi(
 
     new_msp = new_doc.modelspace()
     copied = 0
+    selected = []
 
     if selection_mode == "contained":
         from ezdxf import bbox as ezbbox
-        caixas = ezbbox.multi_flat(msp, fast=True)
+        caixas = (ezbbox.extents([entity], fast=True) for entity in msp)
     else:
         caixas = (None for _ in msp)
 
@@ -518,11 +570,8 @@ def crop_dxf_multi(
             else:
                 incluir = _point_in_bbox(c[0], c[1], (x1, y1, x2, y2), pad)
             if incluir:
-                try:
-                    new_msp.add_entity(entity.copy())
-                    copied += 1
-                except Exception:
-                    pass
+                selected.append(entity)
+                copied += 1
                 break  # evitar duplicatas se cai em múltiplas bboxes
         if not incluir:
             skipped_outside += 1
@@ -531,7 +580,7 @@ def crop_dxf_multi(
         return {"error": "Nenhuma entidade ficou integralmente dentro dos recortes"}
 
     try:
-        new_doc.saveas(str(output_path))
+        _save_selection(doc, output_path, selected)
     except Exception as e:
         return {"error": f"Falha ao salvar DXF: {e}"}
 

@@ -16,6 +16,7 @@ devolve corredores.
 """
 from __future__ import annotations
 
+import math
 from typing import Any, Iterable
 
 #: Tolerância (cm) para considerar duas coordenadas a mesma reta.
@@ -511,44 +512,70 @@ def recover_pillar_beam_corridors(
     """
     from pathlib import Path as _Path
 
+    originals = [beam for beam in beams if isinstance(beam, dict)]
+    for beam in originals:
+        beam.pop("_verified_wall_runs", None)
+        beam.pop("_verified_section_texts", None)
     if not dxf_path or not _Path(dxf_path).is_file():
         return {}, {}
-    try:
-        import ezdxf
-    except ImportError:
-        return {}, {}
+    from src.core.dxf_loader import DXFLoader, RenderMode
+    from src.core.lv_beam_scene import split_dimension_geometry
     from src.core.pillar_face_beams import (
         beam_axis_is_horizontal, beam_bbox_from_entity, beam_runs_from_entity,
-        beam_section_dim, beam_section_width,
+        beam_section_dim, beam_section_width, beam_fundo_candidate_runs, clean_beam_section_dim,
     )
 
-    entities: list[dict[str, Any]] = []
+    # Previously recovered geometry is derived output, not independent traced
+    # evidence. Reusing it here would let an erroneous corridor confirm itself.
+    beams = [{key: value for key, value in beam.items()
+              if key not in ("_recovered_corridor", "_measured_corridor", "_verified_wall_runs")}
+             for beam in beams if isinstance(beam, dict)]
+
+    # Preserve the canonical loader's provenance before reducing entities to
+    # coordinates. Exploded dimension witnesses can be collinear with both
+    # beam walls and otherwise extend the recovered corridor past its support.
+    # The shared classifier requires geometric evidence, never a layer name.
+    drawing = DXFLoader.load_dxf(str(dxf_path), mode=RenderMode.TRUE_GEOMETRY)
+    if not drawing:
+        return {}, {}
+    structural, _ = split_dimension_geometry(
+        list(drawing.get("lines", [])) + list(drawing.get("polylines", [])),
+        drawing.get("texts", []),
+    )
+    entities = [{"points": [(x0, y0), (x1, y1)]}
+                for x0, y0, x1, y1 in structural]
     section_texts: list[tuple[float, float, float]] = []
-    for entity in ezdxf.readfile(str(dxf_path)).modelspace():
-        if entity.dxftype() in ("TEXT", "MTEXT"):
-            try:
-                text = (
-                    entity.plain_text() if entity.dxftype() == "MTEXT"
-                    else entity.dxf.text
-                ).strip()
-                insert = entity.dxf.insert
-            except Exception:
-                continue
-            largura = beam_section_width(text)
-            if largura:
-                section_texts.append((largura, float(insert[0]), float(insert[1])))
+    for token in drawing.get("texts", []):
+        text = str(token.get("text", "")).strip()
+        # Unattached scalar numbers are dimension measurements, not proof of
+        # a beam section. Only explicit B/H or BxH can supply a fallback width;
+        # the beam's own typed width remains supported independently below.
+        if "/" not in text and "x" not in text.lower():
             continue
-        if entity.dxftype() == "LINE":
-            entities.append({"points": [
-                (entity.dxf.start[0], entity.dxf.start[1]),
-                (entity.dxf.end[0], entity.dxf.end[1]),
-            ]})
-        elif entity.dxftype() in ("LWPOLYLINE", "POLYLINE"):
-            try:
-                entities.append({"points": [(p[0], p[1]) for p in entity.get_points("xy")]})
-            except Exception:
-                continue
+        largura = beam_section_width(text)
+        insert = token.get("pos")
+        if largura and insert and len(insert) >= 2:
+            section_texts.append((largura, float(insert[0]), float(insert[1])))
     segments = axis_aligned_segments(entities)
+
+    # Cross-class contours propose missing physical runs, but cannot confirm
+    # themselves. Require BOTH original walls over the complete proposed span;
+    # an offset FV rectangle or a bounding box across a gap is rejected.
+    for original, beam in zip(originals, beams):
+        accepted = []
+        horizontal = beam_axis_is_horizontal(beam, fallback_bbox=beam_bbox_from_entity(beam))
+        bucket = segments.get("h" if horizontal else "v", {})
+        for box, dim in beam_fundo_candidate_runs(beam):
+            start, end = (box[0], box[2]) if horizontal else (box[1], box[3])
+            walls = (box[1], box[3]) if horizontal else (box[0], box[2])
+            if all(any(lo <= start + 0.6 and hi >= end - 0.6
+                       for lo, hi in _merge([interval for coord, intervals in bucket.items()
+                                            if abs(coord-wall) <= 0.6 for interval in intervals], 0.6))
+                   for wall in walls):
+                accepted.append((box, dim))
+        if accepted:
+            original["_verified_wall_runs"] = accepted
+            beam["_verified_wall_runs"] = accepted
 
     def section_alternatives(beam: dict) -> list[float]:
         pos = beam.get("pos")
@@ -586,6 +613,60 @@ def recover_pillar_beam_corridors(
             corridor, beam_runs_from_entity(beam), supports,
             horizontal=is_horizontal(beam),
         )
+    # Preserve source sections per physical run, rather than flattening a
+    # variable-section beam to one global B/H. A numeric dimension alone is
+    # insufficient; text must project inside the run, be near its wall pair
+    # and agree with its measured width.
+    for original, beam in zip(originals, beams):
+        horizontal = is_horizontal(beam)
+        runs = beam_runs_from_entity(beam)
+        if str(beam.get("name") or "") in recovered:
+            runs = runs + [recovered[str(beam.get("name") or "")]]
+        sections = []
+        for run in runs:
+            bucket = segments.get("h" if horizontal else "v", {})
+            start, end = (run[0], run[2]) if horizontal else (run[1], run[3])
+            walls = (run[1], run[3]) if horizontal else (run[0], run[2])
+            if not all(any(lo <= start + 0.6 and hi >= end - 0.6
+                           for lo, hi in _merge([interval for coord, intervals in bucket.items()
+                                                if abs(coord-wall) <= 0.6 for interval in intervals], 0.6))
+                       for wall in walls):
+                continue
+            start,end = (run[0],run[2]) if horizontal else (run[1],run[3])
+            low,high = (run[1],run[3]) if horizontal else (run[0],run[2])
+            def in_owned_band(token):
+                pos = token.get("pos")
+                if not pos or len(pos) < 2:
+                    return False
+                rotation = float(token.get("rotation") or 0)
+                if abs(math.sin(math.radians(rotation - (0 if horizontal else 90)))) > 1e-6:
+                    return False
+                along, across = ((float(pos[0]), float(pos[1])) if horizontal
+                                 else (float(pos[1]), float(pos[0])))
+                return start <= along <= end and low-30 <= across <= high+30
+
+            # The original beam name and its numeric section must share the
+            # same measured run and text axis. A nearby pillar's B/H has the
+            # same width but describes another entity, not this beam.
+            beam_name = str(beam.get("name") or "").replace(" ", "").upper()
+            named = any(str(token.get("text") or "").replace(" ", "").upper() == beam_name
+                        and in_owned_band(token) for token in drawing.get("texts", []))
+            if not beam_name or not named:
+                continue
+            for token in drawing.get("texts", []):
+                text = str(token.get("text", "")).strip()
+                if "/" not in text and "x" not in text.lower():
+                    continue
+                dim = clean_beam_section_dim(text)
+                width = beam_section_width(dim)
+                pos = token.get("pos")
+                if not width or not pos or abs(width-(high-low)) > 0.6:
+                    continue
+                if in_owned_band(token):
+                    sections.append((tuple(run),dim,(float(pos[0]),float(pos[1]))))
+        if sections:
+            original["_verified_section_texts"] = sections
+            beam["_verified_section_texts"] = sections
     supported: list[tuple[str, bool, float, float, float, float]] = []
     broken: list[tuple[str, dict, bool]] = []
     for beam in beams:

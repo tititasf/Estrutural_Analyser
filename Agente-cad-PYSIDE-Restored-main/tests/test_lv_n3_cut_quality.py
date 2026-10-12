@@ -1,7 +1,13 @@
 import copy
 import pytest
 from src.core.lv_n3_cut_contract import build_cut_contract, CutContractError
-from scripts.arete.lv_n3_cut_draw import generate
+from scripts.arete.lv_n3_cut_draw import generate as generate_mode
+
+
+def generate(contract, path, mode='INI'):
+    # These tests protect the previous AQ/INI conventions. NOVA deliberately
+    # has the approved hatch/hardware rules tested against its frozen DXFs.
+    return generate_mode(contract, path, mode)
 
 
 def test_original_cut_hardware_has_nested_geometry(tmp_path):
@@ -215,16 +221,14 @@ def test_identified_neigh_field_and_explicit_absence():
     assert build_cut_contract(cut)['slabs']['B']==[]
 
 
-def test_cut_uses_aq_outline_style_in_both_modes(tmp_path):
+def test_cut_keeps_ini_outline_and_nova_approved_hatches(tmp_path):
     contract=build_cut_contract(calculated())
     a=generate(contract,tmp_path/'a.dxf','NOVA');b=generate(contract,tmp_path/'b.dxf','INI')
-    assert len(a.modelspace().query('HATCH'))==0
+    assert len(a.modelspace().query('HATCH'))>0
     assert len(b.modelspace().query('HATCH'))==0
-    for kind in ('LINE','LWPOLYLINE','TEXT','INSERT'):
-        assert len(a.modelspace().query(kind))==len(b.modelspace().query(kind))
-    assert all(e.dxf.color==1 for e in a.modelspace().query('TEXT') if e.dxf.layer=='Cota Seção (2x)')
-    markers={e.dxf.text:e.dxf.color for e in a.modelspace().query('TEXT') if e.dxf.text in ('a','b','c')}
-    assert markers=={'a':4,'b':4,'c':4}
+    assert not list(a.modelspace().query('INSERT'))  # approved sarrafeadas: forks
+    assert list(b.modelspace().query('INSERT'))
+    assert not a.audit().has_errors and not b.audit().has_errors
 
 
 def test_merged_other_owner_keeps_ficha_orientation():

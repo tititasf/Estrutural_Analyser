@@ -281,3 +281,137 @@ def test_rotulo_desenhado_rente_a_viga_continua_valendo():
     assert _label_inside_corridor(
         (3955.4, 2242.0, 4533.4, 2261.0), (4104.4, 2222.0), True,
     )
+
+
+def test_exploded_dimensions_cannot_extend_recovered_beam(tmp_path):
+    import ezdxf
+    from src.core.beam_corridor_recovery import recover_pillar_beam_corridors
+
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    # Independent real walls terminate at x=80. Two exploded dimensions have
+    # collinear witness lines beyond that endpoint; arbitrary layer names.
+    for y in (0, 19):
+        msp.add_line((0, y), (80, y))
+        msp.add_line((90, y), (165, y))
+        for x in (100, 150):
+            msp.add_line((x, y - 80), (x, y + 15))
+            for r in (1.4, 2.8):
+                msp.add_circle((x, y), r)
+        msp.add_text('50', dxfattribs={'insert': (120, y + 4), 'height': 11})
+    path = tmp_path / 'arbitrary.dxf'
+    doc.saveas(path)
+    beam = {'name': 'V900', 'pos': (40, 26), 'dim': '19/50', 'is_h': True,
+            '_recovered_corridor': (0, 0, 165, 19),
+            '_measured_corridor': (0, 0, 165, 19)}
+    before = path.read_bytes()
+    repaired, measured = recover_pillar_beam_corridors(path, [beam])
+    assert measured['V900'] == (0, 0, 80, 19)
+    assert repaired['V900'] == (0, 0, 80, 19)
+    assert beam['_recovered_corridor'] == (0, 0, 165, 19)
+    assert path.read_bytes() == before
+
+
+def test_independent_wall_survives_coincident_dimension(tmp_path):
+    import ezdxf
+    from src.core.beam_corridor_recovery import recover_pillar_beam_corridors
+
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    for y in (0, 19):
+        msp.add_lwpolyline([(0, y), (100, y)])
+    msp.add_linear_dim(base=(0, 19), p1=(0, -61), p2=(100, -61)).render()
+    path = tmp_path / 'coincident.dxf'
+    doc.saveas(path)
+    _, measured = recover_pillar_beam_corridors(
+        path, [{'name': 'V800', 'pos': (40, 26), 'dim': '19/50', 'is_h': True}],
+    )
+    assert measured['V800'] == (0, 0, 100, 19)
+
+
+def test_unattached_scalar_cannot_supply_section_fallback(tmp_path):
+    import ezdxf
+    from src.core.beam_corridor_recovery import recover_pillar_beam_corridors
+
+    doc = ezdxf.new()
+    msp = doc.modelspace()
+    for y in (0, 19, 93):
+        msp.add_line((0, y), (100, y))
+    # The nearer scalar can pair unrelated lines 93 cm apart. The explicit
+    # section is independently supported by the real 19 cm wall pair.
+    msp.add_text('93', dxfattribs={'insert': (45, 25)})
+    msp.add_text('19/48', dxfattribs={'insert': (70, 25)})
+    path = tmp_path / 'scalar.dxf'
+    doc.saveas(path)
+    _, measured = recover_pillar_beam_corridors(
+        path, [{'name': 'V700', 'pos': (40, 25), 'dim': '22/50', 'is_h': True}],
+    )
+    assert measured['V700'] == (0, 0, 100, 19)
+
+
+def test_cross_class_contour_requires_both_original_walls(tmp_path):
+    import ezdxf
+    from src.core.beam_corridor_recovery import recover_pillar_beam_corridors
+    from src.core.pillar_face_beams import beam_runs_from_entity
+    doc = ezdxf.new()
+    for y in (0, 19):
+        doc.modelspace().add_line((0,y),(100,y))
+    path = tmp_path/'wall_evidence.dxf'
+    doc.saveas(path)
+    def beam(y):
+        return {'name':'V800','pos':(50,25),'dim':'19/50','is_h':True,
+                'links':{'viga_fundo_seg_1_area_segs':{'contour':[{
+                    'points':[(0,y),(100,y),(100,y+19),(0,y+19)],
+                    'closed':True,'geometry_role':'area_fundo',
+                    'fv_lateral_reference':True,'fv_measured_section_dim':'19/50'}]}}}
+    real, shifted = beam(0), beam(19)
+    recover_pillar_beam_corridors(path,[real])
+    recover_pillar_beam_corridors(path,[shifted])
+    assert real['_verified_wall_runs'] == [((0.,0.,100.,19.),'19/50')]
+    assert '_verified_wall_runs' not in shifted
+    assert beam_runs_from_entity(real) == [(0.,0.,100.,19.)]
+
+
+def test_source_sections_require_original_wall_pair(tmp_path):
+    import ezdxf
+    from src.core.beam_corridor_recovery import recover_pillar_beam_corridors
+    doc = ezdxf.new()
+    for y in (0, 19):
+        doc.modelspace().add_line((0, y), (500, y))
+    doc.modelspace().add_text('V900', dxfattribs={'insert': (200, 25)})
+    for text, pos in [('19/120', (30, 25)), ('19/50', (460, 25)),
+                      ('120', (20, 25)), ('19/999', (550, 25))]:
+        doc.modelspace().add_text(text, dxfattribs={'insert': pos})
+    path = tmp_path/'local_sections.dxf'
+    doc.saveas(path)
+    beam = {'name':'V900', 'pos':(200,25), 'dim':'19/50', 'is_h':True}
+    recover_pillar_beam_corridors(path,[beam])
+    assert {dim for _,dim,_ in beam['_verified_section_texts']} == {'19/120','19/50'}
+    # Missing source must invalidate transient confirmations from an old run.
+    recover_pillar_beam_corridors(tmp_path/'missing.dxf',[beam])
+    assert '_verified_section_texts' not in beam
+    assert '_verified_wall_runs' not in beam
+
+
+def test_source_section_axis_and_name_exclude_pillar_annotation(tmp_path):
+    import ezdxf
+    from src.core.beam_corridor_recovery import recover_pillar_beam_corridors
+    doc = ezdxf.new()
+    ms = doc.modelspace()
+    for x in (0, 19):
+        ms.add_line((x, 0), (x, 250))
+    # MTEXT expresses the beam axis by direction, not a dxf.rotation field.
+    ms.add_mtext('V900', dxfattribs={'insert': (-4, 30), 'char_height': 3,
+                                   'text_direction': (0, 1, 0)})
+    ms.add_text('19/55', dxfattribs={'insert': (-4, 200), 'rotation': 90})
+    ms.add_text('P2', dxfattribs={'insert': (35, 245)})
+    ms.add_text('19/50', dxfattribs={'insert': (35, 230)})
+    path = tmp_path/'pillar_section.dxf'
+    doc.saveas(path)
+    beam = {'name': 'V900', 'pos': (-4, 30), 'dim': '19/50', 'is_h': False}
+    recover_pillar_beam_corridors(path, [beam])
+    assert {dim for _, dim, _ in beam['_verified_section_texts']} == {'19/55'}
+    # Renaming the requested beam cannot inherit another beam's section.
+    foreign = dict(beam, name='V901')
+    recover_pillar_beam_corridors(path, [foreign])
+    assert '_verified_section_texts' not in foreign

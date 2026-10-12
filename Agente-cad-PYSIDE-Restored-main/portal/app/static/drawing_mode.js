@@ -1,7 +1,7 @@
 (function () {
   'use strict';
 
-  var modeLabels={INI:'Modo iNI',NOVA:'Modo Nova',MOLDE_1:'Modo Molde 1',MOLDE_2:'Modo Molde 2',MOLDE_3:'Modo Molde 3'};
+  var modeLabels={INI:'Modo iNI',NOVA:'Modo Nova',MOLDE_1:'Formascia',MOLDE_2:'Modo Molde 2',MOLDE_3:'Modo Molde 3'};
   function normalize(value) {
     var mode=String(value||'NOVA').trim().toUpperCase();return modeLabels[mode]?mode:'NOVA';
   }

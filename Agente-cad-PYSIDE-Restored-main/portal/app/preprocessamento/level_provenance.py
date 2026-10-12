@@ -5,8 +5,9 @@ Independent confirmations are counted once per root origin: the same CAD mark
 reaching FV, LV, LAJ and PIL remains a single source.
 """
 from __future__ import annotations
+import math
 
-RUBRIC_REVISION = 'level_evidence_completeness_v1.1-best-validated-path'
+RUBRIC_REVISION = 'level_evidence_completeness_v1.2-independent-agreement'
 SPATIAL_METHODS = ('spatial_', 'contact', 'lv_independent_evidence_fills_fv',
                    'standard_beam_top_principal_slab', 'no_slab')
 CONSTRUCTED = ('spatial_fv_reference', 'lateral_spatial_level_ranges',
@@ -54,6 +55,21 @@ def origin_kind(fact):
         return 'owner_convention'
     if fact.get('method') == 'cad_level_inside_slab' and handles:
         return 'cad_direct_level'
+    if fact.get('method') == 'named_section_marker_and_plan_region':
+        # The adapter verifies the current source revision, named plan match,
+        # level marker and geometry before publishing this root. A method name
+        # or nearby CAD text alone does not establish a level reference.
+        source = fact.get('section_source_id')
+        marker = fact.get('marker_handle')
+        revision = str(fact.get('section_revision') or '')
+        if (fact.get('status') == 'sa_evidence' and source
+                and source in (fact.get('evidence_ids') or [])
+                and marker and 'cad:'+str(marker) in handles
+                and len(revision) == 64 and all(c in '0123456789abcdef' for c in revision)
+                and fact.get('projection') and fact.get('region_geometry')
+                and fact.get('unit') == 'm' and fact.get('value') is not None):
+            return 'cad_named_section_level'
+        return 'sa_field_without_traced_root'
     if 'floor' in str(fact.get('method', '')) or fact.get('status') == 'floor_reference':
         return 'floor_convention'
     if fact.get('status') == 'estimated':
@@ -67,9 +83,22 @@ def origin_key(fact):
     """Same CAD handles = same origin, regardless of the class that consumed it."""
     handles = sorted(e for e in fact.get('evidence_ids') or [] if str(e).startswith('cad:'))
     kind = origin_kind(fact)
+    if kind == 'cad_named_section_level':
+        # Two wings of one section marker are one origin, even when their
+        # plan polygons and downstream classes differ.
+        return kind + ':' + fact['section_source_id'] + ':' + fact['section_revision'] + ':' + fact['marker_handle']
     if kind == 'cad_direct_level' and handles:
         return kind + ':' + ','.join(handles)
     return kind + ':' + fact['fact_id']
+
+
+def origin_tokens(roots):
+    """A compound CAD origin still shares each mark with a partial origin."""
+    tokens = set()
+    for root in roots:
+        handles = {str(e) for e in root.get('evidence_ids') or [] if str(e).startswith('cad:')}
+        tokens.update(handles or {origin_key(root)})
+    return tokens
 
 
 def walk(fact_id, index, trail=()):
@@ -79,7 +108,8 @@ def walk(fact_id, index, trail=()):
     fact = index.get(fact_id)
     if fact is None:
         return [], [], [fact_id]
-    sources = [s for s in fact.get('source_fact_ids') or [] if s != fact_id]
+    sources = list(dict.fromkeys([*(fact.get('source_fact_ids') or []),
+                                 *(fact.get('derived_from') or [])]))
     if not sources:
         return [fact], [], []
     roots, cycles, missing = [], [], []
@@ -114,15 +144,30 @@ def explain(fact, index):
     chain = path(fact, index)
     origins = sorted({origin_key(r) for r in roots})
     root = index.get(chain[0]['fact_id'], fact)
-    confirmations, seen = [], {origin_key(root)}
+    confirmations, seen, disagreements = [], origin_tokens(roots), []
     for alt in fact.get('independent_confirmations') or []:
         # Agreement born of the same root (e.g. two cuts read from one slab
         # mark) is not an independent confirmation.
-        alt_roots = walk(alt['fact_id'], index)[0] if alt.get('fact_id') in index else []
-        key = ','.join(sorted({origin_key(r) for r in alt_roots}))
-        if key and key not in seen:
-            seen.add(key)
-            confirmations.append({**alt, 'origin_key': key})
+        alt_roots, alt_cycles, alt_missing = walk(alt.get('fact_id'), index)
+        keys = {origin_key(r) for r in alt_roots}
+        tokens = origin_tokens(alt_roots)
+        candidate = index.get(alt.get('fact_id'))
+        if candidate is None:
+            continue
+        try:
+            values = float(fact.get('value')), float(candidate.get('value'))
+            agrees = (all(math.isfinite(v) for v in values) and abs(values[0]-values[1]) <= .0025
+                      and bool(fact.get('unit')) and fact.get('unit') == candidate.get('unit')
+                      and fact.get('datum_id') == candidate.get('datum_id'))
+        except (ValueError, TypeError):
+            agrees = False
+        if not agrees:
+            disagreements.append({'fact_id': candidate['fact_id'], 'value': candidate.get('value'),
+                                  'unit': candidate.get('unit'), 'datum_id': candidate.get('datum_id')})
+            continue
+        if tokens and not tokens.intersection(seen) and not alt_cycles and not alt_missing:
+            seen.update(tokens)
+            confirmations.append({**alt, 'origin_key': ','.join(sorted(keys))})
     components = fact.get('confidence_components') or {}
     limitations = sorted(set(fact.get('warnings') or []) |
                          {k for k in components if k.endswith('_cap')})
@@ -155,7 +200,7 @@ def explain(fact, index):
                      or fact.get('level_basis') == 'owner_convention' else
                      'not_certified' if 'slab_contact_reference_without_cut_offset' in limitations
                      else 'n/a'),
-        'concordancia': ('conflict' if fact.get('status') == 'conflict' else
+        'concordancia': ('conflict' if fact.get('status') == 'conflict' or disagreements else
                          'confirmed' if confirmations else 'single_path'),
         'sem_aumento_por_transferencia': 'pass' if monotonic else 'fail',
     }
@@ -165,7 +210,8 @@ def explain(fact, index):
                                'evidence_ids': (root.get('evidence_ids') or [])[:8]},
             'calculation': chain, 'independent_origins': origins,
             'independent_origin_count': len(origins),
-            'confirmations': confirmations, 'limitations': limitations, 'gates': gates}
+            'confirmations': confirmations, 'confirmation_conflicts': disagreements,
+            'limitations': limitations, 'gates': gates}
 
 
 def annotate(tower):

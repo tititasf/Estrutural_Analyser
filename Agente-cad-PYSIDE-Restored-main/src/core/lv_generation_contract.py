@@ -16,6 +16,35 @@ _LINK_RE = re.compile(
     re.IGNORECASE,
 )
 
+_ENDPOINT_RULES = {
+    'guia_lv_cells_v12_endpoint_owner_rules',
+    'guia_lv_cells_v13_underpass_single_segment',
+}
+
+
+def _terminal_underpass_extension(structural):
+    """The -4 belongs to the full wall; the tongue reaches the far face +4.
+
+    A terminal opening starts 4 before the near face and ends 4 after the far
+    face. Applying -4 to the whole outline would cut 8 from that tongue.
+    Only a measured terminal G7 opening receives this compensation.
+    """
+    cell = structural.get('lv_cell') or {}
+    if cell.get('rules') != 'guia_lv_cells_v13_underpass_single_segment':
+        return 0.0
+    if structural.get('end_adjustment') != -4.0:
+        return 0.0
+    source = structural.get('opening_source_points') or structural['points']
+    if structural['points'][-1] != source[-1]:
+        return 0.0
+    length = _length(source)
+    for opening in cell.get('beam_openings') or []:
+        if (opening.get('rule') == 'G7_incidente_menos_profunda_passa_por_baixo'
+                and abs(float(opening.get('pos_inicio', 0))
+                        + float(opening.get('largura', 0)) - length) <= .1):
+            return float(opening['abertura_largura']) - float(opening['largura'])
+    return 0.0
+
 
 def _length(points: list) -> float:
     if len(points) < 2:
@@ -109,7 +138,7 @@ def _materialize_beam_openings(structural_segments, panels, face_height, start_a
         if norm <= 0:
             continue
         ux, uy = dx/norm, dy/norm
-        trim = -start_adjustment if target_pos == 0 else 0.0
+        trim = -target.get('start_adjustment', start_adjustment if target_pos == 0 else 0.0)
         executable_length = sum(p['width'] for p in target_panels)
         for source in structural_segments:
             sp = source.get('opening_source_points') or source['points']
@@ -122,6 +151,13 @@ def _materialize_beam_openings(structural_segments, panels, face_height, start_a
             if abs((float(sp[0][0])-float(pts[0][0]))*uy-(float(sp[0][1])-float(pts[0][1]))*ux) > .1:
                 continue
             for opening in source.get('lv_cell', {}).get('beam_openings', []):
+                # Current G7 openings belong to one physical SA segment.
+                # The +4 tongue can extend past its source coordinate without
+                # creating a second copy in the following segment.
+                if (source.get('lv_cell', {}).get('rules') ==
+                        'guia_lv_cells_v13_underpass_single_segment'
+                        and source.get('segment_index') != target.get('segment_index')):
+                    continue
                 height = opening.get('abertura_altura')
                 width = opening.get('abertura_largura')
                 structural_width = opening.get('largura')
@@ -182,6 +218,65 @@ def _materialize_beam_openings(structural_segments, panels, face_height, start_a
             result.append(piece)
         offset = end
     return result
+
+
+def _terminal_pillar_profiles(structural, entries, pillar_bboxes, side):
+    """Continue a measured profile only inside a named, touching solid pillar.
+
+    Passa contains the pillar span while the paired Para sections end at its
+    face. This supplies coverage of that solid, without extrapolating into an
+    unmeasured free span or across a change of depth.
+    """
+    from copy import deepcopy
+    from shapely.geometry import LineString, Point, box
+    points = structural['points']
+    line = LineString(points)
+    ux, uy = ((points[-1][i]-points[0][i])/line.length for i in (0, 1))
+    depth = float((structural.get('lv_cell') or {}).get('depth') or 0)
+    extra = []
+    for opening in (structural.get('lv_cell') or {}).get('pillar_openings') or []:
+        name = opening.get('name')
+        bounds = (pillar_bboxes or {}).get(name)
+        if not bounds or depth <= 0:
+            continue
+        solid = box(*bounds)
+        # The measured walls and SA face coordinates differ by < 0.02 cm.
+        overlap = line.intersection(solid.buffer(.05, join_style=2))
+        if overlap.geom_type != 'LineString' or overlap.length <= .01:
+            continue
+        candidates = []
+        for entry in entries:
+            c = entry.get('section_contract') or {}
+            if entry.get('pending') or c.get('beam_type') != 'inverted' or abs(float(c.get('height_cm') or 0)-depth) > .01:
+                continue
+            for pair in entry.get('pairs') or []:
+                segment = LineString([pair['start'], pair['end']])
+                # Both faces can be used; project the verified opposite face
+                # onto this lateral, within the measured beam width.
+                width = float(c.get('width_cm') or 0)
+                dx, dy = (pair['end'][i]-pair['start'][i] for i in (0, 1))
+                if abs(dx*uy-dy*ux) > .001*segment.length:
+                    continue
+                for end in (pair['start'], pair['end']):
+                    station = (end[0]-points[0][0])*ux+(end[1]-points[0][1])*uy
+                    projected = Point(points[0][0]+station*ux, points[0][1]+station*uy)
+                    if Point(end).distance(projected) > width+.05:
+                        continue
+                    if solid.boundary.distance(projected) <= .1:
+                        candidates.append(c)
+        signatures = {(c.get('base_level_m'), c.get('top_level_m'),
+                       (c.get('mounting', {}).get(side) or {}).get('panel_base_cm'),
+                       (c.get('mounting', {}).get(side) or {}).get('panel_top_cm'))
+                      for c in candidates}
+        if len(signatures) != 1 or None in next(iter(signatures), (None,)):
+            continue
+        contract = deepcopy(candidates[0])
+        contract['level_continuity_source'] = 'measured_terminal_pillar_same_section'
+        contract['pillar_coverage'] = {'name': name, 'bbox': list(bounds)}
+        extra.append({'beam': entries[0].get('beam'), 'section_contract': contract,
+                      'pairs': [{'start': list(overlap.coords[0]),
+                                 'end': list(overlap.coords[-1])}]})
+    return [*entries, *extra]
 
 
 def _passa_endpoint_adjustments(
@@ -325,7 +420,9 @@ def build_lv_generation_contracts(
                 partitioned = []
                 for structural in structural_segments:
                     try:
-                        for piece in partition_inverted_lateral(structural['points'], vertical_entries, side):
+                        local_entries = _terminal_pillar_profiles(
+                            structural, vertical_entries, pillar_bboxes, side) if behavior == 'Passa' else vertical_entries
+                        for piece in partition_inverted_lateral(structural['points'], local_entries, side):
                             if piece.get('pending'):
                                 vertical_pending_segments.append({
                                     'segment_index': structural['segment_index'],
@@ -360,6 +457,25 @@ def build_lv_generation_contracts(
                         beam, side, structural_segments, pillar_bboxes or {}
                     )
                 )
+            # New SA rules are authoritative per physical segment. Legacy cells
+            # retain their old conversion until they are reinterpreted by SA.
+            for position, structural in enumerate(structural_segments):
+                cell = structural.get('lv_cell') or {}
+                current = cell.get('rules') in _ENDPOINT_RULES
+                original = structural.get('opening_source_points') or structural['points']
+                structural['start_adjustment'] = (
+                    float(cell.get('adjustment_start') or 0) if current and structural['points'][0] == original[0]
+                    else 0.0 if current else start_adjustment if position == 0 else 0.0)
+                structural['end_adjustment'] = (
+                    float(cell.get('adjustment_end') or 0) if current and structural['points'][-1] == original[-1]
+                    else 0.0 if current else end_adjustment if position == len(structural_segments)-1 else 0.0)
+            if structural_segments and all((s.get('lv_cell') or {}).get('rules') in
+                    _ENDPOINT_RULES for s in structural_segments):
+                start_adjustment = structural_segments[0]['start_adjustment']
+                end_adjustment = structural_segments[-1]['end_adjustment']
+                endpoint_events = [{'segment_index': s['segment_index'],
+                    'start': s['start_adjustment'], 'end': s['end_adjustment'],
+                    'source': 'SA / lv_cell'} for s in structural_segments]
             panels = []
             for position, structural in enumerate(structural_segments):
                 structural['physical_segment_index'] = position+1
@@ -367,10 +483,9 @@ def build_lv_generation_contracts(
                     break
                 panel_height = structural.get('face_height', face_height)
                 executable_length = float(structural["width"])
-                if position == 0:
-                    executable_length += start_adjustment
-                if position == len(structural_segments) - 1:
-                    executable_length += end_adjustment
+                executable_length += structural['start_adjustment'] + structural['end_adjustment']
+                structural['underpass_outline_extension'] = _terminal_underpass_extension(structural)
+                executable_length += structural['underpass_outline_extension']
                 for panel_index, panel_width in enumerate(
                     distribute_lv_panels(executable_length), start=1
                 ):
@@ -418,6 +533,7 @@ def build_lv_generation_contracts(
                 "structural_segments": structural_segments,
                 "structural_segment_count": len(structural_segments),
                 "segment_count": len(panels),
+                "relative_originals": (section_context or {}).get("relative_originals", []),
                 "geometry_length": sum(
                     segment["width"] for segment in structural_segments
                 ),

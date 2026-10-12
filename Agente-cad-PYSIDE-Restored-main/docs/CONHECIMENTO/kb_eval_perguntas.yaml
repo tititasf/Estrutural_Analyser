@@ -53,3 +53,13 @@
   esperado: [CLAUDE.md, MAPA-DO-CONHECIMENTO, HANDOFF-ARETE-EXECUTOR]
 - pergunta: quando a dúvida é de interpretação, como perguntar ao dono
   esperado: [CLAUDE.md, INTERPRETACAO-VIGA-CHEGA, DECISOES-DO-DONO]
+- pergunta: no modo NOVA lateral sarrafeada tem sarrafo vertical na emenda comum dos painéis?
+  esperado: [PADRAO-NOVA-LATERAIS-APROVADO]
+- pergunta: no AB gradeado NOVA onde ficam os meios pontaletes de 3,5 e a travessa de 2,2?
+  esperado: [PADRAO-NOVA-LATERAIS-APROVADO]
+- pergunta: como contar os pontaletes do painel gradeado NOVA com abertura de 40 em painel 244?
+  esperado: [PADRAO-NOVA-LATERAIS-APROVADO]
+- pergunta: o corte sarrafeado NOVA deve ter parafusos no fundo ou no centro?
+  esperado: [PADRAO-NOVA-LATERAIS-APROVADO]
+- pergunta: N5 laterais NOVA pode misturar gradeadas e sarrafeadas ou omitir um N3 pendente?
+  esperado: [PADRAO-NOVA-LATERAIS-APROVADO, PLANO-LV-NOVA-SA-N3-N5]

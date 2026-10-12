@@ -42,23 +42,27 @@ def test_preview_nao_escreve_nada(tmp_path):
     assert crop.read_bytes() == before
 
 
-def test_recorte_nao_validado_so_pode_ser_previa(tmp_path):
+def test_recorte_nao_validado_processa_sem_fabricar_validacao(tmp_path):
     manifest, crop = _prepare(tmp_path)
     (crop.parent / "validado.json").write_text('{"torre_1": false}', encoding="utf-8")
     output = tmp_path / "output"
-    with pytest.raises(RunnerError, match="pendentes de validação"):
-        run_inventory(
-            input_manifest=manifest, output_dir=output,
-            obra_id="obra-1", pavimento_id="14_PAV",
-        )
-    assert not output.exists()
     result = run_inventory(
         input_manifest=manifest, output_dir=output,
+        obra_id="obra-1", pavimento_id="14_PAV",
+    )
+    assert (output / "inventory.json").exists()
+    assert result["provisional"] is True
+    assert len(result["unvalidated_source_ids"]) == 1
+    assert result["sources"][0]["validated"] is False
+    assert json.loads((crop.parent / "validado.json").read_text()) == {"torre_1": False}
+    preview_output = tmp_path / "preview"
+    result = run_inventory(
+        input_manifest=manifest, output_dir=preview_output,
         obra_id="obra-1", pavimento_id="14_PAV", preview=True,
     )
     assert result["provisional"] is True
     assert len(result["unvalidated_source_ids"]) == 1
-    assert not output.exists()
+    assert not preview_output.exists()
 
 
 def test_execucao_escreve_somente_output_e_nao_toca_fonte(tmp_path):

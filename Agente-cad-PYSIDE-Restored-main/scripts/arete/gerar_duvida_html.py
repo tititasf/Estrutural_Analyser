@@ -114,6 +114,23 @@ def _svg(duvida: Duvida) -> str:
                 continue
             for a, b in zip(pontos, pontos[1:]):
                 traco(a, b, e.dxf.layer)
+        elif tipo in ("SOLID", "TRACE"):
+            try:
+                pts = [(v.x, v.y) for v in e.wcs_vertices()]
+            except Exception:
+                continue
+            if len(pts) < 3:
+                continue
+            if max(p[0] for p in pts) < x0 or min(p[0] for p in pts) > x1:
+                continue
+            if max(p[1] for p in pts) < y0 or min(p[1] for p in pts) > y1:
+                continue
+            cor = LAYER_COLOR.get(getattr(e.dxf, "layer", ""), "#d1d5db")
+            pontos = " ".join(f"{p[0]:.2f},{-p[1]:.2f}" for p in pts)
+            linhas.append(
+                f'<polygon points="{pontos}" fill="{cor}" fill-opacity="0.35" '
+                f'stroke="{cor}" stroke-width="0.6"/>'
+            )
         elif tipo in ("TEXT", "MTEXT"):
             try:
                 texto = (e.plain_text() if tipo == "MTEXT" else e.dxf.text).strip()

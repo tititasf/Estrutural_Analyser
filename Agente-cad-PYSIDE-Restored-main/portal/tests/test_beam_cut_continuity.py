@@ -79,3 +79,25 @@ def test_section_rejects_pillar_dimension_and_scopes_lateral_depth():
     assert fund_section(fund, {}, peers) is None
     side['points'] = [[0,100],[290,100]]
     assert fund_section(fund, {}, peers) is None
+
+
+def test_short_fund_direction_comes_from_own_lateral_boundary():
+    fund = dict(points=[[0,0],[19,0],[19,4.975],[0,4.975],[0,0]],
+                beam_name='V412', segment_label='1')
+    side = dict(uid='own', beam_name='V412', points=[[0,4.975],[0,0]],
+                details=dict(lv_cell=dict(sections=[dict(start=0,end=4.975,dim='19/55')])))
+    result = fund_section(fund, {}, [('lateral_a_para',side)])
+    assert result['height_cm'] == 55
+    assert result['section_segment_ids'] == ['own']
+    side['beam_name'] = 'V999'
+    assert fund_section(fund, {}, [('lateral_a_para',side)]) is None
+    side['beam_name'] = 'V412';side['points'] = [[10,0],[10,4.975]]
+    assert fund_section(fund, {}, [('lateral_a_para',side)]) is None
+
+
+def test_short_fund_ambiguous_lateral_axes_do_not_certify_depth():
+    fund = dict(points=[[0,0],[19,0],[19,4],[0,4],[0,0]], segment_label='1')
+    vertical = dict(points=[[0,0],[0,4]])
+    horizontal = dict(points=[[0,0],[19,0]])
+    assert fund_section(fund, {'viga_fundo_seg_1_dim':'19/55'},
+        [('lateral_a_para',vertical),('lateral_b_para',horizontal)]) is None

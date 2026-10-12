@@ -23,6 +23,10 @@ SOURCES = ['scripts/gerar_' + c + '_dxf_stog.py' for c in ('pl','lv','fv','lj')]
     'scripts/visual_modes.py', 'scripts/arete/lv_n3_cut_draw.py', 'scripts/drawing_semantics.py',
     'scripts/pl_abcd_visual_nova.py', 'scripts/pl_cima_especial.py',
     'scripts/pl_grade_visual_config.py', 'src/core/pillar_special_faces.py']
+SOURCES += [str(p.relative_to(ROOT)).replace('\\','/') for pattern in
+            ('ini*.py','lv_*design.py','lv_*sa_adapter.py','lv_*grades.py','pillar_*design.py','pillar_nova_special.py')
+            for p in (ROOT/'src/core').glob(pattern)]
+SOURCES += ['scripts/drawing_mode_config.py','scripts/build_current_drawing_defaults.py']
 
 def fingerprint():
     return {p: hashlib.sha256((ROOT/p).read_text(encoding='utf8').encode()).hexdigest() for p in SOURCES}
@@ -138,11 +142,64 @@ def refresh_measurements(out,publish=False):
     (out/'measured.json').write_text(json.dumps(catalog,indent=2,ensure_ascii=False),encoding='utf8')
     if publish:(ROOT/'config/drawing_mode_current_catalog.json').write_text(json.dumps(catalog,indent=2,ensure_ascii=False),encoding='utf8')
 
+
+def measure_approved(out, source, publish=False):
+    """Measure the approved SA adapters, both LV assemblies and all N3 views."""
+    from copy import deepcopy
+    from scripts.arete.lv_n3_cut_draw import generate, generate_local_panels
+    from gerar_pl_dxf_stog import setup_doc, generate_pilar_zone
+    from scripts.visual_modes import apply_visual_mode
+    out=Path(out).resolve();out.mkdir(parents=True,exist_ok=True)
+    os.environ['ARETE_DRAWING_MODE_CONFIG']=str(out/'empty_profiles.json')
+    os.environ['DRAWING_TEST_DB']=str(out/'governance.sqlite')
+    os.environ['CAD_MOTOR_HEADLESS']='0'
+    hashes=fingerprint()
+    reports=ROOT/'scripts/arete/relatorios'
+    inventory=json.loads((reports/'20261007_ini_lv_comparacao/current_inventory.json').read_text(encoding='utf8'))
+    payload=json.loads((reports/'20261007_ini_abcd_design/payload_P1_portal.json').read_text(encoding='utf-8-sig'))
+    special=json.loads((reports/'20261007_ini_parafusos_especiais/baseline.json').read_text(encoding='utf8'))['payloads']['para/P26.json']
+    catalog=dict(schema_version=2,sources=hashes,contracts=['PL P1/P26 SA; CIMA/ABCD/EFGH/GRADES','LV V316 SA; A/B/corte; gradeadas/sarrafeadas; PARA/PASSA style calibration','FV V301 SA','LJ L301 SA'],measurement='approved_sa_adapters',modes={})
+    for mode in ('INI','NOVA','MOLDE_1'):
+        catalog['modes'][mode]={}
+        for cls in cfg.CLASSES:
+            folder=out/(mode+'_'+cls);folder.mkdir(exist_ok=True);result={}
+            if cls=='PL':
+                for pj in (payload,special):
+                    for zone in ('cima','abcd','efgh','grades'):
+                        doc=setup_doc()
+                        if generate_pilar_zone(doc.modelspace(),deepcopy(pj),zone,visual_mode=mode)<0:continue
+                        apply_visual_mode(doc,mode,'PL');doc.saveas(folder/f"{pj['nome']}_{zone}.dxf");measure(doc,result)
+            elif cls.startswith('LV_'):
+                behavior=cls.split('_')[1]
+                for assembly in ('sarrafeadas','gradeadas'):
+                    sides={r['kind']:deepcopy(r['contract']) for r in inventory if r['assembly']==assembly}
+                    for side in 'AB':
+                        target=folder/f'{assembly}_{side}.dxf'
+                        generate_local_panels(sides,target,side,mode=mode,behavior=behavior)
+                        # Measure native granular units, including loose grades.
+                        for path in target.with_suffix('.units').glob('*.dxf'):
+                            measure(ezdxf.readfile(path),result)
+                    measure(generate(sides['CORTE'],folder/f'{assembly}_CORTE.dxf',mode=mode,behavior=behavior),result)
+            else:
+                robot=cls.lower();inputs=Path(source)/'cli_output_v2/inputs'
+                args=[sys.executable,str(Path(__file__).resolve()),'--child',f'gerar_{robot}_dxf_stog.py','--obra',str(out/'isolated_obra'),'--item','L301' if cls=='LJ' else 'V301','--visual-mode',mode]
+                args+=['--json-dir',str(inputs),'--out-dir',str(folder)] if cls=='LJ' else ['--input-dir',str(inputs),'--output-dir',str(folder)]
+                run=subprocess.run(args,capture_output=True,text=True,encoding='utf8',errors='replace',env={**os.environ,'PYTHONIOENCODING':'utf8'})
+                (folder/'run.log').write_text(run.stdout+run.stderr,encoding='utf8')
+                if run.returncode:raise RuntimeError(run.stderr)
+                for path in folder.glob('*.dxf'):measure(ezdxf.readfile(path),result)
+            catalog['modes'][mode][cls]={family:{name:{key:sorted(vals,key=str) for key,vals in values.items()} for name,values in group.items()} for family,group in result.items()}
+            print(mode,cls,'approved adapters measured',flush=True)
+    assert hashes==fingerprint(),'Renderer changed during measurement'
+    (out/'measured.json').write_text(json.dumps(catalog,indent=2,ensure_ascii=False),encoding='utf8')
+    if publish:(ROOT/'config/drawing_mode_current_catalog.json').write_text(json.dumps(catalog,indent=2,ensure_ascii=False),encoding='utf8')
+
 if __name__=='__main__':
     if len(sys.argv)>1 and sys.argv[1]=='--child':
         from src.core import artifact_governance as governance
         governance.guarded_saveas=functools.partial(governance.guarded_saveas,db_path=os.environ['DRAWING_TEST_DB'])
         generator=sys.argv[2];sys.argv=[generator]+sys.argv[3:]
         runpy.run_path(str(ROOT/'scripts'/generator),run_name='__main__')
+    elif len(sys.argv)>1 and sys.argv[1]=='--approved-adapters': measure_approved(sys.argv[2],sys.argv[3], '--publish' in sys.argv)
     elif len(sys.argv)>1 and sys.argv[1]=='--refresh-measurements': refresh_measurements(sys.argv[2], '--publish' in sys.argv)
     else: main()

@@ -44,6 +44,40 @@ def wing_fixture(status='inferred', value=852.19, confidence=55):
     return {'S':dict(levels=[source]),'T':dict(levels=[target])},context,target
 
 
+def test_unknown_inner_region_uses_its_own_wing_without_changing_principal():
+    items,context,target=wing_fixture('unknown',None,0)
+    original=deepcopy(context['state']['slabs'][1]['points'])
+    target.update(field='slab_region_level',region_id='thin',region_height_cm=13,
+                  region_geometry=mapping(Polygon(original)))
+    slab=context['state']['slabs'][1]
+    slab.update(points=[[50,0],[120,0],[120,80],[50,80],[50,0]],
+                slab_steps=[dict(uid='thin',height_cm=13,points=original)])
+    slab['fields']['laje_dim']='h=12'
+    principal=dict(fact_id='principal',field='slab_level',value=852.25,status='sa_evidence')
+    items['T']['levels'].append(principal)
+    resolve_missing_slab_cut_regions(items,context)
+    assert target['value']==852.19 and target['source_fact_ids']==['source']
+    assert shape(target['target_geometry']).equals(Polygon(original))
+    assert principal['value']==852.25
+    assert 'level_review' not in items['T']
+    assert items['T']['region_level_reviews']['thin']['value']==852.19
+
+
+def test_unknown_region_fact_is_retained_without_inventing_level():
+    step=dict(uid='thin',points=[[0,0],[10,0],[10,10],[0,10],[0,0]],
+              height_cm=10,owner_height_cm=12,level_m=None,owner_level_m=None,
+              evidence_handles=[],evidence_checks={})
+    context=dict(evidence_id='collection',state=dict(slabs=[dict(name='T',
+        points=[[0,0],[20,0],[20,20],[0,20],[0,0]],slab_steps=[step])]))
+    item=dict(item_id='T',levels=[])
+    add_slab_region_facts({'T':item},context)
+    assert len(item['levels'])==1
+    fact=item['levels'][0]
+    assert fact['value'] is None and fact['status']=='unknown'
+    assert fact['region_height_cm']==10 and fact['region_id']=='thin'
+    assert step['level_m'] is None
+
+
 def test_existing_inference_reproved_by_independent_measured_wings():
     items,context,target=wing_fixture()
     resolve_missing_slab_cut_regions(items,context)
@@ -72,6 +106,73 @@ def test_inferred_source_cannot_bootstrap_reproof_or_form_cycle():
     items['S']['levels'][0].update(status='sa_evidence',source_fact_ids=['target'])
     resolve_missing_slab_cut_regions(items,context)
     assert target==before
+
+
+@pytest.mark.parametrize('dependency', ['source_fact_ids', 'derived_from'])
+def test_relative_wing_rejects_transitive_self_confirmation(dependency):
+    items,context,target=wing_fixture()
+    source=items['S']['levels'][0]
+    source[dependency]=['bridge']
+    items['T']['levels'].append(dict(fact_id='bridge',field='audit', **{dependency:['target']}))
+    before=deepcopy(target)
+    resolve_missing_slab_cut_regions(items,context)
+    assert target==before
+
+
+def test_relative_wing_rejects_existing_cycle_in_source_chain():
+    items,context,target=wing_fixture()
+    items['S']['levels'][0]['source_fact_ids']=['bridge']
+    items['T']['levels'].append(dict(fact_id='bridge',field='audit',source_fact_ids=['source']))
+    before=deepcopy(target)
+    resolve_missing_slab_cut_regions(items,context)
+    assert target==before
+
+
+def test_relative_wing_rejects_cycle_through_other_class():
+    items,context,target=wing_fixture()
+    items['S']['levels'][0]['source_fact_ids']=['beam']
+    resolve_missing_slab_cut_regions(items,context, {
+        'beam':dict(fact_id='beam',source_fact_ids=['target'])})
+    assert target['confidence_pct']==55 and target['status']=='inferred'
+
+
+def test_relative_wing_preserves_acyclic_derived_source():
+    items,context,target=wing_fixture()
+    items['S']['levels'][0]['source_fact_ids']=['root']
+    resolve_missing_slab_cut_regions(items,context, {
+        'root':dict(fact_id='root',evidence_ids=['cad:A'])})
+    assert target['value']==852.19 and target['confidence_pct']==85.5
+    assert target['source_fact_ids']==['source']
+
+
+def test_bounded_measured_wing_corrects_only_unmeasured_convention_with_traced_root():
+    items, context, target = wing_fixture(value=852.16, confidence=70)
+    target['method'] = 'slab_neighbor_continuity_without_step_cut'
+    items['S']['levels'][0].update(status='inferred', source_fact_ids=['root'])
+    root = dict(fact_id='root', field='slab_level', value=852.16, unit='m',
+                method='cad_level_inside_slab', status='sa_evidence', evidence_ids=['cad:A'])
+    resolve_missing_slab_cut_regions(items, context, {'root':root}, allow_traced_inferred=True)
+    assert target['value'] == 852.19
+    assert target['previous_level_evidence']['value'] == 852.16
+    assert 'measured_wing_supersedes_neighbor_convention' in target['warnings']
+
+
+@pytest.mark.parametrize('blocker', ['cycle', 'missing', 'estimate', 'human_target', 'measured_target'])
+def test_bounded_reconciliation_rejects_unrooted_or_self_confirming_feedback(blocker):
+    items, context, target = wing_fixture(value=852.16, confidence=70)
+    target['method'] = 'slab_neighbor_continuity_without_step_cut'
+    source = items['S']['levels'][0]
+    source.update(status='inferred', source_fact_ids=['root'])
+    root = dict(fact_id='root', field='slab_level', value=852.16, unit='m',
+                method='cad_level_inside_slab', status='sa_evidence', evidence_ids=['cad:A'])
+    if blocker == 'cycle': root['source_fact_ids'] = ['target']
+    if blocker == 'estimate': root['status'] = 'estimated'
+    if blocker == 'human_target': target['status'] = 'human_review'
+    if blocker == 'measured_target': target['method'] = 'scoped_cut_wing_relative_delta_cm'
+    before = deepcopy(target)
+    resolve_missing_slab_cut_regions(items, context, {} if blocker=='missing' else {'root':root},
+                                    allow_traced_inferred=True)
+    assert target == before
 
 
 @pytest.mark.parametrize('blocked', [False,True])

@@ -43,6 +43,16 @@ def _beam():
     }
 
 
+def test_cell_adjustments_zero_signed_total_and_unknown():
+    from src.core.preficha_segments import _cell_adjustment
+    assert _cell_adjustment(dict(adjustment_start=0, adjustment_end=11)) == {
+        'initial': '0', 'final': '+11', 'total': '+11'}
+    assert _cell_adjustment(dict(adjustment_start=-4, adjustment_end=4)) == {
+        'initial': '-4', 'final': '+4', 'total': '0'}
+    assert _cell_adjustment(dict(adjustment_start=float('nan'))) == {
+        'initial': '', 'final': '', 'total': ''}
+
+
 def test_fv_automatic_side_value_yields_to_actual_slab_contact():
     beam = _beam()
     beam['fields'] = {'viga_a_seg_1_nivel_viga': '853.07'}

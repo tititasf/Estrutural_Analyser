@@ -25,6 +25,7 @@ TABELAS_ESPERADAS = {
     "portal_n5_releases",
     "portal_n5_validacoes",
     "portal_documentos",  # migration 002 (2026-07-06)
+    "portal_pavimento_modo_desenho",  # migration 023
 }
 
 
@@ -58,7 +59,7 @@ def test_init_db_cria_as_6_tabelas(conn):
     # ver CHANGELOG das migrations
     # em portal/db/migrations/ pro histórico completo)
     ver = conn.execute("SELECT MAX(version) FROM portal_schema_version").fetchone()[0]
-    assert ver == 21
+    assert ver == 23
 
 
 def test_init_db_idempotente(tmp_path):
@@ -68,7 +69,7 @@ def test_init_db_idempotente(tmp_path):
     # rodar de novo não duplica versão nem quebra
     c2 = connection.init_db(db_path)
     n = c2.execute("SELECT COUNT(*) FROM portal_schema_version").fetchone()[0]
-    assert n == 21  # 001..021, cada migration registra 1 linha
+    assert n == 23  # 001..023, cada migration registra 1 linha
     c2.close()
 
 

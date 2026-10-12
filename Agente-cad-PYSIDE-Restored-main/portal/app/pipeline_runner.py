@@ -56,8 +56,55 @@ from .config import Settings
 
 log = logging.getLogger("portal.pipeline_runner")
 
+import contextlib
+import contextvars
+
+# Gate CAD pós-SA só avisa: dentro da cadeia ele roda numa thread junto do N5
+# (que trabalha em processos filhos) em vez de segurar a fila por ~60 s.
+_GATE_CAD_EM_FUNDO = contextvars.ContextVar("gate_cad_em_fundo", default=None)
+
+
+@contextlib.contextmanager
+def gate_cad_em_fundo():
+    """Na cadeia, adia o gate CAD para uma thread e espera por ela na saída."""
+    gates = []
+    token = _GATE_CAD_EM_FUNDO.set(gates)
+    try:
+        yield
+    finally:
+        _GATE_CAD_EM_FUNDO.reset(token)
+        for thread, resultado, log_path in gates:
+            thread.join()
+            path = resultado.get("path")
+            linha = (f"\n[portal] GATE CAD pós-SA: {path.name}\n" if path else "") + (
+                f"[portal][PERF] gate_cad (em paralelo ao N5): {resultado.get('s', 0):.1f}s\n")
+            if log_path is not None:
+                with Path(log_path).open("a", encoding="utf-8") as fh:
+                    fh.write(linha)
+
+
+def _gate_cad(log_path, *args, **kwargs):
+    """Roda o gate agora, ou em fundo se a cadeia pediu; devolve o path ou None."""
+    from .qa_cad_gate_run import best_effort
+    gates = _GATE_CAD_EM_FUNDO.get()
+    if gates is None:
+        return best_effort(*args, **kwargs)
+    import threading
+    import time as _t
+    resultado = {}
+
+    def rodar():
+        inicio = _t.monotonic()
+        resultado["path"] = best_effort(*args, **kwargs)
+        resultado["s"] = _t.monotonic() - inicio
+
+    thread = threading.Thread(target=rodar, name="gate-cad", daemon=False)
+    thread.start()
+    gates.append((thread, resultado, log_path))
+    return None
+
 # Etapas que o portal aciona (HANDOFF §1.2). 'validacao' nao passa por aqui (so DB).
-ETAPAS_SUBPROCESS = ("triagem", "recortes", "sa")
+ETAPAS_SUBPROCESS = ("triagem", "recortes", "sa", "n3")
 ETAPAS_TODAS = ("triagem", "recortes", "sa", "n5")
 
 # Caminhos canônicos do runtime SA (CLAUDE.md / AGENTS.md — Python 3.12 OBRIGATÓRIO).
@@ -310,6 +357,7 @@ def promover_snapshot_sa(
             return None
         if not isinstance(current, dict) or not isinstance(current.get("pilares"), list):
             return None
+        _restore_generated_section_reviews(obra_dir, pavimento, current, secao, item_names, iniciado_em)
         return canonical
     source = max(candidates, key=lambda path: path.stat().st_mtime)
     try:
@@ -369,7 +417,10 @@ def promover_snapshot_sa(
                 if name in wanted and name not in seen
             )
             payload["slabs"] = merged_slabs
+    fresh_segments = {"segmentos": payload.get("segmentos") or {}}
     _preservar_segmentos_de_outras_classes(payload, canonical, secao, wanted)
+    from src.core.pillar_geometry_association import annotate_circular_state
+    annotate_circular_state(payload)
     canonical.parent.mkdir(parents=True, exist_ok=True)
     fd, tmp_name = tempfile.mkstemp(prefix=f".{canonical.name}.", suffix=".tmp", dir=canonical.parent)
     try:
@@ -384,7 +435,25 @@ def promover_snapshot_sa(
             Path(tmp_name).unlink(missing_ok=True)
         except OSError:
             pass
+    from .item_geometry import restore_generated_segments
+    restore_generated_segments(fresh_segments, obra_dir, pavimento, secao, wanted)
+    _restore_generated_section_reviews(obra_dir, pavimento, fresh_segments, secao, wanted, iniciado_em)
     return canonical
+
+
+def _restore_generated_section_reviews(obra_dir, pavimento, state, secao, wanted, started_at):
+    # Pillar/slab-only jobs do not reinterpret beam cuts. Release only beams
+    # present in the newly generated lateral/soffit intervals, never preserved ones.
+    if secao not in (None, 'fundos_viga', 'laterais_viga'):
+        return
+    names = {s.get('beam_name') for key, rows in (state.get('segmentos') or {}).items()
+             if _dono_do_segmento(key) is not None
+             and (secao is None or _dono_do_segmento(key) == secao)
+             for s in rows if s.get('beam_name')}
+    if wanted:
+        names &= {str(n).upper() for n in wanted}
+    from .structural_review import restore_generated
+    restore_generated(obra_dir, pavimento, started_at, beam_names=names)
 
 
 def auditar_pacote_pilares_n3(obra_dir: Path, pavimento: str) -> dict:
@@ -396,10 +465,11 @@ def auditar_pacote_pilares_n3(obra_dir: Path, pavimento: str) -> dict:
     except (OSError, json.JSONDecodeError) as exc:
         return {"total_pilares": 0, "variantes_esperadas": 0,
                 "variantes_completas": 0, "missing": [f"estado: {exc}"]}
+    from src.core.pillar_sa_review import eligible
     names = [
         str(row.get("name") or row.get("nome") or "").strip()
         for row in (state.get("pilares") or []) if isinstance(row, dict)
-        and str(row.get("classification") or "").strip().upper() != "NASCE"
+        and eligible(row)
     ]
     names = [name for name in names if name]
     root = Path(obra_dir) / "Fase-6_Execucao_CAD" / "n3_variants"
@@ -453,10 +523,49 @@ def materializar_n1_tags_pilares(
         "--no-layers",
     ]
     itens_limpos = [str(item).strip() for item in (itens or []) if str(item).strip()]
+    canonical = _obra_dir(settings, obra) / f"estado_{pavimento}.json"
+    state = json.loads(canonical.read_text(encoding="utf-8"))
+    cmd += ["--snapshot-path", str(canonical)]
+    selected = [row for row in state.get('pilares', []) if isinstance(row, dict)
+                and (not itens_limpos or str(row.get('name') or row.get('nome')) in itens_limpos)]
+    unavailable = {str(row.get('name') or row.get('nome')) for row in selected
+                   if 'points' in row and len(row.get('points') or []) < 3}
+    item_pending = [f'PIL/{name}/N1 tags: polígono estrutural ausente'
+                    for name in sorted(unavailable)]
+    from src.core.pillar_special_faces import supports_physical_tag_renderer
+    unsupported = {str(row.get('name') or row.get('nome')) for row in selected
+                   if 'points' in row and len(row.get('points') or []) >= 3
+                   and not supports_physical_tag_renderer(row['points'])}
+    item_pending += [f'PIL/{name}/N1 tags: renderer de faces físicas deste contorno ainda não integrado; tags por caixa envolvente recusadas'
+                     for name in sorted(unsupported)]
+    unavailable |= unsupported
+    if unavailable:
+        eligible = sorted({str(row.get('name') or row.get('nome')) for row in selected} - unavailable)
+        if not eligible:
+            return dict(pack=None, esperados=len(selected), gerados=0,
+                        missing=sorted(unavailable), item_pending=item_pending,
+                        paridade_arete=dict(status='sem_metodo_de_faces' if unsupported else 'sem_geometria'), duracao_s=0)
+        itens_limpos = eligible
     if itens_limpos:
         cmd += ["--item", *itens_limpos]
     import time
     iniciado_em = time.time()
+    from . import pillar_tag_cache
+    cache_names = sorted({str(row.get('name') or row.get('nome')) for row in selected}
+                         - unavailable)
+    cache_key = pillar_tag_cache.fingerprint(
+        settings, _obra_dir(settings, obra), obra_nome, project_id, pavimento, cache_names)
+    cached = pillar_tag_cache.find_pack(output_root, pavimento, cache_key, cache_names)
+    if cached:
+        cached_pack, cached_stats = cached
+        parity = auditar_paridade_semantica_tags(
+            cached_pack,
+            _obra_dir(settings, obra) / 'arete_approved' / f'pilares_tags_{pavimento}.json',
+            set(cache_names))
+        if parity['status'] != 'fail':
+            return dict(cached_stats, pack=str(cached_pack), paridade_arete=parity,
+                        item_pending=item_pending, reused=True,
+                        duracao_s=round(time.time() - iniciado_em, 2))
     proc = subprocess.run(
         cmd, cwd=str(settings.repo_root), capture_output=True, text=True,
         encoding="utf-8", errors="replace", timeout=None,
@@ -524,7 +633,7 @@ def materializar_n1_tags_pilares(
     if published.exists():
         raise RuntimeError(f"destino de pack N1 ja existe: {published}")
     os.replace(pack, published)
-    return {
+    stats = {
         "pack": str(published),
         "esperados": len(expected),
         "gerados": len(generated & expected),
@@ -532,7 +641,18 @@ def materializar_n1_tags_pilares(
         "assets_arete": assets_arete,
         "paridade_arete": parity,
         "duracao_s": round(time.time() - iniciado_em, 2),
+        "item_pending": item_pending,
     }
+    # Inputs may change while rendering. Such a pack is still published through
+    # the existing gates, but cannot become a reusable cache entry.
+    if cache_key is not None and cache_key == pillar_tag_cache.fingerprint(
+            settings, _obra_dir(settings, obra), obra_nome, project_id, pavimento, cache_names):
+        try:
+            pillar_tag_cache.record_pack(published, cache_key, cache_names, stats)
+        except OSError:
+            # Cache persistence must not invalidate an otherwise valid output.
+            pass
+    return stats
 
 
 _SVG_COMMENT_RE = re.compile(r"<!--\s*(.*?)\s*-->", re.DOTALL)
@@ -733,6 +853,7 @@ def montar_comando_headless(
     item: Optional[list[str]] = None,
     visual_mode: str = "NOVA",
     vigas_config: Optional[dict] = None,
+    generate_n3: bool = True,
 ) -> list[str]:
     """Comando do headless para as etapas de recortes/sa (HANDOFF §1.2).
 
@@ -768,6 +889,8 @@ def montar_comando_headless(
         "--production-web",
         "--visual-mode", str(visual_mode or "NOVA").strip().upper(),
     ]
+    if not generate_n3:
+        cmd.append('--sa-only')
     if vigas_config is not None:
         from src.core.vigas_drawing_config import normalize_config
         cmd += ['--vigas-config-json', json.dumps(normalize_config(vigas_config), ensure_ascii=False)]
@@ -782,6 +905,28 @@ def montar_comando_headless(
     if not secoes or itens:
         cmd.append("--persist-db")
     return cmd
+
+
+def auditar_manifesto_n3_da_rodada(stdout: str, obra_dir: Path) -> tuple[Path, list[str]]:
+    """Audit the explicit receipt of this run, never a previous successful pack."""
+    marker = '[SA-HUMAN] PRODUCTION_MANIFEST '
+    receipts = [line[len(marker):].strip() for line in stdout.splitlines() if line.startswith(marker)]
+    if len(receipts) != 1:
+        raise RuntimeError('recibo do manifesto N3 desta rodada ausente ou ambiguo')
+    path = Path(receipts[0]).resolve()
+    root = (Path(obra_dir)/'Fase-6_Execucao_CAD'/'production_sa').resolve()
+    if not path.is_relative_to(root):
+        raise RuntimeError('manifesto N3 fora do diretorio de producao da obra')
+    payload = json.loads(path.read_text(encoding='utf-8'))
+    if payload.get('schema') != 'cad.sa.production/v1' or payload.get('n3', {}).get('status') != 'requested':
+        raise RuntimeError('manifesto nao corresponde a uma geracao N3 solicitada')
+    failures = []
+    for kind in ('fv', 'lv', 'lj', 'pl'):
+        failed = payload['n3'].get(kind+'_failed')
+        if not isinstance(failed, list):
+            raise RuntimeError(f'manifesto N3 sem resultado da classe {kind.upper()}')
+        failures.extend(f'{kind.upper()}/{name}' for name in failed)
+    return path, failures
 
 
 def _rodar_subprocess_sa(
@@ -893,7 +1038,57 @@ def _rodar_subprocess_sa(
     # pilares para que a primeira abertura da tela nÃ£o seja responsÃ¡vel por
     # criar dados. Overrides humanos existentes sÃ£o preservados.
     posprocessamento_ok = True
-    if proc.returncode == 0 and etapa in {"sa", "sa_item"}:
+    if proc.returncode == 0 and '--sa-only' in cmd:
+        try:
+            secoes_cmd = [cmd[i + 1] for i, value in enumerate(cmd[:-1]) if value == '--secao']
+            itens_cmd = [cmd[i + 1] for i, value in enumerate(cmd[:-1]) if value == '--item']
+            snapshot = promover_snapshot_sa(
+                obra_dir, str(pav or settings.pav_default), iniciado_em=iniciado_em,
+                secao=secoes_cmd[0] if len(secoes_cmd) == 1 else None,
+                item_names=set(itens_cmd),
+            )
+            if snapshot is None:
+                raise RuntimeError('o SA terminou sem publicar um estado N1 valido desta rodada')
+            artefatos['estado_n1'] = str(snapshot)
+            memoria = aplicar_memoria_arete_pilares(
+                settings, obra, project_id=project_id, pavimento=str(pav or settings.pav_default),
+            )
+            artefatos['memoria_arete_pilares'] = memoria
+            if memoria.get('status') not in {'aplicada', 'sem_referencia'}:
+                raise RuntimeError('memoria Arete PIL indisponivel: ' + str(memoria))
+            if not secoes_cmd or 'pilares' in secoes_cmd:
+                artefatos['pilar_n1_tags'] = materializar_n1_tags_pilares(
+                    settings, obra, project_id=project_id,
+                    pavimento=str(pav or settings.pav_default), itens=itens_cmd,
+                )
+                artefatos.setdefault('item_pending', []).extend(
+                    artefatos['pilar_n1_tags'].get('item_pending', []))
+            # Gate CAD pós-SA também no SA sem N3 (o botão SA do portal); só avisa.
+            from .qa_cad_gate_run import best_effort as gate_cad_best_effort
+            gate_path = gate_cad_best_effort(
+                obra_dir, str(pav or settings.pav_default),
+                secao=secoes_cmd[0] if len(secoes_cmd) == 1 else None,
+                item_names=set(itens_cmd) or None,
+            )
+            artefatos['qa_cad_gate'] = str(gate_path) if gate_path else None
+            if gate_path:
+                saida += f'\n[portal] GATE CAD pós-SA: {gate_path.name}\n'
+            saida += '\n[portal] SA/N1 publicado; N3 nao solicitado.\n'
+        except Exception as exc:
+            posprocessamento_ok = False
+            log.exception('falha ao publicar SA/N1')
+            artefatos['n1_errors'] = [str(exc)]
+            saida += f'\n[portal] POS-PROCESSAMENTO SA/N1 FALHOU: {exc}\n'
+        if log_path is not None:
+            Path(log_path).write_text(saida, encoding='utf-8', errors='replace')
+        return ResultadoEtapa(
+            etapa=etapa, ok=posprocessamento_ok, comando=cmd,
+            returncode=proc.returncode, log_tail=_tail(saida), artefatos=artefatos,
+        )
+    if proc.returncode == 0 and etapa in {"sa", "sa_item", "n3"}:
+        import time as _time
+        # Pós-etapas no processo do portal: tempo por etapa vai ao log do job.
+        perf_marcas = [("inicio", _time.monotonic())]
         try:
             from src.core.pillar_n3_ficha import materialize_pavimento
 
@@ -914,25 +1109,39 @@ def _rodar_subprocess_sa(
             if snapshot is None:
                 raise RuntimeError("o SA terminou sem publicar um estado N1 valido desta rodada")
             artefatos["estado_n1"] = str(snapshot)
+            perf_marcas.append(("promover_snapshot", _time.monotonic()))
             if not secoes_cmd or "laterais_viga" in secoes_cmd:
                 from .lv_n3_cuts import materialize_pavimento as materialize_lv_cuts
+                from .lv_n3_panels import materialize_pavimento as materialize_lv_panels
                 modes = [cmd[index + 1] for index, value in enumerate(cmd[:-1])
                          if value == "--visual-mode"]
-                cut_stats = materialize_lv_cuts(
-                    obra_dir, str(pav or settings.pav_default),
-                    mode=modes[0] if modes else "NOVA", item_names=itens_cmd,
-                )
-                artefatos["lv_n3_cuts"] = cut_stats
+                from .ficha_reader import estado_compartilhado
+                # Cortes e painéis consomem o mesmo estado efetivo desta rodada.
+                with estado_compartilhado():
+                    cut_stats = materialize_lv_cuts(
+                        obra_dir, str(pav or settings.pav_default),
+                        mode=modes[0] if modes else "NOVA", item_names=itens_cmd,
+                        max_workers=3,
+                    )
+                    artefatos["lv_n3_cuts"] = cut_stats
+                    panel_stats = materialize_lv_panels(
+                        obra_dir, str(pav or settings.pav_default),
+                        mode=modes[0] if modes else "NOVA", item_names=itens_cmd,
+                        max_workers=3,
+                    ) if not modes or modes[0] in ("NOVA","MOLDE_1","INI") else dict(errors=[],generated=0,expected=0)
+                artefatos["lv_n3_panels"] = panel_stats
+                perf_marcas.append(("lv_cortes_paineis", _time.monotonic()))
                 saida += (f"\n[portal] LV VISAO CORTE: {cut_stats['generated']}/"
                           f"{cut_stats['expected']} cortes; {cut_stats['beams']} "
                           f"vigas/comportamentos; modo={cut_stats['visual_mode']}\n")
-                if cut_stats['errors']:
-                    raise RuntimeError('Visao Corte incompleta: ' + '; '.join(cut_stats['errors']))
+                if cut_stats['errors'] or panel_stats['errors']:
+                    artefatos.setdefault('item_pending', []).extend(cut_stats['errors']+panel_stats['errors'])
             memoria_arete = aplicar_memoria_arete_pilares(
                 settings, obra, project_id=project_id,
                 pavimento=str(pav or settings.pav_default),
             )
             artefatos["memoria_arete_pilares"] = memoria_arete
+            perf_marcas.append(("memoria_arete_pil", _time.monotonic()))
             if memoria_arete.get("status") not in {"aplicada", "sem_referencia"}:
                 raise RuntimeError(
                     "memoria Arete PIL indisponivel: " + str(memoria_arete)
@@ -941,11 +1150,9 @@ def _rodar_subprocess_sa(
                 obra_dir, str(pav or settings.pav_default),
             )
             artefatos["pilar_n3_fichas"] = ficha_stats
+            perf_marcas.append(("fichas_pil_n3", _time.monotonic()))
             if ficha_stats.get("errors"):
-                raise RuntimeError(
-                    "uma ou mais fichas de pilares nao puderam ser materializadas: "
-                    + "; ".join(ficha_stats["errors"])
-                )
+                artefatos.setdefault('item_pending', []).extend(ficha_stats['errors'])
 
             # SA completo (sem --secao) ou uma solicitacao explicita de pilares
             # so conclui quando PARA e PASSA possuem contrato + ABCD + GRADES.
@@ -956,24 +1163,35 @@ def _rodar_subprocess_sa(
                 )
                 artefatos["pilar_n3"] = n3_stats
                 if n3_stats["missing"]:
-                    raise RuntimeError(
-                        f"pacote N3 de pilares incompleto: "
-                        f"{len(n3_stats['missing'])} artefato(s) ausente(s)"
+                    artefatos.setdefault('item_pending', []).extend(n3_stats['missing'])
+                    saida += '\n[portal] pacote N3 de pilares incompleto; pendências por item: ' + '; '.join(n3_stats['missing']) + '\n'
+                try:
+                    artefatos["pilar_n1_tags"] = materializar_n1_tags_pilares(
+                        settings, obra, project_id=project_id,
+                        pavimento=str(pav or settings.pav_default), itens=itens_cmd,
                     )
-                artefatos["pilar_n1_tags"] = materializar_n1_tags_pilares(
-                    settings, obra, project_id=project_id,
-                    pavimento=str(pav or settings.pav_default), itens=itens_cmd,
-                )
+                except Exception as exc:
+                    # Do not publish a failed pack or cancel unrelated outputs.
+                    log.exception("publicação N1 PIL pendente")
+                    artefatos["pilar_n1_tags"] = {
+                        "status": "pendente", "pack": None,
+                        "item_pending": [f"PIL/N1 publicação: {exc}"],
+                    }
+                    saida += f"\n[portal] PUBLICAÇÃO N1 PIL PENDENTE: {exc}\n"
+                artefatos.setdefault('item_pending', []).extend(
+                    artefatos['pilar_n1_tags'].get('item_pending', []))
+            perf_marcas.append(("pacote_e_tags_pil", _time.monotonic()))
             # Gate CAD pós-SA: mede no DXF original e só avisa (nunca derruba o job).
-            from .qa_cad_gate_run import best_effort as gate_cad_best_effort
-            gate_path = gate_cad_best_effort(
-                obra_dir, str(pav or settings.pav_default),
+            # Na cadeia completa roda em fundo, junto do N5 (gate_cad_em_fundo).
+            gate_path = _gate_cad(
+                log_path, obra_dir, str(pav or settings.pav_default),
                 secao=secoes_cmd[0] if len(secoes_cmd) == 1 else None,
                 item_names=set(itens_cmd) or None,
             )
             artefatos["qa_cad_gate"] = str(gate_path) if gate_path else None
             if gate_path:
                 saida += f"\n[portal] GATE CAD pós-SA: {gate_path.name}\n"
+            perf_marcas.append(("gate_cad", _time.monotonic()))
             log.info("fichas PIL N1/N3 materializadas: %s", ficha_stats)
         except Exception as exc:
             posprocessamento_ok = False
@@ -981,6 +1199,25 @@ def _rodar_subprocess_sa(
             artefatos.setdefault("pilar_n3_fichas", {"errors": []})
             artefatos["pilar_n3_fichas"].setdefault("errors", []).append(str(exc))
             saida += f"\n[portal] POS-PROCESSAMENTO SA/N1/N3 FALHOU: {exc}\n"
+        saida += "\n" + "".join(
+            f"[portal][PERF] {nome}: {fim - ini:.1f}s\n"
+            for (_, ini), (nome, fim) in zip(perf_marcas, perf_marcas[1:]))
+    if proc.returncode == 0 and '--production-web' in cmd and '--sa-only' not in cmd:
+        try:
+            manifest, failures = auditar_manifesto_n3_da_rodada(proc.stdout or '', obra_dir)
+            artefatos['production_manifest'] = str(manifest)
+            artefatos['n3_errors'] = failures
+            if failures:
+                artefatos.setdefault('item_pending', []).extend(failures)
+                saida += '\n[portal] N3 COM PENDÊNCIAS POR ITEM: ' + '; '.join(failures) + '\n'
+        except Exception as exc:
+            posprocessamento_ok = False
+            artefatos['n3_errors'] = [str(exc)]
+            saida += f'\n[portal] AUDITORIA N3 FALHOU: {exc}\n'
+    if artefatos.get('item_pending') and artefatos.get('production_manifest'):
+        ledger = Path(artefatos['production_manifest']).with_name('item_pending.json')
+        ledger.write_text(json.dumps(dict(pavimento=pav, items=artefatos['item_pending']), ensure_ascii=False, indent=2), encoding='utf8')
+        artefatos['pending_manifest'] = str(ledger)
     if log_path is not None:
         try:
             Path(log_path).write_text(saida, encoding="utf-8", errors="replace")
@@ -1075,7 +1312,8 @@ def regenerar_n3_cima_item(
     state = ler_estado_pavimento(obra_dir, pav) or {}
     pillar = next((p for p in state.get('pilares', []) if p.get('name') == item_s), None)
     if pillar and not eligible(pillar):
-        return ResultadoEtapa(etapa=step, ok=False, log_tail="NASCE: somente SA; N3 ignorado")
+        from src.core.pillar_sa_review import generation_exclusion
+        return ResultadoEtapa(etapa=step, ok=False, log_tail=generation_exclusion(pillar))
     fields = load_sa_review(obra_dir, pav, item_s)
     root = obra_dir / "Fase-6_Execucao_CAD" / "n3_variants"
     mode_root = obra_dir / "Fase-6_Execucao_CAD" / "n3_modes" / visual_mode / "pilares"
@@ -1211,50 +1449,26 @@ def regenerar_n3_lv_vista_item(
             blocked = [c['id'] for c in cuts if not c['layers']['n3_cut']['available']]
             if blocked:
                 raise RuntimeError('contratos de corte incompletos: '+', '.join(blocked))
+            from src.core.vigas_drawing_config import LV_ASSEMBLIES
             for cut in cuts:
-                lv_n3_cuts.resolve(obra_dir,pav,behavior,cut,visual_mode)
-            message = f'{beam} {behavior}: {len(cuts)} cortes N3 gerados do inventário SA'
+                for assembly in LV_ASSEMBLIES:
+                    lv_n3_cuts.resolve(obra_dir,pav,behavior,cut,visual_mode,assembly)
+            message = f'{beam} {behavior}: {len(cuts)} cortes × 2 variantes N3 gerados do inventário SA'
             if log_path: Path(log_path).write_text(message,encoding='utf8')
             return ResultadoEtapa(etapa='n3_lv_view_item',ok=True,comando=command,returncode=0,log_tail=message)
-        contracts = lv_n3_operations.effective_contracts(obra_dir, pav, behavior, beam)
-        if vigas_config is not None:
-            from src.core.vigas_drawing_config import apply_lv_config
-            contracts = {side: apply_lv_config(contract, vigas_config) for side, contract in contracts.items()}
-        with tempfile.TemporaryDirectory(prefix="cad-lv-n3-") as temporary:
-            input_dir = Path(temporary) / "contracts"
-            output_dir = Path(temporary) / "output"
-            input_dir.mkdir()
-            output_dir.mkdir()
-            for side in ("A", "B"):
-                (input_dir / f"{beam}_{side}.json").write_text(
-                    json.dumps(contracts[side], ensure_ascii=False), encoding="utf-8",
-                )
-            result = subprocess.run(
-                command + ["--input-dir", str(input_dir), "--output-dir", str(output_dir)],
-                capture_output=True, text=True, timeout=settings.subprocess_timeout_s,
-                cwd=str(settings.repo_root),
-            )
-            generated = output_dir / filename
-            if result.returncode != 0 or not generated.is_file():
-                raise RuntimeError((result.stdout + "\n" + result.stderr)[-1500:] or "DXF LV ausente")
-            import ezdxf
-
-            if len(ezdxf.readfile(generated).modelspace()) == 0:
-                raise RuntimeError("gerador LV produziu uma vista vazia")
-            target_dir = (obra_dir / "Fase-6_Execucao_CAD" / "n3_modes" /
-                          visual_mode / "lv" / behavior)
-            target_dir.mkdir(parents=True, exist_ok=True)
-            target = target_dir / filename
-            fd, temporary_target = tempfile.mkstemp(
-                prefix=f".{target.stem}.", suffix=".dxf", dir=target_dir,
-            )
-            os.close(fd)
-            try:
-                shutil.copyfile(generated, temporary_target)
-                os.replace(temporary_target, target)
-            finally:
-                Path(temporary_target).unlink(missing_ok=True)
-            message = f"{beam} {behavior} N3 {view} regenerado: {target.name}"
+        from . import lv_n3_panels
+        results=lv_n3_panels.materialize(obra_dir,pav,behavior,beam,generator_view,visual_mode)
+        from src.core.vigas_drawing_config import normalize_config
+        selected=normalize_config(vigas_config)['comportamento_laterais_vigas']
+        target_dir=obra_dir/'Fase-6_Execucao_CAD'/'n3_modes'/visual_mode/'lv'/behavior
+        for assembly,result in results.items():
+            destination=target_dir/pav/assembly/filename
+            destination.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(result['path'],destination)
+            if assembly==selected:
+                target_dir.mkdir(parents=True,exist_ok=True)
+                shutil.copyfile(result['path'],target_dir/filename)
+        message=f"{beam} {behavior} N3 {view}: gradeadas e sarrafeadas geradas"
     except Exception as exc:
         message = f"regeneração N3 LV falhou: {exc}"
         if log_path:
@@ -1313,11 +1527,14 @@ def _garantir_project_registrado(
                     # em vez de adivinhar o nome exato.
                     stem = Path(nome).stem
                     entrada_dir = obra_dir / "entrada"
-                    candidato = entrada_dir / f"{stem}.dxf"
+                    candidato = entrada_dir / nome if nome.lower().endswith('.dxf') else entrada_dir / f"{stem}.dxf"
                     if candidato.is_file():
                         dxf_path = candidato
                     else:
-                        achados = sorted(entrada_dir.glob(f"{stem}*.dxf"))
+                        from .recortes_reader import stem_bruto_canonico
+                        achados = sorted(p for p in entrada_dir.iterdir()
+                            if p.is_file() and p.suffix.lower() == '.dxf'
+                            and stem_bruto_canonico(p.stem).casefold() == stem_bruto_canonico(stem).casefold())
                         if achados:
                             dxf_path = achados[0]
                     if dxf_path:
@@ -1329,10 +1546,9 @@ def _garantir_project_registrado(
             conn.close()
 
     if not dxf_path:
-        entrada = _arquivo_entrada(obra_dir, obra)
-        if not entrada:
-            return None
-        dxf_path = entrada.with_suffix(".dxf")
+        # Um pavimento selecionado nunca pode usar o documento principal de
+        # outro pavimento como fallback. A falta da fonte exata é um erro.
+        return None
 
     if not dxf_path or not dxf_path.is_file():
         return None
@@ -1371,10 +1587,20 @@ def _garantir_project_registrado(
         # `_get_conn()`, mesmo padrao que `create_project()` ja usa.
         vconn = database._get_conn()
         row = vconn.execute(
-            "SELECT id FROM projects WHERE work_name = ? AND name = ? "
+            "SELECT id, dxf_path FROM projects WHERE work_name = ? AND name = ? "
             "ORDER BY rowid DESC LIMIT 1",
             (work_name, pavimento),
         ).fetchone()
+        if row:
+            from .recortes_reader import stem_bruto_canonico
+            def bruto_key(path):
+                path = Path(path)
+                name = path.parent.name if path.parent.parent.name == 'recortes' else path.stem
+                return stem_bruto_canonico(name).casefold()
+            if bruto_key(row[1]) != bruto_key(dxf_path):
+                # Outra fonte: preserve o projeto anterior e crie análise
+                # limpa. Não mesclar dados estruturais de desenhos distintos.
+                row = None
         if row:
             project_id = str(row[0])
             vconn.execute(
@@ -1798,6 +2024,7 @@ def executar_etapa(
 
     cmd = montar_comando_headless(
         settings, obra, secao=secao, pav=pav_efetivo, visual_mode=visual_mode, vigas_config=vigas_config,
+        generate_n3=etapa == 'n3',
     )
     return _rodar_subprocess_sa(
         settings, cmd, obra=obra, etapa=etapa, dry_run=dry_run,
@@ -1813,6 +2040,7 @@ def executar_n5(
     pavimento: str = "GERAL",
     dry_run: bool = True,
     visual_mode: str = "NOVA",
+    vigas_config: Optional[dict] = None,
 ) -> ResultadoEtapa:
     """Etapa 6: chama assemble_n5 (import direto, leve). Gera 1 DXF por classe+pav.
 
@@ -1832,24 +2060,52 @@ def executar_n5(
 
     try:
         from src.core.n5_assembler import n3_mode_readiness
-        readiness = n3_mode_readiness(obra_dir, classe, pavimento, visual_mode, settings.sa_db_path)
-        if not readiness["ready"]:
-            return ResultadoEtapa(etapa="n5", ok=False,
-                log_tail=f"N3 do modo {visual_mode} incompleto ({readiness['total'] - len(readiness['missing'])}/{readiness['total']}). Gere o N3 deste modo antes de unificar.")
-        resultado = assemble_n5(
-            obra_dir, classe, pavimento=pavimento,
-            db_path=str(settings.sa_db_path), visual_mode=visual_mode, project_metadata=obra,
-        )
+        dual_laterals = classe.upper() == 'LV' and visual_mode in ('NOVA','MOLDE_1','INI')
+        readiness = None if dual_laterals else n3_mode_readiness(obra_dir, classe, pavimento, visual_mode, settings.sa_db_path)
+        lateral_parts = {}
+        lateral_kwargs = {}
+        if dual_laterals:
+            from src.core.vigas_drawing_config import normalize_config
+            if vigas_config is None:
+                from portal.db.connection import get_connection
+                from portal.db import repository as repository
+                connection = get_connection(settings.db_path)
+                try:
+                    vigas_config = repository.obter_config_vigas_pavimento(connection, obra['id'], pavimento)
+                finally:
+                    connection.close()
+            selected_assembly = normalize_config(vigas_config)['comportamento_laterais_vigas']
+            lateral_kwargs = dict(lateral_assembly=selected_assembly, lateral_behavior='PARA')
+        from src.core.n5_tasks import run_assembly_tasks
+        common = dict(pavimento=pavimento, db_path=str(settings.sa_db_path),
+                      visual_mode=visual_mode, project_metadata=obra, allow_partial=True)
+        tasks = [('base', str(obra_dir), classe, dict(common, **lateral_kwargs))]
+        if dual_laterals:
+            for behavior in ('PARA', 'PASSA'):
+                for assembly in ('gradeadas', 'sarrafeadas'):
+                    if (behavior, assembly) != ('PARA', selected_assembly):
+                        tasks.append((f'{behavior}/{assembly}', str(obra_dir), classe,
+                                      dict(common, lateral_behavior=behavior,
+                                           lateral_assembly=assembly)))
+        if classe.upper() == 'PL':
+            for group in ('PARA', 'PASSA'):
+                tasks.append((group, str(obra_dir), classe, dict(common, pillar_group=group)))
+        parts = dict(run_assembly_tasks(tasks))
+        resultado = parts['base']
+        if dual_laterals:
+            for behavior in ('PARA', 'PASSA'):
+                lateral_parts[behavior] = {}
+                for assembly in ('gradeadas', 'sarrafeadas'):
+                    part = resultado if (behavior, assembly) == ('PARA', selected_assembly) else parts[f'{behavior}/{assembly}']
+                    if not part.ok_count:
+                        continue
+                    lateral_parts[behavior][assembly] = str(part.output_path)
         pillar_parts = {}
         if classe.upper() == "PL":
             for group in ("PARA", "PASSA"):
-                part = assemble_n5(
-                    obra_dir, classe, pavimento=pavimento,
-                    db_path=str(settings.sa_db_path), visual_mode=visual_mode, project_metadata=obra,
-                    pillar_group=group,
-                )
-                if part.missing_count or not part.ok_count:
-                    raise ValueError(f"N5 PL {group}: conjunto incompleto")
+                part = parts[group]
+                if not part.ok_count:
+                    continue
                 pillar_parts[group] = str(part.output_path)
     except Exception as exc:  # noqa: BLE001 - erro do assembler vira estado de job 'error'
         return ResultadoEtapa(etapa="n5", ok=False,
@@ -1858,15 +2114,19 @@ def executar_n5(
 
     dxf_path = str(resultado.output_path)
     artefatos = {
-        "n5_dxf": dxf_path,
+        "n5_dxf": dxf_path if resultado.ok_count else None,
         "n5_manifest": str(resultado.manifest_path),
         "pillar_parts": pillar_parts,
+        "lateral_parts": lateral_parts,
         "ok_count": resultado.ok_count,
         "missing_count": resultado.missing_count,
         "extra_count": resultado.extra_count,
         "extra_ids": resultado.extra_ids,
     }
-    ok = (resultado.ok_count > 0) and (resultado.missing_count == 0)
+    artefatos["partial"] = any(part.missing_count for part in parts.values())
+    artefatos["item_pending"] = [dict(variant=variant, **item.__dict__)
+                                for variant, part in parts.items() for item in getattr(part, 'items', []) if item.status != "ok"]
+    ok = resultado.ok_count > 0
     log_msg = None
     if resultado.missing_count > 0:
         log_msg = f"[WARNING/N5] Prancha gerada COM AUSÊNCIAS: {resultado.missing_count} item(ns) ausentes no disco!"

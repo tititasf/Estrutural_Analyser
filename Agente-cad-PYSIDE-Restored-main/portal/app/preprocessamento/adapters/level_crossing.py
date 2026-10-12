@@ -19,25 +19,16 @@ from .levels import item_levels
 
 _LEVEL_TEXT = re.compile(r"^(?:N\s*[:=]\s*)?([+-]?\d+[.,]\d{1,2})$", re.I)
 _FLOOR_NUM = re.compile(r"^(\d+)_PAV$", re.I)
-_FLOOR_LABEL = re.compile(r"^\s*(\d+)\s*[º°oa]?\s*PAV\.\s*$", re.I)
+_FLOOR_LABEL = re.compile(r"^\s*(\d+)\s*[º°oa]?\s*PAV(?:IMENTO)?\.?\s*$", re.I)
 
 
 def _texts(path: Path) -> list[dict]:
-    import ezdxf
+    from src.core.dxf_loader import DXFLoader
 
-    result = []
-    for entity in ezdxf.readfile(str(path)).modelspace():
-        kind = entity.dxftype()
-        if kind not in {"TEXT", "MTEXT"}:
-            continue
-        try:
-            raw = entity.dxf.text if kind == "TEXT" else entity.plain_mtext()
-            pos = entity.dxf.insert
-            result.append({"raw": str(raw).strip(), "position": [float(pos.x), float(pos.y)],
-                           "handle": str(entity.dxf.handle or ""), "layer": str(entity.dxf.layer)})
-        except (AttributeError, TypeError, ValueError):
-            continue
-    return result
+    data = DXFLoader.load_dxf(str(path)) or {}
+    return [{**token, "raw": str(token.get("text") or "").strip(),
+             "position": list(token["pos"][:2]), "handle": str(token.get("handle") or "")}
+            for token in data.get("texts", []) if token.get("pos")]
 
 
 def _floor_reference(path: Path | None, floor: str, source_id: str | None,
@@ -51,9 +42,20 @@ def _floor_reference(path: Path | None, floor: str, source_id: str | None,
     result["unit"] = extracted.get("unit")
     match = _FLOOR_NUM.fullmatch(floor)
     if not match:
-        result["status"] = "unsupported_floor_name"
-        return result
-    number = int(match.group(1))
+        typical = sorted({int(label.group(1)) for row in extracted.get("direct_floor_levels", [])
+                          if row.get("typical") and row.get("status") == "direct"
+                          and (label := _FLOOR_LABEL.fullmatch(row["floor_label"]))})
+        title_starts = {row["floor"] for row in extracted.get("typical_title_starts", [])}
+        if not re.fullmatch(r"TIPO(?:[_ -].+)?", floor, re.I) or not typical or title_starts != {min(typical)}:
+            result["status"] = "unsupported_floor_name"
+            result["warnings"].append("typical_floor_applicability_unproven")
+            return result
+        number = min(typical)
+        result["floor_selection"] = {"method": "first_typical_floor_title_and_convention",
+                                     "representative_floor": number, "represented_floors": typical,
+                                     "title_evidence": extracted["typical_title_starts"]}
+    else:
+        number = int(match.group(1))
     by_floor: dict[int, list[dict]] = defaultdict(list)
     for row in extracted.get("direct_floor_levels", []):
         label = _FLOOR_LABEL.fullmatch(row["floor_label"])
@@ -173,8 +175,8 @@ def survey_levels(tower_path: Path, *, source_id: str, floor: str,
     texts = _texts(tower_path)
     slabs = [item for item in labels if item["item_class"] == "slab"]
     spacing = _label_spacing(slabs)
-    anchors = [float(match.group(1).replace(",", "."))
-               for text in texts if (match := _LEVEL_TEXT.fullmatch(text["raw"]))
+    from src.core.level_text_semantics import elevation_value
+    anchors = [value for text in texts if (value := elevation_value(text)) is not None
                and spacing is not None
                and any(math.dist(text["position"], slab["label_position"]) <= spacing * 0.45
                        for slab in slabs)]
@@ -187,13 +189,13 @@ def survey_levels(tower_path: Path, *, source_id: str, floor: str,
                      "datum_id": None, "evidence_handles": [],
                      "warnings": [f"raw_level_reference_unreadable:{type(exc).__name__}"]}
     if raw_reference and raw_reference.get("validated") is False and reference["status"] == "direct_local_reference":
-        reference["status"] = "provisional_unvalidated_crop"
         reference["warnings"].append("level_crop_not_validated")
+        reference["human_review"] = "unreviewed"
     annotations = []
     for text in texts:
-        match = _LEVEL_TEXT.fullmatch(text["raw"])
-        if match:
-            value = float(match.group(1).replace(",", "."))
+        value = elevation_value(text, reference_level=reference["top"],
+                                floor_height=reference.get("height"))
+        if value is not None:
             if reference["top"] is None or abs(value - reference["top"]) <= 6:
                 annotations.append({**text, "value": value, "source_id": source_id})
     # Sem referência de pavimento, o agrupamento modal separa cotas recorrentes

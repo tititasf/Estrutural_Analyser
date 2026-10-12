@@ -588,13 +588,18 @@ def process_beam_fv(b: dict, spatial_index=None, visual_obstacles=None) -> dict:
                 continue
             xs = [point[0] for point in points]
             ys = [point[1] for point in points]
-            horizontal = (max(xs) - min(xs)) >= (max(ys) - min(ys))
+            axis_hint = link.get("fv_axis_is_horizontal")
+            horizontal = (axis_hint if isinstance(axis_hint, bool) else
+                          (max(xs) - min(xs)) >= (max(ys) - min(ys)))
             coord = (
                 (min(xs), max(xs))
                 if horizontal
                 else (min(ys), max(ys))
             )
             length, _width = _bbox_length_width(points)
+            if isinstance(axis_hint, bool):
+                dx, dy = max(xs) - min(xs), max(ys) - min(ys)
+                length, _width = (dx, dy) if axis_hint else (dy, dx)
             measure_source = str(link.get("fv_measure_source") or "")
             try:
                 measure_length = float(link.get("fv_measure_length") or 0.0)

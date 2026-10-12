@@ -461,3 +461,23 @@ Primeira execução: 14 packs removidos, 5,03 GiB liberados; 368 artefatos
 selecionados pelos leitores reais do portal permaneceram presentes com SHA-256
 idêntico. Portal ativo, login HTTP 200; disco 85%, 11 GiB disponíveis após o
 reprocessamento concorrente. Nove testes de segurança passaram na VPS.
+
+### 10.12 Memória RAM e `/dev/shm` — 2026-10-12
+
+**Regra para agentes: não use `/dev/shm` como pasta de trabalho na VPS.**
+`/dev/shm` parece disco, mas fica na RAM (a VPS tem 8 GB). Tudo o que fica ali
+tira memória da cadeia do portal. Em 10–12/10, 3 GB de ciclos `sa-dev-cycle14-*`
+deixados ali fizeram o N5 PL rodar uma variante por vez (339 s). Com a pasta
+liberada, ele roda as 3 variantes em paralelo (179 s), e a cadeia 13_PAV fecha em
+15 min.
+
+- Arquivos temporários vão em `/tmp/<agente>-<tarefa>-<data>/`. Apague no fim da tarefa.
+- Cópias grandes (banco, DXF de obra) também vão em `/tmp`, nunca em `/dev/shm`.
+- **Limpeza automática:** a regra R10 de `portal/ops/limpeza_disco.py` (timer
+  `cad-limpeza`, diário às 04:30) apaga de `/dev/shm` o que não muda há mais de
+  1 dia e não tem arquivo aberto por nenhum processo. Ficam `LEIA-ME*` e os
+  semáforos do Python (`sem.*`, `mp-*`, `psm_*`). Para simular sem apagar:
+  `/opt/cad-analyzer/.venv/bin/python /opt/cad-analyzer/portal/ops/limpeza_disco.py | grep R10`.
+- **Antes de medir desempenho:** `du -sh /dev/shm` e `free -m`. Se `/dev/shm`
+  passar de algumas centenas de MB, a medição do N5 sai pior do que o código.
+- `/dev/shm/LEIA-ME.txt` na própria VPS repete esta regra para quem listar a pasta.

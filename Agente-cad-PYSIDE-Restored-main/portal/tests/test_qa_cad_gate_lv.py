@@ -82,3 +82,51 @@ def test_item_lv_do_portal_e_viga_mais_comportamento():
     assert run.CLASSE_PORTAL['lateral_b_passa'] == 'LV'
     assert run.item_name('lateral_b_passa', 'lateral_b_passa|x|1|1', 'V301') == 'V301|passa'
     assert run.item_name('lateral_a_para', 'lateral_a_para|x|1|1', 'V301') == 'V301|para'
+
+
+def test_raw_state_reconstructs_regional_thickness_without_mutation(tmp_path):
+    from copy import deepcopy
+    from src.core.slab_steps import enrich_state
+    path = _dxf(tmp_path / 'regional.dxf')
+    doc = ezdxf.readfile(path)
+    ms = doc.modelspace()
+    ms.add_lwpolyline([(0, 19), (100, 19), (100, 120), (0, 120)],
+                      close=True, dxfattribs={'color': 3})
+    ms.add_text('h=10', dxfattribs={'insert': (50, 60)})
+    ms.add_text('h=12', dxfattribs={'insert': (200, 60)})
+    doc.saveas(path)
+    slab = _slab()
+    del slab['slab_steps']
+    snap = _snapshot(slabs=({'name': 'L1', 'height': 'h=10'},
+                            {'name': 'L1', 'height': 'h=12'}))
+    state = {'slabs': [slab], 'segmentos': snap['collections']}
+    original = deepcopy(state)
+    explicit = deepcopy(state)
+    enrich_state(explicit, path)
+    assert explicit['slabs'][0]['slab_steps'][0]['height_cm'] == 10
+    raw = run.measure_state(path, state, 'PAV', secao='laterais_viga')
+    ready = run.measure_state(path, explicit, 'PAV', secao='laterais_viga')
+    def stable(entry):
+        return {k: v for k, v in entry.items() if k != 'medido_em'}
+    assert stable(raw['classes']['LV']['V301|para']) == stable(ready['classes']['LV']['V301|para'])
+    assert raw['classes']['LV']['V301|para']['status'] == 'confere'
+    assert state == original
+    # Omitting the regional thickness must still fail, despite enrichment.
+    state['segmentos'] = _snapshot()['collections']
+    bad = run.measure_state(path, state, 'PAV', secao='laterais_viga')
+    assert bad['classes']['LV']['V301|para']['status'] == 'diverge'
+
+
+def test_explicit_steps_preserved_and_region_failure_blocks_qa(tmp_path, monkeypatch):
+    from src.core import slab_steps
+    path = _dxf(tmp_path / 'explicit.dxf')
+    state = {'slabs': [_slab()], 'segmentos': _snapshot()['collections']}
+    def unavailable(*args):
+        raise RuntimeError('region recognition failed')
+    monkeypatch.setattr(slab_steps, 'enrich_state', unavailable)
+    measured = run.measure_state(path, state, 'PAV', secao='laterais_viga')
+    assert measured['classes']['LV']['V301|para']['status'] == 'confere'
+    del state['slabs'][0]['slab_steps']
+    failed = run.measure_state(path, state, 'PAV', secao='laterais_viga')
+    assert failed['classes']['LV']['V301|para']['status'] == 'indisponivel'
+    assert failed['classes']['LV']['V301|para']['medidos'] == 0

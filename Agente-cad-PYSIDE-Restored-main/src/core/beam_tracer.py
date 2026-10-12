@@ -183,7 +183,7 @@ class BeamTracer:
         for t in texts:
             content = t['text'].strip()
             # Padrões comuns de vigas (V101, VF20, CONT1)
-            if (content.startswith('V') or content.startswith('v') or content.upper().startswith('CONT') or content.startswith('VF')) and any(c.isdigit() for c in content):
+            if re.match(r'^(?:VF|V|CONT)\s*[-_]?\s*\d', content, re.I):
                 beam_labels.append(t)
                 
         # PASS 1: Determinar orientações com a Magical Formula

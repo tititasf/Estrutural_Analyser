@@ -22,7 +22,7 @@ from contextvars import ContextVar
 ROOT = Path(__file__).resolve().parents[1]
 CLASSES = {'PL': 'Pilares', 'LV_PARA': 'Laterais Para', 'LV_PASSA': 'Laterais Passa', 'FV': 'Fundos de viga', 'LJ': 'Lajes'}
 MODES = ('INI', 'NOVA', 'MOLDE_1', 'MOLDE_2', 'MOLDE_3')
-MODE_LABELS = {'INI': 'Modo iNI', 'NOVA': 'Modo Nova', 'MOLDE_1': 'Modo Molde 1', 'MOLDE_2': 'Modo Molde 2', 'MOLDE_3': 'Modo Molde 3'}
+MODE_LABELS = {'INI': 'Modo iNI', 'NOVA': 'Modo Nova', 'MOLDE_1': 'Formascia', 'MOLDE_2': 'Modo Molde 2', 'MOLDE_3': 'Modo Molde 3'}
 LOCK = threading.RLock()
 GENERATION_STORE = ContextVar('drawing_generation_store', default=None)
 CATALOG_CURRENT = ContextVar('drawing_catalog_current', default=None)
@@ -148,6 +148,10 @@ def populate_current(value, mode, cls):
 def defaults(mode, cls):
     mode = check_mode(mode)
     cls = key_for(cls)
+    if mode == 'INI' and cls == 'LJ':
+        value = defaults('NOVA', cls)
+        value['human_notes'] = (ROOT/'docs/PADRAO-INI-APROVADO.md').read_text(encoding='utf8')
+        return value
     layers, constants = motor_literals(cls)
     # Settings describe the final profile, after the existing Ini conversion.
     from scripts.visual_modes import _INI_LAYER_MAP, _LEGACY_COLORS
@@ -180,7 +184,52 @@ def defaults(mode, cls):
         value['drilling'] = drilling_defaults(mode)
         from scripts.pl_grade_visual_config import positions_for_mode
         value['grade_positions_cm'] = positions_for_mode('NOVA' if mode.startswith('MOLDE_') else mode)
-    return populate_current(value, mode, cls)
+    value = populate_current(value, mode, cls)
+    if mode=='MOLDE_1' and cls in {'PL','FV','LJ'}:
+        # Describe the approved native engine output, without manufacturing
+        # overrides that recolor shared layers or erase dimensional variations.
+        if cls in {'PL','FV'}:value['special']['sarrafo_representation']='MLINE'
+        for name,options in value['layers'].items():
+            k=name.casefold()
+            if k in {'painéis','paineis','chapa','sarr_contorno_10cm'}:options['color']=3
+            elif k.startswith('sarr_') or k in {'madeira','sarrafo'}:options['color']=1
+        if cls=='PL':
+            for role in ('lajes','aberturas'):
+                value['hatches'][role].update(pattern='AR-CONC',pattern_scale=.1,color=8,angle=0.,scale=1.)
+            for view in ('abefgh','cd','grades'):
+                value['dimensions'][view].update(style='FORMASCIA-PAINEL',text_height=10.,arrow_size=3.,gap=3.,precision=1)
+            value['dimensions']['cima']['color']=8
+            value['grade_positions_cm']=[50.,120.,180.]
+        doc={'PL':'PILARES','FV':'FUNDOS','LJ':'LAJES'}[cls]
+        value['human_notes']=(ROOT/f'docs/PADRAO-FORMASCIA-{doc}.md').read_text(encoding='utf8')
+    if mode=='MOLDE_1' and cls in {'LV_PARA','LV_PASSA'}:
+        value['special']['sarrafo_representation']='PADRAO'
+        for name,options in value['layers'].items():
+            k=name.casefold()
+            if k in {'painéis','paineis','vigas'}:options['color']=3
+            elif k.startswith('sarr_') or k in {'madeira','sarrafo','acabamento','sarrafos'}:options['color']=1
+            elif k in {'cotas','cota'}:options['color']=4
+            elif k=='sarrafo de pressão':options['color']=2
+            elif k=='meio_pont.':options['color']=43
+        value['layout'].update(LV_UNIT_GAP=25.,GAP_ROW_LV=45.)
+        value['human_notes']=(ROOT/'docs/PADRAO-FORMASCIA-LATERAIS-APROVADO.md').read_text(encoding='utf8')
+    if mode == 'INI':
+        from src.core.ini_design import COLORS
+        for name, options in value['layers'].items():
+            if name.casefold() in COLORS:
+                options['color'] = COLORS[name.casefold()]
+        if cls in {'LV_PARA', 'LV_PASSA'}:
+            value['layout'].update(LV_UNIT_GAP=25., GAP_ROW_LV=45.)
+        plan = ROOT / 'docs/PADRAO-INI-APROVADO.md'
+        if plan.is_file():
+            value['human_notes'] = plan.read_text(encoding='utf8')
+    if mode == 'NOVA':
+        value['human_notes'] = (ROOT/'docs/PADROES-DESENHO-N3-N5.md').read_text(encoding='utf8')
+    if mode == 'INI' and cls == 'FV':
+        for name, color in [('Painéis',7),('Sarrafo de pressão',1),('NUMERACAO_FV_INI',1),('APOIOS_FV_INI',4)]:
+            value['layers'][name] = {'name':name,'color':color,'enabled':True}
+            value['layer_styles'][name] = {'linetype':'HIDDEN' if name=='Sarrafo de pressão' else 'PRESERVAR','hatch_pattern':'PRESERVAR'}
+    return value
 
 
 def merge(base, updates):
@@ -193,6 +242,10 @@ def merge(base, updates):
 
 
 def effective(mode, cls):
+    if check_mode(mode) == 'INI' and key_for(cls) == 'LJ':
+        value = effective('NOVA', 'LJ')
+        value['human_notes'] = defaults('INI', 'LJ')['human_notes']
+        return value
     return merge(defaults(mode, cls), overrides(mode, cls))
 
 
@@ -311,6 +364,8 @@ def file_lock(path):
 
 def save(mode, cls, value, expected_revision, actor):
     mode, cls = check_mode(mode), key_for(cls)
+    if mode == 'INI' and cls == 'LJ':
+        raise ValueError('Lajes INI usam o perfil NOVA. Edite em Modo Nova → Lajes.')
     delta = validate(mode, cls, value)
     path = storage_path()
     with file_lock(path):
@@ -364,12 +419,25 @@ def catalog():
 @contextmanager
 def configured_motor(namespace, mode, cls):
     """Scoped constants for in-process PL; subprocess robots configure once."""
+    if mode == 'INI' and cls == 'LJ':
+        mode = 'NOVA'
     from scripts.drawing_semantics import instrument
     instrument(namespace,cls)
     values = overrides(mode, cls).get('layout', {})
     with LOCK:
         old = {key: namespace[key] for key in values}
         namespace.update(values)
+        formascia_draws = {}
+        if cls == 'PL' and mode in ('MOLDE_1', 'INI'):
+            if mode == 'INI':
+                from src.core.ini_pillar_design import wrap_draw
+            else:
+                from src.core.formascia_design import wrap_draw
+            for name, zone in [('draw_cima','cima'),('draw_abcd','abcd'),('draw_grades','grades'),('draw_efgh','efgh')]:
+                function = namespace.get(name)
+                if function is not None and not getattr(function, '_formascia_wrapped', False):
+                    formascia_draws[name] = function
+                    namespace[name] = wrap_draw(function, zone)
         try:
             if cls == 'PL':
                 from scripts.pl_panel_drilling import defaults as drilling_defaults, install
@@ -379,13 +447,17 @@ def configured_motor(namespace, mode, cls):
             else:
                 yield
         finally:
+            namespace.update(formascia_draws)
             namespace.update(old)
 
 
 def configure_subprocess(namespace, mode, cls):
+    if mode == 'INI' and cls == 'LJ':
+        mode = 'NOVA'
     from scripts.drawing_semantics import instrument
     instrument(namespace,cls)
     GENERATION_STORE.set(read_store())
+    namespace['_drawing_visual_mode'] = mode
     namespace.update(overrides(mode, cls).get('layout', {}))
 
 

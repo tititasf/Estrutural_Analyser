@@ -10,10 +10,8 @@ app_state.job_meta[job_id] porque o schema real de portal_jobs nao tem coluna 't
   5 validacao POST /obras/{id}/validacao (body: {classe, n1_ok, n3_ok, item_id?}) — so DB/estado
   6 n5        POST /obras/{id}/n5        (body: {classe, pavimento})  -> depois GET .../n5/{classe}/download
 
-[ASSUMPTION] validacao NAO tem tabela no schema congelado. Guardo o "usuario validou
-sua parte" em app_state.validacoes[obra_id][classe] (memoria do processo) — suficiente
-para o gating do N5 no MVP (DP-13). Persistir a validacao vira migration futura; nao
-invento tabela no DB de outra sessao.
+Revisões humanas são persistidas e opcionais para geração N5. Completude dos N3
+e integridade dos artefatos continuam verificadas automaticamente.
 """
 
 from __future__ import annotations
@@ -35,6 +33,7 @@ from pydantic import BaseModel
 
 from .. import access, auth, certification, n5_release, pipeline_runner, viewer_pavimentos
 from ..drawing_modes import normalize_visual_mode
+from ..n5_lateral_variants import lateral_variant_path
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -115,6 +114,7 @@ def _n5_group_path(dxf_path: Path, classe: str, pillar_group: str | None) -> Pat
 def _n5_pl_tiled_svg(
     obra_id: str, pavimento: str, dxf_path: Path, visual_mode: str = "NOVA",
     pillar_group: str | None = None, classe: str = 'PL',
+    lateral_behavior: str | None = None, lateral_assembly: str | None = None,
 ) -> bytes:
     """Índice SVG leve com cinco vistas na mesma escala CAD por pilar.
 
@@ -125,11 +125,11 @@ def _n5_pl_tiled_svg(
     só posiciona as vistas, reproduzindo o mesmo contrato do DXF N5.
     """
     manifest = _n5_manifest(dxf_path)
-    if manifest.get('frame_layout', {}).get('kind') == 'nova_frames_v1':
+    if manifest.get('frame_layout', {}).get('kind') in {'nova_frames_v1','formascia_frames_v1','ini_frames_v1'}:
         pages = manifest['frame_layout']['pages']
         low = min(p['origin'][1] for p in pages)
-        width = max(p['origin'][0] + 1485 for p in pages)
-        height = 1050 - low
+        width = max(p['origin'][0] + p.get('width',1485) for p in pages)
+        height = max(p.get('height',1050)-p['origin'][1] for p in pages)
         chunks = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}">',
                   '<rect width="100%" height="100%" fill="#050a10"/>']
         for index, page in enumerate(pages):
@@ -137,8 +137,9 @@ def _n5_pl_tiled_svg(
             href = (f'/obras/{quote(obra_id, safe="")}/n5/{classe}/foto-sheet/{index}?'
                     f'pavimento={quote(pavimento, safe="")}&amp;visual_mode={quote(visual_mode, safe="")}'
                     + (f'&amp;pillar_group={pillar_group}' if pillar_group else '')
+                    + (f'&amp;lateral_behavior={lateral_behavior}&amp;lateral_assembly={lateral_assembly}' if lateral_behavior else '')
                     + f'&amp;v={dxf_path.stat().st_mtime_ns}')
-            chunks.append(f'<image x="{x}" y="{-y}" width="1485" height="1050" href="{href}"/>')
+            chunks.append(f'<image x="{x}" y="{-y}" width="{page.get("width",1485)}" height="{page.get("height",1050)}" href="{href}"/>')
         return (''.join(chunks)+'</svg>').encode('utf8')
     items = [item for item in manifest.get("items", []) if item.get("status") == "ok"]
     fallback_size = (720.0, 480.0)
@@ -278,6 +279,32 @@ def _enfileirar_todos_pavimentos(
         job_id = _enfileirar(request, conn, obra, meta)
         jobs.append({"job_id": job_id, "pav": pavimento, "meta": meta})
     return batch_id, jobs
+
+
+class CadeiaObraIn(BaseModel):
+    pavimento: Optional[str] = None  # None seleciona todos os pavimentos elegíveis.
+    visual_mode: Literal["NOVA", "INI", "MOLDE_1", "MOLDE_2", "MOLDE_3"] = "INI"
+    lateral_assembly: Literal["gradeadas", "sarrafeadas"] = "gradeadas"
+    fundos_garfos: Literal["sim", "nao"] = "nao"
+
+
+@router.get("/obras/{obra_id}/cadeia-completa/pavimentos")
+def cadeia_pavimentos(obra_id: str, request: Request,
+                      membro: dict = Depends(auth.exige_login),
+                      conn: sqlite3.Connection = Depends(get_db_conn)):
+    from ..obra_pipeline import descobrir_pavimentos
+    obra = _obra_do_membro(conn, obra_id, membro)
+    return {'pavimentos': descobrir_pavimentos(conn, request.app.state.settings, obra)}
+
+
+@router.post("/obras/{obra_id}/cadeia-completa")
+def cadeia_completa(obra_id: str, body: CadeiaObraIn, request: Request,
+                    membro: dict = Depends(auth.exige_login),
+                    conn: sqlite3.Connection = Depends(get_db_conn)):
+    from ..obra_pipeline import enfileirar_cadeia, descobrir_pavimentos
+    obra = _obra_do_membro(conn, obra_id, membro)
+    return enfileirar_cadeia(request, conn, obra, membro, body,
+                             descobrir_pavimentos(conn, request.app.state.settings, obra))
 
 
 class SAIn(BaseModel):
@@ -444,7 +471,7 @@ def n3_todos(obra_id: str, body: N3In, request: Request,
 def todos_motores(obra_id: str, body: MotoresIn, request: Request,
                    membro: dict = Depends(auth.exige_login),
                    conn: sqlite3.Connection = Depends(get_db_conn)):
-    """SA -> N3 da mesma rodada -> N5 das classes previamente validadas."""
+    """SA -> N3 da mesma rodada -> N5 com verificações automáticas."""
     obra = _obra_do_membro(conn, obra_id, membro)
     try:
         visual_mode = normalize_visual_mode(body.visual_mode)
@@ -497,7 +524,7 @@ def obter_validacao_endpoint(obra_id: str, classe: str, membro: dict = Depends(a
 
 
 # --------------------------------------------------------------------------- #
-# Etapa 6 — N5 (gated por validacao + rotulo)
+# Etapa 6 — N5 (integridade automática + rótulo; revisão humana opcional)
 # --------------------------------------------------------------------------- #
 
 @router.get("/obras/{obra_id}/n5/modos")
@@ -535,49 +562,50 @@ def n5(obra_id: str, body: N5In, request: Request, membro: dict = Depends(auth.e
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
 
+    if classe in {"ALL", "FV"}:
+        from src.core.vigas_drawing_config import require_supported_generation
+        try:
+            require_supported_generation(
+                repo.obter_config_vigas_pavimento(conn, obra_id, body.pavimento),
+                ["fundos_viga"],
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+
     if classe == "ALL":
         releases = []
         blocked = []
         ev = pipeline_runner.engine_version(settings.repo_root)
         for class_code in ("PL", "LV", "FV", "LJ"):
-            if not repo.obter_validacao_classe(conn, obra_id, class_code)["validado"]:
-                blocked.append(class_code)
-                continue
             try:
                 releases.append(n5_release.liberar_n5(
                     conn, settings, obra=obra, classe=class_code,
                     pavimento=body.pavimento, membro_id=membro["id"],
                     engine_version=ev, dry_run=False,
-                    visual_mode="NOVA" if class_code == "LV" else visual_mode,
+                    visual_mode=visual_mode,
                 ))
             except ValueError as exc:
                 blocked.append(f"{class_code}: {exc}")
         if not releases:
             raise HTTPException(
                 status_code=409,
-                detail="nenhuma classe possui validação N1+N3; N5 não foi gerado",
+                detail={"mensagem": "nenhuma classe possui N3 completo para gerar N5",
+                        "bloqueadas": blocked},
             )
         return {"ok": True, "pavimento": body.pavimento,
-                "releases": releases, "bloqueadas": blocked}
+                "releases": releases, "bloqueadas": blocked,
+                "parcial": bool(blocked) or any(r.get('partial') for r in releases),
+                "pendencias": [dict(classe=r.get('classe'), **item) for r in releases
+                               for item in r.get('item_pending', [])]}
 
-    # gating DP-13/R9: exige validacao do usuario para a classe (agora
-    # persistida em portal_validacoes — sobrevive a restart do servidor)
+    # Revisão humana permanece auditável, mas não bloqueia a geração.
     validado = repo.obter_validacao_classe(conn, obra_id, classe)["validado"]
-    # O dono pode gerar um rascunho para inspeção antes do fechamento da
-    # validação N1+N3. O artefato nasce com aprovação N5 pendente; demais
-    # papéis continuam protegidos pelo gate original.
-    if not validado and not access.eh_dono(membro):
-        raise HTTPException(
-            status_code=409,
-            detail=f"validacao (etapa 5) da classe {classe} nao registrada — "
-                   "libere N5 apenas apos validar N1+N3.",
-        )
     ev = pipeline_runner.engine_version(settings.repo_root)
     try:
         info = n5_release.liberar_n5(
             conn, settings, obra=obra, classe=classe, pavimento=body.pavimento,
             membro_id=membro["id"], engine_version=ev, dry_run=False,
-            visual_mode="NOVA" if classe == "LV" else visual_mode,
+            visual_mode=visual_mode,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
@@ -617,6 +645,8 @@ def n5_download(obra_id: str, classe: str, request: Request,
                 pavimento: Optional[str] = None,
                 visual_mode: Optional[Literal["NOVA", "INI", "MOLDE_1", "MOLDE_2", "MOLDE_3"]] = None,
             pillar_group: Optional[Literal["PARA", "PASSA"]] = None,
+            lateral_behavior: Optional[Literal["PARA", "PASSA"]] = None,
+            lateral_assembly: Optional[Literal["gradeadas", "sarrafeadas"]] = None,
                 membro: dict = Depends(auth.exige_login),
                 conn: sqlite3.Connection = Depends(get_db_conn)):
     from fastapi.responses import FileResponse
@@ -629,6 +659,7 @@ def n5_download(obra_id: str, classe: str, request: Request,
         raise HTTPException(status_code=404, detail="nenhum N5 liberado para esta classe")
     from pathlib import Path as _P
     path = _n5_group_path(_P(alvo["dxf_path"]), classe, pillar_group)
+    path = lateral_variant_path(path, classe, lateral_behavior, lateral_assembly)
     if not path.exists():
         raise HTTPException(status_code=410, detail="DXF do N5 nao esta mais disponivel")
     rotulo = certification.classificar_certificacao(settings.status_md_path, classe.upper())
@@ -655,7 +686,7 @@ def n5_download_all(obra_id: str, request: Request, pavimento: Optional[str] = N
     for release in releases:
         mode = _n5_release_mode(release)
         requested = normalize_visual_mode(visual_mode) if visual_mode else None
-        if requested and release["classe"] != "LV" and mode != requested:
+        if requested and mode != requested:
             continue
         key = (str(release.get("pavimento") or "GERAL"), release["classe"])
         path = Path(release.get("dxf_path") or "")
@@ -697,6 +728,10 @@ def n5_download_all(obra_id: str, request: Request, pavimento: Optional[str] = N
                 for classe in classes:
                     src = Path(latest[(pav, classe)]["dxf_path"])
                     parts = [_n5_group_path(src, classe, group) for group in ("PARA", "PASSA")] if classe == "PL" else [src]
+                    if classe == 'LV' and _n5_release_mode(latest[(pav, classe)]) in ('NOVA','MOLDE_1','INI'):
+                        parts = [lateral_variant_path(src, classe, behavior, assembly)
+                                 for behavior in ('PARA', 'PASSA')
+                                 for assembly in ('gradeadas', 'sarrafeadas')]
                     for part in parts:
                         archive.write(part, arcname=f"{pav}/{part.name}")
     except Exception:
@@ -715,6 +750,8 @@ def n5_foto(obra_id: str, classe: str, request: Request,
             pavimento: Optional[str] = None,
             visual_mode: Optional[Literal["NOVA", "INI", "MOLDE_1", "MOLDE_2", "MOLDE_3"]] = None,
             pillar_group: Optional[Literal["PARA", "PASSA"]] = None,
+            lateral_behavior: Optional[Literal["PARA", "PASSA"]] = None,
+            lateral_assembly: Optional[Literal["gradeadas", "sarrafeadas"]] = None,
             membro: dict = Depends(auth.exige_login),
             conn: sqlite3.Connection = Depends(get_db_conn)):
     """Foto (SVG) do DXF final do N5 mais recente dessa classe — [2026-07-06]
@@ -735,6 +772,7 @@ def n5_foto(obra_id: str, classe: str, request: Request,
     if alvo is None:
         raise HTTPException(status_code=404, detail="nenhum N5 liberado para esta classe")
     dxf_path = _n5_group_path(_P(alvo["dxf_path"]), classe, pillar_group)
+    dxf_path = lateral_variant_path(dxf_path, classe, lateral_behavior, lateral_assembly)
     if not dxf_path.exists():
         raise HTTPException(status_code=410, detail="DXF do N5 nao esta mais disponivel")
 
@@ -743,10 +781,11 @@ def n5_foto(obra_id: str, classe: str, request: Request,
     obra_dir = _P(lp) if lp else settings.dados_obras_dir / obra.get("nome", "obra")
     cache_dir = obra_dir / ".previews"
     try:
-        if classe.upper() == "PL" or _n5_manifest(dxf_path).get('frame_layout',{}).get('kind') == 'nova_frames_v1':
+        if classe.upper() == "PL" or _n5_manifest(dxf_path).get('frame_layout',{}).get('kind') in {'nova_frames_v1','formascia_frames_v1','ini_frames_v1'}:
             svg = _n5_pl_tiled_svg(
                 obra_id, pavimento or alvo.get("pavimento") or "GERAL", dxf_path,
                 _n5_release_mode(alvo), pillar_group, classe.upper(),
+                lateral_behavior, lateral_assembly,
             )
         else:
             svg = dxf_preview.renderizar_dxf_svg_cacheado(dxf_path, cache_dir)
@@ -761,26 +800,37 @@ def n5_pl_foto_sheet(
     pavimento: Optional[str] = None,
     visual_mode: Optional[Literal["NOVA", "INI", "MOLDE_1", "MOLDE_2", "MOLDE_3"]] = None,
     pillar_group: Optional[Literal["PARA", "PASSA"]] = None,
+    lateral_behavior: Optional[Literal["PARA", "PASSA"]] = None,
+    lateral_assembly: Optional[Literal["gradeadas", "sarrafeadas"]] = None,
     membro: dict = Depends(auth.exige_login), conn: sqlite3.Connection = Depends(get_db_conn),
 ):
     from fastapi.responses import Response
     from src.core.n5_sheet_preview import render_sheet
     _obra_do_membro(conn, obra_id, membro)
-    if classe.upper() not in {'PL','FV'}:
+    if classe.upper() not in {'PL','FV','LJ','LV'}:
         raise HTTPException(status_code=404, detail='Classe indisponível')
     release = _select_n5_release(repo.listar_n5_releases_por_obra(conn, obra_id), classe.upper(), pavimento, visual_mode)
     if release is None:
         raise HTTPException(status_code=404, detail='N5 indisponível')
     path = _n5_group_path(Path(release['dxf_path']), classe.upper(), pillar_group)
+    path = lateral_variant_path(path, classe, lateral_behavior, lateral_assembly)
     meta = _n5_manifest(path).get('frame_layout', {})
-    if meta.get('kind') != 'nova_frames_v1' or not 0 <= sheet_index < len(meta['pages']):
+    if meta.get('kind') not in {'nova_frames_v1','formascia_frames_v1','ini_frames_v1'} or not 0 <= sheet_index < len(meta['pages']):
         raise HTTPException(status_code=404, detail='Folha indisponível')
-    page = path.parent/(path.stem+'_pages')/f'page_{sheet_index:03d}.dxf'
+    formascia = meta['kind'] in {'formascia_frames_v1','ini_frames_v1'}
+    page = path.parent/(path.stem+'_pages')/(f'folha_{sheet_index+1:03d}.dxf' if formascia else f'page_{sheet_index:03d}.dxf')
     cache = page.with_suffix('.svg')
     if not page.is_file():
         raise HTTPException(status_code=410, detail='Folha N5 ausente')
     if not cache.is_file() or cache.stat().st_mtime_ns < page.stat().st_mtime_ns:
-        data = render_sheet(page)
+        dimensions = meta['pages'][sheet_index]
+        # Lateral sheets also share ezdxf's mutable font cache during cold renders.
+        if formascia or classe.upper() == 'LV':
+            with _N5_PL_TILE_RENDER_LOCK:
+                data = (render_sheet(page, dimensions['width']/10, dimensions['height']/10)
+                        if formascia else render_sheet(page))
+        else:
+            data = render_sheet(page)
         temporary = cache.with_suffix('.svg.'+uuid.uuid4().hex+'.tmp')
         temporary.write_bytes(data)
         temporary.replace(cache)
@@ -1085,6 +1135,9 @@ def obter_job(job_id: str, request: Request, membro: dict = Depends(auth.exige_l
     return {
         "job_id": job["id"], "obra_id": job["obra_id"],
         "tipo": meta.get("etapa"), "estado": estado,
+        "cadeia": meta.get("cadeia"),
+        "parcial": meta.get("parcial", False) or bool((meta.get("cadeia") or {}).get("parcial")),
+        "pendencias": meta.get("item_pending", []),
         "engine_version": job.get("engine_version"),
         "criado_em": job.get("enfileirado_em"), "iniciado_em": job.get("iniciado_em"),
         "finalizado_em": job.get("finalizado_em"),

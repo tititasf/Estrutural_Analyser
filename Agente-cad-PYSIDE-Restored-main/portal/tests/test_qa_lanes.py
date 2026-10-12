@@ -47,3 +47,22 @@ def test_each_item_reviewed_once_in_parallel_and_pause_stops_lanes(tmp_path, mon
 
     assert qa_jobs._run_lanes(settings, rows, lanes, pausa) == 'paused'
     assert len(done) <= 2
+
+
+def test_lane_read_snapshot_still_sees_a_later_pause(conn, db_path, membro_id):
+    from portal.db import connection as db_conn
+    from portal.db import repository as repo
+    obra_id = repo.criar_obra(conn, membro_id=membro_id, nome='Obra raia', pasta_drive_id='p-raia')
+    round_id, job_id = repo.enfileirar_qa_round(
+        conn, obra_id=obra_id, membro_id=membro_id, classe='FV',
+        pavimento='13_PAV', layer='L1', items=['V301'],
+    )
+    lane = db_conn.get_connection(db_path)
+    try:
+        lane.execute('SELECT status FROM portal_jobs WHERE id=?', (job_id,)).fetchone()
+        assert repo.pausar_job(conn, job_id)
+        qa_round = repo.obter_qa_round(conn, round_id)
+        assert qa_jobs._controle_operador(lane, qa_round) == 'paused'
+        assert repo.obter_qa_round(lane, round_id)['status'] == 'queued'
+    finally:
+        lane.close()

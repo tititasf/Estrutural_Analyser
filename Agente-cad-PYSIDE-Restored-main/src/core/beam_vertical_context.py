@@ -104,15 +104,19 @@ def inverted_cut_evidence(points, lines, direction, width_cm, height_cm):
 
 def inverted_levels(height_cm, slabs):
     """Solve a shared base from regional slabs; contradictions remain errors."""
-    bases = [float(s['level'])-(float(s['height_cm'])+float(s.get('bottom_cm', 0)))/100 for s in slabs]
+    try:
+        bases = [float(s['level'])-(float(s['height_cm'])+float(s.get('bottom_cm', 0)))/100 for s in slabs]
+        height = float(height_cm)
+    except (TypeError, KeyError, ValueError) as exc:
+        raise ValueError('viga invertida sem nível ou altura de laje confirmado') from exc
     if not bases:
         raise ValueError('viga invertida sem nível de laje confirmado')
-    if not all(isfinite(v) for v in bases) or not isfinite(float(height_cm)) or float(height_cm) <= 0:
+    if not all(isfinite(v) for v in bases) or not isfinite(height) or height <= 0:
         raise ValueError('níveis ou altura inválidos para o corte invertido')
     if max(bases)-min(bases) > .005:
         raise ValueError('bases das lajes incompatíveis com o corte invertido')
     base = sum(bases)/len(bases)
-    return dict(base_level_m=round(base, 6), top_level_m=round(base+float(height_cm)/100, 6))
+    return dict(base_level_m=round(base, 6), top_level_m=round(base+height/100, 6))
 
 
 def vertical_overlap(first, second):
@@ -207,15 +211,31 @@ def incident_vertical_contract(point, name, entries):
     for entry in entries:
         if str(entry.get('beam') or '').upper() != str(name).upper():
             continue
-        matching = any(len(pair.get('footprint') or []) >= 3 and
-                       Polygon(pair.get('joint_footprint') or pair['footprint']).buffer(.5).covers(Point(point))
-                       for pair in entry.get('pairs') or [])
-        if not matching:
+        # Prefer a measured body over an expanded terminal joint or tolerance
+        # band. A neighbouring level must not leak across its physical face.
+        ranks = []
+        for pair in entry.get('pairs') or []:
+            if len(pair.get('footprint') or []) < 3:
+                continue
+            body = Polygon(pair['footprint'])
+            joint = Polygon(pair.get('joint_footprint') or pair['footprint'])
+            if body.covers(Point(point)):
+                ranks.append(0)
+            elif joint.covers(Point(point)):
+                ranks.append(1)
+            elif joint.buffer(.5).covers(Point(point)):
+                ranks.append(2)
+        if not ranks:
             continue
         contract = entry.get('section_contract') or {}
+        candidates.append((min(ranks), entry, contract))
+    if candidates:
+        rank = min(c[0] for c in candidates)
+        candidates = [c for c in candidates if c[0] == rank]
+    for _, entry, contract in candidates:
         if entry.get('pending') or vertical_overlap(contract, contract) is None:
             raise ValueError(f'{name}: cruzamento local sem intervalo vertical confirmado')
-        candidates.append(contract)
+    candidates = [c[2] for c in candidates]
     signatures = {(c['base_level_m'], c['top_level_m']) for c in candidates}
     if len(signatures) != 1:
         reason = 'perfis verticais conflitantes' if signatures else 'sem seção na estação do cruzamento'

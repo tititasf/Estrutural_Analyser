@@ -289,7 +289,7 @@ async def test_grupos_de_lateral_criam_item_de_classe_LV(settings):
 # ── P4 assíncrono: enfileira job em vez de rodar dentro do handler HTTP ──────
 
 @pytest.mark.asyncio
-async def test_com_headless_habilitado_enfileira_job_em_vez_de_bloquear(settings):
+async def test_com_headless_habilitado_enfileira_job_em_vez_de_bloquear(settings, monkeypatch):
     """headless_enabled=True (produção): a criação do item enfileira um job
     real na fila do portal (mesma usada por triagem/SA/N5) em vez de rodar o
     subprocess síncrono dentro do POST /itens.
@@ -301,6 +301,10 @@ async def test_com_headless_habilitado_enfileira_job_em_vez_de_bloquear(settings
     """
     import dataclasses
 
+    # The app lifespan starts workers; this enqueue-only test deliberately
+    # keeps consumption stopped so status cannot race with its assertions.
+    from portal.app import jobs
+    monkeypatch.setattr(jobs.JobWorker, "start", lambda self: None)
     settings_prod = dataclasses.replace(settings, headless_enabled=True)
     async with _app_cliente(settings_prod) as (_app, client):
         obra_id = _obra_real(settings_prod)

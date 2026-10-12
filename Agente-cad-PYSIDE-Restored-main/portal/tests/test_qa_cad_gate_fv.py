@@ -31,6 +31,31 @@ def _seg(label, x0, x1, width='19', y0=0, y1=19):
 SNAP = dict(classe='FV', collections={'fundo': [_seg('1', 0, 100), _seg('2', 119, 300)]})
 
 
+def test_pillar_section_exclusion_requires_original_label_and_matching_closed_contour():
+    doc = ezdxf.new()
+    ms = doc.modelspace()
+    ms.add_text('P8', dxfattribs={'insert': (45, 95), 'height': 15})
+    pillar_section = ms.add_text('19/66', dxfattribs={'insert': (40, 80), 'height': 10})
+    own = ms.add_text('14/55', dxfattribs={'insert': (150, 25), 'height': 10})
+    # A label/section pair without geometry cannot prove pillar ownership.
+    assert not g._proved_pillar_section_handles(doc, g._beam_texts(doc))
+    contour = ms.add_lwpolyline([(0, 0), (19, 0), (19, 66), (0, 66)], close=True)
+    excluded = g._proved_pillar_section_handles(doc, g._beam_texts(doc))
+    assert pillar_section.dxf.handle in excluded
+    assert own.dxf.handle not in excluded
+    # Matching text near a contour of another size remains unclassified.
+    contour.set_points([(0, 0), (19, 0), (19, 60), (0, 60)])
+    assert not g._proved_pillar_section_handles(doc, g._beam_texts(doc))
+
+
+def test_matching_pillar_contour_without_original_name_does_not_exclude_section():
+    doc = ezdxf.new()
+    ms = doc.modelspace()
+    ms.add_lwpolyline([(0, 0), (19, 0), (19, 66), (0, 66)], close=True)
+    ms.add_text('19/66', dxfattribs={'insert': (40, 80), 'height': 10})
+    assert not g._proved_pillar_section_handles(doc, g._beam_texts(doc))
+
+
 def _errors(path, snap):
     return {(c['item'], c['aspect']): c['errors'] for c in g.measure_beams(path, snap)['contacts'] if c['errors']}
 
@@ -41,6 +66,28 @@ def test_correct_segments_measure_without_errors(tmp_path):
     status = {(c['item'], c['aspect']): c['status'] for c in report['contacts']}
     assert all(status[(f'V1 seg {s}', a)] == 'measured'
                for s in '12' for a in ('arestas', 'extremo início', 'extremo fim', 'seção', 'sobreposição'))
+
+
+def test_redundant_collinear_vertices_preserve_same_measured_rectangle(tmp_path):
+    source=_dxf(tmp_path)
+    snap=copy.deepcopy(SNAP)
+    snap['collections']['fundo'][1]['points']=[[119,0],[200,0],[300,0],[300,19],[200,19],[119,19],[119,0]]
+    before=copy.deepcopy(snap)
+    contacts=g.measure_beams(source,snap)['contacts']
+    original=g.measure_beams(source,SNAP)['contacts']
+    assert contacts==original
+    assert snap==before
+
+
+def test_exact_rectangle_recognition_does_not_erase_eps_sized_sliver_or_notch():
+    assert g._exact_axis_rectangle([(0,0),(50,0),(100,0),(100,19),(0,19)])==(0.,100.,0.,19.)
+    for points in (
+        [(0,0),(100,0),(100,18.99),(119,18.99),(119,19),(0,19)],
+        [(0,0),(100,0),(100,19),(60,19),(60,18.99),(40,18.99),(40,19),(0,19)],
+        [(0,0),(100,0),(100,19),(0.01,19)],
+        [(0,0),(100,19),(100,0),(0,19)],
+    ):
+        assert g._exact_axis_rectangle(points) is None
 
 
 def test_rectangle_offset_by_one_width_fails_identity(tmp_path):
@@ -70,11 +117,14 @@ def test_overlapping_segments_fail_inventory(tmp_path):
     assert 'inventario_segmentos' in errors[('V1 seg 3', 'sobreposição')]
 
 
-def test_unmeasured_aspects_never_block_without_pass_but_block_a_pass(tmp_path):
+def test_unproved_nonrectangular_fund_blocks_publication(tmp_path):
     snap = copy.deepcopy(SNAP)
     snap['collections']['fundo'][0]['points'] = [[0, 0], [100, 5], [100, 24], [0, 19]]
     report = g.measure_beams(_dxf(tmp_path), snap)
-    assert g.errors(report) == []
+    assert g.errors(report)
+    assert any(c['aspect'] == 'inventário de encontros' and
+               c['status'] == 'uncertain' and c['blocks_promotion']
+               for c in report['contacts'])
     assert g.errors(report, [{'id': 'dimensoes', 'status': 'pass'}])
 
 

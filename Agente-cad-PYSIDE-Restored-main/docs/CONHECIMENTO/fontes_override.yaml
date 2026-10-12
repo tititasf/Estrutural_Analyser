@@ -56,6 +56,12 @@ compreensao_global_app.md: {status: historico, motivo: auditoria de implementaç
 ANALISE-ESTRATEGICA-E2E-NOVA-OBRA.md: {status: historico, motivo: análise E2E de nova obra (jun/26); útil quando a Fase B/C chegar}
 
 # ── Revisão dos candidatos a obsoleto (2026-09-26) ──
+Agente-cad-PYSIDE-Restored-main/docs/PADRAO-FORMASCIA-LATERAIS-APROVADO.md:
+  status: canonico
+  motivo: design LV Formascia aprovado explicitamente; regras independentes Para/Passa, sarrafeadas/gradeadas e unidades CAD nativas N3 para N5
+Agente-cad-PYSIDE-Restored-main/docs/PADRAO-NOVA-LATERAIS-APROVADO.md:
+  status: canonico
+  motivo: desenho NOVA LV aprovado pelo dono, integrado ao N3/N5 e registrado nos perfis independentes Para/Passa em 06/10/2026
 Agente-cad-PYSIDE-Restored-main/PROMPTPESSOAL.MD: {status: historico, motivo: brief original do produto (origem, jun/26)}
 Agente-cad-PYSIDE-Restored-main/README.md: {status: legado, motivo: descreve pipeline ML→SCR de jun/26 (SCR saiu, DP-5); entrada vigente é CLAUDE.md + MAPA}
 Agente-cad-PYSIDE-Restored-main/REFACTORACAO_PYSYDE.MD: {status: historico, motivo: migração Tkinter→PySide concluída}
@@ -63,3 +69,16 @@ Agente-cad-PYSIDE-Restored-main/docs/ANALISE-BASELINE-LV-VISAO-CORTE-10-VIGAS.md
 Agente-cad-PYSIDE-Restored-main/docs/OCR_DXF_ECOSYSTEM_ANALYSIS.md: {status: historico, motivo: pesquisa de ferramentas de mai/26}
 Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-SA-1.1-RENDER-LINKS-HETEROGENEOS.md: {status: historico, motivo: story de jun/26 parada em Ready for Review}
 Agente-cad-PYSIDE-Restored-main/docs/stories/STORY-UX-SA-1.2-SALVAR-MCP-E-INTERACAO-PROJETOS.md: {status: historico, motivo: story de jun/26 parada em Ready for Review}
+
+Agente-cad-PYSIDE-Restored-main/docs/PADROES-DESENHO-N3-N5.md:
+  status: canonico
+  motivo: matriz atual dos três modos e quatro classes, decisões aprovadas e limites reais N3/N5
+Agente-cad-PYSIDE-Restored-main/docs/PADRAO-INI-APROVADO.md:
+  status: canonico
+  motivo: refinamentos finais aprovados e integrados ao N3 em 07/10/2026
+Agente-cad-PYSIDE-Restored-main/docs/PADRAO-INI-BASE-INICIAL.md:
+  status: historico
+  motivo: etapas iniciais e propostas superadas pelo padrão INI aprovado
+Agente-cad-PYSIDE-Restored-main/docs/PLANO-INI-N3-N5.md:
+  status: historico
+  motivo: plano inicial substituído pela matriz atual de desenho

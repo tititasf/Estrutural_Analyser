@@ -221,7 +221,14 @@ def construir() -> dict:
     dec = KB_DIR / "DECISOES-DO-DONO.md"
     anterior = ""
     for secao, cols in _tabela(_ler(dec)):
-        if len(cols) < 6 or not re.fullmatch(r"D-\d+", cols[0]):
+        # Decisões recentes usam IDs temáticos, além da série histórica D-N.
+        # A data ISO e as seis colunas distinguem uma decisão de cabeçalhos
+        # e tabelas auxiliares; limitar a D-N apagava decisões vivas do grafo.
+        if len(cols) < 6 or not (
+            re.fullmatch(r"D-\d+", cols[0])
+            or (re.fullmatch(r"[A-Za-z][A-Za-z0-9_-]+", cols[0])
+                and re.fullmatch(r"\d{4}-\d{2}-\d{2}", cols[1]))
+        ):
             continue
         did = f"decisao:{cols[0]}"
         estado = cols[5].replace("*", "")

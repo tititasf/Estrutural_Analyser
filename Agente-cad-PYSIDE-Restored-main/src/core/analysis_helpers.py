@@ -334,11 +334,15 @@ def apply_plan_level_provenance(
     marcado, para que o QA saiba onde o motor está sem evidência local.
     """
     from src.core.slab_level_inference import select_plan_level_annotation
+    from src.core.level_text_semantics import elevation_value
+    level_layers = learning.get('level_layers')
 
     def _as_candidate(text: Any, token: Any) -> 'Dict | None':
-        try:
-            value = float(str(text).strip().replace(',', '.').replace('+', ''))
-        except (TypeError, ValueError):
+        value = elevation_value(
+            token, trusted_layer=bool(level_layers and token.get('layer') in level_layers),
+            reference_level=reference_level, floor_height=floor_height,
+        ) if isinstance(token, dict) else None
+        if value is None:
             return None
         pos = token.get('pos') if isinstance(token, dict) else None
         if not pos:
@@ -359,10 +363,9 @@ def apply_plan_level_provenance(
     # A anotação de dentro do contorno é a prova do vínculo e não pode ficar de
     # fora por estar longe do rótulo — foi assim que lajes grandes perderam o
     # próprio nível para o da vizinha.
-    level_layers = learning.get('level_layers')
     for token in dxf_texts or []:
         text = str(token.get('text') or '').strip()
-        if not _looks_like_level_text(text) or text == s.get('name'):
+        if text == s.get('name'):
             continue
         if level_layers and token.get('layer') not in level_layers:
             continue
@@ -374,6 +377,11 @@ def apply_plan_level_provenance(
             seen.add((candidate['text'], candidate['pos']))
 
     if not candidates:
+        s.setdefault('fields', {}).pop('laje_nivel', None)
+        s.pop('laje_nivel', None)
+        s.setdefault('links', {}).setdefault('laje_nivel', {})['label'] = []
+        s['_nivel_provenance'] = {'provenance': 'sem_evidencia_local', 'value': None,
+                                  'needs_human_review': True}
         return
 
     selected = select_plan_level_annotation(
@@ -439,6 +447,8 @@ def process_slab_intelligent(
             pavimento/vista. Sem ela nenhum candidato é descartado por valor.
     """
     learning = slab_learning_config or {}
+    for key in ('_nivel_candidates', '_nivel_provenance', 'level_inference', 'laje_nivel'):
+        s.pop(key, None)
 
     # --- ESTRUTURA BASE ---
     s.update({
@@ -508,7 +518,9 @@ def process_slab_intelligent(
                 (not learned_lvl_lvls)
             )
             if is_lvl_cand:
-                if ('+' in txt_val or '-' in txt_val or '.' in txt_val) and re_level.search(txt_val):
+                from src.core.level_text_semantics import elevation_value
+                if elevation_value(t, trusted_layer=bool(learned_lvl_lvls and t_layer in learned_lvl_lvls),
+                                   reference_level=reference_level, floor_height=floor_height) is not None:
                     s.setdefault('_nivel_candidates', []).append((txt_val, t))
                     if not found_level:
                         s['links']['laje_nivel']['label'].append(t)

@@ -256,6 +256,9 @@
       '<section class="fv-web-mini"><h5>Dados do segmento</h5><div class="fv-web-mini-grid">' +
         '<div><span>Lado</span><b>' + esc(side) + '</b></div><div><span>Nível (m)</span><b>' + window.PortalNumbers.levelHtml(segment.level) + '</b></div>' +
         '<div><span>Comprimento</span><b>' + shown(segment.length_cm) + ' cm</b></div><div><span>Altura da viga</span><b>' + shown(segment.beam_height_cm) + ' cm</b></div>' +
+        '<div><span>Ajuste inicial · ' + esc((segment.support_start || {}).name || '—') + '</span><b>' + esc((segment.adjustment || {}).initial || '—') + ' cm</b></div>' +
+        '<div><span>Ajuste final · ' + esc((segment.support_end || {}).name || '—') + '</span><b>' + esc((segment.adjustment || {}).final || '—') + ' cm</b></div>' +
+        '<div><span>Ajuste total</span><b>' + esc((segment.adjustment || {}).total || '—') + ' cm</b></div>' +
       '</div></section></div>';
   }
 
@@ -332,6 +335,11 @@
   }
 
   function layerInfo(data, state) {
+    if (state.layer === 'n3_cut' || state.layer === 'n3_panels') {
+      var key=[state.visualMode,state.assembly,state.layer,state.side,state.segment,state.cut].join('|');
+      state.n3Layers=state.n3Layers||{};
+      return state.n3Layers[key]||(state.n3Layers[key]={available:true,lazy:true,svg:null});
+    }
     if(data.qa_layers && data.qa_layers[state.layer])return data.qa_layers[state.layer];
     if (state.section === 'cut') return cutLayers(data, state)[state.layer] || null;
     if (state.segment === 'todos') {
@@ -376,9 +384,14 @@
 
   function n3Editor(data, state) {
     if (state.layer !== 'n3_cut' && state.layer !== 'n3_panels') return '';
-    if (state.layer === 'n3_cut') return '<section class="lv-n3-editor"><h3>N3 · Visão Corte</h3><p>Cada corte usa suas medidas e lajes interpretadas no SA. Confira as divergências indicadas na tabela.</p></section>';
+    if (state.layer === 'n3_cut') {
+      var info=layerInfo(data,state), fabrication=info&&info.fabrication;
+      return '<section class="lv-n3-editor"><h3>N3 · Visão Corte · '+(state.assembly==='gradeadas'?'Gradeada':'Sarrafeada')+'</h3><p>Cada corte usa suas medidas e lajes interpretadas no SA. Os dados estruturais são corrigidos na camada SA.</p>'+
+        (fabrication?'<p>Seção: '+shown(fabrication.width_cm)+' × '+shown(fabrication.height_cm)+' cm</p>'+['A','B'].map(function(side){var p=fabrication.mounting[side];return '<p>Lado '+side+' · Corpo: '+shown(p.h1_cm)+' cm · Base: '+shown(p.panel_base_cm)+' cm · Topo: '+shown(p.panel_top_cm)+' cm</p>';}).join(''):'')+
+        '<button type="button" class="primary" data-lv-n3-regen>Regenerar os dois cortes N3</button><div data-lv-n3-status></div><div class="lv-n3-monitor" data-lv-n3-monitor hidden></div></section>';
+    }
     var ficha = data.n3_ficha;
-    if (!ficha) return '<section class="lv-n3-editor"><h3>Ficha N3</h3><p>Os contratos N3 desta viga ainda não foram materializados pelo SA.</p></section>';
+    if (!ficha) return '<section class="lv-n3-editor"><h3>Ficha N3</h3><p>'+esc(data.n3_pending_reason||'Os contratos N3 desta viga ainda não foram materializados pelo SA.')+'</p></section>';
     var draft = state.n3Draft || ficha;
     var view = n3View(state), sides = state.layer === 'n3_cut' ? ['A','B'] : [state.side];
     var rows = sides.map(function(side){
@@ -390,8 +403,8 @@
       var panels = state.layer === 'n3_panels' ? values.panels.map(function(panel,index){
         var original = source.panels[index];
         if (state.segment && state.segment !== 'todos' && Number(original.segment_index) !== Number(state.segment)) return '';
-        return '<div class="lv-n3-panel-row"><strong>Painel '+(index+1)+' · S'+esc(original.segment_index)+'</strong>'+
-          [['width','Largura'],['height1','Altura 1'],['height2','Altura 2']].map(function(spec){
+        return '<div class="lv-n3-panel-row"><strong>Painel '+(index+1)+' · S'+esc(original.segment_index)+'</strong><small>Corpo: '+shown(original.body_height_cm)+' cm · Faixa superior: '+shown(original.top_band_cm)+' cm</small>'+
+          [['width','Largura'],['height1','Altura 1'],['height2','Altura 2']].concat(state.assembly==='gradeadas'?[['grade_h1','Altura grade 1'],['grade_h2','Altura grade 2']]:[]).map(function(spec){
             return '<label>'+spec[1]+' (cm)<input type="number" min="'+(spec[0]==='width'?'0.001':'0')+'" step="0.1" data-lv-n3-side="'+side+'" data-lv-n3-panel="'+index+'" data-lv-n3-field="'+spec[0]+'" value="'+esc(panel[spec[0]])+'"></label>';
           }).join('')+'</div>';
       }).join('') : '';
@@ -407,12 +420,12 @@
 
   function paintN3(root, data, state) {
     var save=root.querySelector('[data-lv-n3-save]'), regen=root.querySelector('[data-lv-n3-regen]');
-    if(!save || !regen)return;
+    if(!regen)return;
     var view=n3View(state),job=state.regenJobs[view],checking=!!state.regenCheckingViews[view];
     var active=job&&['queued','running','paused'].indexOf(job.estado)>=0;
-    save.disabled=(!state.n3Dirty&&!data.n3_ficha.stale)||state.n3Saving;
-    save.textContent=state.n3Saving?'Salvando…':'Salvar edições manuais';
-    regen.disabled=!!state.n3Saving||checking||!!active||!!data.n3_ficha.stale;
+    if(save){save.disabled=(!state.n3Dirty&&!data.n3_ficha.stale)||state.n3Saving;
+      save.textContent=state.n3Saving?'Salvando…':'Salvar edições manuais';}
+    regen.disabled=!!state.n3Saving||checking||!!active||!!(data.n3_ficha&&data.n3_ficha.stale);
     regen.textContent=active?(job.estado==='queued'?'Regeneração na fila':'Regeneração em andamento'):
       'Solicitar regeneração N3 '+(state.layer==='n3_cut'?'Visão Corte':'Painéis '+state.side);
     var status=root.querySelector('[data-lv-n3-status]');if(status)status.textContent=state.n3Message||(state.n3Dirty?'Alterações não salvas':'');
@@ -431,12 +444,13 @@
   }
 
   function saveN3(root,data,options,state) {
+    if(!data.n3_ficha)return Promise.resolve();
     if(!state.n3Dirty&&!data.n3_ficha.stale)return Promise.resolve();
     state.n3Saving=true;state.n3Message='Salvando ficha N3…';paintN3(root,data,state);
     return api('/obras/'+encodeURIComponent(options.obraId)+'/lv/'+encodeURIComponent(options.behavior)+'/'+encodeURIComponent(data.beam.name)+'/n3-ficha'+query(options),{
       method:'PUT',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({source_hash:data.n3_ficha.source_hash,revision:data.n3_ficha.revision,sides:state.n3Draft.sides})
-    }).then(function(result){data.n3_ficha=result.ficha;state.n3Draft=JSON.parse(JSON.stringify(result.ficha));state.n3Dirty=false;state.n3Saving=false;state.n3Message='Salvo · revisão '+result.ficha.revision;paintN3(root,data,state);}).catch(function(error){state.n3Saving=false;state.n3Message='Erro ao salvar: '+error.message;paintN3(root,data,state);throw error;});
+      body:JSON.stringify({assembly_variant:state.assembly,source_hash:data.n3_ficha.source_hash,revision:data.n3_ficha.revision,sides:state.n3Draft.sides})
+    }).then(function(result){data.n3_ficha=result.ficha;data.n3_variants[state.assembly]=result.ficha;state.n3Layers={};state.n3Draft=JSON.parse(JSON.stringify(result.ficha));state.n3Dirty=false;state.n3Saving=false;state.n3Message='Salvo · revisão '+result.ficha.revision;paintN3(root,data,state);}).catch(function(error){state.n3Saving=false;state.n3Message='Erro ao salvar: '+error.message;paintN3(root,data,state);throw error;});
   }
 
   function pollN3(root,data,options,state,jobId,view) {
@@ -461,7 +475,7 @@
     var view=n3View(state);
     if(state.regenCheckingViews[view]||state.n3Saving)return;
     var chooser=window.escolherModoDesenho?window.escolherModoDesenho({currentMode:options.visualMode||'NOVA',description:'Escolha o estilo para regenerar somente esta vista N3 da lateral.'}):Promise.resolve('NOVA');
-    chooser.then(function(mode){if(!mode)return null;return saveN3(root,data,options,state).then(function(){state.regenCheckingViews[view]=true;state.regenErrors[view]='';paintN3(root,data,state);return api(n3Url(data,options,view),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({visual_mode:mode})}).then(function(result){options.visualMode=mode;if(window.atualizarModoDesenhoUrl)window.atualizarModoDesenhoUrl(mode);return result;});});}).then(function(result){if(!result)return;state.regenRefreshOnDone[view]=result.job_id;pollN3(root,data,options,state,result.job_id,view);}).catch(function(error){state.regenCheckingViews[view]=false;state.regenErrors[view]=error.message;paintN3(root,data,state);});
+    chooser.then(function(mode){if(!mode)return null;return saveN3(root,data,options,state).then(function(){state.regenCheckingViews[view]=true;state.regenErrors[view]='';paintN3(root,data,state);return api(n3Url(data,options,view),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({visual_mode:mode})}).then(function(result){options.visualMode=mode;state.visualMode=mode;if(window.atualizarModoDesenhoUrl)window.atualizarModoDesenhoUrl(mode);return result;});});}).then(function(result){if(!result)return;state.regenRefreshOnDone[view]=result.job_id;pollN3(root,data,options,state,result.job_id,view);}).catch(function(error){state.regenCheckingViews[view]=false;state.regenErrors[view]=error.message;paintN3(root,data,state);});
   }
 
   function ensureActiveLayer(root, data, options, state) {
@@ -473,7 +487,7 @@
     var segmentIndex = state.segment === 'todos' ? 0 : (state.segment || 1);
     var cutIndex = state.cut === 'todos' || state.cut === 'estrutural' ? -1 : (state.cut || 0);
     params += (params ? '&' : '?') + 'visual_mode=' + encodeURIComponent(options.visualMode||'NOVA') +
-      '&side=' + encodeURIComponent(state.side) +
+      '&assembly=' + encodeURIComponent(state.assembly) + '&side=' + encodeURIComponent(state.side) +
       '&segment_index=' + encodeURIComponent(segmentIndex) + '&cut_index=' + encodeURIComponent(cutIndex);
     api('/obras/' + encodeURIComponent(options.obraId) + '/lv/' + encodeURIComponent(options.behavior) + '/' +
       encodeURIComponent(data.beam.name) + '/camada/' + encodeURIComponent(state.layer) + params)
@@ -491,6 +505,7 @@
           return;
         }
         info.svg = payload.svg || null;
+        info.fabrication = payload.fabrication || null;
         if (layerInfo(data, state) === info) render(root, data, options, state);
       }).catch(function (error) {
         info.loading = false; info.lazy = false; info.available = false; info.error = error.message;
@@ -553,8 +568,9 @@
         layerButton('c2','C2',layerMap.c2,state.layer === 'c2') + layerButton('c3','C3',layerMap.c3,state.layer === 'c3') +
         (state.section === 'cut' ? layerButton('n3_cut','N3 Visão Corte',layerMap.n3_cut,state.layer === 'n3_cut') :
         layerButton('n3_panels','N3 Painéis Segmentos',layerMap.n3_panels,state.layer === 'n3_panels'))) + '</div>' +
+        ((state.layer==='n3_panels'||state.layer==='n3_cut')?'<nav class="fv-web-segtabs" role="tablist" aria-label="Montagem N3">'+['gradeadas','sarrafeadas'].map(function(kind){return '<button type="button" role="tab" aria-selected="'+(state.assembly===kind)+'" class="'+(state.assembly===kind?'active':'')+'" data-lv-assembly="'+kind+'">'+(kind==='gradeadas'?'Vigas Gradeadas':'Vigas Sarrafeadas')+'</button>';}).join('')+'</nav>':'') +
         '<div class="fv-web-segtabs" role="tablist">' + segTabsHtml(state, segments, cuts) + '</div>' +
-        interpretation + (state.layer === 'n3_cut' && state.cut === 'todos' ? n3Editor(data,state) : '') +
+        interpretation + (state.layer === 'n3_cut' ? n3Editor(data,state) : '') +
         (state.section === 'cut' ? '' : '<div class="fv-web-layer-actions">' +
           '<button type="button" class="success" data-lv-validate ' + (!segment || segment.human_validated ? 'disabled' : '') + '>' + (segment && segment.human_validated ? '✓ Segmento validado' : 'Validar Segmento') + '</button>' +
           (segment && segment.human_validated ? '<button type="button" class="danger" data-lv-unvalidate>Desvalidar Segmento</button>' : '') +
@@ -575,11 +591,24 @@
     window.HumanQa.mount(root.querySelector('[data-human-qa]'), {obraId:options.obraId, classe:'LV', item:data.beam.name, pavimento:options.pavimento, behavior:options.behavior, onReviewed:function(){load(root,options);}});
     bind(root, data, options, state);
     initPanZoom(root.querySelector('.fv-web-canvas'));
-    if((state.layer==='n3_cut' && state.cut==='todos')||state.layer==='n3_panels'){paintN3(root,data,state);discoverN3(root,data,options,state);}
+    if(state.layer==='n3_cut'||state.layer==='n3_panels'){paintN3(root,data,state);discoverN3(root,data,options,state);}
     ensureActiveLayer(root, data, options, state);
   }
 
+  function selectAssembly(root,data,options,state,kind) {
+    if(['gradeadas','sarrafeadas'].indexOf(kind)<0 || state.n3Saving || state.assembly===kind)return;
+    state.variantDrafts[state.assembly]={draft:state.n3Draft,dirty:state.n3Dirty,message:state.n3Message};
+    state.assembly=kind;options.initialAssembly=kind;
+    data.n3_ficha=(data.n3_variants||{})[kind]||null;
+    var saved=state.variantDrafts[kind];
+    state.n3Draft=saved?saved.draft:(data.n3_ficha?JSON.parse(JSON.stringify(data.n3_ficha)):null);
+    state.n3Dirty=saved?saved.dirty:false;state.n3Message=saved?saved.message:'';
+    render(root,data,options,state);
+  }
+
   function bind(root, data, options, state) {
+    root._lvSelectAssembly=function(kind){selectAssembly(root,data,options,state,kind);};
+    root.querySelectorAll('[data-lv-assembly]').forEach(function(button){button.addEventListener('click',function(){selectAssembly(root,data,options,state,button.dataset.lvAssembly);});});
     function target() {
       var side = data.sides[state.side];
       var seg = side.segments.find(function (s) { return String(s.index) === String(state.segment); });
@@ -708,9 +737,11 @@
     metadataQuery += (metadataQuery ? '&' : '?') + 'include_svgs=false';
     return api('/obras/' + encodeURIComponent(options.obraId) + '/lv/' + encodeURIComponent(options.behavior) + '/' + encodeURIComponent(options.beam) + metadataQuery)
       .then(function (data) {
+        var assembly=options.initialAssembly||data.assembly_variant||'sarrafeadas';
+        if(data.n3_variants)data.n3_ficha=data.n3_variants[assembly];
         var side = String(options.initialSide || 'A').toUpperCase(); if (!data.sides[side]) side = 'A';
         var requested = Number(String(options.initialSegment || '').replace(/\D/g, ''));
-        var state = {side:side, section:['sa_cut','n3_cut'].indexOf(options.initialLayer) >= 0 ? 'cut' : 'side', segment:requested || null, expanded:null, cut:options.initialLayer==='n3_cut'?'todos':0,
+        var state = {assembly:assembly,visualMode:options.visualMode||'NOVA',variantDrafts:{},side:side, section:['sa_cut','n3_cut'].indexOf(options.initialLayer) >= 0 ? 'cut' : 'side', segment:requested || null, expanded:null, cut:options.initialLayer==='n3_cut'?'todos':0,
           layer:options.initialLayer||'sa',n3Draft:data.n3_ficha?JSON.parse(JSON.stringify(data.n3_ficha)):null,
           n3Dirty:false,n3Saving:false,n3Message:'',regenJobs:{},regenCheckingViews:{},
           regenErrors:{},regenTimers:{},regenRefreshOnDone:{},discoveredN3:{}};
@@ -721,6 +752,13 @@
       });
   }
 
+  document.addEventListener('portal:vigas-config-saved',function(event){
+    document.querySelectorAll('[data-lv-mounted]').forEach(function(root){
+      var options=root._lvOptions,detail=event.detail;
+      if(options&&options.obraId===detail.obraId&&options.pavimento===detail.pavimento&&root._lvSelectAssembly)
+        root._lvSelectAssembly(detail.config.comportamento_laterais_vigas);
+    });
+  });
   window.LvFicha = {mount: load, cleanSvg: cleanSvg};
   document.addEventListener('portal:item-saved',function(event){
     if(event.detail.classe.indexOf('lateral_')!==0) return;

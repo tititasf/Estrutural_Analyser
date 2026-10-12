@@ -1,5 +1,7 @@
 # LV — manual granular de interpretação, validação e evolução
 
+> **NOVA/LV — padrão aprovado em 2026-10-05:** para o desenho N3 AB e Visão Corte, prevalece a [especificação vigente](../../PADRAO-NOVA-LATERAIS-APROVADO.md). Para/Passa conservam contratos independentes; gradeadas/sarrafeadas conservam artefatos independentes. As descrições do motor anterior abaixo continuam como referência de interpretação/contrato e não substituem as regras visuais aprovadas. Integração local em validação; geração publicada N3/N5 ainda não comprovada.
+
 **Cortes sobre o estrutural — 2026-10-02:** o dono esclareceu que a aba
 “Todos” de SA deve desenhar as seções SA sobre a viga, substituindo
 as faixas e etiquetas longitudinais de segmentos. Cada VC calculada recebe
@@ -140,6 +142,22 @@ defeitos corrigidos e prova: `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md` §6.1.1.
 Dúvidas abertas: `docs/QUESTIONARIO-LV-SA-2026-09-25.md`.
 
 **Passa sobre pilar tem laje (D-91, 2026-10-10):** o trecho Passa que segue a parede do pilar declara a laje que encosta na face, igual ao Para; não ficar sem laje só por estar no pilar.
+
+**Encontro colinear de alturas iguais — dono, 2026-10-10:** escolher apenas
+um trecho para englobar o pilar, por conveniência. Vale também para trechos
+da mesma viga com larguras diferentes, nas faces longas A/B/E/F/G/H;
+preservar a exceção C/D e Para de D-64/G10. Substitui a parte de D-63 que permitia
+ambos englobarem quando as alturas fossem iguais. No caso V408/P33, o dono
+confirmou escolher o trecho 19/55. O escolhido recebe ajuste **+11 cm além
+da face oposta do pilar**; o outro recebe **−11 cm antes da face de entrada**.
+São os ajustes de destaque das laterais: manter os contornos estruturais nas
+paredes medidas, com sinais em `lv_cell.adjustment_start/end`; converter para
+comprimento executivo uma única vez. A escolha automática geral usa maior
+largura, depois identidade/geometria estável, sem regra por item. Resolver
+somente a parede física compartilhada; não transferir a decisão à outra face
+nem à interpretação Para. Profundidades diferentes mantêm a regra da mais
+profunda. Níveis distintos permanecem separados e não são igualados pela
+escolha de montagem.
 
 **Passa — decisão do dono de 2026-09-30:** a lateral pode seguir toda a parede
 externa do pilar (inclusive faces A–H), mas nunca atravessar seu interior.
@@ -385,3 +403,197 @@ Regra integrada: `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` (canônico
 ### Referência padrão e treino de exceções — NIV-PADRAO-EXCECAO-20261003
 
 Aplicar o contrato global em `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`, seção Referência padrão e exceções explícitas. O padrão confirmado é topo da viga no nível principal da laje ou base de saída do pavimento quando não há laje, salvo indicação explícita diferente. Ausência de corte não torna esse padrão uma estimativa por si só. Preservar regiões de laje, datum da viga, contato por face do pilar e fontes independentes. QA distingue convenção de medida e verifica qualidade/cobertura da leitura antes de confirmar; não elevar score apenas renomeando status. Interpretação de vigas em níveis diferentes por hatch/corte está pendente de treino com exemplos reais futuros; não foi certificada neste caso.
+
+
+### Laterais cruzando invertidas — 2026-10-04
+
+No destaque estrutural, laterais de invertidas confirmadas alternam segmentos com cores sólidas vermelho/branco; partições do mesmo segmento mantêm sua cor, sem tracejado ou listras. A continuidade de laterais normais exige duas paredes medidas, cobertura local da invertida e comparação dos intervalos absolutos de montagem dos painéis. Faixa de laje comum só pode ser descontada quando ambos os contratos confirmam nível e espessura compatíveis. Contato fora dessa faixa continua bloqueando. Pilares, alterações de profundidade/nível e geometria manual validada permanecem obstáculos. A união mantém coordenadas físicas das aberturas; remove apenas a abertura da viga incidente dentro da travessia comprovadamente livre. Aplicação derivada para portal/N3, sem alterar N1.
+
+Na produção 13_PAV, VF301 Passa A une 8+9 em 405,5 cm; B une a chegada correspondente preservando aberturas de pilares. Na chegada V301/V330, a lateral normal alcança a face B medida; o P49 termina nessa mesma face e não impede os 19 cm de chegada. Pilar que ultrapassa a face de destino continua bloqueando. As pendências N3 da V330 foram resolvidas pela prioridade de cobertura real e continuidade restrita ao pilar terminal, conforme consolidação abaixo. Evidência: scripts/arete/relatorios/20261004_lv_inverted_crossings/RELATORIO.md.
+
+### N3 invertidas: estações estreitas e pilares terminais (04/10/2026)
+
+Contrato N1 com alturas iguais nas pontas representa uma única banda de painel, não duas alturas somadas no esquema robô. As estações confirmadas usam `generate_local_panels` e preservam comprimentos, alturas locais e aberturas, sem heurísticas de marco N2. Cobertura vertical terminal só se estende dentro do contorno medido do pilar nomeado e com seção adjacente confirmada e única. Resolução incidente prioriza footprint real, depois footprint de encontro, depois tolerância; tolerância não mistura perfis vizinhos. Evidência: `scripts/arete/relatorios/20261004_lv_inverted_crossings/RELATORIO.md`, 186 testes e 18 DXFs de validação VPS.
+
+O destaque Passa compartilha essa continuidade terminal com o N3. Após reconciliar os cruzamentos sem colisão, no degrau da V330 os segmentos lógicos A2 e A3 continuam distintos e ambos invertidos: níveis 852,19/852,16 e lajes 13/10 cm. Uma cobertura pendente dentro do P18 não deve transformar toda a lateral terminal em normal. A extensão confirmada limita-se ao sólido medido do pilar; não cobre vão livre nem apaga mudanças locais. Cores sólidas alternam por segmento lógico, incluindo suas partições.
+
+
+### V330: segmentação lógica das laterais invertidas (04/10/2026)
+
+Regra simétrica: a lateral invertida também atravessa a viga normal abaixo quando os intervalos absolutos dos painéis comprovam ausência de colisão. Não basta o nome ou a classificação da viga. Exigir cobertura confirmada dos dois trechos adjacentes, mesma altura, encontro incidente medido e suportes de viga correspondentes. Pilares, degraus, mudanças de altura e geometria manual validada continuam preservados.
+
+Na V330 são **3 segmentos A e 2 B**, tanto Para quanto Passa. A separa 71, 120 antes do degrau e 120 depois; B separa apenas 120 e 71. Os encontros com V301/VF301 abaixo não criam divisões. O destaque desenha um contorno e nome por segmento lógico, alternando vermelho/branco; os perfis internos de montagem ficam no contrato N3 e não geram contornos adicionais na planta. UIDs de origem permanecem estáveis; a numeração exibida é sequencial após a união. Aberturas reais de pilares preservam sua posição e fragmentos da mesma abertura são reunidos sem duplicar a folga.
+
+Verificação: 67 testes, fixture real imutável e idempotente, cinco contornos da V330 em cada comportamento e capturas do portal publicado. Comprimentos totais preservados: 527 cm Para e 606 cm Passa. Seis DXFs N3 regenerados em validação isolada, sem falhas de geração. Isso não certifica os perfis de laje: permanece a revisão da estação local de 124 cm no encontro V301. Evidências em `scripts/arete/relatorios/20261004_lv_inverted_crossings/RELATORIO.md`.
+
+### V330: limite medido de mudança de altura (04/10/2026)
+
+A linha transversal estrutural que fecha as duas paredes tem prioridade sobre o ponto médio estimado entre textos de dimensões. Estados N1 antigos podem conservar a estimativa: reconciliar somente a geometria derivada antes de construir o inventário de seções. Exigir linha única, ortogonal e de largura integral, lados adjacentes da mesma viga com profundidades diferentes e suporte de seção. Preservar geometria validada, edições manuais e aberturas de pilares; não escolher entre marcas ambíguas.
+
+Na V330, LINE 445 do DXF, camada 3, mede Y=3095,038 cm. O limite legado era Y=3035,163 cm. A faixa 71 fica com 112 cm de comprimento; a quantidade continua 3A/2B em Para e Passa, mantendo degrau e comprimentos totais. A correção precede o inventário compartilhado com os contratos N3. Evidências: `scripts/arete/relatorios/20261004_lv_inverted_crossings/boundary_verified.json` e capturas `portal_limite_v330_para.png`/`portal_limite_v330_passa.png`. Originais N1 e Fase4 preservados.
+
+
+### LV: chegada à face B e regeneração SA (04/10/2026)
+
+Uma chegada sem colisão vertical à invertida deve alcançar a face distante medida. Pilar que ocupa a faixa entre faces e termina exatamente na face de destino não impede essa chegada; qualquer extensão do sólido além da face bloqueia a proposta. Aplicar com simetria de eixo/sentido e conservar pilares reais fora desse caso, mudança de altura e degraus. V301 A16/B1: 247,52 → 266,52 cm em Para e Passa, destino X=4552,4. V330 continua 3A/2B; transição Y=3095,038, faixa 71 de 112 cm.
+
+Após publicação válida de um snapshot SA, limpar marcas de remoção apenas dos segmentos efetivamente regenerados, restritos ao pavimento, seção e vigas solicitadas. Preservar edições, criações manuais, itens ausentes do snapshot e outras classes. VF301 desaparecia por marcas persistentes UID/beam:VF301; a nova rodada recuperou 9 laterais A e 2 B Para. Regeneração falha não limpa essas marcas.
+
+Os botões granulares mostram a última conclusão SA/N3/N5 da classe, obra e pavimento, no horário de Brasília. Excluir falhas, jobs sem pavimento/data válida e geração de item isolado. Não confundir a data SA com geração N3. Evidências: scripts/arete/relatorios/20261004_lv_regeneration/RELATORIO.md; 96 testes Python e verificação JavaScript.
+
+### VF301: continuidade lógica e datum pareado (05/10/2026)
+
+Em travessia de invertida já comprovada nos dois sentidos por paredes medidas e painéis verticalmente separados, uma diferença de nível escalar derivado das lajes não deve impedir sozinha a união. Exigir mesma dimensão, profundidade e sobrecota, datum único concordante nos perfis pareados de uma das faces e ausência de suporte de degrau. Nível explícito, datum divergente/desconhecido, degrau, validação manual e colisão real continuam impedindo a união. Conservar os níveis locais e UIDs de origem em `source_level_sections` e `merged_source_segments`; não reescrever N1 nem tratar a união como confirmação dos níveis estimados.
+
+VF301: A8+A9 → A8 (405,5 cm) e B1+B2 → B1 (3490 cm), Para e Passa. Aberturas de pilares preservadas. Comparação da produção alterou somente esses quatro segmentos; V330 3A/2B e V301 preservadas. 51 testes de cruzamentos passaram. Evidência: scripts/arete/relatorios/20261004_lv_regeneration/vf301_united.json.
+
+
+### Fechamento de cortes e invertidas (05/10/2026)
+
+Consolidação das regras finais, evidências e pendências: `docs/CONHECIMENTO/CONSOLIDACAO-CORTES-INVERTIDAS-20261005.md`. Compressão tem orçamento de 50 cm, mantendo região das lajes, medidas físicas e fonte original; sinal distinto da inversão. Cobertura SA por segmento de fundo inclui repetições e dispensa interpretado quando o original cobre o trecho. A rodada final confirmou continuidade VF301, mas não regenerou N3 publicado: revisão independente do perfil de 124 cm e certificação por unidade permanecem abertas.
+
+### Experimentos de design NOVA AB: pontas e passagem de pilar (05/10/2026)
+
+**Revisão posterior do dono:** as duas generalizações seguintes sobre ausência de montantes nos gradeados e interrupção da travessa superior foram corrigidas; seguir a seção "Montagens AB NOVA distintas" abaixo. Preservadas aqui como histórico do experimento v08.
+
+Decisão explícita do dono `LV-NOVA-AB-EXTREMIDADES-PILAR-20261005`, aplicável ao desenho AB de Laterais Para e Passa: sarrafos verticais das extremidades somente nas duas pontas da lateral. Divisões de painéis e emendas entre segmentos contínuos não criam esses sarrafos. As linhas de divisão dos próprios painéis permanecem distintas da madeira. Fechamentos locais de recortes são outra função, não novos sarrafos de extremidade.
+
+A passagem geral de pilar recorta todos os sarrafos até o topo da montagem lateral, inclusive a travessa superior, sem retirar o painel. O original analisado na v07, com passagem parcial e travessa superior contínua, é caso especial segundo o dono; não generalizar essa exceção. Aberturas de viga conservam a hachura contínua da v07, conectada à faixa de laje e a segmentos adjacentes.
+
+Exemplos gradeados sintéticos v08 e verificações geométricas em `scripts/arete/relatorios/20261004_nova_lv_design_experimentos/dual_v08/`. São propostas para revisão visual; não comprovam integração ao N3/N5 nem geração publicada. Motores certificados, N1, resultados da VPS e exemplos originais permanecem preservados nesta etapa.
+
+### Experimentos NOVA: parafusos centrais do corte gradeado (05/10/2026)
+
+Decisão `LV-NOVA-CORTE-PONTAS-CENTRAIS-20261005`: remover os sarrafos extras acima/abaixo das pontas metálicas dos parafusos centrais. Não aplicar essa remoção aos sarrafos do conjunto inferior, aprovado pelo dono. Na proposta v09, A/B ficam centralizadas na largura da lateral, num trecho livre de eixos e encontros. Os cinco DXFs sintéticos e PNGs estão em `scripts/arete/relatorios/20261004_nova_lv_design_experimentos/dual_v09/`; comparação por entidade confirma preservação de todas as demais entidades da v07, incluindo o conjunto inferior. Experimento para revisão, sem integração ao motor nem publicação na VPS.
+
+### Montagens AB NOVA distintas — correção vigente (05/10/2026)
+
+**Complemento ao corte sarrafeado:** não existem os pares de madeira acima/abaixo dos antigos parafusos centrais, em nenhuma altura. A v12 removeu as ferragens mas deixou indevidamente a madeira associada; v13 retira essas peças e suas hachuras em todos os cinco casos, incluindo 65×130. Sarrafos regulares, garfos verdes, fundo, cotas e letras preservados por comparação de entidades. Evidência: `scripts/arete/relatorios/20261004_nova_lv_design_experimentos/dual_v13/`. Sem integração/publicação nesta etapa.
+
+**Corte sarrafeado:** decisão vigente `LV-NOVA-CORTE-SARRAFEADO-GARFOS-20261005`. Sem parafusos, inclusive no fundo; sustentação pelos garfos verdes externos. Design aprovado com retirada dessas ferragens, alinhamento A/B e C 1 cm acima, executados nos cinco experimentos v12. Garfos e demais geometria preservados por comparação de entidades. Integração no motor e validação publicada permanecem etapas não executadas.
+
+**Aprovação posterior, somente corte gradeado:** decisão `LV-NOVA-CORTE-GRADEADO-APROVADO-20261005`. Experimento v09 aprovado com letra C 1 cm acima, aplicado nos cinco DXFs v11. Não implica aprovação dos AB ou corte sarrafeado, nem comprova integração ao motor/VPS.
+
+Decisão `LV-NOVA-AB-MONTAGEM-DISTINTA-20261005`: nos sarrafeados, vertical 7 cm apenas nas pontas. Nos gradeados, meio pontalete 3,5 cm verde nas emendas: no original cada painel contribui com uma metade adjacente. Nas pontas, primeira borda do meio pontalete a 15 cm do limite da lateral (medida original 8241,266004 − 8226,266004). Sarrafos 7 cm e linha 2,2 superior são laranja 40; meio pontalete verde 81.
+
+A passagem de pilar mantém a travessa superior de 7 cm nos dois tipos e tem meios pontaletes nas bordas externas da passagem, fechando o interior. A abertura de viga gradeada tem vertical 3,5 até o fundo e travessa 2,2 laranja sob a abertura. A ponta abaixo da abertura usa vertical 7 laranja se é ponta final, ou 3,5 verde se segue outro segmento. Não confundir essas funções e dimensões.
+
+Doze DXFs experimentais e PNGs em `scripts/arete/relatorios/20261004_nova_lv_design_experimentos/dual_v10/`. Cortes v09 preservados. São propostas de encaixe para revisão, sem integração ao motor/VPS. Esta regra substitui as generalizações v08; indexação global derivada ainda não refeita nesta rodada.
+
+### LV-NOVA-AB-PILAR-E-EXTREMIDADES-20261005
+Correção vigente do dono: nos AB sarrafeados, abertura de pilar não recebe montantes verdes de 3,5 cm; somente fechar as paredes dos sarrafos horizontais interrompidos pela abertura. Nos gradeados, os meios pontaletes externos à abertura sobem até 2,2 cm abaixo do topo, encostando no sarrafo superior de 2,2 cm. Em ambos os tipos, a borda interior laranja do sarrafo vertical de 7 cm nas extremidades deve ser uma linha reta contínua do fundo ao topo (limitada pelo vazio quando há abertura de viga na própria ponta). Travessa superior da abertura de pilar preservada. Experimentos dual_v14: 12 DXFs sintéticos com auditoria sem erros; renders lidos. Ainda não integrado ao motor nem publicado. Esta decisão substitui a regra v10 que incluía meios pontaletes nas aberturas de pilar sarrafeadas e limitava os dos gradeados a 7 cm abaixo do topo.
+
+### LV-NOVA-AB-TRAVESSAS-E-ABERTURAS-20261005
+Correção vigente: sarrafo de 2,2 cm somente no topo dos AB gradeados, terminando nos montantes de 7 cm das extremidades; não atravessar esses montantes até a parede externa. Não existe essa travessa de 2,2 cm no topo dos sarrafeados nem no fundo dos gradeados. Travessas locais de aberturas gradeadas aprovadas permanecem. Em abertura de viga sarrafeada, jambas e travessa inferior têm 7 cm; ambas paredes da jamba são completas, descendo 7 cm abaixo da abertura com fechamento inferior; a travessa inferior nasce desse encontro. Experimentos dual_v15: 12 DXFs sintéticos auditados; dimensões, hachuras, painéis, textos e meios pontaletes gradeados preservados por comparação de entidades. Renders examinados; integração ao motor e VPS pendente. Substitui as regras anteriores de travessa 2,2 no topo sarrafeado e fundo gradeado.
+
+
+### Cortes locais por perfil e datum medido — revisão 05/10/2026
+
+Cobrir cada perfil físico de cada fundo, incluindo altura diferente e degrau, mesmo quando outro original já cobre um perfil do fundo. Desenhar localmente sem setinhas, comprimir somente cauda e conservar cotas físicas. Confiança: azul claro confirmado, laranja revisar, vermelho invertida. Em viga normal, topo medido da viga e nível regional da laje são referências distintas; referência original única pode ancorar o datum sem alterar N1. Ausência ou conflito de evidência não autoriza assumir datum de viga vizinha. Regras, casos e limites: `docs/CONHECIMENTO/CONSOLIDACAO-CORTES-INVERTIDAS-20261005.md`, seção Revisão final dos destaques.
+
+### LV-NOVA-AB-CONTAGEM-PONTALETES-20261005
+Texto de pontaletes somente em painéis AB gradeados: quantidade = arredondamento ao inteiro mais próximo de (comprimento do painel menos extensão das aberturas dentro desse painel) / 30. Exemplos do dono: 244 cm → 8 pontaletes; 122 → 4; 145 → 5; painel 244 com abertura 40 → comprimento útil 204 → 7. Descontar a interseção de cada abertura com o painel respectivo, unindo intervalos sobrepostos para evitar desconto duplicado. Não usar texto fixo 8 1/2pont. Texto individual por painel; sem indicação nos sarrafeados. Experimentos dual_v16: 12 DXFs auditados e demais entidades preservadas; integração ao motor/VPS pendente. Convenção para empate exato .5 adotada no experimento: arredondar para cima.
+
+### LV-NOVA-AB-MEIO-PONTALETE-ABERTURA-20261005
+Na parede da abertura AB gradeada, o meio pontalete verde de 3,5 cm começa abaixo do sarrafo superior de 2,2 cm e segue para baixo; seu fechamento superior encosta na face inferior desse sarrafo, sem atravessar a travessa. Corrigidos apenas endpoints/fechamentos das jambas gradeadas em dual_v17; demais entidades e textos de contagem v16 preservados. Doze DXFs experimentais auditados, render das aberturas lido; integração ao motor/VPS pendente.
+
+### LV-NOVA-AB-INTERSECCOES-SOB-ABERTURA-20261005
+A regra de não atravessar sarrafo de 2,2 cm também vale para meios pontaletes sob a abertura gradeada, inclusive nas interseções/emendas de painéis e segmentos. A ponta e seu fechamento superior devem encostar na face inferior da travessa local de 2,2 cm. Experimento dual_v18: linhas verdes desses encontros corrigidas; outras entidades preservadas e 12 DXFs auditados. Render examinado; motor/VPS pendentes.
+
+### LV-NOVA-AB-PAINEL-MINIMO-60-20261005
+Decisão do dono para ambos os AB: lateral até 244 cm sempre usa um painel único, podendo ter menos de 60 cm. Nas laterais acima de 244 cm, não admitir painel inferior a 60 cm. Quando a sobra após a divisão em 244 for menor que 60, substituir o painel anterior de 244 por 122 e somar os outros 122 à sobra no painel final. Ex.: 260 → 122+138; 300 → 122+178; 500 → 244+122+134. Sobra exata de 60 permanece: 304 → 244+60. Recalcular paredes, cotas, meios pontaletes das emendas e textos de contagem conforme comprimento útil de cada painel. Experimentos dual_v19: 12 DXFs auditados, cotas confrontadas com a divisão calculada. Fórmula verificada em 30000 comprimentos de 0,1 a 3000 cm: soma preservada, máximo 244, mínimo 60 exceto painel único. Não integrado ao motor/VPS.
+
+### LV-NOVA-AB-CONTINUACAO-APOS-ABERTURA-20261005
+Somente nos sarrafeados: quando a abertura direita chega ao fim de um segmento e há segmento seguinte encostado, esse seguinte recebe sarrafo vertical de 7 cm à esquerda, de fundo a topo. Seus horizontais começam na face interna desse montante. É exceção à ausência de montante em emenda comum sarrafeada; não aplicar às emendas sem abertura nem aos gradeados. Experimento dual_v20: AB04 corrigido, demais 11 DXFs preservados byte a byte em relação a v19; entidades fora das linhas afetadas preservadas, 12 auditorias sem erro e render examinado. Integração ao motor/VPS pendente.
+
+### LV-NOVA-DESIGN-APROVADO-INTEGRACAO-20261005
+O dono aprovou explicitamente todo o design experimental das laterais de viga NOVA, AB e Visão Corte, gradeadas e sarrafeadas, compartilhado visualmente por Para/Passa com configurações independentes. Referência final AB: dual_v20, seis casos por montagem. Corte gradeado: dual_v11, cinco casos. Corte sarrafeado: dual_v13, cinco casos. Todas as correções posteriores substituem as convenções anteriores no mesmo ponto; em especial a ausência de montante em emendas sarrafeadas admite a exceção da continuação após abertura. A aprovação autoriza integrar o padrão ao N3 dinâmico de origem SA e validar o N5 com molduras/índice NOVA. Não comprova que a integração foi realizada. Plano completo e critérios: docs/PLANO-LV-NOVA-SA-N3-N5-20261005.md. Consolidação integral da especificação, atualização dos índices KB/RAG e validação publicada permanecem próximas etapas do plano.
+
+
+## Apresentação N3/N5 por modo — 07/10/2026
+
+INI, NOVA e Formascia têm padrões de desenho distintos sobre o mesmo contrato estrutural. Consultar a [matriz canônica de desenho](../../PADROES-DESENHO-N3-N5.md) e o [padrão INI aprovado](../../PADRAO-INI-APROVADO.md). A aprovação visual não altera os dados SA nem certifica automaticamente todos os itens. LAJ INI compartilha o N3/perfil NOVA; os compositores N5 continuam separados.
+
+
+### LV-VISAO-CORTE-NAO-SECCIONA-20261008
+
+Visão de corte é anotação: seus traços transversais, diagonais, polilinhas e setas não delimitam banda nem seccionam lateral. Reconhecer a camada fonte antes de converter entidades em coordenadas sem semântica; excluir somente a entidade reconhecida, preservando linhas estruturais independentes mesmo quando coincidentes. Aplicar o mesmo filtro à leitura DXF de divisores usada pelo portal. Não mascarar uma região inteira em torno do símbolo: isso apagaria encontros reais de vigas/pilares.
+
+Causa comprovada na Obra_TREINO_1/TIPO_TESTE: múltiplos divisores gráficos da visão de corte tornavam ambígua a busca e mantinham uma fronteira antiga. V501 tinha trecho falso de aproximadamente 102,44 cm. Depois do filtro, A Para/Passa passou de quatro para três segmentos; o encontro real com V523 foi preservado. Coordenadas observadas são evidência, nunca constantes do motor. Implementação: lv_beam_scene._line_segments/build_scene_runs e fv_inverted_crossings.structural_lines_from_dxf, com reconhecedor compartilhado cad_object_recognition.section_layer. Proveniência registra entidades_visao_corte_excluidas.
+
+Contraprovas: divisor estrutural coincidente permanece; mudança real de altura permanece; polilinha fechada de corte não produz banda; orientações horizontal/vertical e translações têm regressão. Testes: test_lv_section_symbol_exclusion.py. Fonte torre_1.dxf SHA256 80b45ff3e024ebe037fe6e6e52829216120f006c55f6b60f79adb1df2dc65641. SA publicado em produção, recibo e comparação no relatório 20261008_lv_corte_seccionamento. Esta validação de interpretação não certifica N3/N5 nem estilos ainda não observados.
+
+
+## Passa: encontro depois de percorrer a parede do pilar
+
+<!-- LV-PASSA-ENCONTRO-APOS-PILAR-20261008 -->
+A lateral Passa percorre a parede externa do pilar, mas termina na primeira face de uma viga de profundidade igual ou maior, mesmo quando o encontro fica além do trecho original ou da margem normal de busca. A busca de incidentes deve cobrir a parede conectada completa. Não reaparece um fragmento da parede depois desse bloqueio. Viga menos profunda mantém a regra de passagem por baixo; visão de corte continua sendo anotação sem bloqueio estrutural. Evidência: TIPO_TESTE, V526 SEG1-A contra V501, ambas 19/50; término corrigido de y=3729,8 para y=3710,8. Regra geral, sem exceção por nome.
+
+## Transição de laje ou degrau para vazio
+
+O inventário compartilhado também recupera um vão sem repetição do nome além
+de apoio: exige paredes reais, seção local e um único trecho identificado
+adjacente com a mesma seção. Não atribuir por proximidade nem atravessar o apoio
+como material de viga. Caso V517 acima de P16: FV e as células A/B Para/Passa
+recuperadas; recibo `scripts/arete/relatorios/20261008_fv_missing_crossings/RELATORIO-V517.md`.
+
+<!-- LV-LAJE-DEGRAU-VAZIO-20261008 -->
+A lateral secciona na borda física entre laje/degrau e vazio, tanto Para quanto Passa, com segmentos encostados e numeração na ordem de leitura do lado. Usar a união dos intervalos de contato das lajes com a face: contatos sobrepostos ou adjacentes não representam vazio. Degrau interno sem contato com a face não divide a lateral. Limites truncados pela extensão da cena não provam uma borda física no prolongamento Passa sobre pilar. Não alterar a referência de nível da viga apenas por esta divisão. Exemplo apontado pelo dono: V519 SEG4-B, TIPO_TESTE, trecho de vazio seguido por degrau/laje.
+
+
+## Parede externa completa nos cantos ortogonais
+
+<!-- LV-CANTO-EXTERNO-20261008 -->
+Nos encontros em L, as laterais externas completam a parede ate o canto externo; nao terminam na face interna da viga perpendicular. Aplica-se a Para e Passa. Medir a largura da perpendicular e exigir linha estrutural continua ate o canto, com a perpendicular terminando na face interna da propria viga. T, cruzamentos e linhas de cota nao autorizam prolongamento. Faces internas continuam obedecendo ao encontro e a profundidade G7. Nao copiar o fundo como lei nem usar coordenadas fixas por obra. Evidencia: encontro V516/V526, TIPO_TESTE, apontamento do dono em 2026-10-08.
+
+
+## VC-TEXT-COTAS-20261008 — apresentação dos cortes originais
+
+O título acompanha o eixo de largura do corpo do corte e fica fora do contorno completo, incluindo braços de laje. Cada face do corpo recebe cotas dos intervalos livres entre os contatos de lajes, acima e abaixo deles. Medir contatos somente nas peças fonte atribuídas àquele corte; manter as medidas completas das peças compartilhadas e a geometria DXF intacta. Medidas geométricas não certificam nível absoluto. Regressão: cortes verticais e girados, 50/58 cm de paredes em corpo 120 com laje de 12; braço separado por lacuna não cria contato.
+
+
+### VC-COTAS-UTEIS-20261008 — Cotas úteis da visão de cortes
+
+Correção do dono: não cotar a extensão do símbolo de laje para dentro do vão. As cotas úteis são a espessura/altura de cada laje, as alturas das paredes da viga acima e abaixo dos contatos e a largura do fundo da viga (com altura total do corpo como referência). O comprimento dos braços permanece somente na geometria fonte, inclusive pontes compartilhadas; não é medida de forma. Aplicar também a cortes rotacionados e degraus. Esta regra corrige a orientação anterior sobre cotar extensões de peças compartilhadas. Validação: 42 testes; 55 cortes reais com contornos preservados e 80 cotas de parede mantidas.
+
+
+### VC-COTAS-PROXIMAS-20261008 — Posição das cotas de parede
+
+Preferência do dono: colocar cada cota próxima da parede que mede, sem deslocá-la além da extensão dos braços de laje. O afastamento usa a face física da viga com margem de 8 unidades do desenho, acompanhando a orientação do corte. Valores, contornos e espessuras permanecem iguais. Conferência de 55 cortes e 80 cotas de parede, com 42 testes aprovados.
+
+
+### VC-TOTAL-EXTERNA-20261008 — Cota total em linha externa
+
+Preferência do dono: a cota total deve ficar 4 cm mais para fora da linha de cotas da laje/granulares para evitar leitura ambígua. Margem total 12 cm versus margem granular 8 cm; aplicar conforme a orientação do corpo do corte, sem alterar valores. Cotas de parede continuam próximas da face medida.
+
+
+### Esquina de pilar: incidência do Passa (2026-10-08)
+Ao medir uma viga incidente, excluir sua continuação geométrica interna aos pilares sólidos de origem. Uma faixa ainda não aparada não pode impedir o Passa sobre a face externa do pilar. A medição deve independer da ordem de montagem das cenas; encontros reais fora do sólido continuam respeitando a profundidade. Tolerância geométrica de 0,05 cm absorve o arredondamento da faixa, sem estender paredes.
+
+## ESTILO-INTEGRADO-20261008 — harmonização entre classes
+
+Síntese vigente, convenções recorrentes, contraprovas e pendências: [Estilos estruturais — interpretação integrada](../../CONHECIMENTO/ESTILOS-ESTRUTURAIS-INTERPRETACAO-INTEGRADA.md). Consultar a evidência local antes de aplicar a regra a outra obra; cooperação entre classes não constitui prova circular nem aprovação automática.
+
+Pendência documentada em 20261008_lv_laje_vazio/RELATORIO.md: a fronteira V519 foi validada, porém a associação LAJ/vazio dos dois trechos diverge do comentário humano. Não promover essa associação a verdade validada.
+
+## LV-AJUSTES-PONTAS-20261008 — ajustes de ponta e tags de revisão SA
+
+Escopo: destaques A/B de laterais Para e Passa. Decisões humanas deste chat, implementação e evidência datada em `scripts/arete/relatorios/20261008_lv_endpoint_tags/RELATORIO.md`; curadoria em `scripts/arete/relatorios/20261008_chat_kb_endpoint_harmonia/RELATORIO.md`. Esta informação explica a revisão da interpretação, sem certificar o ajuste de cada item ou novos estilos de obra.
+
+### Origem, sentido e sinal dos valores
+
+Cada segmento expõe dois ajustes em cm: `lv_cell.adjustment_start` e `lv_cell.adjustment_end`, publicados no viewer como `ajustes_pontas`. Ponta esquerda corresponde ao primeiro ponto local (início), direita ao último (fim). Não confundir com lado A/B nem com esquerda/direita absoluta da tela: um segmento B pode ter orientação invertida. As tags não deslocam a geometria.
+
+Mostrar `Ajuste (-11 cm)`, `Ajuste (-4 cm)`, `Ajuste (+4 cm)` ou `Ajuste (+11 cm)` conforme o valor registrado: negativo subtrai, positivo soma. Zero explícito é `Ajuste (0 cm)`, neutro. Ausente, booleano, NaN ou infinito são inválidos: `Ajuste (não informado)`, nunca zero presumido. Os valores exemplificam a apresentação; não constituem tabela universal de descontos independente do encontro e da montagem.
+
+SA e N3 são etapas distintas. As tags leem o SA; o recuo Passa de -4 calculado posteriormente por `lv_generation_contract._passa_endpoint_adjustments` não é copiado silenciosamente para elas. +4/+11 em regras de aberturas não provam ajuste externo de ponta. No retrato de 08/10: Para tinha 155 segmentos/310 tags (113 ajustes -11, 197 zeros); Passa 157/314 tags com zero. Esses números são evidência datada de exibição, não aprovação de que os zeros estejam corretos. Revisar o contrato SA quando o encontro físico exigir ajuste.
+
+### Disposição vigente das tags
+
+Texto compacto apenas `Ajuste (valor cm)`, sem escrever esquerda/direita; tooltip e metadados preservam a identificação. Mesma cor e estilo do nome, fonte 3,25 e opacidade 0,85, obedecendo ao checkbox nomes e pan/zoom por viewBox.
+
+Posicionar o nome primeiro. Em segmentos com espaço, cada ajuste fica alinhado ao nome na orientação local do texto, a meia distância longitudinal entre nome e respectiva ponta. Linha-guia diagonal conecta a tag à extremidade exata; não associar à ponta do segmento vizinho.
+
+Quando a disposição alinhada sobrepõe o próprio nome por falta de espaço, empilhar ambos: ajuste esquerdo acima do nome; ajuste direito acima do esquerdo. Acima segue a orientação do texto (em vertical rotacionado, não é necessariamente para cima na tela). Busca conjunta preserva a ordem e evita sobreposição interna, considerando obstáculos para a posição do par. Obstáculos de outros segmentos não acionam empilhamento indiscriminado. A regra substitui a disposição inicial de tags perto das pontas e o alinhamento obrigatório em segmentos curtos. Não garante ausência de qualquer colisão em toda cena densa.
+
+Validação da implementação: 23 testes Python local/VPS (quatro classes, sinais, desconhecido, ordem B e geometria preservada), verificação Node com longos/curtos horizontais/verticais/invertidos e capturas reais Para/Passa em `20261008_lv_endpoint_tags/`. Não implica validação completa de interpretação ou geração.

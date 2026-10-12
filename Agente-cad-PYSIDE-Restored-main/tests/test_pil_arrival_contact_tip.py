@@ -12,11 +12,19 @@ from scripts.arete.pil_agentic_highlight_draw import (
     _contact_tip,
     _route_tag_position,
     _segments_cross,
+    _estimate_tag_half,
 )
 
 
 def _row(corner, dim="19/55", left="—", right="—"):
     return {"canto": corner, "dim": dim, "dist_esq": left, "dist_dir": right}
+
+
+def test_central_arrival_keeps_measured_contact_off_center():
+    row = _row("BB", left="40cm", right="95cm")
+    p0, p1, _ = _beam_seg_on_face("B", "chega", row, 0, 0, 22, 154, pad=10)
+    tip = _contact_tip("B", "chega", row, p0, p1, 0, 0, 22, 154)
+    assert tip[1] == pytest.approx(49.5)
 
 
 def test_vertical_corner_arrivals_use_nominal_width_from_correct_end():
@@ -76,6 +84,30 @@ def test_visual_contract_uses_doubled_contact_dot_and_zero_face_offset():
     assert TAG_SIZE_MULTIPLIER == 2.0
     assert TAG_FONT_SCALE == 2.20
     assert TAG_COLLISION_SCALE == 2.0
+
+
+def test_collision_box_covers_real_multiline_label_in_cad_coordinates():
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(figsize=(8, 6), dpi=140)
+    try:
+        ax.set_xlim(0, 1500)
+        ax.set_ylim(0, 900)
+        ax.set_aspect('equal', adjustable='box')
+        ax.apply_aspect()
+        label = 'V.passa BC\nV700\n19/120'
+        hw, hh = _estimate_tag_half(label, scale=140, fs=3.74, ax=ax)
+        artist = ax.text(750,450,label,fontsize=3.74,fontfamily='DejaVu Sans',
+                         ha='center',va='center',linespacing=1.05,
+                         bbox=dict(boxstyle='round,pad=0.14,rounding_size=0.55'))
+        fig.canvas.draw()
+        bounds = artist.get_bbox_patch().get_window_extent(fig.canvas.get_renderer())
+        data = ax.transData.inverted().transform(bounds.get_points())
+        assert 2*hw >= data[1,0]-data[0,0]
+        assert 2*hh >= data[1,1]-data[0,1]
+    finally:
+        plt.close(fig)
 
 
 def test_connector_router_moves_tag_until_arrow_lines_do_not_cross():

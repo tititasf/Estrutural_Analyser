@@ -454,22 +454,17 @@ def merge_analysis_collection(
     kind: str,
     project_id: str,
 ) -> tuple[list[dict], dict]:
-    """Mescla por nome e mantém órfãos somente quando têm validação real."""
+    """Mescla LAJ por parcela física; outras famílias mantêm índice por nome."""
     if kind == "LAJ":
-        old_by_name, old_duplicates = _canonical_laj_by_name(old_items)
-        new_by_name, new_duplicates = _canonical_laj_by_name(new_items)
-        candidates = list(new_by_name.values()) + [
-            item for item in new_items or [] if not str(item.get("name") or "").strip()
-        ]
-    else:
-        old_by_name = {
-            str(item.get("name")): item
-            for item in old_items or []
-            if item.get("name")
-        }
-        candidates = list(new_items or [])
-        old_duplicates = 0
-        new_duplicates = 0
+        return _merge_laj_source_parcels(old_items, new_items, project_id)
+    old_by_name = {
+        str(item.get("name")): item
+        for item in old_items or []
+        if item.get("name")
+    }
+    candidates = list(new_items or [])
+    old_duplicates = 0
+    new_duplicates = 0
     merged: list[dict] = []
     matched: set[str] = set()
     occupied_ids = {
@@ -523,6 +518,51 @@ def merge_analysis_collection(
         "items_com_ground_truth_preservado": preserved_items,
         "orfaos_validados_preservados": preserved_orphans,
     }
+
+
+def _merge_laj_source_parcels(old_items, new_items, project_id):
+    from src.core.slab_parcel_identity import (
+        group_source_parcels, same_source_parcel, parcel_identity,
+    )
+    old_groups = group_source_parcels(old_items)
+    new_groups = group_source_parcels(new_items)
+    old = [max(group, key=_laj_candidate_quality) for group in old_groups]
+    merged, matched, occupied = [], set(), set()
+    preserved = 0
+    for group in new_groups:
+        fresh = max(group, key=_laj_candidate_quality)
+        matches = [(i, row) for i, row in enumerate(old)
+                   if i not in matched and same_source_parcel(row, fresh)]
+        previous = matches[0][1] if len(matches) == 1 else None
+        if previous is not None:
+            matched.add(matches[0][0])
+            preserved += int(has_human_validation(previous))
+        row = merge_analysis_item(previous, fresh, 'LAJ')
+        identifier = str(row.get('id') or '')
+        if not identifier or identifier in occupied:
+            identifier = str(uuid.uuid5(uuid.NAMESPACE_URL,
+                f'cad-analyzer:{project_id}:LAJ:{parcel_identity(fresh)}'))
+            if identifier in occupied:
+                identifier = str(uuid.uuid5(uuid.NAMESPACE_URL,
+                    f'cad-analyzer:{project_id}:LAJ:{parcel_identity(fresh)}:unlocated:{len(merged)}'))
+            row['id'] = identifier
+        occupied.add(identifier)
+        merged.append(row)
+    orphans = 0
+    for i, row in enumerate(old):
+        if i not in matched and has_human_validation(row):
+            merged.append(copy.deepcopy(row))
+            orphans += 1
+    merged.sort(key=lambda row: (str(row.get('name') or ''), parcel_identity(row)))
+    for i, row in enumerate(merged, 1):
+        row['project_id'] = project_id
+        row['id_item'] = f'{i:02}'
+    return merged, dict(old=len(old_items or []), new=len(new_items or []),
+        persisted=len(merged),
+        duplicatas_laj_descartadas_da_analise=sum(len(g)-1 for g in new_groups),
+        duplicatas_laj_preexistentes=sum(len(g)-1 for g in old_groups),
+        items_com_ground_truth_preservado=preserved,
+        orfaos_validados_preservados=orphans)
 
 
 def merge_analysis_snapshot(
@@ -685,22 +725,22 @@ def _remove_unvalidated_laj_identity_duplicates(
     project_id: str,
     slabs: list[dict],
 ) -> dict[str, int]:
-    """Remove somente sobras não humanas do mesmo `(project_id, name)` LAJ.
+    """Remove sobras não humanas, preservando cada parcela LAJ recebida.
 
     A rotina é restrita às identidades recebidas no microciclo. Portanto um
     upsert parcial nunca toca outra laje do pavimento. Qualquer duplicata com
     selo/campo/vínculo humano permanece e é relatada como pendência, em vez de
     a automação decidir qual ground truth descartar.
     """
-    canonical_items, _ = _canonical_laj_by_name(slabs)
-    canonical = {
-        name: str(item.get("id") or "")
-        for name, item in canonical_items.items()
-        if str(item.get("id") or "")
-    }
+    from src.core.slab_parcel_identity import group_source_parcels
+    canonical = {}
+    for group in group_source_parcels(slabs):
+        item = max(group, key=_laj_candidate_quality)
+        if item.get('id'):
+            canonical.setdefault(str(item.get('name') or ''), set()).add(str(item['id']))
     removed = 0
     protected = 0
-    for name, canonical_id in canonical.items():
+    for name, canonical_ids in canonical.items():
         rows = conn.execute(
             """
             SELECT id,is_validated,validated_fields_json,validated_link_classes_json
@@ -711,7 +751,7 @@ def _remove_unvalidated_laj_identity_duplicates(
         if len(rows) < 2:
             continue
         for row_id, is_validated, fields_json, links_json in rows:
-            if str(row_id) == canonical_id:
+            if str(row_id) in canonical_ids:
                 continue
             if _persisted_laj_row_has_human_validation(
                 (is_validated, fields_json, links_json)

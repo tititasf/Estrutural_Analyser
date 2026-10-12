@@ -631,6 +631,21 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
     normalized = normalize_visual_mode(mode)
     cls = str(robot_class or "").strip().upper()
     stats = VisualModeStats(normalized, cls)
+    # The approved iNi slab drawing is identical to NOVA, including its config.
+    if normalized == 'INI' and cls == 'LJ':
+        normalized = 'NOVA'
+    if normalized == 'INI' and cls == 'FV':
+        from scripts.drawing_mode_config import apply_config
+        from src.core.ini_fv_design import finish
+        apply_config(doc, normalized, cls, behavior)
+        finish(doc)
+        return stats
+    if normalized == 'MOLDE_1' and cls in {'PL','FV','LJ'}:
+        from scripts.drawing_mode_config import apply_config
+        from src.core.formascia_design import apply_palette
+        apply_config(doc, normalized, cls, behavior)
+        apply_palette(doc, cls)
+        return stats
     from scripts.drawing_mode_config import effective
     special = effective(normalized, robot_class if robot_class != 'LV' else 'LV_' + str(behavior or 'PARA').upper()).get('special', {}) if robot_class in {'PL','LV','FV','LJ'} else {}
     as_mline = special.get('sarrafo_representation','PADRAO')
@@ -755,7 +770,13 @@ def apply_visual_mode(doc, mode: object = VISUAL_MODE_NOVA,
         if normalized == 'INI' and name in _LEGACY_COLORS:
             layer.dxf.color = _LEGACY_COLORS[name]
 
+    if normalized == 'INI' and cls in {'PL', 'LV', 'FV', 'LJ'}:
+        from src.core.ini_design import reference_style
+        reference_style(doc, cls)
     from scripts.drawing_mode_config import apply_config
     if cls in {'PL', 'LV', 'FV', 'LJ'}:
         apply_config(doc, normalized, cls, behavior)
+    if normalized == 'INI' and cls == 'PL':
+        from src.core.ini_pillar_design import finish
+        finish(doc)
     return stats

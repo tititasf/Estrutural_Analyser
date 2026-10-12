@@ -3,6 +3,16 @@ import pytest
 from src.core.n5_pillar_frames import SheetBuilder, INDEX_ORIGINS, INDEX_TITLES, primitives, position
 
 
+def test_lateral_index_titles_keep_overflow_order_without_changing_pillar_defaults():
+    from src.core.n5_pillar_frames import index_sheet_order
+    titles = ['CAPA', 'ÍNDICE', 'LEGENDA LV', 'AB GRADEADO', 'AB SARRAFEADO', 'CORTE LV']
+    assert index_sheet_order(1, titles) == [(0, titles[0]), (1, titles[1]),
+        (1, 'ÍNDICE — CONTINUAÇÃO'), *list(enumerate(titles[2:], start=2))]
+    assert [title for _, title in index_sheet_order(0)] == INDEX_TITLES
+    with pytest.raises(ValueError, match='seis folhas'):
+        index_sheet_order(0, titles[:5])
+
+
 def test_nested_frame_labels_use_actual_obra_and_pavimento_without_mutating_template():
     source=ezdxf.new('R2018')
     source.modelspace().add_text('06',dxfattribs={'layer':'CARIMBO'})

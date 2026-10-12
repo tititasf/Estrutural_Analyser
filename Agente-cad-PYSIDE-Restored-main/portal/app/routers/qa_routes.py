@@ -180,6 +180,7 @@ class QARoundIn(BaseModel):
     pavimento: str = "13_PAV"
     layer: str = "L1"
     behavior: str = "para"
+    confirmacao: str = ""
 
 
 def _obra_do_membro(conn: sqlite3.Connection, obra_id: str, membro: dict) -> dict:
@@ -207,6 +208,11 @@ def criar_qa_round(
         raise HTTPException(status_code=422, detail="classe QA inválida")
     if layer not in {"L1", "L2", "L3"}:
         raise HTTPException(status_code=422, detail="layer deve ser L1, L2 ou L3")
+    if body.confirmacao.strip().casefold() != "confirmo":
+        raise HTTPException(
+            status_code=409,
+            detail="Revisão agentiva desativada para uso normal; disponível apenas para testes. Digite CONFIRMO para executar.",
+        )
     if not items or len(items) > 100:
         raise HTTPException(status_code=422, detail="informe entre 1 e 100 itens por rodada")
     item_pattern = {"PIL":r"P\d+[A-Z]?", "LAJ":r"L\d+[A-Z]?"}.get(classe, r"(?:V|VF)\d+[A-Z]?")

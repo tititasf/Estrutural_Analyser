@@ -22,8 +22,9 @@ def changed_sources(obra_dir, sources):
                 pavimento_id=source["pavimento_id"], bruto_id=source["bruto_id"],
                 item_id=source["item_id"],
             )
-            requires_validation = source.get("kind") != "level_convention"
-            if current.revision != source["revision"] or (requires_validation and not current.validated):
+            review_changed = (source.get("kind") != "level_convention"
+                              and current.validated != bool(source.get("validated")))
+            if current.revision != source["revision"] or review_changed:
                 changed.append(source["source_id"])
         except (OSError, ValueError):
             changed.append(source["source_id"])

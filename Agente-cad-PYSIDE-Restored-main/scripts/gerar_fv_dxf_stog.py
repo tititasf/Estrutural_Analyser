@@ -233,14 +233,17 @@ def dedupe_panel_lines(msp, layer=None, tol=0.05):
     chanfro-angled) edge. Also drops zero-length LINEs (start == end), which
     render as a stray "dot" at panel corners/unions instead of a real edge.
     """
+    # `tol` remains accepted for compatibility. Snapping endpoints to that grid
+    # destroys real short edges and can merge distinct parallel boundaries.
+    # Cleanup must preserve the exact fabrication geometry supplied by the ficha.
     target_layer = layer or LY_PAINEIS
     seen = set()
     dupes = []
     for e in msp.query('LINE'):
         if e.dxf.layer != target_layer:
             continue
-        p1 = (round(e.dxf.start.x / tol) * tol, round(e.dxf.start.y / tol) * tol)
-        p2 = (round(e.dxf.end.x / tol) * tol, round(e.dxf.end.y / tol) * tol)
+        p1 = tuple(e.dxf.start)
+        p2 = tuple(e.dxf.end)
         if p1 == p2:
             dupes.append(e)
             continue
@@ -608,6 +611,10 @@ def draw_sarr(msp, x0, y0, b, panel_widths, panel_verts=None,
         for panel in panel_items
     ):
         return
+    if globals().get('_drawing_visual_mode') == 'MOLDE_1':
+        from src.core.formascia_design import fv_sarrafo
+        return fv_sarrafo(msp, x0, y0, b, panel_widths, panel_verts,
+                         panel_items, sarrafo_esq, sarrafo_dir)
 
     # V310: b<10cm recebe contorno verde no painel; 10≤b≤14cm usa sarrafo 5cm.
     if b < 10:

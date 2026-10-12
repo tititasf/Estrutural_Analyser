@@ -83,3 +83,20 @@ async def test_cinco_modos_snapshot_para_todas_as_classes(settings):
                 assert response.json()['meta']['visual_mode'] == mode
         bad = await client.post(f'/obras/{obra_id}/n3',json={'pav':'13_PAV','visual_mode':'invalid'})
         assert bad.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_modo_desenho_persiste_por_pavimento_e_classe(settings):
+    async with _app_cliente(settings) as (_app, client):
+        obra_id = _obra_da_ana(settings)
+        await client.post('/login', json={'login':'ana','senha':'segredo123'})
+        base = f'/obras/{obra_id}/pavimentos/modo-desenho-config'
+        params = {'pavimento': '13_PAV', 'classe_ui': 'laterais_para'}
+        assert (await client.get(base, params=params)).json()['visual_mode'] == 'NOVA'
+        saved = await client.put(base, params=params, json={'visual_mode': 'MOLDE_1'})
+        assert saved.status_code == 200
+        assert saved.json()['visual_mode'] == 'MOLDE_1'
+        assert (await client.get(base, params=params)).json()['visual_mode'] == 'MOLDE_1'
+        assert (await client.get(base, params={**params, 'classe_ui': 'laterais_passa'})).json()['visual_mode'] == 'NOVA'
+        assert (await client.get(base, params={**params, 'pavimento': '14_PAV'})).json()['visual_mode'] == 'NOVA'
+        assert (await client.get(base, params={**params, 'classe_ui': 'invalida'})).status_code == 422

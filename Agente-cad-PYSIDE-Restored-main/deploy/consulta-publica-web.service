@@ -1,0 +1,18 @@
+[Unit]
+Description=CAD Analyzer Consulta Publica Web
+After=network.target consulta-publica-api.service
+
+[Service]
+Type=simple
+User=cadapp
+Group=cadapp
+WorkingDirectory=/opt/cad-analyzer/consulta-publica-web
+Environment=NODE_ENV=production
+Environment=CONSULTA_PUBLICA_BASE_PATH=/consulta
+Environment=NEXT_PUBLIC_API_BASE_URL=https://cad-analyzer.duckdns.org/consulta-api
+ExecStart=/usr/bin/npm start
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

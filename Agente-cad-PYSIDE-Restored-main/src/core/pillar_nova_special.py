@@ -15,6 +15,19 @@ def mul(a,k):return (a[0]*k,a[1]*k)
 def dot(a,b):return a[0]*b[0]+a[1]*b[1]
 def polygons(g):return [g] if g.geom_type=='Polygon' else [p for p in getattr(g,'geoms',[]) if p.geom_type=='Polygon']
 
+
+def bolt_head_angles(normal):
+    """Orient the two asymmetric bolt tips back toward their shared shaft.
+
+    ``end1`` is beyond the concrete in ``normal`` direction and ``end0`` is
+    beyond it in the opposite direction.  The SPECIAL_HEAD asset points along
+    its local +X axis, so both tips must be turned toward the rod instead of
+    away from it.  This is expressed only from the edge normal and therefore
+    remains valid for every L, T, or U contour rotation/mirror.
+    """
+    nx, ny = normal
+    return math.atan2(-ny, -nx), math.atan2(ny, nx)
+
 class Drawing:
     def __init__(self,payload):
         self.ring=physical_ring(payload['geometry_points'])
@@ -41,6 +54,11 @@ class Drawing:
         self.parts={};self.rods=[];self.rod_axes=[];self.bolt_groups={};self.cells=[];self.grade_shapes=[];self.report=[]
         ref=ezdxf.readfile(ROOT/'assets/nova_pillar_details.dxf')
         self.templates={name:[e.copy() for e in ref.blocks.get(name)] for name in ('PONTALETE','MEIO PONTALETE')}
+        template_rotation=float(payload.get('wood_template_rotation_deg',0))
+        if template_rotation:
+            transform=Matrix44.z_rotate(math.radians(template_rotation))
+            for parts in self.templates.values():
+                for entity in parts:entity.transform(transform)
         self.bolt_head=[e.copy() for e in ref.blocks.get('SPECIAL_HEAD')]
 
     def point(self,f,s,t):return add(f['p'],add(mul(f['u'],s),mul(f['n'],t)))
@@ -204,7 +222,7 @@ class Drawing:
                 junctions=sorted(set(other['p'][1-coordinate] for other in self.faces if other['inner_start']))
                 zone=sum(value<end0[1-coordinate] for value in junctions)
                 self.bolt_groups.setdefault((*pair,zone),[]).append(end0[1-coordinate])
-                for end,angle in [(end1,math.atan2(f['n'][1],f['n'][0])),(end0,math.atan2(-f['n'][1],-f['n'][0]))]:
+                for end,angle in zip((end1,end0),bolt_head_angles(f['n'])):
                     for original in self.bolt_head:
                         e=original.copy();e.transform(Matrix44.z_rotate(angle));e.translate(*end,0);e.dxf.layer='Parafuso';self.ms.add_entity(e)
 

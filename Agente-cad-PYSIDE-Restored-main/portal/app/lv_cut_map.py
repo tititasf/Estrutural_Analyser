@@ -151,6 +151,8 @@ def section_drawings(cuts, sides, pillars=()):
     b_segments = {s['id']: s for s in sides['B']['segments']}
     drawings, blocked = [], []
     placed = []
+    from shapely.geometry import Polygon
+    support_shapes = [Polygon(p['points']) for p in pillars if len(p.get('points') or []) >= 3]
     for index, cut in enumerate(cuts):
         identified = cut.get('kind') == 'identified'
         if not identified and not cut.get('pairs'):
@@ -207,8 +209,7 @@ def section_drawings(cuts, sides, pillars=()):
                     shape = Polygon([[anchor[i]+ex[i]*x+ey[i]*y for i in (0,1)]
                                      for x,y in [(-w/2,-displayed_h/2),(w/2,-displayed_h/2),
                                                  (w/2,displayed_h/2),(-w/2,displayed_h/2)]])
-                    if any(shape.intersection(Polygon(p['points'])).area > .1
-                           for p in pillars if len(p.get('points') or []) >= 3):
+                    if any(shape.intersection(p).area > .1 for p in support_shapes):
                         continue
                     overlap = sum(shape.intersection(p).area for p in placed)
                     solutions.append((overlap,abs(station-pair['length_cm']/2),anchor,shape))
@@ -216,34 +217,12 @@ def section_drawings(cuts, sides, pillars=()):
                 if direct is not None and direct[0] <= .1:
                     _,_,center,shape = direct
                 else:
-                    # A short valid interval still has a section. Keep its real
-                    # midpoint as the reference and move only the annotation,
-                    # with a leader. Never turn a layout failure into lost data.
-                    source_anchor = list(center)
-                    annotation_w = w+2*20+80
-                    annotation_h = displayed_h+50
-                    options = []
-                    for ring in range(1,33):
-                        for across in (-ring,ring):
-                            for along in (0,-ring,ring):
-                                anchor = [source_anchor[i]+ex[i]*across*annotation_w
-                                          +ey[i]*along*annotation_h for i in (0,1)]
-                                shape = Polygon([[anchor[i]+ex[i]*x+ey[i]*y for i in (0,1)]
-                                    for x,y in [(-annotation_w/2,-annotation_h/2),
-                                                (annotation_w/2,-annotation_h/2),
-                                                (annotation_w/2,annotation_h/2),
-                                                (-annotation_w/2,annotation_h/2)]])
-                                if any(shape.intersection(Polygon(p['points'])).area > .1
-                                       for p in pillars if len(p.get('points') or []) >= 3):
-                                    continue
-                                if any(shape.intersection(p).area > .1 for p in placed):
-                                    continue
-                                options.append((hypot(*(anchor[i]-source_anchor[i] for i in (0,1))),anchor,shape))
-                        if options:
-                            break
-                    if not options:
-                        raise ValueError('sem espaço para detalhe conectado ao par')
-                    _,center,shape = min(options,key=lambda row:row[0])
+                    # The owner requires the section at its physical interval,
+                    # even in tight space. Tail compression preserves contacts
+                    # and dimensions; crowded annotation never creates a leader.
+                    shape = Polygon([[center[i]+ex[i]*x+ey[i]*y for i in (0,1)]
+                        for x,y in [(-w/2,-displayed_h/2),(w/2,-displayed_h/2),
+                                    (w/2,displayed_h/2),(-w/2,displayed_h/2)]])
                 placed.append(shape)
             primitives = []
             # Shorten only the straight tail below all slab contacts. Measurements
@@ -344,6 +323,10 @@ def section_drawings(cuts, sides, pillars=()):
             drawings.append(dict(cut_index=index,a_index=pair['a_index'] if pair else None,b_index=pair['b_index'] if pair else None,
                                  anchor=source_anchor or center,detail_center=center,displaced=source_anchor is not None,
                                  primitives=primitives,compressed_tail_cm=removed,
+                                 section_contract=contract,
+                                 confidence='high' if not contract['warnings'] and all(
+                                     p.get('level_source') in ('lv_cell_slabs','paired_touching_slabs','original_cut_datum')
+                                     for p in (cut.get('profiles') or {}).values()) else 'review',
                                  compression_ratio=tail_display/tail_length if tail_length else 1,
                                  strong_break=strong_break))
         except (CutContractError, ValueError) as exc:

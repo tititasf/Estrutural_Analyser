@@ -5,11 +5,11 @@
 
   var COR_TIPO = {
     classe: "#111827", fonte: "#2563eb", decisao: "#d97706", termo: "#059669",
-    regra: "#7c3aed", codigo: "#6b7280"
+    regra: "#7c3aed", codigo: "#6b7280", obra:"#0891b2", pavimento:"#0d9488"
   };
   var NOME_TIPO = {
     classe: "Classe", fonte: "Documento", decisao: "Decisão do dono", termo: "Termo do glossário",
-    regra: "Regra semântica", codigo: "Módulo de código"
+    regra: "Regra semântica", codigo: "Módulo de código", obra:"Obra",pavimento:"Pavimento"
   };
   var ORDEM_STATUS = ["entrada", "canonico", "ativo", "historico", "fora_inventario", "legado"];
   var NOME_STATUS = {
@@ -29,6 +29,9 @@
   function vivo(n) { return !!VIVOS[n.status]; }
 
   var PERSPECTIVAS = [
+    { id:'obras',nome:'Obras e pavimentos',
+      ajuda:'Memória separada por obra e pavimento. Níveis de uma obra não são regras universais.',
+      inclui:function(n){return n.tipo==='obra'||n.tipo==='pavimento';},layout:'cose'},
     { id: "geral", nome: "Mapa geral",
       ajuda: "Documentos vivos, decisões, glossário e as 4 classes. Sem código nem legado.",
       inclui: function (n) { return n.tipo === "classe" || n.tipo === "decisao" || n.tipo === "termo" || (n.tipo === "fonte" && vivo(n)); },
@@ -380,7 +383,8 @@
         " · " + g.nos.length + " nós · " + g.arestas.length + " ligações · " + g.lacunas.length + " lacunas.";
       montar();
       montarControles();
-      escolherPerspectiva("geral");
+      var inicial = new URLSearchParams(window.location.search).get("perspectiva");
+      escolherPerspectiva(PERSPECTIVAS.some(function (p) { return p.id === inicial; }) ? inicial : "geral");
     })
     .catch(function (e) {
       document.getElementById("bg-carregando").textContent = "Falha ao carregar o grafo: " + e.message;

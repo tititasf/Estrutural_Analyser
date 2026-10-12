@@ -1,4 +1,6 @@
 # Semântica dos Campos — Viga NOVA (Sistema Fôrma)
+
+> **NOVA/LV — padrão aprovado em 2026-10-05:** para o desenho N3 AB e Visão Corte, prevalece a [especificação vigente](PADRAO-NOVA-LATERAIS-APROVADO.md). Para/Passa conservam contratos independentes; gradeadas/sarrafeadas conservam artefatos independentes. As descrições do motor anterior abaixo continuam como referência de interpretação/contrato e não substituem as regras visuais aprovadas. Integração local em validação; geração publicada N3/N5 ainda não comprovada.
 **Fonte:** Validação Sprint 1 Etapa 1.2, Obra_TREINO_1 — confirmada pelo usuário 2026-06-04
 **Uso:** RAG, extratores Fase-3/4, motor_fase4.py, Robo LV, Robo FV
 

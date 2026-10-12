@@ -14,6 +14,10 @@ import re
 # Normalized CAD faces and slab contours can differ by 0.10 cm.
 # This is a contact tolerance, never a nearest-slab search.
 SLAB_CONTACT_CM = .15
+# Same containment allowance as slab_steps.recognize_slabs: this only
+# reconciles a recognized inset with its normalized owner contour. It does
+# not widen the subsequent slab/beam contact search.
+SLAB_REGION_OWNER_CM = .5
 
 
 def number(value):
@@ -121,14 +125,23 @@ def _slab_regions(slab):
     from shapely.geometry import Polygon
     from shapely.ops import unary_union
     owner = Polygon(slab.get('points') or [])
+    if not owner.is_valid or owner.is_empty or owner.area <= 0:
+        return []
     steps = slab.get('slab_steps') or []
     if not steps:
         return [(owner, slab)]
     regions = []
     for step in steps:
         shape = Polygon(step.get('points') or [])
-        if shape.is_valid and not shape.is_empty and owner.buffer(.05).covers(shape):
-            regions.append((shape, step))
+        if (shape.is_valid and not shape.is_empty and shape.area > 0
+                and owner.buffer(SLAB_REGION_OWNER_CM).covers(shape)):
+            # Keep the CAD evidence points untouched. Only the derived
+            # contact geometry is clipped, so rounding cannot claim area
+            # outside the owner or discard an otherwise proven region.
+            clipped = shape.intersection(owner)
+            if (clipped.is_valid and not clipped.is_empty and clipped.area > 0
+                    and clipped.geom_type in ('Polygon', 'MultiPolygon')):
+                regions.append((clipped, step))
     if not regions:
         return [(owner, slab)]
     heights = {number(s.get('owner_height_cm')) for _, s in regions}
@@ -147,18 +160,28 @@ def _slab_regions(slab):
     return result
 
 
-def _slab_ranges(slabs, a, u, low, high):
-    from shapely.geometry import LineString, Polygon
-    line = LineString([(a[0]+u[0]*low, a[1]+u[1]*low), (a[0]+u[0]*high, a[1]+u[1]*high)])
-    rows = []
+def prepare_slab_regions(slabs):
+    """Immutable geometry reused within one current source snapshot."""
+    result = []
     for slab in slabs:
         try:
             for polygon, region in _slab_regions(slab):
-                if not polygon.is_valid or polygon.is_empty or polygon.distance(line) > .5:
+                if polygon.is_valid and not polygon.is_empty:
+                    result.append((polygon, polygon.buffer(SLAB_CONTACT_CM), region))
+        except (TypeError, ValueError, AttributeError):
+            continue
+    return result
+
+
+def _slab_ranges(slabs, a, u, low, high, prepared=None):
+    from shapely.geometry import LineString, Polygon
+    line = LineString([(a[0]+u[0]*low, a[1]+u[1]*low), (a[0]+u[0]*high, a[1]+u[1]*high)])
+    rows = []
+    for polygon, buffered, region in prepare_slab_regions(slabs) if prepared is None else prepared:
+        try:
+                if polygon.distance(line) > .5:
                     continue
-                contact = polygon.buffer(SLAB_CONTACT_CM).intersection(line)
-                if contact.is_empty:
-                    continue
+                contact = buffered.intersection(line)
                 # Each connected contact keeps its own physical interval.
                 for part in getattr(contact, 'geoms', [contact]):
                     if part.geom_type != 'LineString':
@@ -256,8 +279,9 @@ def _pillar_ranges(pillars, origin, direction, low, high):
     return rows
 
 
-def pair_sections(beam, behavior, sides, slabs=(), pillars=(), *, retain_opening_intervals=False):
+def pair_sections(beam, behavior, sides, slabs=(), pillars=(), *, retain_opening_intervals=False, slab_regions=None):
     groups = {}
+    slab_regions = prepare_slab_regions(slabs) if slab_regions is None else slab_regions
     diagnostics = {'pairs': 0, 'unpaired': [], 'conflicts': [], 'opening_exclusions': [], 'pillar_exclusions': []}
     paired = set()
     for A in sides.get('A', {}).get('segments', []):
@@ -283,8 +307,8 @@ def pair_sections(beam, behavior, sides, slabs=(), pillars=(), *, retain_opening
                     if hi-lo <= .5:
                         continue
                     b_origin = (a[0]-u[1]*offset, a[1]+u[0]*offset)
-                    ranges_a = _slab_ranges(slabs, a, u, lo, hi)
-                    ranges_b = _slab_ranges(slabs, b_origin, u, lo, hi)
+                    ranges_a = _slab_ranges(slabs, a, u, lo, hi, slab_regions)
+                    ranges_b = _slab_ranges(slabs, b_origin, u, lo, hi, slab_regions)
                     openings = [('A',l,h,o) for l,h,o in _opening_ranges(A,a,u,lo,hi)]
                     openings += [('B',l,h,o) for l,h,o in _opening_ranges(B,b_origin,u,lo,hi)]
                     center_origin = tuple((a[i]+b_origin[i])/2 for i in (0,1))

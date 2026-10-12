@@ -1,0 +1,129 @@
+<div id="n5-lv-variants" data-obra="{{ obra.id }}" data-pavimento="{{ pavimento }}"
+     data-lv-results='{{ n5_resultados_por_pav_classe.get(pavimento, {}).get("LV", [])|tojson }}'
+     data-lv-mode="{{ n5_modo_ativo }}">
+  <nav class="n5-pav-tabs" role="tablist" aria-label="Comportamento das laterais N5">
+    {% for behavior in ['PARA', 'PASSA'] %}
+    <button type="button" role="tab" data-lv-behavior="{{ behavior }}" aria-selected="{{ 'true' if behavior == 'PARA' else 'false' }}" class="{{ 'active' if behavior == 'PARA' else '' }}">Laterais {{ behavior|title }}</button>
+    {% endfor %}
+  </nav>
+  <nav class="n5-pav-tabs" role="tablist" aria-label="Montagem das laterais N5">
+    {% for assembly, label in [('gradeadas', 'Laterais Gradeadas'), ('sarrafeadas', 'Laterais Sarrafeadas')] %}
+    <button type="button" role="tab" data-lv-assembly="{{ assembly }}" aria-selected="{{ 'true' if assembly == 'gradeadas' else 'false' }}" class="{{ 'active' if assembly == 'gradeadas' else '' }}">{{ label }}</button>
+    {% endfor %}
+  </nav>
+  <nav class="n5-pav-tabs" role="tablist" aria-label="Modo de desenho N5">
+    {% for mode in ['INI', 'NOVA', 'MOLDE_1', 'MOLDE_2', 'MOLDE_3'] %}
+    <button type="button" role="tab" data-n5-select-mode="{{ mode }}" aria-selected="{{ 'true' if mode == n5_modo_ativo else 'false' }}" class="{{ 'active' if mode == n5_modo_ativo else '' }}">{{ {'INI':'Modo iNI','NOVA':'Modo Nova','MOLDE_1':'Formascia','MOLDE_2':'Modo Molde 2','MOLDE_3':'Modo Molde 3'}[mode] }}</button>
+    {% endfor %}
+  </nav>
+  {% if n5_modo_ativo in ['NOVA','MOLDE_1','INI'] %}
+  {% if release %}
+  <p data-lv-loading role="status">Carregando a montagem selecionada…</p>
+  {% for behavior in ['PARA', 'PASSA'] %}
+  {% for assembly in ['gradeadas', 'sarrafeadas'] %}
+  <section data-lv-variant="{{ behavior }}:{{ assembly }}" hidden>
+    <p>AB · Visão Corte · Laterais {{ behavior|title }} · {{ assembly|title }}</p>
+    {% set params = 'visual_mode=' ~ n5_modo_ativo ~ '&lateral_behavior=' ~ behavior ~ '&lateral_assembly=' ~ assembly %}
+    <div class="zoom-pan-viewport n5-pav-preview"
+         data-n5-svg-src="/obras/{{ obra.id }}/n5/LV/foto?pavimento={{ pavimento|urlencode }}&amp;{{ params }}"
+         data-drawing-mode="{{ n5_modo_ativo }}" data-drawing-mode-switch="n5"
+         data-n5-svg-label="N5 Laterais {{ behavior|title }} {{ assembly }} · {{ pavimento }}"
+         role="img" aria-label="N5 Laterais {{ behavior|title }} {{ assembly }} · {{ pavimento }}">
+      <span class="n5-svg-loading" role="status">Carregando desenho vetorial…</span>
+    </div>
+    <a class="btn btn-sec" href="/obras/{{ obra.id }}/n5/LV/download?pavimento={{ pavimento|urlencode }}&amp;{{ params }}">Baixar DXF · {{ behavior|title }} · {{ assembly|title }}</a>
+  </section>
+  {% endfor %}
+  {% endfor %}
+  {% else %}
+  <div class="n5-pav-empty">
+    <strong>{{ 'Formascia' if n5_modo_ativo == 'MOLDE_1' else 'Modo Nova' }} ainda não gerado.</strong>
+    Rode o motor N5 desta classe para visualizar ou baixar as quatro combinações.
+  </div>
+  {% endif %}
+  {% endif %}
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var root = document.getElementById('n5-lv-variants');
+  if (!root) return;
+  var query = new URLSearchParams(window.location.search);
+  var behavior = query.get('lateral_behavior') === 'PASSA' ? 'PASSA' : 'PARA';
+  var requestedAssembly = query.get('lateral_assembly');
+  var hasRequestedAssembly = ['gradeadas', 'sarrafeadas'].indexOf(requestedAssembly) >= 0;
+  var assembly = hasRequestedAssembly ? requestedAssembly : 'gradeadas';
+  var results = JSON.parse(root.getAttribute('data-lv-results') || '[]');
+  var modeLabels = {INI:'iNI', NOVA:'NOVA', MOLDE_1:'Formascia', MOLDE_2:'Molde 2', MOLDE_3:'Molde 3'};
+  function generated(mode, selectedBehavior, selectedAssembly) {
+    return results.indexOf('Laterais · ' + selectedBehavior + ' · ' + selectedAssembly.toUpperCase() + ' · ' + modeLabels[mode]) >= 0;
+  }
+  function mark(tab, available) {
+    var badge = tab.querySelector('[data-lv-generated]');
+    if (!badge) {
+      badge = document.createElement('span');
+      badge.setAttribute('data-lv-generated', '');
+      badge.style.color = '#15803d';
+      badge.style.marginLeft = '5px';
+      tab.appendChild(badge);
+    }
+    badge.textContent = available ? '✓' : '';
+    badge.title = available ? 'Resultado gerado para esta combinação' : '';
+    badge.style.color = tab.classList.contains('active') ? '#86efac' : '#15803d';
+  }
+  function select() {
+    if (!assembly) return;
+    var loading = root.querySelector('[data-lv-loading]');
+    if (loading) loading.hidden = true;
+    ['behavior', 'assembly'].forEach(function (key) {
+      root.querySelectorAll('[data-lv-' + key + ']').forEach(function (tab) {
+        var active = tab.getAttribute('data-lv-' + key) === (key === 'behavior' ? behavior : assembly);
+        tab.classList.toggle('active', active);
+        tab.setAttribute('aria-selected', active ? 'true' : 'false');
+        var mode = root.getAttribute('data-lv-mode');
+        mark(tab, generated(mode, key === 'behavior' ? tab.dataset.lvBehavior : behavior,
+                            key === 'assembly' ? tab.dataset.lvAssembly : assembly));
+      });
+    });
+    root.querySelectorAll('[data-n5-select-mode]').forEach(function (tab) {
+      var mode = tab.dataset.n5SelectMode;
+      var available = ['NOVA','MOLDE_1','INI'].indexOf(mode) >= 0 ? generated(mode, behavior, assembly) : results.some(function (label) {
+        return label.endsWith(' · ' + modeLabels[mode]);
+      });
+      mark(tab, available);
+    });
+    root.querySelectorAll('[data-lv-variant]').forEach(function (view) {
+      view.hidden = view.dataset.lvVariant !== behavior + ':' + assembly;
+    });
+    var url = new URL(window.location.href);
+    url.searchParams.set('lateral_behavior', behavior);
+    url.searchParams.set('lateral_assembly', assembly);
+    window.history.replaceState(window.history.state, '', url.toString());
+    if (window.ativarZoomEmContainer) window.ativarZoomEmContainer(root);
+  }
+  root.querySelectorAll('[data-lv-behavior]').forEach(function (tab) {
+    tab.addEventListener('click', function () { behavior = tab.dataset.lvBehavior; select(); });
+  });
+  root.querySelectorAll('[data-lv-assembly]').forEach(function (tab) {
+    tab.addEventListener('click', function () { assembly = tab.dataset.lvAssembly; select(); });
+  });
+  document.addEventListener('portal:vigas-config-saved', function (event) {
+    var data = event.detail;
+    if (data.obraId === root.dataset.obra && data.pavimento === root.dataset.pavimento) {
+      assembly = data.config.comportamento_laterais_vigas; select();
+    }
+  });
+  fetch('/obras/' + encodeURIComponent(root.dataset.obra) + '/pavimentos/vigas-config?pavimento=' + encodeURIComponent(root.dataset.pavimento))
+    .then(function (response) { if (!response.ok) throw new Error('Falha ao consultar a montagem das vigas.'); return response.json(); })
+    .then(function (config) {
+      var configuredAssembly = config.comportamento_laterais_vigas;
+      if (!hasRequestedAssembly && ['gradeadas', 'sarrafeadas'].indexOf(configuredAssembly) >= 0) assembly = configuredAssembly;
+      select();
+    })
+    .catch(function (error) {
+      var loading = root.querySelector('[data-lv-loading]');
+      if (loading) loading.textContent = error.message;
+      select();
+    });
+  select();
+});
+</script>

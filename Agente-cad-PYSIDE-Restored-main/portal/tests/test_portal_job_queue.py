@@ -422,7 +422,7 @@ def test_sa_item_dispara_microciclo_e_nao_toca_estado_da_obra(settings, monkeypa
     monkeypatch.setattr(jobs_mod, "release_lock", lambda *a, **k: None)
 
     def _fake_microciclo(settings, obra, *, secao, item, pav, dry_run, log_path=None,
-                        visual_mode="NOVA"):
+                        visual_mode="NOVA", vigas_config=None):
         chamadas["microciclo"].append({"secao": secao, "item": item, "pav": pav,
                                         "dry_run": dry_run, "visual_mode": visual_mode})
         return type("R", (), {"ok": True, "log_tail": ""})()

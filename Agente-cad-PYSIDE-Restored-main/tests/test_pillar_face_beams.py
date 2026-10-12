@@ -10,6 +10,125 @@ sys.path.insert(0, str(ROOT))
 from src.core.pillar_face_beams import enrich_pillar_report_with_beams  # noqa: E402
 
 
+def test_recovered_wall_pair_without_legacy_bbox_keeps_real_arrival():
+    report = {'P900': {'name': 'P900', 'points': [(0, 0), (19, 0), (19, 170), (0, 170)], 'lajes': []}}
+    beam = {'name': 'V900', 'dim': '19/48', 'is_h': True,
+            '_recovered_corridor': (19, 80, 200, 99)}
+    enrich_pillar_report_with_beams(report, [beam])
+    arrivals = report['P900']['face_beams']['B']['para']
+    assert any(row['name'] == 'V900' for row in arrivals)
+    assert not report['P900']['face_beams']['A']['para']
+
+
+def test_final_fundo_segments_keep_support_gap_and_local_sections():
+    from src.core.pillar_face_beams import beam_runs_from_entity
+    def area(points, dim):
+        return {'contour': [{'points': points, 'closed': True,
+                'geometry_role': 'area_fundo', 'fv_lateral_reference': True,
+                'fv_measured_section_dim': dim}]}
+    beam = {'name': 'V800', 'dim': '22/50', 'is_h': True,
+            '_recovered_corridor': (-200, 70, 200, 99),
+            'links': {
+                'viga_fundo_seg_1_area_segs': area([(-200,80),(0,80),(0,99),(-200,99)], '19/48'),
+                'viga_fundo_seg_2_area_segs': area([(19,70),(200,70),(200,92),(19,92)], '22/50')}}
+    # Contours are proposals; only independently verified wall runs qualify.
+    beam['_verified_wall_runs'] = [((-200,80,0,99),'19/48'),((19,70,200,92),'22/50')]
+    assert beam_runs_from_entity(beam) == [(-200,80,0,99),(19,70,200,92)]
+    report = {'P800': {'name': 'P800', 'points': [(0,0),(19,0),(19,170),(0,170)], 'lajes': []}}
+    enrich_pillar_report_with_beams(report,[beam])
+    faces = report['P800']['face_beams']
+    assert any(r['dim']=='19/48' for r in faces['A']['para'])
+    assert any(r['dim']=='22/50' for r in faces['B']['para'])
+
+
+def test_concave_fundo_never_becomes_fictitious_bounding_corridor():
+    from src.core.pillar_face_beams import beam_fundo_candidate_runs
+    beam = {'links': {'viga_fundo_seg_1_area_segs': {'contour': [{
+        'points': [(0,0),(100,0),(100,19),(19,19),(19,100),(0,100)],
+        'closed': True, 'geometry_role': 'area_fundo', 'fv_lateral_reference': True,
+        'fv_measured_section_dim': '19/50'}]}}}
+    assert beam_fundo_candidate_runs(beam) == []
+
+
+def test_width_repaired_fundo_is_candidate_without_lv_producer_flag():
+    from src.core.pillar_face_beams import beam_fundo_candidate_runs, beam_fundo_runs
+    contour = {'points': [(0,0),(100,0),(100,19),(0,19),(0,0)],
+               'closed': True, 'geometry_role': 'area_fundo',
+               'geometry_source': 'fundo_viga_interpreter_width_repair',
+               'fv_measured_section_dim': '19/55'}
+    beam = {'links': {'viga_fundo_seg_1_area_segs': {'contour': [contour]}}}
+    assert beam_fundo_candidate_runs(beam) == [((0,0,100,19),'19/55')]
+    # A candidate cannot independently confirm its own geometry.
+    assert beam_fundo_runs(beam) == []
+    contour.pop('fv_measured_section_dim')
+    assert beam_fundo_candidate_runs(beam) == []
+
+
+def test_contact_uses_local_source_section_on_same_verified_run():
+    run = (0.,0.,500.,19.)
+    beam = {'name':'V700','dim':'19/50','is_h':True,
+            '_verified_wall_runs':[(run,'19/50')],
+            '_verified_section_texts':[(run,'19/120',(50.,25.)),(run,'19/50',(450.,25.))]}
+    report = {'P700':{'name':'P700','points':[(-22,-20),(0,-20),(0,134),(-22,134)],'lajes':[]},
+              'P701':{'name':'P701','points':[(500,-20),(522,-20),(522,134),(500,134)],'lajes':[]}}
+    enrich_pillar_report_with_beams(report,[beam])
+    assert any(r['dim']=='19/120' for r in report['P700']['face_beams']['B']['para'])
+    assert any(r['dim']=='19/50' for r in report['P701']['face_beams']['A']['para'])
+
+
+def test_short_face_fallback_cannot_use_remote_extreme_of_global_bbox():
+    # Aggregate geometry includes a remote parallel stair line. Independent
+    # walls confirm a beam only at the lower corner of the pillar.
+    beam = {'name': 'V700', 'dim': '14/50', 'is_h': True,
+            'bbox': (-200, 0, 0, 140),
+            '_verified_wall_runs': [((-200, 0, 0, 14), '14/50')]}
+    report = {'P700': {'name': 'P700', 'points': [(0,0),(19,0),(19,140),(0,140)], 'lajes': []}}
+    enrich_pillar_report_with_beams(report, [beam])
+    faces = report['P700']['face_beams']
+    assert any(row['name'] == 'V700' for row in faces['A']['para'])
+    assert not faces['C']['passa_esq']
+    assert not faces['C']['passa_dir']
+
+
+def test_conflicting_local_source_sections_do_not_fall_back_to_global_height():
+    run = (0., 0., 500., 19.)
+    beam = {'name': 'V700', 'dim': '19/50', 'is_h': True,
+            '_verified_wall_runs': [(run, '19/50')],
+            '_verified_section_texts': [(run, '19/120', (50., 25.)),
+                                       (run, '19/65', (50., 25.))]}
+    report = {'P700': {'name': 'P700',
+                       'points': [(-22, -20), (0, -20), (0, 134), (-22, 134)],
+                       'lajes': []}}
+    enrich_pillar_report_with_beams(report, [beam])
+    arrivals = report['P700']['face_beams']['B']['para']
+    assert arrivals and all(not r['dim'] for r in arrivals)
+
+
+def test_axial_bilateral_contacts_preserve_section_on_each_side():
+    left = (0., 100., 100., 119.)
+    right = (220., 100., 300., 119.)
+    beam = {'name': 'V700', 'dim': '19/50', 'is_h': True,
+            'geometry': {'classified': {'seg_bottom': [
+                {'points': [(0,100),(100,100),(100,119),(0,119)]},
+                {'points': [(220,100),(300,100),(300,119),(220,119)]}]}},
+            '_verified_wall_runs': [(left, '19/50'), (right, '19/50')],
+            '_verified_section_texts': [(left, '19/48', (80.,125.)),
+                                        (right, '19/65', (240.,125.))]}
+    report = {'P700': {'name': 'P700', 'points': [(100,100),(220,100),(220,119),(100,119)], 'lajes': []}}
+    enrich_pillar_report_with_beams(report, [beam])
+    faces = report['P700']['face_beams']
+    for face in ('A', 'B'):
+        for slot in ('passa_esq', 'passa_dir'):
+            tag = faces[face][slot]
+            assert tag['dim'] == ('19/48' if 'C' in tag['corner'] else '19/65')
+    assert next(r for r in faces['C']['interior'] if r['name']=='V700')['dim']=='19/48'
+    assert next(r for r in faces['D']['interior'] if r['name']=='V700')['dim']=='19/65'
+    from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar
+    tables = build_abcd_tables_from_pillar(report['P700'], beams=[beam])['faces']
+    assert next(r for r in tables['C']['interior'] if r['nome']=='V700')['dim']=='19/48'
+    assert next(r for r in tables['D']['interior'] if r['nome']=='V700')['dim']=='19/65'
+
+
 def test_face_beams_two_passa_slots_by_corner():
     """Pilar vertical + vigas H no topo → face C com passa por canto CA/CB."""
     report = {

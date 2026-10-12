@@ -1,0 +1,5945 @@
+{
+  "schema_version": 2,
+  "sources": {
+    "scripts/gerar_pl_dxf_stog.py": "6a18f1b3bb3f17ae9b034af7fedc862a9fb7dd5a849fc01e43052787f311e9a2",
+    "scripts/gerar_lv_dxf_stog.py": "66f9cf377e8fa157681998eac9cc1dfd2733355c09e1d3289b45bec4c28a0ae7",
+    "scripts/gerar_fv_dxf_stog.py": "bb33c580223c2621eda83bc29d4917a7634465c6e724296002279a0ccb55aab8",
+    "scripts/gerar_lj_dxf_stog.py": "4d6a84a8258a2d894d188378863c0da5476c8e9db0fbad105f0f86d8df50f10c",
+    "scripts/visual_modes.py": "d59c974941e9785adb83e0359a831cc1a11d870f2db9cef1a627954a4f6dd0f6",
+    "scripts/arete/lv_n3_cut_draw.py": "aa69d0eb89cd3b8745ccca4c2d87f62cc982c863f9e1f22c1a72c34f80079b60",
+    "scripts/drawing_semantics.py": "438b1c2d0d23e8ad44c46f3ffc888b2ce4deaf375de87ef36b42ecb5258813bf",
+    "scripts/pl_abcd_visual_nova.py": "ccb3b2d36accf8a5ca03e0191e1b22ae1695bc8776bfcec94d3debb82af6ff37",
+    "scripts/pl_cima_especial.py": "484b30b4aab303f56ceba4cda0d2dd3824904f72175758e7c6088b6119aa5eba",
+    "scripts/pl_grade_visual_config.py": "ffe9eb26e1b68f9dc71f3400871088870926ee85e0ce7e430cdf7c14be1d8c4a",
+    "src/core/pillar_special_faces.py": "5c03f47966e9b63d95ff21b224f67a524658f362790b3c4b2305fe0ec9be9906",
+    "src/core/ini_design.py": "bc8cc0741a169dd3e609bb3bef221890368a007fbb7ac353f833d0bb3432e43c",
+    "src/core/ini_fv_design.py": "811fcc8d68d64dd9a7df38fe438bbe1c2753a241d9b8ca2fd2468442d2cfb4eb",
+    "src/core/ini_lv_design.py": "2c500dd8c62e0bdb299508dc38e84c4206ddd8255e41d85437c17786ee87d56d",
+    "src/core/ini_pillar_design.py": "1f00469e2f8ffbb6e017c5b78f0a3c863c5a8720716c0adb01abfed51cda0939",
+    "src/core/ini_pillar_elevation.py": "729e282dd1719a5e7386f8e954fcc1831d2a724f1632da85303b628bbe038da3",
+    "src/core/ini_pillar_grades.py": "72a1a7df09e9a9493346377141855a77693899f778275da09ab375f2093477a4",
+    "src/core/ini_pillar_pagination.py": "e95c004227e57801fb43f4e425212f378f47c3718743584d5934d60121b56395",
+    "src/core/ini_pillar_top.py": "29d507fc3fd1dffc988b78173d4b6e289d8e6bb552523154f4fc4640b93bc181",
+    "src/core/ini_plan_windows.py": "f3beac00aaf86bb99c2998029d941a4807f02be36fb0d7626869a2f24f834536",
+    "src/core/lv_formascia_design.py": "83bd894743c74be087a472889c7ca66491ed76e62b1fbb5ef6d80a987181be15",
+    "src/core/lv_nova_design.py": "bcd347fa82bb04426f92a004da4d1852206465ab8fed73ce6a9df7a8ddf736df",
+    "src/core/lv_formascia_sa_adapter.py": "55fd2f8e9f869d1e048f63248f87d574f3cafb7514698d5292bc508b8f63f539",
+    "src/core/lv_ini_sa_adapter.py": "d35fbef4670c419fc2bd20fcdd5f3f6c835bb7f4e8f24aa3123f00ef7a5651f4",
+    "src/core/lv_nova_sa_adapter.py": "c409b4203f1fe899d75405cb98491e9c490a5818b10062e2c9adac3f82b16179",
+    "src/core/lv_formascia_grades.py": "9cb864b5c6c4fb00d832bf339cb42e633d21af3d764202480e2e3c7267f871b0",
+    "src/core/pillar_nova_design.py": "cad17799f9015bad2324c1358919e024ecb19083a3a09e0c10e264795e87ed09",
+    "src/core/pillar_nova_special.py": "2930392489f32d64dc20c5404ee87fd214143cad1fac6d36f9c5986d43b512ae",
+    "scripts/drawing_mode_config.py": "d9890ce5a734c19939de2b6ff7fa8f4c8047d303a5d093233ac70bfe8222aaf3",
+    "scripts/build_current_drawing_defaults.py": "f9d23326803b5e630bf83e5bd1587449144512bbbe0308eba42c8ac5ea1da3e6"
+  },
+  "contracts": [
+    "PL P1/P26 SA; CIMA/ABCD/EFGH/GRADES",
+    "LV V316 SA; A/B/corte; gradeadas/sarrafeadas; PARA/PASSA style calibration",
+    "FV V301 SA",
+    "LJ L301 SA"
+  ],
+  "measurement": "approved_sa_adapters",
+  "modes": {
+    "INI": {
+      "PL": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO": {
+            "color": [
+              1,
+              24,
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "GRAVATA": {
+            "color": [
+              224,
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241,
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Nível": {
+            "color": [
+              1,
+              160
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              24,
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x10": {
+            "color": [
+              60
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_3.5x7": {
+            "color": [
+              12,
+              81
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_7x7": {
+            "color": [
+              100,
+              18
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarr 2.2x7": {
+            "color": [
+              40,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              126,
+              24,
+              30
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CHAPA": {
+            "color": [
+              1,
+              140,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Perfil Metálico": {
+            "color": [
+              150,
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO DE PRESSAO": {
+            "color": [
+              1,
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "MEIO_PONT": {
+            "color": [
+              160,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Seção": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO_GERAL": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "texto": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Nível": {
+            "color": [
+              1,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NIVEL 2° PAV.": {
+            "color": [
+              160,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CONCRETO": {
+            "color": [
+              150,
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "AR-CONC"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              40,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTAS FURACAO": {
+            "color": [
+              16,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafo de Pressão": {
+            "color": [
+              1,
+              42
+            ],
+            "linetype": [
+              "HIDDEN"
+            ]
+          },
+          "HACHURA_PONTALETE": {
+            "color": [
+              23
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ]
+          },
+          "MEIOPONTALE_3_5X7": {
+            "color": [
+              12
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO_2_2X7": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous",
+              "DASHED"
+            ]
+          },
+          "BARRA_ANCORAGEM": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "PONTALETE_7X7": {
+            "color": [
+              18
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "HACHURA_MEIOPONTALETE": {
+            "color": [
+              33
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ]
+          },
+          "INI-CHAPA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "INI-SARRAFO": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "INI-PERFIL": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "INI-PERFIL-FUNDO": {
+            "color": [
+              30,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ]
+          },
+          "INI-PARAFUSO": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous",
+              "INI-HIDDEN"
+            ]
+          },
+          "INI-COTA": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI-FACES": {
+            "color": [
+              1,
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "INI-NOME": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "perfil_metalico": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "hachura-chapa": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "pedireito": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "DASHED"
+            ]
+          },
+          "Sarrafo_de_pressao": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "HIDDEN"
+            ]
+          },
+          "1": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-SARRAFOS": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-REFORCOS": {
+            "color": [
+              12
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-FOLGA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "S1": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-VAZIOS": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NUMERACAO_PAINEIS": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "barra_ancoragem": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI-FURACAO": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "INI-SAR-QUANTIDADE": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_24_SARRAFO": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_255_GRAVATA": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_4_COTA": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_7_Painéis": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_1_Nível": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_24_SARR_2.2x7": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_12_SARR_3.5x7": {
+            "color": [
+              12
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_18_SARR_7x7": {
+            "color": [
+              18
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_7_Sarr 2.2x7": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_24_Madeira": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_7_CHAPA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_224_Perfil Metálico": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_1_SARRAFO DE PRESSAO": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_7_MEIO_PONT": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_1_Texto Nível": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_7_NIVEL 2° PAV.": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_251_CONCRETO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_7_SARR_EDITAR": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_7_COTAS FURACAO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_N3_1_Sarrafo de Pressão": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "HIDDEN"
+            ]
+          },
+          "INI_TRIANGULOS": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_COTA_GRANULAR": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_COTA_TOTAL": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_COTA_SARRAFO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NUMERACAO": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "PEDIREITO": {
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira_textura": {
+            "color": [
+              126
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Perfil Metalico": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Parafuso": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "GRADE_SPACE": {
+            "color": [
+              126
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_COTA_VAO_GRADES": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          }
+        },
+        "texts": {
+          "faces": {
+            "views": [
+              "abefgh",
+              "cd"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              12.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              90.0
+            ]
+          },
+          "medidas": {
+            "views": [
+              "abefgh"
+            ],
+            "entity_types": [
+              "MTEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              7.5
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          }
+        },
+        "hatches": {
+          "aberturas": {
+            "views": [
+              "abefgh",
+              "cd"
+            ],
+            "entity_types": [
+              "HATCH"
+            ],
+            "color": [
+              251
+            ],
+            "resolved_color": [
+              251
+            ],
+            "pattern": [
+              "AR-CONC"
+            ],
+            "pattern_scale": [
+              0.1
+            ],
+            "angle": [
+              0.0
+            ]
+          }
+        }
+      },
+      "LV_PARA": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "CONCRETO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "AR-CONC"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "5": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cotas": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_3.5x7": {
+            "color": [
+              12
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "detalhes": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cota Seção (2x)": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Seção": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Qtd Sarr": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto de Titulo": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO PILAR": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "00 - FELIPE": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_LV_GEOMETRY": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO_2_2X7": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "DIVISAO": {
+            "color": [
+              142
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "MEIOPONTALETE": {
+            "color": [
+              12
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "cota": {},
+          "REAPROVEITAMENTO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "texto": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "presilha": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "barrote": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SCO-___-LAJ": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TENSOR": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_LV_NUMERACAO": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_LV_APOIOS": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "VIGAS": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "ACABAMENTO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafos": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Meio_pont.": {
+            "color": [
+              12
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NUMERAÇÃO DAS CHAPAS": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "cotas": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_TEXTO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_HACHURA DE CONCRETO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_HACHURA MADEIRAS": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_COMPENSADO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafo de pressão": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "HIDDEN"
+            ]
+          },
+          "FORMASCIA_GRADE_DIVISOES": {
+            "color": [
+              142
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Tensor7": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BARRA_ANCORAGEM": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Barra de Ancoragem": {
+            "color": [
+              20
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Tubo de PVC": {
+            "color": [
+              51
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COMPENSADO": {}
+        }
+      },
+      "LV_PASSA": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "CONCRETO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "AR-CONC"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "5": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cotas": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_3.5x7": {
+            "color": [
+              12
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "detalhes": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cota Seção (2x)": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Seção": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Qtd Sarr": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto de Titulo": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO PILAR": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "00 - FELIPE": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_LV_GEOMETRY": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO_2_2X7": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "DIVISAO": {
+            "color": [
+              142
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "MEIOPONTALETE": {
+            "color": [
+              12
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "cota": {},
+          "REAPROVEITAMENTO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "texto": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "presilha": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "barrote": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SCO-___-LAJ": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TENSOR": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_LV_NUMERACAO": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "INI_LV_APOIOS": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "VIGAS": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "ACABAMENTO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafos": {
+            "color": [
+              24
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Meio_pont.": {
+            "color": [
+              12
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NUMERAÇÃO DAS CHAPAS": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "cotas": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_TEXTO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_HACHURA DE CONCRETO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_HACHURA MADEIRAS": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_COMPENSADO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafo de pressão": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "HIDDEN"
+            ]
+          },
+          "FORMASCIA_GRADE_DIVISOES": {
+            "color": [
+              142
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Tensor7": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BARRA_ANCORAGEM": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Barra de Ancoragem": {
+            "color": [
+              20
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Tubo de PVC": {
+            "color": [
+              51
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COMPENSADO": {}
+        }
+      },
+      "FV": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "5": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Folhas": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CARIMBO": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "fundo": {
+            "color": [
+              100
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              126
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO DE PRESSAO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_5cm": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_CONTORNO_10cm": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              141
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Perfil Metálico": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Demarcação 1": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Demarcação 2": {
+            "color": [
+              254
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Escoras": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafo de pressão": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "HIDDEN"
+            ],
+            "entity_linetype": [
+              "HIDDEN"
+            ]
+          },
+          "NUMERACAO_FV_INI": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "APOIOS_FV_INI": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          }
+        },
+        "texts": {
+          "extremos": {
+            "views": [
+              "fundo"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              4
+            ],
+            "resolved_color": [
+              4
+            ],
+            "height": [
+              8.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              90.0
+            ]
+          },
+          "nome": {
+            "views": [
+              "fundo"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              12.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          }
+        },
+        "dimensions": {
+          "fundo": {
+            "views": [
+              "fundo"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              241
+            ],
+            "style": [
+              "PAINEL"
+            ],
+            "dimension_text_color": [
+              240
+            ],
+            "dimension_line_color": [
+              4
+            ],
+            "dimension_extension_color": [
+              4
+            ],
+            "text_height": [
+              10.0
+            ],
+            "arrow_size": [
+              3.0
+            ],
+            "gap": [
+              3.0
+            ],
+            "precision": [
+              2
+            ]
+          }
+        }
+      },
+      "LJ": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "PAINEIS": {
+            "color": [
+              6
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ]
+          },
+          "3": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "4": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "7": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "9": {
+            "color": [
+              9
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "AUX00": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO DE PRESSAO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Folhas": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CARIMBO": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO_GERAL": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          }
+        },
+        "hatches": {
+          "escoramento": {
+            "views": [
+              "planta"
+            ],
+            "entity_types": [
+              "HATCH"
+            ],
+            "color": [
+              8
+            ],
+            "resolved_color": [
+              8
+            ],
+            "pattern": [
+              "SOLID"
+            ]
+          }
+        },
+        "dimensions": {
+          "planta": {
+            "views": [
+              "planta"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              241
+            ],
+            "style": [
+              "cotas"
+            ],
+            "dimension_text_color": [
+              240
+            ],
+            "dimension_line_color": [
+              4
+            ],
+            "dimension_extension_color": [
+              4
+            ],
+            "text_height": [
+              9.0
+            ],
+            "arrow_size": [
+              2.0
+            ],
+            "gap": [
+              2.0
+            ],
+            "precision": [
+              1
+            ]
+          }
+        },
+        "texts": {
+          "nome": {
+            "views": [
+              "planta"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              15.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          }
+        }
+      }
+    },
+    "NOVA": {
+      "PL": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "ANSI31"
+            ],
+            "entity_linetype": [
+              "Continuous",
+              "HIDDEN"
+            ]
+          },
+          "SARRAFO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "ANSI31"
+            ]
+          },
+          "GRAVATA": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "AR-CONC"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Nível": {
+            "color": [
+              160
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "DASHED"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous",
+              "DASHED"
+            ]
+          },
+          "SARR_2.2x10": {
+            "color": [
+              60
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_3.5x7": {
+            "color": [
+              81
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_7x7": {
+            "color": [
+              100
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarr 2.2x7": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              30
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "CHAPA": {
+            "color": [
+              140
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ]
+          },
+          "Perfil Metálico": {
+            "color": [
+              150
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO DE PRESSAO": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "MEIO_PONT": {
+            "color": [
+              160
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Seção": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO_GERAL": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "texto": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Nível": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NIVEL 2° PAV.": {
+            "color": [
+              160
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CONCRETO": {
+            "color": [
+              150
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTAS FURACAO": {
+            "color": [
+              16
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafo de Pressão": {
+            "color": [
+              42
+            ],
+            "linetype": [
+              "HIDDEN"
+            ],
+            "entity_linetype": [
+              "HIDDEN"
+            ]
+          },
+          "Madeira_textura": {
+            "color": [
+              126
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Parafuso_detalhe": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Perfil Metalico": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Parafuso": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          }
+        },
+        "dimensions": {
+          "cima": {
+            "views": [
+              "cima"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              241
+            ],
+            "style": [
+              "cotax2"
+            ],
+            "dimension_text_color": [
+              0,
+              240
+            ],
+            "dimension_line_color": [
+              0
+            ],
+            "dimension_extension_color": [
+              0
+            ],
+            "text_height": [
+              2.5,
+              5.0
+            ],
+            "arrow_size": [
+              1.5,
+              3.0
+            ],
+            "gap": [
+              0.5
+            ],
+            "precision": [
+              2
+            ]
+          },
+          "abefgh": {
+            "views": [
+              "abefgh"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256,
+              4
+            ],
+            "resolved_color": [
+              241,
+              4
+            ],
+            "style": [
+              "PAINEL",
+              "PAINEL-NOVA"
+            ],
+            "dimension_text_color": [
+              0,
+              240
+            ],
+            "dimension_line_color": [
+              0,
+              4
+            ],
+            "dimension_extension_color": [
+              0,
+              4
+            ],
+            "text_height": [
+              10.0,
+              5.0
+            ],
+            "arrow_size": [
+              3.0
+            ],
+            "gap": [
+              1.0,
+              3.0
+            ],
+            "precision": [
+              2
+            ]
+          },
+          "cd": {
+            "views": [
+              "cd"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              4
+            ],
+            "resolved_color": [
+              4
+            ],
+            "style": [
+              "PAINEL"
+            ],
+            "dimension_text_color": [
+              240
+            ],
+            "dimension_line_color": [
+              4
+            ],
+            "dimension_extension_color": [
+              4
+            ],
+            "text_height": [
+              10.0
+            ],
+            "arrow_size": [
+              3.0
+            ],
+            "gap": [
+              3.0
+            ],
+            "precision": [
+              2
+            ]
+          },
+          "furacao": {
+            "views": [
+              "abefgh"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              16
+            ],
+            "style": [
+              "PAINEL-NOVA"
+            ],
+            "dimension_text_color": [
+              10
+            ],
+            "dimension_line_color": [
+              4
+            ],
+            "dimension_extension_color": [
+              4
+            ],
+            "text_height": [
+              10.0
+            ],
+            "arrow_size": [
+              2.0
+            ],
+            "gap": [
+              2.5
+            ],
+            "precision": [
+              2
+            ]
+          },
+          "grades": {
+            "views": [
+              "grades"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              241
+            ],
+            "style": [
+              "PAINEL-NOVA"
+            ],
+            "dimension_text_color": [
+              1
+            ],
+            "dimension_line_color": [
+              4
+            ],
+            "dimension_extension_color": [
+              4
+            ],
+            "text_height": [
+              5.0
+            ],
+            "arrow_size": [
+              3.0
+            ],
+            "gap": [
+              1.0
+            ],
+            "precision": [
+              2
+            ]
+          }
+        },
+        "hatches": {
+          "paineis": {
+            "views": [
+              "cima"
+            ],
+            "entity_types": [
+              "HATCH"
+            ],
+            "color": [
+              8
+            ],
+            "resolved_color": [
+              8
+            ],
+            "pattern": [
+              "ANSI31"
+            ],
+            "pattern_scale": [
+              1.0
+            ],
+            "angle": [
+              0.0
+            ]
+          },
+          "aberturas": {
+            "views": [
+              "abefgh",
+              "cd"
+            ],
+            "entity_types": [
+              "HATCH"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              241
+            ],
+            "pattern": [
+              "AR-CONC"
+            ],
+            "pattern_scale": [
+              0.05
+            ],
+            "angle": [
+              0.0
+            ]
+          }
+        },
+        "texts": {
+          "medidas": {
+            "views": [
+              "abefgh",
+              "cima"
+            ],
+            "entity_types": [
+              "MTEXT",
+              "TEXT"
+            ],
+            "color": [
+              256,
+              4
+            ],
+            "resolved_color": [
+              241,
+              4,
+              7
+            ],
+            "height": [
+              12.0,
+              7.0,
+              7.5
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0.0,
+              90.0
+            ]
+          },
+          "nome": {
+            "views": [
+              "abefgh",
+              "cima"
+            ],
+            "entity_types": [
+              "MTEXT",
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              15.0,
+              6.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          },
+          "faces_cima": {
+            "views": [
+              "cima"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              7
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              5.0
+            ],
+            "style": [
+              "NOVA_ARIAL"
+            ],
+            "rotation": [
+              0
+            ]
+          },
+          "niveis": {
+            "views": [
+              "abefgh"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              15.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          },
+          "faces": {
+            "views": [
+              "abefgh",
+              "cd",
+              "grades"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              12.0,
+              14.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              90.0
+            ]
+          }
+        }
+      },
+      "LV_PARA": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "AR-CONC"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              253
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "ANSI31",
+              "SOLID"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "CONCRETO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              126
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "5": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cotas": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_3.5x7": {
+            "color": [
+              81
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "detalhes": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cota Seção (2x)": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Seção": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Qtd Sarr": {
+            "color": [
+              242
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto de Titulo": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO PILAR": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "00 - FELIPE": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              141
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "texto": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "presilha": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "barrote": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SCO-___-LAJ": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "TENSOR": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Tensor7": {
+            "entity_linetype": [
+              "BYLAYER"
+            ]
+          }
+        }
+      },
+      "LV_PASSA": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "AR-CONC"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              253
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "ANSI31",
+              "SOLID"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "CONCRETO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              126
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "5": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cotas": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_3.5x7": {
+            "color": [
+              81
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "detalhes": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cota Seção (2x)": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Seção": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Qtd Sarr": {
+            "color": [
+              242
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto de Titulo": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO PILAR": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "00 - FELIPE": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              141
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "texto": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "presilha": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "barrote": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SCO-___-LAJ": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "TENSOR": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Tensor7": {
+            "entity_linetype": [
+              "BYLAYER"
+            ]
+          }
+        }
+      },
+      "FV": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "5": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Folhas": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CARIMBO": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "fundo": {
+            "color": [
+              100
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              126
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO DE PRESSAO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_5cm": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_CONTORNO_10cm": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              141
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Perfil Metálico": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Demarcação 1": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Demarcação 2": {
+            "color": [
+              254
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Escoras": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          }
+        },
+        "texts": {
+          "extremos": {
+            "views": [
+              "fundo"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              5
+            ],
+            "height": [
+              12.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          },
+          "nome": {
+            "views": [
+              "fundo"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              12.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          }
+        },
+        "dimensions": {
+          "fundo": {
+            "views": [
+              "fundo"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              241
+            ],
+            "style": [
+              "PAINEL"
+            ],
+            "dimension_text_color": [
+              240
+            ],
+            "dimension_line_color": [
+              4
+            ],
+            "dimension_extension_color": [
+              4
+            ],
+            "text_height": [
+              10.0
+            ],
+            "arrow_size": [
+              3.0
+            ],
+            "gap": [
+              3.0
+            ],
+            "precision": [
+              2
+            ]
+          }
+        }
+      },
+      "LJ": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "PAINEIS": {
+            "color": [
+              6
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ]
+          },
+          "3": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "4": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "7": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "9": {
+            "color": [
+              9
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "AUX00": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO DE PRESSAO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Folhas": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CARIMBO": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO_GERAL": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          }
+        },
+        "hatches": {
+          "escoramento": {
+            "views": [
+              "planta"
+            ],
+            "entity_types": [
+              "HATCH"
+            ],
+            "color": [
+              8
+            ],
+            "resolved_color": [
+              8
+            ],
+            "pattern": [
+              "SOLID"
+            ]
+          }
+        },
+        "dimensions": {
+          "planta": {
+            "views": [
+              "planta"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              241
+            ],
+            "style": [
+              "cotas"
+            ],
+            "dimension_text_color": [
+              240
+            ],
+            "dimension_line_color": [
+              4
+            ],
+            "dimension_extension_color": [
+              4
+            ],
+            "text_height": [
+              9.0
+            ],
+            "arrow_size": [
+              2.0
+            ],
+            "gap": [
+              2.0
+            ],
+            "precision": [
+              1
+            ]
+          }
+        },
+        "texts": {
+          "nome": {
+            "views": [
+              "planta"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              15.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          }
+        }
+      }
+    },
+    "MOLDE_1": {
+      "PL": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous",
+              "HIDDEN"
+            ]
+          },
+          "SARRAFO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "GRAVATA": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Nível": {
+            "color": [
+              160,
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "DASHED"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous",
+              "DASHED"
+            ]
+          },
+          "SARR_2.2x10": {
+            "color": [
+              60
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_3.5x7": {
+            "color": [
+              81
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_7x7": {
+            "color": [
+              100
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarr 2.2x7": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              30
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "CHAPA": {
+            "color": [
+              140
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Perfil Metálico": {
+            "color": [
+              150
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO DE PRESSAO": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "MEIO_PONT": {
+            "color": [
+              160
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Seção": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO_GERAL": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "texto": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Nível": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NIVEL 2° PAV.": {
+            "color": [
+              160
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CONCRETO": {
+            "color": [
+              150
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTAS FURACAO": {
+            "color": [
+              16
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafo de Pressão": {
+            "color": [
+              42
+            ],
+            "linetype": [
+              "HIDDEN"
+            ],
+            "entity_linetype": [
+              "HIDDEN"
+            ]
+          },
+          "1": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-SARRAFOS": {
+            "color": [
+              1,
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-REFORCOS": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "ANGLE"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-FOLGA": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "S1": {
+            "color": [
+              191
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-VEIOS": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-PARAFUSOS": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "hachura de madeira corte": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-VAZIOS": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "AR-CONC"
+            ]
+          },
+          "NUMERACAO_PAINEIS": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          }
+        },
+        "texts": {
+          "faces": {
+            "views": [
+              "abefgh",
+              "cd",
+              "grades"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              7
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              12.0,
+              14.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              90.0
+            ]
+          },
+          "medidas": {
+            "views": [
+              "abefgh",
+              "cima"
+            ],
+            "entity_types": [
+              "MTEXT",
+              "TEXT"
+            ],
+            "color": [
+              7
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              10.0,
+              7.0,
+              7.5,
+              9.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0,
+              90.0
+            ]
+          },
+          "faces_cima": {
+            "views": [
+              "cima"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              7
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              11.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0.0
+            ]
+          },
+          "nome": {
+            "views": [
+              "cima"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              7
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              20.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0.0
+            ]
+          }
+        },
+        "hatches": {
+          "aberturas": {
+            "views": [
+              "abefgh",
+              "cd"
+            ],
+            "entity_types": [
+              "HATCH"
+            ],
+            "color": [
+              8
+            ],
+            "resolved_color": [
+              8
+            ],
+            "pattern": [
+              "AR-CONC"
+            ],
+            "pattern_scale": [
+              0.1
+            ],
+            "angle": [
+              0.0
+            ]
+          }
+        }
+      },
+      "LV_PARA": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "AR-CONC"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              253
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "CONCRETO": {
+            "color": [
+              251,
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              126,
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              1,
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "5": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cotas": {
+            "color": [
+              1,
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_3.5x7": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "detalhes": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cota Seção (2x)": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Seção": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Qtd Sarr": {
+            "color": [
+              242
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto de Titulo": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO PILAR": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "00 - FELIPE": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              141
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA_VAZIOS": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "VIGAS": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "ACABAMENTO": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ]
+          },
+          "Sarrafos": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Meio_pont.": {
+            "color": [
+              43
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "NUMERAÇÃO DAS CHAPAS": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_TEXTO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_HACHURA DE CONCRETO": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_HACHURA MADEIRAS": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "ANSI31"
+            ]
+          },
+          "BNC_COMPENSADO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "presilha": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafo de pressão": {
+            "color": [
+              1,
+              2
+            ],
+            "linetype": [
+              "HIDDEN"
+            ],
+            "entity_linetype": [
+              "HIDDEN"
+            ]
+          },
+          "barrote": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Tensor7": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SCO-___-LAJ": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "cotas": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA_GRADE_DIVISOES": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "texto": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TENSOR": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BARRA_ANCORAGEM": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "espacador": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          }
+        }
+      },
+      "LV_PASSA": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "AR-CONC"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              253
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "CONCRETO": {
+            "color": [
+              251,
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              126,
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              1,
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "5": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cotas": {
+            "color": [
+              1,
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_3.5x7": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "detalhes": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Cota Seção (2x)": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Seção": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Qtd Sarr": {
+            "color": [
+              242
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto de Titulo": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO PILAR": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "00 - FELIPE": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              141
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA_VAZIOS": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "VIGAS": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "ACABAMENTO": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ]
+          },
+          "Sarrafos": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Meio_pont.": {
+            "color": [
+              43
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "NUMERAÇÃO DAS CHAPAS": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_TEXTO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_HACHURA DE CONCRETO": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BNC_HACHURA MADEIRAS": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "ANSI31"
+            ]
+          },
+          "BNC_COMPENSADO": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "presilha": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Sarrafo de pressão": {
+            "color": [
+              1,
+              2
+            ],
+            "linetype": [
+              "HIDDEN"
+            ],
+            "entity_linetype": [
+              "HIDDEN"
+            ]
+          },
+          "barrote": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "Tensor7": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "SCO-___-LAJ": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "cotas": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA_GRADE_DIVISOES": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "texto": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TENSOR": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "BARRA_ANCORAGEM": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "espacador": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          }
+        }
+      },
+      "FV": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "5": {
+            "color": [
+              5
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Folhas": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CARIMBO": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "fundo": {
+            "color": [
+              100
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Madeira": {
+            "color": [
+              126
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO DE PRESSAO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_2.2x7": {
+            "color": [
+              40
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_5cm": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_CONTORNO_10cm": {
+            "color": [
+              3
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARR_EDITAR": {
+            "color": [
+              141
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Perfil Metálico": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Demarcação 1": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Demarcação 2": {
+            "color": [
+              254
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Escoras": {
+            "color": [
+              224
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-SARRAFOS": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-REFORCOS": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "FORMASCIA-FOLGA": {
+            "color": [
+              8
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "S1": {
+            "color": [
+              191
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Texto Nível": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          }
+        },
+        "texts": {
+          "nome": {
+            "views": [
+              "fundo"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              7
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              12.0,
+              6.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          },
+          "extremos": {
+            "views": [
+              "fundo"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              7
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              12.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          }
+        },
+        "dimensions": {
+          "fundo": {
+            "views": [
+              "fundo"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              241
+            ],
+            "style": [
+              "PAINEL"
+            ],
+            "dimension_text_color": [
+              240
+            ],
+            "dimension_line_color": [
+              4
+            ],
+            "dimension_extension_color": [
+              4
+            ],
+            "text_height": [
+              10.0
+            ],
+            "arrow_size": [
+              3.0
+            ],
+            "gap": [
+              3.0
+            ],
+            "precision": [
+              2
+            ]
+          }
+        }
+      },
+      "LJ": {
+        "layers": {
+          "0": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Defpoints": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "PAINEIS": {
+            "color": [
+              6
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "entity_linetype": [
+              "Continuous"
+            ]
+          },
+          "COTA": {
+            "color": [
+              241
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "NOMENCLATURA": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Hachura": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ],
+            "hatch_pattern": [
+              "SOLID"
+            ]
+          },
+          "3": {
+            "color": [
+              2
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Painéis": {
+            "color": [
+              200
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "4": {
+            "color": [
+              4
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "7": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "9": {
+            "color": [
+              9
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "1": {
+            "color": [
+              1
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "AUX00": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "REAPROVEITAMENTO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "SARRAFO DE PRESSAO": {
+            "color": [
+              251
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "Folhas": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "CARIMBO": {
+            "color": [
+              255
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          },
+          "TEXTO_GERAL": {
+            "color": [
+              7
+            ],
+            "linetype": [
+              "Continuous"
+            ]
+          }
+        },
+        "hatches": {
+          "escoramento": {
+            "views": [
+              "planta"
+            ],
+            "entity_types": [
+              "HATCH"
+            ],
+            "color": [
+              8
+            ],
+            "resolved_color": [
+              8
+            ],
+            "pattern": [
+              "SOLID"
+            ]
+          }
+        },
+        "dimensions": {
+          "planta": {
+            "views": [
+              "planta"
+            ],
+            "entity_types": [
+              "DIMENSION"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              241
+            ],
+            "style": [
+              "cotas"
+            ],
+            "dimension_text_color": [
+              240
+            ],
+            "dimension_line_color": [
+              4
+            ],
+            "dimension_extension_color": [
+              4
+            ],
+            "text_height": [
+              9.0
+            ],
+            "arrow_size": [
+              2.0
+            ],
+            "gap": [
+              2.0
+            ],
+            "precision": [
+              1
+            ]
+          }
+        },
+        "texts": {
+          "nome": {
+            "views": [
+              "planta"
+            ],
+            "entity_types": [
+              "TEXT"
+            ],
+            "color": [
+              256
+            ],
+            "resolved_color": [
+              7
+            ],
+            "height": [
+              15.0
+            ],
+            "style": [
+              "Standard"
+            ],
+            "rotation": [
+              0
+            ]
+          }
+        }
+      }
+    }
+  }
+}

@@ -8,6 +8,38 @@ Cotas de nível e fundo físico estão em metros; espessuras, alturas e medidas 
 
 O pré-processamento deve coletar as evidências SA necessárias, inclusive análise estrutural parcial ou completa quando indispensável à interpretação. A qualidade da coleta precede o consumo pelo SA. Reutilizar o contrato/fila oficial; não criar pipeline paralelo. O pacote derivado não altera o schema N1 nem aprova campos humanos. Disponibilidade de um fato no pacote não prova que todos os consumidores já o aplicam: conferir o vínculo no consumidor real.
 
+Rastreio técnico atualizado em 09/10/2026: cotas diretas transportam marca por
+marca (handle original, posição e valor). Quando o contorno final SA difere do
+candidato, conferir quais marcas realmente estão dentro do contorno consumido
+e excluir da proveniência as marcas externas. Contrato, compatibilidade de
+pacotes e limites de validação em
+[Consumo de níveis com contorno final menor](preprocessamento/CONTRATO-CONSUMO-SA.md#consumo-de-níveis-com-contorno-final-menor--2026-10-09).
+O reparo comprovado no 14_PAV não promove suas cotas locais a regra de outra obra.
+
+Consumo PIL de11/10: níveis padrão nas linhas de vigas usam o datum verificado
+da própria rodada, antes da convenção externa, com apresentação absoluta em
+metros. Não escolher obra/pavimento fixo por falta de contexto. Preservar cota
+própria vinculada à viga e não usar esse fallback para resolver lajes/regiões.
+O ciclo14 `root-datum-fv-20261011` confirmou221 linhas corrigidas e o contato
+regional L414/P22 h10/855,22 por67cm preservado. Isso valida o consumo da
+referência; não certifica a leitura de todas as exceções por corte/hachura.
+
+Rótulos repetidos de viga exigem associação por parcela física também nas
+laterais. Depois de provar o proprietário de um FV por texto, seção numérica
+e paredes originais, uma lateral pode compartilhar esse proprietário quando
+corre ao longo de sua fronteira com cobertura espacial suficiente e sem outro
+proprietário concorrente. Mesmo nome, ordem das linhas ou número do segmento
+não bastam. A associação conserva os fatos de nível; a resolução de cotas
+continua exigindo sua própria proveniência e QA.
+
+Causa comprovada em11/10/2026: na VF402, o fundo angular pertencia ao rótuloD73,
+mas duas laterais permaneciam noD3E distante; isso impedia o consumidor espacial
+de reunir as evidências. Replay original mediu94,264% de contato de fronteira.
+Correção local exige80% e proprietário único, rejeitando interior, cruzamento,
+contato parcial e ambiguidade.108 testes passaram; a instalação e a validação
+do ciclo completo dessa correção continuam pendentes. Evidência em
+`vf402_original_label_parcels_replay.json` no relatório da missão14.
+
 ## 2. LAJ — regiões, espessuras e degraus
 
 Reconhecer o contorno interno real, contido na laje, e os `h=` dentro e fora, mesmo sem símbolo de corte de laje. Uma cota interna vale para seu contorno; a região principal é o contorno da laje menos a união das regiões internas. Não espalhar uma cota escalar pelo contorno inteiro de uma laje com degrau.
@@ -65,6 +97,8 @@ Perguntar apenas a convenção que permaneça ambígua após medição e leitura
 A confirmação de fundo contínuo em L313/BD3, L320/BD6, L321/BD7, L322/BD8, L323/BD9 e L324/BDA aplica-se apenas à revisão examinada do 13_PAV: h=10 em 852,16 m e principal h=13 em 852,19 m. ID persistido `D64-20261001-user-confirmation` é identificador local, distinto de D-64 do catálogo de decisões de LV.
 
 Revisão humana derivada: `<recorte>.slab-region-review.json`, com SHA-256 do DXF, UID e decisão. `src/core/slab_steps.py` aplica somente correspondência de revisão e região; contradição com cota CAD direta gera `review_conflict` e preserva a medida.
+
+Em 11/10/2026, o dono confirmou para L414/972 do 14_PAV: região h=10 com topo 855,22 m, mesmo fundo da principal h=13/topo 855,25 m (fundo 855,12 m). ID `LAJ-L414-FUNDO-CONTINUO-20261011`; revisão DXF `76144cb3c77586684c8db76311fe1ef3cadeef6389e003b948ac7c57c41e2e27`, handles 972/E1F/E1D/D68. A decisão pertence à região examinada e não se generaliza para toda redução de espessura. Reconhecimento real e aplicação da revisão foram conferidos localmente; aprovação dos contatos e da missão exige o ciclo completo posterior.
 
 Motor: `portal/app/preprocessamento/segment_levels.py` (fatos regionais, delta entre abas, fontes congeladas, FV/LV e faces PIL); reconhecimento: `src/core/slab_steps.py`; apresentação: `portal/app/static/drill_grade.js`. Testes: `portal/tests/test_cut_region_levels.py`, `portal/tests/test_segment_level_correspondence.py`, `tests/test_slab_level_inference.py`, `tests/test_slab_steps.py`.
 
@@ -300,9 +334,9 @@ Regras que separam consenso de alucinação:
 
 O dono aprovou a recomendação em 03/10/2026 ("o importante é solucionar; dinâmico e universal").
 
-- **Regra:** uma viga (item) através da qual duas lajes com nível próprio e de origens independentes já diferem é uma *linha de degrau provada*. Ali o próprio CAD refuta "sem corte = sem degrau", então nenhum voto de continuidade atravessa essa viga. Os votos retidos aparecem em `withheld_votes` (`proven_step_line`) e as linhas em `slab_level_layers.proven_step_lines`.
+- **Regra:** uma viga (item) através da qual duas lajes com nível próprio e de origens independentes já diferem é uma *linha de degrau provada*. O "ali" é o trecho em que essas duas lajes se encaram: nesse trecho o próprio CAD refuta "sem corte = sem degrau", e o voto de continuidade não atravessa. Os votos retidos aparecem em `withheld_votes` (`proven_step_line`) e as linhas em `slab_level_layers.proven_step_lines`.
 - **Efeito:** só retira votos, nunca cria valor.
-- **Limite conhecido:** a regra vale para a viga inteira. Um degrau provado num trecho também retém votos em outro trecho da mesma viga (ex.: V317 entre L322×L323 retém L329→L330). É conservador.
+- **Fora do trecho:** um contato mais adiante na mesma viga não entra quando o alvo já tem outro voto, para não baixar uma continuidade unânime. Entra só quando o alvo ficaria sem voto nenhum. Na v21 a retenção valia para a viga inteira (ex.: V317 entre L322×L323 retinha L329→L330). Esse alcance foi restringido em 04/10/2026; ver a seção v27. O 13_PAV, que já tinha voto próprio nesses alvos, permanece igual.
 - **Face a face:** borda que encara de verdade ≥ 5 cm. O contato diagonal num cruzamento de vigas dá cerca de 2 cm por borda e é descartado.
 - **Viga do corredor:** quando há mais de uma, conta a de maior área.
 
@@ -395,3 +429,320 @@ O dono aprovou a recomendação em 03/10/2026 ("o importante é solucionar; din�
 - L322 principal: 65 → 85,5.
 - Faixas abaixo de 60%: 5 → 1. Nenhum valor mudou e nenhuma faixa caiu. Contatos de pilar: 203 → 203.
 - A faixa restante é a V330 `lateral_b_passa` s14 (57,7%). O valor chega por seis transferências (laje → semente → fundo → lateral → continuidade pela parede do pilar). A queda por salto é de propósito, então não é defeito.
+
+## Região vota pela região que encara — v26
+
+**Estado:** implementação v26 (`preprocess-context-v26-region-cut-owner`). Aplica NIV-LAJE-CAMADAS e o complemento de 04/10. Não muda os pesos.
+
+- **Rebaixo vota só a região que encara.** O corredor exclui as duas lajes inteiras, então um rebaixo não vota através da própria laje. O par região × região exige 10 cm de borda; um canto de cerca de 6 cm não vota. O escalar da laje sem regiões continua no contorno inteiro (a L320 permanece como na v25).
+- **Região sem nível tem voto próprio.** O fato é `slab_region_level`, com `level_basis=owner_convention`. O SA consome o valor de camadas como inferido e preenche só o campo que o DXF deixou vazio. `preprocess_filled` lista esses campos para a coleta não reler o voto como cota medida.
+- **Corte lê a região em que pisa.** `cut_owner_level`: se o corte está sobre uma única região de camadas cujo valor difere do escalar, usa essa região. Um degrau medido (`slab_step_cut_scoped_level`) não substitui o escalar. Sem nível na região calculada, a Visão de Corte falha fechada.
+- **Sem cota no DXF é medida, não falha do motor.** No 14_PAV, L414, L417 e L418 não têm cota escrita. A L413 tem 855,22 só no rebaixo.
+
+## h sem corte não é degrau de nível — v27
+
+**Estado:** decisão do dono em 04/10/2026 (NIV-DEGRAU-H-E-VOTO-20261004), implementação `preprocess-context-v27-step-contact`.
+
+- **Só h não muda o nível.** Trecho interno sem cota e sem visão de corte nessa área indicando o nível permanece no nível da laje. O preenchimento deixa `status=unknown`, sem fundo inventado (`bottom_m` vazio, cor `#ffe033`). A ficha diz "fundo ainda não determinado". A viga só usa o degrau quando `status=same_bottom`, então as vigas ao redor não mudam por causa desse trecho.
+- **Degrau que não toca não confunde o voto.** A vizinha vota com a região que encara o alvo. O contato fora do trecho da linha de degrau provada só completa um alvo que ficaria sem voto. Alvo que já tem voto continua sem esse contato.
+- **Degrau de nível diferente** continua exigindo cota no trecho ou visão de corte nessa área. L410–L412 permanecem nesse caso (rebaixo 855,22, principal 855,25, mesmo fundo).
+
+**Resultado 14_PAV/Torre 1 (jobs de pré-processamento `84ac9085` e SA `0c7dcd21`, 04/10/2026):**
+
+- L417: 855,25 por continuidade da região principal da L410 (85). O degrau da L410 não entra nesse voto.
+- L415: escalar e rebaixo 855,25. O rebaixo só tem h=10 contra h=13, sem corte e sem cota interna; o status fica `unknown`, não fundo diferente.
+- L413 e L414: rebaixo 855,22 e principal 855,25, mesmo fundo. L418 permanece 855,18.
+- Visão de Corte: 126/126. As vigas que tocam a L415 continuam em 855,25. VF402 e VF403, que leem a L417, passam de estimado 855,18 para inferido 855,25 nas faixas dessa laje. A V407 nessas faixas permanece 855,25 e desce de 80,8 para 74,6, ainda acima de 60.
+- Replay do 13_PAV antes do deploy, sem gravar: 583 faixas, 0 valores mudados, 0 quedas, 1 faixa abaixo de 60% (V330 `lateral_b_passa`, 852,19, 57,7%). O 13_PAV não foi reprocessado no portal.
+
+
+## Conferência iterativa com origens independentes — 07/10/2026
+
+**Reforço do dono em 09/10/2026:** pré-interpretação e SA revisitam os vínculos em ambas as direções. A visão de corte local é referência para nível/datum de lajes, degraus e vigas, que alimentam os contatos dos pilares. Cada transferência preserva o corte/entidade CAD de origem, região, segmento, transformação física e dependências. Uma hipótese transmitida de volta não é uma segunda prova. Em face de pilar com várias lajes, atribuir cada nível ao intervalo correspondente; não copiar o escalar da primeira laje para toda a face. Divergência aciona revisão local e pendência explícita, sem inventar cota nem interromper os demais itens.
+
+Decisão NIV-CONFIRMACAO-INDEPENDENTE-CICLICA: LAJ, FV, LV, PIL, cortes interpretados e fichas SA devem confrontar leituras da mesma grandeza/região/segmento no mesmo datum. As classes podem revisitar hipóteses e ajudar a localizar prova independente; não podem contar a transmissão do mesmo fato entre elas como nova confirmação. Um ciclo sem raiz independente falha na auditoria. Confrontar valores após a transformação física necessária (ex.: referência superior menos altura para fundo), nunca igualar diretamente topo e fundo.
+
+A rubrica `level_evidence_completeness_v1.2-independent-agreement` detecta auto-referências e dependências legadas `derived_from`, rejeita confirmações com qualquer marca CAD já usada na origem primária e explicita divergências de valor, unidade ou datum. Não muda valores nem percentuais de suporte. Isso é um reforço da auditoria de caminhos existentes; não cria leituras independentes ausentes nem certifica todos os itens.
+
+A reutilização de convenções no SA/coletores é limitada à rodada contextual: devolve cópias aos consumidores, verifica alteração/remoção do arquivo escolhido e descarta o cache ao terminar. Nova rodada descobre suas fontes novamente. O pré-processamento mantém a coleta nova e a verificação de revisões; não usa snapshot antigo como prova dos coletores atuais.
+
+
+## TIPO-PRIMEIRO-PISO-20261009 — referência e abrangência do tipo
+
+Decisão explícita do dono, em 09/10/2026: produzir o pavimento tipo uma vez, usando como referência de níveis o primeiro piso real abrangido pelo tipo. Ordenar os pisos pela sequência real do projeto, não pela ordem dos textos CAD, pelo alias de teste ou pelo número da folha. Se um pavimento real foi escolhido explicitamente, preservar essa escolha. O tipo não autoriza copiar a cota absoluta do primeiro piso para todos os demais andares.
+
+Triagem deve cruzar o campo Assunto do carimbo com a convenção de níveis. Preservar faixas descontínuas e suas exclusões. Nome TIPO é indício de repetição; folha e revisão não são andares. A aplicabilidade depende do assunto e das evidências do projeto, não apenas do nome do arquivo.
+
+Confirmar a altura entre pisos representados na convenção. Altura igual sustenta repetição de altura, mas não prova igualdade de geometria, desníveis, materiais ou comportamento. Comparar notas, cortes e exceções; registrar divergências e separar variantes quando necessário. Não converter uma dúvida em igualdade confirmada. Ausência de convenção ou pareamento ambíguo gera pendência e pedido de níveis explícitos com unidade/datum; não bloquear os itens independentes nem exigir validação humana do recorte.
+
+Contraprova geral: números de cotas dimensionais em outras regiões do bruto não são níveis. Isolar a convenção e vincular rótulo, símbolo/linha de piso e cota com unidade e handles antes de propagar níveis. Não deslocar listas por índice fixo nem usar proximidade global de números. Pré-interpretação e SA compartilham a mesma raiz CAD; ciclos não adicionam confirmação independente.
+
+Chegada/saída precisam de semântica explícita de piso inferior/superior antes da propagação aos pilares. Documentação e indexação desta decisão não significam que seleção automática do primeiro piso, novos campos de cadastro ou leitor deste layout já foram implementados. Esses vínculos permanecem pendentes até validação do motor sobre a ilha real.
+
+
+## Diagnóstico técnico das pendências do 14_PAV — 09/10/2026
+
+Esta nota registra evidência de auditoria, sem nova decisão do dono ou aprovação geométrica. Fonte e estado datados: `scripts/arete/relatorios/20261009_pendencias_niveis_14pav/RELATORIO.md`. A publicação inspecionada conserva 20 faixas com suporte abaixo de 60; há 24 faixas estimadas, das quais quatro têm suporte 61,8. Contar os dois critérios separadamente.
+
+Coincidência de extremos transversais da bbox com faces CAD não prova ancoragem longitudinal. Fundos V402 1/6 passam no teste atual de ancoragem embora tenham diagonais sem testemunha CAD. A prova deve avaliar arestas e cobertura espacial, preservando cruzamentos, chanfros, pilares e vínculos humanos; não substituir automaticamente toda forma irregular por retângulo.
+
+V406 conserva paredes diagonais de largura normal 19 cm e um helper existente reconhece o corpo, mas não havia fundo no baseline ou SA publicado inspecionado. O replay posterior corrigiu o diagnóstico inicial: a recuperação angular já existe no motor instalado, porém um painel de retorno com cobertura na união global das faixas bloqueia o corpo diagonal. A auditoria D-60 remove essa tampa vertical; ela não chegou a remover um corpo diagonal, pois este nunca havia sido materializado. O repair por proporção de área também não resolve o caso: área maior não prova compatibilidade com as paredes. Ver evidências instrumentais em `scripts/arete/relatorios/20261009_reparo_fundos_14pav/v406/RELATORIO.md`. A criação candidata comprovada pelas duas paredes não equivale a PASS do D-60 angular, que continua não auditável.
+
+VF402 tem duas ocorrências CAD distantes agrupadas por nome; VF403 duplica laterais de V408 e tem apenas 161,80 cm exclusivos à esquerda. Preservar handles, corredor, orientação e limites físicos das ocorrências antes de transportar datum. Labels repetidas podem representar a mesma viga, mas o nome sozinho não prova continuidade física. Cortes locais atualmente associados a vigas verticais próximas permanecem suspeitos, sem datum aprovado.
+
+As lacunas V408 sobre pilares têm fontes FV adjacentes 855,18/855,25. Aplicar a regra vigente de continuidade somente com vizinhos suportados concordantes. Face externa sem contato com laje não autoriza expandir laje até a face, copiar a cota mais frequente ou promover estimativa a medição. Os valores dos exemplos são evidência local, não constantes universais.
+
+### Aprendizados comprovados pelo replay de fundos — 09/10/2026
+
+Evidência técnica, sem decisão nova do dono: `scripts/arete/relatorios/20261009_reparo_fundos_14pav/RELATORIO.md`. O candidato testa a ancoragem por cobertura longitudinal de arestas na face CAD, somando arestas colineares; ao menos80% do comprimento neste contrato, com tolerância0,75cm. Isso elimina os dois fundos inclinados artificiais de V402 mantendo proteção de geometria humana e chanfros. O limiar pertence ao contrato do motor e não autoriza copiar retângulos para todo contorno irregular. Os exemplos continuam subordinados às paredes e encontros reais.
+
+Recuperação diagonal deve decidir por run/corredor angular, não pela união de todas as faixas da mesma viga: um retorno correto numa faixa ortogonal não demonstra que o corpo angular existe. O candidato preserva os contornos atuais compatíveis e só acrescenta corpo angular quando ambas as paredes reais têm cobertura suficiente. Na coleta combinada, V406 tem ambas as faces testemunhadas100%, largura normal19cm, nenhum overlap com fundos/pilares e contato de área zero com V407. A cobertura é prova local sobre a mesma fonte, não confirmação independente; D60 angular permanece não auditável e não recebeu PASS/N5.
+
+Antes de publicar, comparar todas as mudanças nos pavimentos de controle, incluindo metadados, e comparar união física quando slots forem renumerados. Um replay de níveis com denominador diferente não prova melhora por si só: registrar segmentos/faixas, conferir suporte e manter as pendências de identidade física. Ter código de recuperação instalado também não prova que ele foi executado: o trace da condição localizou exatamente o veto indevido. Ao preservar melhorias simultâneas, transplantar apenas o delta sobre a versão instalada e conferir hash de bytes antes da publicação.
+
+O primeiro combinado foi bloqueado para publicação: embora o novo fundo VF402 tivesse paredes reais, incorporou ponta horizontal explicitamente rotulada VF403. Suporte geométrico não prova propriedade pelo nome da viga. A redução20→11 faixas fracas desse candidato não é resultado liberado; proteção de identidade e novo replay são necessários. Quando o master agrupa ocorrências nomeadas em componentes físicas distintas, recuperar ou estender área requer identidade de cada componente; a presença de paredes não autoriza transportar datum entre elas.
+
+A proteção de componentes nomeadas desconectadas com orientação mista foi implementada/testada e preservou VF402/VF406 no novo replay, mas esse replay divergiu em L401/L402. Na primeira publicação, essa divergência fora da classe bloqueou o delta diagonal e somente ancoragem longitudinal foi publicada (recibo `20261009_reparo_fundos_14pav/deploy_receipt.json`). A investigação posterior, registrada abaixo, demonstrou causa independente na ordem do guard de lajes. O controle completo deve incluir as quatro classes, mesmo quando a prova física do fundo e os testes focados estejam corretos. Não promover a redução de pendências do primeiro candidato bloqueado como resultado de produção.
+
+Publicação oficial conferida em 09/10/2026: pré-processamento `e36f4ca3-b64f-485d-b17a-778b354f5586`, consumido pelo SA concluído `517e8cc6-4cce-400e-ab5b-c6a08e34a93c`. São439 segmentos/580 faixas/19 com suporte abaixo de60, ante20 na publicação anterior. V402/FV1=7125cm² e FV6=14991cm²; diferença geométrica zero em todas as22 lajes e35 pilares contra o estado oficial anterior. V406 continua sem fundo publicado e as pendências de identidade/níveis permanecem abertas. Evidência `20261009_reparo_fundos_14pav/published_geometry_verification.json`; N3 não solicitado, sem PASS/N5. Esses números pertencem a esta fonte/contexto, não são resultados universais.
+
+A comparação ampliada da mesma evidência encontrou união geométrica idêntica nos fundos e em todas as famílias laterais dos dois SA oficiais. V402 já possuía7125/14991cm² no SA anterior. A ancoragem corrigiu o defeito reproduzido na coleta canônica isolada; esse replay não pode ser apresentado como ganho de contorno no SA final. Comparar a mesma etapa e distinguir coleta isolada, pré-processamento e estado SA publicado antes de atribuir melhoria ao delta.
+
+### Causa comprovada da variação L401/L402 — 09/10/2026
+
+Investigação posterior em `20261009_reparo_fundos_14pav/slab_order_verification.json`: módulos e fonte idênticos, variando somente `PYTHONHASHSEED`, produzem L401/L402 diferentes antes dos fundos. Seed0 mantém invasão14361,1692cm²; seed4 elimina a sobreposição. Installed/safe com mesmo seed produzem as mesmas lajes: a divergência anterior não era causada pela recuperação diagonal.
+
+O guard de expansões percorria IDs modificados como set e ignorava vizinhos já revertidos. Um snap de0,09cm na borda externa de L402 recebia a culpa pela expansão invasora de L401; se revertido primeiro, liberava a invasora na iteração seguinte. Correção geral candidata: comparar somente área acrescentada por cada normalização contra um snapshot comum, decidir todos os conflitos e então aplicar as reversões. Não confundir qualquer mudança de coordenadas com invasão. Apenas ordenar o set não resolve a atribuição errada.
+
+Trace corrigido com seeds0/4 preserva o snap vizinho e restaura a invasora, contornos iguais e zero sobreposição. Replay completo14 preserva lajes/pilares/laterais contra o baseline isolado de ordem boa e recupera V4064814,4655cm² sem sobrepor fundos, mantendo VF402/VF406; controle13 não muda as quatro classes em relação ao candidato protegido anterior. Os deltas foram instalados após esse controle. A segunda publicação oficial abaixo substitui o estado provisório desta investigação; não confundir o baseline isolado com o SA oficial antigo, que carregava a ordem ruim.
+
+### Segunda publicação oficial e limites do fechamento — 09/10/2026
+
+Pré-processamento `d434edb2-dfd5-4ec4-98ce-05a01c2d79a3` consumido pelo SA concluído `81471abf-13c0-41e8-8d0c-bb3b6860f088`:440 segmentos/580 faixas/15 fracas. Evidências em `20261009_reparo_fundos_14pav/release_v406/`. O engine evoluiu para v40 por melhorias simultâneas; não atribuir toda diferença de inventário ao delta desta missão. Fonte original preservada. N3 não solicitado; sem PASS/N5.
+
+As22 lajes oficiais coincidem com o candidato corrigido. Contra o SA anterior, L401 muda23699,0884cm² e L4026,39cm²: a sobreposição14361,1692cm² vira zero, exatamente o defeito causal do guard. Os35 pilares ficam iguais. Lateral B Para V401 muda19,09cm por bordas das lajes corrigidas; famílias laterais coincidem com o candidato. Um guard corrigido pode produzir diferença desejada contra o estado oficial defeituoso: comparar invariantes e causa, não exigir cegamente zero diferença nem ocultar o delta.
+
+V406 agora tem fundo SA de5041,580689cm², nível855,25m de L410, sem sobrepor fundos/pilares. O replay isolado tinha4814,465507cm². O acréscimo227,115183cm² fica inteiramente na célula medida do encontro V406/V407; extensão axial19cm igual à largura da viga oposta, cenas `dxf_edges_from_own_label`, sem hachura na célula ou invasão de pilar. Folga0,057202cm abaixo da tolerância local0,1cm, não contato exato. Geometria compatível com rotina de encontros após merge do production-web, sem trace do passe em produção. Tampa de encontro não tem parede CAD própria e exige contrato de encontro; isso não prova PASS do D60 angular. Distinguir área de corpo, célula de encontro e estado final de pipelines distintos antes de atribuir erro ou ganho.
+
+As15 fracas oficiais são VF4024, V4089, VF4032; todas estimadas855,18m/30% por `lv_cell_estimado`, sem fonte FV/laje específica. Em V408, três lacunas ficam entre fundos discordantes855,18/855,25, enquanto a lacuna entre vizinhos iguais já tem continuidade73%. Não copiar valor dominante nem transformar a própria origem da estimativa em medição independente. Próximo passo é identidade física/proveniência VF402/VF403/V408 e prova local das faces/cortes das lacunas. As565 faixas≥60 não provam ausência de outras pendências semânticas. Esses números são fatos deste run, não constantes de regra.
+
+### Identidade por corredor medido e texto deslocado — 09/10/2026
+
+Evidência causal e auditoria independente em `scripts/arete/relatorios/20261009_identidade_corredores_14pav/`. Uma anotação pode estar fora dos limites longitudinal e transversal da viga, mas identificar seu corredor por paredes próprias. Não aumentar tolerâncias textuais globalmente: reconstruir a faixa do concorrente, comparar orientação e ambas as faces medidas, exigir extensão compartilhada e pilar físico entre os rótulos. Sem essa prova, conservar a ambiguidade. Nomes iguais repetidos não são concorrentes e também não provam continuidade entre componentes remotas.
+
+Quando um rótulo fica além da extensão medida, o pilar mais próximo dele pode eliminar parte legítima da viga. A fronteira deve usar a referência dentro do corredor mensurado. No caso auditado, D74/VF403 está dentro, D46/V408 além: P28/contorno2C2 separa as duas reivindicações nas faces x2521,09/2545,09. As paredes297/298 e299/29A comprovam14cm nos dois lados. Não substituir a largura medida por19cm herdados de outro fundo. Transição de largura exige evidência própria, não relaxamento indiscriminado do pareamento de faces.
+
+Replay completo com o mesmo seed altera apenas VF403/VF402: encurta VF403 até P28, mantém as geometrias de V408, remove da cena VF402 a ponta sem rótulo que duplicava VF403 e materializa fundo VF403 de2187,18731cm² sem overlap com outros fundos/pilares. A recuperação de canto é posterior à partição de identidade; corrigir a cena pode eliminar a duplicação sem editar a rotina de canto. Lajes/pilares ficam iguais; controle completo13_PAV não muda as quatro classes;102 testes focados passam. Coleta instalada49,40s/candidata49,12s no14 não indica regressão de tempo nesta amostra.
+
+Pré-processamento oficial `a14deece-14a4-4f73-9db5-b30a2dab099f` concluído:427 segmentos/571 faixas/11 abaixo de60, ante440/580/15. Replay distingue duas estimativas VF402 e nove V408, todas855,18/30%; a redução combina remoção de duplicações e suporte espacial recuperado, não quatro novas medições CAD. VF403 passa a855,25 por L410 → continuidade L417 → convenção do fundo → transferência espacial às laterais. Há uma raiz CAD transmitida; não contar cada classe como confirmação independente nem chamar isso de cota direta de VF403. O motor/contexto simultaneamente evoluiu para v43; números oficiais pertencem ao run e não devem ser atribuídos integralmente ao delta desta função.
+
+SA oficial concluído `630f9a96-59b7-4241-b7fb-28292a98dc07` consumiu esse pré-processamento. Lajes/pilares oficiais iguais; mudanças geométricas restritas aVF403/VF402, preservandoV408 e os demais fundos. VF403 oficial2187,18731cm²/855,25 deL417, sem overlap. Todas as famílias laterais coincidem com candidato. Nove outros fundos diferem entre coleta isolada e SA, mas a diferença herdada é exatamente a mesma antes/depois: invariância comprovada em `published_geometry_verification.json`, não exceção ampliada após falha. Comparar a mesma etapa e auditar a diferença entre etapas antes de atribuir causalidade.
+
+Encontro esquerdoVF403/VF402 ainda tem cunha39,025462cm² fora dos fundos e tampão sem paredeCAD vertical; o corpo medido e sem invasão não certifica essa junção. Exceções de hachura, duas estimativasVF402, noveV408 e D60angular seguem pendentes. Nenhum PASS/N5 resulta apenas destes testes, replay ou PNG diagnóstico; N3 não solicitado.
+
+### Componentes homônimos, prioridade e fonte local mais forte — 10/10/2026
+
+Evidências em `scripts/arete/relatorios/20261010_encontros_niveis_14pav/RELATORIO.md`. Nome igual não prova continuidade entre corredor horizontal e diagonal distante. A recuperação angular exige rótulo próprio dentro da extensão medida, orientação compatível e ambas as paredes. O fallback LV só pode herdar de outro segmento com mesmo run físico medido e dimensões compatíveis; ausência de prova conserva estimativa rastreável. Registrar pontos/valor da origem no momento da estimativa: refinamento posterior em outra etapa não cria fonte medida retroativa.
+
+Adicionar um componente ao master pode alterar indevidamente a rubrica de continuidade de encontros remotos. Filtrar apenas a faixa espacial também é insuficiente: dois vãos paralelos podem virar falsamente um único vão contínuo. Usar runs fonte para excluir somente painéis pertencentes a orientação incompatível comprovada; conservar vãos paralelos e não excluir painel sem pareamento. Aplicar o mesmo contexto tanto ao preenchimento do encontro como à repartição final. Contraprova: recuperar diagonal remota preserva todos os encontros anteriores; controle completo 13 preserva geometria das quatro classes e valores/fontes/confiança dos níveis.
+
+Coincidência com um FV estimado não deve substituir uma raiz local independente concordante mais forte da laje. No caso medido, B/L417 inferido76,5 era rebaixado a28,5 pelo novo FV estimado30. Preservar a raiz local somente quando todos os FV coincidentes forem fracos/estimados, concordantes e sem corte; fonte forte, corte ou discordância exige o caminho específico anterior. Registrar os FV como coincidência geométrica, não ancestria de nível. Não somar suporte nem promover o novo fundo por transmissão circular.
+
+Replay instalado/candidato14:427 segmentos/571 faixas/11 fracas →428/572/14. Aumento expõe novo fundo estimado e subdivisão das incertezas A; B mantém76,5. Contagem menor não é objetivo substituto de evidência correta. Cunha antiga39,025462cm² fica com resíduo numérico0,000084989cm²; encontro triplo conserva união anterior e não sobrepõe fundos/pilares. Esses resultados foram depois conferidos na publicação oficial abaixo; não representam PASS/N5 nem conclusão da missão.
+
+V408: nove faixas fracas em cinco posições sobre pilares. Passa emP33 percorre o próprio pilar de cerca100cm; não cortar como extensão espúria. FV2/L419 eFV5/L422 têm cortes espaciais: distinguir `contact_only` de `stem_matches_fv_section`. Ausência de validação de seção não equivale a ausência de raiz de nível de laje; nomeV413/V418 também não invalida por si só uma transferência espacial. Reconciliar geometria medida, cota anotada, seção declarada e alcance da exceção antes de preencher lacunas entre níveis discordantes. Auditoria dos perfis ainda pendente; não registrar corte errado sem essa prova.
+
+Contraprova quantitativa dos dois perfis inferiores, `v408/cut_matching_audit.json`: profundidade de interseção60cm versus FV declarado55; `cut_matches_fund=False` nos dois. A ficha guarda53/top7/bottom36/laje10 e vínculos dimensionais24/66 (C3F/C42), nomesV413/V418 (D4B/D50), cotas53 (DC3/C3D). Não ampliar tolerância para igualar grandezas diferentes nem substituir uma pela outra. O contrato atual conserva `contact_only` quando nenhum corte valida a seção; isso não comprova por si nível855,25 errado. Reconciliação de identidade e alcance continua pendente, mesmo após provar o despareamento dimensional.
+
+### Publicação oficial dos componentes e encontros — 10/10/2026
+
+Pré-processamento `a75dfdb2-e912-42be-9c5c-317bf8feb08f` e SA `829e87cc-8192-4d1a-952f-7c43cead9962` concluídos. Manifesto `20261010_051532_1418618` comprova consumo desse contexto e SHA256 original preservado. Inventário oficial428 segmentos/572 faixas/14 fracas:VF4025 eV4089. As duas lateraisB do componente diagonal mantêm855,25m/76,5%; fundo novo permanece estimado30, faceA28,5 e suas subdivisões incertas. O engine simultâneo é v46; não atribuir toda evolução a esta missão.
+
+Comparação SA oficial anterior/atual altera apenas fundosV406/VF402/VF403; V407 oficial fica igual. Lajes, pilares e todas as famílias laterais são geometricamente invariantes. VF403 tem2226,38502461cm²/855,25m deL417. Auditoria dos encontros na mesma etapa oficial preserva toda união anterior em ambas as janelas e mede zero sobreposição dos painéis locais com fundos/pilares. V406 oficial5041,580689→4990,42206471cm², transferência local51,15862471 para a nova diagonal; os corpos locais unidos não perdem área. A cunha antiga mantém apenas resíduo numérico0,000084989cm².
+
+Não confundir o replay isolado com o SA final: diferenças herdadas em outros fundos permanecem invariantes, mas a diferença entre essas etapas muda localmente emV406/V407/VF402. `published_geometry_verification.json` registra isso; `published_junction_audit.json` prova conservação/ausência de sobreposição no SA final. Sem trace de cada passe em produção, essas provas não identificam sozinhas qual passe gerou cada diferença entre etapas. PNGs oficiais lidos são diagnóstico; D60 angular/visual, níveis estimadosVF402 e alcance dos cortesV408 continuam pendentes. N3 não solicitado, nenhum PASS/N5 selado.
+
+### Asas e hastes de corte composto — 10/10/2026
+
+Um perfil pode conter duas vigas e lajes de alturas diferentes. O topo máximo de todo o perfil não é a referência de cada viga. Para cortes verticais no plano XY, associar a haste pela interseção com o fundo físico, validando seção/altura/largura; medir o deslocamento entre o topo dessa haste e o topo da asa dentro da região da própria laje. A banda precisa ser única, horizontal e ter espessura constante compatível com a laje. Orientação não comprovada, regiões desconectadas ou banda ambígua mantêm a leitura anterior; não criar cota absoluta sem raiz rastreável.
+
+Uma região de degrau h=10 não pode tomar emprestado o nível principal h=12 por compartilhar o mesmo corte. Manter evidência separada por região. Depois da continuidade entre vizinhos, um segundo passe limitado pode substituir somente convenções não medidas por um desnível medido entre asas. Exigir raízes CAD/humanas rastreáveis, snapshot de fatos e ausência de caminho de volta à região alvo. Estimativa, raiz ausente e ciclo não fornecem confirmação. Leituras diretas/humanas e cortes já medidos não são sobrescritos. Registrar a evidência anterior e a causa da revisão.
+
+Evidência piloto: Teste Stephanie/TIPO_TESTE, `20261009_reprocessamento/replay_v47.py`, PNGs completos `compound_cut_stems_v46.png` e `L14_L15_wings_v47.png`. As hastes de V525/V526 diferem 70cm; asas L11/L12 diferem 5cm. L12 passa de continuidade537,86 para corte537,81; L14 recebe537,88 pela diferença4cm em relação aL15. Replay com o DXF real conserva342 geometrias, sem ciclos;159 testes locais e52 naVPS. Estes checks certificam a correção específica, não a obra inteira nem N3/N5. Publicação e consumo oficial devem constar no dossiê do run.
+## Cota parcial de seção não é altura total — evidência de 10/10/2026
+
+Uma cota numérica próxima de um corte não comprova a altura inteira da viga.
+Quando a linha de dimensão e suas duas extensões delimitam apenas parte da
+altura geométrica, o número pertence àquele trecho. Não deve substituir a
+altura total nem reduzir o resíduo inferior da laje. A guarda atual é
+conservadora: prova geometria 1:1, orientação do corte, ambas as extensões,
+posição do texto e coincidência valor/comprimento; sem essa prova, mantém o
+comportamento anterior. Cotas de extensão completa, inclusive em escala,
+continuam aceitas. Não há regra por nome de viga, laje ou valor específico.
+
+Contraprova no DXF original do 14_PAV, SHA256
+`76144cb3c77586684c8db76311fe1ef3cadeef6389e003b948ac7c57c41e2e27`:
+os cortes inferiores L419 e L422 têm cadeia explícita 7 + 53 = 60 cm.
+53 corresponde ao intervalo desde a primeira extensão interna até a base,
+não ao perfil inteiro. As fichas antes usavam altura53/topo7/laje10/fundo36;
+a coleta corrigida conserva altura geométrica60/topo7/laje10/fundo43.
+O mesmo critério identifica cotas parciais48 em outras duas seções de altura55.
+São quatro seções físicas, com repetições nos consumidores da coleta.
+
+A identificação longitudinal 14/55 permanece divergente dos cortes inferiores
+de60. Essa correção não decide qual anotação do projeto prevalece e não
+autoriza propagar nível entre seções discordantes. As nove faixas fracas V408
+permanecem. Associação por contato e validação da seção são provas diferentes.
+A pergunta ao dono é apresentada nas fichas SVG L419/L422, conforme CLAUDE.md
+§5d; a divergência não pode ser resolvida por aumento de tolerância.
+
+Implementação: `src/core/section_dimension_evidence.py`, guarda em
+`MainWindow._auto_fill_cut_view_ficha`. Evidências, recibo de implantação,
+render completo PNG, fichas de dúvida e coleta canônica:
+`scripts/arete/relatorios/20261010_encontros_niveis_14pav/v408/reconciliacao/`.
+Testes focados ampliados:48 casos passaram. Conhecimento técnico documentado;
+nenhum selo visual/N5 nem decisão humana nova foi inferido desta correção.
+
+Publicação desta guarda concluída: pré6c071d06/SA99848500, contexto novo
+consumido,35 pilares/22 lajes/33 vigas. Conferência de `slabs.links_json` no
+banco real do projeto14 confirma as quatro seções corrigidas persistidas.
+O estado-resumo publicado não contém essas fichas; inspecionar o consumidor
+detalhado antes de concluir que a correção não chegou ao portal. Controle13:
+5.888 registros geométricos e510 segmentos completos invariantes. As14 faixas
+fracas do14 permanecem; publicação não elimina a divergência de projeto55/60.
+
+### Resolução do dono em 10/10/2026: altura numérica vinculada prevalece
+
+O dono resolveu a pergunta acima: a altura correta apresentada é **55 cm**.
+A altura numérica definida da viga, quando vinculada corretamente à seção,
+tem prioridade sobre a medida gráfica da vista original ou interpretada,
+que pode conter defeitos de desenho e cotas. Regra vigente:
+`NIV-ALTURA-NUMERICA-VINCULADA-20261010`, em `DECISOES-DO-DONO.md`.
+
+Os 60 cm do perfil inferior e a cadeia gráfica 7 + 53 permanecem como evidência
+da discrepância; não constituem altura estrutural superior à seção vinculada
+14/55. A cota 53 continua parcial. Preservar os pontos originais do CAD e
+registrar separadamente altura declarada, altura gráfica e prova do vínculo.
+Usando a laje própria de 10 cm e o desnível superior de 7 cm, o resíduo inferior
+da ficha de altura 55 é 38 cm. Esta conta não aprova os outros desníveis por si.
+
+A regra exige associação à viga certa por seção, orientação e contato físico.
+Número de pilar próximo, nome mais próximo de outra orientação ou referência
+remota não comprovam o vínculo. Consumidores de continuidade devem verificar
+a mesma prova e conservar os bloqueios de conflito, mudança de seção e
+preenchimento. Não ampliar tolerâncias geométricas para acomodar a divergência.
+O registro resolve a interpretação humana; implantação e gates posteriores
+precisam de seus próprios recibos e não são inferidos desta decisão.
+
+Lição de integração verificada na mesma rodada: o preenchimento inicial das
+fichas de corte acontece antes da identificação das vigas. A prova física só
+fica disponível depois da consolidação dos fundos e de sua propriedade.
+`refresh_declared_sections` deve reconciliar os cortes nesse momento, tanto
+na interface quanto nos dois caminhos headless, reaplicando o preenchimento
+completo para atualizar fórmulas e vínculos. Remover provas antigas antes de
+reavaliar, e invalidar o cache contextual quando os módulos responsáveis mudam.
+Um teste isolado da fórmula não substitui a coleta real nessa ordem.
+
+A regressão precisa distinguir pontos do CAD de desenhos derivados: no
+controle 13_PAV, somente o desenho interpretado de um corte da V302 mudou
+de 58 para 55 cm, comprovado pela seção própria `19/55` (handle `10B0`).
+Os pontos originais e os 510 segmentos de nível ficaram iguais. No 14_PAV,
+as provas `DBB`/`DBF` vinculam L419/L422 à V408 e produzem altura 55,
+topo 7 e afastamento inferior 38. Recibos da coleta e da regressão em
+`scripts/arete/relatorios/20261010_encontros_niveis_14pav/v408/altura_numerica/`.
+
+## Cobertura física no eixo do alvo — auditoria14_PAV/2026-10-10
+
+A cobertura longitudinal de um contato usa o eixo real do alvo, não o maior
+eixo X/Y de sua caixa global. Para fundo poligonal, o motor projeta sobre a
+maior aresta do retângulo mínimo orientado; para alvo linear, usa seu eixo.
+Limitar os intervalos ao domínio do alvo, unir sobreposições sem somar provas
+duplicadas e preservar os espaços entre componentes desconexos. Um contato
+nas duas pontas não preenche o espaço intermediário. Identidade, datum,
+conflito, corte e exceção continuam sendo verificações separadas; projeção
+geométrica sozinha não identifica a fonte nem autoriza um nível.
+
+Contraprova reproduzida: FV diagonal da VF402 tem domínio axial125,15cm;
+contato da L417 mede83,63% nesse domínio, contra79,68% no eixo global. O
+limiar existente80% permanece. A convenção usa a raiz própria L417/L410,
+sem contar B→FV→B como confirmações independentes. Contatos desconexos
+também produziram falsos suportes em V417/14 e V317/V318/V330/13. O replay
+13 mantém510 IDs e toda a geometria;13 segmentos têm suporte/proveniência
+recalculados e uma faixa V330/200,05–219,04cm perde a atribuição falsa852,19m,
+passando à continuidade estimada852,22m/50,2%. Registrar essa queda de
+suporte e a incerteza; não declarar regressão sem mudanças nem cotas medidas.
+
+Os replays isolados14 mantêm428 segmentos/572 faixas e todos os valores dos
+níveis, passando de cinco faixas abaixo60% para zero. Isso é resultado de
+cobertura física corrigida, não reajuste de pesos ou tolerâncias. Testes de
+rotação, translação, contato curto, união sem duplicidade, lacunas e alvo
+chanfrado sustentam a regra. Recibos de replay/publicação e limites estão em
+`scripts/arete/relatorios/20261010_encontros_niveis_14pav/vf402_fechamento/`.
+
+No escopo desta missão, o dono definiu o estrutural limpo como referência
+para validar o SA, dispensando comparação com engenharia reversa. Essa
+conclusão não certifica N2×N4 nem N5. Dúvidas de interpretação não resolvidas
+pela fonte e decisões existentes exigem ficha visual contextual ao dono.
+
+## Propagação com raiz independente e asas por região — V52/V53
+
+O transporte PRE→SA precisa de recibo do consumidor. Quando a célula LV
+atual ainda é estimada, o contexto pode corroborar sua origem somente com
+parcela original comprovada, geometria coincidente e valor concordante em
+metros. Todos os intervalos da parcela precisam estar cobertos, com nível
+único e cadeia sem ciclos, fontes ausentes ou transferências fracas até CAD
+ou revisão humana independente. Não vincular por índice de segmento: PRE e
+SA podem ordenar as parcelas de forma diferente. Preservar os avisos e o
+status inferido; uma prova transferida não se torna medição direta.
+Implementação: `portal/app/preprocessamento/lateral_level_consumption.py`.
+Replay VF402 confirmou as duas laterais angulares131,22cm em855,25m pelo
+coletor real, sem alterar medidas. Instalado com guarda; ciclo fresco ainda
+é obrigatório antes de encerrar essa frente ou aprovar publicação.
+
+Uma rede de cortes pode transportar desníveis medidos entre lajes, desde que
+cada resultado tenha um caminho até uma raiz CAD ou humana independente.
+Guardar os vínculos percorridos e limitar a confiança à da raiz e das relações
+usadas. Repetir a leitura de uma mesma evidência não cria um voto novo. Caminhos
+circulares, conflito de medidas, região sem contorno ou asa sem espessura
+própria deixam a informação pendente; a execução das outras unidades continua.
+
+No corte com vários corpos de viga conectados, separar corpos fechados somente
+quando houver identificações independentes e conservação da cobertura total.
+Um contato geométrico entre símbolos não demonstra uma única seção. Uma asa
+regional de espessura distinta não pode fornecer o nível principal por simples
+associação ao mesmo nome de laje. O alvo regional usa seu polígono e sua própria
+espessura, inclusive quando seu nível ainda é desconhecido. Comparar três
+estações medidas da asa com uma fonte independente e congelar os fatos usados
+no passe; não usar o resultado do próprio alvo como confirmação.
+
+Espessuras diferentes podem ter bases iguais e topos diferentes. Conferir topo
+e base separadamente: nem o nível principal nem uma mudança de espessura isolada
+autoriza inventar o nível regional. O consumidor N3 conserva cada intervalo de
+contato da face do pilar com distância inicial/final, largura, espessura e nível
+próprios. Contato pendente não gera abertura em altitude fictícia. A lista de
+contatos físicos representa a laje uma única vez: não reimportar suas aberturas
+derivadas como aberturas de viga a cada conversão da ficha.
+
+Evidência delimitada do piloto Teste Stephanie/TIPO_TESTE: SA V52 concluído em
+10min09s com 384 unidades geométricas preservadas e 19/21 níveis principais
+utilizáveis; L8/L9 continuam desconhecidas. Pré V53 concluído em64s, fontes
+conferidas por SHA256 e nenhum ciclo de proveniência. L13 principal12cm tem
+topo537,86m, região10cm tem topo537,84m; ambas têm base537,74m. Esses valores são
+evidência desta obra, nunca uma tabela universal de níveis. A regra universal
+é o cálculo com escopo e proveniência descrito acima. Relatórios e testes em
+`scripts/arete/relatorios/20261009_reprocessamento/`. Publicação documental não
+promove uma regra candidata de curadoria nem certifica N3/N5 da obra inteira.
+
+# Revisão humana de identidade sem transferência de nível — 11/10/2026
+
+Uma confirmação de que um contorno é parede ou região de laje decide sua função,
+sem decidir altitude. O adaptador `source_role_reviews` consome o arquivo derivado
+`<recorte>.source-role-review.json` somente quando SHA-256, handles e contorno
+coincidem com o DXF original. Região de laje exige proprietário único cujo contorno
+cubra a região; decisões concorrentes são rejeitadas. As entidades permanecem no
+inventário e o pilar físico canônico tem prioridade. No PRE, um candidato com
+função não pilar comprovada recebe níveis de pilar `not_applicable`; isso não
+preenche níveis regionais da laje. Exemplo confirmado: 3DC é parede central da
+escada fora do escopo PIL; 96B/C0B é região da L406. As decisões completas estão
+em `CONHECIMENTO/DECISOES-DO-DONO.md`.
+

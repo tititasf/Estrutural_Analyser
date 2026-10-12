@@ -437,10 +437,38 @@ def _state_pillar_ids(obra_dir: Path, pavimento: str) -> list[str]:
     return sorted(dict.fromkeys(result), key=natural_key)
 
 
+def _state_slab_ids(obra_dir: Path, pavimento: str) -> list[str] | None:
+    """Current SA inventory, including an authoritative empty slab list."""
+    if not pavimento:
+        return None
+    path = obra_dir / f"estado_{pavimento}.json"
+    if not path.is_file():
+        return None
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    slabs = payload.get("slabs")
+    if not isinstance(slabs, list):
+        return None
+    return sorted({str(row.get("name") or row.get("nome") or "").strip()
+                   for row in slabs if isinstance(row, dict)
+                   and str(row.get("name") or row.get("nome") or "").strip()}, key=natural_key)
+
+
+def _current_n3_failure(obra_dir, classe, item_id, pavimento, visual_mode):
+    """A failed current item must never revive an older successful preview."""
+    folders = _production_n3_dirs(Path(obra_dir), pavimento, visual_mode)
+    if not folders:
+        return False
+    payload = json.loads((folders[0].parent.parent / 'production_manifest.json').read_text(encoding='utf8'))
+    failures = (payload.get('n3') or {}).get(classe.lower() + '_failed', [])
+    return any(str(f) == item_id or str(f).startswith(item_id + '_') for f in failures)
+
+
 def _find_n3_previews(
     obra_dir: Path, classe: str, item_id: str, pavimento: str = "",
     visual_mode: str = "NOVA",
 ) -> list[Path]:
+    if _current_n3_failure(obra_dir, classe, item_id, pavimento, visual_mode):
+        return []
     fase6 = obra_dir / "Fase-6_Execucao_CAD"
     pfx = _PREFIX.get(classe)
     if not pfx:
@@ -758,6 +786,18 @@ def _production_fv_ids(obra_dir: Path, pavimento: str, visual_mode: str) -> list
 def n3_mode_readiness(obra_dir: Path, classe: str, pavimento: str, visual_mode: str, db_path=None) -> dict:
     """Read-only preflight using the same N3 sources and inventory as N5."""
     obra_dir = Path(obra_dir)
+    if classe == 'LV' and normalize_visual_mode(visual_mode) == 'MOLDE_1':
+        from .lv_formascia_packer import published_manifests, read_units
+        beams, missing = set(), []
+        for behavior in ('PARA', 'PASSA'):
+            for assembly in ('gradeadas', 'sarrafeadas'):
+                try:
+                    found, manifests = published_manifests(obra_dir, pavimento, assembly, behavior)
+                    read_units(manifests, assembly, behavior)
+                    beams.update(found)
+                except (ValueError, OSError, LookupError) as exc:
+                    missing.append(f'{behavior}/{assembly}: {exc}')
+        return {'ready': bool(beams) and not missing, 'total': len(beams), 'missing': missing}
     ids = _state_pillar_ids(obra_dir, pavimento) if classe == "PL" else []
     if classe == 'FV':
         ids = _production_fv_ids(obra_dir,pavimento,visual_mode)
@@ -788,6 +828,9 @@ def assemble_n5(
     db_path: str | Path | None = None,
     pillar_group: str | None = None,
     project_metadata: dict | None = None,
+    lateral_assembly: str | None = None,
+    lateral_behavior: str | None = None,
+    allow_partial: bool = False,
 ) -> N5AssemblyResult:
     """Monta um DXF N5 consolidado a partir dos previews N3.
 
@@ -802,6 +845,12 @@ def assemble_n5(
     if classe not in ("LJ", "PL", "LV", "FV"):
         raise ValueError(f"Classe N5 invalida: {classe}")
     visual_mode = normalize_visual_mode(visual_mode)
+
+    if lateral_assembly is not None or lateral_behavior is not None:
+        if classe != 'LV' or visual_mode not in ('NOVA','MOLDE_1','INI'):
+            raise ValueError('Montagem N5 lateral somente para LV/NOVA, Formascia ou iNi')
+        if lateral_assembly not in {'gradeadas', 'sarrafeadas'} or lateral_behavior not in {'PARA', 'PASSA'}:
+            raise ValueError('Montagem e comportamento N5 lateral obrigatórios')
 
     if pillar_group is not None:
         pillar_group = pillar_group.upper()
@@ -823,8 +872,9 @@ def assemble_n5(
     # Em producao, o banco SA e a fonte autoritativa do recorte por pavimento.
     # LV permanece fora desta mudanca porque seu motor esta sob trabalho isolado.
     state_pl_ids = _state_pillar_ids(obra_dir, pavimento) if classe == "PL" else []
-    current_ids = state_pl_ids or (_production_fv_ids(obra_dir,pavimento,visual_mode) if classe == 'FV' else [])
-    if descoberta_automatica and current_ids:
+    state_lj_ids = _state_slab_ids(obra_dir, pavimento) if classe == "LJ" else None
+    current_ids = state_lj_ids if state_lj_ids is not None else state_pl_ids or (_production_fv_ids(obra_dir,pavimento,visual_mode) if classe == 'FV' else [])
+    if descoberta_automatica and (current_ids or state_lj_ids is not None):
         ids = current_ids
         discovered_ids = set(ids)
         # reverse_eng_fichas pode representar apenas a amostra treinada de
@@ -839,12 +889,19 @@ def assemble_n5(
             )
         ids = sorted(expected_ids, key=natural_key)
 
+    unsupported_items = []
     if classe == "PL" and pavimento:
         state_path = obra_dir / f"estado_{pavimento}.json"
         if state_path.is_file():
-            from src.core.pillar_sa_review import apply_state, eligible
+            from src.core.pillar_sa_review import apply_state, eligible, generation_exclusion
             state = apply_state(json.loads(state_path.read_text(encoding="utf-8")), obra_dir, pavimento)
             excluded = {str(p.get("name") or "") for p in state.get("pilares", []) if not eligible(p)}
+            requested_ids = ({str(p.get('name') or '') for p in state.get('pilares', [])}
+                             if descoberta_automatica else set(ids) | expected_ids)
+            unsupported_items = [N5ItemResult(str(p.get('name') or ''), '', 'unsupported',
+                                 generation_exclusion(p)) for p in state.get('pilares', [])
+                                 if str(p.get('name') or '') in excluded & requested_ids
+                                 and str(p.get('classification') or '').strip().upper() != 'NASCE']
             ids = [item for item in ids if item not in excluded]
             expected_ids -= excluded
             discovered_ids -= excluded
@@ -863,18 +920,149 @@ def assemble_n5(
     out_dir.mkdir(parents=True, exist_ok=True)
     pav_tag = _safe_name(pavimento or "GERAL")
     group_tag = f"_{pillar_group}" if pillar_group else ""
+    ini_lateral_frames = classe == 'LV' and visual_mode == 'INI' and lateral_assembly is not None
+    ini_frames = visual_mode == 'INI'
+    formascia_lateral_frames = classe == 'LV' and visual_mode == 'MOLDE_1' and lateral_assembly is not None
+    nova_lateral_frames = classe == 'LV' and visual_mode == 'NOVA' and lateral_assembly is not None
+    if classe == 'LV' and visual_mode in ('NOVA','INI') and item_ids is None:
+        if not (nova_lateral_frames or ini_lateral_frames):
+            raise ValueError('N5 LV requer montagem e comportamento explícitos')
+    if formascia_lateral_frames and lateral_behavior not in ('PARA','PASSA'):
+        raise ValueError('N5 Formascia LV requer comportamento explícito')
+    if nova_lateral_frames or formascia_lateral_frames or ini_lateral_frames:
+        group_tag = f'_{lateral_behavior}_{lateral_assembly}'
     out_path = out_dir / f"N5_{classe}_{pav_tag}_{visual_mode}{group_tag}.dxf"
     manifest_path = out_path.with_suffix(".json")
 
     dst = _new_doc_like()
-    items = []
+    items = list(unsupported_items)
+    pending = [] if allow_partial else None
+    def pending_only():
+        pending_path = out_path.with_suffix('.pending.json')
+        pending_path.write_text(json.dumps(dict(classe=classe, pavimento=pavimento,
+            visual_mode=visual_mode, partial=True, ok_count=0,
+            missing_count=len(items), items=[item.__dict__ for item in items]),
+            ensure_ascii=False, indent=2), encoding='utf8')
+        return N5AssemblyResult(classe, obra_dir.name, pavimento, out_path, pending_path, items)
+
     nova_frames = False
+    if nova_lateral_frames:
+        nova_frames = True
     if classe in {'PL','FV'} and visual_mode == 'NOVA':
         from src.core.n5_pillar_frames import uploaded_template
         nova_frames = (uploaded_template('drawing_frames',classe) is not None
                        or uploaded_template('drawing_legends',classe) is not None)
 
-    if classe == "LJ":
+    formascia_frames = visual_mode == 'MOLDE_1' and classe in {'PL','FV','LJ'} or formascia_lateral_frames
+    if ini_lateral_frames:
+        from src.core.lv_ini_packer import published_manifests,assemble_manifests
+        beams,unit_manifests=published_manifests(obra_dir,pavimento,lateral_assembly,lateral_behavior, pending=pending)
+        if allow_partial and not beams:
+            items.extend(N5ItemResult(**item) for item in pending)
+            return pending_only()
+        frame_layout=assemble_manifests(dst,unit_manifests,assembly=lateral_assembly,behavior=lateral_behavior,
+            obra=stamp_obra,cliente=stamp_cliente,pavimento=pavimento,
+            pages_dir=out_path.parent/(out_path.stem+'_pages'))
+        items=[N5ItemResult(beam,';'.join(str(p) for p in unit_manifests if beam in str(p)),
+            'ok','unidades N3 iNi; desenho aprovado, paginação nativa') for beam in beams]
+        extra_ids=[]
+    elif ini_frames and classe in {'PL','FV'}:
+        from src.core.n5_ini_frames import assemble
+        sources=[]
+        for item_id in ids:
+            paths=_find_n3_previews(obra_dir,classe,item_id,pavimento,visual_mode)
+            if not paths or classe=='PL' and len(paths)!=5:
+                if not allow_partial:
+                    raise ValueError(f'N5 iNi: N3 incompleto para {item_id}')
+                items.append(N5ItemResult(item_id, '', 'missing', 'conjunto N3 atual incompleto'))
+                continue
+            try:
+                if classe=='FV':
+                    contract_path=paths[0].parent.parent/'contracts'/f'{item_id}_fundo.json'
+                    contract=json.loads(contract_path.read_text(encoding='utf8'))
+                    paths=[paths[0].parent/f'FV_preview_{item_id}_seg{i}.dxf' for i in range(len(contract.get('segments_rich') or []))]
+                    if not paths or any(not p.is_file() for p in paths):raise ValueError(f'N5 iNi: segmentos ausentes {item_id}')
+            except (ValueError, KeyError, FileNotFoundError) as exc:
+                if not allow_partial:
+                    raise
+                items.append(N5ItemResult(item_id, '', 'missing', str(exc)))
+                continue
+            sources.append((item_id,paths));items.append(N5ItemResult(item_id,';'.join(map(str,paths)),'ok','molduras iNi; desenho N3 aprovado'))
+        if allow_partial and not sources:
+            return pending_only()
+        frame_pending = [] if allow_partial else None
+        frame_layout=assemble(dst,sources,classe,obra=stamp_obra,cliente=stamp_cliente,pavimento=pavimento,
+            pages_dir=out_path.parent/(out_path.stem+'_pages'),pillar_group=pillar_group,pending=frame_pending)
+        if frame_pending:
+            failed = {row['item_id']: row for row in frame_pending}
+            items = [N5ItemResult(**failed[item.item_id]) if item.item_id in failed else item
+                     for item in items]
+    elif nova_lateral_frames:
+        from src.core.n5_lateral_frames import published_manifests, assemble_lateral_frames, LV_INDEX_TITLES
+        from src.core.n5_pillar_frames import uploaded_template
+        template_class = f'LV_{lateral_behavior}'
+        frame_path = uploaded_template('drawing_frames', template_class)
+        index_path = uploaded_template('drawing_legends', template_class)
+        if frame_path is None or index_path is None:
+            raise ValueError(f'Moldura/índice NOVA não cadastrado em {template_class}; não usar outra classe silenciosamente')
+        beams, unit_manifests = published_manifests(obra_dir, pavimento, lateral_assembly, lateral_behavior, pending=pending)
+        if allow_partial and not beams:
+            items.extend(N5ItemResult(**item) for item in pending)
+            return pending_only()
+        if item_ids is not None and set(ids) != set(beams):
+            raise ValueError('Recorte N5 lateral diverge do inventário N3 atual')
+        frame_layout = assemble_lateral_frames(dst, unit_manifests,
+            assembly=lateral_assembly, behavior=lateral_behavior,
+            frame_path=frame_path, index_path=index_path, obra=stamp_obra,
+            cliente=stamp_cliente, pavimento=pavimento,
+            index_titles=LV_INDEX_TITLES,
+            pages_dir=out_path.parent/(out_path.stem+'_pages'))
+        items = [N5ItemResult(beam, ';'.join(str(p) for p in unit_manifests
+            if f'LV_preview_{beam}_' in str(p)), 'ok', 'unidades N3 nativas em molduras NOVA')
+            for beam in beams]
+        extra_ids = []
+    elif formascia_lateral_frames:
+        from src.core.lv_formascia_packer import published_manifests,assemble_manifests
+        beams,unit_manifests=published_manifests(obra_dir,pavimento,lateral_assembly,lateral_behavior, pending=pending)
+        if allow_partial and not beams:
+            items.extend(N5ItemResult(**item) for item in pending)
+            return pending_only()
+        frame_layout=assemble_manifests(dst,unit_manifests,assembly=lateral_assembly,behavior=lateral_behavior,
+            obra=stamp_obra,cliente=stamp_cliente,pavimento=pavimento,
+            pages_dir=out_path.parent/(out_path.stem+'_pages'))
+        items=[N5ItemResult(beam,';'.join(str(p) for p in unit_manifests if beam in str(p)),
+            'ok','unidades N3 nativas em molduras Formascia') for beam in beams]
+        extra_ids=[]
+    elif formascia_frames and classe in {'PL','FV'}:
+        from src.core.n5_formascia_frames import assemble
+        sources=[]
+        for item_id in ids:
+            paths=_find_n3_previews(obra_dir,classe,item_id,pavimento,visual_mode)
+            if not paths or classe=='PL' and len(paths)!=5:
+                if not allow_partial:
+                    raise ValueError(f'N5 Formascia: N3 incompleto para {item_id}')
+                items.append(N5ItemResult(item_id, '', 'missing', 'conjunto N3 atual incompleto'))
+                continue
+            try:
+                if classe == 'FV':
+                    contract_path = paths[0].parent.parent / 'contracts' / f'{item_id}_fundo.json'
+                    contract = json.loads(contract_path.read_text(encoding='utf8'))
+                    paths = [paths[0].parent / f'FV_preview_{item_id}_seg{i}.dxf'
+                             for i in range(len(contract.get('segments_rich') or []))]
+                    if not paths or any(not path.is_file() for path in paths):
+                        raise ValueError(f'N5 Formascia: segmentos N3 incompletos para {item_id}')
+            except (ValueError, KeyError, FileNotFoundError) as exc:
+                if not allow_partial:
+                    raise
+                items.append(N5ItemResult(item_id, '', 'missing', str(exc)))
+                continue
+            sources.append((item_id,paths))
+            items.append(N5ItemResult(item_id,';'.join(str(p) for p in paths),'ok','molduras e índices Formascia'))
+        if allow_partial and not sources:
+            return pending_only()
+        frame_layout=assemble(dst,sources,classe,obra=stamp_obra,cliente=stamp_cliente,pavimento=pavimento,
+            pages_dir=out_path.parent/(out_path.stem+'_pages'),pillar_group=pillar_group)
+    elif classe == "LJ":
         layouts: dict[str, tuple[float, float, float | None, float | None]] = {}
         if item_positions is None:
             layouts = _get_db_lj_item_layouts(obra_dir, pavimento, db_path)
@@ -963,8 +1151,10 @@ def assemble_n5(
                 sources.append((item_id, selected))
             manifest_paths = paths if pillar_group is None else selected
             items.append(N5ItemResult(item_id, ";".join(str(p) for p in manifest_paths), "ok", "molduras Nova"))
-        if any(item.status != "ok" for item in items):
+        if not allow_partial and any(item.status != "ok" for item in items):
             raise ValueError("N5 Nova interrompido: conjunto N3 incompleto")
+        if allow_partial and not sources:
+            return pending_only()
         frame_layout = assemble_frames(dst, sources, obra=stamp_obra, cliente=stamp_cliente, pavimento=pavimento,
                                        pages_dir=out_path.parent/(out_path.stem+'_pages'))
     elif classe == 'FV' and nova_frames:
@@ -973,9 +1163,14 @@ def assemble_n5(
         for item_id in ids:
             paths = _find_n3_previews(obra_dir,classe,item_id,pavimento,visual_mode)
             if not paths:
-                raise ValueError(f'N5 Nova interrompido: N3 ausente para {item_id}')
+                if not allow_partial:
+                    raise ValueError(f'N5 Nova interrompido: N3 ausente para {item_id}')
+                items.append(N5ItemResult(item_id, '', 'missing', 'conjunto N3 atual incompleto'))
+                continue
             sources.append((item_id,paths[0]))
             items.append(N5ItemResult(item_id,str(paths[0]),'ok','segmentos em molduras Nova'))
+        if allow_partial and not sources:
+            return pending_only()
         frame_layout = assemble_beam_frames(dst,sources,obra=stamp_obra,cliente=stamp_cliente,pavimento=pavimento,
             pages_dir=out_path.parent/(out_path.stem+'_pages'))
     elif classe == "PL":
@@ -1102,7 +1297,23 @@ def assemble_n5(
                     str(exc)[:120],
                 ))
 
-    if classe != "LJ" and not nova_frames:
+    if pending:
+        items.extend(N5ItemResult(**item) for item in pending)
+    if allow_partial and not any(item.status == 'ok' for item in items):
+        return pending_only()
+    if ini_frames and classe=='LJ':
+        if not allow_partial and any(item.status!='ok' for item in items):raise ValueError('N5 iNi: planta LJ incompleta')
+        from src.core.n5_ini_frames import assemble
+        slab_plan=dst;dst=_new_doc_like()
+        frame_layout=assemble(dst,[],classe,obra=stamp_obra,cliente=stamp_cliente,pavimento=pavimento,
+            pages_dir=out_path.parent/(out_path.stem+'_pages'),slab_plan=slab_plan)
+    if formascia_frames and classe=='LJ':
+        if not allow_partial and any(item.status!='ok' for item in items):raise ValueError('N5 Formascia: planta LJ incompleta')
+        from src.core.n5_formascia_frames import assemble
+        plan=dst;dst=_new_doc_like()
+        frame_layout=assemble(dst,[],classe,obra=stamp_obra,cliente=stamp_cliente,pavimento=pavimento,
+            pages_dir=out_path.parent/(out_path.stem+'_pages'),slab_plan=plan)
+    if classe != "LJ" and not nova_frames and not formascia_frames and not ini_frames:
         apply_visual_mode(dst, visual_mode, classe)
     from src.core.number_presentation import apply_dxf_number_presentation
     apply_dxf_number_presentation(dst)
@@ -1113,14 +1324,17 @@ def assemble_n5(
         "pavimento": pavimento,
         "visual_mode": visual_mode,
         "pillar_group": pillar_group,
+        "lateral_assembly": lateral_assembly,
+        "lateral_behavior": lateral_behavior,
         "output": str(out_path),
         "ok_count": sum(1 for item in items if item.status == "ok"),
         "missing_count": sum(1 for item in items if item.status != "ok"),
         "extra_count": len(extra_ids),
         "extra_ids": extra_ids,
+        "partial": any(item.status != "ok" for item in items),
         "items": [item.__dict__ for item in items],
     }
-    if nova_frames:
+    if nova_frames or formascia_frames or ini_frames:
         manifest["frame_layout"] = frame_layout
     manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     resultado = N5AssemblyResult(

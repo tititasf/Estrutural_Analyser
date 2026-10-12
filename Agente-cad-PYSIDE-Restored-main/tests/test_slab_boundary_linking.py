@@ -46,6 +46,31 @@ def test_auto_link_cut_view_requires_scaled_boundary_contact():
     assert linked[0]["distance_to_slab"] == 0.0
 
 
+def test_cut_link_preserves_extracted_source_handle():
+    target = _slab()
+    window = _window([dict(points=_t_shape(0), layer='8', source_entity_handles=['original-T'])])
+    window._auto_link_slab_cut_views([target])
+    cut = target['links']['laje_visao_corte']['cut_view_geom'][0]
+    assert cut['source_entity_handles'] == ['original-T']
+
+
+def test_real_dxf_loader_captures_entity_handle_before_linking(tmp_path):
+    import ezdxf
+    from src.core.dxf_loader import DXFLoader
+    doc = ezdxf.new()
+    entity = doc.modelspace().add_lwpolyline(_t_shape(0), close=True, dxfattribs={'layer':'8'})
+    path = tmp_path / 'source-cut.dxf'
+    doc.saveas(path)
+    data = DXFLoader.load_dxf(str(path))
+    assert len(data['polylines']) == 1
+    assert data['polylines'][0]['source_entity_handles'] == [entity.dxf.handle]
+    target = _slab()
+    window = _window(data['polylines'])
+    window._auto_link_slab_cut_views([target])
+    cut = target['links']['laje_visao_corte']['cut_view_geom'][0]
+    assert cut['source_entity_handles'] == [entity.dxf.handle]
+
+
 def test_existing_unvalidated_distant_cut_is_pruned_but_human_link_is_preserved():
     window = _window([])
     target = _slab()

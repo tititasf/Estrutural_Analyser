@@ -4,10 +4,13 @@ import json
 import os
 from pathlib import Path
 import sys
+import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from src.core.analysis_run_cache import analysis_run_cache
 
 
+@analysis_run_cache
 def main():
     ap = argparse.ArgumentParser()
     for key in ('dxf', 'obra', 'pav', 'out'):
@@ -22,15 +25,20 @@ def main():
     app = QApplication.instance() or QApplication([])
     from scripts.arete.headless_sa_analise import _run_legacy_analysis
     from src.core.preficha_segments import collect_preficha_segments, serializable_segment
+    started = time.perf_counter()
     result = _run_legacy_analysis(args.dxf, args.obra, args.pav, build_html=False,
                                   project_id='pre-sa-level-collection', db_path=str(Path(args.out).with_suffix('.sqlite3')),
                                   context_level_reference=json.loads(args.reference),
                                   context_convention=json.loads(args.convention))
+    analysis_done = time.perf_counter()
+    print(f'[PREPROCESS][PERF] analise N1 contextual: {analysis_done-started:.3f}s', flush=True)
     runner = result['runner']
     slabs = runner.slabs_found
     beams = runner.beams_found
     segments = collect_preficha_segments(beams, slabs, runner.pavimento_pillar_report,
                                          runner.pavimento_nivel_report)
+    segments_done = time.perf_counter()
+    print(f'[PREPROCESS][PERF] segmentos: {segments_done-analysis_done:.3f}s', flush=True)
     payload = {'context_calls': getattr(runner, '_sa_context_calls', []),
         'level_report': runner.pavimento_nivel_report,
         'consumer_calls': getattr(runner, '_sa_level_consumer_calls', []),
@@ -55,6 +63,11 @@ def main():
     section_state.pop('db_path', None)
     section_state['_section_beam_records'] = {str(b['id']): b for b in beams if b.get('id')}
     payload['beam_sections'] = collect_sections(Path(args.obra), args.pav, section_state)
+    sections_done = time.perf_counter()
+    print(f'[PREPROCESS][PERF] cortes interpretados: {sections_done-segments_done:.3f}s', flush=True)
+    payload['performance'] = {'contextual_n1_s': analysis_done-started,
+        'segments_s': segments_done-analysis_done, 'sections_s': sections_done-segments_done,
+        'total_s': sections_done-started}
     # The temporary SQLite belongs only to this subprocess. Its data is now
     # represented in the frozen inventory, never published as a dangling path.
     payload['state'].pop('db_path', None)

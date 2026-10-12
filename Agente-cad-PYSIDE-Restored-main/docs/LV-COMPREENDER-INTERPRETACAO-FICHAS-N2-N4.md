@@ -1,5 +1,7 @@
 # LV - Compreensao De Interpretacao N2/N4
 
+> **NOVA/LV — padrão aprovado em 2026-10-05:** para o desenho N3 AB e Visão Corte, prevalece a [especificação vigente](PADRAO-NOVA-LATERAIS-APROVADO.md). Para/Passa conservam contratos independentes; gradeadas/sarrafeadas conservam artefatos independentes. As descrições do motor anterior abaixo continuam como referência de interpretação/contrato e não substituem as regras visuais aprovadas. Integração local em validação; geração publicada N3/N5 ainda não comprovada.
+
 Data: 2026-06-23  
 Escopo: laterais de vigas (`LV`) em engenharia reversa, ficha N2 e reproducao N4.  
 Fonte empirica atual: `Obra_TREINO_1`, pavimento `13 PAV`, 30 vigas LV.

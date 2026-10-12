@@ -277,6 +277,34 @@ def _materializar_camada_fv(pack: Path, item: str, layer: str, result) -> None:
 MAX_TENTATIVAS_VERSAO = 3
 
 
+def _controle_operador(conn, qa_round) -> str | None:
+    """Lê pausa/cancelamento e devolve 'paused', 'cancelled' ou None.
+
+    A leitura anterior da raia segura um snapshot SQLite. Sem encerrá-lo, a
+    pausa gravada por outra conexão fica invisível até o fim da transação.
+    """
+    conn.rollback()
+    job = conn.execute(
+        "SELECT status, erro_msg FROM portal_jobs WHERE id=?", (qa_round["job_id"],)
+    ).fetchone()
+    if job is None or job["status"] != "cancelado":
+        conn.rollback()
+        return None
+    round_id = qa_round["id"]
+    if job["erro_msg"] == repo.PAUSA_OPERADOR:
+        with conn:
+            conn.execute(
+                """UPDATE portal_qa_rounds SET status='queued', finalizado_em=NULL,
+                   updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now') WHERE id=?""",
+                (round_id,),
+            )
+        return "paused"
+    items = repo.listar_qa_items(conn, round_id)
+    completed = sum(item["status"] == "completed" for item in items)
+    repo.finalizar_qa_round(conn, round_id, "partial_failed" if completed else "failed")
+    return "cancelled"
+
+
 def _lanes(provider_list):
     """Raias paralelas de QA (dono 2026-10-04): CAD_QA_LANES="antigravity,grok" abre uma
     raia por CLI nomeada. Cada raia tenta a sua CLI primeiro e as demais como reserva;
@@ -359,26 +387,9 @@ def executar_qa_round(
     provider_list = list(providers or default_providers(settings.subprocess_timeout_s))
     events_path = log_path.with_suffix(".events.jsonl")
 
-    round_conn = conn
+    def controle_operador(conn=conn) -> str | None:
+        return _controle_operador(conn, qa_round)
 
-    def controle_operador(conn=round_conn) -> str | None:
-        job = conn.execute(
-            "SELECT status, erro_msg FROM portal_jobs WHERE id=?", (qa_round["job_id"],)
-        ).fetchone()
-        if job is None or job["status"] != "cancelado":
-            return None
-        if job["erro_msg"] == repo.PAUSA_OPERADOR:
-            with conn:
-                conn.execute(
-                    """UPDATE portal_qa_rounds SET status='queued', finalizado_em=NULL,
-                       updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now') WHERE id=?""",
-                    (round_id,),
-                )
-            return "paused"
-        items = repo.listar_qa_items(conn, round_id)
-        completed = sum(item["status"] == "completed" for item in items)
-        repo.finalizar_qa_round(conn, round_id, "partial_failed" if completed else "failed")
-        return "cancelled"
     events_lock = threading.Lock()
 
     def revisar_item(item_row, provider_list, conn) -> str | None:

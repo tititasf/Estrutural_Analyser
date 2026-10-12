@@ -21,6 +21,7 @@ var root = {
 };
 var state = {level:'itens', pav:'13_PAV', etapaTab:'estrutura', etapa:'sa', classe:'pilares'};
 var recoverQaRunsFromJobs = () => {};
+var ensureVigasConfig = () => {};
 var backLabel = () => '';
 var renderItens = () => 'itens';
 var renderTabs = () => '';

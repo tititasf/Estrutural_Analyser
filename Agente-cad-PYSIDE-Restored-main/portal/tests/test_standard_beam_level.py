@@ -49,6 +49,31 @@ def test_unresolved_exceptions_and_incomplete_support_block_convention(case):
     assert level(geom, native, refs, paints, cuts, inherited, projected_coverage) is None
 
 
+def test_slab_scalar_copied_from_the_inner_step_yields_to_the_principal():
+    geom, native, refs = fixture(85)
+    native.update(value=100.97, status='sa_evidence', confidence_pct=75, method='highest_touching_slab')
+    result = level(geom, native, refs, [], [], inherited, projected_coverage,
+                   steps_by_slab={'L': [100.97]})
+    assert result is not None
+    assert result['value'] == 101
+    assert result['confidence_pct'] > 75
+    assert result['previous_level_evidence']['value'] == 100.97
+
+
+def test_explicit_beam_value_at_the_step_number_is_not_replaced():
+    geom, native, refs = fixture(85)
+    native.update(value=100.97, status='sa_evidence', confidence_pct=75, method='explicit_beam_or_side')
+    assert level(geom, native, refs, [], [], inherited, projected_coverage,
+                 steps_by_slab={'L': [100.97]}) is None
+
+
+def test_third_value_is_not_treated_as_the_inner_step():
+    geom, native, refs = fixture(85)
+    native.update(value=100.5, status='sa_evidence', confidence_pct=75, method='highest_touching_slab')
+    assert level(geom, native, refs, [], [], inherited, projected_coverage,
+                 steps_by_slab={'L': [100.97]}) is None
+
+
 def test_inner_slab_datum_is_not_selected_as_beam_reference():
     context = {'state': {'slabs': [dict(name='L', points=[[0,0],[100,0],[100,100],[0,100],[0,0]], slab_steps=[{}])]}}
     principal = dict(field='slab_region_level', region_id='principal', value=101, confidence_pct=65)

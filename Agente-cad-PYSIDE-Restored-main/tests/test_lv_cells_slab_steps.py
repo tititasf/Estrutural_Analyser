@@ -54,6 +54,56 @@ def test_step_reference_does_not_cross_a_beam_section_change():
     assert inset.slabs[0]['level']=='8.47'
 
 
+@pytest.mark.parametrize('vertical', [False, True])
+@pytest.mark.parametrize('behavior', ['para', 'passa'])
+@pytest.mark.parametrize('region', ['principal', 'inset'])
+def test_slab_or_step_void_boundary_splits_only_contacting_face(vertical, behavior, region):
+    scene = LvScene('V', not vertical, 0, 19, 0, 300)
+    scene.sections = [dict(start=0, end=300, dim='19/55', depth=55)]
+    scene.slabs['A'] = [dict(name='L', region_id=region, start=25, end=200,
+                             height='10', level='8.5')]
+    cells = segment_cell(scene, 'A', behavior)
+    assert len(cells) == 3
+    assert sorted(s.length for s in cells) == [25, 100, 175]
+    assert all(left.end == right.start for left, right in zip(cells, cells[1:]))
+    assert sum(bool(s.slabs) for s in cells) == 1
+    assert len(segment_cell(scene, 'B', behavior)) == 1
+    boundaries = [s.support_end for s in cells[:-1]]
+    assert all(s['rule'] == 'laje_ou_degrau_vazio_secciona_para_e_passa' for s in boundaries)
+
+
+@pytest.mark.parametrize('gap', [0, -10, .3])
+def test_continuous_neighbor_slabs_do_not_create_void_boundary(gap):
+    scene = LvScene('V', True, 0, 19, 0, 300)
+    scene.sections = [dict(start=0, end=300, dim='19/55', depth=55)]
+    scene.slabs['A'] = [dict(name=name, region_id='principal', start=a, end=b,
+                             height='13', level='8.5')
+                        for name,a,b in [('L1',0,150), ('L2',150+gap,300)]]
+    assert len(segment_cell(scene, 'A', 'para')) == 1
+
+
+def test_clipped_contact_does_not_split_passa_pillar_extension():
+    scene = LvScene('V', True, 0, 19, 0, 300)
+    scene.sections = [dict(start=0, end=300, dim='19/55', depth=55)]
+    scene.face_extent['A'] = (-30, 330)
+    scene.slabs['A'] = [dict(name='L', region_id='principal', start=0, end=300,
+                             height='13', level='8.5')]
+    assert len(segment_cell(scene, 'A', 'passa')) == 1
+
+
+def test_void_boundaries_keep_pillar_whole_and_short_free_strip():
+    scene = LvScene('V', True, 0, 19, 0, 300)
+    scene.sections = [dict(start=0, end=300, dim='19/55', depth=55)]
+    scene.pillars['A'] = [dict(name='P', start=100, end=200)]
+    scene.slabs['A'] = [dict(name='L', region_id='principal', start=150, end=298.5,
+                             height='13', level='8.5')]
+    cells = segment_cell(scene, 'A', 'passa')
+    assert len(cells) == 2
+    assert [s.length for s in cells] == [298.5, 1.5]
+    assert sum(s.length for s in cells) == 300
+    assert len(cells[0].pillar_openings) == 1
+
+
 def test_passa_along_pillar_wall_declares_the_touching_slab():
     """D-91: o trecho Passa que corre pela parede do pilar também tem laje."""
     from shapely.geometry import box
@@ -68,3 +118,4 @@ def test_passa_along_pillar_wall_declares_the_touching_slab():
     assert max(max(s.start, s.end) for s in passa) >= 359.5
     assert 'L2' in {sl['name'] for s in passa for sl in s.slabs}
     assert 'L2' not in {sl['name'] for s in segment_cell(scene, 'A', 'para') for sl in s.slabs}
+

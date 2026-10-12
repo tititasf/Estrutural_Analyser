@@ -145,6 +145,199 @@ class SlabTracer:
                     preferred.append(geom)
         return preferred
 
+    def _physical_source_face(self, target_pt, label_id, valid_layers=None):
+        """Exact source topology before label crops and annotation fallbacks.
+
+        Original beam labels and sections establish paired source edge axes;
+        styling only selects candidates. Positively owned closed pillar contours
+        may join exact endpoints. No dimension line,
+        section glyph, invented bridge or crop rectangle closes this graph.
+        """
+        items = getattr(self.spatial_index, 'items', None)
+        if not isinstance(items, dict):
+            return None
+        if not label_id or not any(isinstance(r, dict) and
+                str(r.get('text') or '').strip().upper() == label_id and r.get('pos') and
+                Point(r['pos']).equals(target_pt) for r in items.values()):
+            return None
+        # The index is mutable in interactive use. Include source geometry and
+        # semantics, rather than trusting its item count after an in-place edit.
+        cache_key = (tuple(valid_layers or []), tuple(
+            (k, repr(r)) for k, r in items.items()))
+        if getattr(self, '_physical_face_cache_key', None) != cache_key:
+            from src.core.lv_beam_scene import (
+                _EdgeIndex, _find_band, _rotation_axis, _nearest_section_width,
+                parse_section, BEAM_NAME_RE, split_dimension_geometry,
+            )
+            candidates = list(items.values())
+            if valid_layers:
+                candidates = [r for r in candidates if not isinstance(r, dict)
+                              or not r.get('layer') or r.get('layer') in valid_layers]
+            texts = [r for r in candidates if isinstance(r, dict) and r.get('pos')]
+            source_lines = [r for r in candidates if isinstance(r, dict)
+                            and (r.get('points') or r.get('start'))]
+            structural, dimensions = split_dimension_geometry(source_lines, texts)
+            dimension_keys = {tuple(v) for v in dimensions}
+            edge_index = _EdgeIndex(structural)
+            sections = [dict(t, section=parse_section(t.get('text'))) for t in texts
+                        if parse_section(t.get('text'))]
+            # Style is not authority. A layer needs original beam labels, a
+            # numeric section, and two source walls at that label's own axis.
+            beam_segments = []
+            beam_bands = []
+            for text in texts:
+                if not BEAM_NAME_RE.fullmatch(str(text.get('text', '')).strip()):
+                    continue
+                preferred_axis = _rotation_axis(text.get('rotation'))
+                choices = []
+                # The text can be written horizontally on a vertical beam.
+                # Numeric source section + paired walls prove orientation;
+                # rotation only orders alternatives, never excludes them.
+                for horizontal in (True,False):
+                    axis_sections = [dict(t,rotation=0 if horizontal else 90) for t in sections]
+                    # A closer pillar dimension (e.g. 100/19) cannot suppress
+                    # a farther beam section supported by the actual wall pair.
+                    # Retain the existing section reach and ranking, trying each
+                    # distinct width only until source geometry confirms it.
+                    remaining = axis_sections
+                    while remaining:
+                        width = _nearest_section_width(text,horizontal,remaining,True)
+                        if not width:
+                            break
+                        band = _find_band(text,horizontal,edge_index,width,
+                                          require_pair_at_label=True)
+                        if band:
+                            choices.append((horizontal,band))
+                            break
+                        remaining = [s for s in remaining if s['section'][0] != width]
+                if not choices:
+                    continue
+                preferred = [choice for choice in choices if choice[0] == preferred_axis]
+                horizontal,band = preferred[0] if preferred else choices[0]
+                beam_bands.append((horizontal,band,str(text['text'])))
+                axial = text['pos'][0 if horizontal else 1]
+                for transverse, lo, hi in edge_index.along(horizontal):
+                    if any(abs(transverse-v) <= .05 for v in band) and lo-5 <= axial <= hi+5:
+                        coords = ((lo, transverse), (hi, transverse)) if horizontal else (
+                            (transverse, lo), (transverse, hi))
+                        beam_segments.append((LineString(coords), str(text['text'])))
+            layer_witnesses = {}
+            line_records = []
+            for item in source_lines:
+                for geom, layer, kind, style, color, original in self._item_to_lines(item):
+                    if not self._classify_laje_candidate_line(geom, layer, kind, style, color)['accepted']:
+                        continue
+                    if not self._collect_laje_preferred_outline_lines([item]):
+                        continue
+                    coords = list(geom.coords)
+                    # Closed objects must establish a pillar role separately;
+                    # a green section/detail/frame is never a form edge.
+                    if coords[0] == coords[-1]:
+                        continue
+                    clean = []
+                    for u,v in zip(coords,coords[1:]):
+                        key = tuple(u)+tuple(v)
+                        if key in dimension_keys or tuple(v)+tuple(u) in dimension_keys:
+                            continue
+                        clean.append(LineString([u,v]))
+                    for segment in clean:
+                        line_records.append((segment,layer))
+                        for witness, name in beam_segments:
+                            if witness.intersection(segment).length > .5:
+                                layer_witnesses.setdefault(layer,set()).add(name)
+            source_layers = {layer for layer,names in layer_witnesses.items() if len(names) >= 2}
+            witnessed_names = set().union(*(layer_witnesses[layer] for layer in source_layers)) if source_layers else set()
+            # Same layer is insufficient: retain only source axes established
+            # by a positively witnessed beam pair. Unlabelled green cuts and
+            # dimensions on that same layer cannot add new slab limits.
+            witnessed_axes = [(horizontal,axis) for horizontal,band,name in beam_bands
+                              if name in witnessed_names for axis in band]
+            preferred = [g for g,layer in line_records if layer in source_layers
+                         and any((abs(g.coords[0][1]-g.coords[-1][1]) <= .05
+                                  and abs(g.coords[0][1]-axis) <= .05) if horizontal else
+                                 (abs(g.coords[0][0]-g.coords[-1][0]) <= .05
+                                  and abs(g.coords[0][0]-axis) <= .05)
+                                 for horizontal,axis in witnessed_axes)]
+            endpoints = {tuple(g.coords[0]) for g in preferred} | {tuple(g.coords[-1]) for g in preferred}
+            support = []
+            pillar_texts = [t for t in texts if re.fullmatch(r'P\d+[A-Z]?',
+                            str(t.get('text','')).strip(), re.I)]
+            support_candidates = []
+            for item in candidates:
+                for geom, layer, kind, style, color, original in self._item_to_lines(item):
+                    if not self._classify_laje_candidate_line(geom, layer, kind, style, color)['accepted']:
+                        continue
+                    coords = list(geom.coords)
+                    if len(coords) < 5 or coords[0] != coords[-1]:
+                        continue
+                    polygon = Polygon(coords)
+                    if not polygon.is_valid or polygon.area <= 0 or any(
+                            a[0] != b[0] and a[1] != b[1] for a,b in zip(coords,coords[1:])):
+                        continue
+                    x0,y0,x1,y1 = polygon.bounds
+                    contacts = {p for p in endpoints if x0 <= p[0] <= x1 and y0 <= p[1] <= y1
+                                and polygon.boundary.covers(Point(p))}
+                    if len(contacts) < 2:
+                        continue
+                    # A solid support cannot own an original slab/beam label
+                    # in its interior. Enclosing plan/detail windows cannot
+                    # borrow a nearby P label to become a structural support.
+                    if any(polygon.contains(Point(t['pos'])) and
+                           re.fullmatch(r'(?:L|V|VF|VB|VT)\d+[A-Z]?',
+                                        str(t.get('text','')).strip(),re.I) for t in texts):
+                        continue
+                    support_candidates.append((geom,polygon))
+            # A label owns the nearest actual contour boundary, not every
+            # enclosing rectangle. This keeps frames and enlarged views from
+            # borrowing an unrelated pillar label or annotation endpoints.
+            owned_supports = {}
+            for text in pillar_texts:
+                point = Point(text['pos'])
+                reach = 8*float(text.get('height') or 10)
+                near = [(polygon.boundary.distance(point),polygon.area,i)
+                        for i,(_,polygon) in enumerate(support_candidates)
+                        if polygon.boundary.distance(point) <= reach]
+                if not near:
+                    continue
+                near.sort()
+                # Adjacent source rectangles can share the same closest
+                # boundary. The smallest contacted contour owns the pillar;
+                # an equal-size distinct contour remains ambiguous.
+                if len(near)>1 and abs(near[0][0]-near[1][0]) <= 1e-6 and abs(near[0][1]-near[1][1]) <= 1e-6:
+                    first = support_candidates[near[0][2]][1]
+                    second = support_candidates[near[1][2]][1]
+                    if not first.equals(second):
+                        continue
+                owned_supports.setdefault(near[0][2],set()).add(str(text['text']).upper())
+            for i,(geom,polygon) in enumerate(support_candidates):
+                if len(owned_supports.get(i,set())) != 1:
+                    continue
+                x0,y0,x1,y1 = polygon.bounds
+                contacts = {p for p in endpoints if x0 <= p[0] <= x1 and y0 <= p[1] <= y1
+                            and polygon.boundary.covers(Point(p))}
+                if len(contacts) >= 2:
+                    support.append(geom)
+            self._physical_source_debug = dict(layers=sorted(source_layers), axes=witnessed_axes, preferred=[list(g.coords) for g in preferred], supports=[list(g.coords) for g in support])
+            faces = list(polygonize(unary_union(preferred + support))) if preferred else []
+            self._physical_face_cache = [p for p in faces if len({name for g,name in beam_segments
+                                         if g.intersection(p.boundary).length > .5}) >= 2]
+            self._physical_face_cache_key = cache_key
+        containing = [p for p in self._physical_face_cache
+                      if p.is_valid and p.area > 0 and p.covers(target_pt)]
+        if not containing:
+            return None
+        selected = min(containing, key=lambda p: p.area)
+        # A physical face can contain repeated labels. Different labels may
+        # signal missing boundaries or a step and cannot be silently merged.
+        for row in items.values():
+            if not isinstance(row, dict) or not row.get('pos'):
+                continue
+            text = str(row.get('text') or '').strip().upper()
+            if re.fullmatch(r'L\d+[A-Z]?', text) and label_id and text != label_id:
+                if selected.contains(Point(row['pos'])):
+                    return None
+        return selected
+
     def _select_best_laje_polygon(self, polygons, target_pt: Point, crop_bbox: tuple = None):
         containing = []
         for poly in polygons:
@@ -516,9 +709,13 @@ class SlabTracer:
                     matched = True
         return best, matched
 
-    def _outline_from_local_dimension_texts(self, lines, target_pt: Point, crop_bbox: tuple, current_poly: Polygon | None) -> Optional[Polygon]:
+    def _outline_from_local_dimension_texts(self, lines, target_pt: Point, crop_bbox: tuple, current_poly: Polygon | None, preferred_lines=None) -> Optional[Polygon]:
         """Use nearby structural dimension texts as evidence for ambiguous thin slabs."""
         if current_poly is None or current_poly.is_empty:
+            return None
+        # Dimension values do not establish physical slab edges. Require the
+        # same structural candidates used by the initial outline selection.
+        if not preferred_lines:
             return None
         try:
             values = self._local_dimension_values_near_laje(target_pt)
@@ -541,7 +738,7 @@ class SlabTracer:
             w0 = max(900.0, (crop_bbox[2] - crop_bbox[0]) * 0.9)
             h0 = max(500.0, (crop_bbox[3] - crop_bbox[1]) * 0.7)
             search = (cx - w0, cy - h0, cx + w0, cy + h0)
-            h_groups, v_groups = self._axis_groups_from_laj_lines(lines, search, margin=120.0)
+            h_groups, v_groups = self._axis_groups_from_laj_lines(preferred_lines, search, margin=120.0)
             h_groups = sorted(
                 [g for g in h_groups if abs(g["const"] - cy) <= h0],
                 key=lambda g: abs(g["const"] - cy),
@@ -570,6 +767,16 @@ class SlabTracer:
                                 continue
                             x0, x1 = lo["const"], ro["const"]
                             y0, y1 = bo["const"], to["const"]
+                            # A short witness line on an axis cannot justify
+                            # extending that axis into a complete slab wall.
+                            def covers_edge(group, start, end):
+                                covered = sum(max(0.0, min(b, end) - max(a, start))
+                                              for a, b in group["intervals"])
+                                return covered >= (end - start) * 0.95
+
+                            if not (covers_edge(lo, y0, y1) and covers_edge(ro, y0, y1)
+                                    and covers_edge(bo, x0, x1) and covers_edge(to, x0, x1)):
+                                continue
                             if any(
                                 not (abs(ox - cx) < 1e-6 and abs(oy - cy) < 1e-6)
                                 and x0 < ox < x1 and y0 < oy < y1
@@ -1813,6 +2020,17 @@ class SlabTracer:
                 return poly
             if coords[0] == coords[-1]:
                 coords = coords[:-1]
+            # Noding may create consecutive vertices a fraction of a DXF
+            # decimal apart. Removing collinear vertices simultaneously while
+            # keeping those duplicates can erase both sides of a real corner.
+            unique = []
+            for point in coords:
+                if not unique or math.dist(point, unique[-1]) > 1e-6:
+                    unique.append(point)
+            if len(unique) > 1 and math.dist(unique[0], unique[-1]) <= 1e-6:
+                unique.pop()
+            if len(unique) >= 3:
+                coords = unique
 
             xs = [p[0] for p in coords]
             ys = [p[1] for p in coords]
@@ -1894,7 +2112,8 @@ class SlabTracer:
                 cleaned_poly = Polygon(cleaned + [cleaned[0]])
                 if not cleaned_poly.is_valid:
                     cleaned_poly = cleaned_poly.buffer(0)
-                if cleaned_poly and cleaned_poly.geom_type == "Polygon":
+                if (cleaned_poly and cleaned_poly.geom_type == "Polygon"
+                        and cleaned_poly.covers(target_pt)):
                     return cleaned_poly
         except Exception:
             return poly
@@ -2015,6 +2234,12 @@ class SlabTracer:
                         pass
             return None
         target_pt = Point(cx, cy)
+        physical = None if getattr(self, '_defer_source_faces', False) else self._physical_source_face(target_pt, label_id, valid_layers)
+        if physical is not None:
+            self.last_trace_diagnostics['outline_source'] = 'physical_source_face'
+            self.last_trace_diagnostics['confidence_score'] = 0.9
+            self.last_trace_diagnostics['physical_face_basis'] = 'exact source beam-label/section pairs and independently labelled contacted pillar contours; annotation excluded'
+            return physical
         teacher = self._fuzzy_teacher_lookup(label_id)
         # Se o teacher tem coordenadas, usar diretamente (gabarito N2)
         # Dimensoes (comp/larg) podem estar erradas, mas coordenadas sao o poligono real
@@ -2052,7 +2277,8 @@ class SlabTracer:
                 self.last_trace_diagnostics["outline_source"] = "polygonize"
                 result = selected
             if not teacher and result is not None:
-                dim_refined = self._outline_from_local_dimension_texts(lines, target_pt, crop_bbox, result)
+                dim_refined = self._outline_from_local_dimension_texts(
+                    lines, target_pt, crop_bbox, result, preferred_lines=preferred_lines)
                 if dim_refined is not None:
                     source = self.last_trace_diagnostics.get("outline_source", "outline")
                     self.last_trace_diagnostics["outline_source"] = f"{source}_dim_text"
@@ -2401,7 +2627,74 @@ class SlabTracer:
 
         return None
 
-    def detect_slabs_from_texts(self, texts: List[Dict], search_radius: float = 2000.0, valid_layers: List[str] = None, teacher_dims: Dict[str, Dict] = None) -> List[Dict]:
+    def _detect_unnamed_slabs(self, texts, valid_layers=None, floor_name=None):
+        """Explicit thickness marks inside closed structural faces, without teachers.
+
+        Polygonize once for the whole drawing. No bounding-box/axis fallback:
+        a missing edge, a hole, or conflicting thicknesses remains unresolved.
+        Automatic names are distinct from actual CAD labels in diagnostics.
+        """
+        import re
+        import hashlib
+        from src.core.slab_regions import striped_regions, scoped_thickness, name_generated_slabs
+        from src.core.cad_object_recognition import thickness_references
+        references = thickness_references(texts, list(self.spatial_index.items.values()))
+        seeds = [(t,h) for t,h in references if t.get('target_class') != 'foundation_block']
+        if not seeds:
+            return []
+        _, _, classified = self._collect_laje_candidate_lines(
+            list(self.spatial_index.items.values()), valid_layers=valid_layers)
+        # Short structural return edges (e.g. pillar notches) are still walls.
+        # Annotation and hatch exclusions remain in force.
+        lines = [geom for geom, info in classified
+                 if info['support'] == 'structural' and
+                 (info['accepted'] or info['reasons'] == ['too_short'])]
+        if not lines:
+            return []
+        # Exported coordinates differ by microns at shared endpoints. Node on
+        # a sub-millimetre grid; never bridge drawing gaps or fabricate edges.
+        from shapely import set_precision
+        lines = [set_precision(line, .001) for line in lines]
+        faces = [p for p in polygonize(unary_union(lines))
+                 if p.is_valid and p.area > 100 and not p.interiors]
+        regions = striped_regions(list(self.spatial_index.items.values()), lines)
+        wall_network = unary_union(lines)
+        result = []
+        for face in faces:
+            scoped = scoped_thickness(face, seeds, regions)
+            if scoped is None:
+                continue
+            matches, steps = scoped
+            # A dangling beam/pillar face inside a closed cell is unresolved,
+            # even if polygonize could close its outside perimeter.
+            interior_walls = wall_network.intersection(face.buffer(-1e-4))
+            if interior_walls.length > .01:
+                continue
+            text, thickness = min(matches, key=lambda pair: tuple(pair[0]['pos']))
+            # Geometry-based identity is independent of entity traversal order.
+            coords = sorted((round(x, 6), round(y, 6)) for x, y in face.exterior.coords[:-1])
+            token = int(hashlib.sha256(repr(coords).encode()).hexdigest()[:8], 16)
+            result.append({'id': f'temp_auto_{token}', 'name': f'LAUTO_{token}',
+                'pos': text['pos'], 'points': list(face.exterior.coords), 'area': face.area,
+                'neighbors': [], 'is_detected': True, 'is_validated': False, 'type': 'Laje',
+                'extensions': [], 'analysis_mode': 'closed_structural_face',
+                'confidence_score': 0.6, 'confidence_level': 'MEDIUM',
+                'origin': 'motor_geom', 'method': 'thickness_seed_closed_face',
+                'trace_diagnostics': {'outline_source': 'thickness_seed_closed_face',
+                    'generated_name': True, 'source_text': text['text'],
+                    'source_position': list(text['pos']), 'observed_thickness_cm': thickness,
+                    'boundary_evidence': 'polygonize_structural_entities',
+                    'structural_crossing_length': interior_walls.length,
+                    'striped_regions': steps,
+                    'teacher_used': False}})
+        self._carve_boundary_pillar_intrusions(result)
+        for slab in result:
+            shape = set_precision(Polygon(slab['points']), .001)
+            slab['points'] = list(shape.exterior.coords)
+            slab['area'] = shape.area
+        return name_generated_slabs(result, floor_name)
+
+    def detect_slabs_from_texts(self, texts: List[Dict], search_radius: float = 2000.0, valid_layers: List[str] = None, teacher_dims: Dict[str, Dict] = None, floor_name: str = None) -> List[Dict]:
         """Detect slab labels and trace outlines using cascade: semantic + crop + polygonize + N2 axes + teacher."""
         # Learning Store: ajustar search_radius se learning tem override
         lp = self._learning_params
@@ -2429,6 +2722,9 @@ class SlabTracer:
         self._laj_label_centroids = label_centroids
         self._laj_teacher_dims = {str(k).upper(): v for k, v in (teacher_dims or {}).items() if isinstance(v, dict)}
 
+        if not label_points:
+            return self._detect_unnamed_slabs(texts, valid_layers=valid_layers, floor_name=floor_name)
+
         teacher_count = len(self._laj_teacher_dims)
         print(f"[DEBUG] SlabTracer cascade on {len(texts)} texts. N2 teacher={teacher_count}")
         for t in texts:
@@ -2445,12 +2741,17 @@ class SlabTracer:
             if not pos:
                 continue
 
-            poly = self.trace_boundary(
-                pos,
-                search_radius,
-                valid_layers=valid_layers,
-                label_id=txt.upper(),
-            )
+            # Keep the old normalizer inputs independent of newly proven
+            # physical faces; apply those source faces after all heuristics.
+            deferred = getattr(self, '_defer_source_faces', False)
+            self._defer_source_faces = True
+            try:
+                poly = self.trace_boundary(
+                    pos, search_radius, valid_layers=valid_layers,
+                    label_id=txt.upper(),
+                )
+            finally:
+                self._defer_source_faces = deferred
             found_poly = bool(poly)
             extensions = []
             diag = self.last_trace_diagnostics or {}
@@ -2544,6 +2845,18 @@ class SlabTracer:
         self._apply_thin_row_side_notches(slabs)
         self._carve_boundary_pillar_intrusions(slabs)
         self._reject_overlapping_row_expansions(slabs, originals)
+        # Exact source topology supersedes annotation/row hypotheses only
+        # for the individual units with positive physical-source evidence.
+        for slab in slabs:
+            face = self._physical_source_face(Point(slab['pos']), slab['name'], valid_layers)
+            if face is None:
+                continue
+            slab.update(points=list(face.exterior.coords),area=face.area,
+                        method='physical_source_face', origin='motor_geom',
+                        is_detected=True,confidence_score=.9,confidence_level='HIGH')
+            slab.setdefault('trace_diagnostics',{}).update(
+                outline_source='physical_source_face',confidence_score=.9,
+                physical_face_basis='exact original beam-label/section axes and owned contacted pillar contours; no annotation closure')
         return slabs
 
     def _carve_boundary_pillar_intrusions(self, slabs: List[Dict]) -> None:
@@ -2555,11 +2868,17 @@ class SlabTracer:
         para o estágio que possui o modelo completo de obstáculos.
         """
         try:
+            from src.core.cad_object_recognition import section_layer, section_piece_keys
+            items = [p for p in self.spatial_index.items.values() if isinstance(p, dict)]
+            excluded, _ = section_piece_keys(items, [p for p in items if p.get('text')])
             pillar_rects = []
             for item in self.spatial_index.items.values():
                 if not isinstance(item, dict) or not item.get("points"):
                     continue
                 points = [(float(x), float(y)) for x, y, *_ in item["points"]]
+                key = tuple(sorted(set(points)))
+                if key in excluded or section_layer(item.get('layer')):
+                    continue
                 if len(points) != 5 or points[0] != points[-1]:
                     continue
                 corners = points[:-1]
@@ -2590,6 +2909,14 @@ class SlabTracer:
                 ):
                     continue
                 pillar_rects.append(obstacle)
+
+            # L/T pillars are often drawn as touching rectangular pieces.
+            # Their union is the real obstacle: an inner arm alone may not
+            # touch the slab edge, while the connected pillar does.
+            if pillar_rects:
+                from shapely import set_precision
+                merged = unary_union([set_precision(p, .001) for p in pillar_rects])
+                pillar_rects = [merged] if merged.geom_type == 'Polygon' else list(merged.geoms)
 
             for slab in slabs:
                 points = slab.get("points") or []
@@ -2962,6 +3289,11 @@ class SlabTracer:
                 poly = polys.get(sid)
                 if poly is None:
                     continue
+                # Avaliar somente a área acrescentada pela normalização.
+                # Um pequeno snap da borda vizinha não é responsável pela
+                # invasão de outra laje; comparar o contorno inteiro atribui
+                # esse conflito ao snap e torna a decisão dependente do set.
+                added_area = poly.difference(Polygon(originals[sid][0]))
                 slab = slabs_by_id.get(sid, {})
                 diag = slab.get("trace_diagnostics") or {}
                 # Uma expansão retangular sustentada simultaneamente por
@@ -2976,9 +3308,11 @@ class SlabTracer:
                     slab["trace_diagnostics"] = diag
                     continue
                 for other_id, other_poly in polys.items():
-                    if other_id == sid or other_id in reverted:
+                    if other_id == sid:
                         continue
-                    inter_area = poly.intersection(other_poly).area
+                    # Todas as decisões usam o mesmo snapshot geométrico;
+                    # aplicar as reversões somente depois desta avaliação.
+                    inter_area = added_area.intersection(other_poly).area
                     tolerance = max(25.0, 0.03 * min(poly.area, other_poly.area))
                     # Faixas de apoio compartilhadas podem produzir um overlap
                     # pequeno com um contorno retangular de evidência forte.

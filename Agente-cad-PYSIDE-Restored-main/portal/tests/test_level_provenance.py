@@ -17,6 +17,25 @@ def scores(result):
     return {k: (f.get('value'), f.get('confidence_pct')) for k, f in facts(result).items()}
 
 
+def test_named_section_wings_share_one_verified_cad_origin():
+    root = dict(fact_id='left', value=537.86, unit='m', status='sa_evidence', confidence_pct=75,
+                method='named_section_marker_and_plan_region', section_source_id='pre-src-v1:section',
+                section_revision='a'*64, marker_handle='M', evidence_ids=['pre-src-v1:section','cad:M'],
+                projection=mapping(Polygon([(0,0),(1,0),(1,1),(0,1)])),
+                region_geometry=mapping(Polygon([(0,0),(1,0),(1,1),(0,1)])))
+    right = dict(root, fact_id='right', independent_confirmations=[{'fact_id':'left'}])
+    result = lp.explain(right, {'left':root,'right':right})
+    assert result['primary_source']['origin_kind'] == 'cad_named_section_level'
+    assert result['gates']['origem'] == 'pass'
+    assert result['independent_origin_count'] == 1
+    assert result['confirmations'] == []
+    for field in ('section_source_id','section_revision','marker_handle','region_geometry','projection'):
+        missing = dict(root); missing.pop(field)
+        assert lp.origin_kind(missing) == 'sa_field_without_traced_root'
+    assert lp.origin_kind(dict(root, status='conflict')) == 'sa_field_without_traced_root'
+    assert lp.origin_kind(dict(root, evidence_ids=['cad:unrelated'])) == 'sa_field_without_traced_root'
+
+
 def test_every_fact_is_explained_acyclic_and_never_raised_by_transfer():
     tower, c, _, _ = fixture()
     result = merge_sa_levels(tower, c)
@@ -97,6 +116,49 @@ def test_same_root_agreement_is_not_an_independent_confirmation():
     assert [c['fact_id'] for c in e['confirmations']] == ['cut2']
     assert e['support_pct'] == 81.2  # confirmation lists, never adds score
     assert e['gates']['concordancia'] == 'confirmed'
+
+
+def test_self_confirmation_and_legacy_derivation_cycles_are_not_roots():
+    for dependency in ('source_fact_ids', 'derived_from'):
+        fact = dict(fact_id='self', value=1., unit='m', status='inferred', confidence_pct=90)
+        fact[dependency] = ['self']
+        explanation = lp.explain(fact, {'self': fact})
+        assert explanation['gates']['sem_ciclo'] == 'fail'
+        assert explanation['independent_origin_count'] == 0
+
+
+def test_confirmation_cannot_reuse_any_primary_origin_or_a_cyclic_path():
+    roots = [dict(fact_id=k, value=1., unit='m', status='sa_evidence', confidence_pct=95,
+                  method='cad_level_inside_slab', evidence_ids=['cad:'+k]) for k in ('A', 'B')]
+    fact = dict(fact_id='FV', value=1., unit='m', status='inferred', confidence_pct=80,
+                source_fact_ids=['A', 'B'], independent_confirmations=[{'fact_id':'B'}, {'fact_id':'loop'}])
+    loop = dict(fact_id='loop', value=1., unit='m', status='inferred', confidence_pct=80,
+                source_fact_ids=['A', 'loop'])
+    index = {f['fact_id']: f for f in [*roots, fact, loop]}
+    assert lp.explain(fact, index)['confirmations'] == []
+    assert lp.explain(fact, index)['support_pct'] == 80
+
+
+def test_independent_origin_does_not_confirm_disagreeing_value_or_datum():
+    own = dict(fact_id='own', value=852., unit='m', datum_id='tower:A',
+               status='sa_evidence', confidence_pct=90, method='cad_level_inside_slab',
+               evidence_ids=['cad:A'], independent_confirmations=[{'fact_id':'other'}])
+    for changes in ({'value': 851.8}, {'datum_id': 'tower:B'}, {'unit': 'cm'}):
+        other = dict(own, fact_id='other', evidence_ids=['cad:B'], independent_confirmations=[])
+        other.update(changes)
+        explanation = lp.explain(own, {'own': own, 'other': other})
+        assert explanation['confirmations'] == []
+        assert explanation['gates']['concordancia'] == 'conflict'
+        assert explanation['confirmation_conflicts'][0]['fact_id'] == 'other'
+        assert explanation['support_pct'] == 90
+
+
+def test_compound_cad_origin_cannot_confirm_one_of_its_own_marks():
+    fact = dict(fact_id='combined', value=852., unit='m', status='sa_evidence',
+                confidence_pct=90, method='cad_level_inside_slab', evidence_ids=['cad:A', 'cad:B'],
+                independent_confirmations=[{'fact_id': 'partial'}])
+    partial = dict(fact, fact_id='partial', evidence_ids=['cad:B'], independent_confirmations=[])
+    assert lp.explain(fact, {'combined':fact, 'partial':partial})['confirmations'] == []
 
 
 def test_cut_is_associated_by_stem_section_not_by_contact():

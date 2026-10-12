@@ -48,7 +48,7 @@ def test_fundo_sem_cota_nao_pareia_parede_distante_do_rotulo():
         (2625.09, 3103.025, 2625.09, 3174.025),
     ])
     # O par de 38 cm envolve o texto, mas nao existe ao longo dele.
-    assert scene_mod._find_band(label, False, edges, None) == (2573.1, 2611.1)
+    assert scene_mod._find_band(label, False, edges, None) == (2611.1, 2625.1)
     recovered = scene_mod.build_band_scene(
         {"name": "VF404"}, [label], edges, [], [label], [],
         allow_width_hint_fallback=True,
@@ -545,3 +545,45 @@ def test_residuo_de_recorte_nao_vira_painel_mas_um_cm_real_permanece():
     assert _spans(arriving) == []
     assert _spans(tiny) == [(1100.0, 1101.0)]
     assert report["VA"]["residuos_numericos_cm2"]
+
+
+@pytest.mark.parametrize('offset', [0., 8000.])
+def test_cut_annotation_gap_recovers_continuous_bottom(scenes, monkeypatch, offset):
+    from shapely.geometry import box
+    from src.core.beam_interpreters import fundo_viga_lateral_ref as ref
+    o=offset
+    scenes['V1']=[_scene('V1', o, o+19, o, o+1000)]
+    b=_beam('V1', [_panel(o,o+400,o,o+19), _panel(o+450,o+1000,o,o+19)])
+    # Even a independently confirmed source glyph is not a solid obstacle.
+    monkeypatch.setattr(ref, '_confirmed_cut_obstacles',
+                        lambda *a: [('T','corte_dxf',box(o+400,o,o+450,o+19))])
+    apply_lateral_reference_all([b], [], [], {})
+    complete_measured_junctions_all([b], [], [], {})
+    assert _spans(b)==[(o,o+1000)]
+    before=__import__('copy').deepcopy(b)
+    apply_lateral_reference_all([b], [], [], {})
+    complete_measured_junctions_all([b], [], [], {})
+    assert b==before
+
+
+@pytest.mark.parametrize("stub_first", [True, False])
+def test_diagonal_corner_closes_when_rectangular_stub_already_survives_gate(scenes, stub_first):
+    from shapely.geometry import Polygon
+    from shapely.ops import unary_union
+    angled = _scene("VANGLE", 0.0, 10.0, 0.0, 140.0)
+    angled.angle = 45.0
+    corner = LvScene("VANGLE", False, 100.0, 110.0, 100.0, 130.0)
+    corner.provenance["band_source"] = "trecho_de_canto_em_L"
+    scenes["VANGLE"] = [angled, corner]
+    body = [[0.0, 0.0], [100.0, 100.0], [110.0, 90.0], [10.0, -10.0], [0.0, 0.0]]
+    angular = {"contour": [{"type": "poly", "closed": True, "points": body,
+                            "geometry_role": "area_fundo", "fv_lateral_reference": True}]}
+    rectangular = _panel(100.0, 110.0, 100.0, 130.0)
+    beam = _beam("VANGLE", [rectangular, angular] if stub_first else [angular, rectangular])
+    complete_measured_junctions_all([beam], [], [], {})
+    union = unary_union([Polygon(c["points"]) for key,value in beam["links"].items()
+                         if key.endswith("_area_segs") for c in value.get("contour", [])])
+    expected = Polygon(body).union(Polygon([[100,100],[110,90],[110,130],[100,130]]))
+    assert union.symmetric_difference(expected).area < 1e-8
+    assert union.covers(Polygon(body))
+    assert union.covers(Polygon(rectangular["contour"][0]["points"]))

@@ -1676,6 +1676,51 @@ def obter_config_vigas_pavimento(conn, obra_id, pavimento):
                 fundos_vigas_possui_garfos=obra.get('fundos_vigas_possui_garfos') or 'nao')
 
 
+_MODOS_DESENHO_N3 = frozenset({'INI', 'NOVA', 'MOLDE_1', 'MOLDE_2', 'MOLDE_3'})
+_CLASSES_MODO_DESENHO = frozenset({'ALL', 'pilares', 'lajes', 'fundo', 'laterais_para', 'laterais_passa'})
+
+
+def _normalizar_escopo_modo_desenho(pavimento, classe_ui):
+    pavimento = str(pavimento or '').strip()
+    classe_ui = str(classe_ui or '').strip()
+    if not pavimento:
+        raise ValueError('pavimento obrigatório')
+    if classe_ui not in _CLASSES_MODO_DESENHO:
+        raise ValueError('classe de desenho inválida')
+    return pavimento, classe_ui
+
+
+def obter_modo_desenho_pavimento(conn, obra_id, pavimento, classe_ui):
+    pavimento, classe_ui = _normalizar_escopo_modo_desenho(pavimento, classe_ui)
+    if not obter_obra(conn, obra_id):
+        raise ValueError('obra não encontrada')
+    row = conn.execute(
+        'SELECT * FROM portal_pavimento_modo_desenho WHERE obra_id=? AND pavimento=? AND classe_ui=?',
+        (obra_id, pavimento, classe_ui),
+    ).fetchone()
+    if row:
+        return dict(row)
+    return dict(obra_id=obra_id, pavimento=pavimento, classe_ui=classe_ui, visual_mode='NOVA')
+
+
+def salvar_modo_desenho_pavimento(conn, obra_id, pavimento, classe_ui, visual_mode):
+    pavimento, classe_ui = _normalizar_escopo_modo_desenho(pavimento, classe_ui)
+    visual_mode = str(visual_mode or '').strip().upper()
+    if visual_mode not in _MODOS_DESENHO_N3:
+        raise ValueError('modo de desenho inválido')
+    if not obter_obra(conn, obra_id):
+        raise ValueError('obra não encontrada')
+    conn.execute(
+        """INSERT INTO portal_pavimento_modo_desenho (obra_id,pavimento,classe_ui,visual_mode)
+           VALUES (?,?,?,?) ON CONFLICT(obra_id,pavimento,classe_ui) DO UPDATE SET
+           visual_mode=excluded.visual_mode,
+           updated_at=strftime('%Y-%m-%dT%H:%M:%SZ','now')""",
+        (obra_id, pavimento, classe_ui, visual_mode),
+    )
+    conn.commit()
+    return obter_modo_desenho_pavimento(conn, obra_id, pavimento, classe_ui)
+
+
 def salvar_config_vigas_pavimento(conn, obra_id, pavimento, config):
     from src.core.vigas_drawing_config import normalize_config
     obter_config_vigas_pavimento(conn, obra_id, pavimento)

@@ -221,6 +221,8 @@ class DXFLoader:
                 'ellipses': []
             }
             self._extract_entities(self.msp)
+            from src.core.dimension_geometry import mark_exploded_circle_dimensions
+            mark_exploded_circle_dimensions(self.entities)
             
             # [FIX v7] Global Sanitizer: Executa após todo o carregamento (incluindo blocos)
             if self.mode != RenderMode.TRUE_GEOMETRY:
@@ -595,6 +597,7 @@ class DXFLoader:
                     self.entities['polylines'].append({
                         'points': points,
                         'closed': _is_closed,
+                        'source_entity_handles': [str(poly.dxf.handle)] if poly.dxf.handle else [],
                         'layer': override_layer or target_poly.dxf.layer,
                         'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
                         'linetype': get_linetype(poly)
@@ -734,7 +737,7 @@ class DXFLoader:
                 else:
                     target_text = text
                 
-                rotation = getattr(target_text.dxf, 'rotation', 0)
+                rotation = target_text.get_rotation() if is_mtext else getattr(target_text.dxf, 'rotation', 0)
                 # MTEXT usa char_height; TEXT usa height
                 if is_mtext:
                     height = getattr(target_text.dxf, 'char_height', 0) or 0
@@ -776,6 +779,8 @@ class DXFLoader:
                 
                 self.entities['texts'].append({
                     'text': content,
+                    # Keep the source entity identity: transformed copies lose handles.
+                    'handle': text.dxf.get('handle'),
                     'pos': pos,
                     'layer': override_layer or text.dxf.layer,
                     'color': rgb, 'aci': aci, 'lineweight': lw, 'is_block': is_block,
@@ -823,7 +828,12 @@ class DXFLoader:
                             
                     # Marcar quantos textos existem antes de extrair
                     _txt_before = len(self.entities['texts'])
+                    _dimension_before = {key: len(value) for key, value in self.entities.items()}
                     self._extract_entities(block, override_layer=dim.dxf.layer, total_matrix=total_matrix, is_block=True)
+                    for key, before in _dimension_before.items():
+                        for entity in self.entities[key][before:]:
+                            entity['annotation_role'] = 'dimension'
+                            entity['dimension_evidence'] = 'native_dimension'
 
                     # Propagar ângulo da cota para textos extraídos com rotation=0
                     # Normaliza: 0°/180° = horizontal (sem rotação)

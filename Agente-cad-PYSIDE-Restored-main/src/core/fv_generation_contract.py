@@ -229,6 +229,13 @@ def overlay_fv_state_measurements(
                     segment[source_key] = deepcopy(row[state_key])
             segment["seg_index"] = index
             segment["sa_status"] = row.get("status") or "valid"
+            if row.get('merged_source_uids'):
+                segment['merged_source_uids'] = deepcopy(row['merged_source_uids'])
+                segment['merged_source_segments'] = deepcopy(row.get('merged_source_segments') or [])
+            if row.get('level_source') == 'unresolved_local_slab_references':
+                for key in ('nivel', 'nivel_origem', 'nivel_lajes', 'nivel_distancia_cm'):
+                    segment.pop(key, None)
+                segment['level_pending'] = row.get('attention')
             if row.get("level") not in (None, ""):
                 segment["nivel"] = row.get("level")
                 segment["nivel_origem"] = row.get("level_source") or "sa_state"

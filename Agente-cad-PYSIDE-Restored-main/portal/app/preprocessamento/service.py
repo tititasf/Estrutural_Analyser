@@ -1,10 +1,10 @@
-"""Lote isolado: pacotes imutáveis e índice SQLite transacional próprio.
+"""Lote isolado: pacotes imutÃ¡veis e Ã­ndice SQLite transacional prÃ³prio.
 
 
 
-Coleta SA isolada ou leitura de evidência da mesma fonte. O índice publica todas
+Coleta SA isolada ou leitura de evidÃªncia da mesma fonte. O Ã­ndice publica todas
 
-as referências do pavimento, preservando as referências dos outros andares.
+as referÃªncias do pavimento, preservando as referÃªncias dos outros andares.
 
 """
 
@@ -44,7 +44,7 @@ from .store import _safe_dir
 
 
 
-ENGINE_VERSION = "preprocess-context-v25-owner-confirmed-flat-bottom"
+ENGINE_VERSION = "preprocess-context-v47-scoped-wing-and-stem-levels"
 
 
 
@@ -52,19 +52,22 @@ ENGINE_VERSION = "preprocess-context-v25-owner-confirmed-flat-bottom"
 
 def _tower_dependencies(sources, tower):
 
-    """Liga convenções da mesma planta ou uma convenção única do pavimento.
+    """Liga convenÃ§Ãµes da mesma planta ou uma convenÃ§Ã£o Ãºnica do pavimento.
 
 
 
-    Convenções de outro bruto só são compartilhadas quando há exatamente uma
+    ConvenÃ§Ãµes de outro bruto sÃ³ sÃ£o compartilhadas quando hÃ¡ exatamente uma
 
     candidata validada dessa classe. Com duas alternativas, o pacote fica sem
 
-    decisão, preservando o isolamento entre torres e revisões.
+    decisÃ£o, preservando o isolamento entre torres e revisÃµes.
 
     """
 
     result = [tower]
+
+    result.extend(source for source in sources if source.kind in (SourceKind.DETAILS, SourceKind.OTHER)
+                  and source.bruto_id == tower.bruto_id)
 
     bindings = {}
 
@@ -150,7 +153,7 @@ def read_floor(obra_dir, floor):
 
     if (Path(obra_dir) / "preprocessamento/v1").resolve() not in target.parents:
 
-        raise RunnerError("índice fora do armazenamento próprio")
+        raise RunnerError("Ã­ndice fora do armazenamento prÃ³prio")
 
     result = json.loads(target.read_text(encoding="utf-8"))
 
@@ -190,15 +193,14 @@ def run_floor(*, obra_dir, obra_id, pavimento, declarations, frozen_sources=None
 
         raise RunnerError("recortes alterados desde o enfileiramento")
 
-    if any(not s.validated and s.kind is not SourceKind.LEVEL_CONVENTION for s in sources):
-
-        raise RunnerError("recortes pendentes de validação")
+    # RevisÃ£o humana Ã© opcional; revisÃµes e identidades continuam congeladas.
+    # Cada fonte mantÃ©m seu validated real no pacote, sem fabricar aprovaÃ§Ã£o.
 
     towers = [s for s in sources if s.kind is SourceKind.TOWER]
 
     if not towers:
 
-        raise RunnerError("nenhuma torre elegível")
+        raise RunnerError("nenhuma torre elegÃ­vel")
 
     serialized = [{**asdict(s), "kind": s.kind.value} for s in sources] + list(raw_references)
 
@@ -208,7 +210,7 @@ def run_floor(*, obra_dir, obra_id, pavimento, declarations, frozen_sources=None
 
     if directory.exists():
 
-        raise RunnerError("run_id já publicado; use nova revisão")
+        raise RunnerError("run_id jÃ¡ publicado; use nova revisÃ£o")
 
     packages = {}
 
@@ -264,7 +266,13 @@ def run_floor(*, obra_dir, obra_id, pavimento, declarations, frozen_sources=None
 
             )
 
-            cuts = inventory_cuts(obra_dir / tower.relative_path, source_id=tower.source_id)
+            cut_sources = [source for source in dependencies
+                           if source.kind in (SourceKind.TOWER, SourceKind.DETAILS, SourceKind.OTHER)]
+            cut_items = [item for source in cut_sources for item in
+                         inventory_cuts(obra_dir / source.relative_path,
+                                        source_id=source.source_id)["items"]]
+            cuts = {"status": "partial" if cut_items else "not_available",
+                    "items": cut_items, "capability": "explicit_labels_only"}
 
             conflicts = check_facts(levels)
 
@@ -284,11 +292,42 @@ def run_floor(*, obra_dir, obra_id, pavimento, declarations, frozen_sources=None
 
                            conflicts=conflicts, modules=inventory["modules"])
 
-            package["modules"].update(cuts=cuts["status"], levels="partial", details="not_supported")
+            from .adapters.auxiliary import inventory_auxiliary, crosscheck_reference
+            auxiliary = []
+            for source in dependencies:
+                if source.kind is SourceKind.TOWER:
+                    continue
+                try:
+                    auxiliary.append(inventory_auxiliary(obra_dir / source.relative_path, source))
+                except Exception as exc:
+                    auxiliary.append({"source_id": source.source_id, "source_revision": source.revision,
+                                      "status": "failed", "error": f"{type(exc).__name__}: {exc}"})
+            from .adapters.section_titles import enrich_section_titles
+            try:
+                enrich_section_titles(obra_dir, dependencies, raw_reference, auxiliary)
+                from .adapters.section_callouts import enrich_pillar_axis_candidates
+                enrich_pillar_axis_candidates(auxiliary, pillar)
+            except Exception as exc:
+                package['section_title_warning'] = f'{type(exc).__name__}: {exc}'
+            from .adapters.source_level_units import enrich_source_level_units
+            try:
+                enrich_source_level_units(obra_dir, dependencies, raw_reference, auxiliary)
+            except Exception as exc:
+                package['source_level_unit_warning'] = f'{type(exc).__name__}: {exc}'
+            from .adapters.section_vertical_levels import enrich_section_vertical_levels
+            try:
+                enrich_section_vertical_levels(obra_dir, dependencies, auxiliary)
+            except Exception as exc:
+                package['section_vertical_level_warning'] = f'{type(exc).__name__}: {exc}'
+            package["auxiliary_evidence"] = auxiliary
+            package["context_qa"] = crosscheck_reference(level_inventory.get("reference") or {}, auxiliary)
+            if package["context_qa"]["conflicts"]:
+                level_inventory["reference"]["status"] = "conflicting_auxiliary_evidence"
+            package["modules"].update(cuts=cuts["status"], levels="partial", details="evidence_inventory")
 
             from .sa_levels import enrich_package
 
-            enrich_package(obra_dir, floor, package, progress)
+            enrich_package(obra_dir, floor, package, progress, evidence_root=output_root)
 
             package['conflicts'] = check_facts(package['levels']) + [
 
@@ -296,7 +335,7 @@ def run_floor(*, obra_dir, obra_id, pavimento, declarations, frozen_sources=None
 
             package["dependencies"] = {
 
-                "inventory": [tower.source_id], "cuts": [tower.source_id],
+                "inventory": [tower.source_id], "cuts": [s.source_id for s in cut_sources],
 
                 "pillars": [s.source_id for s in dependencies if s.kind is not SourceKind.LEVEL_CONVENTION],
 
@@ -318,7 +357,7 @@ def run_floor(*, obra_dir, obra_id, pavimento, declarations, frozen_sources=None
 
     if changed_sources(obra_dir, serialized):
 
-        raise RunnerError("fonte alterada durante pré-processamento; lote não publicado")
+        raise RunnerError("fonte alterada durante prÃ©-processamento; lote nÃ£o publicado")
 
     if progress:
 
@@ -344,7 +383,7 @@ def run_floor(*, obra_dir, obra_id, pavimento, declarations, frozen_sources=None
 
               "status": "failed" if all(p["status"] == "failed" for p in packages.values()) else "partial",
 
-              "towers": references, "details": {"status": "not_supported",
+              "towers": references, "details": {"status": "evidence_inventory",
 
                     "source_ids": [s.source_id for s in sources if s.kind is SourceKind.DETAILS]},
 
@@ -366,7 +405,7 @@ def run_floor(*, obra_dir, obra_id, pavimento, declarations, frozen_sources=None
 
             if changed_sources(obra_dir, serialized):
 
-                raise RunnerError("fonte alterada antes do commit; histórico não promovido")
+                raise RunnerError("fonte alterada antes do commit; histÃ³rico nÃ£o promovido")
 
             if progress:
 
@@ -396,6 +435,13 @@ def run_floor(*, obra_dir, obra_id, pavimento, declarations, frozen_sources=None
 
             conn.close()
 
+    if output_root is None:
+        try:
+            from ..knowledge_scope import publish_floor
+            publish_floor(obra_dir, obra_id, result)
+        except Exception:
+            import logging
+            logging.getLogger(__name__).exception('scoped preprocessing knowledge publication failed')
     return result
 
 
@@ -406,7 +452,7 @@ def read_tower(obra_dir, floor, source_id):
 
     ref = floor["towers"][source_id]
 
-    # O caminho deriva da identidade, não aceita path arbitrário do manifesto.
+    # O caminho deriva da identidade, nÃ£o aceita path arbitrÃ¡rio do manifesto.
 
     name = hashlib.sha256(source_id.encode()).hexdigest() + ".json"
 

@@ -29,6 +29,30 @@ py -3.12 scripts/arete/pil_agentic_highlight_draw.py --pack <pack> --items P1 �
 
 ## 2. Contrato de qualidade (falha fechada)
 
+### Capacidade do consumidor — inspeção técnica 09/10/2026
+
+Reconhecer as faces físicas A–F no interpretador não prova que o exportador de
+tags as consuma. O caminho produtivo inspecionado ainda rejeita contornos não
+retangulares em `portal/app/pipeline_runner.py`; `render_agentic_svg` calcula
+paredes pela caixa e percorre ABCD. O overlay especial do microciclo é outro
+caminho e não certifica o exportador. Conservar pendência explícita até integrar
+segmentos, normais, pontas, conteúdo e cores no consumidor e verificar cada
+camada por PNG. Retirar apenas a guarda de capacidade produziria falsa geometria.
+
+Prova de contorno e recusa, sem aprovação das tags:
+[inspeção P26/P27 do 14_PAV](../scripts/arete/relatorios/20261009_continuacao_niveis_14pav/inspecao_tags/RELATORIO.md).
+Os 17 testes citados verificam classificação e bloqueio; não substituem G7.
+Esta nota descreve uma limitação técnica datada, sem mudar o padrão A–F aprovado.
+
+Atualização técnica 10/10/2026: o consumidor produtivo passou a aceitar também
+pilares ortogonais em L de seis faces, com segmentos físicos A–F, normais,
+intervalos de contato e hash do contorno no SVG. O leitor rejeita artefatos
+antigos por caixa envolvente ou de geometria diferente. Materialização pelo
+caminho real do portal e testes direcionados estão registrados em
+`scripts/arete/relatorios/20261009_reprocessamento/RELATORIO-V61-V62.md`.
+Essa integração não concede aprovação visual global; oito faces e contornos
+circulares continuam pendentes, preservando o desenho original.
+
 Uma camada só pode receber **PASS técnico** quando todos os eixos abaixo passam.
 Eles têm a **mesma importância**: acertar o vínculo não compensa errar o ponto;
 acertar a geometria não compensa nome, dimensão ou papel incorretos.
@@ -70,10 +94,11 @@ validados sem uma regressão comprovada.
 
 ### 4.1 Identidade e conteúdo (antes de desenhar)
 
-Atualização do dono (2026-10-03): medidas exibidas nas tags usam uma casa decimal
-com arredondamento, por exemplo `852,2m`. Valores originais em campos, geometria
-e cálculos permanecem com precisão integral; os exemplos antigos abaixo descrevem
-as unidades, sem revogar este formato de apresentação.
+Atualização do dono (2026-10-03): medidas locais exibidas nas tags usam no máximo
+uma casa decimal com arredondamento. Níveis absolutos em metros usam exatamente
+duas casas, por exemplo `852,19m` e `852,00m`, conforme
+`CONHECIMENTO/APRESENTACAO-NUMERICA.md`. Valores originais em campos, geometria
+e cálculos permanecem com precisão integral.
 
 - `nome`, `dim` e `nivel` devem vir da **mesma entidade** associada ao vínculo.
 - A dimensão é canônica (`largura/altura`, sem concatenação acidental com nome ou ID).
@@ -209,6 +234,26 @@ L301
   por margem/viewBox aproximados.
 
 ---
+
+### 5.3 Pilares em U de oito faces — decisão do dono, 10/10/2026
+
+A/B correspondem ao fundo do U; E/F a uma pata e G/H à outra. Na base
+local olhando do fundo para a abertura, E/F são a pata esquerda e G/H a
+direita. As paredes externas são A/E/G e as internas B/F/H; C/D são as
+pontas livres esquerda/direita. Girar o desenho transporta essa base e não
+troca letras por ordem dos vértices do DXF. A implementação reconhece os dois
+vértices reentrantes ligados pelo fundo interno, valida oito paredes
+ortogonais distintas e recusa contornos inválidos. Outros formatos de oito
+faces precisam de um contrato explícito de paredes nomeadas, sem assumir
+automaticamente a mesma convenção do U.
+
+G usa `#b39ddb` e H `#ffcc80` em parede/tag. As regras de contato, intervalo,
+roteamento e evidência PNG das seis faces se estendem às oito. SVGs guardam
+também um hash da correspondência letra–parede: igualdade do contorno sozinha
+não autoriza reutilizar tags se as letras mudaram.
+
+**Circulares:** tags aguardam a definição do dono, conforme pedido de
+10/10/2026. Não adaptar ABCD da caixa para simular faces de um círculo.
 
 ## 6. Protocolo obrigatório de revisão QA
 

@@ -1,5 +1,7 @@
 """Gate FV D-60: fundo de viga nao pode ter borda fora das linhas do estrutural."""
 
+import pytest
+
 from src.core.beam_interpreters.fundo_viga_linhas import (
     STATUS_ANULADO,
     STATUS_REPARADO,
@@ -241,3 +243,29 @@ def test_viga_com_fundo_validado_nao_e_renumerada():
     audit_fv_lines_all([beam], [], LINES)
     assert beam["links"]["viga_fundo_seg_2_area_segs"]["contour"] == [good]
     assert beam["links"]["viga_fundo_seg_1_area_segs"]["anulado_d60"] == [bad]
+
+
+@pytest.mark.parametrize('guard',['none','no_support','shallow_support','depth','missing_wall','competing_name'])
+def test_recovered_width_transition_uses_real_support_in_line_gate(guard):
+    # Fresh source scene has a 14 cm run ending at a solid support and a
+    # 19 cm continuation. Stale linked laterals retain the old narrow width.
+    walls=[{'points':[(0,0),(300,0)]},
+           {'points':[(0,14),(100,14)]}]
+    if guard!='missing_wall':walls.append({'points':[(119,19),(300,19)]})
+    texts=[{'text':'V1','pos':(40,-5),'rotation':0},
+           {'text':'14/55','pos':(65,-5),'rotation':0},
+           {'text':'19/60' if guard=='depth' else '19/55','pos':(200,26.5),'rotation':0}]
+    if guard=='competing_name':texts.append({'text':'V99','pos':(170,25),'rotation':0})
+    beam,item=_beam(_rect(119,300,0,19))
+    beam['links']['viga_lat_seg_1']={'seg_side_a':[{'points':[(119,0),(300,0)]}],
+                                  'seg_side_b':[{'points':[(119,14),(300,14)]}]}
+    pillars={} if guard=='no_support' else {'P1':{'name':'P1','points':_rect(100,119,0,14 if guard=='shallow_support' else 19)}}
+    report=audit_fv_lines_all([beam],texts,walls,pillars)
+    if guard=='none':
+        assert report['ok']==1
+        assert 'fv_line_gate' not in item
+        assert item['points']==_rect(119,300,0,19)
+    else:
+        assert report['ok']==0
+        assert item['fv_line_gate']['status']=='anulado'
+        assert item['points']==[]

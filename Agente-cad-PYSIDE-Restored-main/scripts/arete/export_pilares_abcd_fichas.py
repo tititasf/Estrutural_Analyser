@@ -14,6 +14,7 @@ import json
 import re
 import sqlite3
 import sys
+import time
 import webbrowser
 from datetime import datetime
 from pathlib import Path
@@ -26,6 +27,7 @@ from src.core.pillar_abcd_tables import (  # noqa: E402
     format_abcd_tables_html,
 )
 from src.core.niveis_extractor import get_pavimento_niveis_abs  # noqa: E402
+from src.core.number_presentation import display_level, display_number  # noqa: E402
 from src.core.pil_qa_notes_chrome import (  # noqa: E402
     css_pil_qa,
     js_pil_qa,
@@ -38,12 +40,108 @@ from src.core.pil_qa_notes_chrome import (  # noqa: E402
 OUT_BASE = Path(__file__).resolve().parent / "html_fichas"
 
 
+def _absolute_level(value):
+    """Convention levels are metres; missing evidence stays unknown."""
+    return f"{display_level(value)} m" if value is not None and value != "" else ""
+
+
+def _published_pillars(db_pillars, snapshot_path):
+    """Use the published SA geometry after a read-only analysis, without changing DB."""
+    if snapshot_path is None:
+        return db_pillars
+    state = json.loads(Path(snapshot_path).read_text(encoding='utf-8'))
+    rows = state.get('pilares')
+    if not isinstance(rows, list) or not rows:
+        raise ValueError('Published SA snapshot has no pillar inventory')
+    by_name = {row['name']: row for row in db_pillars}
+    result, seen = [], set()
+    for row in rows:
+        name = row.get('name') if isinstance(row, dict) else None
+        if not name or name in seen:
+            raise ValueError('Published SA snapshot has an invalid or duplicate pillar name')
+        seen.add(name)
+        points = row.get('points') or []
+        if len(points) < 3:
+            raise ValueError(f'Published SA geometry missing: {name}')
+        result.append(dict(by_name.get(name, {}), **row))
+    return result
+
+
+def _write_publication_text(path, text):
+    """Keep room for portal logs and never expose a half-written asset."""
+    import os
+    import shutil
+    import tempfile
+    path = Path(path)
+    required = sum(len(text[i:i+1024**2].encode('utf-8'))
+                   for i in range(0, len(text), 1024**2))
+    free = shutil.disk_usage(path.parent).free
+    if free < required + 128*1024**2:
+        raise RuntimeError(f'Sem espaço para publicar {path.name}: '
+                           f'necessário {required} bytes + reserva; disponível {free}')
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8',
+                                        dir=path.parent, delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(text)
+        os.replace(temporary, path)
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
+
+
 def _render_tag_worker(payload: tuple[str, str, list, dict]) -> tuple[str, str]:
     """Worker isolado: matplotlib/ezdxf não compartilham estado entre pilares."""
     name, dxf_path, points, tables = payload
     from scripts.arete.pil_agentic_highlight_draw import render_agentic_svg
 
     return name, render_agentic_svg(Path(dxf_path), points, tables, layer="sa")
+
+
+def _render_full_worker(payload):
+    """Preserve all three views, using the same renderers in one isolated process."""
+    name, dxf_path, points, tables = payload
+    started = time.perf_counter()
+    near = _render_n1_svg(Path(dxf_path), points, context_view='near')
+    near_done = time.perf_counter()
+    far = _render_n1_svg(Path(dxf_path), points, context_view='far')
+    far_done = time.perf_counter()
+    _, tagged = _render_tag_worker(payload)
+    print(f"[PERF] render {name}: near={near_done-started:.3f}s "
+          f"far={far_done-near_done:.3f}s tags={time.perf_counter()-far_done:.3f}s", flush=True)
+    return name, tagged, near, far
+
+
+def _write_spooled_svg(directory, svg):
+    """IPC carries a path, never a full structural SVG for every future."""
+    import gzip
+    import uuid
+    target = Path(directory) / (uuid.uuid4().hex + '.svg.gz')
+    with gzip.open(target, 'wt', encoding='utf-8', compresslevel=1) as stream:
+        stream.write(svg)
+    return str(target)
+
+
+def _read_spooled_svg(path):
+    import gzip
+    with gzip.open(path, 'rt', encoding='utf-8') as stream:
+        svg = stream.read()
+    Path(path).unlink()
+    return svg
+
+
+def _render_spooled_worker(task):
+    payload, directory, full = task
+    name, dxf_path, points, _ = payload
+    paths = []
+    # Release each view before rendering the next, retaining every SVG stroke.
+    if full:
+        for view in ('near', 'far'):
+            paths.append(_write_spooled_svg(directory, _render_n1_svg(
+                Path(dxf_path), points, context_view=view)))
+    _, tagged = _render_tag_worker(payload)
+    return name, _write_spooled_svg(directory, tagged), *paths
 
 
 def _render_n1_svg(
@@ -71,73 +169,85 @@ def _render_n1_svg(
         xs = [float(p[0]) for p in pillar_pts]
         ys = [float(p[1]) for p in pillar_pts]
         pw, ph = max(xs) - min(xs), max(ys) - min(ys)
+        from src.core.pillar_special_faces import special_physical_face_segments
+        physical_l = bool(special_physical_face_segments(pillar_pts))
         if context_view == "far":
             margin = max(max(pw, ph) * 10.0 + 320.0, (max(pw, ph) * 3.0 + 60) * 3.6)
         else:
             margin = (max(pw, ph) * 3.0 + 60) * 1.3
+            if physical_l:
+                margin = (max(pw, ph) * 0.7 + 60) * 1.3
         vx0, vx1 = min(xs) - margin, max(xs) + margin
         vy0, vy1 = min(ys) - margin, max(ys) + margin
 
-        doc = ezdxf.readfile(str(dxf_path))
-        msp = doc.modelspace()
         dpi = 140
         with matplotlib.rc_context({"svg.fonttype": "none", "path.simplify": False}):
-            fig = plt.figure(figsize=(width / dpi, height / dpi), dpi=dpi)
-            ax = fig.add_axes([0, 0, 1, 1])
-            ax.set_facecolor("#0d0d0d")
-            fig.patch.set_facecolor("#0d0d0d")
-            ctx = RenderContext(doc)
-            out = MatplotlibBackend(ax)
-            Frontend(ctx, out).draw_layout(msp)
-            # Destaque do pilar (N1 próximo e contexto): vermelho forte +
-            # contorno fino, fill translúcido — legível no fundo escuro do DXF.
-            poly = list(zip(xs, ys))
-            if len(poly) >= 3:
-                ax.add_patch(
-                    MplPolygon(
-                        poly,
-                        closed=True,
-                        facecolor="#ff1744",
-                        edgecolor="none",
-                        alpha=0.38,
-                        zorder=40,
+            from src.core.cad_render_cache import prepared_cad_canvas
+            with prepared_cad_canvas(dxf_path, width, height, dpi) as (fig, ax):
+                if physical_l:
+                    fig.set_size_inches(width / dpi, height / dpi, forward=True)
+                    ax.set_position([0, 0, 1, 1])
+                # Destaque do pilar (N1 próximo e contexto): vermelho forte +
+                # contorno fino, fill translúcido — legível no fundo escuro do DXF.
+                poly = list(zip(xs, ys))
+                if len(poly) >= 3:
+                    ax.add_patch(
+                        MplPolygon(
+                            poly,
+                            closed=True,
+                            facecolor="#ff1744",
+                            edgecolor="none",
+                            alpha=0.38,
+                            zorder=40,
+                        )
                     )
-                )
-                ax.add_patch(
-                    MplPolygon(
-                        poly,
-                        closed=True,
-                        fill=False,
-                        edgecolor="#ff1744",
-                        linewidth=1.15,
-                        alpha=1.0,
-                        zorder=41,
+                    ax.add_patch(
+                        MplPolygon(
+                            poly,
+                            closed=True,
+                            fill=False,
+                            edgecolor="#ff1744",
+                            linewidth=1.15,
+                            alpha=1.0,
+                            zorder=41,
+                        )
                     )
-                )
-                # halo externo fino (contraste sobre traços do DXF)
-                ax.add_patch(
-                    MplPolygon(
-                        poly,
-                        closed=True,
-                        fill=False,
-                        edgecolor="#ff8a80",
-                        linewidth=0.55,
-                        alpha=0.85,
-                        zorder=42,
-                        linestyle="-",
+                    # halo externo fino (contraste sobre traços do DXF)
+                    ax.add_patch(
+                        MplPolygon(
+                            poly,
+                            closed=True,
+                            fill=False,
+                            edgecolor="#ff8a80",
+                            linewidth=0.55,
+                            alpha=0.85,
+                            zorder=42,
+                            linestyle="-",
+                        )
                     )
-                )
-            ax.set_xlim(vx0, vx1)
-            ax.set_ylim(vy0, vy1)
-            ax.set_aspect("equal")
-            ax.axis("off")
-            import io
+                ax.set_xlim(vx0, vx1)
+                ax.set_ylim(vy0, vy1)
+                if physical_l:
+                    ax.set_aspect("equal", adjustable="box")
+                else:
+                    ax.set_aspect("equal")
+                ax.axis("off")
+                import io
 
-            buf = io.BytesIO()
-            fig.savefig(buf, format="svg", dpi=dpi, facecolor="#0d0d0d", bbox_inches="tight")
-            plt.close(fig)
+                buf = io.BytesIO()
+                from src.core.cad_render_cache import visible_cad_strokes
+                with visible_cad_strokes(ax):
+                    fig.savefig(buf, format="svg", dpi=dpi, facecolor="#0d0d0d", bbox_inches="tight")
         buf.seek(0)
-        return strip_fixed_size(buf.read().decode("utf-8"))
+        svg = buf.read()
+        # Preserve individual paint operations: merging overlapping paths changes
+        # antialiasing. Only discard redundant containers in the plain views.
+        try:
+            from portal.app.svg_compact import compact_svg_structure, compact_svg_serialization
+            svg = compact_svg_serialization(compact_svg_structure(svg))
+        except Exception as exc:
+            print(f"[N1] compactação estrutural ignorada ({context_view}): {exc}", flush=True)
+        return strip_fixed_size(svg.decode("utf-8"))
     except Exception as exc:
         print(f"[N1] render falhou ({context_view}): {exc}", flush=True)
         return f'<p class="muted">N1 {context_view} indisponível ({html_mod.escape(str(exc))})</p>'
@@ -180,24 +290,26 @@ def build_pillar_page(
     l1_svg: str = "",
     l2_svg: str = "",
     l3_svg: str = "",
+    n1_far_src: str = "",
 ) -> str:
     tables_html = format_abcd_tables_html(tables, compact=True)
-    cheg = niveis.get("chegada_abs")
-    saida = niveis.get("saida_abs")
-    alt = niveis.get("altura_cm")
+    cheg = _absolute_level(niveis.get("chegada_abs")) or "—"
+    saida = _absolute_level(niveis.get("saida_abs")) or "—"
+    alt_value = niveis.get("altura_cm")
+    alt = f"{display_number(alt_value)} cm" if alt_value is not None else "—"
     n1_block = ""
     if n1_near or n1_near_plain or n1_far:
-        # Padrão de uso: embutir SA plain + SA tags + L1 (zoom imediato).
-        # L2/L3 só sob demanda (fetch) — 5 SVGs embutidos (~15MB) trava o browser.
+        # All views use their published SVG asset; do not duplicate the active
+        # tagged drawing inside each HTML page. Existing loader fetches it once.
         near_layers = n1_layer_toggle_and_layers(
-            sa_svg=n1_near or "",
-            sa_plain_svg=n1_near_plain or "",
-            l1_svg=l1_svg or "",
+            sa_svg="",
+            sa_plain_svg="",
+            l1_svg="",
             l2_svg="",  # fetch L2
             l3_svg="",  # fetch L3
             item=name,
             sa_plain_src=f"../propostas/{name}_sa_plain.svg",
-            sa_tags_src=f"../propostas/{name}_sa_motor.svg",
+            sa_tags_src=f"../propostas/{name}_sa_plain.svg" if n1_near_plain and n1_near == n1_near_plain else f"../propostas/{name}_sa_motor.svg",
             l1_src=f"../propostas/{name}_qa_L1.svg",
             l2_src=f"../propostas/{name}_qa_L2.svg",
             l3_src=f"../propostas/{name}_qa_L3.svg",
@@ -207,6 +319,7 @@ def build_pillar_page(
         far_viewer = wrap_n1_panzoom(
             n1_far or '<p class="muted">indisponível</p>',
             viewer_id=f"pil-n1-far-{name}",
+            svg_src=n1_far_src,
         )
         n1_block = f"""
 <div class="sec"><div class="sec-title">Foto N1 — SA + camadas</div>
@@ -253,6 +366,7 @@ document.addEventListener('DOMContentLoaded',function(){{
         var on=p.getAttribute('data-n1panel')===id;
         p.classList.toggle('active',on);
         if(on) p.removeAttribute('hidden'); else p.setAttribute('hidden','');
+        if(on && window.loadPilView) window.loadPilView(p);
       }});
     }});
   }});
@@ -267,9 +381,9 @@ document.addEventListener('DOMContentLoaded',function(){{
 <div class="sec"><div class="sec-title">Identidade</div><div class="sec-body">
 <table class="meta">
 <tr><td>Obra / Pav</td><td>{html_mod.escape(obra)} / {html_mod.escape(pav)}</td></tr>
-<tr><td>Nível saída</td><td><b>{saida}cm</b></td></tr>
-<tr><td>Nível chegada</td><td><b>{cheg}cm</b></td></tr>
-<tr><td>Pé-direito</td><td><b>{alt}cm</b></td></tr>
+<tr><td>Nível saída</td><td><b>{saida}</b></td></tr>
+<tr><td>Nível chegada</td><td><b>{cheg}</b></td></tr>
+<tr><td>Pé-direito</td><td><b>{alt}</b></td></tr>
 </table></div></div>
 {notes_block}
 {n1_block}
@@ -289,6 +403,8 @@ def main() -> int:
     ap.add_argument("--db", default=str(ROOT.parent / "project_data.vision"))
     ap.add_argument("--obra", default="Obra_TREINO_1")
     ap.add_argument("--pav", default="13_PAV")
+    ap.add_argument("--snapshot-path", type=Path,
+                    help="Published SA inventory; authoritative for read-only portal analyses.")
     ap.add_argument(
         "--output-root",
         type=Path,
@@ -324,7 +440,7 @@ def main() -> int:
     )
     ap.add_argument(
         "--workers", type=int, default=3,
-        help="Processos paralelos usados por --tags-only (default: 3; máximo: 3).",
+        help="Processos de render, limitados pela CPU/memória disponível; 1 = sequencial.",
     )
     args = ap.parse_args()
 
@@ -340,13 +456,9 @@ def main() -> int:
     if prow and prow["dxf_path"]:
         dxf_path = Path(prow["dxf_path"])
 
-    niveis = get_pavimento_niveis_abs(args.obra, args.pav) or {
-        "chegada_abs": 852.19,
-        "saida_abs": 848.98,
-        "altura_cm": 321.0,
-    }
+    niveis = get_pavimento_niveis_abs(args.obra, args.pav) or {}
     # slabs maps + geometria
-    slab_h, slab_n, slab_pts = {}, {}, {}
+    slab_h, slab_n, slab_pts, slab_regions = {}, {}, {}, {}
     for r in conn.execute(
         "SELECT name, points_json, extra_data_json FROM slabs WHERE project_id=?",
         (args.project_id,),
@@ -355,9 +467,12 @@ def main() -> int:
         fields = ex.get("fields") if isinstance(ex.get("fields"), dict) else {}
         h = fields.get("laje_dim") or ex.get("laje_dim") or ""
         h = str(h).replace("h=", "").replace("cm", "").strip()
-        n = fields.get("laje_nivel") or ex.get("laje_nivel") or ""
+        n = fields.get("laje_nivel")
+        if n is None or n == "":
+            n = ex.get("laje_nivel")
         slab_h[r["name"]] = h
-        slab_n[r["name"]] = str(n)
+        slab_n[r["name"]] = "" if n is None else str(n)
+        slab_regions[r['name']] = ex.get('slab_steps') or []
         try:
             slab_pts[r["name"]] = json.loads(r["points_json"] or "[]")
         except Exception:
@@ -395,6 +510,7 @@ def main() -> int:
             }
         )
 
+    pillars = _published_pillars(pillars, args.snapshot_path)
     # sort natural
     pillars.sort(key=lambda p: _natural_key(p["name"]))
     if args.item:
@@ -441,8 +557,15 @@ def main() -> int:
             slab_height_map=slab_h,
             slab_nivel_map=slab_n,
             slab_points_map=slab_pts,
+            slab_regions_map=slab_regions,
             beams=beams,
-            nivel_viga_default=f"{niveis.get('chegada_abs')}cm",
+            nivel_viga_default=_absolute_level(niveis.get("chegada_abs")),
+        )
+        from src.core.pillar_special_faces import enrich_special_pillar_tables
+        tables = enrich_special_pillar_tables(
+            tables, p, slab_height_map=slab_h, slab_nivel_map=slab_n,
+            slab_points_map=slab_pts, beams=beams,
+            nivel_viga_default=_absolute_level(niveis.get("chegada_abs")),
         )
         p["interpretacao_abcd"] = tables
         pages.append((p, tables))
@@ -472,22 +595,32 @@ def main() -> int:
         _render_tagged = _mod.render_agentic_svg
         _process_item = _mod.process_item
 
-    nivel_v = f"{niveis.get('chegada_abs')}cm"
+    nivel_v = _absolute_level(niveis.get("chegada_abs"))
     tagged_cache: dict[str, str] = {}
-    if args.tags_only and dxf_path and dxf_path.is_file() and pages:
+    plain_cache: dict[str, tuple[str, str]] = {}
+    import tempfile
+    render_spool = tempfile.TemporaryDirectory(prefix="cad-svg-")
+    parallel_full = args.no_layers and not args.tags_only and not args.skip_n1
+    if (args.tags_only or parallel_full) and dxf_path and dxf_path.is_file() and pages and args.workers > 1:
         from concurrent.futures import ProcessPoolExecutor, as_completed
 
-        workers = max(1, min(int(args.workers or 1), 3, len(pages)))
+        from src.core.cad_render_cache import render_worker_limit
+        workers = render_worker_limit(int(args.workers or 1), len(pages))
+        print(f"[PERF] render workers={workers}", flush=True)
         payloads = [
             (p["name"], str(dxf_path), p.get("points") or [], tables)
             for p, tables in pages
         ]
         try:
             with ProcessPoolExecutor(max_workers=workers) as executor:
-                futures = [executor.submit(_render_tag_worker, payload) for payload in payloads]
+                futures = [executor.submit(_render_spooled_worker,
+                    (payload, render_spool.name, parallel_full)) for payload in payloads]
                 for done_index, future in enumerate(as_completed(futures), start=1):
-                    name, svg = future.result()
+                    result = future.result()
+                    name, svg = result[:2]
                     tagged_cache[name] = svg
+                    if parallel_full:
+                        plain_cache[name] = (result[2], result[3])
                     print(f"  N1+tags {name} ({done_index}/{len(pages)}) ✓", flush=True)
         except Exception as exc:
             # Fail-safe: o loop abaixo regenera sequencialmente apenas os
@@ -509,20 +642,23 @@ def main() -> int:
                 print(f"  N1+tags {p['name']} ({i+1}/{len(pages)})…", flush=True)
             prop = out_dir / "propostas"
             prop.mkdir(parents=True, exist_ok=True)
-            n1_near = tagged_cache.get(p["name"], "")
+            tagged_path = tagged_cache.pop(p["name"], None)
+            n1_near = _read_spooled_svg(tagged_path) if tagged_path else ""
             if n1_near:
-                (prop / f"{p['name']}_sa_motor.svg").write_text(
-                    n1_near, encoding="utf-8"
-                )
+                _write_publication_text(prop / f"{p['name']}_sa_motor.svg", n1_near)
             if not args.tags_only:
                 # O pack humano completo conserva os dois contextos sem tags.
                 # A produção web já os possui no HTML canônico e pede somente
                 # a evidência tagueada que faltava.
-                n1_near_plain = _render_n1_svg(dxf_path, pts, context_view="near")
-                n1_far = _render_n1_svg(dxf_path, pts, context_view="far")
-                (prop / f"{p['name']}_sa_plain.svg").write_text(
-                    n1_near_plain, encoding="utf-8"
-                )
+                if p['name'] in plain_cache:
+                    near_path, far_path = plain_cache.pop(p['name'])
+                    n1_near_plain = _read_spooled_svg(near_path)
+                    n1_far = _read_spooled_svg(far_path)
+                else:
+                    n1_near_plain = _render_n1_svg(dxf_path, pts, context_view="near")
+                    n1_far = _render_n1_svg(dxf_path, pts, context_view="far")
+                _write_publication_text(prop / f"{p['name']}_sa_plain.svg", n1_near_plain)
+                _write_publication_text(prop / f"{p['name']}_sa_far.svg", n1_far)
 
             def _read_svg(fn: str) -> str:
                 fp = prop / fn
@@ -541,6 +677,7 @@ def main() -> int:
                         slab_h=slab_h,
                         slab_n=slab_n,
                         slab_pts=slab_pts,
+                        slab_regions=slab_regions,
                         beams=beams,
                         nivel_v=nivel_v,
                         pack=out_dir,
@@ -557,19 +694,15 @@ def main() -> int:
                     print(f"    [WARN] process_item: {exc}", flush=True)
             if not n1_near and _render_tagged:
                 n1_near = _render_tagged(dxf_path, pts, tables, layer="sa")
-                (prop / f"{p['name']}_sa_motor.svg").write_text(
-                    n1_near, encoding="utf-8"
-                )
+                _write_publication_text(prop / f"{p['name']}_sa_motor.svg", n1_near)
                 if not args.no_layers and not args.tags_only:
                     for ly in ("l1", "l2", "l3"):
                         svg_ly = _render_tagged(dxf_path, pts, tables, layer=ly)
                         out_name = f"{p['name']}_qa_L{ly[-1]}.svg"
-                        (prop / out_name).write_text(svg_ly, encoding="utf-8")
+                        _write_publication_text(prop / out_name, svg_ly)
                         if ly == "l1":
                             l1_svg = svg_ly
-                            (prop / f"{p['name']}_qa_proposta.svg").write_text(
-                                svg_ly, encoding="utf-8"
-                            )
+                            _write_publication_text(prop / f"{p['name']}_qa_proposta.svg", svg_ly)
                         elif ly == "l2":
                             l2_svg = svg_ly
                         else:
@@ -593,8 +726,9 @@ def main() -> int:
             l1_svg=l1_svg,
             l2_svg=l2_svg,
             l3_svg=l3_svg,
+            n1_far_src=f"../propostas/{p['name']}_sa_far.svg" if n1_far else "",
         )
-        (pil_dir / f"{p['name']}.html").write_text(html_page, encoding="utf-8")
+        _write_publication_text(pil_dir / f"{p['name']}.html", html_page)
         estado_pilares.append(
             {
                 "key": p["name"],

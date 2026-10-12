@@ -102,3 +102,11 @@ def test_mesma_cota_nao_e_prova_direta_de_dois_pavimentos(tmp_path):
     readings = extract_level_convention(path)["direct_floor_levels"]
     assert all(row["status"] == "ambiguous" and row["selected"] is None for row in readings)
     assert all(row["warnings"] == ["cota_compartilhada_por_pavimentos"] for row in readings)
+
+
+def test_rotulo_pavimento_por_extenso_nao_e_perdido(tmp_path):
+    path = tmp_path / "levels.dxf"
+    _drawing(path, [("13º PAVIMENTO", (0, 100)), ("569,98", (100, 100))])
+    result = extract_level_convention(path)
+    assert result["direct_floor_levels"][0]["selected"]["value"] == 569.98
+    assert result["floor_labels"][0]["text"] == "13º PAVIMENTO"

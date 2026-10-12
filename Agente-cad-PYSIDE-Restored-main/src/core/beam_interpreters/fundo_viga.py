@@ -557,9 +557,12 @@ class FundoVigaInterpreter:
         ]
         if len(clean_points) < 3:
             return False
-        transverse_axis = 1 if is_horizontal else 0
-        edge_low = min(point[transverse_axis] for point in clean_points)
-        edge_high = max(point[transverse_axis] for point in clean_points)
+        axis = 0 if is_horizontal else 1
+        transverse_axis = 1 - axis
+        start = min(point[axis] for point in clean_points)
+        end = max(point[axis] for point in clean_points)
+        if end - start <= 0.01:
+            return False
         face_values: list[float] = []
         for line in boundary_lines or []:
             clean = cls._clean_polyline_points(line)
@@ -570,11 +573,26 @@ class FundoVigaInterpreter:
         faces = cls._cluster_face_positions(face_values, tolerance=tolerance)
         if not faces:
             return False
-        return any(
-            abs(edge - face) <= tolerance
-            for edge in (edge_low, edge_high)
-            for face in faces
-        )
+        # Bbox extrema can lie on two different faces while the contour joins
+        # them diagonally. Require a longitudinal edge, including split edges,
+        # to cover the panel instead of accepting those two isolated vertices.
+        ring = clean_points if clean_points[0] == clean_points[-1] else clean_points + clean_points[:1]
+        for face in faces:
+            intervals = sorted(
+                sorted((a[axis], b[axis]))
+                for a, b in zip(ring, ring[1:])
+                if abs(a[transverse_axis] - face) <= tolerance
+                and abs(b[transverse_axis] - face) <= tolerance
+                and abs(a[axis] - b[axis]) > 0.01
+            )
+            coverage = 0.0
+            right = start
+            for left, stop in intervals:
+                coverage += max(0.0, stop - max(left, right))
+                right = max(right, stop)
+            if coverage >= 0.8 * (end - start):
+                return True
+        return False
 
     @classmethod
     def build_area_contour(

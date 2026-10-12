@@ -54,6 +54,21 @@ _LATERAL_RE = re.compile(
 _DIMENSION_RE = re.compile(r"-?\d+(?:[.,]\d+)?")
 
 
+def _cell_adjustment(cell: dict) -> dict[str, str]:
+    """Expose computed zero, while keeping missing/invalid evidence blank."""
+    values = []
+    for key in ("adjustment_start", "adjustment_end"):
+        try:
+            value = float(cell[key])
+            values.append(value if math.isfinite(value) else None)
+        except (KeyError, TypeError, ValueError):
+            values.append(None)
+    def display(value):
+        return "" if value is None else "0" if value == 0 else f"{value:+g}"
+    return {"initial": display(values[0]), "final": display(values[1]),
+            "total": display(sum(values)) if all(v is not None for v in values) else ""}
+
+
 def _polyline_length(points: Iterable[Any]) -> float:
     clean: list[tuple[float, float]] = []
     for point in points or []:
@@ -67,11 +82,12 @@ def _polyline_length(points: Iterable[Any]) -> float:
     )
 
 
-def _bbox_dimensions(points: Iterable[Any]) -> tuple[float, float]:
+def _bbox_dimensions(points: Iterable[Any], horizontal: bool | None = None) -> tuple[float, float]:
     """Retorna (comprimento, largura) pelo envelope do contorno.
 
-    Para fundo de viga, comprimento não é perímetro nem soma de segmentos:
-    é o maior eixo do contorno; largura é o menor eixo.
+    Comprimento é axial, não perímetro; largura é transversal. Quando o produtor
+    informa a orientação física, um painel curto pode ter comprimento menor que
+    a largura. Sem orientação conserva-se o fallback histórico maior/menor.
     """
     clean = _clean_points(points)
     if not clean:
@@ -80,6 +96,10 @@ def _bbox_dimensions(points: Iterable[Any]) -> tuple[float, float]:
     ys = [point[1] for point in clean]
     dx = max(xs) - min(xs)
     dy = max(ys) - min(ys)
+    if horizontal is True:
+        return dx, dy
+    if horizontal is False:
+        return dy, dx
     return max(dx, dy), min(dx, dy)
 
 
@@ -1000,7 +1020,10 @@ def collect_preficha_segments(
                 uid = f"{kind}|{beam_identity}|{segment_index}|{occurrence}"
                 previous = stored.get(uid) if isinstance(stored, dict) else {}
                 if kind == "fundo":
-                    length, envelope_width = _bbox_dimensions(points)
+                    axis_hint = link.get("fv_axis_is_horizontal")
+                    length, envelope_width = _bbox_dimensions(
+                        points, axis_hint if isinstance(axis_hint, bool) else None
+                    )
                     measure_length = link.get("fv_measure_length")
                     try:
                         measure_length = float(measure_length)
@@ -1158,6 +1181,22 @@ def collect_preficha_segments(
                             "lv_cell_estimado" if level and cell.get("level_estimado")
                             else "lv_cell_slabs" if level else "unresolved"
                         )
+                        provenance = cell.get('preprocess_level_provenance') or {}
+                        if provenance and level_source == 'lv_cell_estimado':
+                            from portal.app.preprocessamento.lateral_level_consumption import number, METHOD
+                            from shapely.geometry import LineString
+                            try:
+                                valid = (provenance.get('unit') == 'm'
+                                    and provenance.get('root_fact_ids')
+                                    and provenance.get('status') in ('inferred', 'sa_evidence', 'human_review', 'observed')
+                                    and number(level) is not None and number(provenance.get('value')) is not None
+                                    and abs(number(level)-number(provenance['value'])) <= .0025
+                                    and LineString(points).hausdorff_distance(LineString(provenance['points'])) <= .05
+                                    and abs(LineString(points).length-LineString(provenance['points']).length) <= .05)
+                            except (KeyError, ValueError, TypeError):
+                                valid = False
+                            if valid:
+                                level_source = METHOD
                         level_slabs = [s.get("name", "") for s in cell.get("slabs") or []]
 
                         def _cell_support(info: dict) -> dict[str, str]:
@@ -1178,11 +1217,7 @@ def collect_preficha_segments(
                                  "height": _dimension_height(s.get("height"))}
                                 for s in (cell.get("slabs") or [])[:3]
                             ],
-                            "adjustment": {
-                                "initial": f"{cell.get('adjustment_start') or 0:g}" if cell.get("adjustment_start") else "",
-                                "final": f"{cell.get('adjustment_end') or 0:g}" if cell.get("adjustment_end") else "",
-                                "total": "",
-                            },
+                            "adjustment": _cell_adjustment(cell),
                             "passing_pillars": [p.get("name", "") for p in cell.get("pillar_openings") or []],
                             "beam_openings": [b.get("name", "") for b in cell.get("beam_openings") or []],
                             "lv_cell": cell,

@@ -141,6 +141,10 @@ def _default_face(face: str, width: float, height: float, robot: dict) -> dict:
     for key, raw in sorted(robot.items()):
         if not str(key).startswith(prefix) or not isinstance(raw, dict):
             continue
+        if raw.get('_origem') == 'slab_contact' and f'_portal_slabs_{face}' in robot:
+            # Already represented by the explicit physical contact list below.
+            # Importing it as a beam opening duplicates the next robot patch.
+            continue
         opening_width = _positive(raw.get("largura") or raw.get("width"))
         opening_depth = _positive(raw.get("altura") or raw.get("depth"))
         if opening_width <= 0 or opening_depth <= 0:
@@ -154,13 +158,19 @@ def _default_face(face: str, width: float, height: float, robot: dict) -> dict:
             "level": _positive(raw.get("nivel") or raw.get("level") or raw.get("y_rel")),
             "top_distance": _positive(raw.get("distancia_topo") or raw.get("top_distance")),
         })
-    return {"panels": panels, "openings": openings}
+    result = {"panels": panels, "openings": openings}
+    if isinstance(robot.get(f'_portal_slabs_{face}'), list):
+        result['slabs'] = deepcopy(robot[f'_portal_slabs_{face}'])
+        result['n3_width_extra'] = 22.0 if face in 'AB' else 0.0
+    return result
 
 
 def build_ficha(pillar: dict, robot: dict | None = None, saved: dict | None = None, *, pavimento: str = "") -> dict:
     """Monta a ficha inicial usando primeiro Fase 4 e depois geometria N1."""
     robot = deepcopy(robot or {})
     edge_lengths = _edge_lengths(pillar.get("points") or [])
+    from src.core.pillar_special_faces import special_u_face_segments
+    named_u_faces = special_u_face_segments(pillar.get("points") or [])
     length = _positive(robot.get("comprimento"), max(edge_lengths, default=60.0))
     width = _positive(robot.get("largura"), min(edge_lengths, default=20.0))
     height = _positive(robot.get("pd_pavimento_cm") or robot.get("altura"), 280.0)
@@ -169,6 +179,9 @@ def build_ficha(pillar: dict, robot: dict | None = None, saved: dict | None = No
         fallback_width = length if face in "AB" else width
         if index < len(edge_lengths):
             fallback_width = edge_lengths[index]
+        if face in named_u_faces:
+            edge = named_u_faces[face]
+            fallback_width = math.dist(edge['p0'], edge['p1'])
         # A Fase 4 grava explicitamente ``0.0`` nas faces extras sem medida.
         # Para pilares especiais (mais de quatro arestas), essas faces ainda
         # precisam de uma malha editavel. Trate zero como "medida ausente" e
@@ -207,6 +220,7 @@ def build_ficha(pillar: dict, robot: dict | None = None, saved: dict | None = No
         "source": {
             "n1": True, "fase4": bool(robot), "human_override": False,
             "n3_variant": str(robot.get("_portal_n3_variant") or ""),
+            "robot_slab_faces": [face for face in faces if f'_portal_slabs_{face}' in robot],
         },
     }
     if isinstance(saved, dict) and saved.get("schema") == SCHEMA:
@@ -286,6 +300,8 @@ def validate_ficha(payload: dict) -> dict:
         clean_faces[face] = {"panels": panels, "openings": openings}
         if raw_face.get("top_void_cm") is not None:
             clean_faces[face]["top_void_cm"] = _positive(raw_face["top_void_cm"])
+        if raw_face.get('n3_width_extra') is not None:
+            clean_faces[face]['n3_width_extra'] = _positive(raw_face['n3_width_extra'])
         # Presenca da chave e' significativa: [] remove lajes sugeridas pelo N1.
         # Fichas antigas sem a chave continuam recebendo a sugestao automatica.
         if "slabs" in raw_face:
@@ -303,6 +319,14 @@ def validate_ficha(payload: dict) -> dict:
                 }
                 for raw in raw_slabs if isinstance(raw, dict)
             ]
+            for clean, raw in zip(clean_faces[face]['slabs'],
+                                  [raw for raw in raw_slabs if isinstance(raw, dict)]):
+                for key in ('slab_name', 'slab_dimension', 'slab_behavior',
+                            'contact_id', 'level_source'):
+                    if raw.get(key):
+                        clean[key] = str(raw[key])
+                if raw.get('pending'):
+                    clean['pending'] = [str(reason) for reason in raw['pending']]
     result["faces"] = clean_faces
     grades = result.setdefault("grades", {})
     for key in ("grade_1", "distance_1", "grade_2", "distance_2", "grade_3"):
@@ -428,12 +452,23 @@ def robot_patch(ficha: dict) -> dict:
             patch[f"_portal_slabs_{face}"] = deepcopy(data["slabs"])
             first_slab = next((slab for slab in data["slabs"]
                                if slab["width"] > 0 and slab["height"] > 0), None)
+            # Scalar contract is valid only for a single whole-face contact.
+            physical_slabs = any(slab.get('contact_id') for slab in data['slabs'])
+            segmented_slabs = physical_slabs or len(data['slabs']) > 1 or any(
+                slab['left_distance'] > 0 or slab['right_distance'] > 0
+                for slab in data['slabs']
+            )
+            if segmented_slabs:
+                first_slab = None
             patch[f"vazio_laje_{face}"] = first_slab["height"] if first_slab else 0.0
             patch[f"rebaixo_laje_{face}"] = first_slab["top_distance"] if first_slab else 0.0
             patch[f"laje_{face}"] = max(0.0, first_slab["height"] - 2.0) if first_slab else 0.0
             patch[f"posicao_laje_{face}"] = 1.0 if first_slab else 0.0
         total_width = sum(col_widths) or max((p["width"] for p in panels), default=0.0)
         total_height = sum(row_heights)
+        # The generator gives the unnumbered legacy opening precedence.
+        # Explicitly clear it when publishing the authoritative face list.
+        patch[f'abertura_{face}'] = None
         opening_index = 1
         for side in ("left", "right"):
             for opening in data["openings"][side]:
@@ -470,6 +505,25 @@ def robot_patch(ficha: dict) -> dict:
                 if opening.get("element_level") is not None:
                     patch[f"abertura_{face}_{opening_index}"]["_nivel_origem"] = opening["element_level"]
                 opening_index += 1
+        if 'slabs' in data and segmented_slabs:
+            for slab in data['slabs']:
+                if slab.get('pending') or slab['width'] <= 0 or slab['height'] <= 0:
+                    continue
+                if slab.get('contact_id') and slab.get('level') is None:
+                    continue
+                bottom = dimensions['height'] - slab['top_distance'] - slab['height']
+                strip = row_heights[0] if row_heights else 0.0
+                if bottom < strip - 1e-8:
+                    raise ValueError(f'face {face}: slab contact exceeds pillar height')
+                patch[f'abertura_{face}_{opening_index}'] = {
+                    'lado': 'meio', 'largura': slab['width'], 'altura': slab['height'],
+                    'x_offset': slab['left_distance'] + (data.get('n3_width_extra', 0.0) / 2 if slab.get('contact_id') else 0.0),
+                    'y_rel': bottom - strip,
+                    '_origem': 'slab_contact', '_laje': slab.get('slab_name'),
+                    '_nivel_origem': slab.get('level'),
+                }
+                opening_index += 1
+        patch[f'abertura_{face}_{opening_index}'] = None
     cima = ficha.get("cima_contract") if isinstance(ficha, dict) else None
     fields = (cima or {}).get("fields") if isinstance(cima, dict) else None
     especial = (fields or {}).get("especial") if isinstance(fields, dict) else None
@@ -571,9 +625,27 @@ def apply_ficha_to_robot(robot: dict, ficha: dict | None) -> dict:
             faces = contract.get("faces")
             if isinstance(faces, dict):
                 for face, data in (ficha.get("faces") or {}).items():
-                    if not isinstance(data, dict) or data.get("top_void_cm") is None:
+                    if not isinstance(data, dict):
                         continue
                     face_contract = faces.get(face)
+                    # Segmented contacts are explicit openings, not a uniform
+                    # face-wide void. Keep the old source for traceability but
+                    # remove it from the scalar consumer's derived contract.
+                    if isinstance(face_contract, dict) and (len(data.get('slabs') or []) > 1 or any(
+                        slab.get('contact_id') or slab.get('left_distance', 0) > 0
+                        or slab.get('right_distance', 0) > 0
+                        for slab in data.get('slabs') or []
+                    )):
+                        sources = face_contract.get('fontes_n1')
+                        if isinstance(sources, dict):
+                            face_contract['_slab_scalar_source'] = deepcopy(sources.get('lajes') or [])
+                            sources['lajes'] = []
+                        face_contract['rebaixo_laje_cm'] = 0.0
+                        face_contract['vazio_laje_cm'] = 0.0
+                        face_contract['nivel_laje'] = None
+                        face_contract['espessura_laje'] = None
+                    if data.get("top_void_cm") is None:
+                        continue
                     if isinstance(face_contract, dict) and isinstance(face_contract.get("vazio_topo"), dict):
                         face_contract["vazio_topo"]["valor_cm"] = _positive(data["top_void_cm"])
     return result

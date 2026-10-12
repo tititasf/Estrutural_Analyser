@@ -35,13 +35,24 @@
     canvas.addEventListener('pointerup',stop);canvas.addEventListener('pointercancel',stop);canvas.addEventListener('lostpointercapture',stop);canvas.addEventListener('auxclick',function(event){if(event.button===1)event.preventDefault();});canvas.addEventListener('dblclick',reset);
     return {reset:reset,zoom:zoom};
   }
+  async function uploadResult(response) {
+    var body=await response.text(),result;
+    try { result=JSON.parse(body); } catch(error) {
+      if([502,503,504].includes(response.status))throw new Error('Portal temporariamente indisponível (HTTP '+response.status+'). Aguarde alguns segundos e tente enviar novamente.');
+      if(response.status===413)throw new Error('O servidor recusou o tamanho do arquivo (HTTP 413).');
+      if(response.redirected)throw new Error('Sua sessão expirou. Entre novamente no portal antes de enviar.');
+      throw new Error('O servidor devolveu uma resposta inesperada (HTTP '+response.status+'). Tente novamente.');
+    }
+    if(!response.ok)throw new Error(typeof result.detail==='string'?result.detail:'Falha ao enviar DXF (HTTP '+response.status+').');
+    return result;
+  }
   function framePanel(examples, legends) {
     // Documentos separados por modo, classe e coleção; cada envio acrescenta uma aba.
     var noun=legends?'índices e legendas':'moldura', Noun=legends?'Índices e Legendas':'Moldura';
     var box=section(examples?'Exemplos — até 10 DXFs':Noun,examples?'examples':(legends?'legends':'frame')), selectedMode=mode, selectedClass=cls;
     box.appendChild(el('p',examples?'Guarde até dez documentos de exemplo, separados por modo e classe.':'Envie DXFs para visualizar e guardar '+(legends?'os índices e legendas':'a moldura')+' deste modo e desta classe.'));
-    var label=el('label','Documento DXF (até 20 MB)'),file=el('input');file.type='file';file.accept='.dxf';file.disabled=!data.can_edit;label.appendChild(file);box.appendChild(label);
-    var upload=el('button','Enviar DXF','btn');upload.type='button';upload.disabled=!data.can_edit;box.appendChild(upload);
+    var label=el('label','Documentos DXF (até 20 MB por arquivo)'),file=el('input');file.type='file';file.accept='.dxf';file.multiple=true;file.disabled=!data.can_edit;label.appendChild(file);box.appendChild(label);
+    var upload=el('button','Enviar DXFs','btn');upload.type='button';upload.disabled=!data.can_edit;box.appendChild(upload);
     var message=el('p','Carregando '+noun+'…');message.setAttribute('role','status');box.appendChild(message);
     var reset=el('button','Enquadrar desenho');reset.type='button';reset.hidden=true;box.appendChild(reset);
     var zoomIn=el('button','Ampliar'),zoomOut=el('button','Reduzir');[zoomIn,zoomOut].forEach(function(b){b.type='button';b.hidden=true;box.appendChild(b);});
@@ -73,11 +84,27 @@
     }
     fetch(url,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('Não foi possível carregar '+(legends?'os índices e legendas':'a moldura')+'.');return r.json();}).then(function(r){return listing(examples?r.examples:r.documents,r.frame);}).catch(function(e){message.textContent=e.message;});
     upload.addEventListener('click',async function(){
-      if(!file.files.length){message.textContent='Selecione um DXF.';return;}
-      if(!/\.dxf$/i.test(file.files[0].name)||file.files[0].size>20*1024*1024){message.textContent='Selecione um DXF de até 20 MB.';return;}
-      busy=true;dialog.querySelectorAll('[role=tab]').forEach(function(b){b.disabled=true;});upload.disabled=true;file.disabled=true;message.textContent='Enviando e preparando o desenho…';
-      try{var payload=new FormData();payload.append('arquivo',file.files[0]);var r=await fetch(url,{method:'POST',body:payload}),result=await r.json();if(!r.ok)throw new Error(typeof result.detail==='string'?result.detail:'Falha ao enviar DXF.');await listing(examples?result.examples:result.documents,result.frame);file.value='';}
-      catch(e){message.textContent=e.message;}
+      if(busy)return;
+      var selected=Array.from(file.files);
+      if(!selected.length){message.textContent='Selecione um ou mais DXFs.';return;}
+      var invalid=selected.find(function(item){return !/\.dxf$/i.test(item.name)||item.size>20*1024*1024;});
+      if(invalid){message.textContent=invalid.name+': selecione um DXF de até 20 MB.';return;}
+      if(examples&&documents.length+selected.length>10){message.textContent='Limite de 10 exemplos por modo e classe. Há '+(10-documents.length)+' vaga(s) disponível(is).';return;}
+      busy=true;dialog.querySelectorAll('[role=tab]').forEach(function(b){b.disabled=true;});upload.disabled=true;file.disabled=true;
+      var completed=0,failures=[],failedFiles=[],latest=null;
+      try{
+        for(var i=0;i<selected.length;i++){
+          message.textContent='Enviando '+(i+1)+' de '+selected.length+': '+selected[i].name+'…';
+          try{
+            var payload=new FormData();payload.append('arquivo',selected[i]);
+            var response=await fetch(url,{method:'POST',body:payload}),result=await uploadResult(response);
+            latest=result;completed++;
+          }catch(error){failedFiles.push(selected[i]);failures.push(selected[i].name+': '+error.message);}
+        }
+        if(latest)await listing(examples?latest.examples:latest.documents,latest.frame);
+        if(failedFiles.length){var retryFiles=new DataTransfer();failedFiles.forEach(function(item){retryFiles.items.add(item);});file.files=retryFiles.files;}else file.value='';
+        message.textContent=completed+' de '+selected.length+' arquivo(s) enviado(s).'+(failures.length?' Falhas: '+failures.join(' · '):' Selecione uma aba para visualizar.');
+      }catch(error){message.textContent=completed+' arquivo(s) enviado(s). '+error.message;}
       finally{busy=false;dialog.querySelectorAll('[role=tab]').forEach(function(b){b.disabled=false;});upload.disabled=!data.can_edit;file.disabled=!data.can_edit;}
     });
   }
@@ -135,6 +162,14 @@
     form.querySelector('[type=submit]').disabled = !data.can_edit || busy;
     form.querySelector('[type=submit]').hidden = category === 'frame' || category === 'legends' || category === 'examples' || category === 'legacy';
     var value = data.modes[mode][cls];
+    if(mode==='INI'&&cls==='LJ'&&!['frame','legends','examples','legacy'].includes(category)){
+      status.textContent='Lajes INI usam o mesmo desenho e perfil NOVA. Altere os campos em Modo Nova → Lajes.';
+      form.querySelector('[type=submit]').disabled=true;
+      fields.appendChild(el('p',status.textContent));
+      var shared=el('button','Editar perfil NOVA de lajes','btn');shared.type='button';
+      shared.onclick=function(){mode='NOVA';render();};fields.appendChild(shared);
+      return;
+    }
     var roles=data.roles[cls];
     if(category==='drilling'&&cls==='PL'){
       var drill=value.drilling,box=section('Furações dos painéis A–H','drilling'),grid=el('div',undefined,'drawing-config-grid');box.appendChild(grid);
@@ -199,13 +234,14 @@
     }
     if(category==='special'){
     var special=section('Detalhes especiais — '+data.mode_labels[mode],'special');
-    special.appendChild(el('p',mode==='INI'?'O Modo iNI usa os nomes e a paleta dos layers legados e cores por layer. Os sarrafos sólidos são convertidos em MLINE central SAR3, com largura da seção. Sarrafos HIDDEN e DASHED continuam como linhas. A geometria estrutural é preservada.':mode==='NOVA'?'O Modo Nova conserva o desenho atual: sarrafos com a representação geométrica emitida pelo motor, layers e cores atuais.':'Este modo começou como uma cópia independente da configuração do Modo Nova. Alterações feitas aqui não modificam o Nova nem os outros Moldes.'));
-    if(cls==='PL')special.appendChild(el('p','As posições horizontais das grades também diferem: o padrão iNI começa em 60 / 170 / 280 cm; o padrão Nova em 30 / 120 / 210 cm. A lista completa é editável em Disposição.'));
+    special.appendChild(el('p',mode==='INI'?'O Modo iNI usa os nomes e a paleta dos layers legados e cores por layer. Os sarrafos sólidos são convertidos em MLINE central SAR3, com largura da seção. Sarrafos HIDDEN e DASHED continuam como linhas. A geometria estrutural é preservada.':mode==='MOLDE_1'&&cls==='LJ'?'Lajes Formascia: contorno e divisões verdes; geometria, nomes, cotas e hachuras preservados. Consulte as regras completas abaixo.':mode==='MOLDE_1'&&['PL','FV'].includes(cls)?'Formascia usa o padrão aprovado desta classe. Painéis verdes; sarrafos vermelhos e detalhes nativos do original. Consulte as regras completas abaixo.':mode==='NOVA'?'O Modo Nova conserva o desenho atual: sarrafos com a representação geométrica emitida pelo motor, layers e cores atuais.':'Este modo começou como uma cópia independente da configuração do Modo Nova. Alterações feitas aqui não modificam o Nova nem os outros Moldes.'));
+    if(cls==='PL'&&mode==='MOLDE_1')special.appendChild(el('p','Grades Formascia: horizontais a 50 / 120 / 180 cm acima da base; fechamento superior apenas com dois ou mais montantes contíguos. A lista é editável em Disposição.'));
+    if(cls==='PL'&&mode!=='MOLDE_1')special.appendChild(el('p','As posições horizontais das grades também diferem: o padrão iNI começa em 60 / 170 / 280 cm; o padrão Nova em 30 / 120 / 210 cm. A lista completa é editável em Disposição.'));
     if(cls==='LJ')special.appendChild(el('p','Lajes não possuem um remapeamento de layers legado específico. As opções salvas deste modo controlam planta, textos, cotas e hachuras.'));
     var specialGrid=el('div',undefined,'drawing-config-grid');special.appendChild(specialGrid);
     select(specialGrid,'Representação dos sarrafos sólidos',value.special.sarrafo_representation,['PADRAO','LINE','MLINE'],function(v){value.special.sarrafo_representation=v;});
     select(specialGrid,'Cores por layer',value.special.bylayer,['PADRAO','SIM','NAO'],function(v){value.special.bylayer=v;});
-    special.appendChild(el('p','PADRAO segue o modo. LINE conserva a geometria em linhas/polilinhas. MLINE usa SAR3 nos sarrafos sólidos; linhas tracejadas são preservadas.'));
+    special.appendChild(el('p',mode==='MOLDE_1'&&cls==='LJ'?'Lajes Formascia preservam o desenho do motor e alteram somente a cor do contorno e das divisões dos painéis para verde ACI 3. Não há conversão de sarrafos nesta classe.':mode==='MOLDE_1'&&cls==='FV'?'Fundos Formascia usam MLINE FORMASCIA-FV-7: seção 7 cm, horizontal 30 cm, recuo 2 cm; reforço extra curto junto ao recorte e vertical prolongado 7 cm. Chanfros acompanham a diagonal.':mode==='MOLDE_1'&&cls==='PL'?'Formascia preserva MLINE nativa: EEEEEEEE/SAR15 nos pilares e FORMASCIA-FV-7 nos fundos. C/D a partir de 30 cm têm somente sarrafos horizontais nas extremidades. Linhas tracejadas são preservadas.':'PADRAO segue o modo. LINE conserva a geometria em linhas/polilinhas. MLINE usa SAR3 nos sarrafos sólidos; linhas tracejadas são preservadas.'));
     var noteLabel=el('label','Anotações humanas'),note=el('textarea');note.rows=6;note.maxLength=20000;note.value=value.human_notes;note.disabled=!data.can_edit;note.addEventListener('input',function(){value.human_notes=note.value;status.textContent='Anotações ainda não salvas.';});noteLabel.appendChild(note);special.appendChild(noteLabel);
     }
     if(category==='layers'){
@@ -224,7 +260,7 @@
       var row = el('div',undefined,'drawing-config-layer'); layers.appendChild(row); row.appendChild(el('span',source));
       var measuredLayers=data.current&&data.current.modes[mode]&&data.current.modes[mode][cls]&&data.current.modes[mode][cls].layers;
       var measuredLayer=measuredLayers&&measuredLayers[source];
-      if(measuredLayer)row.appendChild(el('small','N3 atual — ACI: '+(measuredLayer.color||['layer ausente']).join(' / ')+(measuredLayer.entity_linetype?' · linhas: '+measuredLayer.entity_linetype.join(' / '):'')+(measuredLayer.hatch_pattern?' · hachuras: '+measuredLayer.hatch_pattern.join(' / '):'')));
+      if(measuredLayer)row.appendChild(el('small',(data.current.verified?'N3 atual':'Última medição — desatualizada')+' — ACI: '+(measuredLayer.color||['layer ausente']).join(' / ')+(measuredLayer.entity_linetype?' · linhas: '+measuredLayer.entity_linetype.join(' / '):'')+(measuredLayer.hatch_pattern?' · hachuras: '+measuredLayer.hatch_pattern.join(' / '):'')));
       input(row,'Nome',value.layers[source].name,'text',function(v){value.layers[source].name=v;});
       var color = input(row,'Cor ACI',value.layers[source].color,'number',function(v){value.layers[source].color=v;}); color.min=1; color.max=255; color.step=1;
       input(row,'Incluir',value.layers[source].enabled,'checkbox',function(v){value.layers[source].enabled=v;});

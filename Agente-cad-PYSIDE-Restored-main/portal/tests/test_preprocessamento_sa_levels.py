@@ -86,3 +86,73 @@ def test_contradictory_cut_candidate_visible_but_never_consumed():
         ('slab_level', 852.19), ('slab_level_candidate', 852.12)]
     assert 'unresolved_cut_level_alternative' in facts[0]['warnings']
     assert item_level_input({'levels': facts, 'level_inventory': {'items': tower['items']}}) == {}
+
+
+def homonym_case(order):
+    polygon = [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]]
+    outside = {'item_id': 'out', 'display_name': 'L1', 'item_class': 'slab',
+               'label_position': [50, 50], 'levels': [], 'segments': []}
+    inside = {'item_id': 'in', 'display_name': 'L1', 'item_class': 'slab',
+              'label_position': [5, 5], 'levels': [], 'segments': []}
+    beam = {'item_id': 'V1', 'display_name': 'V1', 'item_class': 'beam', 'levels': [], 'segments': []}
+    if order == 'out-first':
+        items = [outside, inside, beam]
+    elif order == 'in-first':
+        items = [inside, outside, beam]
+    else:
+        items = [{**outside, 'item_id': 'a'},
+                 {**outside, 'item_id': 'b', 'label_position': [60, 60]}, beam]
+    context = {'evidence_id': 'scoped-source',
+        'marks': [{'value': 852.19, 'pos': [5, 5], 'handle': 'A'}],
+        'state': {'slabs': [{'name': 'L1', 'nivel': 852.19, 'points': polygon}],
+                  'pilares': [], 'segmentos': {'lateral_a_passa': [
+                      {'uid': 'match', 'beam_name': 'V1', 'segment_label': 1,
+                       'level': 852.19, 'level_source': 'lv_cell_slabs', 'level_slabs': ['L1'],
+                       'points': [[100, 0], [200, 0]]},
+                      {'uid': 'other', 'beam_name': 'V1', 'segment_label': 2,
+                       'level': 402.5, 'level_source': 'lv_cell_slabs', 'level_slabs': ['L1'],
+                       'points': [[100, 30], [200, 30]]}]}},
+        'tables': {'beams': [], 'slabs': []}}
+    return {'reference': {'base': 848.98, 'top': 852.19, 'unit': 'm'}, 'items': items}, context
+
+
+def test_repeated_name_binds_the_slab_to_the_label_inside_the_contour():
+    for order in ('out-first', 'in-first'):
+        result = merge_sa_levels(*homonym_case(order))
+        by_id = {item['item_id']: item for item in result['items']}
+        assert any(f.get('field') == 'slab_level' and f.get('value') == 852.19 for f in by_id['in']['levels'])
+        assert by_id['out']['levels'] == []
+        segs = {seg['segment_id']: seg for seg in by_id['V1']['segments']}
+        assert segs['match']['level'] == 852.19
+        assert segs['match']['confidence_pct'] > 30
+        assert 'missing_independent_level_evidence' not in segs['match']['warnings']
+        assert segs['other']['level'] == 402.5
+        assert segs['other']['confidence_pct'] <= 30
+        assert 'missing_independent_level_evidence' in segs['other']['warnings']
+
+
+def test_labels_outside_the_contour_keep_the_item_that_received_the_level():
+    result = merge_sa_levels(*homonym_case('neither'))
+    by_id = {item['item_id']: item for item in result['items']}
+    assert any(f.get('field') == 'slab_level' and f.get('value') == 852.19 for f in by_id['a']['levels'])
+    assert by_id['b']['levels'] == []
+    match = next(seg for seg in by_id['V1']['segments'] if seg['segment_id'] == 'match')
+    assert match['confidence_pct'] > 30
+    assert 'missing_independent_level_evidence' not in match['warnings']
+
+def test_final_contour_uses_only_identified_contained_marks():
+    tower, context = fixture()
+    context['marks'].append({'value':852.19,'pos':[9,5],'handle':'B'})
+    result = merge_sa_levels(tower,context)
+    package={'levels':result['items'][0]['levels'],'level_inventory':{'items':tower['items']}}
+    levels=item_level_input(package)
+    slab={'name':'L1','points':[[0,0],[6,0],[6,10],[0,10],[0,0]]}
+    receipt=consume_item_levels([slab],levels)
+    assert receipt[0]['value']==852.19
+    assert 'cad:A' in receipt[0]['evidence_ids']
+    assert 'cad:B' not in receipt[0]['evidence_ids']
+    assert len(levels['L1']['cad_marks'])==2
+    outside={'name':'L1','points':[[20,20],[30,20],[30,30],[20,30]]}
+    assert consume_item_levels([outside],levels)==[]
+    protected=deepcopy(slab);protected['validated_fields']=['laje_nivel']
+    assert consume_item_levels([protected],levels)==[]

@@ -151,20 +151,19 @@ def pav_num_from_sa_name(sa_name: str) -> 'int | None':
     m = _PAV_NUM_IN_SA.search(sa_name)
     if m:
         return int(m.group(1))
-    m2 = re.search(r'(\d+)\s*[º°aA]?\s*P[AV]?', sa_name, re.IGNORECASE)
+    m2 = re.search(r'(?<!\w)(\d+)[_\s]*[º°aA]?\s*(?:PAV(?:IMENTO)?|PV|P)(?![A-Za-z0-9])', sa_name, re.IGNORECASE)
     if m2:
         return int(m2.group(1))
-    m3 = re.search(r'(\d+)', sa_name)
-    if m3:
-        return int(m3.group(1))
-    if re.search(r'[-_]COB[-_]', sa_name, re.IGNORECASE):
+    if re.fullmatch(r'\s*\d+\s*', sa_name):
+        return int(sa_name)
+    if re.search(r'(?:^|[-_])COB(?:ERTURA)?(?:$|[-_])', sa_name, re.IGNORECASE):
         return 9999
-    if re.search(r'[-_]ATC[-_]', sa_name, re.IGNORECASE):
+    if re.search(r'(?:^|[-_])ATC(?:$|[-_])', sa_name, re.IGNORECASE):
         return 10000
-    if re.search(r'[-_]TER[-_]', sa_name, re.IGNORECASE):
+    if re.search(r'(?:^|[-_])TER(?:REO)?(?:$|[-_])', sa_name, re.IGNORECASE):
         return 0
     for pat, num in [('SUB', -1), ('GAR', -2), ('FUN', -3)]:
-        if re.search(rf'[-_]{pat}[-_]', sa_name, re.IGNORECASE):
+        if re.search(rf'(?:^|[-_]){pat}(?:$|[-_])', sa_name, re.IGNORECASE):
             return num
     if re.search(r'[-_]TIP[-_]', sa_name, re.IGNORECASE):
         return None
@@ -356,7 +355,69 @@ def build_pav_cota_map(
     return {sa: _resolve(sa) for sa in sa_pav_names}
 
 
+def resolve_panel_level_reference(obra: str, pavimento: str, pinned: dict | None = None) -> dict:
+    """Panel datum from the verified run context, otherwise the explicit floor.
+
+    ``pinned`` must come from the headless context verifier, which binds the
+    source hash, project and floor. This panel height never assigns slab levels.
+    Unknown floor names are not a license to select another floor's convention.
+    """
+    import math
+    if isinstance(pinned, dict) and pinned.get('unit') == 'm' and pinned.get('source_id'):
+        try:
+            base, top, height = (float(pinned[key]) for key in ('base', 'top', 'height'))
+        except (KeyError, ValueError, TypeError):
+            pass
+        else:
+            if (all(math.isfinite(v) for v in (base, top, height))
+                    and 0 < top - base <= 6 and abs(top - base - height) < 1e-3):
+                return {'saida_abs': base, 'chegada_abs': top,
+                        'altura_m': height, 'altura_cm': height * 100,
+                        'fonte': 'verified_run_context', 'source_id': pinned['source_id']}
+    if not obra or not pavimento:
+        return {}
+    return get_pavimento_niveis_abs(obra, pavimento)
+
+
+def resolve_beam_default_level(obra: str, pavimento: str, pinned: dict | None = None) -> str:
+    """Display the explicit floor datum in metres, only for beams without a level.
+
+    Both supported datum sources define absolute levels in metres. This helper
+    must not be used to infer slab or regional levels from the floor datum.
+    """
+    from src.core.number_presentation import display_level
+    reference = resolve_panel_level_reference(obra, pavimento, pinned)
+    top = reference.get('chegada_abs')
+    return f'{display_level(top)} m' if top is not None else ''
+
+
 def get_pavimento_niveis_abs(obra_dir_or_name: str, pav_name_or_num: 'str | int') -> dict:
+    """Resolve unchanged conventions once per analysis; callers own their dict."""
+    import copy
+    import os
+    from src.core.analysis_run_cache import level_cache
+    cache = level_cache.get()
+    if cache is None:
+        return _get_pavimento_niveis_abs(obra_dir_or_name, pav_name_or_num)
+    key = (os.path.abspath(obra_dir_or_name), str(pav_name_or_num))
+    entry = cache.get(key)
+    if entry is not None:
+        source, signature, result = entry
+        try:
+            current = os.stat(source) if source else None
+            if source is None or (current.st_mtime_ns, current.st_size) == signature:
+                return copy.deepcopy(result)
+        except OSError:
+            pass
+    # The resolver records the selected source even if it has no floor match.
+    cache.pop(('source', key[0]), None)
+    result = _get_pavimento_niveis_abs(obra_dir_or_name, pav_name_or_num)
+    source, signature = cache.pop(('source', key[0]), (None, None))
+    cache[key] = (source, signature, copy.deepcopy(result))
+    return result
+
+
+def _get_pavimento_niveis_abs(obra_dir_or_name: str, pav_name_or_num: 'str | int') -> dict:
     """
     Retorna cotas absolutas exatas (chegada_abs, saida_abs, altura_m, altura_cm)
     extraídas da Convenção de Níveis (Elevação Típica) da obra.
@@ -366,10 +427,6 @@ def get_pavimento_niveis_abs(obra_dir_or_name: str, pav_name_or_num: 'str | int'
         pav_num = pav_name_or_num
     else:
         pav_num = pav_num_from_sa_name(str(pav_name_or_num))
-        if pav_num is None:
-            m = re.search(r'(\d+)', str(pav_name_or_num))
-            if m:
-                pav_num = int(m.group(1))
 
     if pav_num is None:
         return {}
@@ -390,6 +447,12 @@ def get_pavimento_niveis_abs(obra_dir_or_name: str, pav_name_or_num: 'str | int'
         return {}
 
     conv_dxf = conv_dxfs[0]
+    from src.core.analysis_run_cache import level_cache
+    cache = level_cache.get()
+    if cache is not None:
+        stat = os.stat(conv_dxf)
+        cache[('source', os.path.abspath(obra_dir_or_name))] = (
+            conv_dxf, (stat.st_mtime_ns, stat.st_size))
     try:
         import ezdxf
         doc = ezdxf.readfile(conv_dxf)
@@ -412,13 +475,18 @@ def get_pavimento_niveis_abs(obra_dir_or_name: str, pav_name_or_num: 'str | int'
                 s_val = None
                 if idx_e > 0:
                     prev_e = entries[idx_e - 1]
-                    if prev_e.get('chegada') != '?':
+                    if prev_e.get('pav_num') == pav_num - 1 and prev_e.get('chegada') != '?':
                         s_val = float(prev_e['chegada'].replace(',', '.'))
                 if s_val is None:
-                    h_fallback = float(e['altura'].replace(',', '.')) if e.get('altura') != '?' else 2.80
+                    if not e.get('altura') or e['altura'] == '?':
+                        return {}
+                    h_fallback = float(e['altura'].replace(',', '.'))
                     s_val = c_val - h_fallback
 
-                h_val = abs(c_val - s_val)
+                import math
+                h_val = c_val - s_val
+                if not all(math.isfinite(v) for v in (c_val, s_val, h_val)) or not 0 < h_val <= 6:
+                    return {}
                 return {
                     'chegada_abs': c_val,
                     'saida_abs': s_val,

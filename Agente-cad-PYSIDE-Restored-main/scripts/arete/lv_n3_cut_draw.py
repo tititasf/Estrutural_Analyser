@@ -53,8 +53,32 @@ def insert_original_fitting(space,name,x,y):
 
 def generate(contract, path, mode='NOVA', behavior='PARA'):
     """Concreto em escala 1:1, lajes com seu desnível e montagem SCR paramétrica."""
+    if str(mode).upper() == 'INI':
+        from src.core.ini_design import draw_cut
+        doc=draw_cut(contract,behavior)
+        Path(path).parent.mkdir(parents=True,exist_ok=True)
+        doc.saveas(path)
+        return doc
+    if str(mode).upper() == 'MOLDE_1':
+        from src.core.lv_formascia_design import draw_cut
+        from scripts.drawing_mode_config import apply_config
+        from src.core.lv_formascia_design import normalize_resources
+        doc = draw_cut(contract)
+        apply_config(doc, mode, 'LV', behavior)
+        normalize_resources(doc)
+        doc.saveas(path)
+        return doc
+    if str(mode).upper() == 'NOVA':
+        from src.core.lv_nova_design import draw_cut
+        from scripts.drawing_mode_config import apply_config
+        doc = draw_cut(contract)
+        apply_config(doc, mode, 'LV', behavior)
+        doc.saveas(path)
+        return doc
     from shapely.geometry import box
     from shapely.ops import unary_union
+    from src.core.vigas_drawing_config import normalize_lv_assembly
+    assembly=normalize_lv_assembly(contract.get('assembly_variant','sarrafeadas'))
     m=motor()
     from scripts.drawing_semantics import LayoutProxy
     doc=m.setup_doc(); space=LayoutProxy(doc.modelspace(),'LV')
@@ -120,10 +144,16 @@ def generate(contract, path, mode='NOVA', behavior='PARA'):
         # Use the lateral N3's sarrafo rule, without the two extra edge
         # pieces formerly synthesized only in this perspective.
         _,batt_height,positions=m._get_sarrafo_positions(profile['h1_cm'])
-        for position in positions:
+        for position in positions if assembly=='sarrafeadas' else ():
             yc=position+base
             if yc-batt_height/2>=base and yc+batt_height/2<=top:
                 rect(wx1,yc-batt_height/2,wx2,yc+batt_height/2,'Madeira')
+        if assembly=='gradeadas':
+            # The section of a grade has two upright chords and a top chord;
+            # it is not the horizontal batten stack of the other assembly.
+            gx1,gx2=(wx1-3.5,wx1) if direction<0 else (wx2,wx2+3.5)
+            rect(gx1,base,gx2,top-2.2,'SARR_3.5x7')
+            rect(wx1,top-2.2,wx2,top,'SARR_2.2x7',hatch=True)
         dim_v(x+direction*(reach+22),base,top,f'{top-base:g}',wx1 if direction<0 else wx2)
         m.add_text(space,(wx1+wx2)/2, max(0,top*.28),'a' if side=='A' else 'b',4.8,'detalhes',halign=1,color=4)
         m.add_text(space,x+direction*reach/2,h+17,'Lado '+side,3.5,'Texto Seção',halign=1)
@@ -211,33 +241,184 @@ def generate_local_sections(sides, path, mode='NOVA', behavior='PARA'):
     contracts = {}
     for side in ('A', 'B'):
         for segment in (sides.get(side) or {}).get('structural_segments') or []:
-            contract = segment.get('section_contract')
-            if not contract:
-                raise ValueError('Seção local ausente no segmento lateral')
-            # Equal shapes at different levels retain their own absolute datum.
-            fields = ('beam', 'beam_type', 'form_role', 'width_cm', 'height_cm',
-                      'slabs', 'mounting', 'rules', 'base_level_m', 'top_level_m')
-            key = json.dumps({k: contract.get(k) for k in fields}, sort_keys=True)
-            contracts.setdefault(key, contract)
+            sections = segment.get('section_contracts') or [segment.get('section_contract')]
+            for contract in sections:
+                if not contract:
+                    raise ValueError('Seção local ausente no segmento lateral')
+                contract=dict(contract,assembly_variant=(sides.get(side) or {}).get('assembly_variant','sarrafeadas'))
+                # Equal shapes at different levels retain their own absolute datum.
+                fields = ('beam', 'beam_type', 'form_role', 'width_cm', 'height_cm',
+                          'slabs', 'mounting', 'rules', 'base_level_m', 'top_level_m','assembly_variant')
+                key = json.dumps({k: contract.get(k) for k in fields}, sort_keys=True)
+                contracts.setdefault(key, contract)
     if not contracts:
         raise ValueError('Nenhuma seção local confirmada para o corte N3')
     doc = motor().setup_doc()
+    units = []
+    unit_dir = Path(path).with_suffix('.units')
+    if mode in ('NOVA', 'MOLDE_1'):
+        unit_dir.mkdir(parents=True, exist_ok=True)
     y = 0.
     with tempfile.TemporaryDirectory(prefix='lv-local-sections-') as directory:
         for index, contract in enumerate(contracts.values(), 1):
             source = generate(contract, Path(directory)/f'{index}.dxf', mode, behavior)
+            if mode in ('NOVA', 'MOLDE_1'):
+                from hashlib import sha256
+                unit_path = unit_dir / f'CORTE_{index:03d}.dxf'
+                source.saveas(unit_path)
+                units.append(dict(file=unit_path.name, kind='CORTE', beam=contract['beam'],
+                                  contract=contract, sha256=sha256(unit_path.read_bytes()).hexdigest()))
             bounds = bbox.extents(source.modelspace())
             if not bounds.has_data:
                 raise ValueError('Seção N3 sem geometria')
-            importer = Importer(source, doc)
-            entities = list(source.modelspace())
             transform = Matrix44.translate(-bounds.extmin.x, y-bounds.extmax.y, 0)
-            for entity in entities:
-                entity.transform(transform)
-            importer.import_entities(entities)
-            importer.finalize()
+            if mode in ('NOVA', 'MOLDE_1'):
+                from ezdxf.xref import load_modelspace
+                existing = {e.dxf.handle for e in doc.modelspace()}
+                load_modelspace(source, doc)
+                for entity in doc.modelspace():
+                    if entity.dxf.handle not in existing:
+                        entity.transform(transform)
+            else:
+                importer = Importer(source, doc)
+                entities = list(source.modelspace())
+                for entity in entities:
+                    entity.transform(transform)
+                importer.import_entities(entities)
+                importer.finalize()
             y -= bounds.size.y + 45.
     doc.header['$INSUNITS'] = 5
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     doc.saveas(path)
+    if mode in ('NOVA', 'MOLDE_1'):
+        (unit_dir / 'manifest.json').write_text(json.dumps(dict(mode=mode, behavior=behavior,
+            assembly_variant=next(iter(contracts.values()))['assembly_variant'], units=units),
+            ensure_ascii=False, indent=2), encoding='utf8')
     return list(contracts.values())
+
+
+def generate_local_panels(sides, path, side, mode='NOVA', behavior='PARA'):
+    """Pass explicit local heights to the certified panel drawing primitive.
+
+    The legacy whole-face route interprets short sections as slab frames and
+    substitutes the largest height. N1 confirmed local mounting is authoritative;
+    Each confirmed station retains its own drawing unit without deleting stations.
+    """
+    if str(mode).upper() == 'MOLDE_1':
+        from src.core.lv_formascia_sa_adapter import generate_ab
+        source = dict(sides[side], side=side)
+        return generate_ab(source, path, behavior, mode='MOLDE_1')
+    if str(mode).upper() == 'INI':
+        from src.core.lv_ini_sa_adapter import generate_ab
+        source = dict(sides[side], side=side)
+        return generate_ab(source,path,behavior)
+    if str(mode).upper() == 'NOVA':
+        from src.core.lv_nova_sa_adapter import generate_ab
+        source = dict(sides[side], side=side)
+        return generate_ab(source, path, behavior)
+    from copy import deepcopy
+    from scripts.drawing_semantics import LayoutProxy
+    from scripts.drawing_mode_config import apply_config
+    contract = sides[side]
+    if contract.get('vertical_pending') or not contract.get('panels'):
+        raise ValueError('Lateral N3 sem montagem local confirmada')
+    groups = []
+    for panel in contract['panels']:
+        height = float(panel['height1'])
+        if height <= 0 or float(panel['height2']) != height:
+            raise ValueError('Painel local sem altura única confirmada')
+        # Each confirmed station is a body panel. Joining narrow stations to
+        # wide bays activates legacy N2 slab-frame heuristics in draw_lv_face.
+        drawing_panel = deepcopy(panel)
+        # Robot height2 is an additional band, whereas the SA contract stores
+        # equal end heights. A uniform wall has one band in the robot schema.
+        drawing_panel['height2'] = 0.
+        drawing_panel['grade_h2']=0.
+        body=float(panel.get('body_height_cm',height))
+        drawing_panel['height1']=body
+        segment=panel.get('structural_segment_index',panel.get('segment_index'))
+        if segment is not None and groups and groups[-1]['segment']==segment and groups[-1]['height']==height and groups[-1]['body']==body:
+            groups[-1]['panels'].append(drawing_panel)
+        else:
+            groups.append({'height': height, 'body':body,'segment':segment,'panels': [drawing_panel]})
+    m = motor()
+    doc = m.setup_doc()
+    space = LayoutProxy(doc.modelspace(), 'LV')
+    x = 0.
+    for index, group in enumerate(groups, 1):
+        previous_handles={e.dxf.handle for e in doc.modelspace()}
+        holes = []
+        offset = 0.
+        for panel in group['panels']:
+            for raw in panel.get('holes') or []:
+                hole = dict(raw)
+                hole.setdefault('active', True)
+                hole.update(panel_offset=offset, panel_width=float(panel['width']))
+                holes.append(hole)
+            offset += float(panel['width'])
+        label = (f'{contract["beam_name"]}.{side} S{group["segment"]}' if group['segment'] is not None
+                 else f'{contract["beam_name"]}.{side}#{index}')
+        m.plano_cotas_abrir(label)
+        m.draw_lv_face(space, x, -group['height'], group['panels'],
+                            group['body'], label,
+                            holes=holes, pillar_left={'active': False},
+                            pillar_right={'active': False}, laje_sup=0., laje_inf=0.,
+                            fallback_panel_ids=False, nom_height=8.,
+                            sarrafo_vertical_esquerdo=True,
+                            sarrafo_vertical_direito=True)
+        band=group['height']-group['body']
+        if band>.01:
+            offset=x
+            for panel in group['panels']:
+                width=panel['width']
+                points=[(offset,-band),(offset+width,-band),(offset+width,0),(offset,0)]
+                space.add_lwpolyline(points,close=True,dxfattribs={'layer':'Painéis'})
+                if mode!='INI':
+                    hatch=space.add_hatch(dxfattribs={'layer':'Hachura','color':214})
+                    hatch.set_pattern_fill('AR-CONC',scale=.015)
+                    hatch.paths.add_polyline_path(points,is_closed=True)
+                offset+=width
+            m.add_plain_dim_v(space,offset+40,-group['height'],0,f"{group['height']:g}",extension_from_x=offset)
+            m.add_plain_dim_v(space,offset+25,-band,0,f'{band:g}',extension_from_x=offset)
+        if mode == 'NOVA':
+            for entity in doc.modelspace().query('TEXT'):
+                if entity.dxf.handle in previous_handles:
+                    continue
+                if entity.dxf.text == label:
+                    entity.set_placement((x+3,9))
+                    entity.dxf.height=6.5
+                elif entity.dxf.layer in ('5','Cota Seção (2x)'):
+                    entity.dxf.height=3.5
+                    if entity.dxf.layer=='5':
+                        entity.dxf.color=7
+            for dim in doc.modelspace().query('DIMENSION'):
+                if dim.dxf.handle in previous_handles:
+                    continue
+                # Robot styles use a 2x presentation. The adapter draws in cm
+                # at 1:1 and must halve typography without changing geometry.
+                if dim.dxf.dimstyle != 'PAINEL':
+                    continue
+                if abs(dim.dxf.defpoint2.y-dim.dxf.defpoint3.y)<.001:
+                    dim.dxf.defpoint=(dim.dxf.defpoint.x,-group['height']-15,0)
+                overrides=dim.override()
+                overrides.update({'dimtxt':3.5,'dimasz':1.5,'dimgap':1.,
+                                  'dimclrd':4,'dimclre':4,'dimclrt':1})
+                overrides.render()
+        m.plano_cotas_despejar(m.plano_cotas_fechar(), label)
+        x += sum(p['width'] for p in group['panels']) + 100.
+    seen_dimensions = set()
+    for entity in list(doc.modelspace().query('DIMENSION')):
+        key = (entity.dxf.dimtype, tuple(entity.dxf.defpoint),
+               tuple(entity.dxf.get('defpoint2', (0., 0., 0.))),
+               tuple(entity.dxf.get('defpoint3', (0., 0., 0.))),
+               round(float(entity.get_measurement()), 6))
+        if key in seen_dimensions:
+            doc.modelspace().delete_entity(entity)
+        else:
+            seen_dimensions.add(key)
+    m.restack_lv_draw_order(space)
+    apply_config(doc, mode, 'LV', behavior)
+    doc.header['$INSUNITS'] = 5
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    doc.saveas(path)
+    return groups

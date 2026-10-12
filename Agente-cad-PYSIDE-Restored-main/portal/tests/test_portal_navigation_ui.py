@@ -426,3 +426,15 @@ def test_fluxo_n5_separa_unificados_da_gestao_global():
     assert "new DOMParser().parseFromString(source, 'image/svg+xml')" in html
     assert "Baixar ZIP do pavimento" in html
     assert 'class="n5-pav-grid"' not in html
+
+
+def test_opcoes_do_n3_ficam_no_expansor_e_o_modo_e_persistente_no_portal():
+    drill = (STATIC / "drill_grade.js").read_text(encoding="utf-8")
+    css = (STATIC / "portal.css").read_text(encoding="utf-8")
+
+    assert "modo-desenho-config" in drill
+    assert "function saveDrawingMode" in drill
+    assert "function n3OptionsReady" in drill
+    assert "data-drill=\"n3-options-toggle\"" in drill
+    assert "renderN3Options(state.classe)" in drill
+    assert ".drill-n3-button-row" in css

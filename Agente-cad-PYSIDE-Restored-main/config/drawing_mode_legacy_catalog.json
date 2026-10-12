@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "PL": {
+    "cima": {
+      "source": "_ROBOS_ABAS/Robo_Pilares/pilares-atualizado-09-25/src/robots/Robo_Pilar_Visao_Cima.py",
+      "values": {
+        "layers": {
+          "paineis": "hachura-chapa",
+          "sarrafos": "SARRAFO",
+          "sarrafo_grade": "SARRAFO_GRADE",
+          "cotas": "COTA",
+          "textos": "NOMENCLATURA",
+          "metal": "GRAVATA",
+          "hachura": "Hachura"
+        },
+        "blocks": {
+          "sar_gra_a1": "B1A.E",
+          "sar_gra_a2": "B1A.D",
+          "sar_gra_a3": "B2A.E",
+          "sar_gra_b1": "B1B.E",
+          "sar_gra_b2": "B1B.D",
+          "sar_gra_b3": "B2B.E",
+          "parafuso_cima": "PAR.CIM",
+          "parafuso_baixo": "PAR.BAI",
+          "parafuso_esquerda": "PAR.ESQ",
+          "parafuso_direita": "PAR.DIR",
+          "par_cima": "PAR_CIMA",
+          "par_baixo": "PAR_BAIXO",
+          "block_central_grade_vertical": "BCGV",
+          "ta": "TA",
+          "tb": "TB",
+          "tc": "TC",
+          "td": "TD",
+          "te": "TE",
+          "tf": "TF",
+          "tg": "TG",
+          "th": "TH"
+        },
+        "drawing_options": {
+          "scale_factor": 2,
+          "dimstyle": "cotax2",
+          "dimstyleCENTRO": "cotax2",
+          "textos_abcd": "texto",
+          "incluir_texto_nome": "sim",
+          "grades_com_sarrafo": "nao",
+          "tipo_linha": "pline"
+        }
+      }
+    },
+    "abcd": {
+      "source": "_ROBOS_ABAS/Robo_Pilares/pilares-atualizado-09-25/src/robots/Robo_Pilar_ABCD.py",
+      "values": {
+        "layers": {
+          "paineis_abcd": "Painéis",
+          "pe_direito": "Nível",
+          "cotas": "cota",
+          "sarrafos": "SARR_2.2x7",
+          "nomenclatura": "nomenclatura",
+          "laje": "cota",
+          "textos_titulos": "",
+          "linhas_hidden": "SARR_2.2x7"
+        },
+        "blocks": {
+          "furacao": "furacao",
+          "split_ee": "SLIPTEE",
+          "split_dd": "SLIPTDD",
+          "moldura": "MULDURA",
+          "numeracao": {
+            "ativar": false,
+            "n1": "n1",
+            "n2": "n2",
+            "n3": "n3",
+            "n4": "n4",
+            "n5": "n5",
+            "n6": "n6",
+            "n7": "n7",
+            "n8": "n8",
+            "n9": "n9",
+            "n10": "n10",
+            "n11": "n11",
+            "n12": "n12",
+            "n13": "n13",
+            "n14": "n14",
+            "n15": "n15"
+          }
+        },
+        "horizontal_positions": {
+          "positions": [
+            30.0,
+            90.0,
+            150.0,
+            210.0,
+            270.0,
+            330.0,
+            390.0,
+            450.0,
+            510.0
+          ]
+        },
+        "abertura_commands": {
+          "normal": {
+            "esquerda": null,
+            "direita": null,
+            "centro": null
+          },
+          "pequena": {
+            "esquerda": null,
+            "direita": null
+          },
+          "ajuste": {
+            "esquerda": null,
+            "direita": null,
+            "pre_abertura": null
+          }
+        },
+        "hatch_commands": {
+          "simples": null,
+          "duplo": null,
+          "centro": null,
+          "laje": null,
+          "paineis_sem_recorte": null,
+          "paineis_com_recorte": null
+        },
+        "drawing_options": {
+          "zoom_factor": 10.0,
+          "cota_offset": 15.0,
+          "texto_offset": 20.0,
+          "sarrafo_offset": 7.0,
+          "cotas_furacao_vertical": false,
+          "cotas_furacao_horizontal": false,
+          "modo_sarrafos": "Pline",
+          "desenhar_sarrafos_cd": true,
+          "espacamento_base": 30,
+          "espacamento_vertical": 50,
+          "espacamento_parafusos": 50,
+          "offset_parafuso": 24,
+          "offset_moldura": 38,
+          "offset_texto_info": {
+            "x": 30,
+            "y": 680
+          },
+          "offset_painel": {
+            "inicial": 115,
+            "entre_paineis": 115
+          },
+          "linetype_pedireito": "DASHED",
+          "linetype_sarrafos_hidden": "DASHED"
+        },
+        "dimensoes_padrao": {
+          "altura_h1": 2,
+          "max_altura_ab": 122,
+          "max_altura_cd": 244,
+          "max_largura_ab": 244,
+          "max_largura_cd": 122,
+          "min_abertura_normal": 12,
+          "min_abertura_pequena": 7
+        },
+        "parafusos": {
+          "ab": {
+            "medida_fundo_primeiro_ab": 30.0,
+            "medida_1_2_ab": 50.0,
+            "medida_2_3_ab": 55.0,
+            "medida_3_4_ab": 55.0,
+            "medida_4_5_ab": 55.0,
+            "medida_5_6_ab": 55.0,
+            "medida_6_7_ab": 55.0,
+            "medida_7_8_ab": 55.0,
+            "medida_8_9_ab": 55.0,
+            "medida_9_10_ab": 55.0
+          },
+          "cdefgh": {
+            "medida_fundo_primeiro_cdefgh": 30.0,
+            "medida_1_2_cdefgh": 50.0,
+            "medida_2_3_cdefgh": 55.0,
+            "medida_3_4_cdefgh": 55.0,
+            "medida_4_5_cdefgh": 55.0,
+            "medida_5_6_cdefgh": 55.0,
+            "medida_6_7_cdefgh": 55.0,
+            "medida_7_8_cdefgh": 55.0,
+            "medida_8_9_cdefgh": 55.0,
+            "medida_9_10_cdefgh": 55.0
+          }
+        },
+        "comandos": {
+          "aberturas": {
+            "abv": "abv",
+            "abve": "abve",
+            "abve12": "abve12",
+            "abvd": "abvd",
+            "abvd12": "abvd12",
+            "ABVLJ": "ABVLJ"
+          },
+          "hatches": {
+            "laje": "HHHH"
+          }
+        }
+      }
+    },
+    "grades": {
+      "source": "_ROBOS_ABAS/Robo_Pilares/pilares-atualizado-09-25/src/robots/ROBO_GRADES.py",
+      "values": {
+        "layers": {
+          "base": "SARR_2.2x7",
+          "reforco": "SARR_2.2x10",
+          "central": "SARR_3.5x7",
+          "primeiro_horizontal": "SARR_2.2x10",
+          "demais_horizontais": "SARR_2.2x7",
+          "cota": "COTA",
+          "texto": "TEXTO",
+          "hachura": "HACHURA"
+        },
+        "drawing_options": {
+          "dimstyle": "PAINEL-NOVA",
+          "hatch_scale": 1.0,
+          "hatch_angle": 45.0,
+          "scale_factor": 1.0,
+          "use_mline": false
+        },
+        "coordinates": {
+          "x_inicial": 4000.0,
+          "y_inicial": 0.0,
+          "altura_base": 2.2
+        },
+        "blocks": {
+          "triangulo_esquerdo": "GRA-E",
+          "triangulo_direito": "GRA-D"
+        },
+        "horizontal_positions": {
+          "positions": [
+            30.0,
+            120.0,
+            210.0,
+            300.0,
+            390.0,
+            480.0,
+            720.0,
+            830.0,
+            940.0
+          ]
+        },
+        "description": ""
+      }
+    }
+  },
+  "LV": {
+    "faces": {
+      "source": "_ROBOS_ABAS/Robo_Laterais_de_Vigas/robo_laterais_viga_pyside.py",
+      "values": {
+        "layers": {
+          "paineis": "Painéis",
+          "sarrafos_verticais": "SARR_2.2x7",
+          "sarrafos_horizontais": "SARR_2.2x7",
+          "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+          "nome_observacoes": "NOMENCLATURA",
+          "textos_laterais": "5",
+          "cotas": "COTA",
+          "laje": "COTA",
+          "sarrafos_verticais_extremidades": "SARR_2.2x7",
+          "sarrafos_verticais_grades": "SARR_2.2x7",
+          "obstaculo": "COTAS",
+          "texto_pontaletes": "ESTRUTURACAO",
+          "parafuso": "BARRA_ANCORAGEM"
+        },
+        "comandos": {
+          "extensor1": "ex2",
+          "extensor2": "Bextend",
+          "app": "APP",
+          "appdel": "appdel",
+          "ABVET": "ABVET",
+          "ABVEF": "ABVEF",
+          "ABFDT": "ABFDT",
+          "ABVDT": "ABVDT",
+          "ABVDTV": "ABVDTV",
+          "ABVDF": "ABVDF",
+          "ABFDF": "ABFDF",
+          "apv2e": "apv2e",
+          "apv2": "apv2",
+          "apv2D": "apv2D",
+          "HHHH": "HHHH",
+          "HH": "HH",
+          "HHH": "HHH",
+          "hatch_amarelo_reap": "HHH"
+        },
+        "opcoes": {
+          "tipo_linha": "PLINE",
+          "parafuso_block": "PAR_ESQ"
+        },
+        "numeracao_blocos": {
+          "ativo": false,
+          "comandos": {
+            "1": "N1",
+            "2": "N2",
+            "3": "N3",
+            "4": "N4",
+            "5": "N5",
+            "6": "N6",
+            "7": "N7",
+            "8": "N8",
+            "9": "N9",
+            "10": "N10",
+            "11": "N11",
+            "12": "N12",
+            "13": "N13",
+            "14": "N14",
+            "15": "N15",
+            "16": "N16",
+            "17": "N17",
+            "18": "N18",
+            "19": "N19",
+            "20": "N20"
+          }
+        }
+      }
+    }
+  },
+  "FV": {
+    "fundo": {
+      "source": "_ROBOS_ABAS/Robo_Fundos_de_Vigas/compactador-producao/Robo_fundos_TASF_limpo_copy_22.py",
+      "values": {
+        "layers": {
+          "paineis": "Painéis",
+          "sarrafos_verticais": "SARR_2.2x7",
+          "sarrafos_horizontais": "SARR_2.2x7",
+          "sarrafos_horizontais_pequenos": "SARR_2.2x5",
+          "nome_observacoes": "NOMENCLATURA",
+          "textos_laterais": "5",
+          "cotas": "COTA",
+          "obstaculo": "HACHURACONCRETO"
+        },
+        "comandos": {
+          "extensor1": "ex2",
+          "extensor2": "Bextend",
+          "abertura1": "app3",
+          "abertura2": "ABFET",
+          "abertura3": "app2",
+          "abertura4": "ABFEF",
+          "abertura5": "app3",
+          "abertura6": "ABFDT",
+          "abertura7": "app3",
+          "abertura8": "ABFDF",
+          "hatch_amarelo_reap": "HHHH"
+        },
+        "opcoes": {
+          "tipo_linha": "PLINE",
+          "linetype_sarrafo_central": "DASHED",
+          "logica_sarrafos": "todos",
+          "paineis_numeracao": "nao",
+          "blocks": {
+            "block1": "nf1",
+            "block2": "nf2",
+            "block3": "nf3",
+            "block4": "nf4",
+            "block5": "nf5",
+            "block6": "nf6",
+            "block7": "nf7",
+            "block8": "nf8",
+            "block9": "nf9",
+            "block10": "nf10"
+          }
+        }
+      }
+    }
+  },
+  "LJ": {
+    "planta": {
+      "source": "_ROBOS_ABAS/Robo_Lajes/laje_src/config/app_config.json",
+      "values": {
+        "layers": {
+          "texto_nome": "nomenclatura",
+          "texto_pavimento_laje": "nomenclatura",
+          "texto_reaproveitamento": "nomenclatura",
+          "texto_pavimento_laje_reaproveitamento": "nomenclatura",
+          "linhas_paineis": "painéis",
+          "linhas_uniao": "concreto",
+          "cotas": "cota"
+        },
+        "comandos": {
+          "hatch_uniao": "HLAZ",
+          "hatch_reaproveitamento_inteiro": "HH",
+          "hatch_reaproveitamento_corte": "HHH"
+        }
+      }
+    }
+  }
+}

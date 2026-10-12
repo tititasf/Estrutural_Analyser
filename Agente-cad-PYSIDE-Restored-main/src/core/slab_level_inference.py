@@ -134,7 +134,8 @@ def select_plan_level_annotation(
             "provenance": provenance,
             "alternatives": [alt.get("text") for alt in alternatives],
             "discarded_out_of_range": [alt.get("text") for alt in far],
-            "needs_human_review": provenance == "proximidade",
+            "needs_human_review": provenance == "proximidade" or any(
+                abs(float(alt['value']) - float(row['value'])) > 1e-9 for alt in alternatives),
         }
 
     if len(contained) == 1:
@@ -241,7 +242,7 @@ def _inherit_from_strip(
     fontes = [
         other for other, other_box in boxes.items()
         if other != name
-        and provenance.get(other) in ("contida", "contida_ambigua")
+        and provenance.get(other) == "contida"
         and levels.get(other)
         and _continues_strip(box, other_box, gap)
     ]
@@ -290,7 +291,7 @@ def inherit_level_from_neighbours(
         fontes = [
             other for other, other_box in boxes.items()
             if other != name
-            and provenance.get(other) in ("contida", "contida_ambigua")
+            and provenance.get(other) == "contida"
             and levels.get(other)
             and _are_neighbours(box, other_box, gap)
         ]
@@ -326,6 +327,46 @@ def cut_delta_level(source_level_m: float, delta_cm: float) -> float:
     return round(float(source_level_m) + float(delta_cm) / 100.0, 2)
 
 
+def paired_cut_delta_cm(cut: dict, own_name: str, neighbor_name: str) -> float | None:
+    """A named slab without a measured wing cannot supply a zero datum.
+
+    Missing wing heights are explicit zero placeholders in some legacy cut
+    fichas. A zero top distance is valid only when the wing exists. Older
+    measured fichas without height fields still require both distances.
+    """
+    ficha = cut.get('ficha') or {}
+    sides = [str(ficha.get(k) or '').strip() for k in ('side_a_laje_name', 'side_b_laje_name')]
+    if not own_name or not neighbor_name or own_name == neighbor_name or sorted(sides) != sorted([own_name, neighbor_name]):
+        return None
+    try:
+        for field in ('own_slab_height', 'neigh_slab_height'):
+            if field in ficha:
+                height = float(ficha[field])
+                if not math.isfinite(height) or height <= 0:
+                    return None
+        own, other = (float(ficha[k]) for k in ('own_dist_top', 'neighbor_dist_top'))
+    except (KeyError, ValueError, TypeError):
+        return None
+    if not all(math.isfinite(v) for v in (own, other)) or min(own, other) < 0:
+        return None
+    delta = other - own
+    return delta if abs(delta) < CUT_DELTA_MAX_CM else None
+
+
+def principal_cut_wings_match(cut, own_slab, source_slab):
+    """A thinner regional wing cannot borrow the principal slab altitude."""
+    from .lv_cut_inventory import number
+    ficha = cut.get('ficha') or {}
+    for slab, key in ((own_slab, 'own_slab_height'), (source_slab, 'neigh_slab_height')):
+        if slab is None:
+            continue
+        principal = number((slab.get('fields') or {}).get('laje_dim') or slab.get('height'))
+        measured = number(ficha.get(key))
+        if principal is not None and measured is not None and abs(principal-measured) > .5:
+            return False
+    return True
+
+
 def paired_cut_level_source(cut: dict, own_name: str, source: dict, *, own_slab=None, source_slab=None) -> dict | None:
     """Transport a neighbour altitude through the actual step of a shared cut.
 
@@ -340,21 +381,17 @@ def paired_cut_level_source(cut: dict, own_name: str, source: dict, *, own_slab=
             return None
         from .beam_vertical_context import inverted_slab_level_source
         return inverted_slab_level_source(cut, own_slab, source_slab, source)
-    ficha = cut.get('ficha') or {}
-    sides = [str(ficha.get(k) or '').strip() for k in ('side_a_laje_name', 'side_b_laje_name')]
     neighbor = str(source.get('slab') or '').strip()
-    if not own_name or not neighbor or own_name == neighbor or sorted(sides) != sorted([own_name, neighbor]):
+    if not principal_cut_wings_match(cut, own_slab, source_slab):
+        return None
+    delta = paired_cut_delta_cm(cut, own_name, neighbor)
+    if delta is None:
         return None
     try:
-        own = float(ficha['own_dist_top'])
-        other = float(ficha['neighbor_dist_top'])
         altitude = float(source['value'])
     except (KeyError, ValueError, TypeError):
         return None
-    if not all(math.isfinite(v) for v in (own, other, altitude)) or min(own, other) < 0:
-        return None
-    delta = other - own
-    if abs(delta) >= CUT_DELTA_MAX_CM:
+    if not math.isfinite(altitude):
         return None
     return {**source, 'value': cut_delta_level(altitude, delta),
             'source_level': altitude, 'delta_cm': delta, 'kind': 'paired_cut_geometry'}

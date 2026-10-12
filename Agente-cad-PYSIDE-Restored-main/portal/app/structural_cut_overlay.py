@@ -11,6 +11,20 @@ from . import ficha_reader, lv_ficha
 from .lv_cut_map import section_drawings
 
 
+def missing_step_sections(entry, state):
+    """Only local step regions without a CAD transition section need yellow."""
+    missing = {(str(slab.get('name')), str(step.get('uid')))
+               for slab in state.get('slabs') or []
+               for step in slab.get('slab_steps') or []
+               if step.get('uid') and not step.get('sections')}
+    pairs = (entry.get('section_contract') or {}).get('pairs') or entry.get('pairs') or []
+    return sorted({str(slab.get('name'))
+                   for pair in pairs
+                   for profile in (pair.get('profiles') or {}).values()
+                   for slab in profile.get('slabs') or []
+                   if (str(slab.get('name')), str(slab.get('region_id'))) in missing})
+
+
 def _section_geometry(entry, relative=False):
     anchor = entry['drawing'].get('anchor', [0, 0]) if relative else [0, 0]
     return tuple((p['kind'],
@@ -50,7 +64,12 @@ def deduplicate_sections(entries):
     for source in entries:
         entry = deepcopy(source)
         if entry.get('fundo_id') and entry['kind'] != 'identified':
-            previous = next((e for e in result if e.get('fundo_id') == entry['fundo_id']), None)
+            from .lv_cut_coverage import profile_key
+            previous = next((e for e in result if e.get('fundo_id') == entry['fundo_id']
+                             and e['kind'] == entry['kind']
+                             and (profile_key(e['section_contract']) == profile_key(entry['section_contract'])
+                                  if e.get('section_contract') and entry.get('section_contract')
+                                  else _section_geometry(e, True) == _section_geometry(entry, True))), None)
             if previous is not None:
                 previous['behaviors'] = list(dict.fromkeys(previous['behaviors'] + entry['behaviors']))
                 continue
@@ -72,6 +91,33 @@ def deduplicate_sections(entries):
             behavior=entry['behavior'], cut_index=entry['cut_index'],
             anchor=entry['drawing'].get('anchor'), pairs=entry.get('pairs', [])))
     return result
+
+
+def displayed_soffit_coverage(groups, entries, state):
+    """Audit current displayed intervals, retaining merged source ownership."""
+    from shapely.geometry import Point, Polygon
+    owners = {s['uid']: s for s in (state.get('segmentos') or {}).get('fundo', [])}
+    rows = []
+    for group in groups:
+        if group.get('grupo') not in ('fundo', 'fundos'):
+            continue
+        for item in group.get('itens', []):
+            uid = item.get('item_id')
+            owner = owners.get(uid, {})
+            polygon = Polygon(item.get('pontos_dxf') or [])
+            hits = [e for e in entries if e.get('beam') == item.get('beam_name')
+                    and e.get('drawing', {}).get('anchor')
+                    and polygon.buffer(.2).covers(Point(e['drawing']['anchor']))]
+            original = [e['cut_index'] for e in hits if e['kind'] == 'identified']
+            interpreted = [e['cut_index'] for e in hits if e['kind'] != 'identified']
+            index = item.get('display_segment_index')
+            rows.append(dict(fundo_id=uid, display_id=f'{uid}:display:{index}' if index else uid,
+                beam=item.get('beam_name'), segment=index or item.get('segmento'),
+                source_fundo_ids=list(dict.fromkeys([uid, *(owner.get('merged_source_uids') or [])])),
+                status='mixed' if original and interpreted else 'original' if original else
+                       'interpreted' if interpreted else 'pending',
+                cut_indexes=original, interpreted_cut_indexes=interpreted))
+    return rows
 
 
 def runner_sections(root, floor, runner):
@@ -102,8 +148,13 @@ def collect_sections(root, floor, state, behavior='misto', *, beam_names=None):
         for name in names:
             if requested is not None and name.upper() not in requested:
                 continue
-            data = lv_ficha.montar_ficha_lv(root, floor, name, mode, state, include_svgs=False,
-                                           reference_context=reference_context)
+            try:
+                data = lv_ficha.montar_ficha_lv(root, floor, name, mode, state, include_svgs=False,
+                                               reference_context=reference_context)
+            except ValueError as exc:
+                blocked.append(dict(beam=name, behavior=mode, reason=str(exc),
+                                    stage='assemble_lateral_sections'))
+                continue
             from .lv_cut_coverage import soffit_drawings
             cuts = data.get('sa_cut_views', data['cut_views'])
             # Generation consumes every physical interval, including ones
@@ -145,7 +196,7 @@ def collect_sections(root, floor, state, behavior='misto', *, beam_names=None):
             for drawing in drawings:
                 cut = cuts[drawing['cut_index']]
                 from src.core.lv_n3_cut_contract import build_cut_contract
-                section_contract = build_cut_contract(cut)
+                section_contract = drawing.get('section_contract') or build_cut_contract(cut)
                 # Identical Para/Passa presentation is drawn once, with both
                 # provenances retained. No merging across beams or anchors.
                 key = (name, tuple(round(v, 3) for v in drawing['anchor']),
@@ -165,8 +216,6 @@ def collect_sections(root, floor, state, behavior='misto', *, beam_names=None):
                 seen[key] = entry
                 entries.append(entry)
     entries = deduplicate_sections(entries)
-    original_fundos = {e['fundo_id'] for e in entries if e['kind'] == 'identified' and e.get('fundo_id')}
-    entries = [e for e in entries if e['kind'] == 'identified' or e.get('fundo_id') not in original_fundos]
     for segment in (state.get('segmentos') or {}).get('fundo', []):
         if requested is not None and str(segment.get('beam_name') or '').upper() not in requested:
             continue
@@ -178,12 +227,23 @@ def collect_sections(root, floor, state, behavior='misto', *, beam_names=None):
             for section in step.get('sections') or []:
                 try:
                     drawing = slab_section_drawing(slab, step, section)
-                    slab_sections.append(dict(slab=slab['name'], points=section['points'], drawing=drawing))
+                    slab_sections.append(dict(slab=slab['name'],
+                        item_id=section.get('uid') or f"slab-cut:{slab['name']}:{section.get('handle')}",
+                        points=section['points'], drawing=drawing))
                 except ValueError as exc:
                     blocked.append(dict(slab=slab['name'], reason=str(exc)))
+    from .slab_step_overlay import missing_drawings
+    interpreted_slab_sections, step_failures = missing_drawings(state)
+    blocked.extend(step_failures)
     return {'schema': 'cad.preprocess.beam_sections/v1', 'entries': entries,
+            'relative_originals': [dict(id=r['uid'], beam=r.get('beam_name'),
+                kind='identified', source_cut=r) for _, cuts, _ in
+                reference_context.get('sources', {}).values() for r in cuts] +
+                [dict(id=e['section_contract']['id'], beam=e['beam'], kind='identified',
+                    source_cut=e['source_cut']) for e in entries if e.get('kind') == 'identified'],
             'physical_entries': physical_entries,
             'slab_sections': slab_sections,
+            'interpreted_slab_sections': interpreted_slab_sections,
             'blocked': blocked, 'total': len(entries),
             'soffit_coverage': list(coverage.values()),
             'calculated': sum(e['kind'] != 'identified' for e in entries),
@@ -321,13 +381,64 @@ def viewer_groups(root, floor, state, transform, groups, behavior='misto', inven
     inventory = inventory if inventory is not None else state.get('_current_beam_sections')
     inventory = inventory if inventory is not None else collect_sections(root, floor, state, behavior)
     result = deepcopy(groups)
+    from .structural_review import load as load_reviews, status as review_status, entry_id
+    decisions = load_reviews(root, floor) if root is not None else {}
     # Use the complete physical inventory, including repeated local profiles.
     # A beam name or one representative section cannot classify a whole span.
     from src.core.beam_vertical_context import split_inverted_soffit
+    from src.core.beam_vertical_context import partition_inverted_lateral
+    from src.core.lv_generation_contract import _terminal_pillar_profiles
+    pillar_bboxes = {}
+    for pillar in state.get('pilares') or []:
+        points = pillar.get('points') or []
+        if points:
+            pillar_bboxes[str(pillar.get('name') or pillar.get('id') or '')] = (
+                min(float(p[0]) for p in points), min(float(p[1]) for p in points),
+                max(float(p[0]) for p in points), max(float(p[1]) for p in points))
+    lateral_sources = {str(s.get('uid')): s
+                       for key, rows in (state.get('segmentos') or {}).items()
+                       if key.startswith('lateral_') for s in rows}
+    for group in result:
+        if not str(group.get('grupo') or '').startswith(('lat_', 'lateral')):
+            continue
+        highlighted = []
+        inverted_segment_count = 0
+        for item in group.get('itens', []):
+            name = str(item.get('beam_name') or '').upper()
+            side = str(item.get('lado') or '').upper()
+            if side not in ('A', 'B'):
+                side = 'B' if '_b_' in str(item.get('classe_sa') or group['grupo']) else 'A'
+            entries = [e for e in inventory.get('physical_entries', [])
+                       if str(e.get('beam') or '').upper() == name
+                       and (e.get('section_contract') or {}).get('beam_type') == 'inverted']
+            try:
+                source = lateral_sources.get(str(item.get('item_id'))) or {}
+                if entries and str(item.get('classe_sa') or group['grupo']).endswith('_passa'):
+                    entries = _terminal_pillar_profiles(
+                        dict(points=item.get('pontos_dxf'), lv_cell=source.get('lv_cell') or {}),
+                        entries, pillar_bboxes, side)
+                spans = partition_inverted_lateral(item.get('pontos_dxf'), entries, side) if entries else []
+            except ValueError:
+                spans = []
+            if not spans or any(s.get('pending') for s in spans):
+                highlighted.append(item)
+                continue
+            # One solid color per logical segment, including all its local pieces.
+            inverted_color = ('#ff4545', '#ffffff')[inverted_segment_count % 2]
+            inverted_segment_count += 1
+            piece = deepcopy(item)
+            piece.update(highlight_color=inverted_color, beam_type='inverted',
+                         vertical_partitions=[deepcopy(s['vertical_partition']) for s in spans])
+            # The structural viewer shows logical segments. Local mounting
+            # profiles remain available to N3 without drawing extra seams.
+            highlighted.append(piece)
+        group['itens'] = highlighted
+        group['total'] = len(highlighted)
     for group in result:
         if group.get('grupo') not in ('fundo', 'fundos'):
             continue
         highlighted = []
+        split_beams = set()
         for item in group.get('itens', []):
             highlighted.append(item)
             name = str(item.get('beam_name') or '').upper()
@@ -371,6 +482,8 @@ def viewer_groups(root, floor, state, transform, groups, behavior='misto', inven
                 # interval separately. Coloring the owner polygon alone hid
                 # transitions even though split_inverted_soffit found them.
                 highlighted.pop()
+                if len(spans) > 1:
+                    split_beams.add(name)
                 for span in spans:
                     piece = deepcopy(item)
                     points = span['geometry']
@@ -387,6 +500,22 @@ def viewer_groups(root, floor, state, transform, groups, behavior='misto', inven
                     if len(spans) > 1:
                         piece['rotulo'] = f"{item['rotulo']} · {span['dim_text']}"
                     highlighted.append(piece)
+        # A physical height transition creates distinct displayed segments.
+        # Preserve owner identity for navigation, but number the complete beam
+        # sequence so a split cannot duplicate the next owner's segment label.
+        import re
+        display_numbers = {}
+        for piece in highlighted:
+            name = str(piece.get('beam_name') or '').upper()
+            if name not in split_beams:
+                continue
+            display_numbers[name] = display_numbers.get(name, 0) + 1
+            label = str(piece.get('rotulo') or name)
+            piece['source_segment_label'] = label
+            piece['display_segment_index'] = display_numbers[name]
+            piece['rotulo'] = re.sub(r'\bSEG\s*\d+\b',
+                                    f"SEG {display_numbers[name]}", label,
+                                    flags=re.IGNORECASE)
         group['itens'] = highlighted
         group['total'] = len(highlighted)
     original = next((g for g in result if g['grupo'] == 'cortes'), None)
@@ -407,7 +536,8 @@ def viewer_groups(root, floor, state, transform, groups, behavior='misto', inven
         item['section_drawing'] = drawing
         item['highlight_color'] = color
         item['detail_status'] = 'dimensioned'
-    for entry in deduplicate_sections(inventory['entries']):
+    displayed_entries = deduplicate_sections(inventory['entries'])
+    for entry in displayed_entries:
         raw = entry.get('source_cut') or {}
         if entry['kind'] == 'identified':
             key = geometry(raw.get('points') or raw.get('pts'))
@@ -419,10 +549,25 @@ def viewer_groups(root, floor, state, transform, groups, behavior='misto', inven
                 by_geometry[key] = item
             attach(item, entry['drawing'], '#a8fff0')
         else:
-            item = dict(item_id=f"interpreted:{entry['beam']}:{entry['behavior']}:{entry.get('fundo_id') or entry['cut_index']}",
+            # One source cut can supply distinct local profiles at a slab step.
+            # Keep their viewer identities distinct without renumbering the VC.
+            contract = entry.get('section_contract') or {}
+            uid = entry_id(entry)
+            review = review_status(decisions, uid, entry)
+            if review == 'deleted':
+                continue
+            item = dict(item_id=uid, review_status=review,
                         classe_sa='cortes_interpretados', rotulo=entry['beam'],
                         beam_name=entry['beam'], pairs=entry['pairs'], fora_do_frame=False)
-            attach(item, entry['drawing'], '#ff9a1f')
+            confidence = entry['drawing'].get('confidence', 'review')
+            if review == 'validated':
+                confidence = 'high'
+            missing_steps = missing_step_sections(entry, state)
+            color = ('#ff4545' if contract.get('beam_type') == 'inverted' else
+                     '#7dd3fc' if confidence == 'high' else '#ff9a1f')
+            item.update(confidence=confidence, beam_type=contract.get('beam_type', 'normal'),
+                        slab_steps_without_original_cut=missing_steps)
+            attach(item, entry['drawing'], color)
             calculated.append(item)
     for slab in state.get('slabs') or []:
         for step in slab.get('slab_steps') or []:
@@ -436,12 +581,33 @@ def viewer_groups(root, floor, state, transform, groups, behavior='misto', inven
     for section in inventory.get('slab_sections', []):
         item = by_geometry.get(geometry(section['points']))
         if item is None:
-            item = dict(item_id=f"slab-section:{section['slab']}:{len(original['itens'])}",
+            item = dict(item_id=section.get('item_id') or f"slab-section:{section['slab']}:{len(original['itens'])}",
                         classe_sa='cortes', rotulo=section['slab'],
                         pontos_dxf=section['points'], fora_do_frame=False)
             original['itens'].append(item)
             by_geometry[geometry(section['points'])] = item
         attach(item, section['drawing'], '#ffe033')
+    from .slab_step_overlay import missing_drawings
+    slab_sections = inventory.get('interpreted_slab_sections')
+    step_failures = []
+    if slab_sections is None:
+        slab_sections, step_failures = missing_drawings(state)
+    originals = {step.get('uid') for slab in state.get('slabs') or []
+                 for step in slab.get('slab_steps') or [] if step.get('sections')}
+    for section in slab_sections:
+        if section['step_uid'] in originals:
+            continue
+        uid = f"interpreted:slab-step:{section['step_uid']}"
+        review = review_status(decisions, uid, section)
+        if review == 'deleted':
+            continue
+        item = dict(item_id=uid, review_status=review,
+                    classe_sa='cortes_interpretados', rotulo=f"{section['slab']} · Degrau de laje",
+                    slab_name=section['slab'], step_uid=section['step_uid'],
+                    section_kind='slab_step', confidence='high' if review == 'validated' else section['drawing']['confidence'],
+                    pontos_dxf=section['drawing']['points'], fora_do_frame=False)
+        attach(item, section['drawing'], '#ffe033')
+        calculated.append(item)
     # Unresolved evidence keeps its true outline and an external pending label;
     # no fabricated dimension or giant label over the CAD section.
     for item in original['itens']:
@@ -457,6 +623,8 @@ def viewer_groups(root, floor, state, transform, groups, behavior='misto', inven
     original.update(total=len(original['itens']), fora_do_frame=sum(i['fora_do_frame'] for i in original['itens']))
     result.append(dict(grupo='cortes_interpretados', rotulo='Cortes de viga interpretados',
                        total=len(calculated), fora_do_frame=0, itens=calculated,
-                       soffit_coverage=inventory.get('soffit_coverage', []),
-                       blocked=inventory['blocked']))
+                       soffit_coverage=displayed_soffit_coverage(result, displayed_entries, state)
+                           or inventory.get('soffit_coverage', []),
+                       source_soffit_coverage=inventory.get('soffit_coverage', []),
+                       blocked=[*inventory['blocked'], *step_failures]))
     return result

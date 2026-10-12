@@ -35,7 +35,7 @@ def test_cruzamento_lista_lajes_sem_recorte_aprovado(tmp_path):
 def test_sem_referencia_nao_promove_valor_para_campo(tmp_path):
     tower = tmp_path / "torre.dxf"
     _dxf(tower, [("L1", (0, 0)), ("L2", (200, 0)),
-                 ("852.12", (20, 0)), ("852.19", (220, 0))])
+                 ("+852.12", (20, 0)), ("+852.19", (220, 0))])
     labels = [
         {"item_id": "s:L1", "item_class": "slab", "display_name": "L1", "label_position": [0, 0]},
         {"item_id": "s:L2", "item_class": "slab", "display_name": "L2", "label_position": [200, 0]},
@@ -85,3 +85,14 @@ def test_cota_zero_e_negativa_com_tabela_de_alturas_concorrente(tmp_path):
     assert inventory["reference"]["base"] == -3.0
     assert inventory["reference"]["top"] == 0.0
     assert [fact["value"] for fact in facts] == [-3.0, 0.0]
+
+
+def test_repeated_unsigned_dimensions_are_not_level_evidence(tmp_path):
+    tower = tmp_path / "dimensions.dxf"
+    _dxf(tower, [("L1", (0, 0)), ("L2", (200, 0)),
+                 ("371.5", (20, 0)), ("371.5", (220, 0))])
+    labels = [{"item_id": f"s:L{i}", "item_class": "slab", "display_name": f"L{i}",
+               "label_position": [x, 0]} for i, x in [(1, 0), (2, 200)]]
+    facts, inventory = survey_levels(tower, source_id="tower:1", floor="TIPO", pillars=[], labels=labels)
+    assert all(f["status"] == "unknown" and f["value"] is None for f in facts)
+    assert inventory["coverage"]["slab_levels_observed"] == 0

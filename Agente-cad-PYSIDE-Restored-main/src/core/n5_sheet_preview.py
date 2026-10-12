@@ -2,7 +2,7 @@
 from pathlib import Path
 
 
-def render_sheet(path: Path) -> bytes:
+def render_sheet(path: Path, width=1485, height=1050) -> bytes:
     import ezdxf
     from ezdxf.addons.drawing import RenderContext, Frontend, svg, layout
     from ezdxf.addons.drawing.config import Configuration
@@ -14,4 +14,4 @@ def render_sheet(path: Path) -> bytes:
     Frontend(RenderContext(doc), backend, config=Configuration(
         min_hatch_line_distance=.1, hatching_timeout=10,
     )).draw_layout(doc.modelspace(), finalize=True)
-    return backend.get_string(layout.Page(1485, 1050)).encode('utf8')
+    return backend.get_string(layout.Page(width, height)).encode('utf8')

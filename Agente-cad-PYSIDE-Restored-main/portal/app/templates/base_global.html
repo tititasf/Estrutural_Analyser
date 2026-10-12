@@ -13,8 +13,12 @@
 
 <div class="card" style="margin: 1rem 0;">
   <h2>Buscar no conhecimento</h2>
-  <p>Busca textual no índice global publicado. Este snapshot usa as decisões da VPS e os demais documentos indexados no workspace; abra a fonte vigente antes de usar um resultado como regra ou prova.</p>
+  <p>Selecione regras universais ou o conhecimento exclusivo de uma obra. Níveis e fatos de cada pavimento preservam suas fontes e não se tornam regras universais. Abra a evidência antes de usar um resultado como prova.</p>
   <form id="bg-kb-form" role="search">
+    <label for="bg-kb-obra">Escopo</label>
+    <select id="bg-kb-obra"><option value="">Universal</option>{% for obra in knowledge_works %}<option value="{{ obra.id }}">{{ obra.nome }}</option>{% endfor %}</select>
+    <label for="bg-kb-pavimento">Pavimento (opcional)</label>
+    <input id="bg-kb-pavimento" placeholder="Ex.: TIPO_TESTE" maxlength="80">
     <label for="bg-kb-q">Pergunta ou termo</label>
     <input id="bg-kb-q" type="search" maxlength="160" required placeholder="Ex.: quando usar Jev no SA?" style="width: min(36rem, 100%);">
     <button type="submit" class="btn">Buscar</button>

@@ -7,6 +7,7 @@ N1 já existentes nas faces E/F.
 from __future__ import annotations
 
 import copy
+import hashlib
 import html
 import json
 import math
@@ -52,6 +53,70 @@ def physical_ring(points: Any, *, collinear_tol_cm: float = 0.05) -> list[tuple[
                 changed = True
                 break
     return ring
+
+
+def supports_rectangular_tag_renderer(points: Any, *, tol_cm: float = 0.05) -> bool:
+    """O renderer ABCD por bbox só representa quatro paredes ortogonais reais.
+
+    Reconhecer um L no motor não significa que o exportador rectangular já
+    desenhe suas seis faces. Contornos especiais permanecem pendentes nesse
+    consumidor até sua interpretação e seu renderer físicos serem integrados.
+    """
+    ring = physical_ring(points)
+    if len(ring) != 4:
+        return False
+    xs, ys = zip(*ring)
+    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+    if min(x1 - x0, y1 - y0) <= tol_cm:
+        return False
+    corners = set()
+    for x, y in ring:
+        if min(abs(x - x0), abs(x - x1)) > tol_cm:
+            return False
+        if min(abs(y - y0), abs(y - y1)) > tol_cm:
+            return False
+        corners.add((abs(x - x1) < abs(x - x0), abs(y - y1) < abs(y - y0)))
+    return len(corners) == 4
+
+
+def supports_physical_tag_renderer(points: Any, tables: dict | None = None) -> bool:
+    """Capabilities of the integrated rectangle / six-face L renderer."""
+    return supports_rectangular_tag_renderer(points) or bool(special_physical_face_segments(points, tables))
+
+
+def physical_tag_geometry_key(points: Any) -> str:
+    """Identifies the actual contour, independent of ring start and direction."""
+    ring = [tuple(round(value, 6) for value in point) for point in physical_ring(points)]
+    if not ring:
+        return ''
+    variants = [seq[index:] + seq[:index] for seq in (ring, list(reversed(ring)))
+                for index in range(len(ring))]
+    canonical = min(variants)
+    return hashlib.sha256(json.dumps(canonical, separators=(',', ':')).encode()).hexdigest()
+
+
+def physical_tag_artifact_matches(svg: Any, points: Any, tables: dict | None = None) -> bool:
+    """Legacy rectangle tags remain valid; L tags must prove physical rendering."""
+    if supports_rectangular_tag_renderer(points):
+        return True
+    segments = special_physical_face_segments(points, tables)
+    if not segments or not isinstance(svg, str):
+        return False
+    import re
+    root = re.search(r'<svg\b[^>]*>', svg)
+    if root is None:
+        return False
+    if len(segments) == 8 and f'data-pil-faces="{physical_face_contract_key(segments)}"' not in root.group(0):
+        return False
+    return ('data-pil-physical-version="1"' in root.group(0)
+            and f'data-pil-geometry="{physical_tag_geometry_key(points)}"' in root.group(0))
+
+
+def physical_face_contract_key(segments: dict) -> str:
+    walls = {fid: sorted([tuple(round(v,6) for v in edge['p0']),
+                         tuple(round(v,6) for v in edge['p1'])])
+             for fid,edge in segments.items()}
+    return hashlib.sha256(json.dumps(walls,sort_keys=True,separators=(',',':')).encode()).hexdigest()
 
 
 def rectangular_pieces(
@@ -192,6 +257,103 @@ def special_face_neighbors(segments: dict[str, dict[str, Any]]) -> dict[str, tup
             ), fid))
         result[fid] = (found[0], found[1])
     return result
+
+
+def eight_face_segments(points: Any, face_geometry: Any) -> dict[str, dict[str, Any]]:
+    """Resolve eight named faces only from an explicit physical face contract.
+
+    Eight vertices alone do not determine the A–H convention (U and T have
+    different assignments). Validate a complete bijection with actual walls,
+    then derive normals from the source contour, never from supplied metadata.
+    """
+    ring = physical_ring(points)
+    if len(ring) != 8 or not isinstance(face_geometry, dict):
+        return {}
+    if set(face_geometry) != set('ABCDEFGH'):
+        return {}
+    edges = []
+    signed = sum(p[0]*ring[(i+1)%8][1]-ring[(i+1)%8][0]*p[1]
+                 for i,p in enumerate(ring))
+    if abs(signed) <= 1e-6:
+        return {}
+    for i,p0 in enumerate(ring):
+        p1 = ring[(i+1)%8]
+        dx,dy = p1[0]-p0[0],p1[1]-p0[1]
+        length = math.hypot(dx,dy)
+        if length <= 0.05 or min(abs(dx),abs(dy)) > 0.05:
+            return {}
+        edges.append(dict(p0=p0,p1=p1,dx=dx,dy=dy,length=length,
+                          vertical=abs(dy)>abs(dx),
+                          out=(dy/length,-dx/length) if signed>0 else (-dy/length,dx/length)))
+    # Reject self-intersections before assigning names.
+    from shapely.geometry import Polygon
+    if not Polygon(ring).is_valid:
+        return {}
+    assigned = {}
+    used = set()
+    for fid in 'ABCDEFGH':
+        try:
+            a,b = face_geometry[fid]['p0'],face_geometry[fid]['p1']
+            matches = [i for i,e in enumerate(edges) if
+                       (math.dist(a,e['p0']) <= .05 and math.dist(b,e['p1']) <= .05) or
+                       (math.dist(b,e['p0']) <= .05 and math.dist(a,e['p1']) <= .05)]
+        except (KeyError,TypeError,ValueError):
+            return {}
+        if len(matches) != 1 or matches[0] in used:
+            return {}
+        used.add(matches[0])
+        assigned[fid] = edges[matches[0]]
+    return assigned
+
+
+def special_physical_face_segments(points: Any, tables: dict | None = None) -> dict:
+    """L uses its established convention; eight faces require named walls."""
+    return (special_l_face_segments(points) or
+            eight_face_segments(points, (tables or {}).get('face_geometry')) or
+            special_u_face_segments(points))
+
+
+def special_u_face_segments(points: Any) -> dict:
+    """Owner convention: A/B back, E/F left leg, G/H right leg, C/D tips.
+
+    Left/right are viewed from the back towards the U opening. Outer walls
+    are A/E/G; inner walls B/F/H. This is topology, independent of DXF order.
+    """
+    ring = physical_ring(points)
+    if len(ring) != 8:
+        return {}
+    signed = sum(p[0]*ring[(i+1)%8][1]-ring[(i+1)%8][0]*p[1]
+                 for i,p in enumerate(ring))
+    reflex = []
+    for i,p in enumerate(ring):
+        a,b = ring[i-1],ring[(i+1)%8]
+        cross = (p[0]-a[0])*(b[1]-p[1])-(p[1]-a[1])*(b[0]-p[0])
+        if cross*signed < 0:
+            reflex.append(i)
+    # Only U: its two reentrant vertices bound the inner back directly.
+    if len(reflex) != 2 or (reflex[1]-reflex[0]) % 8 not in (1,7):
+        return {}
+    edges = [{'p0':p,'p1':ring[(i+1)%8]} for i,p in enumerate(ring)]
+    bid = next(i for i in range(8) if {i,(i+1)%8} == set(reflex))
+    b = edges[bid]
+    dx,dy = b['p1'][0]-b['p0'][0],b['p1'][1]-b['p0'][1]
+    length = math.hypot(dx,dy)
+    if length <= .05:
+        return {}
+    outward = (dy/length,-dx/length) if signed>0 else (-dy/length,dx/length)
+    left = (-outward[1],outward[0])
+    projection = lambda edge,axis: sum((p[0]*axis[0]+p[1]*axis[1])/2 for p in (edge['p0'],edge['p1']))
+    parallel = [i for i,e in enumerate(edges)
+                if abs((e['p1'][0]-e['p0'][0])*outward[0]+(e['p1'][1]-e['p0'][1])*outward[1]) <= .05]
+    if len(parallel) != 4:
+        return {}
+    aid = min(parallel,key=lambda i:projection(edges[i],outward))
+    if aid == bid:
+        return {}
+    tips = sorted(set(parallel)-{aid,bid},key=lambda i:projection(edges[i],left),reverse=True)
+    legs = sorted(set(range(8))-set(parallel),key=lambda i:projection(edges[i],left),reverse=True)
+    ids = dict(A=aid,B=bid,C=tips[0],D=tips[1],E=legs[0],F=legs[1],H=legs[2],G=legs[3])
+    return eight_face_segments(points,{fid:edges[i] for fid,i in ids.items()})
 
 
 def _row(
@@ -430,6 +592,83 @@ def _bbox_of(points: Any) -> tuple[float, float, float, float] | None:
     return min(xs), min(ys), max(xs), max(ys)
 
 
+def slab_physical_contact_intervals(edge: dict, points: Any, *, tol: float = 0.05) -> list:
+    """Measure shared polygon edges, including disjoint contacts on one face.
+
+    A slab bounding box cannot prove contact with a concave pillar. Only
+    collinear boundary segments with slab material outside the face qualify.
+    """
+    from shapely.geometry import Point, Polygon
+
+    ring = physical_ring(points)
+    if len(ring) < 3:
+        return []
+    polygon = Polygon(ring)
+    if not polygon.is_valid:
+        return []
+    start, end = sorted((tuple(edge['p0']), tuple(edge['p1'])))
+    axis = 0 if abs(end[1]-start[1]) <= tol else 1
+    lo, hi = start[axis], end[axis]
+    fixed = start[1-axis]
+    intervals = []
+    for p, q in zip(ring, ring[1:]+ring[:1]):
+        if max(abs(p[1-axis]-fixed), abs(q[1-axis]-fixed)) > tol:
+            continue
+        a, b = max(lo,min(p[axis],q[axis])), min(hi,max(p[axis],q[axis]))
+        if b-a <= tol:
+            continue
+        midpoint = list(start)
+        midpoint[axis] = (a+b)/2
+        outside = Point(midpoint[0]+edge['out'][0]*tol*2,
+                        midpoint[1]+edge['out'][1]*tol*2)
+        if polygon.covers(outside):
+            intervals.append(_oriented_face_interval(edge, a, b, axis))
+    merged = []
+    for a,b in sorted(intervals):
+        if merged and a <= merged[-1][1]+tol:
+            merged[-1][1] = max(merged[-1][1],b)
+        else:
+            merged.append([a,b])
+    return merged
+
+
+def _oriented_face_interval(edge, low, high, axis):
+    """Parameterize a physical contact from the contract's p0 to p1."""
+    start, end = edge['p0'][axis], edge['p1'][axis]
+    return (low-start, high-start) if end > start else (start-high, start-low)
+
+
+def reconcile_physical_slab_contacts(tables, segments, slab_points_map,
+                                     slab_height_map, slab_nivel_map):
+    """Replace box-based slab assignments only with available source polygons."""
+    rejected = copy.deepcopy(tables.get('physical_slab_contact_rejections') or [])
+    for fid,edge in segments.items():
+        bucket = tables.setdefault('faces',{}).setdefault(fid,{})
+        measured = []
+        for name,points in slab_points_map.items():
+            for interval in slab_physical_contact_intervals(edge,points):
+                row = _row('laje',name,slab_height_map.get(name),slab_nivel_map.get(name),
+                           fid*2,'laje',source='SA/N1 measured slab polygon boundary')
+                row['_physical_contact_interval_cm'] = interval
+                row['_physical_contact_origin'] = 'p0'
+                row['dist_esq'] = str(interval[0])+'cm'
+                row['dist_dir'] = str(max(0,edge['length']-interval[1]))+'cm'
+                measured.append(row)
+        retained = []
+        for row in bucket.get('lajes',[]):
+            name = row.get('nome')
+            if name in slab_points_map:
+                if not any(r['nome']==name for r in measured):
+                    rejected.append({'face':fid,'row':copy.deepcopy(row),
+                                     'reason':'slab_polygon_does_not_touch_physical_face'})
+            elif name not in ('nenhuma','—','',None):
+                retained.append(row)
+        bucket['lajes'] = retained+measured
+    tables['physical_slab_contact_rejections'] = list({
+        json.dumps(entry,sort_keys=True,ensure_ascii=False):entry for entry in rejected
+    }.values())
+
+
 def _arrival_corner_on_edge(
     edge: dict, neighbors: tuple[str, str], beam: dict | None, face: str,
 ) -> str:
@@ -453,6 +692,12 @@ def enrich_special_pillar_tables(
 ) -> dict:
     """Adiciona A–F e geometria física a um payload de tabelas já calculado."""
     raw_points = pillar.get("points") or pillar.get("points_json") or []
+    eight = (eight_face_segments(raw_points, pillar.get('face_geometry') or tables.get('face_geometry'))
+             or special_u_face_segments(raw_points))
+    if eight:
+        return enrich_eight_face_tables(tables, eight, slab_height_map=slab_height_map,
+                                       slab_nivel_map=slab_nivel_map,
+                                       slab_points_map=slab_points_map, beams=beams)
     segments = special_l_face_segments(raw_points)
     if not segments:
         tables.setdefault("face_ids", list("ABCD"))
@@ -461,6 +706,13 @@ def enrich_special_pillar_tables(
         geometry_type = classify_pillar_geometry(raw_points)
         if geometry_type:
             tables["geometry_type"] = geometry_type
+        return tables
+
+    if (beams is None and slab_points_map is None
+            and tables.get('geometry_type') == 'L_special_6_faces'
+            and set(tables.get('faces') or {}) == set('ABCDEF')):
+        # A reader without source geometry cannot recompute (or erase) E/F.
+        # The canonical physical interpretation remains the source of truth.
         return tables
 
     slab_height_map = slab_height_map or {}
@@ -542,7 +794,6 @@ def enrich_special_pillar_tables(
             nivel_viga_default, corner, "chega",
             source="SA/N1 special six-face geometry",
         ))
-
     # A tabela ABCD da caixa grava as mesmas chegadas na tampa D (com
     # ``sides_data`` vazio, só ali).  A D da caixa é a face sul inteira; a D
     # física é a tampa curta, cujo canto com A não existe (`V327` "DA" e
@@ -656,6 +907,14 @@ def enrich_special_pillar_tables(
     # A diferença está na atribuição do corpus (E/F no `P26`, D no `P27`),
     # não na geometria. Pergunta aberta ao dono.
 
+    reconcile_verified_special_contacts(tables, segments, beams)
+    if slab_points_map is not None:
+        reconcile_physical_slab_contacts(tables, segments, slab_points_map,
+                                         slab_height_map, slab_nivel_map)
+    for fid,edge in segments.items():
+        direction = ('leste' if edge['out'][0]>0 else 'oeste') if edge['out'][0] else (
+            'norte' if edge['out'][1]>0 else 'sul')
+        faces[fid]['label'] = f'{fid} — face física · exterior {direction}'
     tables["geometry_type"] = "L_special_6_faces"
     tables["face_ids"] = list("ABCDEF")
     tables["face_geometry"] = {
@@ -672,6 +931,170 @@ def enrich_special_pillar_tables(
     return tables
 
 
+def enrich_eight_face_tables(tables: dict, segments: dict, *, slab_height_map=None,
+                            slab_nivel_map=None, slab_points_map=None, beams=None) -> dict:
+    """Eight-wall contact interpretation, independent of legacy bounding boxes."""
+    if beams is None and slab_points_map is None and tables.get('geometry_type') == 'physical_8_faces':
+        return tables
+    old = copy.deepcopy(tables.get('faces') or {})
+    tables['faces'] = {fid: dict(label=f'{fid} — face física', lajes=[], passa=[],
+                               chega=[], interior=[]) for fid in segments}
+    if old and tables.get('geometry_type') != 'physical_8_faces':
+        tables['legacy_bbox_faces'] = old
+    # Verified wall intersections and slab intervals are independent evidence.
+    # A legacy ABCD box label is never promoted into a named physical contact.
+    reconcile_verified_special_contacts(tables, segments, beams or [])
+    if slab_points_map is not None:
+        reconcile_physical_slab_contacts(tables, segments, slab_points_map,
+                                        slab_height_map or {}, slab_nivel_map or {})
+    tables['face_ids'] = list('ABCDEFGH')
+    tables['geometry_type'] = 'physical_8_faces'
+    tables['face_geometry'] = {fid: {key: list(edge[key]) if key != 'length' else edge[key]
+                                   for key in ('p0','p1','out','length')}
+                               for fid,edge in segments.items()}
+    tables['face_neighbors'] = {fid: list(pair) for fid,pair in special_face_neighbors(segments).items()}
+    tables['special_geometry_source'] = 'SA/N1 validated eight-edge face contract'
+    tables['physical_contact_status'] = ('verified_sources' if beams is not None and slab_points_map is not None
+                                         else 'pending_source_geometry')
+    return tables
+
+
+def reconcile_verified_special_contacts(tables: dict, segments: dict, beams: list) -> None:
+    """Reconcile legacy box links only against explicitly verified wall runs.
+
+    Missing verification leaves the original evidence intact. Rejected links
+    are retained in an audit, never converted into guessed adjacent corners.
+    """
+    from src.core.pillar_face_beams import beam_runs_from_entity
+
+    verified = {str(b.get('name') or ''): b for b in beams
+                if b.get('_verified_wall_runs')}
+    # Section evidence is emitted only after both original DXF walls were
+    # checked over the entire run. It can therefore confirm a recovered run
+    # even when there is no FV candidate contour to fill _verified_wall_runs.
+    for beam in beams:
+        name = str(beam.get('name') or '')
+        if name in verified:
+            continue
+        sections = beam.get('_verified_section_texts') or []
+        if sections:
+            source = copy.deepcopy(beam)
+            source['_verified_wall_runs'] = [(run, dim) for run, dim, _pos in sections]
+            verified[name] = source
+    if not verified:
+        return
+    rejected = copy.deepcopy(tables.get('physical_contact_rejections') or [])
+    faces = tables.setdefault('faces', {})
+    for fid, edge in segments.items():
+        bucket = faces.setdefault(fid, {})
+        for role in ('passa', 'chega', 'interior'):
+            retained = []
+            for row in bucket.get(role, []):
+                beam = verified.get(str(row.get('nome') or ''))
+                if beam and not _beam_touches_edge(edge, beam):
+                    rejected.append({'face': fid, 'role': role, 'row': copy.deepcopy(row),
+                                     'reason': 'verified_wall_runs_do_not_touch_physical_face'})
+                elif beam and role in ('chega','passa') and _beam_crosses_edge(edge, beam):
+                    # Rebuild below from the actual intersection interval.
+                    continue
+                else:
+                    retained.append(row)
+            bucket[role] = retained
+        start, end = sorted((edge['p0'], edge['p1']))
+        horizontal = abs(start[1] - end[1]) <= EDGE_TOL_CM
+        axis = 0 if horizontal else 1
+        lo, hi = start[axis], end[axis]
+        for name, beam in verified.items():
+            if not _beam_crosses_edge(edge, beam):
+                continue
+            intervals = set()
+            for run in beam_runs_from_entity(beam):
+                run_h = abs(run[2]-run[0]) >= abs(run[3]-run[1])
+                if run_h == horizontal:
+                    continue
+                fixed = start[1-axis]
+                if not run[1-axis]-EDGE_TOL_CM <= fixed <= run[3-axis]+EDGE_TOL_CM:
+                    continue
+                a, b = max(lo, run[axis]), min(hi, run[axis+2])
+                if b-a > EDGE_TOL_CM:
+                    intervals.add((a,b))
+            for a,b in sorted(intervals):
+                contact_start, contact_end = _oriented_face_interval(edge, a, b, axis)
+                row = _row('viga', name, beam.get('dim'), None, fid*2, 'chega',
+                           source='SA/N1 verified wall intersection with physical face')
+                row['dist_esq'] = str(max(0.0,contact_start))+'cm'
+                row['dist_dir'] = str(max(0.0,edge['length']-contact_end))+'cm'
+                row['_physical_contact_interval_cm'] = [contact_start,contact_end]
+                row['_physical_contact_origin'] = 'p0'
+                bucket.setdefault('chega', []).append(row)
+    tables['physical_contact_rejections'] = list({
+        json.dumps(entry, sort_keys=True, ensure_ascii=False): entry
+        for entry in rejected
+    }.values())
+
+
+def physical_face_contact(segments: dict, fid: str, kind: str, row: dict) -> tuple:
+    """Contact span and tip on an actual edge; never on its enclosing box.
+
+    New measured intervals follow p0 to p1. Legacy rows without an explicit
+    origin retain their lower-coordinate convention.
+    Invalid corner assignments stay explicit instead of inventing a contact.
+    """
+    import re
+
+    edge = segments[fid]
+    start, end = tuple(edge['p0']), tuple(edge['p1'])
+    if row.get('_physical_contact_origin') != 'p0':
+        start, end = sorted((start, end))
+    length = math.dist(start, end)
+    if length <= 1e-6:
+        raise ValueError(f'{fid}: face física sem comprimento')
+    unit = ((end[0] - start[0]) / length, (end[1] - start[1]) / length)
+
+    def at(distance):
+        return start[0] + unit[0] * distance, start[1] + unit[1] * distance
+
+    def number(value):
+        match = re.fullmatch(r'\s*(\d+(?:[.,]\d+)?)\s*(?:cm)?\s*', str(value))
+        return float(match[1].replace(',', '.')) if match else None
+
+    measured = row.get('_physical_contact_interval_cm')
+    if measured is not None:
+        a,b = map(float, measured)
+        if not 0 <= a < b <= length + .01:
+            raise ValueError(f'{fid}: intervalo físico inválido')
+        return at(a), at(min(b,length)), at((a+min(b,length))/2)
+
+    corner = str(row.get('canto') or '').upper().strip()
+    contact = None
+    if kind in {'passa', 'chega'} and corner != fid * 2:
+        if len(corner) != 2 or corner[0] != fid or corner[1] not in segments:
+            raise ValueError(f'{fid}: canto físico inválido {corner!r}')
+        other = segments[corner[1]]
+        contact = next((point for point in (start, end)
+                        if any(math.dist(point, p) <= .01 for p in (other['p0'], other['p1']))), None)
+        if contact is None:
+            raise ValueError(f'{fid}: faces não adjacentes em {corner}')
+    if kind == 'passa':
+        if contact is None:
+            raise ValueError(f'{fid}: passagem sem vértice físico')
+        return start, end, contact
+    if kind == 'chega':
+        match = re.match(r'\s*(\d+(?:[.,]\d+)?)', str(row.get('dim') or ''))
+        width = float(match[1].replace(',', '.')) if match else None
+        if width is None or not 0 < width <= length + .01:
+            raise ValueError(f'{fid}: largura da chegada ausente ou maior que a face')
+        width = min(width, length)
+        offset = (length - width) / 2 if contact is None else (0 if contact == start else length - width)
+        return at(offset), at(offset + width), at(offset + width / 2)
+    de, dd = number(row.get('dist_esq')), number(row.get('dist_dir'))
+    if de is not None or dd is not None:
+        if de is None or dd is None or de + dd > length + .01:
+            raise ValueError(f'{fid}: intervalo de contato físico inconsistente')
+        return at(de), at(length - dd), at((de + length - dd) / 2)
+    return start, end, at(length / 2)
+
+
 def format_tables_portal_dynamic(formatter, tables: dict) -> str:
     """Compatibilidade: força o formatter legado a receber uma cópia A–F.
 
@@ -679,15 +1102,15 @@ def format_tables_portal_dynamic(formatter, tables: dict) -> str:
     ser migrado; até lá, consumidores podem usar os metadados A–F diretamente.
     """
     base = formatter(copy.deepcopy(tables))
-    if not set(tables.get("face_ids") or []) & {"E", "F"}:
+    if not set(tables.get("face_ids") or []) & set('EFGH'):
         return base
     cards: list[str] = []
-    colors = {"E": "#c2410c", "F": "#0f766e"}
+    colors = {"E": "#c2410c", "F": "#0f766e", "G": "#6d28d9", "H": "#b45309"}
     family_labels = {
         "lajes": "Lajes", "passa": "Passam",
         "chega": "Chegam", "interior": "Interior",
     }
-    for fid in "EF":
+    for fid in [fid for fid in 'EFGH' if fid in (tables.get('faces') or {})]:
         data = (tables.get("faces") or {}).get(fid) or {}
         rows: list[str] = []
         for family, label in family_labels.items():

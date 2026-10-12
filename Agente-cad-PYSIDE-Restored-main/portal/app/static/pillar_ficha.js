@@ -37,7 +37,7 @@
 
   function App(root, options) {
     this.root = root; this.options = options; this.data = null; this.views = {}; this.tab = options.initialTab || ('abcd-' + (options.comportamento === 'passa' ? 'passa' : 'para')); this.timer = null; this.selectedPanel = null;
-    this.visualMode = options.visualMode || null; this.availableVisualModes = [];
+    this.visualMode = options.visualMode || (new URLSearchParams(window.location.search).get('modo_desenho') === 'MOLDE_1' ? 'MOLDE_1' : null); this.availableVisualModes = [];
     this.dirty = false; this.saving = false; this.regenJob = null; this.regenChecking = false; this.regenDiscovered = false; this.regenError = ''; this.regenTimer = null; this.regenRefreshOnDone = null;
     this.load();
   }

@@ -59,3 +59,20 @@ Candidatos, em ordem de valor — decidir com o dono antes de ligar:
 
 Montagem prevista: um passo que exporta 1–4 para `DADOS-OBRAS/<obra>/kb_fontes/*.md` e
 chama `kb_build.py --obra <obra> --fontes DADOS-OBRAS/<obra>/kb_fontes`.
+
+## 5. Consulta de pré-processamento entre rodadas
+
+`portal/app/preprocessamento/knowledge_qa.py` reabre o JSON da fonte indexada;
+o texto do índice sozinho não autoriza consumo. Um hash idêntico de pacote
+identifica o pacote atual. Pacotes de rodadas anteriores podem ser consultados
+como `historical_same_sources_consultation` apenas quando coincidem obra,
+pavimento, recorte, revisão SHA da torre e manifesto completo das fontes CAD
+dependentes. Fonte ausente, proveniência incompleta ou revisão divergente são
+rejeitadas e o motivo fica no recibo.
+
+O hash do pacote inclui a identidade da rodada: sua alteração, isoladamente,
+não significa alteração do CAD. A correspondência das fontes permite recuperar
+uma referência histórica, mas não transforma resultados antigos em valores
+atuais, prova independente ou aprovação. `numeric_authority` e
+`independent_confirmation` permanecem falsos. O SA deve confirmar valores nas
+fontes CAD atuais; repetir a mesma origem não soma votos de confiança.

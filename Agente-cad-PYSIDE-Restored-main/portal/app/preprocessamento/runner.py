@@ -205,9 +205,8 @@ def run_inventory(
     result["preview"] = bool(preview)
     unvalidated = [source["source_id"] for source in result["sources"] if not source["validated"]]
     result["unvalidated_source_ids"] = unvalidated
-    result["provisional"] = bool(preview and unvalidated)
-    if unvalidated and not preview:
-        raise RunnerError("recortes pendentes de validação; use --preview para leitura provisória")
+    # A revisão humana é informação de proveniência, não requisito de execução.
+    result["provisional"] = bool(unvalidated)
     if not preview:
         _write_atomic(output_dir / "inventory.json", result)
     return result

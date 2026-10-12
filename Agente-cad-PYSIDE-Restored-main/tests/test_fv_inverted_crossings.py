@@ -11,7 +11,7 @@ def scene(axis=0, sign=1):
     row=dict(uid='bottom1',beam_name='NORMAL',length=100,
              points=[p(0,0),p(100,0),p(100,19),p(0,19),p(0,0)])
     a,b=(100,119) if sign==1 else (-19,0)
-    owner=dict(beam='NORMAL',section_contract=dict(base_level_m=851.64,top_level_m=852.19),
+    owner=dict(beam='NORMAL',section_contract=dict(width_cm=19,height_cm=55,base_level_m=851.64,top_level_m=852.19),
                pairs=[dict(footprint=row['points'])])
     crossing=dict(beam='INVERTED',section_contract=dict(beam_type='inverted',
         base_level_m=852.06,top_level_m=853.26,section_semantics=dict(confirmed=True)),
@@ -81,10 +81,48 @@ def test_manual_sidecar_geometry_is_preserved():
     assert reconcile_state(state,dict(physical_entries=entries),lines,[row['uid']])==state
 
 
-def test_opposite_ends_cannot_both_claim_a_crossing_gap():
+def test_opposite_ends_merge_without_overlapping_or_losing_the_gap():
     row,entries,lines=scene()
     other=deepcopy(row);other.update(uid='bottom2',points=[[119,0],[200,0],[200,19],[119,19]])
     entries[0]['pairs'].append(dict(footprint=other['points']))
     lines=[(0,0,200,0),(0,19,200,19)]
     state=dict(segmentos=dict(fundo=[row,other]))
-    assert reconcile_state(state,dict(physical_entries=entries),lines)==state
+    before=deepcopy(state)
+    result=reconcile_state(state,dict(physical_entries=entries),lines)
+    assert state==before
+    merged=result['segmentos']['fundo']
+    assert len(merged)==1
+    assert merged[0]['length']==200
+    assert merged[0]['merged_source_uids']==['bottom1','bottom2']
+    assert reconcile_state(result,dict(physical_entries=entries),lines)==result
+
+
+@pytest.mark.parametrize('failure',['pillar','manual','missing_wall','height_change','explicit_level_change'])
+def test_merging_requires_unobstructed_matching_section(failure):
+    row,entries,lines=scene()
+    other=deepcopy(row);other.update(uid='bottom2',points=[[119,0],[200,0],[200,19],[119,19]])
+    owner=deepcopy(entries[0]);owner['pairs']=[dict(footprint=other['points'])]
+    entries.append(owner)
+    lines=[(0,0,200,0),(0,19,200,19)]
+    state=dict(segmentos=dict(fundo=[row,other]))
+    protected=[]
+    if failure=='pillar': state['pilares']=[dict(points=[[100,0],[119,0],[119,19],[100,19]])]
+    if failure=='manual': protected=[row['uid']]
+    if failure=='missing_wall': lines=lines[:1]
+    if failure=='height_change': owner['section_contract']['height_cm']=71
+    if failure=='explicit_level_change':
+        row.update(level='852.12',level_source='explicit_beam_or_side')
+        other.update(level='852.19',level_source='explicit_beam_or_side')
+    result=reconcile_state(state,dict(physical_entries=entries),lines,protected)
+    assert len(result['segmentos']['fundo'])==2
+
+
+def test_neighbor_slab_levels_are_preserved_as_unresolved_not_invented():
+    row,entries,lines=scene()
+    row.update(level='852.12',level_source='highest_touching_slab')
+    other=deepcopy(row);other.update(uid='bottom2',level='852.19',points=[[119,0],[200,0],[200,19],[119,19]])
+    entries[0]['pairs'].append(dict(footprint=other['points']))
+    result=reconcile_state(dict(segmentos=dict(fundo=[row,other])),dict(physical_entries=entries),[(0,0,200,0),(0,19,200,19)])
+    merged=result['segmentos']['fundo'][0]
+    assert merged['level']==''
+    assert [r['level'] for r in merged['merged_source_segments']]==['852.12','852.19']

@@ -762,6 +762,37 @@ class VigasPavimentoIn(BaseModel):
     fundos_vigas_possui_garfos: Literal['sim', 'nao']
 
 
+class ModoDesenhoPavimentoIn(BaseModel):
+    visual_mode: Literal['INI', 'NOVA', 'MOLDE_1', 'MOLDE_2', 'MOLDE_3']
+
+
+@router.get('/{obra_id}/pavimentos/modo-desenho-config')
+def obter_modo_desenho_pavimento(obra_id: str, pavimento: str, classe_ui: str,
+                                 membro: dict = Depends(auth.exige_login),
+                                 conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = repo.obter_obra(conn, obra_id)
+    if not obra or not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=404, detail='obra não encontrada')
+    try:
+        return repo.obter_modo_desenho_pavimento(conn, obra_id, pavimento, classe_ui)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+@router.put('/{obra_id}/pavimentos/modo-desenho-config')
+def salvar_modo_desenho_pavimento(obra_id: str, pavimento: str, classe_ui: str,
+                                  body: ModoDesenhoPavimentoIn,
+                                  membro: dict = Depends(auth.exige_login),
+                                  conn: sqlite3.Connection = Depends(get_db_conn)):
+    obra = repo.obter_obra(conn, obra_id)
+    if not obra or not access.pode_ver_obra(obra, membro):
+        raise HTTPException(status_code=404, detail='obra não encontrada')
+    try:
+        return repo.salvar_modo_desenho_pavimento(conn, obra_id, pavimento, classe_ui, body.visual_mode)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
 @router.get('/{obra_id}/pavimentos/vigas-config')
 def obter_vigas_pavimento(obra_id: str, pavimento: str,
                           membro: dict = Depends(auth.exige_login),

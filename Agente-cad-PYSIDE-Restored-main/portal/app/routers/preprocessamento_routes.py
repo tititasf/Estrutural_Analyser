@@ -20,7 +20,7 @@ from ...db import repository as repo
 
 router = APIRouter(prefix="/obras", tags=["preprocessamento"])
 _FLOOR = re.compile(r"^[A-Za-z0-9_.-]+$")
-_KINDS = {SourceKind.TOWER, SourceKind.DETAILS, SourceKind.PILLAR_CONVENTION, SourceKind.LEVEL_CONVENTION}
+_KINDS = set(SourceKind)
 
 
 class PreprocessRequest(BaseModel):
@@ -63,10 +63,6 @@ def start_preprocess(
     sources = _sources_for_floor(request, conn, obra, payload.pavimento)
     if not any(source.kind is SourceKind.TOWER for source in sources):
         raise HTTPException(status_code=409, detail="nenhuma torre recortada neste pavimento")
-    pending = [source.item_id for source in sources
-               if not source.validated and source.kind is not SourceKind.LEVEL_CONVENTION]
-    if pending:
-        raise HTTPException(status_code=409, detail="valide os recortes antes: " + ", ".join(pending))
     frozen = {source.source_id: source.revision for source in sources}
     frozen.update({source["source_id"]: source["revision"]
                    for source in raw_level_references(
@@ -100,6 +96,11 @@ def get_preprocess(
         raise HTTPException(status_code=422, detail="pavimento inválido")
     for job in repo.listar_jobs_por_obra(conn, obra_id):
         meta = request.app.state.job_meta.get(job["id"]) or repo.obter_job_meta(conn, job["id"])
+        if meta.get('etapa') == 'motores_obra' and pavimento in meta.get('pavimentos', []):
+            receipt = next((r for r in (meta.get('cadeia') or {}).get('recibos', [])
+                            if r.get('pavimento') == pavimento and r.get('etapa') == 'Pré-processamento'), None)
+            if receipt:
+                meta = {'etapa': 'preprocessamento', 'pav': pavimento, 'result': receipt['result']}
         if meta.get("etapa") == "preprocessamento" and meta.get("pav") == pavimento:
             result = meta.get("result")
             if result:

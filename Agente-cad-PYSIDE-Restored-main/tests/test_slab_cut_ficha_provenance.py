@@ -6,6 +6,7 @@ from src.core.sa_db_persistence import merge_analysis_item
 
 def test_cut_ficha_rejects_geometric_neighbor_height_that_creates_negative_clearance():
     window = MainWindow.__new__(MainWindow)
+    window.dxf_data = {}
     window._points_bbox_tuple = lambda pts: (0, 0, 10, 10)
     window._bbox_center_tuple = lambda bbox: (5, 5)
     window._slab_cut_direction = lambda slab, pts: "Leste"
@@ -40,6 +41,7 @@ def test_cut_ficha_rejects_geometric_neighbor_height_that_creates_negative_clear
 
 def test_annotated_height_wins_even_with_positive_geometric_clearances():
     window = MainWindow.__new__(MainWindow)
+    window.dxf_data = {}
     window._points_bbox_tuple = lambda pts: (0, 0, 10, 10)
     window._bbox_center_tuple = lambda bbox: (5, 5)
     window._slab_cut_direction = lambda slab, pts: 'Sul'

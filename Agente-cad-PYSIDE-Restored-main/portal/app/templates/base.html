@@ -6,7 +6,7 @@
   <title>{% block titulo %}Portal de Formas de Concretagem{% endblock %}</title>
   {# ?v=<mtime dos estáticos> — invalida o cache do navegador a cada edição
      de CSS. Sem isto, mudar o estilo e recarregar mostra a versão antiga. #}
-  <link rel="stylesheet" href="/static/portal.css?v={{ request.app.state.static_versao | default('0') }}&pav=20261001qa&cards=20261003compact-dismiss">
+  <link rel="stylesheet" href="/static/portal.css?v={{ request.app.state.static_versao | default('0') }}&pav=20261001qa&cards=20261003compact-dismiss&guard=20261006">
 </head>
 <body>
   {% if membro %}

@@ -20,7 +20,7 @@ def _positive(value, field):
     return result
 
 
-def build_cut_contract(cut):
+def build_cut_contract(cut, *, allow_multiple_slabs=False):
     semantics = cut.get('section_semantics') or (cut.get('source_cut') or {}).get('section_semantics') or {}
     inverted = semantics.get('confirmed') is True and semantics.get('beam_type') == 'inverted'
     warnings = [cut['attention']] if cut.get('attention') else []
@@ -31,11 +31,20 @@ def build_cut_contract(cut):
         height = _positive(cut.get('beam_height_cm'), 'beam_height_cm')
         profiles = cut['profiles']
         levels = [number(profiles[s].get('level')) for s in ('A','B')]
-        if None in levels:
+        relative = None in levels and all(
+            profiles[s].get('relative_level_source') == 'original_cut_relative_profile'
+            and profiles[s].get('relative_evidence_ids') for s in ('A', 'B')) and not inverted
+        if None in levels and not relative:
             raise CutContractError('profiles.level: nível ausente')
         # O SA separa a referência da viga das cotas regionais das lajes.
         # Uma laje acima dessa referência exige revisão, nunca eleva a viga.
-        datum = max(levels)
+        datum = None if relative else max(levels)
+        if relative:
+            warnings.append('Perfil relativo medido no corte original; nível absoluto pendente')
+        if not inverted and cut.get('beam_datum_source') in ('original_cut_datum', 'human_validated_section'):
+            measured_datum = number(cut.get('beam_top_level_m'))
+            if measured_datum is not None:
+                datum = measured_datum
         if inverted:
             from .beam_vertical_context import inverted_profile_levels
             try:
@@ -47,10 +56,16 @@ def build_cut_contract(cut):
             for slab in profiles[side]['slabs']:
                 thick = _positive(slab.get('height_cm'), f'{side}.{slab.get("name")}.height_cm')
                 level = number(slab.get('level'))
-                if level is None:
+                if relative:
+                    drop = number(slab.get('measured_drop_cm'))
+                    if drop is None:
+                        raise CutContractError(f'{side}.measured_drop_cm: medida ausente')
+                elif level is None:
                     raise CutContractError(f'{side}.{slab.get("name")}.level: nível ausente')
+                else:
+                    drop = round((datum-level)*100, 4)
                 slabs[side].append({'name':slab.get('name'), 'height_cm':thick,
-                                    'drop_cm':round((datum-level)*100, 4)})
+                                    'drop_cm':drop})
     else:
         raw = cut.get('source_cut') or {}
         ficha = raw.get('ficha') or {}
@@ -96,7 +111,7 @@ def build_cut_contract(cut):
             slabs[side].append({'name':name,'height_cm':thick,'drop_cm':drop})
     for side in ('A','B'):
         sections = {(s['drop_cm'],s['height_cm']) for s in slabs[side]}
-        if len(sections) > 1:
+        if len(sections) > 1 and not allow_multiple_slabs:
             raise CutContractError(f'{side}.slabs: mais de um perfil de laje no mesmo trecho')
         for slab in slabs[side]:
             outside = (slab['drop_cm'] >= height if inverted else
@@ -108,7 +123,10 @@ def build_cut_contract(cut):
     # from the total beam height or a reverse-engineered N2.
     mounting = {}
     for side in ('A','B'):
-        slab = slabs[side][0] if slabs[side] else None
+        # NOVA can render several measured flange intervals. The main mounting
+        # body ends below the lowest flange; the drawing retains every interval.
+        slab = (max(slabs[side], key=lambda s:s['drop_cm']+s['height_cm'])
+                if slabs[side] else None)
         lower = bool(slab and abs(height-slab['drop_cm']-slab['height_cm']) <= .5)
         above_slab = bool(inverted and slab)
         base = height-slab['drop_cm']+2 if lower or above_slab else -4.
@@ -121,7 +139,7 @@ def build_cut_contract(cut):
             mounting[side]['below_slab_concrete_cm'] = max(0.,height-slab['drop_cm']-slab['height_cm'])
     for side in ('A', 'B'):
         aliases = (cut.get('slab_aliases') or {}).get(side) or []
-        if aliases and slabs[side]:
+        if aliases and slabs[side] and len({(s['drop_cm'],s['height_cm']) for s in slabs[side]})==1:
             slabs[side] = [{**slabs[side][0], 'name': ', '.join(aliases)}]
     contract = {'schema':'cad.sa.lv_n3_cut/v1', 'id':cut['id'], 'beam':cut['beam'],
                 'source':'N1', 'kind':cut['kind'], 'width_cm':width,'height_cm':height,
@@ -134,14 +152,18 @@ def build_cut_contract(cut):
         contract['section_semantics'] = semantics
         if cut['kind'] == 'calculated':
             contract.update(vertical)
-    elif cut['kind'] == 'calculated':
+    elif cut['kind'] == 'calculated' and not relative:
         # Absolute context belongs to this physical pair, never to the first
         # member of a group of equal relative section shapes.
         confirmed = [number(p.get('level')) for p in profiles.values()
                      if p.get('level_source') in ('lv_cell_slabs', 'paired_touching_slabs')]
-        if confirmed and max(confirmed) >= datum-.005:
+        if (confirmed and max(confirmed) >= datum-.005) or cut.get('beam_datum_source') in ('original_cut_datum', 'human_validated_section'):
             contract.update(base_level_m=round(datum-height/100, 6),
                             top_level_m=round(datum, 6),
-                            vertical_datum_source='local_sa_profiles')
+                            vertical_datum_source=cut.get('beam_datum_source') or 'local_sa_profiles')
+    if cut['kind'] == 'calculated' and relative:
+        contract['vertical_datum_source'] = 'original_cut_relative_profile'
+        contract['evidence_ids'] = list(dict.fromkeys([*contract['evidence_ids'],
+            *(uid for profile in profiles.values() for uid in profile.get('relative_evidence_ids', []))]))
     contract['fingerprint'] = sha256(json.dumps(contract,sort_keys=True,ensure_ascii=False).encode()).hexdigest()
     return contract

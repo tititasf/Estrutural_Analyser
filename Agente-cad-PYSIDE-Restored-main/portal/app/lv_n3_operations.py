@@ -11,6 +11,7 @@ import tempfile
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
+from src.core.vigas_drawing_config import apply_lv_config, normalize_lv_assembly, prepare_lv_sources
 
 
 _BEAM = re.compile(r"(?:V|VF)\d+[A-Z]?", re.IGNORECASE)
@@ -59,11 +60,14 @@ def _read_source(obra_dir: Path, pavimento: str, behavior: str, beam: str) -> tu
     return contracts, fingerprint
 
 
-def _override_path(obra_dir: Path, pavimento: str, behavior: str, beam: str) -> Path:
+def _override_path(obra_dir: Path, pavimento: str, behavior: str, beam: str, assembly=None) -> Path:
     behavior, beam = _identity(behavior, beam)
     if not re.fullmatch(r"[A-Za-z0-9_-]+", pavimento):
         raise ValueError("pavimento inválido")
-    return Path(obra_dir) / ".portal_overrides" / "lv_n3" / pavimento / behavior / f"{beam}.json"
+    root = Path(obra_dir) / ".portal_overrides" / "lv_n3" / pavimento / behavior
+    if assembly is not None:
+        root /= normalize_lv_assembly(assembly)
+    return root / f"{beam}.json"
 
 
 def _positive(value: Any, name: str, *, zero: bool = False) -> float:
@@ -76,12 +80,34 @@ def _positive(value: Any, name: str, *, zero: bool = False) -> float:
     return round(number, 3)
 
 
+def _variant_source(source, obra_dir, pavimento, behavior, beam, fingerprint, assembly, mode=None):
+    source = prepare_lv_sources(source, mode=mode)
+    source = {side:apply_lv_config(contract, {'comportamento_laterais_vigas':assembly})
+              for side,contract in source.items()}
+    # Preserve existing manual dimensions as a common starting point. New edits
+    # are subsequently stored under the independent assembly namespace.
+    legacy = _override_path(obra_dir,pavimento,behavior,beam)
+    if legacy.is_file():
+        old = json.loads(legacy.read_text(encoding='utf8'))
+        if old.get('source_hash') == fingerprint:
+            cleaned = _validated_sides(source,old['sides'])
+            for side in ('A','B'):
+                source[side].update({key:cleaned[side][key] for key in _SIDE_FIELDS})
+                for panel,edited in zip(source[side]['panels'],cleaned[side]['panels']):
+                    panel.update({key:edited[key] for key in _PANEL_FIELDS})
+                    panel['body_height_cm'] = max(0.,panel['height1']-panel['top_band_cm'])
+    return source
+
+
 def _editable(contracts: dict[str, dict]) -> dict[str, dict]:
     return {
         side: {
             **{key: contract.get(key) for key in _SIDE_FIELDS},
             "panels": [
                 {**{key: panel.get(key) for key in _PANEL_FIELDS},
+                 "panel_type": panel.get("panel_type", "Sarrafeado"),
+                 "grade_h1": panel.get("grade_h1", 0), "grade_h2": panel.get("grade_h2", 0),
+                 "body_height_cm": panel.get("body_height_cm"), "top_band_cm": panel.get("top_band_cm"),
                  "segment_index": panel.get("structural_segment_index", panel.get("segment_index"))}
                 for panel in contract["panels"]
             ],
@@ -110,12 +136,29 @@ def _validated_sides(source: dict[str, dict], sides: dict) -> dict[str, dict]:
                 for index, panel in enumerate(panels)
             ],
         }
+    for side in ("A", "B"):
+        for index, panel in enumerate(cleaned[side]["panels"]):
+            original = source[side]["panels"][index]
+            if original.get("panel_type") == "Grade":
+                for field, height in (("grade_h1", "height1"), ("grade_h2", "height2")):
+                    panel[field] = _positive(sides[side]["panels"][index].get(field, original.get(field, 0)), field, zero=True)
+                    if panel[field] > panel[height]:
+                        raise ValueError(f"{side}: altura da grade excede a altura do painel")
     return cleaned
 
 
-def load_ficha(obra_dir: Path, pavimento: str, behavior: str, beam: str) -> dict:
+def load_ficha(obra_dir: Path, pavimento: str, behavior: str, beam: str, assembly=None, mode=None) -> dict:
     source, fingerprint = _read_source(obra_dir, pavimento, behavior, beam)
-    path = _override_path(obra_dir, pavimento, behavior, beam)
+    if assembly is not None:
+        assembly = normalize_lv_assembly(assembly)
+        source = _variant_source(source,obra_dir,pavimento,behavior,beam,fingerprint,assembly,mode)
+    if mode == 'NOVA' and any((segment.get('lv_cell') or {}).get('pillar_openings')
+            for contract in source.values() for segment in contract.get('structural_segments', [])):
+        from .ficha_reader import ler_estado_pavimento
+        state = ler_estado_pavimento(obra_dir, pavimento) or {}
+        from src.core.lv_nova_sa_adapter import attach_pillar_faces
+        source = attach_pillar_faces(source, state.get('pilares') or [])
+    path = _override_path(obra_dir, pavimento, behavior, beam, assembly)
     override = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
     stale = bool(override) and override.get("source_hash") != fingerprint
     sides = _editable(source)
@@ -127,18 +170,28 @@ def load_ficha(obra_dir: Path, pavimento: str, behavior: str, beam: str) -> dict
                 panel.update(edited)
     return {
         "source_hash": fingerprint,
+        "assembly_variant": assembly,
         "revision": int(override.get("revision", 0)) if not stale else 0,
         "stale": stale,
         "sides": sides,
     }
 
 
-def save_ficha(obra_dir: Path, pavimento: str, behavior: str, beam: str, draft: dict) -> dict:
+def save_ficha(obra_dir: Path, pavimento: str, behavior: str, beam: str, draft: dict, assembly=None, mode=None) -> dict:
     source, fingerprint = _read_source(obra_dir, pavimento, behavior, beam)
+    if assembly is not None:
+        assembly = normalize_lv_assembly(assembly)
+        source = _variant_source(source,obra_dir,pavimento,behavior,beam,fingerprint,assembly,mode)
+    if mode == 'NOVA' and any((segment.get('lv_cell') or {}).get('pillar_openings')
+            for contract in source.values() for segment in contract.get('structural_segments', [])):
+        from .ficha_reader import ler_estado_pavimento
+        state = ler_estado_pavimento(obra_dir, pavimento) or {}
+        from src.core.lv_nova_sa_adapter import attach_pillar_faces
+        source = attach_pillar_faces(source, state.get('pilares') or [])
     if draft.get("source_hash") != fingerprint:
         raise ValueError("contrato SA mudou; recarregue a ficha antes de salvar")
     sides = _validated_sides(source, draft.get("sides"))
-    path = _override_path(obra_dir, pavimento, behavior, beam)
+    path = _override_path(obra_dir, pavimento, behavior, beam, assembly)
     old = json.loads(path.read_text(encoding="utf-8")) if path.is_file() else {}
     if old.get("source_hash") == fingerprint and int(draft.get("revision", -1)) != int(old.get("revision", 0)):
         raise ValueError("ficha N3 LV foi alterada em outra sessão; recarregue antes de salvar")
@@ -158,12 +211,21 @@ def save_ficha(obra_dir: Path, pavimento: str, behavior: str, beam: str, draft: 
         os.replace(temporary, path)
     finally:
         Path(temporary).unlink(missing_ok=True)
-    return load_ficha(obra_dir, pavimento, behavior, beam)
+    return load_ficha(obra_dir, pavimento, behavior, beam, assembly, mode=mode)
 
 
-def effective_contracts(obra_dir: Path, pavimento: str, behavior: str, beam: str) -> dict[str, dict]:
+def effective_contracts(obra_dir: Path, pavimento: str, behavior: str, beam: str, assembly=None, mode=None) -> dict[str, dict]:
     source, fingerprint = _read_source(obra_dir, pavimento, behavior, beam)
-    path = _override_path(obra_dir, pavimento, behavior, beam)
+    if assembly is not None:
+        assembly = normalize_lv_assembly(assembly)
+        source = _variant_source(source,obra_dir,pavimento,behavior,beam,fingerprint,assembly,mode)
+    if mode == 'NOVA' and any((segment.get('lv_cell') or {}).get('pillar_openings')
+            for contract in source.values() for segment in contract.get('structural_segments', [])):
+        from .ficha_reader import ler_estado_pavimento
+        state = ler_estado_pavimento(obra_dir, pavimento) or {}
+        from src.core.lv_nova_sa_adapter import attach_pillar_faces
+        source = attach_pillar_faces(source, state.get('pilares') or [])
+    path = _override_path(obra_dir, pavimento, behavior, beam, assembly)
     if not path.is_file():
         return source
     override = json.loads(path.read_text(encoding="utf-8"))
@@ -175,4 +237,6 @@ def effective_contracts(obra_dir: Path, pavimento: str, behavior: str, beam: str
         result[side].update({key: validated[side][key] for key in _SIDE_FIELDS})
         for panel, edited in zip(result[side]["panels"], validated[side]["panels"]):
             panel.update(edited)
+            if panel.get('top_band_cm') is not None:
+                panel['body_height_cm'] = max(0., panel['height1']-panel['top_band_cm'])
     return result

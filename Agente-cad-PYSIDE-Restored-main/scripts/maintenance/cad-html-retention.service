@@ -1,0 +1,19 @@
+[Unit]
+Description=Conservative retention of CAD portal HTML packs
+After=cad-portal.service
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/cad-analyzer
+ExecStart=/usr/bin/python3.12 /opt/cad-analyzer/scripts/maintenance/retain_html_packs.py --repo-root /opt/cad-analyzer --html-root /mnt/HC_Volume_107093148/cad-analyzer/scripts/arete/html_fichas --apply
+Nice=15
+IOSchedulingClass=idle
+TimeoutStartSec=10min
+NoNewPrivileges=true
+ProtectHome=read-only
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/cad-analyzer/scripts/arete /opt/cad-analyzer/runtime
+ReadWritePaths=/mnt/HC_Volume_107093148/cad-analyzer/scripts/arete/html_fichas
+

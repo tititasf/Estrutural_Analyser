@@ -63,6 +63,7 @@
 
   var state = {
     level: 'pavs',
+    obraHome: true,
     pav: null,
     etapa: null,
     classe: null,
@@ -78,13 +79,49 @@
     qaControlFeedback: {}
   };
 
-  var drawingModes = [['INI','Modo iNI'], ['NOVA','Modo Nova'], ['MOLDE_1','Modo Molde 1'], ['MOLDE_2','Modo Molde 2'], ['MOLDE_3','Modo Molde 3']];
+  var drawingModes = [['INI','Modo iNI'], ['NOVA','Modo Nova'], ['MOLDE_1','Formascia'], ['MOLDE_2','Modo Molde 2'], ['MOLDE_3','Modo Molde 3']];
   var drawingModeSelections = {};
+  var drawingModesByPav = {};
+  var n3OptionsExpanded = {};
+  var saOptionsExpanded = {};
+  function granularMotorsKey() {
+    return 'cad:granular-motors:' + JSON.stringify([OBRA_ID, state.pav, state.classe]);
+  }
+  function granularMotorsOpen() {
+    try { return localStorage.getItem(granularMotorsKey()) !== 'closed'; }
+    catch (e) { return !state.granularMotorsClosed; }
+  }
+  function drawingModeScope(classe) { return classe || 'ALL'; }
   function drawingModeKey(classe) {
-    return 'cad:n3-mode:' + JSON.stringify([OBRA_ID, state.pav, classe || 'ALL']);
+    return 'cad:n3-mode:' + JSON.stringify([OBRA_ID, state.pav, drawingModeScope(classe)]);
+  }
+  function drawingModeConfigKey(pav, classe) {
+    return [pav || '', drawingModeScope(classe)].join(':');
+  }
+  function drawingModeUrl(pav, classe) {
+    return '/obras/' + encodeURIComponent(OBRA_ID) + '/pavimentos/modo-desenho-config?pavimento=' +
+      encodeURIComponent(pav) + '&classe_ui=' + encodeURIComponent(drawingModeScope(classe));
+  }
+  function ensureDrawingModeConfig(classe) {
+    var pav = state.pav;
+    if (!pav) return;
+    var key = drawingModeConfigKey(pav, classe), entry = drawingModesByPav[key];
+    if (entry) return;
+    entry = drawingModesByPav[key] = {loading: true};
+    fetch(drawingModeUrl(pav, classe)).then(function (response) {
+      if (!response.ok) throw new Error('Não foi possível carregar o modo de desenho.');
+      return response.json();
+    }).then(function (data) { entry.data = data; })
+      .catch(function (error) { entry.error = error.message; })
+      .finally(function () { entry.loading = false; if (state.pav === pav) render(); });
+  }
+  function drawingModeReady(classe) {
+    var entry = drawingModesByPav[drawingModeConfigKey(state.pav, classe)];
+    return entry && entry.data && !entry.loading && !entry.saving && !entry.error;
   }
   function selectedDrawingMode(classe) {
-    var key = drawingModeKey(classe), mode = drawingModeSelections[key];
+    var key = drawingModeKey(classe), entry = drawingModesByPav[drawingModeConfigKey(state.pav, classe)];
+    var mode = entry && entry.data && entry.data.visual_mode || drawingModeSelections[key];
     if (!mode) {
       try { mode = window.localStorage.getItem(key); } catch (e) {}
       mode = mode || new URLSearchParams(window.location.search).get('modo_desenho');
@@ -92,13 +129,49 @@
     return drawingModes.some(function (choice) { return choice[0] === mode; }) ? mode : 'NOVA';
   }
   function renderDrawingModes(classe) {
+    var entry = drawingModesByPav[drawingModeConfigKey(state.pav, classe)] || {};
+    if (!entry.data) return '<div class="drill-vigas-config" role="status">' +
+      esc(entry.error || 'Carregando modo de desenho…') +
+      (entry.error ? '<button type="button" data-drill="drawing-mode-retry" data-id="' + esc(drawingModeScope(classe)) + '">Tentar novamente</button>' : '') + '</div>';
     var selected = selectedDrawingMode(classe);
     return '<div class="drill-vigas-config drill-drawing-modes"><fieldset><legend>Modo de desenho · N3</legend>' +
       drawingModes.map(function (choice) {
-        return '<label><input type="radio" name="n3-drawing-mode" data-drawing-mode="' + esc(classe || 'ALL') +
+        return '<label><input type="radio" name="n3-drawing-mode" data-drawing-mode="' + esc(drawingModeScope(classe)) +
           '" value="' + choice[0] + '"' + (selected === choice[0] ? ' checked' : '') +
-          '><span>' + choice[1] + '</span></label>';
-      }).join('') + '</fieldset></div>';
+          (entry.saving ? ' disabled' : '') + '><span>' + choice[1] + '</span></label>';
+      }).join('') + '</fieldset>' +
+      (entry.saving ? '<small role="status">Salvando…</small>' : '') + '</div>';
+  }
+  function saveDrawingMode(classe, visualMode) {
+    var pav = state.pav, key = drawingModeConfigKey(pav, classe), entry = drawingModesByPav[key];
+    if (!entry || !entry.data || entry.saving) return;
+    var previous = entry.data;
+    entry.data = Object.assign({}, previous, {visual_mode: visualMode});
+    entry.saving = true; entry.error = null; render();
+    fetch(drawingModeUrl(pav, classe), {method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({visual_mode: visualMode})})
+      .then(function (response) { if (!response.ok) throw new Error('Falha ao salvar o modo de desenho.'); return response.json(); })
+      .then(function (data) {
+        entry.data = data;
+        drawingModeSelections[drawingModeKey(classe)] = data.visual_mode;
+        try { window.localStorage.setItem(drawingModeKey(classe), data.visual_mode); } catch (e) {}
+      }).catch(function (error) { entry.data = previous; entry.error = error.message; })
+      .finally(function () { entry.saving = false; if (state.pav === pav) render(); });
+  }
+  function n3OptionsKey(classe) { return [state.pav || '', drawingModeScope(classe)].join(':'); }
+  function n3OptionsOpen(classe) { return !!n3OptionsExpanded[n3OptionsKey(classe)]; }
+  function needsVigasConfig(classe) { return !classe || /^later/.test(classe) || classe === 'fundo'; }
+  function ensureN3OptionsConfig(classe) {
+    ensureDrawingModeConfig(classe);
+    if (needsVigasConfig(classe)) ensureVigasConfig();
+  }
+  function n3OptionsReady(classe) {
+    return drawingModeReady(classe) && (!needsVigasConfig(classe) || vigasReady());
+  }
+  function renderN3Options(classe) {
+    return '<div class="drill-n3-options" id="' + esc('n3-options-' + n3OptionsKey(classe).replace(/[^A-Za-z0-9_-]/g, '-')) + '">' +
+      renderVigasConfig(!classe || /^later/.test(classe), !classe || classe === 'fundo') +
+      renderDrawingModes(classe) + '</div>';
   }
 
   var vigasByPav = {};
@@ -148,7 +221,7 @@
     entry.saving = true; entry.error = null; render();
     fetch(vigasUrl(pav), {method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(next)})
       .then(function (response) { if (!response.ok) throw new Error('Falha ao salvar as opções. Selecione novamente.'); return response.json(); })
-      .then(function (data) { entry.data = data; })
+      .then(function (data) { entry.data = data; document.dispatchEvent(new CustomEvent('portal:vigas-config-saved',{detail:{obraId:OBRA_ID,pavimento:pav,config:data}})); })
       .catch(function (error) { entry.data = previous; entry.error = error.message; })
       .finally(function () { entry.saving = false; if (state.pav === pav) render(); });
   }
@@ -188,13 +261,9 @@
     var requestPav = state.pav;
     var docs = recortesDoPav(state.pav).filter(function (doc) { return doc.tipo === 'recorte'; });
     var torres = docs.filter(function (doc) { return doc.kind === 'torre'; });
-    if (!torres.length) { window.alert('Crie e valide uma torre antes de pré-processar.'); return; }
-    var pendentes = docs.filter(function (doc) {
-      return !doc.validado && !(doc.item && doc.item.item_id === 'convencao_niveis');
-    });
+    if (!torres.length) { window.alert('Crie uma torre antes de pré-processar.'); return; }
     var message = 'Pré-processar ' + state.pav + ' com ' + torres.length + ' torre(s) e ' + docs.length +
       ' recorte(s)? A coleta usa os brutos e as torres e executa a interpretação contextual necessária para obter os níveis antes do SA de produção.';
-    if (pendentes.length) message += '\nHá ' + pendentes.length + ' recorte(s) pendente(s); o servidor recusará até validar.';
     if (!window.confirm(message)) return;
     preprocSubmitting = true;
     preprocState = {status: 'na_fila', job_id: null, result: null, error: null, enabled: true};
@@ -469,6 +538,7 @@
   var _urlIntent = readUrlIntent();
   var _urlRestoreStarted = false;
   var _urlRestoreDone = false;
+  var _pendingDocRestore = null;
 
   function readUrlIntent() {
     try {
@@ -477,7 +547,7 @@
         pav: q.get('pavimento'), etapa: q.get('etapa'), classe: q.get('classe'),
         item: q.get('item'), viga: q.get('viga'), doc: q.get('documento'),
         torre: q.get('torre'),
-        vista: q.get('vista'), subvista: q.get('subvista'), lado: q.get('lado'),
+        vista: q.get('vista'), nav: q.get('nav'), subvista: q.get('subvista'), lado: q.get('lado'),
         segmento: q.get('segmento'), corte: q.get('corte')
       };
     } catch (e) { return {}; }
@@ -503,7 +573,7 @@
     var contextChanged = current.pav !== (state.pav || null) ||
       current.etapa !== (state.etapa || null) || current.classe !== (state.classe || null) ||
       current.item !== nextItem;
-    replaceUrlParams({
+    var patch = {
       pavimento: state.pav,
       etapa: state.etapa,
       classe: state.classe,
@@ -511,7 +581,9 @@
       viga: state.vigaKey,
       documento: state.selDoc,
       torre: state.analysisDoc
-    }, contextChanged);
+    };
+    if (state.hubTab === 'unificados') patch.nav = 'unificados';
+    replaceUrlParams(patch, contextChanged);
   }
 
   function viewParam(name, fallback) {
@@ -733,6 +805,7 @@
   }
 
   function goPavsList() {
+    state.obraHome = false;
     state.level = 'pavs';
     state.pav = null;
     state.etapa = null;
@@ -833,6 +906,30 @@
       return (job.status === 'na_fila' || job.status === 'executando') &&
         jobMatchesClass(job, stage ? [stage, 'motores'] : ['sa', 'n3', 'n5', 'motores']);
     })[0] || null;
+  }
+
+  function latestClassGeneration(jobs, pav, classe, section, classCode, stage) {
+    return jobs.filter(function (job) {
+      var meta = job.meta || {};
+      if (job.status !== 'concluido' || !job.finalizado_em ||
+          !Number.isFinite(Date.parse(job.finalizado_em)) ||
+          (meta.pav || meta.pavimento) !== pav || meta.etapa !== stage ||
+          meta.item || (meta.itens && meta.itens.length)) return false;
+      if (meta.classe_ui) return meta.classe_ui === classe;
+      if (meta.classe) return String(meta.classe).toUpperCase() === String(classCode || '').toUpperCase();
+      var sections = meta.secao;
+      if (!sections || (Array.isArray(sections) && !sections.length)) return true;
+      return (Array.isArray(sections) ? sections : [sections]).indexOf(section) >= 0;
+    }).sort(function (a, b) { return Date.parse(b.finalizado_em) - Date.parse(a.finalizado_em); })[0] || null;
+  }
+
+  function classGenerationTime(stage) {
+    var job = latestClassGeneration(window._todosJobs || [], state.pav, state.classe,
+      secaoMotor(state.classe), classeN5(state.classe), stage);
+    var date = job ? new Intl.DateTimeFormat('pt-BR', {timeZone:'America/Sao_Paulo',
+      day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit'}
+      ).format(new Date(job.finalizado_em)) : 'sem registro';
+    return '<small class="drill-generation-time" title="Última concluída: ' + esc(date) + ' · horário de Brasília">' + esc(date) + '</small>';
   }
 
   function motorProgress(job, localRequest) {
@@ -1189,7 +1286,7 @@
     if (state.level === 'hub') return '← pavimentos';
     if (state.level === 'etapa') return torresDoPav().length > 1 ? '← torres do pavimento' : '';
     if (state.level === 'itens' && state.vigaKey) return '← lista de vigas';
-    if (state.level === 'itens' && state.classe === 'cortes') return '← pré-processamento';
+    if (state.level === 'itens' && ['cortes','cortes_interpretados'].indexOf(state.classe)!==-1) return '← pré-processamento';
     // [2026-09-28] Dentro de uma classe não há "← estrutura da torre": a aba
     // Estrutura logo acima já leva de volta (pedido do dono).
     return '';
@@ -1256,6 +1353,9 @@
     var convNiveis = docConvencao('convencao_niveis');
     var preProcessamento =
       preRow('Visão de Cortes', totalPre('cortes'), 'preproc-cortes', 'cortes', true) +
+      preRow('Visão de Cortes Interpretados', preprocState && preprocState.result &&
+        preprocState.result.interpreted_cut_count != null ? preprocState.result.interpreted_cut_count : '—',
+        'preproc-cortes', 'cortes_interpretados', true) +
       preRow('Convenção de Pilares', convPilares ? 1 : 0, 'preproc-doc', convPilares && convPilares.id, !!convPilares) +
       preRow('Convenção de Níveis', preprocState && preprocState.result ?
         (preprocState.result.level_observed || 0) : '—', 'preproc-levels', 'niveis', true);
@@ -1300,7 +1400,12 @@
     }).join('');
     if (!etapas) etapas = '<div class="drill-empty">Crie um recorte de torre para iniciar o detalhamento.</div>';
     // Abas do hub (dono 2026-09-28): uma seção por vez no painel esquerdo.
-    var tab = state.hubTab || 'recortes';
+    var tab = state.hubTab || (viewParam('nav') === 'unificados' || viewParam('vista') === 'unificados' ? 'unificados' : 'recortes');
+    if (tab === 'unificados') {
+      return '<div class="drill-sec drill-sec-recortes drill-sec-unificados"><strong>Unificados · N5</strong>' +
+        '<span>' + esc(pavimentoTitulo(state.pav)) + '</span></div>' +
+        '<div class="drill-unificados-notice" role="status">Baixe os unificados na grade ao lado, por classe, combinação e modo de desenho.</div>';
+    }
     if (tab === 'pre') {
       return '<div class="drill-sec drill-sec-recortes drill-sec-preprocessamento"><strong>Pré-processamento</strong>' +
         '<span>' + esc(pavimentoTitulo(state.pav)) + '</span></div>' +
@@ -1317,8 +1422,10 @@
   }
 
   function activeTab() {
-    if (state.level === 'pavs') return 'pavs';
-    if (state.level === 'itens' && state.classe === 'cortes') return 'pre';
+    if (state.structuralHome) return 'structural-home';
+    if (state.hubTab === 'unificados' || viewParam('nav') === 'unificados' || viewParam('vista') === 'unificados') return 'unificados';
+    if (state.level === 'pavs') return state.obraHome ? 'obra' : 'pavs';
+    if (state.level === 'itens' && ['cortes','cortes_interpretados'].indexOf(state.classe)!==-1) return 'pre';
     if (state.level === 'itens') return 'estrutura';
     if (state.level === 'etapa' || state.hubTab === 'etapas') return state.etapaTab || 'estrutura';
     return state.hubTab || 'recortes';
@@ -1330,12 +1437,13 @@
 
   function renderTabs() {
     var cur = activeTab();
-    var tabs = [['pavs', 'Pavimentos'], ['recortes', 'Recortes'], ['pre', 'Pré-proc.'],
-      ['motores', 'Motores'], ['estrutura', 'Estrutura']];
+    var tabs = [['obra', 'Obra'], ['pavs', 'Pavimentos'], ['recortes', 'Recortes'], ['pre', 'Pré-proc.'],
+      ['motores', 'Motores'], ['estrutura', 'Estrutura'], ['unificados', 'Unificados'], ['structural-home', 'Estrutural limpo']];
     return '<div class="drill-tabs" role="tablist">' + tabs.map(function (t) {
-      var off = t[0] !== 'pavs' && !state.pav;
+      var off = t[0] !== 'obra' && t[0] !== 'pavs' && !state.pav;
       return '<button type="button" role="tab" class="drill-tab' + (cur === t[0] ? ' on' : '') + '"' +
         ' aria-selected="' + (cur === t[0]) + '" data-drill="tab" data-id="' + t[0] + '"' +
+        (t[0] === 'unificados' ? ' aria-label="Unificados N5" title="Unificados N5 do pavimento"' : '') +
         (off ? ' disabled aria-disabled="true"' : '') + '>' + esc(t[1]) + '</button>';
     }).join('') + '</div>';
   }
@@ -1424,20 +1532,25 @@
   }
 
   function renderCortesPreprocessamento() {
-    var html = '<div class="drill-tower-title"><strong>Visão de Cortes</strong><span>' +
+    var interpreted=state.classe==='cortes_interpretados';
+    var html = '<div class="drill-tower-title"><strong>Visão de Cortes' + (interpreted ? ' Interpretados' : '') + '</strong><span>' +
       esc(pavimentoTitulo(state.pav)) + '</span></div>' +
       '<div class="drill-sec">Cortes <em>itens</em></div><div class="drill-itens drill-pre-itens">';
     (state.itens || []).forEach(function (item) {
       var on = state.itemId === item.item_id ? ' on' : '';
       html += '<button type="button" class="drill-pi' + on + '" data-drill="item" data-id="' +
-        esc(item.item_id) + '">' + esc(item.titulo || item.item_id) + '</button>';
+        esc(item.item_id) + '" title="' + esc(item.titulo || item.item_id) + '">' + esc(item.titulo || item.item_id) +
+        (interpreted ? (item.review_status==='validated' ? ' ✓' : ' · revisar') : '') + '</button>';
     });
     html += '</div>';
     if (!state.itens.length) html += '<div class="drill-empty">Nenhuma visão de corte neste pavimento.</div>';
+    if(interpreted)html += '<p class="drill-empty">' + state.itens.length +
+      ' cortes · selecione para revisar no estrutural limpo. Validar fornece referência local de nível; excluir remove o destaque.</p>';
     return html;
   }
 
   function renderUnifiedProcBox() {
+    ensureN3OptionsConfig(null);
     var statusValues = {};
     ETAPAS.forEach(function (et) {
       var statusEl = et.procStatusId ? document.getElementById(et.procStatusId) : null;
@@ -1476,22 +1589,30 @@
     }
     function engineButton(stage, label, extraClass) {
       var ownJob = activeJob(stage);
-      var disabled = allJob || ownJob || globalRequest || ((stage === 'n3' || stage === 'all') && !vigasReady());
+      var disabled = allJob || ownJob || globalRequest || ((stage === 'n3' || stage === 'all') && !n3OptionsReady(null));
       return '<button type="button" class="run' + (extraClass ? ' ' + extraClass : '') +
         '" data-drill="proc-global" data-id="' + stage + '"' +
         (disabled ? ' disabled aria-disabled="true"' : '') + '>' + esc(label) + '</button>';
     }
     function engineStep(stage, label) {
       var status = statusValues[stage] || { label: stage.toUpperCase(), value: '—' };
-      return '<div class="drill-engine-step">' + engineButton(stage, label) +
+      var controls = engineButton(stage, label);
+      if (stage === 'n3') {
+        var expanded = n3OptionsOpen(null);
+        controls = '<div class="drill-n3-button-row">' + controls +
+          '<button type="button" class="drill-n3-expand" data-drill="n3-options-toggle" data-id="ALL" aria-label="' +
+          (expanded ? 'Recolher opções de desenho' : 'Expandir opções de desenho') +
+          '" title="' + (expanded ? 'Recolher opções de desenho' : 'Expandir opções de desenho') +
+          '" aria-expanded="' + expanded + '"><span aria-hidden="true">' + (expanded ? '▾' : '▸') + '</span></button></div>' +
+          (expanded ? renderN3Options(null) : '');
+      }
+      return '<div class="drill-engine-step' + (stage === 'n3' ? ' drill-n3-engine' : '') + '">' + controls +
         '<div class="drill-engine-status"><b>' + esc(status.label) + '</b><span>' +
         esc(status.value) + '</span></div>' +
         (progress(activeJob(stage)) || motorProgress(null, globalRequest && globalRequest.stage === stage ? globalRequest : null)) + '</div>';
     }
     return '<div class="drill-proc drill-proc-unified">' +
       engineStep('sa', 'Rodar interpretação · todas as classes') +
-      renderVigasConfig(true, true) +
-      renderDrawingModes(null) +
       engineStep('n3', 'Rodar desenho · todas as classes') +
       engineStep('n5', 'Rodar unificação · todas as classes') +
       '<div class="drill-engine-all">' +
@@ -1504,12 +1625,11 @@
     var viga = isVigaClass(state.classe);
     var combinada = lateralCombinada(state.classe);
     var nomeClasse = tituloClasse(state.classe);
-    var html = '<div class="drill-structural-home-wrap">' +
-      '<button type="button" class="drill-structural-home" data-drill="structural-home" ' +
-      'title="Voltar ao estrutural limpo deste pavimento">' +
-      '<span class="ico" aria-hidden="true">←</span><span>Estrutural limpo</span></button></div>' +
-      '<div class="drill-cls-title drill-motores-granulares">Motores granulares</div>' +
-      renderClassActions(nomeClasse) +
+    var motorsOpen = granularMotorsOpen();
+    var html = '<button type="button" class="drill-cls-title drill-motores-granulares" data-drill="granular-motors-toggle" ' +
+      'aria-expanded="' + motorsOpen + '" aria-controls="drill-granular-motors"><span>Motores granulares</span>' +
+      '<span aria-hidden="true">' + (motorsOpen ? '▾' : '▸') + '</span></button>' +
+      '<div id="drill-granular-motors"' + (motorsOpen ? '' : ' hidden') + '>' + renderClassActions(nomeClasse) + '</div>' +
       '<div class="drill-sec">' + esc(nomeClasse) + ' <em>' +
       (viga ? 'vigas' : 'itens') + '</em></div>';
 
@@ -1566,16 +1686,34 @@
   }
 
   function renderClassActions(nomeClasse) {
+    ensureN3OptionsConfig(state.classe);
     var activeMotor = activeClassMotorJob(null);
     var submittingMotor = localMotorRequest(state.classe, state.pav);
     function classMotorButton(stage, label) {
       var ownJob = activeClassMotorJob(stage);
       var ownRequest = submittingMotor && (submittingMotor.stage === stage || submittingMotor.stage === 'all') ? submittingMotor : null;
-      var locked = !!(activeMotor || submittingMotor) || (stage === 'n3' && !vigasReady());
-      return '<div class="drill-class-engine">' +
-        '<button type="button" data-drill="proc-class" data-id="' + stage + '"' +
-          (locked ? ' disabled aria-disabled="true"' : '') + '>' + label + '<br><b>' +
-          esc(nomeClasse) + ' · ' + stage.toUpperCase() + '</b>' + engineStatusMarker(stage) + '</button>' +
+      var locked = !!(activeMotor || submittingMotor) || (stage === 'n3' && !n3OptionsReady(state.classe));
+      var mainButton = '<button type="button" data-drill="proc-class" data-id="' + stage + '"' +
+          (locked ? ' disabled aria-disabled="true"' : '') + '>' + label +
+          '<span class="drill-engine-meta"><b>' + stage.toUpperCase() + '</b>' + classGenerationTime(stage) + '</span>' + engineStatusMarker(stage) + '</button>';
+      if (stage === 'sa') {
+        var saExpanded = !!saOptionsExpanded[n3OptionsKey(state.classe)];
+        return '<div class="drill-class-engine drill-sa-engine"><div class="drill-n3-button-row">' + mainButton +
+          '<button type="button" class="drill-n3-expand" data-drill="sa-options-toggle" aria-label="' +
+          (saExpanded ? 'Recolher revisões C1, C2 e C3' : 'Expandir revisões C1, C2 e C3') +
+          '" aria-expanded="' + saExpanded + '"><span aria-hidden="true">' + (saExpanded ? '▾' : '▸') +
+          '</span></button></div>' + (saExpanded ? '<div class="drill-sa-options">' + qaOptionsHtml + '</div>' : '') +
+          motorProgress(ownJob, ownRequest) + '</div>';
+      }
+      if (stage !== 'n3') return '<div class="drill-class-engine">' + mainButton +
+        motorProgress(ownJob, ownRequest) + '</div>';
+      var expanded = n3OptionsOpen(state.classe);
+      return '<div class="drill-class-engine drill-n3-engine"><div class="drill-n3-button-row">' + mainButton +
+        '<button type="button" class="drill-n3-expand" data-drill="n3-options-toggle" data-id="' +
+          esc(drawingModeScope(state.classe)) + '" aria-label="' + (expanded ? 'Recolher opções de desenho' : 'Expandir opções de desenho') +
+          '" title="' + (expanded ? 'Recolher opções de desenho' : 'Expandir opções de desenho') +
+          '" aria-expanded="' + expanded + '"><span aria-hidden="true">' + (expanded ? '▾' : '▸') +
+          '</span></button></div>' + (expanded ? renderN3Options(state.classe) : '') +
         motorProgress(ownJob, ownRequest) + '</div>';
     }
     var qaEnabled = !!qaClassId(state.classe);
@@ -1622,8 +1760,7 @@
         (feedback ? '<div class="drill-qa-control-feedback">' + esc(feedback) + '</div>' : '') +
         '</div>';
     }
-    return '<div class="drill-class-actions" aria-label="Motores desta classe">' +
-      classMotorButton('sa', 'Rodar motor interpretativo') +
+    var qaOptionsHtml =
       '<div class="drill-qa-class" aria-label="Revisão agentiva C1 C2 C3">' +
         ['L1', 'L2', 'L3'].map(function (layer) {
           var run = qaRunFor(layer);
@@ -1632,12 +1769,13 @@
             (qaEnabled && !active ? '' : ' disabled' + (!qaEnabled ? ' title="Motor agentivo ainda não disponível para esta classe"' : ' aria-disabled="true"')) +
             (active ? ' class="is-processing"' : '') +
             '><span>C' + layer.substring(1) + '</span><small>' + (active ? 'processando…' : 'QA') + '</small>' + qaStatusMarker(layer) + '</button>';
-        }).join('') + '</div>' + qaStatusHtml +
-      renderVigasConfig(/^later/.test(state.classe), state.classe === 'fundo') +
-      renderDrawingModes(state.classe) +
+        }).join('') + '</div>' +
+      '<div class="drill-qa-notice" role="note">Desativado para uso normal; disponível apenas para testes. Digite CONFIRMO para cada execução.</div>' +
+      qaStatusHtml;
+    return '<div class="drill-class-actions" aria-label="Motores desta classe">' +
+      classMotorButton('sa', 'Rodar motor interpretativo') +
       classMotorButton('n3', 'Rodar motor de desenho') +
       classMotorButton('n5', 'Rodar motor de unificação') +
-      '<button type="button" class="drill-unified" data-drill="unificados">Visualizar unificados</button>' +
       '</div>';
   }
 
@@ -1757,7 +1895,7 @@
     if (state.level === 'pavs') body = renderPavs();
     else if (state.level === 'hub') body = renderHub();
     else if (state.level === 'etapa') body = renderEtapa();
-    else if (state.level === 'itens' && state.classe === 'cortes') body = renderCortesPreprocessamento();
+    else if (state.level === 'itens' && ['cortes','cortes_interpretados'].indexOf(state.classe)!==-1) body = renderCortesPreprocessamento();
     else if (state.level === 'itens') body = renderItens();
 
     root.innerHTML =
@@ -1782,16 +1920,39 @@
     root.querySelectorAll('[data-drawing-mode]').forEach(function (input) {
       input.addEventListener('change', function () {
         var scope = input.getAttribute('data-drawing-mode');
-        var key = drawingModeKey(scope === 'ALL' ? null : scope);
-        drawingModeSelections[key] = input.value;
-        try { window.localStorage.setItem(key, input.value); } catch (e) {}
+        saveDrawingMode(scope === 'ALL' ? null : scope, input.value);
       });
     });
     syncNavigationUrl();
   }
 
   function handle(act, id, level) {
-    if (act === 'vigas-retry') { delete vigasByPav[state.pav]; render(); return; }
+    if (act === 'granular-motors-toggle') {
+      var closed = granularMotorsOpen();
+      state.granularMotorsClosed = closed;
+      try { localStorage.setItem(granularMotorsKey(), closed ? 'closed' : 'open'); } catch (e) { /* local fallback */ }
+      render(); return;
+    }
+    if (act === 'tab' && id === 'structural-home') act = 'structural-home';
+    if (['tab', 'classe', 'etapa', 'pav', 'item', 'viga', 'back', 'doc'].indexOf(act) >= 0) state.structuralHome = false;
+    if (act === 'vigas-retry') { delete vigasByPav[state.pav]; ensureVigasConfig(); render(); return; }
+    if (act === 'drawing-mode-retry') {
+      delete drawingModesByPav[drawingModeConfigKey(state.pav, id === 'ALL' ? null : id)];
+      ensureDrawingModeConfig(id === 'ALL' ? null : id); render(); return;
+    }
+    if (act === 'sa-options-toggle') {
+      var saOptionKey = n3OptionsKey(state.classe);
+      saOptionsExpanded[saOptionKey] = !saOptionsExpanded[saOptionKey];
+      render();
+      return;
+    }
+    if (act === 'n3-options-toggle') {
+      var scope = id === 'ALL' ? null : id;
+      var optionKey = n3OptionsKey(scope);
+      n3OptionsExpanded[optionKey] = !n3OptionsExpanded[optionKey];
+      if (n3OptionsExpanded[optionKey]) ensureN3OptionsConfig(scope);
+      render(); return;
+    }
     if (act === 'structural-home') {
       // Sempre navega de volta pela via canônica (openDoc troca o painel
       // visível para 'triagem', remonta as abas de recorte e reabre a Torre 1
@@ -1802,14 +1963,33 @@
       // sobrar a aba errada (ou nenhuma aba) selecionada ao clicar aqui.
       // Dono 2026-09-28: so' o painel direito volta ao estrutural limpo; o
       // painel esquerdo (aba, classe, lista) fica exatamente onde estava.
+      state.structuralHome = true;
+      state.hubTab = state.level === 'itens' ? 'etapas' : 'recortes';
+      replaceUrlParams({nav:null, vista:null}, false);
       window._criarItemClassePref = null;
       window._criarItemVigaPref = null;
+      render();
       var structuralDoc = pickDefaultDoc(state.pav);
       if (structuralDoc) openDoc(structuralDoc);
       else if (window.mostrarDetalhe) window.mostrarDetalhe('triagem');
       return;
     }
     if (act === 'tab') {
+      if (id === 'obra') {
+        window.location.href = '/app/obras/' + encodeURIComponent(OBRA_ID);
+        return;
+      }
+      if (id === 'unificados') {
+        if (!state.pav) return;
+        state.hubTab = 'unificados';
+        state.level = 'hub'; state.etapa = null; state.classe = null;
+        state.itens = []; state.vigaKey = null; state.itemId = null; state.rightTorre = false;
+        replaceUrlParams({etapa:null, classe:null, item:null, viga:null, nav:'unificados'}, true);
+        render();
+        if (window.mostrarDetalhe) window.mostrarDetalhe('n5-pavimento');
+        return;
+      }
+      replaceUrlParams({nav:null, vista:null}, false);
       if (id === 'pavs') { goPavsList(); return; }
       if (!state.pav) return;
       if (id === 'motores' || id === 'estrutura') {
@@ -1850,9 +2030,10 @@
         state.vigaKey = null; state.itemId = null; render(); return;
       }
       if (state.level === 'itens') {
-        if (state.classe === 'cortes') state.hubTab = 'pre';
-        state.level = state.classe === 'cortes' ? 'hub' : 'etapa';
-        state.etapa = state.classe === 'cortes' ? null : state.etapa;
+        var preCut=['cortes','cortes_interpretados'].indexOf(state.classe)!==-1;
+        if (preCut) state.hubTab = 'pre';
+        state.level = preCut ? 'hub' : 'etapa';
+        state.etapa = preCut ? null : state.etapa;
         state.classe = null; state.itens = [];
         state.itemId = null; state.vigaKey = null; render(); return;
       }
@@ -1905,7 +2086,7 @@
       return;
     }
     if (act === 'preproc-cortes') {
-      state.etapa = 'preprocessamento'; state.classe = 'cortes'; state.level = 'itens';
+      state.etapa = 'preprocessamento'; state.classe = id || 'cortes'; state.level = 'itens';
       state.vigaKey = null; state.itemId = null; state.rightTorre = false;
       loadItens(function () { render(); });
       return;
@@ -2013,14 +2194,13 @@
       return;
     }
     if (act === 'unificados') {
-      replaceUrlParams({vista:'unificados'}, false);
-      if (window.mostrarDetalhe) window.mostrarDetalhe('n5-pavimento');
+      handle('tab', 'unificados');
       return;
     }
   }
 
   function enqueueMotor(stage, classe, global) {
-    if ((stage === 'n3' || stage === 'all') && !vigasReady()) { window.alert('Carregue e salve as opções das vigas antes de gerar.'); return; }
+    if ((stage === 'n3' || stage === 'all' || stage === 'n5') && !n3OptionsReady(global ? null : classe)) { ensureN3OptionsConfig(global ? null : classe); window.alert('Aguarde o carregamento ou salvamento das opções de desenho antes de gerar.'); return; }
     var motorPav = state.pav;
     if (!global && (activeClassMotorJob(null) || localMotorRequest(classe, state.pav))) return;
     var targetInfo = classeAtualInfo();
@@ -2070,7 +2250,7 @@
     }
     var modeAware = stage === 'n5';
     var isLateralOnly = !global && classeN5(classe) === 'LV';
-    if (modeAware && !isLateralOnly && window.escolherModoDesenho) {
+    if (modeAware && window.escolherModoDesenho) {
       var available = stage === 'n5' && !global
         ? fetch('/obras/' + OBRA_ID + '/n5/modos?classe=' + classeN5(classe) + '&pavimento=' + encodeURIComponent(state.pav))
             .then(function (response) { if (!response.ok) throw new Error('Não foi possível consultar os modos N3.'); return response.json(); })
@@ -2078,14 +2258,14 @@
         : Promise.resolve(null);
       available.then(function (modes) {
         return window.escolherModoDesenho({
-          currentMode: new URLSearchParams(window.location.search).get('modo_desenho') || 'NOVA',
+          currentMode: selectedDrawingMode(global ? null : classe),
           availableModes: modes,
           description: stage === 'n5' ? 'Escolha o estilo do N3 já produzido para unificar. Modos sem N3 completo ficam indisponíveis.' : 'Escolha o estilo que será gravado nesta geração ' + stage.toUpperCase() + '.'
         });
       }).then(function (mode) { if (mode) dispatch(mode); }).catch(function (error) { window.alert(error.message); });
       return;
     }
-    dispatch(null);
+    dispatch(stage === 'n5' ? selectedDrawingMode(global ? null : classe) : null);
   }
 
   function enqueueQaClass(layer) {
@@ -2098,9 +2278,16 @@
       if (value && items.indexOf(value) < 0) items.push(value);
     });
     if (!items.length) { window.alert('Nenhum item disponível para revisão.'); return; }
+    var confirmation = window.prompt(
+      'Revisão agentiva C' + layer.substring(1) + ' · ' + qaClass + ' · ' + items.length + ' itens\n' +
+      'Desativado para uso normal; disponível apenas para testes.\n' +
+      'Digite CONFIRMO para iniciar esta rodada.'
+    );
+    if (String(confirmation || '').trim().toLowerCase() !== 'confirmo') return;
     fetch('/obras/' + OBRA_ID + '/qa-agentico', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({items: items, classe: qaClass, pavimento: state.pav, layer: layer, behavior: state.classe === 'laterais_passa' ? 'passa' : 'para'})
+      body: JSON.stringify({items: items, classe: qaClass, pavimento: state.pav, layer: layer,
+        behavior: state.classe === 'laterais_passa' ? 'passa' : 'para', confirmacao: 'confirmo'})
     }).then(function (response) {
       return response.json().then(function (data) {
         if (!response.ok) throw new Error(data.detail || ('HTTP ' + response.status));
@@ -2185,6 +2372,10 @@
   }
 
   function openItem(itemId) {
+    if(state.classe==='cortes_interpretados') {
+      if(window.ItemGeometry)window.ItemGeometry.open({classe:'cortes_interpretados',itemId:itemId,pavimento:state.pav,structural:true});
+      return;
+    }
     var et = state.classe === 'cortes'
       ? { id: 'sa', stage: 'n1' }
       : ETAPAS.filter(function (e) { return e.id === state.etapa; })[0];
@@ -2295,7 +2486,7 @@
         .catch(function () { state.itens = []; if (done) done(); });
       return;
     }
-    fetch('/obras/' + OBRA_ID + '/n1/' + encodeURIComponent(state.classe) + q)
+    fetch('/obras/' + OBRA_ID + (state.classe==='cortes_interpretados' ? '/cortes-interpretados' : '/n1/' + encodeURIComponent(state.classe)) + q)
       .then(function (r) { return r.json(); })
       .then(function (data) {
         state.itens = data.itens || [];
@@ -2319,7 +2510,7 @@
     }
     if (!state.pav) return;
     _urlPavBootDone = true;
-    state.etapa = classeId === 'cortes' ? 'preprocessamento' : 'sa';
+    state.etapa = ['cortes','cortes_interpretados'].indexOf(classeId)!==-1 ? 'preprocessamento' : 'sa';
     state.level = 'itens';
     state.classe = classeId;
     state.vigaKey = null;
@@ -2356,11 +2547,13 @@
       var intent = _urlIntent || {};
       if (intent.pav) {
         state.pav = intent.pav;
-        state.level = intent.etapa ? (intent.classe ? 'itens' : 'etapa') : 'hub';
-        state.etapa = intent.etapa || null;
-        state.classe = intent.classe || null;
-        state.vigaKey = intent.viga || null;
-        state.itemId = intent.item || null;
+        var n5View = intent.nav === 'unificados' || intent.vista === 'unificados';
+        if (n5View) state.hubTab = 'unificados';
+        state.level = n5View ? 'hub' : (intent.etapa ? (intent.classe ? 'itens' : 'etapa') : 'hub');
+        state.etapa = n5View ? null : (intent.etapa || null);
+        state.classe = n5View ? null : (intent.classe || null);
+        state.vigaKey = n5View ? null : (intent.viga || null);
+        state.itemId = n5View ? null : (intent.item || null);
         state.selDoc = intent.doc || null;
         state.analysisDoc = intent.torre || null;
         _urlPavBootDone = true;
@@ -2380,7 +2573,7 @@
           }
           _urlRestoreDone = true;
           render();
-          if (intent.vista === 'unificados') {
+          if (intent.nav === 'unificados' || intent.vista === 'unificados') {
             if (window.mostrarDetalhe) window.mostrarDetalhe('n5-pavimento');
             return;
           }
@@ -2395,6 +2588,11 @@
               return doc.id === state.selDoc;
             })[0];
             if (selectedDoc) openDoc(selectedDoc);
+            else if (state.selDoc.indexOf('rec:') === 0 || state.selDoc.indexOf('bruto:') === 0) {
+              // O cadastro chega no HTML; os recortes chegam depois por fetch.
+              // Manter a intenção até esse catálogo chegar, sem exigir novo clique.
+              _pendingDocRestore = { pav: state.pav, id: state.selDoc };
+            }
           } else if (state.level === 'hub') {
             var defaultDoc = pickDefaultDoc(state.pav);
             if (defaultDoc) {
@@ -2443,8 +2641,25 @@
       if (!state.pav) setObraModo('pavs');
       else setObraModo('pavimento');
     }
+    if (_pendingDocRestore && _urlRestoreDone) {
+      var pendingDoc = _pendingDocRestore;
+      if (state.pav !== pendingDoc.pav || state.selDoc !== pendingDoc.id) {
+        // Uma navegação posterior do usuário tem prioridade sobre o link inicial.
+        _pendingDocRestore = null;
+      } else {
+        var readyDoc = recortesDoPav(state.pav).filter(function (doc) {
+          return doc.id === pendingDoc.id;
+        })[0];
+        if (readyDoc) {
+          _pendingDocRestore = null;
+          render();
+          openDoc(readyDoc);
+          return;
+        }
+      }
+    }
     // Se entrou no hub sem seleção, aplica default Torre 1 / Bruto
-    if (state.level === 'hub' && state.pav && !state.selDoc) {
+    if (state.level === 'hub' && state.pav && !state.selDoc && activeTab() !== 'unificados') {
       var def = pickDefaultDoc(state.pav);
       if (def) {
         state.selDoc = def.id;

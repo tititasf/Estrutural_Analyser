@@ -76,3 +76,56 @@ def test_normalized_inset_keeps_one_physical_profile():
     cuts,_ = pair_sections('V','passa',sides,[slab])
     assert len(cuts) == 2
     assert all(len(c['profiles']['A']['slabs']) == 1 for c in cuts)
+
+
+@pytest.mark.parametrize('vertical', [False, True])
+def test_recognized_region_rounding_is_clipped_without_losing_its_profile(vertical):
+    from copy import deepcopy
+    from shapely.geometry import Polygon
+    from src.core.lv_cut_inventory import _slab_regions
+    sides, slab = fixture(vertical)
+    pts = [[100, -50], [200, -50], [200, .09], [100, .09]]
+    slab['slab_steps'][0]['points'] = [[y, x] for x, y in pts] if vertical else pts
+    before = deepcopy(slab)
+    regions = _slab_regions(slab)
+    inset = next(p for p, row in regions if row.get('region_id') == 'inner')
+    owner = Polygon(slab['points'])
+    assert owner.covers(inset)
+    assert inset.area == pytest.approx(5000)
+    assert slab == before
+    cuts, _ = pair_sections('V', 'passa', sides, [slab])
+    assert {c['profiles']['A']['slabs'][0]['height_cm'] for c in cuts} == {10, 13}
+    assert all(len(c['profiles']['A']['slabs']) == 1 for c in cuts)
+    assert sum(p['length_cm'] for c in cuts for p in c['pairs']) == pytest.approx(300)
+
+
+@pytest.mark.parametrize('points', [
+    [[100,-50],[200,-50],[200,.51],[100,.51]],
+    [[100,.1],[200,.1],[200,.4],[100,.4]],
+    [[100,-50],[200,0],[100,0],[200,-50]],
+])
+def test_uncontained_disjoint_or_invalid_region_cannot_claim_owner_contact(points):
+    sides, slab = fixture()
+    slab['slab_steps'][0]['points'] = points
+    cuts, _ = pair_sections('V', 'passa', sides, [slab])
+    assert len(cuts) == 1
+    assert cuts[0]['profiles']['A']['slabs'][0]['height_cm'] == 13
+
+
+def test_rounding_on_a_concave_owner_preserves_both_contact_faces():
+    """A 0.09 cm overrun occurs only above the owner's recessed corner."""
+    from src.core.lv_cut_inventory import _slab_ranges
+    slab = dict(name='L', height=14, nivel=855.25,
+        points=[[182.41,594],[182.41,416],[405.5,416],[405.5,0],
+                [158.962608,.025],[0,150.493423],[0,594]],
+        slab_steps=[dict(uid='region',height_cm=11,level_m=855.22,
+            owner_height_cm=14,owner_level_m=855.25,
+            points=[[182.5,324.025],[0,324.025],[0,536.025],[182.5,536.025]])])
+    for x, low, high in [(0.01,233.025,553.025),(182.51,442.025,594.025)]:
+        rows = _slab_ranges([slab],(x,0),(0,1),low,high)
+        assert {r['height'] for _, _, r in rows} == {11,14}
+        assert {r['nivel'] for _, _, r in rows} == {855.22,855.25}
+        inner = [(a,b) for a,b,r in rows if r['height'] == 11]
+        assert len(inner) == 1
+        assert inner[0][0] <= max(low,324.025) + .15
+        assert inner[0][1] >= min(high,536.025) - .15

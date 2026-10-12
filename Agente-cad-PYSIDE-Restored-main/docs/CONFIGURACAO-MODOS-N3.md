@@ -205,3 +205,12 @@ Cada retângulo concluído abre sua própria linha de tipo e nome. O botão × d
 Pilares: Cima, ABCD e Grades. Laterais Para/Passa: Visão corte sarrafeado, Visão corte gradeado, Visão corte com garfo, AB sarrafeado e AB gradeado. Fundos: Fundos e Garfos. Lajes não possuem subclasses.
 
 A seleção conserva entidades inteiramente contidas no retângulo, como os recortes manuais de pavimentos. O documento derivado mantém blocos, layers e estilos do original. Entidades sem geometria não deslocam a correspondência entre entidades e limites. Os originais enviados e os geradores N3 não são modificados. Cinco testes focados passaram; criação, persistência e abertura foram verificadas no exemplo real NOVA/PL no navegador.
+
+
+## Estado atual dos três padrões — 07/10/2026
+
+A [matriz canônica](PADROES-DESENHO-N3-N5.md) relaciona INI, NOVA e Formascia às quatro classes, motores e regras aprovadas. [INI aprovado](PADRAO-INI-APROVADO.md) substitui o plano inicial nas descrições das configurações. Nomes NOVA/INI LV: primeiro VIGA.A e primeiro VIGA.B; Cont. somente em continuação da mesma face. Fundos INI: painel branco, pressão vermelha tracejada e apoios cianos 6 cm para fora.
+
+Lajes INI usam o perfil NOVA/LJ tanto nos parâmetros do motor quanto na apresentação. A tela INI/LJ encaminha a edição para Modo Nova → Lajes, evitando salvar campos que não seriam consumidos. Exemplos, índices e molduras continuam separados por modo.
+
+Os textos iniciais de 01/10 acima são evidência histórica. As medições daquele catálogo não certificam os adaptadores aprovados posteriormente. O catálogo foi reconstruído com os adaptadores atuais para quinze perfis INI/NOVA/Formascia, localmente e na VPS, preservando as fontes instaladas de cada ambiente. Se os hashes não conferem, continua marcado desatualizado, com PRESERVAR/−1 em lugar de números inventados. MLINE nativa tem cores de linha/preenchimento próprias; a paleta do gerador genérico não descreve todos os símbolos novos. N5 usa os templates calibrados em código; upload de referência não os substitui automaticamente. A paginação dos pilares INI foi corrigida e validada granularmente: nove células, especiais em três células e grandes molduras em três colunas; prévia web usa as folhas nativas. Evidência em `20261007_ini_pendencias`; não equivale a certificar todo o pavimento.

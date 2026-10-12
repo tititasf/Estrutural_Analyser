@@ -12,7 +12,7 @@ import re
 
 from . import fv_operations as fv
 
-CLASSES = {"pilares", "pilares_especiais", "lajes", "fundo",
+CLASSES = {"pilares", "pilares_especiais", "lajes", "fundo", "cortes",
            "lateral_a_para", "lateral_b_para", "lateral_a_passa", "lateral_b_passa"}
 
 
@@ -34,6 +34,14 @@ def collection(state: dict, classe: str) -> list:
         return state.setdefault("pilares", [])
     if classe == "lajes":
         return state.setdefault("slabs", [])
+    if classe == 'cortes':
+        rows = list(state.setdefault('cortes', []))
+        for slab in state.get('slabs') or []:
+            for step in slab.get('slab_steps') or []:
+                for section in step.get('sections') or []:
+                    section.setdefault('uid', f"slab-cut:{slab['name']}:{section['handle']}")
+                    rows.append(section)
+        return rows
     return state.setdefault("segmentos", {}).setdefault(classe, [])
 
 
@@ -41,10 +49,56 @@ def identity(row: dict, classe: str) -> str:
     return str(row.get("name") if classe.startswith("pilares") or classe == "lajes" else row.get("uid") or "")
 
 
+def remove_row(state, classe, row):
+    if classe != 'cortes' or row in state.get('cortes', []):
+        (state['cortes'] if classe == 'cortes' else collection(state, classe)).remove(row)
+    else:
+        for slab in state.get('slabs') or []:
+            for step in slab.get('slab_steps') or []:
+                if row in step.get('sections', []):
+                    step['sections'].remove(row)
+
+
 def canonical(classe: str) -> str:
     if classe not in CLASSES:
         raise ValueError("classe não editável")
     return "pilares" if classe.startswith("pilares") else classe
+
+
+def apply_cut_sources(cuts, obra_dir, pav):
+    """Apply decisions also to duplicate CAD evidence in slab links/packages."""
+    from src.core.lv_cut_inventory import geometry_key
+    custom = load(obra_dir, pav)
+    aliases = {}
+    for event in (custom.get('audit_events') or {}).values():
+        if not any(r['classe'] == 'cortes' for r in event.get('affected', [])):
+            continue
+        for row in event.get('before') or []:
+            aliases[geometry_key(row.get('pts') or row.get('points') or [])] = identity(row, 'cortes')
+    deleted = custom.get('deleted', {}).get('cortes', [])
+    edits = custom.get('edits', {}).get('cortes', {})
+    result = []
+    for source in cuts:
+        row = deepcopy(source)
+        uid = aliases.get(geometry_key(row.get('pts') or row.get('points') or [])) or str(row.get('uid') or '')
+        if uid:
+            row['uid'] = uid
+        if uid in deleted:
+            continue
+        if uid in edits:
+            row.update(deepcopy(edits[uid]))
+        if not any(identity(r, 'cortes') == identity(row, 'cortes') for r in result):
+            result.append(row)
+    return result
+
+
+def original_cut_sources(state, obra_dir, pav):
+    """Use the same scoped rich CAD evidence as the SA section compositor."""
+    from .lv_ficha import _beam_records
+    from .lv_cut_sources import load_sources
+    items = [dict(item_id=r.get('uid')) for rows in (state.get('segmentos') or {}).values() for r in rows]
+    records = _beam_records(state, items)
+    return load_sources(obra_dir, pav, state, records)[1]
 
 
 def apply_state(state: dict, obra_dir: Path, pav: str) -> dict:
@@ -56,8 +110,14 @@ def apply_state(state: dict, obra_dir: Path, pav: str) -> dict:
         present = {identity(r, classe) for r in rows}
         rows.extend(deepcopy(r) for key, r in custom.get("created", {}).get(classe, {}).items()
                     if key not in present and key not in deleted)
-        rows[:] = [r for r in rows if identity(r, classe) not in deleted and
-                   ("beam:" + str(r.get("beam_name") or "").upper()) not in deleted]
+        if classe == 'cortes':
+            for r in list(rows):
+                if identity(r, classe) in deleted:
+                    remove_row(state, classe, r)
+            rows = collection(state, classe)
+        else:
+            rows[:] = [r for r in rows if identity(r, classe) not in deleted and
+                       ("beam:" + str(r.get("beam_name") or "").upper()) not in deleted]
         for row in rows:
             patch = edits.get(identity(row, classe))
             if patch:
@@ -65,16 +125,60 @@ def apply_state(state: dict, obra_dir: Path, pav: str) -> dict:
     return state
 
 
+def restore_generated_segments(state: dict, obra_dir: Path, pav: str,
+                               secao=None, item_names=None) -> list:
+    """A new SA publication replaces removals of segments it actually regenerated.
+
+    Keep edits, handmade items and removals outside the generated scope.
+    This runs only after a valid fresh snapshot has been published.
+    """
+    wanted = {str(n).upper() for n in (item_names or ())}
+    removed = []
+    with fv._MUTATION_LOCK:
+        custom = load(obra_dir, pav)
+        for classe, rows in (state.get('segmentos') or {}).items():
+            owner = 'laterais_viga' if classe.startswith('lateral_') else 'fundos_viga'
+            if classe not in CLASSES or (secao and secao != owner):
+                continue
+            fresh = [r for r in rows if not wanted or str(r.get('beam_name') or '').upper() in wanted]
+            keys = {identity(r, classe) for r in fresh}
+            keys.update('beam:' + str(r['beam_name']).upper() for r in fresh if r.get('beam_name'))
+            old = custom.get('deleted', {}).get(classe, [])
+            removed.extend((classe, key) for key in old if key in keys)
+            if old:
+                custom['deleted'][classe] = [key for key in old if key not in keys]
+        if removed:
+            import shutil
+            from datetime import datetime, timezone
+            path = sidecar_path(obra_dir, pav)
+            stamp = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+            shutil.copy2(path, path.with_suffix('.' + stamp + '.bak'))
+            fv._atomic_text(path, json.dumps(custom, ensure_ascii=False, indent=2))
+    return removed
+
+
 def mutate(obra_dir: Path, pav: str, classe: str, target: str,
            *, points=None, delete=False, whole_beam=False, semantic_texts=None,
-           create=None, semantic_beams=None, pillar_context=None) -> dict:
+           create=None, semantic_beams=None, pillar_context=None, fields=None) -> dict:
     classe = canonical(classe)
     with fv._MUTATION_LOCK:
         path = fv._state_path(obra_dir, pav)
         state = apply_state(fv._read_json(path), obra_dir, pav)
+        if classe == 'cortes':
+            from .ficha_reader import _fonte_estrutural_producao
+            source = _fonte_estrutural_producao(obra_dir, pav)
+            if source:
+                from src.core.slab_steps import enrich_state
+                enrich_state(state, source)
+                apply_state(state, obra_dir, pav)
+            enriched = {str(r['uid']): r for r in original_cut_sources(state, obra_dir, pav)}
+            for row in state.get('cortes') or []:
+                row.update(enriched.get(str(row.get('uid'))) or {})
         rows = collection(state, classe)
         custom = load(obra_dir, pav)
         if create is not None:
+            if classe == 'cortes':
+                raise ValueError('selecione um corte original existente para editar')
             import uuid
             name = str(create.get("name") or "").strip().upper()
             if not re.fullmatch(r"[A-Za-z0-9_.-]{1,80}", name):
@@ -108,10 +212,11 @@ def mutate(obra_dir: Path, pav: str, classe: str, target: str,
         if not matches or (not whole_beam and len(matches) != 1):
             raise LookupError("item não encontrado ou ambíguo")
         affected = []
+        before = [deepcopy(row) for _, row in matches] if create is None else []
         interpretation = None
         if delete:
             for c, row in matches:
-                collection(state, c).remove(row)
+                remove_row(state, c, row)
                 key = identity(row, c)
                 custom.setdefault("deleted", {}).setdefault(c, []).append(key)
                 custom.setdefault("edits", {}).setdefault(c, {}).pop(key, None)
@@ -120,14 +225,16 @@ def mutate(obra_dir: Path, pav: str, classe: str, target: str,
                 for c in classes:
                     custom.setdefault("deleted", {}).setdefault(c, []).append("beam:" + target.upper())
         else:
-            polygon = fv._points(points)
+            c, row = matches[0]
+            polygon = fv._points(points if points is not None else row.get('points') or row.get('pts'))
             from shapely.geometry import Polygon
             poly = Polygon(polygon)
             if not poly.is_valid or poly.area <= 0:
                 raise ValueError("contorno inválido, cruzado ou sem área")
             length, width = fv._dimensions(polygon)
-            c, row = matches[0]
             patch = {"points": polygon}
+            if c == 'cortes':
+                patch['pts'] = polygon
             if c.startswith("lateral_") or c == "fundo":
                 patch.update(length=length, width=width, status="valid", atencao="")
             if c == "pilares":
@@ -135,11 +242,19 @@ def mutate(obra_dir: Path, pav: str, classe: str, target: str,
                 shape, orientation = PillarPerspectiveMapper.identify_shape([tuple(p) for p in polygon])
                 patch.update(shape_type=shape, orientation=orientation)
             row.update(patch)
-            if semantic_texts is not None:
+            if semantic_texts is not None and c != 'cortes':
                 from .item_semantics import recognize
                 semantics, interpretation = recognize(row, c, state, semantic_texts, semantic_beams, pillar_context)
                 patch.update(semantics)
                 row.update(semantics)
+            if fields is not None:
+                if c != 'cortes' or set(fields) - {'beam_name', 'beam_h', 'beam_w', 'own_laje', 'neigh_laje', 'ficha'}:
+                    raise ValueError('campos de corte inválidos')
+                from src.core.lv_n3_cut_contract import build_cut_contract
+                candidate = dict(row, **deepcopy(fields))
+                build_cut_contract(dict(id=target, beam=candidate.get('beam_name'), kind='identified', source_cut=candidate))
+                patch.update(deepcopy(fields))
+                row.update(deepcopy(fields))
             key = identity(row, c)
             custom.setdefault("edits", {}).setdefault(c, {})[key] = patch
             if interpretation is not None:
@@ -150,6 +265,12 @@ def mutate(obra_dir: Path, pav: str, classe: str, target: str,
                 if key in tombstones:
                     tombstones.remove(key)
             affected.append({"classe": c, "item_id": key})
+        import uuid
+        event_id = str(uuid.uuid4())
+        audit = dict(affected=affected, before=before,
+                     after=[] if delete else [deepcopy(row) for _, row in matches],
+                     action='delete' if delete else 'create' if create is not None else 'edit', event_id=event_id)
+        custom.setdefault('audit_events', {})[event_id] = audit
         # Backup do estado e do sidecar antes de substituir somente derivados.
         backup = fv._backup_and_write_state(path, state)
         custom_path = sidecar_path(obra_dir, pav)
@@ -158,7 +279,7 @@ def mutate(obra_dir: Path, pav: str, classe: str, target: str,
             shutil.copy2(custom_path, Path(backup).with_suffix(".geometry.bak"))
         fv._atomic_text(custom_path, json.dumps(custom, ensure_ascii=False, indent=2))
         return {"affected": affected, "backup": str(backup), "remaining": len(rows),
-                "interpretation": interpretation}
+                "interpretation": interpretation, **audit}
 
 
 def apply_window(window, obra_dir: Path, pav: str) -> None:

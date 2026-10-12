@@ -1,6 +1,28 @@
 import pytest
 
 
+def test_incident_level_does_not_leak_from_tolerance_across_measured_face():
+    from src.core.beam_vertical_context import incident_vertical_contract
+    left = dict(beam='V1', pairs=[{'footprint': [[0,0],[10,0],[10,19],[0,19]]}],
+                section_contract=dict(base_level_m=851.57, top_level_m=852.12))
+    right = dict(beam='V1', pairs=[{'footprint': [[10,0],[20,0],[20,19],[10,19]]}],
+                 section_contract=dict(base_level_m=851.64, top_level_m=852.19))
+    assert incident_vertical_contract([9.9,9.5], 'V1', [left,right]) == left['section_contract']
+    assert incident_vertical_contract([10.1,9.5], 'V1', [left,right]) == right['section_contract']
+    with pytest.raises(ValueError, match='conflitantes'):
+        incident_vertical_contract([10,9.5], 'V1', [left,right])
+
+
+def test_incident_unknown_measured_body_cannot_use_neighbour_tolerance_level():
+    from src.core.beam_vertical_context import incident_vertical_contract
+    entries = [dict(beam='V1', pending='nível desconhecido', pairs=[{
+        'footprint': [[0,0],[10,0],[10,19],[0,19]]}]),
+        dict(beam='V1', pairs=[{'footprint': [[10,0],[20,0],[20,19],[10,19]]}],
+             section_contract=dict(base_level_m=851.64,top_level_m=852.19))]
+    with pytest.raises(ValueError, match='sem intervalo'):
+        incident_vertical_contract([9.9,9.5], 'V1', entries)
+
+
 def test_end_joint_contact_is_bounded_by_measured_corridor_and_preserves_source():
     from src.core.beam_vertical_context import end_joint_footprint, incident_vertical_contract
     pair = dict(start=[70,0], end=[81,0], footprint=[[70,0],[81,0],[81,19],[70,19]])
@@ -165,6 +187,27 @@ def test_regional_slabs_share_base_without_global_scaling():
     with pytest.raises(CutContractError,match='incompatíveis'):
         build_cut_contract(conflicting)
     assert group_equivalent_cuts([conflicting])==[conflicting]
+
+
+@pytest.mark.parametrize('missing', ['level', 'height_cm', 'bottom_cm'])
+def test_inverted_missing_measurement_stays_pending_without_clearing_contact(missing):
+    from copy import deepcopy
+    from src.core.beam_vertical_context import clear_top_cap_interferences
+    from src.core.lv_n3_cut_contract import CutContractError, build_cut_contract
+    slab = dict(level=852.19, height_cm=13, bottom_cm=0)
+    slab[missing] = None
+    with pytest.raises(ValueError, match='confirmado'):
+        inverted_levels(71, [slab])
+    cut = dict(id='pending', kind='calculated', beam='V', width_cm=19, beam_height_cm=71,
+               section_semantics=dict(confirmed=True, beam_type='inverted'),
+               profiles={'A': dict(level=None, slabs=[slab]), 'B': dict(level=None, slabs=[])},
+               pairs=[dict(start=[0, 0], end=[14, 0],
+                           beam_interferences=[dict(level_candidates_m=[852.12])])])
+    original = deepcopy(cut)
+    with pytest.raises(CutContractError):
+        build_cut_contract(cut)
+    assert clear_top_cap_interferences([cut]) == []
+    assert cut == original
 
 
 def test_vertical_contact_does_not_turn_unknown_into_clearance():

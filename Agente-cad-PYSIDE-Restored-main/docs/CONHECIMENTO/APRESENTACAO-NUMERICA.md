@@ -13,7 +13,11 @@ Níveis absolutos (laje, viga/fundo, pilar, chegada, saída e elemento vinculado
 usam **exatamente duas casas decimais**, inclusive zeros: 852,19; 852,10;
 852,00; -0,05. Esta exceção prevalece sobre a regra de uma casa e de omitir ,0.
 Vale para campos, colunas, etiquetas, convenções gráficas, SA, N3/N5,
-documentação, agentes e evidências humanas de todas as classes.
+documentação, agentes e evidências humanas de todas as classes. Um trecho
+interno só com diferença de h não ganha um segundo nível: continua o nível da
+laje, nas duas casas. Fundo diferente só aparece quando a comparação de fundos
+está comprovada. Sem essa prova, a ficha diz que o fundo ainda não foi
+determinado, em vez de inventar outro número.
 
 O valor deve estar em metros. Não inferir a unidade pela magnitude; converter
 somente quando a origem declara outra unidade. Distância até o topo, altura,

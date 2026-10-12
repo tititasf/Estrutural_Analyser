@@ -2818,7 +2818,7 @@ def export_db_semantics(
     e um fix no motor não apareceria até alguém reprocessar. Use
     ``recompute_topology=False`` para inspecionar o que está persistido.
     """
-    from scripts.arete.pil_agentic_highlight_draw import load_project
+    from scripts.arete.pil_agentic_highlight_draw import load_project, load_slab_regions
     from src.core.niveis_extractor import get_pavimento_niveis_abs
     from src.core.pillar_abcd_tables import (
         build_abcd_tables_from_pillar,
@@ -2879,6 +2879,7 @@ def export_db_semantics(
     from src.core.pillar_face_beams import beam_corridor_widths
 
     beam_widths = beam_corridor_widths(beams) if recompute_topology else {}
+    slab_regions = load_slab_regions(db_path, project_id)
     out_dir.mkdir(parents=True, exist_ok=True)
     hashes: dict[str, str | None] = {}
     incoherent: dict[str, int] = {}
@@ -2888,6 +2889,7 @@ def export_db_semantics(
             slab_height_map=slab_h,
             slab_nivel_map=slab_n,
             slab_points_map=slab_points,
+            slab_regions_map=slab_regions,
             beams=beams,
             nivel_viga_default=default_level,
         )

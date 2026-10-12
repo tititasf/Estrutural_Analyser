@@ -97,9 +97,9 @@ class _Lines:
     """Bordas estruturais do DXF, pelo mesmo indice que a LV usa."""
 
     def __init__(self, texts: list[dict], lines: list[dict]) -> None:
-        from src.core.lv_beam_scene import _EdgeIndex, _line_segments, split_dimension_lines
+        from src.core.lv_beam_scene import _EdgeIndex, split_dimension_geometry
 
-        structural, _dimension = split_dimension_lines(_line_segments(lines), texts)
+        structural, _dimension = split_dimension_geometry(lines, texts)
         self.edges = _EdgeIndex(structural)
 
     def coverage(self, horizontal: bool, t: float, a: tuple[float, float]) -> float:
@@ -271,13 +271,14 @@ def _scene_walls(runs: dict, name: str, horizontal: bool, a: tuple[float, float]
     return sorted(out)
 
 
-def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict]) -> dict[str, Any]:
+def audit_fv_lines_all(beams: list[dict], texts: list[dict], lines: list[dict],
+                       pillar_report: Any = None) -> dict[str, Any]:
     """Aplica o gate a todos os contornos FV. Retorna o relatorio da rodada."""
     index = _Lines(list(texts or []), list(lines or []))
     try:
         from src.core.lv_beam_scene import build_scene_runs
         runs = build_scene_runs(
-            list(beams or []), list(texts or []), list(lines or []), {}, None,
+            list(beams or []), list(texts or []), list(lines or []), pillar_report or {}, None,
             allow_width_hint_fallback=True,
         )
     except Exception:  # cena indisponivel: cai no vinculo lateral (comportamento anterior)

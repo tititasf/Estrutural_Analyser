@@ -15,7 +15,10 @@
   form.addEventListener("submit", function (event) {
     event.preventDefault();
     output.replaceChildren(node("p", "Buscando…"));
-    fetch("/app/base-global/buscar?q=" + encodeURIComponent(input.value), { credentials: "same-origin" })
+    var obra=document.getElementById('bg-kb-obra').value;
+    var pavimento=document.getElementById('bg-kb-pavimento').value.trim();
+    var scope=obra ? '&obra_id='+encodeURIComponent(obra)+(pavimento ? '&pavimento='+encodeURIComponent(pavimento):'') : '';
+    fetch("/app/base-global/buscar?q=" + encodeURIComponent(input.value)+scope, { credentials: "same-origin" })
       .then(function (response) {
         if (!response.ok) throw new Error("Busca indisponível (" + response.status + ")");
         return response.json();

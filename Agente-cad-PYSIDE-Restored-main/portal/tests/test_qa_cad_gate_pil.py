@@ -101,14 +101,15 @@ def test_asymmetric_walls_at_opposite_end_are_accepted(tmp_path):
     assert not gate.errors(report)
 
 
-def test_beam_section_validated_in_span_without_repeating_beam_name(tmp_path):
-    """Testa viga com seção anotada no apoio mas sem repetição do nome da viga no pilar."""
+def test_beam_section_validated_with_name_in_own_span(tmp_path):
+    """Testa viga com seção e nome anotados no vão próprio."""
     doc = ezdxf.new()
     ms = doc.modelspace()
     ms.add_lwpolyline([(0, 0), (20, 0), (20, 60), (0, 60)], close=True)
     ms.add_line((20, 10), (120, 10))
     ms.add_line((20, 29), (120, 29))
-    # Apenas o texto da seção 19/55 está perto do apoio
+    # Nome e seção ambos no vão próprio.
+    ms.add_text('V312', dxfattribs={'insert': (30, 15), 'height': 3})
     ms.add_text('19/55', dxfattribs={'insert': (40, 15), 'height': 3})
     path = tmp_path / 'span_sec.dxf'
     doc.saveas(path)
@@ -227,13 +228,17 @@ def test_pillar_ghost_link_case2_zero_walls_on_face(tmp_path):
 
 def test_pillar_beam_passing_through_same_width_is_measured(tmp_path):
     """Viga 19 que atravessa pilar 50x19 (P42/P46 13_PAV): paredes contínuas passam pelas
-    faces A/B.  Antes virava 'link fantasma'; agora mede e o rótulo vem do 1º vão."""
+    faces C/D.  Antes virava 'link fantasma'; agora mede e o rótulo vem do 1º vão."""
     doc = ezdxf.new()
     ms = doc.modelspace()
     ms.add_lwpolyline([(0, 0), (50, 0), (50, 19), (0, 19)], close=True)
     ms.add_line((-250, 0), (300, 0))
     ms.add_line((-250, 19), (300, 19))
-    ms.add_line((-90, -80), (-90, 0))     # apoio perpendicular no 1º vão à esquerda
+    # Original named closed support bounds the first span.
+    ms.add_lwpolyline([(-109, 0), (-90, 0), (-90, 40), (-109, 40)], close=True)
+    ms.add_text('P2', dxfattribs={'insert': (-100, 10), 'height': 3})
+    ms.add_text('V312', dxfattribs={'insert': (-60, 10), 'height': 3})
+    ms.add_text('V312', dxfattribs={'insert': (100, 10), 'height': 3})
     ms.add_text('19/120', dxfattribs={'insert': (-40, 22), 'height': 3})
     ms.add_text('19/55', dxfattribs={'insert': (-200, 22), 'height': 3})
     ms.add_text('19/120', dxfattribs={'insert': (120, 22), 'height': 3})
@@ -242,14 +247,14 @@ def test_pillar_beam_passing_through_same_width_is_measured(tmp_path):
     link = {'nome': 'V312', 'dim': '19/120', 'dist_esq': '0cm', 'dist_dir': '0cm'}
     snapshot = {'classe': 'PIL', 'collections': {'pilares': [{
         'points': [[0, 0], [50, 0], [50, 19], [0, 19]],
-        'interpretacao_abcd': {'faces': {'A': {'chega': [dict(link)]}, 'B': {'chega': [dict(link)]}}}}]}}
+        'interpretacao_abcd': {'orientation': 'horizontal', 'faces': {'C': {'chega': [dict(link)]}, 'D': {'chega': [dict(link)]}}}}]}}
     report = gate.measure(path, snapshot)
     assert [c['status'] for c in report['contacts']] == ['measured', 'measured']
     assert all(c['section'] == '19/120' and c['distances_cm'] == [0.0, 0.0] for c in report['contacts'])
     assert not gate.errors(report)
 
     # Distâncias copiadas de outra face (15,5/15,5 numa face de 19) são divergência medida
-    for face in 'AB':
+    for face in 'CD':
         snapshot['collections']['pilares'][0]['interpretacao_abcd']['faces'][face]['chega'][0].update(
             dist_esq='15.5cm', dist_dir='15.5cm')
     assert any('distâncias' in e for e in gate.errors(gate.measure(path, snapshot)))

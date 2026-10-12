@@ -158,6 +158,11 @@ class PillarPerspectiveMapper:
     """
     @staticmethod
     def identify_shape(points):
+        from src.core.pillar_geometry_association import circular_measurements
+        from src.core.pillar_special_faces import physical_ring
+        if circular_measurements(points):
+            return "Circular", "Normal"
+        points = [tuple(p) for p in physical_ring(points)]
         poly = Polygon(points)
         area = poly.area
         bbox = poly.bounds # (minx, miny, maxx, maxy)
@@ -178,6 +183,11 @@ class PillarPerspectiveMapper:
         
         # Identificação por análise de 'braços' (simplificado para MVP)
         if num_v >= 10: return "Em U", "Normal"
+        if num_v == 8:
+            missing = poly.convex_hull.difference(poly)
+            parts = list(missing.geoms) if hasattr(missing, 'geoms') else [missing]
+            # One connected notch is U; two notches leave the T stem.
+            return ("Em U" if len([p for p in parts if p.area > 1e-6]) == 1 else "Em T"), "Normal"
         if num_v >= 8: return "Em T", "Normal"
         return "Em L", "Normal"
 

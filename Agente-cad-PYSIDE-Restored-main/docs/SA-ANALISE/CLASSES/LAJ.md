@@ -26,6 +26,22 @@ Cada ficha contém SVG local (contorno, degraus/chanfros, nível e contato real)
 contextual (vizinhas, corte, pilares/vigas/eixos). Contexto explica topologia; nunca
 prova apoio por si só.
 
+### Contato ausente no resultado não prova ausência na fonte — 09/10/2026
+
+Antes de interpretar uma faixa FV/LV como sem laje, conferir o contorno LAJ e
+suas regiões no DXF original. O diagnóstico de contato opera sobre os polígonos
+coletados: um contorno incompleto pode perder tanto o apoio quanto a marca de
+nível regional. `slab_steps=[]` é resultado de coleta, não prova física de que
+não existe degrau. Não corrigir esse caso só aumentando confiança ou mudando o
+nível da viga; recuperar a geometria/região e repetir a correspondência local.
+
+A inspeção fonte+PNG do 14_PAV encontrou região junto à V410 ausente do
+contorno persistido de L405 e contatos junto à V420 que os polígonos coletados
+não reproduzem. Evidências e limites no
+[dossiê da inspeção](../../../scripts/arete/relatorios/20261009_continuacao_niveis_14pav/inspecao_niveis/RELATORIO.md).
+É diagnóstico local para reparo do coletor, sem alteração de dados/decisão do
+dono e sem aprovação de níveis ou regiões ainda não reprocessados.
+
 ### 1.1 Visão canónica (obrigatória em N1-V / G2-V / G5-V)
 
 Documento mestre: [`docs/QA-VISAO-EVIDENCIA-CANONICA.md`](../../QA-VISAO-EVIDENCIA-CANONICA.md).
@@ -45,7 +61,7 @@ contido na laje, com espessuras explícitas dentro e fora. A cota interna perten
 ao trecho: não vira automaticamente o nível de toda a laje. Comparar os fundos
 em metros, `nível − h/100`, conforme D-52: iguais mantêm uma laje; diferentes
 comprovados recebem vermelho no destaque das lajes e indicação de separação.
-Uma cota ausente permanece pendente, sinalizada em amarelo.
+Uma cota ausente permanece pendente, sinalizada em amarelo. Diferença só de h, sem cota nesse trecho e sem visão de corte nessa área indicando o nível, não é degrau de nível diferente: o nível permanece o da laje e o fundo não é declarado diferente. Degrau de nível diferente continua exigindo cota no trecho ou visão de corte nessa área (NIV-DEGRAU-H-E-VOTO-20261004).
 
 Cortes próprios de laje entram em Visão de Cortes com o nome da laje e amarelo,
 sem associação FV/LV nem identidade de viga. Reconhecimento exige seção estreita
@@ -223,3 +239,131 @@ Regra integrada: `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` (canônico
 ### Referência padrão e treino de exceções — NIV-PADRAO-EXCECAO-20261003
 
 Aplicar o contrato global em `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`, seção Referência padrão e exceções explícitas. O padrão confirmado é topo da viga no nível principal da laje ou base de saída do pavimento quando não há laje, salvo indicação explícita diferente. Ausência de corte não torna esse padrão uma estimativa por si só. Preservar regiões de laje, datum da viga, contato por face do pilar e fontes independentes. QA distingue convenção de medida e verifica qualidade/cobertura da leitura antes de confirmar; não elevar score apenas renomeando status. Interpretação de vigas em níveis diferentes por hatch/corte está pendente de treino com exemplos reais futuros; não foi certificada neste caso.
+
+
+## Apresentação N3/N5 por modo — 07/10/2026
+
+INI, NOVA e Formascia têm padrões de desenho distintos sobre o mesmo contrato estrutural. Consultar a [matriz canônica de desenho](../../PADROES-DESENHO-N3-N5.md) e o [padrão INI aprovado](../../PADRAO-INI-APROVADO.md). A aprovação visual não altera os dados SA nem certifica automaticamente todos os itens. LAJ INI compartilha o N3/perfil NOVA; os compositores N5 continuam separados.
+
+## Lajes sem rótulos e faixas listradas — 08/10/2026
+
+Pedido do dono: interpretar a região interna entre faces de vigas e pilares, conferindo as classes em conjunto contra o CAD. Linhas estruturais não podem atravessar o interior da laje. Cotas, strokes de hatch e cortes não fecham contornos. Retornos estruturais curtos continuam sendo paredes; precisão de 0,001 cm resolve diferenças micrométricas de endpoints, sem fechar lacunas reais. Linha estrutural pendurada dentro de uma célula impede sua aceitação. Contornos de pilares fechados junto à borda recortam a laje.
+
+Faixas com traços paralelos repetidos e delimitadores CAD reais sinalizam possível mudança de espessura ou nível. Seus h= pertencem à região interna; o h= exterior pertence à região principal. Hatch sozinho não confirma degrau, fundo contínuo ou diferença de nível. Sem prova de altitude/corte, a região mantém `status=unknown`. Espessuras diferentes sem separação geométrica continuam pendentes.
+
+Sem nomes observados, usar `L1`, `L2`, `L3` etc., por filas da esquerda para a direita e de cima para baixo. Pedido posterior do dono em 08/10 removeu o sufixo do pavimento. Nome legível e identidade geométrica são campos diferentes. Não renomear rótulos existentes. Evidência inicial: `scripts/arete/relatorios/20261008_lajes_tipo_contexto/RELATORIO.md`; correção posterior: `scripts/arete/relatorios/20261008_lajes_cortes_callouts/RELATORIO.md`.
+
+### Símbolos de corte e referências externas — correção 08/10/2026
+
+Um retângulo perto de texto P12 não prova pilar. Reconhecer as peças de visão de corte pelo CAD original e pela composição do objeto antes de recortar a laje. As peças reconhecidas e as camadas semânticas de corte ficam fora do recorte por pilar; contornos reais de pilares permanecem bloqueios estruturais. Não usar o próprio resultado LAJ como prova independente de outra classe.
+
+Uma espessura h= junto a chamada de bloco BL pode apontar por seta para outra região. A referência explícita do líder deve prevalecer sobre a posição do texto; chamada comprovada de bloco não vira espessura da laje que contém o texto. Polilinha simples, proximidade ou seta ambígua não autorizam realocação. Biblioteca e limites: [BIBLIOTECA-OBJETOS-CAD.md](../../CONHECIMENTO/BIBLIOTECA-OBJETOS-CAD.md).
+
+## ESTILO-INTEGRADO-20261008 — harmonização entre classes
+
+Síntese vigente, convenções recorrentes, contraprovas e pendências: [Estilos estruturais — interpretação integrada](../../CONHECIMENTO/ESTILOS-ESTRUTURAIS-INTERPRETACAO-INTEGRADA.md). Consultar a evidência local antes de aplicar a regra a outra obra; cooperação entre classes não constitui prova circular nem aprovação automática.
+
+## Refinação de lajes nomeadas por cotas — evidência técnica de 09/10/2026
+
+O ramo de lajes com rótulos L ainda usa a cascata de contornos; a rede de lajes
+sem rótulos não certifica esse ramo. Uma medida numérica compatível não estabelece
+parede física. A refinação por cotas deve usar candidatos estruturais preferidos
+e suporte nas quatro bordas; o motor exige cobertura de pelo menos 95% de cada
+borda candidata. Uma pequena linha de chamada no mesmo eixo não permite estendê-lo
+para fechar a laje. Sem suporte, preservar o contorno anterior dessa etapa.
+
+No 14_PAV, a etapa `_outline_from_local_dimension_texts` reduzia os contornos
+completos de L405–L408 para retângulos internos definidos por linhas de cotagem.
+A perda impedia o vínculo da região 96A/E11/E12 com L405 e o contato das lajes
+inferiores com V420. O reparo recupera a região 96A com nível 855,22 m, h=12 cm
+e fundo contínuo 855,10 m; esses valores pertencem ao exemplo, não à regra.
+Coleta canônica isolada: 71→20 faixas abaixo de 60% de suporte. Controle 13_PAV:
+31 lajes com saídas geométricas completas idênticas. Cinco falhas da suíte
+preexistem no motor instalado; não interpretar essa medição como aprovação geral.
+Relatório reproduzível e limites de publicação:
+[Reparo dos contornos do 14_PAV](../../../scripts/arete/relatorios/20261009_reparo_contornos_14pav/RELATORIO.md).
+
+## Preservar vértices, parcelas e papéis dos cortes — 10/10/2026
+
+A limpeza de vértices colineares deve primeiro remover apenas pontos consecutivos
+coincidentes na precisão de noding. Dois pontos separados por cerca de 0,0000005 cm
+podiam fazer a limpeza simultânea apagar um canto legítimo. O contorno final de
+uma laje nomeada deve conter seu próprio rótulo original. O reparo da L409 esquerda
+recuperou o retângulo no replay; não autoriza seu nível nem confirma suas bordas.
+
+Nomes repetidos não provam nem união nem separação física. Preservar a proveniência
+dos rótulos durante a interpretação e decidir a identidade pelo contorno original.
+A seleção de uma candidata apenas por nome pode descartar informação; separar
+cegamente por rótulo também pode inventar parcelas. Níveis e contatos devem estar
+vinculados à face física comprovada, nunca somente ao nome.
+
+Correção do dono e inspeção original em 11/10/2026: os pequenos retângulos atribuídos
+à L409 eram fechados artificialmente por cotas/cortes. Os rótulos D62 e D63 estão
+na mesma face ampla de 51,2702 m², fechada exatamente por limites de vigas e pilares,
+sem snapping ou buffer. A marca D83, 855,25 m, está dentro dessa face. Esta prova
+invalida a hipótese anterior de duas lajes físicas; ainda exige correção geral do
+tracer, nova rodada SA + QA e revisão dos contatos. Camadas numéricas 3/7 deste
+exemplo não constituem regra universal: identificar papéis estruturais na fonte.
+O nível 855,22 junto ao P14 fica fora dessa face, na região de rebaixo da L407;
+não deve migrar para a L409 por proximidade. A marca própria D83 permanece
+evidência de nível da L409. O contorno amplo não certifica por si só altitude
+uniforme: rebaixos e espessuras internas exigem seus vínculos originais.
+Prova reproduzível e PNG inspecionado:
+`scripts/arete/relatorios/20261010_encontros_niveis_14pav/desenvolvimento_rapido/integracao_v408_identidade/l409_full_physical_face_receipt.json`.
+
+## Contorno físico por paredes e apoios originais — 11/10/2026
+
+O candidato geral do tracer constrói faces usando pares de paredes vinculados
+a rótulos e seções originais de vigas, mais contornos fechados positivamente
+associados a pilares. Estilo/camada apenas selecionam candidatos; não provam
+papel estrutural. Cotas, molduras e cortes não podem fechar uma face por cor.
+Não inventar segmentos, snapping ou buffer para fechar lacunas.
+
+A medida de um pilar próximo pode estar mais perto do nome da viga do que a
+seção dessa viga. A busca deve verificar os candidatos numéricos contra o par
+de paredes no próprio rótulo, preservando o alcance espacial existente.
+Uma dimensão próxima incompatível não deve impedir uma seção compatível mais
+distante. Escrita horizontal/vertical ordena hipóteses; as paredes as comprovam.
+
+O candidato final é aplicado após as heurísticas de normalização, para que
+uma correção não altere indiretamente as lajes vizinhas durante a cascata.
+Rótulos distintos dentro da mesma face indicam possível limite ausente e
+impedem união automática; rótulos repetidos conservam a proveniência original.
+
+Replay original sem teacher: 23 rótulos no14 e31 no13, todos cobertos. Foram
+revistos 12 contornos alterados no14 e14 no13. A L416 preserva a parede da V421
+e exclui a escada. Tempos locais do tracer:14 13,03→19,57 s;13 17,88→25,59 s.
+Patches instalados com guarda de concorrência; ciclos frescos pré→SA→pós-QA
+14/13 concluíram com isolamento e código estáveis. Os contornos atuais igualam
+exatamente o replay original revisto em PNG. Onze diffs LAJ no14 e14 no13 foram
+aprovados apenas quanto ao contorno em recibos de revisão exata por hash;
+contatos e níveis regionais continuam independentes. O dono confirmou em11/10
+a região h10 daL414/972: topo855,22, mesmo fundo855,12 da principalh13/topo855,25.
+Revisão humana derivada por hashDXF/UID; não inferir essa regra só pela espessura.
+Reconhecimento e prova local do contato físico P22 B passaram: um intervalo
+de67cm, h10/topo855,22. A principal permaneceh13/topo855,25. Recibo
+`integracao_v408_identidade/l414_p22_contact_proof.json`. O ciclo fresco14
+`root-regional-v2-20261011` confirmou esse consumo com código/isolamento
+aprovados: contato P22 B h10/855,22 por67cm; principalh13/855,25 preservada.
+Isso aprova essa leitura específica, sem aprovar demais níveis ou a missão.
+
+Três falhas universais de consumo foram corrigidas no lote de11/10:
+os caminhos PIL devem receber `slab_regions_map`; snapshots devem conservar
+`slab_steps`; o reconhecimento de polilinha original fechada deve emitir esse
+fato em `closed_cad_boundary`, exigido pelo consumidor. Uma decisão humana
+validada por revisão de fonte/UID pode apoiar o nível local sem ser apresentada
+como cota CAD. Contradições, regiões sem nível e contatos mistos não recebem
+o escalar principal. A tolerância normal à face não pode estender o contato
+além do contorno original e criar uma falsa faixa de espessura principal.
+Evidências: `integracao_v408_identidade/root_section_pair_review/receipt.json`
+e respectivos PNGs; 51 testes de contornos/FV passaram.
+
+Um perfil de corte com fundo contínuo, dois patamares e uma cota original do degrau
+com eixo e dois ticks pode provar seu papel de anotação. O adapter
+`dimensioned_section_profiles.py` registra contorno e handles independentes da
+dimensão. A integração exige correspondência exata de contorno e handle antes de
+retirar a hipótese de pilar. Ela não atribui dono, altitude ou espessura à planta.
+No exemplo do 14º, quatro candidatos eram perfis 13/10 cotados com diferença 3 cm;
+as anotações h=12/15 continuam independentes. Testes locais passaram; integração
+e ciclo completo pós-deploy permanecem pendentes. Candidatos sem papel positivo
+comprovado continuam em revisão.

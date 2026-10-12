@@ -71,7 +71,6 @@ def test_lv_n3_override_preserva_contratos_sa_e_detecta_rodada_nova(tmp_path):
 
 @pytest.mark.parametrize("behavior", ["para", "passa"])
 @pytest.mark.parametrize("view,suffix", [
-    ("corte", "CORTE"),
     ("paineis-a", "VIEW_A"),
     ("paineis-b", "VIEW_B"),
 ])
@@ -94,6 +93,22 @@ def test_regeneracao_lv_n3_usa_override_e_publica_somente_vista(
     assert len(ezdxf.readfile(target).modelspace()) > 0
     assert (source_a.read_bytes(), source_b.read_bytes()) == original
     assert len(list(target.parent.glob("*.dxf"))) == 1
+
+
+@pytest.mark.parametrize('behavior', ['para','passa'])
+def test_cut_regeneration_requires_current_sa_inventory(settings,tmp_path,behavior):
+    # Fabrication dimensions alone do not establish local slab profiles or
+    # physical pairing. The cut route must not invent them to draw a preview.
+    obra_dir=tmp_path/'obra_lv'
+    source_a,source_b=_contracts(obra_dir,behavior=behavior)
+    original=(source_a.read_bytes(),source_b.read_bytes())
+    result=pipeline_runner.regenerar_n3_lv_vista_item(settings,
+        {'nome':'obra_lv','local_path':str(obra_dir)},beam='V410',pav='14_PAV',
+        behavior=behavior,view='corte')
+    assert not result.ok
+    assert 'não encontrada' in result.log_tail
+    assert (source_a.read_bytes(),source_b.read_bytes())==original
+    assert not list((obra_dir/'Fase-6_Execucao_CAD/n3_modes').glob('**/*CORTE.dxf'))
 
 
 @contextlib.asynccontextmanager

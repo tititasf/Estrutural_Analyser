@@ -94,14 +94,58 @@ def test_diagonal_across_beam_crossing_is_not_a_neighbor():
     assert _across_beam(Polygon(SLABS['A']), Polygon(SLABS['B']), funds) is None
 
 
-def test_proven_step_line_withholds_votes(monkeypatch):
-    # D/E (own CAD levels) differ across the top beam: that beam carries no continuity.
+def test_proven_step_line_keeps_an_existing_vote(monkeypatch):
+    # D/E differ on the left of one long beam. A faces T on the right, but B
+    # and C already agree, so A's off-stretch level must not weaken them.
     monkeypatch.setitem(globals(), 'SLABS', {**SLABS, 'D': box(-120, 0, -20, 100), 'E': box(-120, 119, -20, 219)})
     monkeypatch.setitem(globals(), 'FUNDS', [box(-120, 100, 100, 119)] + FUNDS[1:])
     t, rep = run({'A': 852.19, 'B': 852.12, 'C': 852.12, 'D': 852.12, 'E': 852.19})
     assert t['method'] == 'slab_neighbor_continuity_without_step_cut' and t['confidence_pct'] == 85
     assert set(t['source_fact_ids']) == {'B:slab_level:0', 'C:slab_level:0'}
-    assert rep['proven_step_lines']['V0'] and rep['applied'][0]['withheld_votes'][0]['slab'] == 'A'
+    assert rep['proven_step_lines']['V0'][0]['pair'] == ['D', 'E']
+    assert rep['applied'][0]['withheld_votes'][0]['slab'] == 'A'
+
+
+def test_neighbor_step_off_the_contact_does_not_block_its_level():
+    """L417 case: the neighbour's step does not touch the target, and a
+    different pair differs further along the same beam."""
+    from shapely.geometry import Polygon, mapping
+    slabs = {
+        'T': box(0, 0, 100, 40),
+        'U': box(0, 59, 100, 200),
+        'R': box(201, 59, 300, 200),
+        'S': box(201, 0, 300, 40),
+    }
+    step = box(0, 160, 40, 200)
+    funds = [box(0, 40, 300, 59)]
+    u_principal = Polygon(slabs['U']).difference(Polygon(step))
+    slab_items = {
+        'T': dict(item_id='T', display_name='T', item_class='slab', levels=[
+            dict(item_id='T', fact_id='T:slab_level:0', field='slab_level', value=None,
+                 status='unknown', confidence_pct=0, evidence_ids=[], warnings=[])]),
+        'U': dict(item_id='U', display_name='U', item_class='slab', levels=[
+            region_fact('U', 'sU', 855.22, step),
+            dict(item_id='U', fact_id='U:region:principal', field='slab_region_level',
+                 region_id='principal', region_geometry=mapping(u_principal), value=855.25,
+                 unit='m', status='sa_evidence', method='cad_level_inside_slab',
+                 confidence_pct=95, warnings=[], evidence_ids=['cad:U'], source_fact_ids=[])]),
+        'R': dict(item_id='R', display_name='R', item_class='slab', levels=[slab_fact('R', 855.25)]),
+        'S': dict(item_id='S', display_name='S', item_class='slab', levels=[slab_fact('S', 855.18)]),
+    }
+    items = list(slab_items.values()) + [dict(item_id='V0', item_class='beam', segments=[
+        dict(family='fundo', points=funds[0])])]
+    context = {'state': {'slabs': [
+        dict(name='T', points=slabs['T']),
+        dict(name='U', points=slabs['U'], slab_steps=[dict(uid='sU', points=step)]),
+        dict(name='R', points=slabs['R']),
+        dict(name='S', points=slabs['S'])]}}
+    tower = {}
+    resolve(slab_items, items, context, geometry, inherited, tower)
+    level = slab_items['T']['levels'][0]
+    assert level['value'] == 855.25
+    assert level['method'] == 'slab_neighbor_continuity_without_step_cut'
+    assert level['source_fact_ids'] == ['U:region:principal']
+    assert tower['slab_level_layers']['proven_step_lines']['V0'][0]['pair'] == ['R', 'S']
 
 
 def test_no_beam_in_corridor_no_vote(monkeypatch):
@@ -159,3 +203,57 @@ def test_regions_without_level_are_voted_by_the_beams_they_face():
     assert regions['principal']['status'] == 'inferred'
     # The step region of T does not face B (B is across the principal).
     assert all(v['slab'] == 'A' for v in regions['sT']['neighbor_votes'])
+
+
+def _resolve_existing_region(status='unknown', value=None):
+    target = region_fact('T', 'sT', value, box(0, 60, 40, 100), status=status)
+    target.update(method='unresolved_scoped_region', confidence_pct=0,
+                  datum_id=None, region_height_cm=10, evidence_ids=['cad:target-region'])
+    source = slab_fact('A', 852.19)
+    source['datum_id'] = 'cad-datum-A'
+    slab_items = {
+        'T': dict(item_id='T', display_name='T', item_class='slab', levels=[target]),
+        'A': dict(item_id='A', display_name='A', item_class='slab', levels=[source]),
+    }
+    items = list(slab_items.values()) + [dict(item_id='V', item_class='beam',
+        segments=[dict(family='fundo', points=FUNDS[0])])]
+    context = {'state': {'slabs': [dict(name='T', points=SLABS['T'],
+        slab_steps=[dict(uid='sT', points=box(0, 60, 40, 100))]),
+        dict(name='A', points=SLABS['A'])]}}
+    resolve(slab_items, items, context, geometry, inherited, {})
+    return slab_items['T']['levels']
+
+
+def test_resolved_region_updates_unknown_identity_and_preserves_prior_evidence():
+    levels = _resolve_existing_region()
+    matches = [f for f in levels if f['fact_id'] == 'T:region:sT']
+    assert len(matches) == 1
+    fact = matches[0]
+    assert fact['value'] == 852.19 and fact['status'] == 'inferred'
+    assert fact['datum_id'] == 'cad-datum-A' and fact['unit'] == 'm'
+    assert fact['region_height_cm'] == 10
+    assert set(fact['evidence_ids']) == {'cad:A', 'cad:target-region'}
+    assert fact['previous_level_evidence']['status'] == 'unknown'
+    assert fact['previous_level_evidence']['value'] is None
+
+
+def test_conflicting_region_is_not_replaced_by_neighbor_vote():
+    levels = _resolve_existing_region('conflict')
+    matches = [f for f in levels if f['fact_id'] == 'T:region:sT']
+    assert len(matches) == 1 and matches[0]['status'] == 'conflict'
+    assert matches[0]['value'] is None
+
+
+def test_equal_values_with_different_datums_do_not_transfer_reference():
+    # The continuity vote is numerically unanimous, but does not prove a
+    # shared reference. Missing datum stays unresolved rather than guessed.
+    sources = {'A': dict(value=852.12), 'B': dict(value=852.12)}
+    original = slab_fact
+    def datum_fact(name, *args, **kwargs):
+        fact = original(name, *args, **kwargs)
+        fact['datum_id'] = None if name == 'T' else 'datum-' + name
+        return fact
+    import unittest.mock
+    with unittest.mock.patch(__name__ + '.slab_fact', datum_fact):
+        target, _ = run(sources)
+    assert target['datum_id'] is None

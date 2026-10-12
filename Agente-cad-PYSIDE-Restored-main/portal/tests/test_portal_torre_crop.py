@@ -38,7 +38,12 @@ def test_listar_recortes_bruto_acha_torre_1_e_detalhes():
     torre_crop.gerar_recortes_bruto(_OBRA_DIR, _DXF_BRUTO, "TMC-EST-PE-6000-13P-R03", force=True)
     itens = torre_crop.listar_recortes_bruto(_OBRA_DIR, "TMC-EST-PE-6000-13P-R03")
     ids = {i["item_id"] for i in itens}
-    assert ids == {"torre_1", "detalhes"}
+    assert {"torre_1", "detalhes"} <= ids
+    # Detail islands supplement the original tower/complement contract.
+    import json
+    manifest = json.loads((_OBRA_DIR / "Fase-2_Triagem" / "recortes" / "TMC-EST-PE-6000-13P-R03" / "islands.json").read_text())
+    assert not manifest["errors"]
+    assert {entry["file"][:-4] for entry in manifest["islands"]} == ids - {"torre_1", "detalhes"}
 
 
 def test_gerar_recortes_bruto_cache_pula_regeracao_sem_force():

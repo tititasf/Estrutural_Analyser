@@ -29,7 +29,7 @@ def test_moldes_snapshot_nova_once_and_remain_independent():
     config.save('MOLDE_1','PL',molde,2,'test')
     assert config.effective('MOLDE_2','PL')['texts']['nome']['scale']==1.5
     assert config.effective('MOLDE_1','PL')['human_notes']=='Anotação de teste'
-    assert not config.effective('NOVA','PL')['human_notes']
+    assert config.effective('NOVA','PL')['human_notes'] == nova['human_notes']
 
 
 def add_cima(msp):

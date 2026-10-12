@@ -369,6 +369,8 @@ def test_laj_duplicate_label_keeps_closed_polygon_and_partial_commit_cleans_stal
         "points": [(0, 0), (100, 0), (100, 60), (0, 0)],
         "area": 3000.0, "links": {}, "confidence_score": 0.95,
     }
+    # These are two traces of the same original label, not homonymous slabs.
+    closed['source_label_handle'] = fragment['source_label_handle'] = 'A1'
     merged, stats = merge_analysis_collection(
         old_items=[], new_items=[fragment, closed], kind="LAJ", project_id=project_id,
     )
@@ -410,6 +412,7 @@ def test_laj_duplicate_with_human_validation_is_the_canonical_record(tmp_path):
         "points": [(0, 0), (50, 0), (50, 60), (0, 60), (0, 0)],
         "area": 3000.0, "links": {}, "validated_fields": ["laje_outline_segs"],
     }
+    current['source_label_handle'] = protected['source_label_handle'] = 'A2'
     persist_analysis_snapshot(
         db_path=str(db_path), project_id=project_id,
         collections={"pillars": [], "slabs": [current, protected], "beams": []},

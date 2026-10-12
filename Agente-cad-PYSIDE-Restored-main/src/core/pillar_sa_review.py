@@ -10,8 +10,30 @@ CLASSIFICATIONS = ("SEGUE", "MORRE", "NASCE", "INDETERMINADO", "CONTINUA", "PASS
 ORIENTATIONS = ("RETANGULAR VERTICAL", "RETANGULAR HORIZONTAL", "QUADRADO", "ESPECIAL")
 FIELDS = {"classificacao", "orientacao", "nivel_chegada", "nivel_saida", "pe_direito"}
 
+def generation_exclusion(pillar):
+    """N3/N5 availability, independent of SA listing and measurements."""
+    from src.core.pillar_geometry_association import circular_measurements
+    if circular_measurements(pillar.get('points')):
+        return "Circular: geometria mantida no SA; método N3/N5 ainda não implementado"
+    if str(pillar.get("classification") or "").strip().upper() == "NASCE":
+        return "NASCE: disponível somente no SA deste pavimento"
+    from src.core.pillar_special_faces import (
+        physical_ring, supports_rectangular_tag_renderer, special_l_face_segments,
+    )
+    points = pillar.get('points')
+    ring = physical_ring(points)
+    # The generic ABCD converter takes a bounding box; only the physical
+    # rectangle and the separately implemented six-face L preserve the section.
+    # Keep legacy records without a contour on their existing validation path.
+    if ring and not (supports_rectangular_tag_renderer(points) or special_l_face_segments(points)):
+        return (f"Contorno de {len(ring)} faces: geometria mantida no SA; "
+                "conversão N3/N5 desta seção ainda não implementada; "
+                "a caixa envolvente não representa a seção física")
+    return ""
+
+
 def eligible(pillar):
-    return str(pillar.get("classification") or "").strip().upper() != "NASCE"
+    return not generation_exclusion(pillar)
 
 def review_path(obra_dir, pavimento, item):
     for value in (pavimento, item):

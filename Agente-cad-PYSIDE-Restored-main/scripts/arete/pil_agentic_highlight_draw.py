@@ -36,6 +36,9 @@ sys.path.insert(0, str(ROOT))
 from src.core.niveis_extractor import get_pavimento_niveis_abs  # noqa: E402
 from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar  # noqa: E402
 from src.core.pil_qa_notes_chrome import pil_keys  # noqa: E402
+from src.core.pillar_special_faces import (
+    physical_face_contact, special_physical_face_segments, supports_rectangular_tag_renderer,
+)
 
 # wall, text
 FACE_COLORS = {
@@ -43,6 +46,10 @@ FACE_COLORS = {
     "B": ("#81c784", "#1b5e20"),  # verde claro / verde escuro
     "C": ("#9c27b0", "#f48fb1"),  # roxo / rosa
     "D": ("#4fc3f7", "#0d47a1"),  # azul claro / azul escuro
+    "E": ("#ff8a65", "#ff8a65"),
+    "F": ("#80cbc4", "#80cbc4"),
+    "G": ("#b39ddb", "#b39ddb"),
+    "H": ("#ffcc80", "#ffcc80"),
 }
 FACE_LABELS = {
     "A": "A · esq (oeste)",
@@ -103,19 +110,18 @@ def _single_corner(fid: str, canto: str, *, kind: str) -> str:
 
 
 def _fmt_nivel(nivel: Any) -> str:
-    s = str(nivel or "").strip()
+    s = "" if nivel is None else str(nivel).strip()
     if s in ("", "—", "None"):
         return ""
     s = s.replace("cm", "").strip()
     # só número/ponto
-    m = re.search(r"(\d+(?:[.,]\d+)?)", s)
+    m = re.search(r"([+-]?\d+(?:[.,]\d+)?)", s)
     if not m:
         return ""
     # Níveis absolutos SA são metros; o sufixo cm é legado de apresentação,
     # não uma conversão do datum. Dimensões locais continuam em centímetros.
-    from decimal import Decimal, ROUND_HALF_UP
-    value = Decimal(m.group(1).replace(',', '.')).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
-    return f"{value:.1f}m".replace('.', ',')
+    from src.core.number_presentation import display_level
+    return display_level(m.group(1)) + "m"
 
 
 def _row_bits(r: dict, kind: str, *, fid: str = "") -> str:
@@ -595,7 +601,8 @@ def _contact_tip(
         return mid
     if kind == "chega":
         # Chegada CENTRAL AA/BB/CC/DD: bolinha no meio da face (não esquina)
-        if canto in ("AA", "BB", "CC", "DD") or canto == f"{fid}{fid}":
+        has_measured_span = all(re.search(r"\d", str(row.get(k) or "")) for k in ("dist_esq", "dist_dir"))
+        if not has_measured_span and (canto in ("AA", "BB", "CC", "DD") or canto == f"{fid}{fid}"):
             if horizontal:
                 center = {
                     "A": ((px0 + px1) / 2, py0),
@@ -640,11 +647,28 @@ def _contact_tip(
 
 
 def _estimate_tag_half(
-    label: str, *, scale: float, fs: float
+    label: str, *, scale: float, fs: float, ax=None
 ) -> tuple[float, float]:
     """Half-size chip multilinha em unidades CAD (anti-overlap)."""
     lines = [ln for ln in str(label).split("\n") if ln]
     n_lines = max(1, len(lines))
+    if ax is not None:
+        # O tamanho da fonte é em pontos; a colisão é em unidades CAD.
+        # Medir na transformação final do viewport evita subestimar chips
+        # largos em pilares horizontais ou em contextos muito afastados.
+        from matplotlib.font_manager import FontProperties
+        renderer = ax.figure.canvas.get_renderer()
+        font = FontProperties(family="DejaVu Sans", size=fs)
+        widths = [renderer.get_text_width_height_descent(line, font, False)[0]
+                  for line in lines or [""]]
+        pixels_per_point = ax.figure.dpi / 72.0
+        pad = 0.25 * fs * pixels_per_point
+        width_px = max(widths) + 2 * pad
+        height_px = (n_lines * fs * 1.25 * pixels_per_point) + 2 * pad
+        inv = ax.transData.inverted()
+        origin = inv.transform((0., 0.))
+        extent = inv.transform((width_px, height_px))
+        return abs(extent[0]-origin[0])/2, abs(extent[1]-origin[1])/2
     max_chars = max((len(ln) for ln in lines), default=4)
     base_fs = fs / TAG_SIZE_MULTIPLIER
     char_w = scale * 0.010 + base_fs * 0.28
@@ -840,29 +864,40 @@ def render_agentic_svg(
     xs = [float(p[0]) for p in pillar_pts]
     ys = [float(p[1]) for p in pillar_pts]
     px0, py0, px1, py1 = min(xs), min(ys), max(xs), max(ys)
+    physical_faces = special_physical_face_segments(pillar_pts, tables)
+    if not physical_faces and not supports_rectangular_tag_renderer(pillar_pts):
+        raise ValueError('N1 tags: contorno sem renderer de faces físicas; caixa envolvente recusada')
+    if physical_faces and set(physical_faces) - set((tables or {}).get('faces') or {}):
+        raise ValueError('N1 tags: tabelas incompletas para as seis faces físicas do pilar em L')
     pw, ph = px1 - px0, py1 - py0
     scale = max(pw, ph)
     # Mesmo contrato espacial do N1 proximo: contexto local suficiente para
     # chips/setas, sem transformar o eixo longo em zoom do pavimento inteiro.
     margin = _agentic_context_margin(pw, ph)
+    if physical_faces:
+        margin = (scale * 0.7 + 60.0) * 1.3
     vx0, vx1 = px0 - margin, px1 + margin
     vy0, vy1 = py0 - margin, py1 + margin
 
-    doc = ezdxf.readfile(str(dxf_path))
-    msp = doc.modelspace()
     dpi = 140
     stroke = [pe.withStroke(linewidth=0.8, foreground="#0a0a0a", alpha=0.75)]
 
     # fonttype=path: texto vira path no SVG (sempre visível por cima; não depende de fonte)
-    with matplotlib.rc_context({"svg.fonttype": "path", "path.simplify": False}):
-        fig = plt.figure(figsize=(width / dpi, height / dpi), dpi=dpi)
-        ax = fig.add_axes([0, 0, 1, 1])
-        ax.set_facecolor("#0d0d0d")
-        fig.patch.set_facecolor("#0d0d0d")
-        ctx = RenderContext(doc)
-        out = MatplotlibBackend(ax)
-        Frontend(ctx, out).draw_layout(msp)
+    from src.core.cad_render_cache import prepared_cad_canvas
+    with matplotlib.rc_context({"svg.fonttype": "path", "path.simplify": False}), \
+            prepared_cad_canvas(dxf_path, width, height, dpi) as (fig, ax):
         from matplotlib.text import Annotation, Text
+
+        if physical_faces:
+            # ezdxf's backend sizes its figure for the whole drawing. A local
+            # six-face view must keep the requested viewport instead.
+            fig.set_size_inches(width / dpi, height / dpi, forward=True)
+            ax.set_position([0, 0, 1, 1])
+
+        ax.set_aspect("equal", adjustable="box")
+        ax.set_xlim(vx0, vx1)
+        ax.set_ylim(vy0, vy1)
+        ax.apply_aspect()
 
         # Textos que vieram do DXF devem continuar recortados pelo viewport.
         # Somente as tags criadas abaixo podem escapar do eixo; do contrario,
@@ -921,6 +956,8 @@ def render_agentic_svg(
         wall_off = FACE_WALL_OFFSET
         # chips mini fora da parede (seta/bolinha iguais; só o box muda)
         text_pad = scale * 1.75 + 62.0
+        if physical_faces:
+            text_pad = scale * 0.55 + 62.0
         wall_lw = 0.35
         tag_fs = 1.7 * TAG_FONT_SCALE
         tag_fs_empty = 1.6 * TAG_FONT_SCALE
@@ -969,6 +1006,14 @@ def render_agentic_svg(
                 return "#ffffff" if lum < 0.55 else "#111111"
             return "#111111"
 
+        if physical_faces:
+            walls = {fid: (edge['p0'], edge['p1']) for fid, edge in physical_faces.items()}
+            face_label_pos = {
+                fid: ((edge['p0'][0] + edge['p1'][0]) / 2 + edge['out'][0] * face_label_off,
+                      (edge['p0'][1] + edge['p1'][1]) / 2 + edge['out'][1] * face_label_off)
+                for fid, edge in physical_faces.items()
+            }
+
         def _draw_pill_tag(
             tip: tuple[float, float],
             pos: tuple[float, float],
@@ -1016,8 +1061,8 @@ def render_agentic_svg(
                 bbox=dict(
                     boxstyle="round,pad=0.14,rounding_size=0.55",
                     facecolor=bg,
-                    edgecolor="#ffffff",
-                    linewidth=0.35,
+                    edgecolor="none" if physical_faces else "#ffffff",
+                    linewidth=0.0 if physical_faces else 0.35,
                     alpha=0.94,
                 ),
             )
@@ -1040,7 +1085,7 @@ def render_agentic_svg(
         ] = []
         gap = scale * 0.12 + 10.0  # chips não se tocam
 
-        for fid in "ABCD":
+        for fid in (sorted(physical_faces) if physical_faces else "ABCD"):
             wcol, tcol = FACE_COLORS[fid]
             (x0, y0), (x1, y1) = walls[fid]
             ax.plot(
@@ -1068,22 +1113,32 @@ def render_agentic_svg(
             )
 
             items = _face_items(tables, fid)
-            nx, ny = _outward(fid, horizontal=horizontal)
-            axn, ayn = _along(fid, horizontal=horizontal)
+            if physical_faces:
+                edge = physical_faces[fid]
+                nx, ny = edge['out']
+                axn, ayn = edge['dx'] / edge['length'], edge['dy'] / edge['length']
+            else:
+                nx, ny = _outward(fid, horizontal=horizontal)
+                axn, ayn = _along(fid, horizontal=horizontal)
+
+            def contact_geometry(kind, row):
+                if physical_faces:
+                    return physical_face_contact(physical_faces, fid, kind, row)
+                p0, p1, _ = _beam_seg_on_face(
+                    fid, kind, row, px0, py0, px1, py1,
+                    pad=text_pad, horizontal=horizontal,
+                )
+                return p0, p1, _contact_tip(
+                    fid, kind, row, p0, p1, px0, py0, px1, py1,
+                    horizontal=horizontal,
+                )
 
             # Empilhar os chips na mesma ordem espacial dos pontos de contato.
             # Sem isso, laje/passagem/chegada eram ordenadas por família e as
             # setas se cruzavam mesmo quando os vínculos estavam corretos.
             def _contact_order(item):
                 kind, row = item
-                p0, p1, _ = _beam_seg_on_face(
-                    fid, kind, row, px0, py0, px1, py1,
-                    pad=text_pad, horizontal=horizontal,
-                )
-                tip = _contact_tip(
-                    fid, kind, row, p0, p1, px0, py0, px1, py1,
-                    horizontal=horizontal,
-                )
+                p0, p1, tip = contact_geometry(kind, row)
                 return tip[0] * axn + tip[1] * ayn
 
             items.sort(key=_contact_order)
@@ -1096,30 +1151,8 @@ def render_agentic_svg(
 
             n_it = len(items)
             for i, (kind, row) in enumerate(items):
-                p0, p1, _ = _beam_seg_on_face(
-                    fid,
-                    kind,
-                    row,
-                    px0,
-                    py0,
-                    px1,
-                    py1,
-                    pad=text_pad,
-                    horizontal=horizontal,
-                )
+                p0, p1, tip = contact_geometry(kind, row)
                 mid = ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2)
-                tip = _contact_tip(
-                    fid,
-                    kind,
-                    row,
-                    p0,
-                    p1,
-                    px0,
-                    py0,
-                    px1,
-                    py1,
-                    horizontal=horizontal,
-                )
 
                 if kind in ("passa", "chega", "interior"):
                     lw = 0.35 if kind == "chega" else 0.28
@@ -1157,7 +1190,7 @@ def render_agentic_svg(
                 wall_mid = mid
                 txx = wall_mid[0] + nx * text_pad + axn * stack
                 tyy = wall_mid[1] + ny * text_pad + ayn * stack
-                hw, hh = _estimate_tag_half(label, scale=scale, fs=tag_fs)
+                hw, hh = _estimate_tag_half(label, scale=scale, fs=tag_fs, ax=ax)
                 txx, tyy = _route_tag_position(
                     txx, tyy, tip, hw, hh, placed, connectors,
                     (nx, ny), gap=gap,
@@ -1248,11 +1281,20 @@ def render_agentic_svg(
         import io
 
         buf = io.BytesIO()
-        fig.savefig(buf, format="svg", dpi=dpi, facecolor="#0d0d0d", bbox_inches="tight")
-        plt.close(fig)
+        from src.core.cad_render_cache import visible_cad_strokes
+        with visible_cad_strokes(ax):
+            fig.savefig(buf, format="svg", dpi=dpi, facecolor="#0d0d0d", bbox_inches="tight")
     buf.seek(0)
     # NÃO fazer lift de grupos: quebrava transform e deixava pills vazias
-    return strip_fixed_size(buf.read().decode("utf-8"))
+    raw_svg = buf.read()
+    from portal.app.svg_compact import compact_svg_serialization
+    svg = strip_fixed_size(compact_svg_serialization(raw_svg).decode("utf-8"))
+    if physical_faces:
+        from src.core.pillar_special_faces import physical_tag_geometry_key, physical_face_contract_key
+        svg = svg.replace('<svg ', '<svg data-pil-physical-version="1" '
+                          f'data-pil-faces="{physical_face_contract_key(physical_faces)}" '
+                          f'data-pil-geometry="{physical_tag_geometry_key(pillar_pts)}" ', 1)
+    return svg
 
 
 def _svg_lift_text_groups(svg: str) -> str:
@@ -1314,9 +1356,11 @@ def load_project(
         ex = json.loads(r["extra_data_json"] or "{}") if r["extra_data_json"] else {}
         fields = ex.get("fields") if isinstance(ex.get("fields"), dict) else {}
         h = str(fields.get("laje_dim") or ex.get("laje_dim") or "").replace("h=", "").replace("cm", "").strip()
-        n = fields.get("laje_nivel") or ex.get("laje_nivel") or ""
+        n = fields.get("laje_nivel")
+        if n is None or n == "":
+            n = ex.get("laje_nivel")
         slab_h[r["name"]] = h
-        slab_n[r["name"]] = str(n)
+        slab_n[r["name"]] = "" if n is None else str(n)
         try:
             slab_pts[r["name"]] = json.loads(r["points_json"] or "[]")
         except Exception:
@@ -1362,7 +1406,24 @@ def load_project(
             }
         )
     pillars.sort(key=lambda p: _natural_key(p["name"]))
+    conn.close()
     return dxf_path, slab_h, slab_n, slab_pts, beams, pillars
+
+
+def load_slab_regions(db: Path, project_id: str) -> dict:
+    """Regiões locais do mesmo projeto, sem alterar o contrato de load_project."""
+    with sqlite3.connect(str(db)) as conn:
+        return {
+            name: (json.loads(extra or "{}") or {}).get("slab_steps") or []
+            for name, extra in conn.execute(
+                "SELECT name, extra_data_json FROM slabs WHERE project_id=?", (project_id,)
+            )
+        }
+
+
+def _default_beam_level(levels: dict | None) -> str:
+    value = (levels or {}).get("chegada_abs")
+    return "" if value is None or value == "" else str(value)
 
 
 def process_item(
@@ -1379,6 +1440,7 @@ def process_item(
     pav: str,
     layers: tuple[str, ...] = ("sa", "l1", "l2", "l3"),
     only_layer: str | None = None,
+    slab_regions: dict | None = None,
 ) -> dict:
     """Gera SVGs por camada + notes.
 
@@ -1391,9 +1453,14 @@ def process_item(
         slab_height_map=slab_h,
         slab_nivel_map=slab_n,
         slab_points_map=slab_pts,
+        slab_regions_map=slab_regions,
         beams=beams,
         nivel_viga_default=nivel_v,
     )
+    from src.core.pillar_special_faces import enrich_special_pillar_tables
+    tables = enrich_special_pillar_tables(tables, pillar, slab_height_map=slab_h,
+        slab_nivel_map=slab_n, slab_points_map=slab_pts, beams=beams,
+        nivel_viga_default=nivel_v)
     prop_dir = pack / "propostas"
     prop_dir.mkdir(parents=True, exist_ok=True)
     pts = pillar.get("points") or []
@@ -1567,8 +1634,8 @@ def main() -> int:
         print(f"[ERR] DXF ausente: {dxf_path}")
         return 2
 
-    niveis = get_pavimento_niveis_abs(args.obra, args.pav) or {"chegada_abs": 852.19}
-    nivel_v = f"{niveis.get('chegada_abs')}cm"
+    nivel_v = _default_beam_level(get_pavimento_niveis_abs(args.obra, args.pav))
+    slab_regions = load_slab_regions(Path(args.db), args.project_id)
 
     if args.items:
         wanted = {x.strip().upper() for x in args.items}
@@ -1588,6 +1655,7 @@ def main() -> int:
                 slab_h=slab_h,
                 slab_n=slab_n,
                 slab_pts=slab_pts,
+                slab_regions=slab_regions,
                 beams=beams,
                 nivel_v=nivel_v,
                 pack=pack,

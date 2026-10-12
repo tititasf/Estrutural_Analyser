@@ -42,7 +42,8 @@
     location.assign(u.href);
   }
   function save(t, points) { return api(endpoint(t,'/geometria'),'PUT',{points:points}); }
-  function remove(t, whole) { return api(endpoint(t)+(whole ? '&inteiro=true' : ''),'DELETE'); }
+  function remove(t, whole, comment) { return api(endpoint(t)+(whole ? '&inteiro=true' : ''),'DELETE',
+    t.classe==='cortes_interpretados' ? {comentario:comment || ''} : undefined); }
   var deletionDialog = null;
   var refreshDeleted = null;
   function deleteItem(t, whole) {
@@ -61,6 +62,14 @@
     message.textContent=whole ? 'Excluir a viga '+(t.beam || t.itemId)+' e todos os seus segmentos desta ficha?' :
       'Excluir '+(t.beam ? 'o segmento '+(t.segmento || '')+' de '+t.beam : 'o item '+t.itemId)+'?';
     status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+    var comment=null;
+    if(t.classe==='cortes_interpretados') {
+      var label=document.createElement('label');label.textContent='Comentário (opcional)';
+      comment=document.createElement('textarea');comment.maxLength=4000;comment.rows=3;
+      comment.style.cssText='display:block;width:100%;box-sizing:border-box;margin:8px 0 12px';
+      comment.placeholder='Explique o motivo da exclusão para o apontamento';
+      label.append(comment);box.append(message,label);
+    } else box.append(message);
     var cancel=document.createElement('button'), accept=document.createElement('button'), busy=false, persisted=false;
     cancel.type=accept.type='button';cancel.textContent='Cancelar';accept.textContent='Confirmar exclusão';
     cancel.style.cssText='padding:10px 16px;margin-right:12px';
@@ -75,14 +84,17 @@
       if(e.key==='Escape'){e.preventDefault();close();}
       if(e.key==='Tab') {
         e.preventDefault();if(busy)return;
-        (document.activeElement===cancel ? accept : cancel).focus();
+        var controls=(comment ? [comment,cancel,accept] : [cancel,accept]);
+        var current=controls.indexOf(document.activeElement);
+        controls[(current+(e.shiftKey ? controls.length-1 : 1)+controls.length)%controls.length].focus();
       }
     }
     cancel.addEventListener('click',close);
     accept.addEventListener('click',function(){
       if(busy)return;busy=true;cancel.disabled=accept.disabled=true;
       status.textContent=persisted ? '75% · Atualizando a tela…' : '25% · Excluindo… aguarde a confirmação do servidor.';
-      (persisted ? Promise.resolve() : remove(t,whole)).then(function(){
+      if(comment)comment.disabled=true;
+      (persisted ? Promise.resolve() : remove(t,whole,comment && comment.value)).then(function(){
         persisted=true;
         status.textContent='75% · Excluído. Atualizando a lista e o desenho…';
         if(!refreshDeleted) throw new Error('Atualização dinâmica indisponível.');
@@ -91,12 +103,13 @@
         busy=false;close();
       }).catch(function(e){
         busy=false;cancel.disabled=accept.disabled=false;
+        if(comment)comment.disabled=persisted;
         status.textContent=(persisted ? 'Já excluído no servidor; falha ao atualizar a tela: ' : 'Não foi possível excluir: ')+e.message;
         accept.textContent=persisted ? 'Atualizar tela' : 'Confirmar exclusão';
         accept.focus();
       });
     });
-    box.append(message,status,cancel,accept);backdrop.append(box);document.body.append(backdrop);
+    box.append(status,cancel,accept);backdrop.append(box);document.body.append(backdrop);
     deletionDialog=backdrop;document.addEventListener('keydown',onKey);cancel.focus();
   }
   function open(t) {
@@ -111,7 +124,55 @@
     var redraw=document.getElementById('btn-item-redesenhar'), del=document.getElementById('btn-item-excluir');
     var delSeg=document.getElementById('btn-segmento-excluir'), cancel=document.getElementById('btn-item-cancelar');
     var saveButton=document.getElementById('btn-criar-item-salvar'), chk=document.getElementById('chk-criar-item-geo');
+    var validate=document.getElementById('btn-corte-validar');
     var status=document.getElementById('criar-item-status'), rows=[], generation=0, loading=false;
+    var cutFields=document.createElement('fieldset'), cutValues=null, cutSequence=0;
+    cutFields.hidden=true;cutFields.style.cssText='display:none;gap:12px;flex-wrap:wrap;margin:12px 0';
+    status.before(cutFields);
+    function showCutFields() {
+      var sequence=++cutSequence;cutFields.replaceChildren();cutFields.hidden=true;cutFields.style.display='none';cutValues=null;
+      if(!selection || selection.classe!=='cortes')return;
+      var t=Object.assign({},selection);
+      api(endpoint(t,'/dados-edicao')).then(function(data){
+        if(sequence!==cutSequence)return;
+        if(!data.editable_fields)return;
+        cutValues=data.fields;var legend=document.createElement('legend');legend.textContent='Medidas e lajes do corte original';cutFields.append(legend);
+        var schema=[['beam_name','Viga'],['beam_w','Largura da viga (cm)'],['beam_h','Altura da viga (cm)'],
+          ['own_laje','Laje própria'],['neigh_laje','Laje vizinha'],['own_slab_height','Espessura própria (cm)'],
+          ['own_dist_top','Rebaixo próprio (cm)'],['neigh_slab_height','Espessura vizinha (cm)'],['neighbor_dist_top','Rebaixo vizinho (cm)']];
+        schema.forEach(function(field){var label=document.createElement('label'),input=document.createElement('input');
+          label.textContent=field[1]+' ';input.dataset.cutField=field[0];input.value=cutValues[field[0]]==null?(cutValues.ficha[field[0]]==null?'':cutValues.ficha[field[0]]):cutValues[field[0]];
+          input.style.width='110px';label.append(input);cutFields.append(label);});
+        var button=document.createElement('button');button.type='button';button.textContent='Salvar medidas do corte';cutFields.append(button);
+        button.addEventListener('click',function(){
+          var fields=JSON.parse(JSON.stringify(cutValues)),numeric=['beam_w','beam_h','own_slab_height','own_dist_top','neigh_slab_height','neighbor_dist_top'];
+          try {
+            cutFields.querySelectorAll('input').forEach(function(input){var key=input.dataset.cutField,value=input.value.trim();
+              if(numeric.indexOf(key)>=0){if(!value)return;value=Number(value.replace(',','.'));if(!Number.isFinite(value))throw new Error('Informe medidas numéricas.');}
+              if(['beam_name','beam_w','beam_h','own_laje','neigh_laje'].indexOf(key)>=0)fields[key]=value;else fields.ficha[key]=value;});
+            fields.ficha.beam_height=fields.beam_h;fields.ficha.beam_bottom_dim=fields.beam_w;fields.ficha.beam_name=fields.beam_name;
+            var direction=String(fields.ficha.direction || '').toLowerCase();
+            var ownSide=['norte','leste','east','north'].indexOf(direction)>=0?'a':
+              ['sul','oeste','south','west'].indexOf(direction)>=0?'b':
+              (cutValues.own_laje===cutValues.ficha.side_a_laje_name?'a':'b');
+            var otherSide=ownSide==='a'?'b':'a';
+            fields.ficha['side_'+ownSide+'_laje_name']=fields.own_laje;
+            fields.ficha['side_'+otherSide+'_laje_name']=fields.neigh_laje;
+            fields.ficha['side_'+ownSide+'_laje_height']=fields.ficha.own_slab_height;
+            fields.ficha['side_'+otherSide+'_laje_height']=fields.ficha.neigh_slab_height;
+            fields.ficha['beam_lajes_side_'+ownSide]=fields.own_laje?'1':'0';
+            fields.ficha['beam_lajes_side_'+otherSide]=fields.neigh_laje?'1':'0';
+            ['own','neighbor'].forEach(function(prefix){var height=fields.ficha[prefix==='own'?'own_slab_height':'neigh_slab_height'];
+              if(height!=null)fields.ficha[prefix+'_dist_bottom']=Number(fields.beam_h)-Number(fields.ficha[prefix+'_dist_top'])-Number(height);});
+            button.disabled=true;status.textContent='Salvando correção e comparação antes/depois…';
+            api(endpoint(t,'/geometria'),'PUT',{fields:fields}).then(function(){return container._refreshDestaques('cortes');})
+              .then(function(){status.textContent='Medidas salvas · comparação disponível em Ver apontamentos.';showCutFields();})
+              .catch(function(e){status.textContent=e.message;}).finally(function(){button.disabled=false;});
+          } catch(e){status.textContent=e.message;}
+        });
+        cutFields.hidden=false;cutFields.style.display='flex';
+      }).catch(function(e){if(sequence===cutSequence)status.textContent=e.message;});
+    }
     function option(value,text) {var o=document.createElement('option');o.value=value;o.textContent=text;return o;}
     function clearDrawing() {
       window._polyGeoms=[];window._polyAtual=[];window._polyHover=null;
@@ -132,10 +193,15 @@
       selection=row ? {classe:cls.value,itemId:row.item_id,beam:beamClass(cls.value)?beamName(row):null,
         segmento:segment(row),pavimento:pav(),structural:true} : null;
       redraw.disabled=!selection;del.disabled=!selection;delSeg.disabled=!selection;
+      var interpreted=cls.value==='cortes_interpretados';
+      redraw.hidden=interpreted;saveButton.hidden=interpreted;chk.disabled=interpreted;
+      validate.hidden=!interpreted;validate.disabled=!selection;
+      showCutFields();
       if(selection) {
         name.value=selection.beam || (row.nome || row.titulo || row.item_id);
         if(container._selectDestaqueClass) container._selectDestaqueClass(selection.classe);
       }
+      if(container._renderDestaques) container._renderDestaques();
     }
     function chooseItem() {
       if(target) stop();
@@ -148,7 +214,7 @@
       chooseSegment();
     }
     function begin() {
-      if(!selection) return;
+      if(!selection || selection.classe==='cortes_interpretados') return;
       target=Object.assign({},selection);clearDrawing();
       if(container._renderDestaques) container._renderDestaques();
       cancel.hidden=false;saveButton.textContent='Salvar geometria';
@@ -163,7 +229,7 @@
       redraw.disabled=del.disabled=delSeg.disabled=true;items.disabled=true;
       items.replaceChildren(option('','Carregando itens…'));
       segs.hidden=!beamClass(c);delSeg.hidden=!beamClass(c);
-      return api('/obras/'+encodeURIComponent(obra)+'/n1/'+encodeURIComponent(c)+'?pavimento='+encodeURIComponent(pav()))
+      return api('/obras/'+encodeURIComponent(obra)+(c==='cortes_interpretados'?'/cortes-interpretados':'/n1/'+encodeURIComponent(c))+'?pavimento='+encodeURIComponent(pav()))
         .then(function(data){
           if(seq!==generation) return;
           rows=data.itens || []; items.replaceChildren(option('','Itens já populados'));
@@ -176,7 +242,7 @@
             if(!row) {status.textContent='Item não encontrado nesta classe/pavimento.';return;}
             items.value=beamClass(c)?beamName(row):row.item_id;chooseItem();
             if(beamClass(c)) {segs.value=row.item_id;chooseSegment();}
-            begin();
+            if(c!=='cortes_interpretados') begin();
           } else chooseItem();
         }).catch(function(e){if(seq===generation){loading=false;status.textContent=e.message;items.replaceChildren(option('','Falha ao listar itens'));}});
     }
@@ -239,7 +305,15 @@
       var point=overlay.createSVGPoint();point.x=e.clientX;point.y=e.clientY;
       point=point.matrixTransform(overlay.getScreenCTM().inverse());
       var polys=Array.from(overlay.querySelectorAll('polygon')).reverse();
-      var hit=polys.find(function(poly){return poly._geometryItem &&
+      // Overlay stays transparent to pan/zoom. Pick the complete tag rectangle
+      // geometrically, including its transparent interior, before narrow lines.
+      var tags=Array.from(overlay.querySelectorAll('.tag-label-box, .tag-leader-text')).reverse();
+      var hit=tags.find(function(tag){
+        if(!tag._geometryItem) return false;
+        var box=tag.getBoundingClientRect();
+        return e.clientX>=box.left && e.clientX<=box.right &&
+          e.clientY>=box.top && e.clientY<=box.bottom;
+      }) || polys.find(function(poly){return poly._geometryItem &&
         (poly.isPointInFill(point) || poly.isPointInStroke(point));});
       if(!hit) return;
       e.preventDefault();e.stopPropagation();
@@ -259,12 +333,25 @@
         name.dispatchEvent(new Event('change'));
         var detail=document.getElementById('criar-item-coll');if(detail)detail.open=true;
         status.textContent='Selecionado · '+(selection.beam || name.value)+
-          (selection.beam ? ' · S'+selection.segmento : '')+' · escolha Redesenhar ou Excluir.';
+          (selection.beam ? ' · S'+selection.segmento : '')+
+          (cls.value==='cortes_interpretados'?' · escolha Validar referência de nível ou Excluir.':' · escolha Redesenhar ou Excluir.');
       });
     },true);
     items.addEventListener('change',chooseItem);
     segs.addEventListener('change',function(){if(target)stop();chooseSegment();});
     redraw.addEventListener('click',begin);
+    validate.addEventListener('click',function(){
+      if(!selection || selection.classe!=='cortes_interpretados')return;
+      var t=Object.assign({},selection);validate.disabled=true;
+      status.textContent='Validando referência local de nível…';
+      api(endpoint(t,'/validar'),'POST').then(function(){
+        return container._refreshDestaques(t.classe);
+      }).then(function(){
+        if(window.DrillGrade && window.DrillGrade.refreshItems)
+          return window.DrillGrade.refreshItems(Object.assign({},t,{structural:true}));
+      }).then(function(){status.textContent='Corte validado · referência de nível de alta confiança. Registro salvo em Ver apontamentos.';})
+        .catch(function(e){status.textContent=e.message;}).finally(function(){validate.disabled=false;});
+    });
     cancel.addEventListener('click',function(){stop();status.textContent='Edição cancelada.';});
     del.addEventListener('click',function(){if(selection){var t=Object.assign({},selection);if(beamClass(t.classe))t.itemId=t.beam;deleteItem(t,beamClass(t.classe));}});
     delSeg.addEventListener('click',function(){deleteItem(selection,false);});
@@ -358,7 +445,13 @@
     function failed(e){button.disabled=false;button.textContent=original;alert(e.message);}
   }
   window.ItemGeometry={open:open,delete:deleteItem,remove:remove,save:save,isEditing:function(){return !!target;},
-    hides:function(item){return !!target && item.classe_sa===target.classe && item.item_id===target.itemId;}};
+    isSelected:function(item){return !!selection && item.classe_sa===selection.classe && item.item_id===selection.itemId;},
+    hides:function(item){
+      // Edição: apenas o alvo. Criação: nenhum destaque existente. O SVG
+      // estrutural e seu índice OSNAP não dependem desta camada de realce.
+      if(target) return item.classe_sa!==target.classe || item.item_id!==target.itemId;
+      return !!window._modoPolylineAtivo;
+    }};
   var oldWire=window.wireCriarItemPanel;
   window.wireCriarItemPanel=function(container,id){oldWire(container,id);wire(container);};
   document.addEventListener('click',function(e){

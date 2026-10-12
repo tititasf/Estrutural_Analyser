@@ -10,11 +10,12 @@ from __future__ import annotations
 
 import sqlite3
 import re
+import json
 from contextlib import closing
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, JSONResponse
 
 from .. import access
 from ..dbdep import get_db_conn
@@ -42,6 +43,7 @@ def pagina_base_global(request: Request, conn: sqlite3.Connection = Depends(get_
         return RedirectResponse("/login", status_code=303)
     return _render(request, "base_global.html", {
         "membro": membro, "nav_ativo": "base_global", "tem_grafo": GRAFO_JSON.exists(),
+        "knowledge_works": [dict(zip(('id','nome'), row)) for row in conn.execute('SELECT id,nome FROM portal_obras ORDER BY nome')],
     })
 
 
@@ -51,16 +53,35 @@ def grafo_json(request: Request, conn: sqlite3.Connection = Depends(get_db_conn)
         raise HTTPException(status_code=401)
     if not GRAFO_JSON.exists():
         raise HTTPException(status_code=404, detail="grafo.json ainda não gerado (scripts/kb/kb_grafo.py)")
-    return FileResponse(GRAFO_JSON, media_type="application/json",
-                        headers={"Cache-Control": "no-cache"})
+    from ..knowledge_scope import graph_nodes
+    graph=json.loads(GRAFO_JSON.read_text())
+    nodes,edges=graph_nodes(conn)
+    graph['nos'].extend(nodes); graph['arestas'].extend(edges)
+    graph['contagens']['obra']=sum(n['tipo']=='obra' for n in nodes)
+    graph['contagens']['pavimento']=sum(n['tipo']=='pavimento' for n in nodes)
+    return JSONResponse(graph,headers={"Cache-Control":"no-cache"})
 
 
 @router.get("/app/base-global/buscar")
-def buscar_conhecimento(q: str, request: Request, conn: sqlite3.Connection = Depends(get_db_conn)):
+def buscar_conhecimento(q: str, request: Request, obra_id: str | None = None,
+                        pavimento: str | None = None, conn: sqlite3.Connection = Depends(get_db_conn)):
     """FTS5 read-only on the published KB snapshot; available only to the owner."""
     if _dono_ou_404(request, conn) is None:
         raise HTTPException(status_code=401)
-    if not KB_DB.is_file():
+    db=KB_DB
+    scope='global'
+    if obra_id:
+        if not conn.execute('SELECT 1 FROM portal_obras WHERE id=?',(obra_id,)).fetchone():
+            raise HTTPException(status_code=404,detail='obra inexistente')
+        from ..knowledge_scope import safe
+        try:
+            safe(obra_id)
+            if pavimento: safe(pavimento)
+        except ValueError as exc: raise HTTPException(status_code=422,detail='escopo inválido') from exc
+        db=KB_DB.parent/'obras'/(obra_id+'.sqlite');scope='obra:'+obra_id
+    elif pavimento:
+        raise HTTPException(status_code=422,detail='pavimento exige obra')
+    if not db.is_file():
         raise HTTPException(status_code=503, detail="Índice de busca indisponível")
     if len(q) > 160:
         raise HTTPException(status_code=400, detail="Consulta longa demais")
@@ -69,13 +90,14 @@ def buscar_conhecimento(q: str, request: Request, conn: sqlite3.Connection = Dep
         return {"resultados": [], "consulta": q}
     expression = " OR ".join('"' + term.replace('"', '') + '"' for term in terms)
     try:
-        with closing(sqlite3.connect(f"file:{KB_DB.as_posix()}?mode=ro", uri=True, timeout=2)) as kb:
+        with closing(sqlite3.connect(f"file:{db.as_posix()}?mode=ro", uri=True, timeout=2)) as kb:
             rows = kb.execute(
                 "SELECT c.tipo, c.path, c.titulo, c.secao, c.status, c.tier, c.texto "
                 "FROM chunks_fts f JOIN chunks c ON c.rowid=f.rowid "
-                "WHERE chunks_fts MATCH ? AND c.status!='historico' "
+                "WHERE chunks_fts MATCH ? AND c.status!='historico' AND c.escopo=? "
+                "AND (? IS NULL OR instr(c.path, '/pavimentos/' || ? || '/')>0) "
                 "ORDER BY bm25(chunks_fts, 3.0, 2.0, 1.0) LIMIT 60",
-                (expression,),
+                (expression,scope,pavimento,pavimento),
             ).fetchall()
     except sqlite3.DatabaseError as exc:
         raise HTTPException(status_code=503, detail="Índice de busca indisponível") from exc
@@ -91,4 +113,4 @@ def buscar_conhecimento(q: str, request: Request, conn: sqlite3.Connection = Dep
                         "trecho": re.sub(r"\s+", " ", texto)[:420]})
         if len(results) == 10:
             break
-    return {"consulta": q, "resultados": results}
+    return {"consulta": q, "resultados": results,"escopo":scope,"pavimento":pavimento}

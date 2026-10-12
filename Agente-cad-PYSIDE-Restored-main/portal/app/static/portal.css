@@ -2463,7 +2463,8 @@ body.drill-grade-on #docs-viewer {
 .drill-back:hover { background: #162033; }
 /* Abas do painel esquerdo (dono 2026-09-28) */
 #drill-root .drill-tabs {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   flex: 0 0 auto;
   gap: 1px;
   padding: 6px 4px 0;
@@ -2956,6 +2957,11 @@ body.drill-grade-on .shell { --portal-sidebar-width: 268px; }
 .drill-class-actions .drill-qa-class button:disabled { border-color:#475569 !important; color:#64748b; cursor:not-allowed; opacity:.55; }
 .drill-class-actions .drill-qa-class button.is-processing { border-color:#60a5fa !important; background:#1e3a8a; color:#fff; opacity:1; }
 .drill-class-actions .drill-qa-class button.is-processing small { color:#dbeafe; }
+.drill-qa-notice,
+.human-qa-disabled-notice,
+.drill-unificados-notice { margin:4px 8px 6px; padding:6px 7px; border:1px solid #92400e; border-radius:5px; background:#451a03; color:#fde68a; font-size:.56rem; line-height:1.4; }
+.drill-unificados-notice { border-color:#1d4ed8; background:#172554; color:#bfdbfe; }
+.human-qa-disabled-notice { margin:8px 0; font-size:11px; }
 .drill-qa-progress { padding:7px 8px; border:1px solid #334155; border-radius:6px; background:#0b172b; color:#dbeafe; }
 .drill-qa-progress > div:first-child { display:flex; align-items:center; justify-content:space-between; gap:6px; font-size:.59rem; }
 .drill-qa-progress strong { color:#fff; }
@@ -3076,6 +3082,13 @@ body.drill-grade-on .shell { --portal-sidebar-width: 268px; }
 .n5-pav-tabs button.active strong { color:#93c5fd; }
 .n5-pav-tabs span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.75rem; }
 .n5-pav-tabs i { font-style:normal; font-size:.72rem; }
+.n5-pav-tabs .n5-generation-status { font-size:.65rem; color:#92400e; }
+.n5-pav-tabs .n5-generation-status.generated { color:#15803d; }
+.n5-pav-tabs button.active .n5-generation-status { color:#fcd34d; }
+.n5-pav-tabs button.active .n5-generation-status.generated { color:#86efac; }
+.n5-pav-tabs .n5-result-tags { grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:4px; white-space:normal; overflow:visible; }
+.n5-pav-tabs .n5-result-tag { display:block; white-space:normal; overflow:visible; font-size:.62rem; line-height:1.35; padding:3px 5px; border-radius:4px; background:#dcfce7; color:#166534; }
+.n5-pav-tabs .n5-result-tag.empty { background:#e2e8f0; color:#475569; }
 .n5-pav-viewer-shell { min-width:0; }
 .n5-pav-panel { border:1px solid #d7e0ee; border-radius:10px; padding:12px; background:#fff; min-width:0; }
 .n5-pav-panel.done { border-color:#86efac; }
@@ -3999,3 +4012,18 @@ button.drawing-mode-badge { cursor:pointer; pointer-events:auto; }
 .drill-vigas-config input:focus-visible + span {outline:2px solid #fff;outline-offset:2px;}
 .drill-drawing-modes fieldset {grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;margin-bottom:0;}
 .drill-drawing-modes label span {font-size:9px;padding:3px 1px;}
+.drill-n3-button-row { display:grid; grid-template-columns:minmax(0,1fr) 28px; gap:4px; align-items:stretch; }
+.drill-n3-button-row > button:first-child { min-width:0; }
+.drill-n3-expand { min-width:28px; padding:0 !important; font-size:15px; line-height:1; display:grid; place-items:center; }
+.drill-n3-options { margin:0 0 4px; }
+.drill-n3-options .drill-vigas-config { margin:4px 0; }
+.drill-engine-meta { display:flex; align-items:center; justify-content:center; gap:5px; width:100%; margin-top:2px; }
+.drill-generation-time { color:#94a3b8; font-size:8px; font-weight:400; line-height:1.2; white-space:nowrap; }
+
+/* Compact navigation and collapsible granular motors. */
+#drill-root .drill-tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+#drill-root .drill-tabs .drill-tab { white-space: normal; font-size: .59rem; padding: 5px 1px; }
+#drill-root .drill-motores-granulares { display: flex; align-items: center; justify-content: space-between; width: 100%; cursor: pointer; }
+#drill-granular-motors[hidden] { display: none; }
+#drill-root button.drill-motores-granulares { box-sizing: border-box; width: calc(100% - 16px); margin: 6px 8px 3px; padding: 6px 8px; font-size: .64rem; font-weight: 700; color: #bfdbfe; border-left: 3px solid #3b82f6; background: linear-gradient(90deg,rgba(37,99,235,.18),rgba(37,99,235,0)); }
+#drill-root .drill-motores-granulares > span:last-child { flex-shrink: 0; color: #93c5fd; }

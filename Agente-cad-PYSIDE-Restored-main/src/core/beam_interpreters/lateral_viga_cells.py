@@ -39,7 +39,7 @@ from typing import Any, Optional
 
 from src.core.lv_beam_scene import LvScene
 
-CELL_RULES_VERSION = "guia_lv_cells_v9_slab_beam_reference"
+CELL_RULES_VERSION = "guia_lv_cells_v13_underpass_single_segment"
 PILLAR_OPENING_EXTRA = 11.0     # G8/G9: 11 cm de cada lado
 BEAM_OPENING_EXTRA_W = 8.0      # G8: largura da viga incidente + 8
 BEAM_OPENING_EXTRA_H = 4.0      # G8: altura + 4
@@ -97,6 +97,90 @@ def _level_value(text: str) -> Optional[float]:
         return None
 
 
+def _endpoint_contract(scene, side, behavior, point, other_point, info, pillar_events):
+    """Owner's 2026-10-09 rules; structural coordinates remain unchanged.
+
+    A pillar wins the displayed association, but a simultaneous beam junction
+    remains evidence for the adjustment. Only this face's measured events count.
+    """
+    candidates = list(info.get("supports") or []) if info.get("type") == "extremidade" else [info]
+    candidates = [c for c in candidates if c.get("face", side) == side]
+    for end, coordinate in (("start", scene.start), ("end", scene.end)):
+        if abs(point - coordinate) <= .6:
+            candidates.extend(s for s in scene.end_supports[end]
+                              if s.get("face", side) == side)
+    pillars = (scene.passa_pillars[side] if behavior == "passa" and scene.passa_pillars is not None
+               else scene.pillars[side])
+    def touches(event):
+        return event.get("start", point + 2) - .6 <= point <= event.get("end", point - 2) + .6
+    candidates.extend(dict(p, type="pilar") for p in [*pillars, *pillar_events] if touches(p))
+    incidents = (scene.passa_incidents[side] if behavior == "passa" and scene.passa_incidents is not None
+                 else scene.incidents[side])
+    candidates.extend(dict(b, type="viga") for b in incidents if touches(b))
+    pillar = next((c for c in candidates if c.get("type") == "pilar" and touches(c)), None)
+    beams = [c for c in candidates if c.get("type") == "viga" and touches(c)]
+    lo, hi = sorted((point, other_point))
+    passed = pillar is not None and not pillar.get("miolo") and any(
+        p.get("name") == pillar.get("name") and min(abs(point-p['start']), abs(point-p['end'])) <= .6
+        and min(hi, p["end"]) - max(lo, p["start"]) > .5
+        for p in pillar_events)
+    corner = any(c.get("face") == side and abs(point - c.get("fim", float("inf"))) <= .6
+                 for c in scene.provenance.get("cantos_externos_ortogonais", []))
+    if pillar:
+        ownership = next(((p.get('passa_ownership') or {}).get(side)
+            for supports in scene.end_supports.values() for p in supports
+            if p.get('name') == pillar.get('name')
+            and (p.get('passa_ownership') or {}).get(side)), None)
+        short = pillar.get("face_lateral_curta")
+        if short is None:
+            short = (pillar.get("face_curta_por_lado") or {}).get(side)
+        if behavior == 'passa' and ownership and not ownership['chosen']:
+            value, reason = -11.0, 'chegada_cede_pilar_alturas_iguais'
+        elif behavior == 'passa' and ownership and ownership['chosen'] and passed:
+            value, reason = 11.0, 'passagem_dono_pilar_alturas_iguais'
+        elif (passed or corner) and short is False:
+            value, reason = 11.0, "passagem_face_ABEFGH"
+        elif corner:
+            value, reason = 4.0, "esquina_90_face_CD"
+        elif not passed and beams:
+            value, reason = -4.0, "chegada_pilar_e_parede_viga_simultaneas"
+        else:
+            value, reason = 0.0, "pilar_chegada_ou_passagem_CD"
+        support = _support_view(pillar)
+    elif beams and any(
+        _own_depth(scene, lo, hi) is not None and b.get("depth") is not None
+        and b["depth"] > _own_depth(scene, lo, hi) + .01 for b in beams
+    ):
+        # A shallow wall arriving at a deeper beam is not an exterior bend,
+        # even when the source wall happens to end at an orthogonal corner.
+        beam = next(b for b in beams if b.get("depth") is not None
+                    and b["depth"] > _own_depth(scene, lo, hi) + .01)
+        support = _support_view(beam)
+        value, reason = 0.0, "menos_profunda_chega_sem_ajuste"
+    elif corner:
+        value, reason = 4.0, "esquina_externa_90"
+        name = next(c["com"] for c in scene.provenance["cantos_externos_ortogonais"]
+                    if c.get("face") == side and abs(point - c["fim"]) <= .6)
+        support = {"type": "viga", "name": name}
+    else:
+        value, reason = 0.0, "sem_ajuste"
+        support = _support_view(info)
+        for beam in beams:
+            own = _own_depth(scene, lo, hi)
+            depth = beam.get("depth")
+            if own is None or depth is None:
+                continue
+            # Opening belongs to the previous segment, never to its neighbour.
+            overlap = min(hi, beam["end"]) - max(lo, beam["start"])
+            if own > depth + .01 and overlap > .5:
+                value, reason = -4.0, "mais_profunda_painel_menos_4_patinha_mais_8"
+                break
+            if abs(own - depth) <= .01 and not scene.is_horizontal and not scene.angle:
+                value, reason = -4.0, "mesma_altura_vertical_cede_4"
+                break
+    return support, value, reason
+
+
 def segment_cell(
     scene: LvScene,
     side: str,
@@ -137,7 +221,8 @@ def segment_cell(
         # Extend along a connected exterior wall, never across a core or a
         # pillar ceded to the deeper collinear beam.
         ceded = {s["name"] for end in scene.end_supports.values() for s in end
-                 if s.get("type") == "pilar" and s.get("cede_para")}
+                 if s.get("type") == "pilar" and (s.get("cede_para") or
+                     ((s.get('passa_ownership') or {}).get(side) or {}).get('chosen') is False)}
         inherited = {s["name"]: (s.get("engloba_ini", s["start"]), s.get("engloba_fim", s["end"]))
                      for end in scene.end_supports.values() for s in end
                      if s.get("type") == "pilar" and not s.get("cede_para")
@@ -157,6 +242,8 @@ def segment_cell(
         # (dono 2026-09-28); a que cede para na face.
         if sup.get("cede_para"):
             return False
+        if behavior == 'passa' and ((sup.get('passa_ownership') or {}).get(side) or {}).get('chosen') is False:
+            return False
         if (sup.get("miolo_por_lado") or {}).get(side, False):
             return False
         # G10/D-48: no Para, so' a ponta que bate numa face C/D (curta) engloba.
@@ -172,6 +259,19 @@ def segment_cell(
                 and _wall(sup)):
             ext_end = max(ext_end, sup.get("engloba_fim", sup["end"]))
             pillar_events.append(dict(sup, extremidade="fim"))
+    # A measured exterior wall may continue into an endpoint pillar because
+    # of another incident beam. If this wall ceded that pillar, its measured
+    # extent cannot override the entry face elected by the ownership rule.
+    # Endpoint adjustments are applied separately, after this physical stop.
+    if behavior == 'passa':
+        for sup in scene.end_supports['start']:
+            if (sup.get('type') == 'pilar'
+                    and ((sup.get('passa_ownership') or {}).get(side) or {}).get('chosen') is False):
+                ext_start = max(ext_start, sup['end'])
+        for sup in scene.end_supports['end']:
+            if (sup.get('type') == 'pilar'
+                    and ((sup.get('passa_ownership') or {}).get(side) or {}).get('chosen') is False):
+                ext_end = min(ext_end, sup['start'])
     # Ponta que termina NA FACE de um pilar de apoio (nao englobado).
     stops_at_pillar = {
         "start": any(
@@ -189,9 +289,11 @@ def segment_cell(
         own = _own_depth(scene, inc["start"], inc["end"])
         inc_depth = inc.get("depth")
         if measured_passa and (inc["end"] <= scene.start + 0.5 or inc["start"] >= scene.end - 0.5):
-            # Existing endpoint supports stay supports. Retain the shallow
-            # junctions encountered only after following a pillar wall.
-            if own is None or inc_depth is None or inc_depth >= own - 0.01:
+            # Endpoint supports outside the measured extent stay supports.
+            # A junction reached along a pillar wall obeys G7 even when it
+            # lies beyond the original beam span (same/deeper beam stops).
+            reached = min(inc["end"], ext_end) - max(inc["start"], ext_start) > 0.5
+            if not reached and (own is None or inc_depth is None or inc_depth >= own - 0.01):
                 continue
         info = dict(inc, type="viga")
         if own is None or inc_depth is None:
@@ -229,8 +331,7 @@ def segment_cell(
         }))
 
     # Physical slab steps split both Para and Passa, with touching endpoints.
-    # Only a change between regions of the SAME slab is a step; a slab edge
-    # beside a void or an inset not contacting this face is not a divider.
+    # A step requires distinct regions of the same slab touching this face.
     contacts = scene.slabs[side]
     for inset in contacts:
         if not inset.get("region_id") or inset["region_id"] == "principal":
@@ -246,6 +347,39 @@ def segment_cell(
                 "type": "degrau_laje", "name": inset["name"],
                 "start": pos, "end": pos, "boundary": "degrau_laje",
                 "rule": "degrau_laje_secciona_para_e_passa",
+                "embedded_in_pillar": False,
+            }))
+
+    # Union of measured face contacts: slab/step -> void also splits both
+    # behaviors. Touching/overlapping slabs leave no void and no extra split.
+    occupied: list[list[float]] = []
+    for contact in sorted(contacts, key=lambda s: s["start"]):
+        if occupied and contact["start"] <= occupied[-1][1] + .5:
+            occupied[-1][1] = max(occupied[-1][1], contact["end"])
+        else:
+            occupied.append([contact["start"], contact["end"]])
+    for interval in occupied:
+        for pos in interval:
+            # Contacts are clipped to the measured scene. Its endpoints do
+            # not prove a physical slab edge on a Passa pillar extension.
+            if not scene.start + .5 < pos < scene.end - .5:
+                continue
+            # A recess in a slab contour beside a pillar is not void along
+            # the pillar wall; Passa must keep that pillar in one segment.
+            if any(p["start"] + .5 < pos < p["end"] - .5 for p in pillar_events):
+                continue
+            # The slab contour stops at a crossing beam. Its footprint is
+            # the opening of this deeper wall, not a free slab/void edge.
+            # Keep G1 section changes and real slab steps; only this contour
+            # boundary is absorbed, and G7 still closes at the far face.
+            if any(info.get("rule") == "G7_incidente_menos_profunda_passa_por_baixo"
+                   and info["start"] - .5 <= pos <= info["end"] + .5
+                   for _, info in soft):
+                continue
+            soft.append((pos, {
+                "type": "borda_laje", "name": "laje/vazio",
+                "start": pos, "end": pos, "boundary": "transicao_laje_vazio",
+                "rule": "laje_ou_degrau_vazio_secciona_para_e_passa",
                 "embedded_in_pillar": False,
             }))
 
@@ -299,6 +433,15 @@ def segment_cell(
     if ext_end - cursor > minimum_segment:
         pieces.append([cursor, ext_end, left_info, {"type": "extremidade", "supports": scene.end_supports["end"]}])
 
+    if measured_passa:
+        # A hard exterior junction ends the extension. Do not resume on the
+        # far side of that beam with a disconnected piece of pillar wall.
+        pieces = [p for p in pieces if
+                  min(p[1], scene.end) - max(p[0], scene.start) > 0.5
+                  or not any(info.get("type") == "viga"
+                             and info.get("embedded_in_pillar") is False
+                             for info in p[2:])]
+
     # Fronteiras moles (borda final das aberturas de viga).
     split: list[list[Any]] = []
     for a0, a1, linfo, rinfo in pieces:
@@ -343,6 +486,8 @@ def segment_cell(
         split = [
             item for item in split
             if sum(y - x for x, y in _outside_pillars(item[0], item[1])) >= 10.0
+            or (any(info.get("type") == "borda_laje" for info in item[2:])
+                and sum(y - x for x, y in _outside_pillars(item[0], item[1])) > minimum_segment)
             or (measured_passa and any(info.get("type") == "viga"
                                       and info.get("embedded_in_pillar") is False
                                       for info in item[2:]))
@@ -396,16 +541,14 @@ def segment_cell(
             seg.flags.append("G1_secao_nao_lida")
         if len({z["dim"] for z in zones}) > 1:
             seg.flags.append("G1_degrau_de_secao_no_segmento")
-        if behavior == "para":
-            # G9: Para recua 11 onde TERMINA na face de pilar — no meio da viga
-            # e tambem na ponta (pilar de apoio nao englobado pelo G10).
-            lo_stop = abs(a0 - ext_start) < 0.5 and stops_at_pillar["start"]
-            hi_stop = abs(a1 - ext_end) < 0.5 and stops_at_pillar["end"]
-            start_stop, end_stop = (lo_stop, hi_stop) if ascending else (hi_stop, lo_stop)
-            if first_info.get("type") == "pilar" or start_stop:
-                seg.adjustment_start = -PILLAR_OPENING_EXTRA
-            if last_info.get("type") == "pilar" or end_stop:
-                seg.adjustment_end = -PILLAR_OPENING_EXTRA
+        for endpoint, position, opposite, evidence in (
+            ("start", start, end, first_info), ("end", end, start, last_info)
+        ):
+            support, adjustment, reason = _endpoint_contract(
+                scene, side, behavior, position, opposite, evidence, pillar_events)
+            setattr(seg, "support_" + endpoint, support)
+            setattr(seg, "adjustment_" + endpoint, adjustment)
+            seg.flags.append(f"ajuste_{endpoint}:{reason}")
         for pillar in pillar_events:
             if pillar["end"] <= a0 + 0.5 or pillar["start"] >= a1 - 0.5:
                 continue
@@ -431,6 +574,7 @@ def segment_cell(
                 "dist_abertura_inicio": round(near - extra_near, 2),
                 "dist_abertura_fim": round(far - extra_far, 2),
                 "rule": "G8_passa_abertura_pilar_mais_22",
+                "face_lateral_curta": pillar.get("face_lateral_curta"),
             }
             if comp + 0.5 < pillar["end"] - pillar["start"]:
                 external_junction = measured_passa and any(
@@ -579,6 +723,15 @@ def _link_entry(scene: LvScene, side: str, behavior: str, seg: CellSegment) -> d
         "lv_dimensao": seg.dim,
         "lv_cell": {
             "rules": CELL_RULES_VERSION,
+            # Both faces/modalities share this measured run. Lateral numbering
+            # and the aggregate beam name do not identify a physical component.
+            "physical_run": {
+                "schema": "lv_measured_run_v1",
+                "faces": [
+                    [list(scene.point(scene.start, face)), list(scene.point(scene.end, face))]
+                    for face in ("A", "B")
+                ],
+            },
             "dim": seg.dim,
             "depth": seg.depth,
             "sections": seg.sections,
@@ -719,8 +872,10 @@ def _cell_entries(beam: dict):
 def estimate_missing_cell_levels(beam: dict, slab_polys: list) -> int:
     """D-61 (dono 2026-09-27) nas celulas LV: segmento sem laje encostada recebe
     nivel ESTIMADO, marcado em ``lv_cell['level_estimado']`` (nunca vira medido).
-    Ordem: outro segmento da mesma viga com nivel medido (mesmo lado primeiro,
-    o mais perto) -> laje com nivel mais proxima.
+    Ordem: outro segmento da mesma componente medida com nivel nao estimado
+    (mesmo lado primeiro, o mais perto) -> laje com nivel mais proxima.
+    Metadados legados sem prova de run nao autorizam copia entre segmentos.
+    Dobras em runs distintos exigem prova de continuidade ainda nao disponivel.
     """
     from shapely.geometry import Point
 
@@ -751,8 +906,18 @@ def estimate_missing_cell_levels(beam: dict, slab_polys: list) -> int:
             return ((m[0] - mid[0]) ** 2 + (m[1] - mid[1]) ** 2) ** 0.5 if m else 1e18
 
         src = None
+        physical_run = cell.get("physical_run")
+        component_sources = [
+            e for e in measured
+            if isinstance(physical_run, dict)
+            and physical_run.get("schema") == "lv_measured_run_v1"
+            and physical_run.get("faces")
+            and e["lv_cell"].get("physical_run") == physical_run
+            and e["lv_cell"].get("dim") == cell.get("dim")
+            and e["lv_cell"].get("depth") == cell.get("depth")
+        ]
         for same_side in (True, False):
-            pool = [e for e in measured if (e.get("side") == entry.get("side")) == same_side]
+            pool = [e for e in component_sources if (e.get("side") == entry.get("side")) == same_side]
             if pool:
                 src = min(pool, key=_dist)
                 break
@@ -761,6 +926,9 @@ def estimate_missing_cell_levels(beam: dict, slab_polys: list) -> int:
             cell["level_estimado"] = {
                 "origem": "outro_segmento",
                 "de": f"{src.get('contract_id')} seg {src.get('segment_index')}",
+                "source_physical_run": src["lv_cell"]["physical_run"],
+                "source_points": src.get("points"),
+                "source_level_at_estimation": src["lv_cell"]["level"],
             }
             count += 1
             continue

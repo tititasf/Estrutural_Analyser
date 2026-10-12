@@ -9,6 +9,11 @@ recorte gerado pelo RecorteMotor).
 from __future__ import annotations
 
 import logging
+from functools import lru_cache
+import hashlib
+import gzip
+import os
+import tempfile
 import json
 import math
 import re
@@ -21,7 +26,7 @@ from pathlib import Path
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import FileResponse, Response
 
-from .. import access, auth, dxf_preview, ficha_reader, pipeline_runner, recortes_reader, torre_crop
+from .. import access, auth, dxf_preview, ficha_reader, pipeline_runner, recortes_reader, torre_crop, viewer_package, viewer_preparation
 from ..dbdep import get_db_conn
 from ...db import repository as repo
 
@@ -53,6 +58,18 @@ def _entrada_dxf(obra_dir: Path, obra: dict) -> Path | None:
     if entrada.suffix.lower() == _EXT_DWG:
         entrada = entrada.with_suffix(".dxf")
     return entrada if entrada.is_file() else None
+
+
+def _entrada_dxf_bruto(obra_dir: Path, bruto_id: str) -> Path | None:
+    """Resolve somente o bruto pedido; extensão DXF pode estar em maiúsculas."""
+    folder = obra_dir / 'entrada'
+    if not folder.is_dir():
+        return None
+    candidates = sorted(p for p in folder.iterdir()
+                        if p.is_file() and p.suffix.lower() == '.dxf'
+                        and p.stem == bruto_id
+                        and p.resolve().parent == folder.resolve())
+    return candidates[0] if candidates else None
 
 
 @router.get("/{obra_id}/recortes/classes")
@@ -122,22 +139,31 @@ def foto_bruto_completo_endpoint(obra_id: str, bruto_id: str, request: Request,
     try:
         obra = _obra_do_membro(conn, obra_id, membro)
         obra_dir = _obra_dir(request, obra)
-        entrada = _entrada_dxf(obra_dir, obra)
-        if entrada is None or entrada.stem != bruto_id:
-            # fallback: procura por stem direto na pasta entrada/ (dwg+dxf dedup)
-            candidato = obra_dir / "entrada" / f"{bruto_id}.dxf"
-            entrada = candidato if candidato.is_file() else entrada
+        entrada = _entrada_dxf_bruto(obra_dir, bruto_id)
         if entrada is None:
             raise HTTPException(status_code=404, detail="DXF de entrada nao encontrado")
         cache_dir = obra_dir / ".previews"
         try:
-            svg = dxf_preview.renderizar_dxf_completo_cacheado(entrada, cache_dir)
+            etag = dxf_preview.etag_preview_completo(entrada)
+            headers = {"Cache-Control": "private, no-cache", "ETag": etag}
+            validators = [tag.strip().removeprefix('W/') for tag in request.headers.get('if-none-match', '').split(',')]
+            if etag in validators or '*' in validators:
+                return Response(status_code=304, headers=headers)
+            prepared = viewer_preparation.prepare(entrada, cache_dir, regional=False)
+            headers["ETag"] = prepared["revision"]
+            headers["Vary"] = "Accept-Encoding"
+            encodings = request.headers.get('accept-encoding', '')
+            if re.search(r'(?:^|,)\s*gzip\s*(?:;\s*q=(?!0(?:\.0*)?(?:\s|,|$))[0-9.]+)?\s*(?:,|$)', encodings):
+                svg = viewer_preparation.compressed_viewer(Path(prepared["viewer"]))
+                headers["Content-Encoding"] = "gzip"
+            else:
+                svg = Path(prepared["viewer"]).read_bytes()
         except Exception as exc:  # noqa: BLE001
             raise HTTPException(status_code=502, detail=f"falha ao renderizar: {exc}") from exc
         return Response(
             content=svg,
             media_type="image/svg+xml",
-            headers={"Cache-Control": "private, max-age=3600"},
+            headers=headers,
         )
     except HTTPException:
         raise
@@ -203,15 +229,120 @@ def foto_torre_endpoint(obra_id: str, bruto_id: str, item_id: str, request: Requ
     if item is None:
         raise HTTPException(status_code=404, detail="recorte de torre nao encontrado")
     cache_dir = obra_dir / ".previews"
+    source = Path(item["path"])
     try:
-        svg = dxf_preview.renderizar_dxf_completo_cacheado(Path(item["path"]), cache_dir)
+        etag = dxf_preview.etag_preview_completo(source)
+        headers = {"Cache-Control": "private, no-cache", "ETag": etag}
+        validators = [tag.strip().removeprefix('W/') for tag in request.headers.get('if-none-match', '').split(',')]
+        if etag in validators or '*' in validators:
+            return Response(status_code=304, headers=headers)
+        prepared = viewer_preparation.prepare(source, cache_dir, regional=False)
+        headers["ETag"] = prepared["revision"]
+        svg = Path(prepared["viewer"]).read_bytes()
     except Exception as exc:  # noqa: BLE001 - DXF pode ter geometria que o renderer nao suporta
         raise HTTPException(status_code=502, detail=f"falha ao renderizar: {exc}") from exc
     return Response(
         content=svg,
         media_type="image/svg+xml",
-        headers={"Cache-Control": "private, max-age=3600"},
+        headers=headers,
     )
+
+
+@router.get("/{obra_id}/recortes/brutos/{bruto_id}/{item_id}/viewer-package/{asset}")
+def viewer_package_endpoint(obra_id: str, bruto_id: str, item_id: str, asset: str,
+                            request: Request, revision: str = "", ids: str = "",
+                            membro: dict = Depends(auth.exige_login),
+                            conn: sqlite3.Connection = Depends(get_db_conn)):
+    """Private, source-versioned visual derivative; access checked on every asset."""
+    obra = _obra_do_membro(conn, obra_id, membro)
+    obra_dir = _obra_dir(request, obra)
+    item = torre_crop.obter_recorte_bruto(obra_dir, bruto_id, item_id)
+    if item is None:
+        raise HTTPException(status_code=404, detail="recorte nao encontrado")
+    source = Path(item["path"])
+    return _serve_viewer_package(source, obra_dir, asset, request, revision, ids)
+
+
+@router.get("/{obra_id}/recortes/brutos/{bruto_id}/viewer-package/{asset}")
+def raw_viewer_package_endpoint(obra_id: str, bruto_id: str, asset: str,
+                                request: Request, revision: str = "", ids: str = "",
+                                membro: dict = Depends(auth.exige_login),
+                                conn: sqlite3.Connection = Depends(get_db_conn)):
+    """Same lossless viewport package for the immutable original DXF."""
+    obra = _obra_do_membro(conn, obra_id, membro)
+    obra_dir = _obra_dir(request, obra)
+    source = _entrada_dxf_bruto(obra_dir, bruto_id)
+    if source is None:
+        raise HTTPException(status_code=404, detail="DXF de entrada nao encontrado")
+    return _serve_viewer_package(source, obra_dir, asset, request, revision, ids)
+
+
+@lru_cache(maxsize=4)
+def _read_viewer_manifest(path: str, mtime_ns: int, size: int) -> dict:
+    """Bounded immutable-revision metadata; avoid decoding MB per chunk request."""
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def _serve_viewer_package(source: Path, obra_dir: Path, asset: str,
+                          request: Request, revision: str, ids: str):
+    current = dxf_preview.etag_preview_completo(source)
+    key = viewer_package.cache_key(current)
+    if asset not in {"manifest", "shell", "segments", "chunks"}:
+        raise HTTPException(status_code=404, detail="componente desconhecido")
+    if asset != "manifest" and revision != key:
+        raise HTTPException(status_code=409, detail="revisao do desenho alterada; reabra o viewer")
+    cache_dir = obra_dir / ".previews"
+    folder = cache_dir / (key + ".regional")
+    try:
+        if asset == "manifest":
+            prepared = viewer_preparation.prepare(source, cache_dir)
+            if prepared["revision"] != current:
+                raise HTTPException(status_code=409, detail="revisao do desenho alterada; reabra o viewer")
+            if not prepared["regional"]:
+                raise viewer_package.UnsupportedSVG(prepared.get("fallback", "unsupported SVG"))
+            folder = Path(prepared["regional"])
+        manifest_path = folder / "manifest.json"
+        metadata = manifest_path.stat()
+        manifest = _read_viewer_manifest(str(manifest_path), metadata.st_mtime_ns, metadata.st_size)
+        if manifest.get("source_revision") != current or manifest.get("version") != viewer_package.VERSION:
+            raise ValueError("manifesto inconsistente")
+        headers = {"Cache-Control": "private, no-cache", "ETag": '"' + key + '"'}
+        if asset == "manifest":
+            return Response(json.dumps({**manifest, "revision": key}), media_type="application/json", headers=headers)
+        if asset == "chunks":
+            if not re.fullmatch(r"\d+(?:,\d+){0,127}", ids):
+                raise HTTPException(status_code=400, detail="lista de regioes invalida")
+            indexes = [int(value) for value in ids.split(",")]
+            if len(set(indexes)) != len(indexes) or any(i >= len(manifest["units"]) for i in indexes):
+                raise HTTPException(status_code=400, detail="regiao desconhecida")
+            fragments = []
+            for index in indexes:
+                content = (folder / f"{index}.svgpart").read_bytes()
+                unit = manifest["units"][index]
+                if hashlib.sha256(content).hexdigest() != unit["sha256"]:
+                    raise ValueError("fragmento corrompido")
+                fragments.append({"id": index, "svg": content.decode("utf-8")})
+            return Response(json.dumps({"revision": key, "fragments": fragments}),
+                            media_type="application/json", headers=headers)
+        filename = "shell.svg" if asset == "shell" else "segments.f64"
+        content = (folder / filename).read_bytes()
+        expected = manifest["shell_sha256" if asset == "shell" else "segments_sha256"]
+        if hashlib.sha256(content).hexdigest() != expected:
+            raise ValueError("componente corrompido")
+        if asset == "segments":
+            headers["Vary"] = "Accept-Encoding"
+            if "gzip" in request.headers.get("accept-encoding", ""):
+                content = gzip.compress(content, compresslevel=3, mtime=0)
+                headers["Content-Encoding"] = "gzip"
+        return Response(content, media_type="image/svg+xml" if asset == "shell" else "application/octet-stream",
+                        headers=headers)
+    except HTTPException:
+        raise
+    except viewer_package.UnsupportedSVG as exc:
+        raise HTTPException(status_code=422, detail="Use o viewer integral: " + str(exc)) from exc
+    except Exception as exc:
+        logging.getLogger("portal.recortes_routes").exception("pacote regional indisponivel")
+        raise HTTPException(status_code=503, detail="pacote indisponivel; use o viewer integral") from exc
 
 
 @router.get("/{obra_id}/recortes/{classe}")
@@ -599,6 +730,7 @@ def manual_crop_endpoint(obra_id: str, bruto_id: str, payload: ManualCropPayload
         # precisa de nova aprovacao humana antes de alimentar as etapas.
         data[nome_alvo] = False
         torre_crop._salvar_validacao(out_dir, data)
+        viewer_preparation.schedule(out_path, obra_dir / ".previews")
 
         return {
             "status": "ok",

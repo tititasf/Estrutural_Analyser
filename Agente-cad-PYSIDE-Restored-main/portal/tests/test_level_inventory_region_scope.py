@@ -40,7 +40,8 @@ def test_scoped_cut_level_reaches_sa_with_geometry_and_source_gates():
     from shapely.geometry import Polygon,mapping
     from portal.app.preprocessamento.sa_levels import item_level_input,consume_item_levels
     points=[[0,0],[10,0],[10,10],[0,10],[0,0]]
-    source=dict(fact_id='source',item_id='other',field='slab_region_level',value=852.16,status='sa_evidence')
+    source=dict(fact_id='source',item_id='other',field='slab_region_level',value=852.16,status='sa_evidence',
+                method='cad_level_inside_slab', evidence_ids=['cad:source-level'])
     target=dict(fact_id='target',item_id='slab',field='slab_level',value=852.19,unit='m',
         status='sa_evidence',method='scoped_cut_wing_relative_delta_cm',confidence_pct=85.5,
         evidence_ids=['cad:cut'],source_fact_ids=['source'],target_geometry=mapping(Polygon(points)),

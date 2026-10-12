@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from . import dxf_preview, ficha_reader, lv_operations
-from src.core.preficha_segments import _touching_slabs, _text_from_entity
+from src.core.preficha_segments import _touching_slabs, _text_from_entity, _cell_adjustment
 from src.core.fundo_segment_levels import derive_fundo_segment_level
 
 
@@ -116,7 +116,7 @@ def _segment(
         links = {}
     linked = (links.get(link_key) or {}).get(f"seg_side_{side.lower()}") or []
     cell = item.get("lv_cell") or (linked[0].get("lv_cell") if linked else None) or {}
-    if item.get('level_source') in ('lv_cell_slabs', 'lv_cell_estimado'):
+    if linked:
         # Exported cells can predate the current analysis. Use the current
         # association only for this exact physical span, never the first row
         # of a split link or a neighbouring segment.
@@ -195,6 +195,9 @@ def _segment(
         "slabs": slab_rows,
         "beam_openings": openings,
         "beam_openings_status": openings_status,
+        "adjustment": _cell_adjustment(cell),
+        "support_start": dict(cell.get("support_start") or {}),
+        "support_end": dict(cell.get("support_end") or {}),
         "status": fields.get("Status"),
         "attention": item.get("atencao") or "",
         "points": item.get("points") or [],
@@ -235,6 +238,7 @@ def _beam_records(estado: dict[str, Any], items: list[dict[str, Any]]) -> dict[s
 
 def _complete_opening_levels(
     estado: dict[str, Any], sides: dict[str, dict[str, Any]], records: dict[str, dict[str, Any]],
+    reference_context: dict | None = None,
 ) -> None:
     """Cruza a abertura com cotas explícitas da própria viga incidente no SA."""
     for side in sides.values():
@@ -256,17 +260,28 @@ def _complete_opening_levels(
     project_ids = {str(record.get("project_id")) for record in records.values()
                    if record.get("project_id")}
     if path.is_file() and len(project_ids) == 1:
+        # One section inventory revisits incident beams across both behaviors.
+        # Reuse only within that inventory's snapshot, never across requests.
+        cache = reference_context.setdefault('opening_levels', {}) if reference_context is not None else {}
+        project = next(iter(project_ids))
         with sqlite3.connect(f"file:{path.as_posix()}?mode=ro", uri=True) as conn:
             for name in pending:
+                cache_key = (str(path.resolve()), project, name)
+                if cache_key in cache:
+                    levels[name].update(cache[cache_key])
+                    continue
+                found = set()
                 for (raw_json,) in conn.execute(
                     "SELECT data_json FROM beams WHERE project_id = ? AND UPPER(name) = ?",
-                    (next(iter(project_ids)), name),
+                    (project, name),
                 ):
                     raw = json.loads(raw_json or "{}")
                     for key, value in raw.items():
                         if (key == "nivel_viga" or re.fullmatch(r"viga_[ab]_seg_\d+_nivel_viga", key)):
                             if (number := _number(value)) is not None:
-                                levels[name].add(number)
+                                found.add(number)
+                cache[cache_key] = frozenset(found)
+                levels[name].update(found)
     for side in sides.values():
         for segment in side["segments"]:
             for opening in segment["beam_openings"]:
@@ -313,6 +328,9 @@ def _cut_views(
     associations = context.setdefault('associations', {})
     result = []
     pending = []
+    from src.core.lv_cut_datum import connected_soffit_beams
+    neighbor_names = connected_soffit_beams(beam, (estado.get('segmentos') or {}).get('fundo', []))
+    neighboring_originals = []
     for raw in explicit:
         reference_key = (str(raw.get('beam_name') or ''),
                          json.dumps(raw.get('pts') or [], sort_keys=True))
@@ -324,6 +342,9 @@ def _cut_views(
             pending.append({'id': raw['uid'], 'label':raw.get('raw_text') or 'Corte sem viga',
                             'origins':raw['origins'], 'evidence_ids':raw['evidence_ids'], 'status':'Associação pendente'})
         if str(selected_name or "").upper() != beam.upper():
+            if selected_name in neighbor_names:
+                neighboring_originals.append(dict(id=raw['uid'], beam=selected_name,
+                                                  kind='identified', source_cut=raw))
             continue
         raw = dict(raw, beam_name=beam)
         item = ficha_reader._normalizar_corte(raw, {  # fonte canônica já usada pelo portal
@@ -356,12 +377,24 @@ def _cut_views(
                 "n3_cut": {"available": False, "svg": None},
             },
         })
-    calculated, diagnostic = pair_sections(beam, "passa" if (sides or {}).get('A',{}).get('class','').endswith('passa') else 'para', sides or {}, slabs, estado.get('pilares') or [])
+    from src.core.lv_cut_inventory import prepare_slab_regions
+    regions = context.setdefault('slab_regions', {})
+    if project_key not in regions:
+        regions[project_key] = prepare_slab_regions(slabs)
+    calculated, diagnostic = pair_sections(beam, "passa" if (sides or {}).get('A',{}).get('class','').endswith('passa') else 'para', sides or {}, slabs, estado.get('pilares') or [], slab_regions=regions[project_key])
     cap_sections = []
     # Contact queries need concrete at beam crossings even when the lateral
     # wall has an opening there. Keep this inventory separate from drawings.
     physical_sections, _ = pair_sections(beam, 'passa' if (sides or {}).get('A',{}).get('class','').endswith('passa') else 'para',
-        sides or {}, slabs, estado.get('pilares') or [], retain_opening_intervals=True)
+        sides or {}, slabs, estado.get('pilares') or [], retain_opening_intervals=True, slab_regions=regions[project_key])
+    from src.core.lv_cut_datum import apply_original_datums
+    calculated = apply_original_datums(calculated, result, slabs, regions[project_key],
+                                       neighboring_originals=neighboring_originals,
+                                       regional_originals=[dict(id=r['uid'], beam=r.get('beam_name'),
+                                           kind='identified', source_cut=r) for r in explicit])
+    # Original schematic dimensions anchor the displayed section. They do not
+    # establish an independent collision datum for every remote beam joint.
+    # Keep contact/collision evidence local until that joint is confirmed.
     if any((r.get('source_cut') or {}).get('section_semantics', {}).get('confirmed') for r in result):
         from src.core.beam_vertical_context import apply_inverted_sections
         calculated = apply_inverted_sections(calculated, result)
@@ -380,6 +413,12 @@ def _cut_views(
         from src.core.beam_vertical_context import clear_top_cap_interferences
         cap_sections = clear_top_cap_interferences(unmasked, calculated)
         physical_sections = [*calculated, *cap_sections]
+    from .structural_review import apply_levels, load as load_section_reviews
+    decisions = estado.get('_section_review')
+    if decisions is None:
+        decisions = load_section_reviews(obra_dir, pavimento)
+    calculated = apply_levels(calculated, decisions, beam, slabs)
+    physical_sections = apply_levels(physical_sections, decisions, beam, slabs)
     for cut in calculated:
         svg = section_svg(cut) if include_svgs else None
         cut['layers'] = {'sa': {'available': bool(section_svg(cut)), 'lazy':not include_svgs, 'svg':svg},
@@ -451,7 +490,7 @@ def montar_ficha_lv(
             "segments": segments,
         }
 
-    _complete_opening_levels(estado, by_side, beam_records)
+    _complete_opening_levels(estado, by_side, beam_records, reference_context)
     from .lv_segment_relations import pillar_passages
     for side_data in by_side.values():
         for segment in side_data["segments"]:
@@ -640,6 +679,7 @@ def resolver_camada_lv(
     segment_index: int = 1,
     cut_index: int = 0,
     visual_mode: str = "NOVA",
+    assembly: str = "sarrafeadas",
 ) -> dict[str, Any]:
     """Materializa apenas a camada atualmente visível, preservando o SVG canônico.
 
@@ -659,20 +699,9 @@ def resolver_camada_lv(
         return {"layer":layer, **availability(obra_dir, pavimento, "LV", beam, behavior)[1].get(layer, {"available":False, "svg":None})}
 
     if layer == "n3_panels":
-        selected = "CORTE" if layer == "n3_cut" else f"VIEW_{side}"
-        mode = str(visual_mode).upper() if str(visual_mode).upper() in {"INI", "NOVA", "MOLDE_1", "MOLDE_2", "MOLDE_3"} else "NOVA"
-        generated = (
-            Path(obra_dir) / "Fase-6_Execucao_CAD" / "n3_modes" / mode / "lv" /
-            behavior / f"LV_preview_{beam}_{behavior.title()}_{selected}.dxf"
-        )
-        if generated.is_file():
-            svg = dxf_preview.renderizar_dxf_svg_cacheado(
-                generated, Path(obra_dir) / ".portal_cache" / "lv_n3",
-                largura_px=1200, altura_px=700,
-            ).decode("utf-8", errors="replace")
-            return {"layer": layer, "available": True, "svg": svg,
-                    "origin": "n3_lv_override", "visual_mode": mode}
-
+        from . import lv_n3_panels
+        return dict(lv_n3_panels.resolve(obra_dir,pavimento,behavior,beam,side,
+                    segment_index,visual_mode,assembly),layer=layer)
     if layer == "cut_map":
         from .lv_cut_map import structural_payload
         data = montar_ficha_lv(obra_dir, pavimento, beam, behavior, estado, include_svgs=False)
@@ -711,7 +740,7 @@ def resolver_camada_lv(
                 if not info['available']:
                     blocked.append({'id':cut['id'],'reason':info.get('reason')})
                     continue
-                drawings.append(lv_n3_cuts.resolve(obra_dir,pavimento,behavior,cut,visual_mode)['svg'])
+                drawings.append(lv_n3_cuts.resolve(obra_dir,pavimento,behavior,cut,visual_mode,assembly)['svg'])
             svg = _stack_cut_svgs(drawings)
             return {"layer":layer,"available":bool(svg),"svg":svg,"origin":"sa_cut_contract",
                     "generated_cuts":len(drawings),"blocked_cuts":blocked}
@@ -730,7 +759,7 @@ def resolver_camada_lv(
             from . import lv_n3_cuts
             if not cuts[cut_index]['layers']['n3_cut']['available']:
                 return dict(cuts[cut_index]['layers']['n3_cut'],layer=layer)
-            return dict(lv_n3_cuts.resolve(obra_dir,pavimento,behavior,cuts[cut_index],visual_mode),layer=layer)
+            return dict(lv_n3_cuts.resolve(obra_dir,pavimento,behavior,cuts[cut_index],visual_mode,assembly),layer=layer)
         photo = sa_photo(cuts[cut_index])
         svg = photo.get("svg")
         return {"layer": layer, "available": bool(svg), "svg": svg,

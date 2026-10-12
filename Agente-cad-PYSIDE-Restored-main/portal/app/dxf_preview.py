@@ -14,6 +14,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
@@ -33,6 +34,91 @@ PREVIEW_CACHE_TAG = "v6structThin-one-decimal-levels-v6"
 _STROKE_THIN_FACTOR = 0.18
 # Espessura visual do estrutural em pixels de tela (não escala com zoom).
 _STROKE_SCREEN_PX = 0.55
+
+
+VIEWER_DOM_CACHE_TAG = "line-collections-v2"
+
+
+def svg_viewer_sem_grupos_neutros(svg: bytes) -> bytes:
+    """Remove somente grupos sem efeito de pintura que envolvem um path.
+
+    Paths, ordem, clipping e todos os atributos permanecem byte a byte iguais.
+    SVG com CSS desconhecido fica intacto: selectors podem depender dos grupos.
+    """
+    styles = re.findall(rb"<style\b[^>]*>(.*?)</style\s*>", svg, re.DOTALL)
+    allowed = {b"*", b'svg[data-cad-thin-strokes="1"]:is(path,line,polyline,polygon)'}
+    for css in styles:
+        css = css.replace(b"<![CDATA[", b"").replace(b"]]>", b"")
+        for selector in re.findall(rb"([^{}]+)\{[^{}]*\}", css):
+            if re.sub(rb"\s+", b"", selector) not in allowed:
+                return svg
+        if b"@" in css:
+            return svg
+    references = set(re.findall(rb"#([A-Za-z_][\w:.-]*)", svg))
+    pattern = rb'<g\s+id="([A-Za-z_][\w:.-]*)"\s*>\s*(<path\b[^>]*?/>)\s*</g\s*>'
+    def unwrap(match):
+        return match[0] if match[1] in references else match[2]
+    return re.sub(pattern, unwrap, svg, flags=re.DOTALL)
+
+
+def svg_viewer_compactar_tracos(svg: bytes) -> bytes:
+    """Batch dashed strokes inside known matplotlib LineCollections only.
+
+    Every coordinate, style, clip and paint order is retained. Filled paths and
+    unsupported CSS/effects remain intact; no source geometry is discarded.
+    """
+    import xml.etree.ElementTree as ET
+    styles = re.findall(rb'<style\b[^>]*>(.*?)</style\s*>', svg, re.DOTALL)
+    allowed = {b'*', b'svg[data-cad-thin-strokes="1"]:is(path,line,polyline,polygon)'}
+    for css in styles:
+        css = css.replace(b'<![CDATA[', b'').replace(b']]>', b'')
+        if b'@' in css or any(re.sub(rb'\s+', b'', s) not in allowed
+                             for s in re.findall(rb'([^{}]+)\{[^{}]*\}', css)):
+            return svg
+    ns = 'http://www.w3.org/2000/svg'
+    ET.register_namespace('', ns)
+    ET.register_namespace('xlink', 'http://www.w3.org/1999/xlink')
+    root = ET.fromstring(svg)
+    def walk(node, safe=True):
+        safe = safe and not any(k in node.attrib for k in ('opacity', 'filter', 'mask'))
+        safe = safe and not any(s in node.get('style', '') for s in ('opacity', 'filter', 'mask', 'mix-blend'))
+        for child in list(node):
+            walk(child, safe)
+        if not safe or node.tag != f'{{{ns}}}g' or not re.fullmatch(r'LineCollection_\d+', node.get('id', '')):
+            return
+        result, batch, attrs = [], [], None
+        def flush():
+            if batch:
+                result.append(ET.Element(f'{{{ns}}}path', {**attrs, 'd': ' '.join(batch)}))
+                batch.clear()
+        for child in list(node):
+            style = child.get('style', '')
+            candidate = (child.tag == f'{{{ns}}}path' and
+                         set(child.attrib) <= {'d', 'style', 'clip-path'} and
+                         re.search(r'(?:^|;)\s*fill:\s*none(?:;|$)', style) and
+                         not re.search(r'opacity|filter|mask|marker|blend', style) and
+                         re.fullmatch(r'[ML\s0-9.eE+\-]+', child.get('d', '')))
+            current = {k: v for k, v in child.attrib.items() if k != 'd'} if candidate else None
+            if not candidate or current != attrs or len(batch) >= 128:
+                flush()
+                attrs = current
+            if candidate:
+                batch.append(child.get('d'))
+            else:
+                result.append(child)
+        flush()
+        node[:] = result
+    walk(root)
+    return svg_viewer_sem_grupos_neutros(ET.tostring(root, encoding='utf-8', xml_declaration=True))
+
+
+def etag_preview_completo(dxf_path: Path) -> str:
+    """Valida a revisão da fonte e do renderer sem ler o SVG de dezenas de MB."""
+    source = dxf_path.resolve()
+    stat = source.stat()
+    revision = (str(source), stat.st_mtime_ns, stat.st_size, PREVIEW_CACHE_TAG, VIEWER_DOM_CACHE_TAG,
+                PREVIEW_ALVO_PX, 0.03, _STROKE_THIN_FACTOR, _STROKE_SCREEN_PX)
+    return '"' + hashlib.sha256(repr(revision).encode('utf-8')).hexdigest() + '"'
 
 
 @dataclass(frozen=True)
@@ -80,10 +166,18 @@ class SvgComTransform:
 
 def obter_bbox_dxf(dxf_path: Path) -> Optional[BBox]:
     """Bounding box real (extents) de todas as entidades do modelspace."""
+    resolved = dxf_path.resolve()
+    stat = resolved.stat()
+    return _bbox_dxf_revision(str(resolved), stat.st_mtime_ns, stat.st_size)
+
+
+@lru_cache(maxsize=32)
+def _bbox_dxf_revision(path: str, mtime_ns: int, size: int) -> Optional[BBox]:
+    """Reusa apenas extents da mesma revisão; nunca guarda o documento DXF."""
     import ezdxf
     import ezdxf.bbox as ez_bbox
 
-    doc = ezdxf.readfile(str(dxf_path))
+    doc = ezdxf.readfile(path)
     ext = ez_bbox.extents(doc.modelspace())
     if not ext.has_data:
         return None
@@ -318,7 +412,7 @@ def renderizar_dxf_svg_cacheado(
 
 def renderizar_dxf_svg_com_transform_cacheado(
     dxf_path: Path, cache_dir: Path, *, bbox: Optional[BBox] = None, margem_pct: float = 0.08,
-    largura_px: int = 640, altura_px: int = 480,
+    largura_px: int = 640, altura_px: int = 480, incluir_svg: bool = True,
 ) -> SvgComTransform:
     """Igual ao cacheado normal, mas grava a transform ao lado do SVG (`.transform.json`).
 
@@ -334,7 +428,7 @@ def renderizar_dxf_svg_com_transform_cacheado(
         try:
             meta = json.loads(caminho_meta.read_text(encoding="utf-8"))
             return SvgComTransform(
-                svg=caminho_svg.read_bytes(),
+                svg=caminho_svg.read_bytes() if incluir_svg else b"",
                 bbox_dxf=tuple(float(v) for v in meta["bbox_dxf"]),  # type: ignore[arg-type]
                 largura_px=int(meta["largura_px"]),
                 altura_px=int(meta["altura_px"]),
@@ -377,6 +471,7 @@ def dimensoes_preview_completo(bbox: BBox, alvo_px: int = PREVIEW_ALVO_PX) -> tu
 def transform_preview_completo(
     dxf_path: Path, *, cache_dir: Optional[Path] = None,
     alvo_px: int = PREVIEW_ALVO_PX, margem_pct: float = 0.03,
+    incluir_svg: bool = True,
 ) -> Optional[SvgComTransform]:
     """Transform EXATA do preview inteiro — a mesma imagem servida por /foto.
 
@@ -400,7 +495,7 @@ def transform_preview_completo(
     if cache_dir is not None:
         return renderizar_dxf_svg_com_transform_cacheado(
             dxf_path, cache_dir, bbox=bbox, margem_pct=margem_pct,
-            largura_px=largura_px, altura_px=altura_px,
+            largura_px=largura_px, altura_px=altura_px, incluir_svg=incluir_svg,
         )
     return renderizar_dxf_svg_com_transform(
         dxf_path, bbox=bbox, margem_pct=margem_pct,

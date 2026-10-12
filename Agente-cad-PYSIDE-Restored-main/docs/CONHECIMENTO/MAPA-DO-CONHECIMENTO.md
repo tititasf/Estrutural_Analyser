@@ -9,13 +9,23 @@ obsoleto**. Serve a humanos, agentes (Claude Code, Codex) e à busca semântica
 
 | Preciso de… | Vá para |
 |---|---|
+| desenvolver e ajustar SA sem publicar/renderizar a cada rodada | [SA-DESENVOLVIMENTO-CICLO-RAPIDO.md](../SA-DESENVOLVIMENTO-CICLO-RAPIDO.md) — pré → SA → novo QA até zero pendências; publicação e visual final depois |
+| padrão aprovado NOVA das laterais AB/cortes, gradeadas e sarrafeadas | [PADRAO-NOVA-LATERAIS-APROVADO.md](../PADRAO-NOVA-LATERAIS-APROVADO.md) — design aprovado, integrado ao N3/N5 e registrado nos perfis independentes Para/Passa |
 | o significado de um termo (N3, selo laranja, Para/Passa…) | [GLOSSARIO.md](GLOSSARIO.md) |
 | saber se o dono já decidiu algo | [DECISOES-DO-DONO.md](DECISOES-DO-DONO.md) |
+| reconhecer símbolos de corte, líderes de bloco e hatch de lajes sem confundir objetos | [BIBLIOTECA-OBJETOS-CAD.md](BIBLIOTECA-OBJETOS-CAD.md) |
+| cortes interpretados, compressão 50 cm, invertidas e pendências desta entrega | [Consolidação 05/10/2026](CONSOLIDACAO-CORTES-INVERTIDAS-20261005.md) |
+| estilos aprovados INI por classe, lajes iguais ao NOVA | [PADRAO-INI-APROVADO.md](../PADRAO-INI-APROVADO.md) |
+| matriz INI/NOVA/Formascia, caminhos N3/N5, campos, paginação e limites de validação | [PADROES-DESENHO-N3-N5.md](../PADROES-DESENHO-N3-N5.md) |
+| apresentação dos pilares Formascia, níveis e cabeçalho por modo | [PADRAO-FORMASCIA-PILARES.md](../PADRAO-FORMASCIA-PILARES.md) |
+| padrão aprovado Formascia das lajes e suas folhas | [PADRAO-FORMASCIA-LAJES.md](../PADRAO-FORMASCIA-LAJES.md) |
+| padrão aprovado Formascia dos fundos, chanfros e aberturas nas esquinas | [PADRAO-FORMASCIA-FUNDOS.md](../PADRAO-FORMASCIA-FUNDOS.md) |
 | saber se um doc ainda vale | [FONTES-E-STATUS.md](FONTES-E-STATUS.md) (gerado) |
 | achar o módulo que faz X | [MAPA-CODIGO.md](MAPA-CODIGO.md) (gerado) |
 | buscar por assunto | `python scripts/kb/kb_query.py "sua pergunta"` |
 | entender a harmonização e o que limpar | [PLANO-HARMONIZACAO.md](PLANO-HARMONIZACAO.md) |
 | preparar a base de uma obra | [CONTRATO-KB-MULTIOBRA.md](CONTRATO-KB-MULTIOBRA.md) |
+| entender o gate CAD pós-SA: funcionamento, funções e descobertas por classe PIL/LAJ/FV/LV, e a próxima etapa Visão Corte (D-92) | [QA-GATE-MECANISMOS-E-EVOLUCAO.md](QA-GATE-MECANISMOS-E-EVOLUCAO.md); encadeamento efetivamente verificado do SA-only em [SA-DESENVOLVIMENTO-CICLO-RAPIDO.md](../SA-DESENVOLVIMENTO-CICLO-RAPIDO.md) |
 
 ---
 
@@ -38,6 +48,36 @@ obsoleto**. Serve a humanos, agentes (Claude Code, Codex) e à busca semântica
 
 O código é a verdade do *comportamento*; os docs acima são a verdade da *intenção*.
 Divergência entre os dois é achado a registrar, não a resolver por suposição.
+
+### Procedimentos, desenvolvimento e comportamento desejado
+
+Esta área orienta como o agente deve trabalhar e como avaliar o comportamento
+esperado do sistema. Reúne fontes existentes; não cria uma segunda versão das
+regras nem transforma um relato de desenvolvimento em procedimento vigente.
+
+| Pergunta | Fonte de autoridade |
+|---|---|
+| Como o agente deve agir, preservar dados e coordenar alterações? | `CLAUDE.md` do repo e workspace, com invariantes em `.agents/AGENTS.md`; decisões novas do dono prevalecem no escopo definido |
+| Qual comportamento ou preferência o dono já definiu? | [DECISOES-DO-DONO.md](DECISOES-DO-DONO.md), com data, origem e escopo |
+| Como desenvolver, ajustar e testar o SA antes de publicar? | [SA-DESENVOLVIMENTO-CICLO-RAPIDO.md](../SA-DESENVOLVIMENTO-CICLO-RAPIDO.md): pré → SA → QA → regressão; repetir pendências; publicação e conferência visual final depois |
+| Quais scripts e procedimentos estão autorizados? | [LOOPING-CANONICO.md](../LOOPING-CANONICO.md) §1 |
+| Como investigar uma falha e corrigir a causa geral? | [ARETE-TRIAGEM-ERROS.md](../ARETE-TRIAGEM-ERROS.md), manuais de classe e evidência por unidade |
+| O que constitui entrega completa e o que é pronto? | [REGRA-ENTREGA-E2E-QUALIDADE-MAXIMA.md](../REGRA-ENTREGA-E2E-QUALIDADE-MAXIMA.md) e [MASTERPLAN-CONSOLIDACAO-ENTREGA.md](../MASTERPLAN-CONSOLIDACAO-ENTREGA.md) |
+| Como registrar aprendizado sem perder sua autoridade e contexto? | Seção 9 deste mapa: atualizar a fonte canônica, registrar decisão quando houver e reconstruir/verificar a busca |
+
+O índice atual distingue `doc`, `decisao`, `glossario`, `regra_semantica` e
+`codigo`. Procedimentos e desenvolvimento estão no tipo `doc`; não existe ainda
+um filtro próprio `procedimento` ou `comportamento`. Esta seção oferece a entrada
+sem mudar o esquema da KB. Consultas amplas podem recuperar histórias antigas:
+abrir a fonte, verificar status, autoridade, data e escopo antes de seguir.
+
+Ao documentar comportamento desejado, explicitar gatilho, ação esperada,
+condições para prosseguir, evidência exigida e retorno em caso de falha. Distinguir
+regra aprovada, implementação existente e resultado observado. Guardar resultados
+em relatórios datados; promover uma conclusão a procedimento apenas com suporte
+e escopo comprovados. RAG recupera essas orientações, mas não garante execução:
+o agente deve consultá-las e o sistema deve impor as regras verificáveis em testes
+e gates. Não considerar um documento recuperado uma aprovação do estado atual.
 
 ---
 
@@ -135,7 +175,7 @@ Robôs SCR legados (semântica original): `ROBO_SCR_PATTERNS.md`, `CALCULOS_ALGO
 | Inventariar o que Jev/CAD/PNG/N1/QA extraem, medem e avaliam | [`JEV-CAPACIDADES-E-REGISTRO-DE-MEDICAO.md`](../SA-ANALISE/JEV-CAPACIDADES-E-REGISTRO-DE-MEDICAO.md) — registro durável; dados observados separados de hipóteses; gates para chamadas Jev futuras |
 | Saber se uma chamada aprova ou altera N1 | [D-08](DECISOES-DO-DONO.md) e `docs/LOOPING-CANONICO.md` §1: **não**; é sidecar de revisão, sem escrita automática |
 
-**Aprendizado cumulativo:** registre fonte/versão/hash, pergunta, candidatos, resposta Jev, controle sem evidência, veredito PNG agentico (dois revisores independentes) e efeito na triagem. Avalie ganho incremental do conjunto SA + CAD + Jev + visão por classe/gatilho, tempo e custo. Confiança de `Choice` é concentração entre opções, não prova física; saídas Jev não viram rótulo de treino. Corpus futuro usa consenso agentico fonte+PNG ou regra determinística, com proveniência; caso indeterminado fica fora do treino. A KB aponta esses documentos; o sqlite NIM vigente foi restaurado byte-a-byte de `KB-GLOBAL/kb_global.sqlite.bak-20260929_closeout` (SHA-256 `52B45E527032DD262865A9C9298A0F16CC423901BF12B9E8D19E16D623EF4DB9`). O texto de closeout de 29/09 **ainda não** está no FTS/vetores. Sem rebuild nesta rodada. Um resultado de busca ou de Jev não é prova.
+**Aprendizado cumulativo:** registre fonte/versão/hash, pergunta, candidatos, resposta Jev, controle sem evidência, veredito PNG agentico (dois revisores independentes) e efeito na triagem. Avalie ganho incremental do conjunto SA + CAD + Jev + visão por classe/gatilho, tempo e custo. Confiança de `Choice` é concentração entre opções, não prova física; saídas Jev não viram rótulo de treino. Corpus futuro usa consenso agentico fonte+PNG ou regra determinística, com proveniência; caso indeterminado fica fora do treino. A nota de ausência de rebuild era o estado histórico de 29/09, não o estado vigente do índice. A auditoria de 05/10 atualiza fontes canônicas, inventário, grafo Base Global e índice NIM; evidência operacional em `scripts/arete/relatorios/20261005_conversa_invertidas_kb/RELATORIO.md`. Não restaurar o snapshot antigo para alinhar conhecimento. Um resultado de busca ou de Jev não é prova.
 
 ---
 
@@ -219,4 +259,16 @@ Motor v19: fundo de viga entre laje no datum do pavimento e laje mais baixa fica
 
 ### Nível de laje em camadas — NIV-LAJE-CAMADAS-20261003
 
-Motor v20: laje sem cota recebe nível por camadas. As vizinhas através de viga votam, com uma origem por voto e sem ciclicidade: unânimes têm teto 85, maioria tem teto 75, empate abstém; viga com degrau provado por pares CAD não transmite voto (v21). Asa de corte ≠ h só re-prova, porque o h declarado vence. Fonte: [manual integrado de níveis](../INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md), seção NIV-LAJE-CAMADAS-20261003; decisão em DECISOES-DO-DONO.md; resultado datado em scripts/arete/relatorios/20261003-camadas-laje/RELATORIO.md.
+Motor v20: laje sem cota recebe nível por camadas. As vizinhas através de viga votam, com uma origem por voto e sem ciclicidade: unânimes têm teto 85, maioria tem teto 75, empate abstém. A linha de degrau provada retém o voto no trecho em que as duas lajes se encaram (v21, restringido no v27): um contato mais adiante na mesma viga só completa um alvo que ficaria sem voto. Região vota pela região que encara (v26). Trecho só com diferença de h, sem cota e sem visão de corte indicando o nível, não é degrau de nível diferente (v27). Asa de corte ≠ h só re-prova, porque o h declarado vence. Fonte: [manual integrado de níveis](../INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md), seções NIV-LAJE-CAMADAS-20261003, v26 e v27; decisão em DECISOES-DO-DONO.md; resultado datado em scripts/arete/relatorios/20261004-niveis-14pav/RELATORIO.md.
+
+## ESTILO-INTEGRADO-20261008 — harmonização entre classes
+
+Síntese vigente, convenções recorrentes, contraprovas e pendências: [Estilos estruturais — interpretação integrada](ESTILOS-ESTRUTURAIS-INTERPRETACAO-INTEGRADA.md). Consultar a evidência local antes de aplicar a regra a outra obra; cooperação entre classes não constitui prova circular nem aprovação automática.
+
+### LV-AJUSTES-PONTAS-20261008 — tags e proveniência dos ajustes
+
+[LV, seção ajustes de ponta e tags de revisão SA](../SA-ANALISE/CLASSES/LV.md#lv-ajustes-pontas-20261008--ajustes-de-ponta-e-tags-de-revisão-sa): Para/Passa A/B, sinais -/+ em cm, desconhecido diferente de zero, início/fim local, distinção SA/N3; alinhamento ao nome e empilhamento esquerdo acima do nome/direito acima do esquerdo em trechos curtos. Auditoria de cobertura de todas as classes e busca textual/semântica: `scripts/arete/relatorios/20261008_chat_kb_endpoint_harmonia/RELATORIO.md`. Tags são anotações do portal; não são objetos CAD fonte nem aprovação automática do ajuste.
+
+## CHAT-CONSOLIDACAO-20261008 — integridade e desempenho
+
+Complemento vigente: [Aprendizados do portal — integridade, interpretação e desempenho](APRENDIZADOS-PORTAL-INTEGRIDADE-PERFORMANCE.md). Inclui recorte sem perda, cotas explodidas, corte não segmentando FV/LV, listas sem duplicação, cadeia com pendências por item e viewer integral sem pop-in. Evidências e limites acompanham cada tema; manter os contratos e pendências das classes.

@@ -9,6 +9,53 @@ import pytest
 from portal.app import lv_ficha, lv_operations
 
 
+def test_segment_displays_fresh_sa_adjustments_and_supports(tmp_path):
+    points = [[0, 0], [100, 0]]
+    fresh = {'adjustment_start': 0, 'adjustment_end': 11,
+             'support_start': {'name': 'P1'}, 'support_end': {'name': 'P2'}}
+    item = {'points': points, 'campos': {'Segmento': '1', 'Comprimento': '100'},
+            'lv_cell': {'adjustment_start': -11, 'adjustment_end': -11}}
+    beam = {'links': {'viga_a_seg_1_comprimento_total': {
+        'seg_side_a': [{'points': points, 'lv_cell': fresh}]}}}
+    result = lv_ficha._segment(tmp_path, 'TIPO_TESTE', 'lateral_a_para', item,
+                              include_svgs=False, beam_record=beam)
+    assert result['adjustment'] == {'initial': '0', 'final': '+11', 'total': '+11'}
+    assert result['support_start']['name'] == 'P1'
+    assert result['support_end']['name'] == 'P2'
+
+
+def test_opening_level_reuse_is_request_local_and_preserves_conflicts(tmp_path, monkeypatch):
+    from copy import deepcopy
+    db = tmp_path / 'levels.db'
+    with sqlite3.connect(db) as conn:
+        conn.execute('CREATE TABLE beams(project_id TEXT, name TEXT, data_json TEXT)')
+        conn.executemany('INSERT INTO beams VALUES (?,?,?)', [
+            ('p', 'V1', json.dumps({'nivel_viga': 852.1})),
+            ('p', 'V1', json.dumps({'nivel_viga': 852.2})),
+        ])
+    state = {'db_path': str(db)}
+    sides = {'A': {'segments': [{'beam_openings': [{'name': 'V1'}]}]}}
+    records = {'id': {'project_id': 'p'}}
+    context = {}
+    calls = []
+    loads = json.loads
+    monkeypatch.setattr(lv_ficha.json, 'loads', lambda raw: (calls.append(raw), loads(raw))[1])
+    first, second = deepcopy(sides), deepcopy(sides)
+    lv_ficha._complete_opening_levels(state, first, records, context)
+    lv_ficha._complete_opening_levels(state, second, records, context)
+    assert first == second
+    assert len(calls) == 2  # two rows read once, instead of twice
+    opening = first['A']['segments'][0]['beam_openings'][0]
+    assert opening['level_source'] == 'conflict'
+    assert opening['level_candidates_m'] == [852.1, 852.2]
+    with sqlite3.connect(db) as conn:
+        conn.execute('DELETE FROM beams')
+        conn.execute('INSERT INTO beams VALUES (?,?,?)', ('p', 'V1', json.dumps({'nivel_viga': 853})))
+    fresh = deepcopy(sides)
+    lv_ficha._complete_opening_levels(state, fresh, records, {})
+    assert fresh['A']['segments'][0]['beam_openings'][0]['level'] == 853
+
+
 def _estado() -> dict:
     return {
         "segmentos": {

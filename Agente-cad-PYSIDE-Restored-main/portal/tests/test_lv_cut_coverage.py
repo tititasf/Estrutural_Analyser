@@ -33,6 +33,7 @@ def test_repeated_profile_drawn_in_every_soffit_not_only_longest_pair(vertical):
 
 def test_original_only_replaces_its_own_soffit_occurrence():
     source = data()
+    source['cut_views'][0]['profiles']['A']['slabs'] = [dict(name='L1', height_cm=13, level=852)]
     pair = source['cut_views'][0]['pairs'][0]
     pair.update(end=[200,0],length_cm=200)
     source['sides']['B']['segments'][0]['points'] = [[200,19],[0,19]]
@@ -67,10 +68,10 @@ def test_original_is_preserved_without_certifying_a_different_local_height():
     drawings, blocked, coverage = soffit_drawings(
         [original,*source['cut_views']],source['sides'],bottoms()[:1])
     assert not blocked
-    assert len(drawings) == 1 and drawings[0]['cut_index'] == 0
-    assert coverage[0]['status'] == 'pending'
-    assert coverage[0]['profile_change_indexes'] == [1]
-    assert 'subdivisão' in coverage[0]['reason']
+    assert len(drawings) == 2 and drawings[0]['cut_index'] == 0
+    assert drawings[1]['section_contract']['height_cm'] == 71
+    assert coverage[0]['status'] == 'mixed'
+    assert coverage[0]['interpreted_cut_indexes'] == [1]
 
 
 def test_shared_presentations_do_not_merge_different_soffits():

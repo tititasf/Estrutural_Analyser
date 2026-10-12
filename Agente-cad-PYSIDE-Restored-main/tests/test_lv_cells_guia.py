@@ -51,6 +51,31 @@ def test_passa_vertical_exterior_face_stops_at_concave_pillar_core():
     assert [(s.start, s.end) for s in segment_cell(scene, "B", "passa")] == [(0.0, 400.0)]
 
 
+def test_passa_extended_pillar_wall_stops_at_same_or_deeper_beam():
+    from shapely.geometry import box
+    from src.core.lv_beam_scene import _attach_context
+
+    # The cap is beyond the normal 80 cm context margin, but the pillar wall
+    # connects it to the beam. Test both axial ends and both stopping depths.
+    for at_end in (False, True):
+        for depth in (50.0, 70.0):
+            scene = LvScene("V1", False, 0.0, 19.0, 0.0, 300.0)
+            scene.sections = [{"start": 0.0, "end": 300.0, "dim": "19/50", "depth": 50.0}]
+            pillar = box(0, 300, 19, 414) if at_end else box(0, -114, 19, 0)
+            cap = LvScene("V2", True, 395.0 if at_end else -94.0,
+                          414.0 if at_end else -75.0, -200.0, 0.0)
+            cap.sections = [{"start": -200.0, "end": 0.0, "dim": f"19/{depth}", "depth": depth}]
+            _attach_context(scene, [("P1", "SEGUE", pillar)], [scene, cap], [])
+            assert any(i["name"] == "V2" for i in scene.passa_incidents["A"])
+            a = segment_cell(scene, "A", "passa")
+            expected = [(395.0, 0.0)] if at_end else [(300.0, -75.0)]
+            assert [(s.start, s.end) for s in a] == expected
+            support = a[0].support_start if at_end else a[0].support_end
+            assert support["name"] == "P1"  # Simultaneous pillar/beam: pillar wins the label.
+            # The cap outside the original margin must not change Para.
+            assert not any(i["name"] == "V2" for i in scene.incidents["A"])
+
+
 def _scene(**kw) -> LvScene:
     scene = LvScene("V1", True, 0.0, 19.0, 0.0, 1000.0)
     scene.sections = kw.get("sections", [
@@ -66,12 +91,62 @@ def _scene(**kw) -> LvScene:
 CENTRAL_PILLAR = {"name": "P12", "start": 400.0, "end": 500.0, "classification": ""}
 
 
+def test_owner_endpoint_pillar_priority_and_face_specific_simultaneous_arrival():
+    scene = _scene(pillars=[CENTRAL_PILLAR])
+    scene.incidents['A'] = [dict(name='V9', start=400., end=419., depth=55., width=19.)]
+    a = segment_cell(scene, 'A', 'para')
+    b = segment_cell(scene, 'B', 'para')
+    assert a[0].support_end['name'] == 'P12'
+    assert a[0].adjustment_end == -4.
+    assert b[-1].support_start['name'] == 'P12'
+    assert b[-1].adjustment_start == 0.
+
+
+def test_owner_equal_depth_horizontal_arrives_vertical_cedes():
+    for horizontal in (True, False):
+        scene = _scene(incidents={'A': [dict(name='V9', start=300., end=319., depth=55., width=19.)]})
+        scene.is_horizontal = horizontal
+        for behavior in ('para', 'passa'):
+            segments = segment_cell(scene, 'A', behavior)
+            values = [v for s in segments for support, v in (
+                (s.support_start, s.adjustment_start), (s.support_end, s.adjustment_end))
+                if support.get('name') == 'V9']
+            assert values == ([0., 0.] if horizontal else [-4., -4.])
+
+
+def test_owner_passage_long_short_faces_and_short_outer_corner():
+    for short, corner, expected in ((False, False, 11.), (True, False, 0.), (True, True, 4.)):
+        scene = _scene()
+        support = dict(name='P7', type='pilar', start=1000., end=1100.,
+                       face_curta_por_lado={'A': short}, face_lateral_curta=short)
+        scene.end_supports['end'] = [support]
+        if corner:
+            scene.provenance['cantos_externos_ortogonais'] = [dict(face='A', fim=1100., com='V2')]
+        result = segment_cell(scene, 'A', 'passa')
+        assert result[-1].support_end['name'] == 'P7'
+        assert result[-1].adjustment_end == expected
+        if short:
+            assert segment_cell(scene, 'A', 'para')[-1].adjustment_end == expected
+
+
+def test_long_pillar_face_outer_corner_uses_11_without_passage_interval():
+    from src.core.beam_interpreters.lateral_viga_cells import _endpoint_contract
+    scene = _scene()
+    pillar = dict(type='pilar', name='P7', start=1000., end=1100.,
+                  face_lateral_curta=False)
+    scene.end_supports['end'] = [pillar]
+    scene.provenance['cantos_externos_ortogonais'] = [dict(face='A', fim=1000., com='V2')]
+    support, value, reason = _endpoint_contract(scene, 'A', 'para', 1000., 0., pillar, [])
+    assert support['name'] == 'P7'
+    assert value == 11.
+
+
 def test_g6_para_parts_at_pillar_faces_and_passa_goes_through():
     scene = _scene(pillars=[CENTRAL_PILLAR])
     para = segment_cell(scene, "A", "para")
     passa = segment_cell(scene, "A", "passa")
     assert [(s.start, s.end) for s in para] == [(0.0, 400.0), (500.0, 1000.0)]
-    assert para[0].adjustment_end == -11.0 and para[1].adjustment_start == -11.0
+    assert para[0].adjustment_end == 0.0 and para[1].adjustment_start == 0.0
     assert [(s.start, s.end) for s in passa] == [(0.0, 1000.0)]
     opening = passa[0].pillar_openings[0]
     assert opening["abertura"] == 122.0          # G8: 100 + 22
@@ -95,6 +170,8 @@ def test_g7_shallower_incident_opens_and_closes_segment_at_far_edge():
     opening = a[0].beam_openings[0]
     assert opening["abertura_largura"] == 27.0 and opening["abertura_altura"] == 44.0
     assert opening["sobra"] == 15.0
+    assert a[0].adjustment_end == -4.0
+    assert a[1].adjustment_start == 0.0  # Opening is owned by the previous segment.
     # Caso 9: T so' pela face A nao parte a face B.
     assert len(segment_cell(scene, "B", "passa")) == 1
 
@@ -104,6 +181,32 @@ def test_g7_deeper_incident_terminates_at_first_face():
     scene = _scene(incidents={"A": [inc]})
     a = segment_cell(scene, "A", "para")
     assert [(s.start, s.end) for s in a] == [(0.0, 300.0), (319.0, 1000.0)]
+
+
+def test_underpass_absorbs_slab_contour_at_near_face_in_both_reading_orders():
+    for side in ('A', 'B'):
+        for behavior in ('para', 'passa'):
+            inc = dict(name='V9', start=300., end=319., depth=40., width=19.)
+            scene = _scene(incidents={side: [inc]})
+            scene.slabs[side] = [dict(name='L1', start=0., end=300., height='12', level=''),
+                                 dict(name='L2', start=319., end=1000., height='12', level='')]
+            result = segment_cell(scene, side, behavior)
+            expected = [(0., 319.), (319., 1000.)] if side == 'A' else [(1000., 300.), (300., 0.)]
+            assert [(s.start, s.end) for s in result] == expected
+            assert len(result[0].beam_openings) == 1
+            assert not result[1].beam_openings
+            assert result[0].adjustment_end == -4.
+            assert result[1].adjustment_start == 0.
+
+
+def test_shallow_arrival_at_deeper_beam_is_zero_even_with_corner_evidence():
+    scene = _scene()
+    scene.end_supports['end'] = [dict(type='viga', name='V9', start=1000., end=1019., depth=120.)]
+    scene.provenance['cantos_externos_ortogonais'] = [dict(face='A', fim=1000., com='V9')]
+    for behavior in ('para', 'passa'):
+        result = segment_cell(scene, 'A', behavior)
+        assert result[-1].adjustment_end == 0.
+        assert result[-1].support_end['name'] == 'V9'
 
 
 def test_equal_depth_beams_do_not_cross_each_other():
@@ -453,3 +556,28 @@ def test_orthogonal_face_reaches_outer_corner_of_l_with_diagonal():
     assert len(a) == 1 and len(b) == 1
     assert abs(min(a[0].start, a[0].end) + 5.8) < 0.01
     assert abs(min(b[0].start, b[0].end) - 0.0) < 0.01
+
+
+def test_passa_corner_ignores_beam_continuation_inside_endpoint_pillar():
+    from shapely.geometry import box
+    from src.core.lv_beam_scene import _attach_context
+
+    for vertical in (False, True):
+        for offset in (0.0, 1234.03):
+            scene = LvScene("cap", not vertical, offset, offset + 19,
+                            offset, offset + 100)
+            scene.sections = [{"start": offset, "end": offset + 100,
+                               "dim": "19/50", "depth": 50.0}]
+            # Untrimmed perpendicular source walls continue inside the solid.
+            other = LvScene("stem", vertical, offset + 100, offset + 119,
+                            offset - 200, offset + 19)
+            other.sections = [{"start": offset - 200, "end": offset + 19,
+                               "dim": "19/50", "depth": 50.0}]
+            solid = scene.rect(offset + 100, offset + 119,
+                               offset - 95, offset + 19.03)
+            _attach_context(scene, [("support", "", solid)], [scene, other], [])
+            b = segment_cell(scene, "B", "passa")
+            assert abs(max(max(s.start, s.end) for s in b) - (offset + 119)) < .001
+            assert not scene.passa_incidents["B"]
+            a = segment_cell(scene, "A", "passa")
+            assert max(max(s.start, s.end) for s in a) <= offset + 100

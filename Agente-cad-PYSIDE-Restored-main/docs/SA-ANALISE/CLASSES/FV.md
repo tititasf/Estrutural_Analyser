@@ -2,6 +2,16 @@
 
 ## 1. Contrato e fronteiras
 
+**Seção numérica em eixo oblíquo (10/10/2026).** A largura física de um fundo
+oblíquo não é o lado menor da bbox global. Vincular o nome e a seção numérica
+alinhados a duas paredes do DXF original, no eixo local, com largura concordante
+e cobertura da borda real no intervalo comum. Essa prova permite derivar o fundo
+a partir do nível e da altura numérica; não aprova pontas, apoios ou o contorno
+completo. Preservar os handles de nome, seção e paredes na evidência. Se houver
+alturas distintas, parede ausente ou vínculo ambíguo, manter a pendência.
+O contexto derivado conserva o N1 e o polígono original. Referência de prova:
+`20261010_encontros_niveis_14pav/desenvolvimento_rapido/integracao_v408_identidade/v406_original_section_proof.json`.
+
 **Fundo normal abaixo de uma invertida (04/10/2026, V301 SEG 16 × V330).**
 O corte em planta por uma viga mais alta não prova bloqueio: comparar níveis
 absolutos locais. Quando o fundo normal está estritamente abaixo da base da
@@ -382,3 +392,258 @@ Regra integrada: `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` (canônico
 ### Referência padrão e treino de exceções — NIV-PADRAO-EXCECAO-20261003
 
 Aplicar o contrato global em `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`, seção Referência padrão e exceções explícitas. O padrão confirmado é topo da viga no nível principal da laje ou base de saída do pavimento quando não há laje, salvo indicação explícita diferente. Ausência de corte não torna esse padrão uma estimativa por si só. Preservar regiões de laje, datum da viga, contato por face do pilar e fontes independentes. QA distingue convenção de medida e verifica qualidade/cobertura da leitura antes de confirmar; não elevar score apenas renomeando status. Interpretação de vigas em níveis diferentes por hatch/corte está pendente de treino com exemplos reais futuros; não foi certificada neste caso.
+
+**Trava QA, corte de planta (04/10/2026, regra derivada).** A marca na planta não basta. A trava lê a elevação (título, topo, espessura e um nível escrito). Plano no datum: a marca deixa de bloquear o padrão. Degrau desenhado ou nível diferente do datum: não certifica, e o valor lido não vira o nível da laje. No 13_PAV o corte B-B é plano em 852,19 e não resolve os 3 cm dos degraus 852,16. Detalhe e evidência: `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`, seção Leitura do corte de planta na trava QA.
+
+**Pilar que nasce na trava QA (04/10/2026, D-65 aplicado).** Só um contorno fechado com o símbolo da convenção do pavimento (13_PAV: X) é pilar que nasce e não limita o fundo. Polilinha aberta não é pilar. Sem convenção lida, o encontro fica não certificado. Evidência: `scripts/arete/relatorios/20261004_qa_jev_fv_f0_f2/RELATORIO.md`, 4ª passada.
+
+**Visão corte desenhada na planta (04/10/2026, dono).** O T preenchido de haste 12 cm e conjunto 55 cm, com o texto 55 ao lado (V301, V302, V303 e V306 do 13_PAV), é visão corte, não uma viga. Não abre o fundo e não cria outra viga; o fundo segue contínuo por baixo. O mesmo vale para os outros desenhos da ficha `DUVIDAS-ABERTURAS-FV.html`: T de 120, T de um lado só, números 7, 48, 52 ou 55, e o preenchimento largo à esquerda do T na V330. A cota e o lado da haste não decidem. A forma é a já usada nas outras classes (alma e braços). Evidência: `docs/CONHECIMENTO/DECISOES-DO-DONO.md`, seção FV-VISAO-CORTE-T-20261004.
+
+### Fundo normal contínuo sob invertida — 04/10/2026
+
+Uma invertida não divide o fundo normal que passa abaixo dela quando os níveis
+confirmam ausência de interferência e as duas paredes estruturais atravessam
+integralmente o encontro. Se há trechos opostos da mesma viga, unir incluindo a
+largura atravessada. Não unir através de pilar, mudança de largura/altura, níveis
+explicitamente diferentes ou edição humana protegida. A geometria derivada mantém
+os IDs e polígonos de origem em `merged_source_segments`, sem reescrever N1.
+
+Caso conferido: VF301 fundos 8 e 9, 289,0175 + 19 + 97,4825 = 405,5 cm,
+sob a V330 invertida. Portal e conversão N3 recebem um único fundo. Níveis
+herdados de lajes diferentes não provam degrau da viga: conservar as referências
+e deixar o nível da união pendente, sem arbitrar um valor. A geometria contínua
+não certifica o datum. Evidência e contraexemplos: `test_fv_inverted_crossings.py`;
+relatório `scripts/arete/relatorios/20261004_vf301_join/RELATORIO.md`.
+
+
+### Fechamento de cortes e invertidas (05/10/2026)
+
+Consolidação das regras finais, evidências e pendências: `docs/CONHECIMENTO/CONSOLIDACAO-CORTES-INVERTIDAS-20261005.md`. Compressão tem orçamento de 50 cm, mantendo região das lajes, medidas físicas e fonte original; sinal distinto da inversão. Cobertura SA por segmento de fundo inclui repetições e dispensa interpretado quando o original cobre o trecho. A rodada final confirmou continuidade VF301, mas não regenerou N3 publicado: revisão independente do perfil de 124 cm e certificação por unidade permanecem abertas.
+
+
+### Cortes locais por perfil e datum medido — revisão 05/10/2026
+
+Cobrir cada perfil físico de cada fundo, incluindo altura diferente e degrau, mesmo quando outro original já cobre um perfil do fundo. Desenhar localmente sem setinhas, comprimir somente cauda e conservar cotas físicas. Confiança: azul claro confirmado, laranja revisar, vermelho invertida. Em viga normal, topo medido da viga e nível regional da laje são referências distintas; referência original única pode ancorar o datum sem alterar N1. Ausência ou conflito de evidência não autoriza assumir datum de viga vizinha. Regras, casos e limites: `docs/CONHECIMENTO/CONSOLIDACAO-CORTES-INVERTIDAS-20261005.md`, seção Revisão final dos destaques.
+
+
+## Apresentação N3/N5 por modo — 07/10/2026
+
+INI, NOVA e Formascia têm padrões de desenho distintos sobre o mesmo contrato estrutural. Consultar a [matriz canônica de desenho](../../PADROES-DESENHO-N3-N5.md) e o [padrão INI aprovado](../../PADRAO-INI-APROVADO.md). A aprovação visual não altera os dados SA nem certifica automaticamente todos os itens. LAJ INI compartilha o N3/perfil NOVA; os compositores N5 continuam separados.
+
+
+### 08/10/2026 — fundos: paredes, apoios, cortes e cruzamentos sem divisória
+
+Pedido do dono: corrigir VF3, VF4/VF1, V513, cauda de V514/P18, V524/V526 sobre cortes, V525/V508 e V504/V506/V507/P8; regra universal, sem nomes ou coordenadas no motor.
+
+A faixa pertence ao intervalo axial das duas paredes junto ao rótulo; um par remoto não vence pela proximidade transversal. Fundos automáticos retangulares deslocados são reconstruídos nas paredes medidas. Apoio automático pode ser reassociado somente com identificação e dimensão independentes do DXF; manter decisões humanas. A cauda além de apoio exige duas paredes e chamada de seção compatível entrando nela, conservando o pilar.
+
+Correção da interpretação após esclarecimento do dono: visão de corte é anotação, não obstáculo físico. Mesmo com contorno confirmado no DXF, não exclui área nem segmenta fundos; o fundo segue contínuo por baixo. Sua informação de perfil/nível continua disponível para as análises. Cruzamento ortogonal sem divisória pode trocar a ocupação para reduzir painéis, preservando área, alturas locais, apoios e geometrias humanas. Risco físico na divisória atual ou proposta veta a troca. Uma divisória física real ou mudança de seção/nível continua limitando a união; o desenho da visão de corte por si só não cria essa divisória.
+
+Validação e recibos: `scripts/arete/relatorios/20261008_fv_missing_crossings/`. Aprovação global G2-V e N3/N5 não são inferidas dos testes do SA.
+
+Seções medidas pertencem ao próprio segmento: a reconciliação entre classes não
+homogeneíza alturas diferentes usando uma dimensão global da viga. Chamadas
+mais afastadas só podem ser associadas com orientação/largura compatíveis e sem
+parede interveniente. Uma rodada granular LV preserva integralmente os dados FV
+não solicitados, inclusive espelhos e geometria classificada. Visões de corte não entram na máscara de sólidos nem vetam preenchimento de
+cruzamentos; a regeneração recupera os trechos automáticos anteriormente
+fragmentados, comprovando paredes contínuas. A fonte DXF não é alterada.
+Ver recibo atualizado `RELATORIO-CONTINUIDADE.md` no diretório acima.
+
+### Costura automática sem transição física — 08/10/2026
+
+Uma costura dentro de uma faixa contínua e fora das transições locais medidas
+não cria um painel físico por haver dimensões textuais diferentes. Unir apenas
+retângulos contíguos com paredes comprovadas, sem divisória real, abertura,
+diferença de nível ou geometria humana. Preservar as chamadas de seção locais
+em `fv_source_section_references`; a divergência não certifica altura uniforme.
+`fv_section_transition_unlocated` impede a reconciliação de substituir a seção
+local pela seção global ou de uma cauda além do apoio. Caso V514: antigos
+segmentos 1 e 2 unidos; cauda além de P18 preservada. Recibo `RELATORIO-V514.md`.
+
+### Vão sem repetição do nome além de apoio — 08/10/2026
+
+O término de um trecho na face do apoio não elimina um vão do outro lado.
+Recuperar no inventário compartilhado FV/LV somente com par de paredes do
+DXF, chamada local de seção, apoio sólido e um único trecho adjacente identificado
+de mesma largura/altura. Nome concorrente, seção diferente ou decisão protegida
+vetam associação; não atribuir por simples distância. O apoio conserva sua área.
+Caso V517 acima de P16: `RELATORIO-V517.md` no diretório de recibos desta rodada.
+
+### Mudança de largura através do apoio — 10/10/2026
+
+Uma seção local de largura diferente pode continuar a mesma viga através de
+apoio sólido quando há uma parede longitudinal comum, altura declarada igual,
+duas paredes fonte saindo da face oposta e um único dono adjacente. O apoio
+deve cobrir ambas as faixas. Recortar o novo trecho na face oposta antes de
+conferir sobreposições: a extensão bruta pode incluir bordas do apoio e parte
+da faixa estreita. A chamada de seção precisa ficar no trecho recuperado.
+Parede ausente, apoio incompleto, altura diferente, nome concorrente ou
+decisão protegida vetam a recuperação. Não unir os painéis nem homogeneizar
+suas larguras. O gate de linhas usa os mesmos apoios reais que o inventário
+FV/LV; falta de apoio não é suprida por uma etiqueta de proveniência.
+
+O recorte que supera o veto inicial de sobreposição é exclusivo de uma
+transição física de largura. Para a mesma largura e seção, conservar o veto
+de sobreposição da extensão bruta com trechos conhecidos e exigir que a
+extensão já termine na face do apoio. Não recortar fundos existentes nem
+eliminar cantos ao recuperar um vão. A validação compara a união geométrica
+completa por viga, independentemente da numeração ou partição dos painéis.
+
+Contraprova local: V408 passa de14/55 para19/55 através de P33 e alcança P34.
+Valores e nomes são evidência desse desenho, não constantes da regra.
+Replays, controles e recibos: `scripts/arete/relatorios/20261010_encontros_niveis_14pav/vf402_fechamento/`.
+
+### Canto diagonal com retorno retangular já reconhecido — 10/10/2026
+
+Quando o gate de linhas recebe os apoios reais, um retorno retangular de
+`trecho_de_canto_em_L` pode sobreviver como painel separado. Esse retângulo
+não recebe o fechamento do corpo diagonal: um painel inteiramente coberto
+pela faixa medida do retorno deve ser ignorado na escolha do corpo a
+prolongar. A ordem dos índices não pode impedir a recomposição da cunha
+entre as duas pontas oblíquas e a face do apoio. Preservar os vetos de apoio,
+proteção e contato; a existência do retorno não autoriza acrescentar área
+fora da célula comprovada.
+
+Contraprova V406: com o retorno examinado primeiro, o fechamento informava
+área adicionada zero e faltavam 77,893844 cm². Selecionar o corpo diagonal
+restituiu a união fonte de 4891,605153 cm² no ensaio local. Comparar a união
+completa antes/depois e repetir com o retorno antes e depois do corpo; a
+partição de painéis não substitui conservação geométrica. Esse recibo local
+não confirma publicação; consultar o replay canônico e seu recibo final.
+
+## ESTILO-INTEGRADO-20261008 — harmonização entre classes
+
+### Anotação de pilar na faixa FV — 10/10/2026
+
+Uma seção B/H próxima ao fundo pode pertencer ao pilar. O QA só exclui essa
+anotação como PIL quando há nome original de pilar, agrupamento de legenda
+alinhado e um único contorno retangular fechado original com as duas dimensões
+escritas. Proximidade isolada ou largura semelhante não basta; ambiguidades
+permanecem para revisão. Contraprova do 13_PAV: E39=P8, E3A=19/66 e contorno
+253=19×66. Essa seção não prova largura 19 da VF301, cuja própria anotação é
+14/55. Excluir a seção errada não aprova automaticamente a seção da viga quando
+ela está fora do corredor medido. Preservar a incerteza e a geometria N1.
+
+### Rótulos repetidos e identidade de parcelas — 10/10/2026
+
+Um nome repetido não autoriza atribuir todas as parcelas ao primeiro texto nem
+transferir níveis a outro texto só porque escreve o mesmo nome. A ligação de
+uma parcela ao rótulo exige que seu handle original esteja na prova de seção
+numérica alinhada e do par de paredes observadas no contorno da parcela. Se
+mais de um rótulo original puder ocupar esse vínculo, manter a ambiguidade.
+Preservar a proveniência e o estado dos níveis, inclusive estimados e inferidos.
+Essa prova de identidade/seção não aprova extremos, inventário ou contorno inteiro.
+
+Contraprova 14_PAV: D73=VF402 liga à parcela oblíqua pelas paredes 2A3/2A4
+e seção DB6=14/55; D78=VF406 liga à sua parcela pelas paredes 2EC/2F0 e
+seção DF6=14/55. O replay local separou essas parcelas do primeiro rótulo;
+o ciclo completo posterior ainda é necessário para aprovar a integração.
+
+Um polígono com degrau real, mesmo pequeno, não é retângulo exato. O caso
+V302 seg9 do 13_PAV tem degrau 0,0025 cm × 18,962 cm e nome original remoto;
+medir largura por caixa não comprova identidade nem autoriza remover a tira.
+Uma perda de status QA pode revelar cobertura anterior insuficiente, sem
+mudança de geometria. Ela continua bloqueante até a prova original adequada.
+
+### Contorno oblíquo: prova separada dos limites de apoio — 11/10/2026
+
+Uma faixa oblíqua pode ter suas paredes comprovadas sem ter apoio, seção,
+propriedade do encontro ou inventário comprovados. O QA deve conservar essas
+provas separadamente. A subdivisão recorta somente a fronteira existente do
+polígono real; as faces artificiais criadas pelo recorte não viram paredes.
+Cada vértice real divide a medição, e a cobertura usa união dos intervalos de
+entidades originais com handles. Uma pequena aresta sem nenhuma evidência
+continua incerta, mesmo abaixo da tolerância absoluta.
+
+O helper `qa_fv_oblique_boundary_candidate.prove_oblique_boundary` e seu caller
+em `qa_fv_corridors.measure_polygon` foram instalados com guarda de fontes/jobs.
+Replay14: duas de13 faixas ganharam prova independente de contorno; onze
+continuam sem prova completa. Os bloqueios anteriores de limites foram
+preservados. Isso não aprova nenhum fundo inteiro. Testes positivos e negativos
+do caller/helper passaram; o ciclo integrado continua obrigatório.
+Evidência: `integracao_v408_identidade/paths14_oblique_candidate_receipt.json`.
+
+### FV-CRUZAMENTO-INVENTARIO-ORIGINAL-20261010 — prova independente no QA
+
+Uma lacuna em uma aresta do fundo não equivale a uma parede comprovada. O
+helper `portal/app/qa_fv_crossing_gap.py` exige par de paredes transversais,
+nome e seção numérica originais alinhados; isso identifica o encontro, mas
+não escolhe seu dono. D-79/D-83 só certificam cruzamento passante quando
+ambas as faixas físicas se desenvolvem dos dois lados do encontro. Um T de
+mesma altura fica bloqueado para a regra D-90/FV; continuidade ou soma de
+vãos não podem substituir essa distinção.
+
+Para comparar continuidade, o componente físico se reconstrói por duas
+paredes originais. Uma interrupção só é atravessada por um encontro
+transversal com identidade própria. Nomes e seções de outro componente
+desconectado na mesma faixa não são concorrentes desse componente; nomes
+concorrentes dentro dele impedem aprovação. Pilares sólidos são recortados
+por seu polígono original, antes de comparar desenvolvimento e continuidade.
+Não se usa caixa do fundo, dimensão global da viga ou classificação do SA
+como autoridade independente.
+
+`portal/app/qa_fv_source_inventory.py` exige nome + seção numérica + contorno
+original para a propriedade do pilar e lê seu símbolo pela declaração
+original. NASCE exclui somente seu próprio contorno, conservando outro
+sólido sobreposto. Ambiguidade é localizada: um possível contorno original
+inteiro bloqueia o corredor que o intercepta, sem impedir outro componente
+distante. Nome sem contorno mantém sua região próxima como incerteza;
+ausência de declaração ou de inventário de preenchimentos continua
+bloqueante. Contornos manuais ou validados exigem reconciliação e não são
+substituídos pela escolha automática.
+
+A declaração do 14_PAV está no **recorte original `detalhes.dxf`**, SHA-256
+`b7fb64c85187148e7850cf9f3934a32c23a6839c219e922e0fe3f470ce8b8231`, e não na
+torre limpa. Cabeçalho 54A; rótulos 547=NASCE/CROSS, 548=MORRE/EMPTY,
+549=SEGUE/DIAG. O loader aceita declaração explícita no estrutural ou no
+detalhe vizinho do mesmo recorte, confronta conflitos e inclui o arquivo
+de detalhes na chave do cache. `context.convention={}` não significa que
+o desenho não tem declaração: conferir os arquivos de origem.
+
+Evidência local: 83 testes FV passaram, incluindo ausência de legenda,
+símbolo ambíguo, nome sem propriedade numérica, concorrente local/remoto,
+T de mesma altura e proteção manual. O replay encontrou 31 polígonos sólidos
+comprovados em cada pavimento; as incertezas restantes são preservadas.
+Recibo: `integracao_v408_identidade/fv_inventory_finish_receipt.json`, dentro
+de `scripts/arete/relatorios/20261010_encontros_niveis_14pav/desenvolvimento_rapido/`.
+**Essa prova é local: ciclo completo após deploy e conferência final ainda
+pendentes; nenhum fundo está aprovado por este registro.**
+
+Síntese vigente, convenções recorrentes, contraprovas e pendências: [Estilos estruturais — interpretação integrada](../../CONHECIMENTO/ESTILOS-ESTRUTURAIS-INTERPRETACAO-INTEGRADA.md). Consultar a evidência local antes de aplicar a regra a outra obra; cooperação entre classes não constitui prova circular nem aprovação automática.
+
+
+### FV-PONTAS-CHANFRO-SIMPLES-PRIORIDADE-20261012 — refinamento do dono
+
+Nos encontros, priorizar chanfros simples nas pontas de todas as vigas,
+harmonizando a repartição entre os fundos. Uma ponta complexa só permanece
+com necessidade explícita e demonstrada. O dono reprovou a ponta da V406
+no encontro com V407/VF402 na ficha 03 do 14º; não decidiu novamente a
+dobra junto ao P25. Aplicar a preferência de forma geral, em conjunto com
+as restrições e provas de D-85/FV acima: preservar a união externa,
+exclusividade dos donos, apoios, contornos protegidos e comportamento
+físico comprovado. Não apagar área nem simplificar uma peça isoladamente
+criando lacunas ou sobreposição. Correção e regressão continuam pendentes.
+Fonte: DECISOES-DO-DONO.md, FV-PONTAS-CHANFRO-SIMPLES-PRIORIDADE-20261012;
+recibo v406_human_chamfer_receipt_20261012.json e apontamento original do dono.
+
+
+### FV-ALTURA-SEGMENTACAO-DESEMPATE-20261012 — prioridade no encontro
+
+1. Alturas diferentes: a viga mais profunda sempre passa; a menos profunda
+   sempre para. A conveniência de fabricação não altera essa prioridade.
+2. Apenas em alturas iguais: favorecer a alternativa válida com menos
+   segmentos e tentar evitar segmentos menores que 60 cm quando possível.
+3. Segmentos necessários menores que 60 cm devem ser gerados e preservados;
+   não existe mínimo obrigatório nem descarte automático de peças pequenas.
+
+Avaliar a repartição entre todos os fundos do encontro, preservando a união
+externa, apoios, donos e ausência de sobreposição. A regra refina a escolha
+por conveniência e D-90/FV; não escolhe sempre a mesma direção de chegada
+por nome ou por formato T. Caso humano de referência: na ficha 04 do 14º,
+V407 para e V413 passa para evitar um segmento pequeno desnecessário na
+V413. A preferência pelos chanfros simples continua vigente. Não confundir
+o limiar desejável com regras de modulação das laterais.
+Fonte: DECISOES-DO-DONO.md, FV-ALTURA-SEGMENTACAO-DESEMPATE-20261012;
+v407_v413_human_junction_receipt_20261012.json. Implementação e regressão
+permanecem pendentes; o registro humano não aprova o QA automaticamente.

@@ -53,6 +53,15 @@ def test_preprocess_levels_only_from_consumed_run_and_matching_tower(tmp_path):
         {"field": "slab_level", "status": "unknown", "display_name": "L411", "value": 855.18},
     ]}), encoding="utf-8")
     assert load_preprocess_slab_levels(obra, "14_PAV") == {"L410": {855.25}}
+    (run / "towers/one.json").write_text(json.dumps({
+        "level_inventory": {"items": [{"item_id": "implicit", "display_name": "L1", "item_class": "slab"}]},
+        "levels": [
+            {"item_id": "implicit", "field": "slab_level", "method": "cad_level_inside_slab",
+             "status": "sa_evidence", "value": 0},
+            {"item_id": "implicit", "field": "slab_level", "method": "nearest",
+             "status": "inferred", "value": 3},
+        ]}), encoding="utf-8")
+    assert load_preprocess_slab_levels(obra, "14_PAV") == {"L1": {0}}
 
 
 def test_beam_level_uses_segment_touching_pillar():
@@ -104,3 +113,32 @@ def test_slab_distances_use_face_geometry_with_review_warning():
     }
     row = enrich_pillar_abcd_levels(tables, state, 855.25, pillar_name="P10")["faces"]["B"]["lajes"][0]
     assert (row["dist_esq"], row["dist_dir"], row["dist_status"]) == ("0.00cm", "19.00cm", "inferred")
+
+
+def test_old_face_scalar_cannot_confirm_missing_current_slab_level():
+    tables = {"faces": {"C": {"lajes": [{"nome": "L9", "nivel": "6cm"}]}}}
+    result = enrich_pillar_abcd_levels(tables, {"slabs": [{"name": "L9", "nivel": None}]}, None)
+    assert result["faces"]["C"]["lajes"][0]["nivel"] == "?"
+
+
+def test_sa_summary_does_not_use_old_n3_levels(tmp_path, monkeypatch):
+    from portal.app.routers import n1_routes as routes
+    monkeypatch.setattr(routes, "_robot_pilar", lambda *a: {"nivel_chegada_abs": 852.19, "nivel_saida_abs": 848.98, "altura": 321})
+    monkeypatch.setattr(routes.pillar_level_view, "load_preprocess_pillar_levels", lambda *a: {})
+    state = {"pilares": [{"name": "P8", "points": [[0,0],[19,0],[19,140],[0,140]]}]}
+    result = routes._resumo_pilar_n1(state, tmp_path, "P8", "TIPO")
+    assert result["nivel_chegada"] is None
+    assert result["nivel_saida"] is None
+    assert result["pe_direito"] is None
+
+
+def test_pillar_context_keeps_zero_negative_and_rejects_conflicting_sources(tmp_path, monkeypatch):
+    from portal.app import pillar_level_view as view
+    package = {'level_inventory': {'items': [{'item_id': 'p', 'item_class': 'pillar', 'display_name': 'P1'}]},
+               'levels': [{'item_id': 'p', 'field': 'top', 'status': 'floor_reference', 'value': 0},
+                          {'item_id': 'p', 'field': 'base', 'status': 'observed_text', 'value': -3},
+                          {'item_id': 'p', 'field': 'top', 'status': 'inferred', 'value': 9}]}
+    monkeypatch.setattr(view, '_load_consumed_preprocess_package', lambda *args: package)
+    assert view.load_preprocess_pillar_levels(tmp_path, 'TIPO', 'P1') == {'top': 0, 'base': -3}
+    package['levels'].append({'item_id': 'p', 'field': 'top', 'status': 'observed_text', 'value': 1})
+    assert view.load_preprocess_pillar_levels(tmp_path, 'TIPO', 'P1') == {'base': -3}

@@ -68,6 +68,13 @@ def canonical_fundo_section_dim(beam: dict) -> str:
     da própria viga; quando ela traz largura e altura, é a fonte canônica.
     """
     links = beam.get("links") if isinstance(beam.get("links"), dict) else {}
+    measured_sections = [clean_beam_section_dim(part.get('fv_measured_section_dim'))
+                         for key, payload in links.items()
+                         if re.fullmatch(r'viga_fundo_seg_\d+_area_segs', str(key)) and isinstance(payload, dict)
+                         for part in payload.get('contour') or [] if isinstance(part, dict)]
+    measured_sections = [dim for dim in measured_sections if dim]
+    if measured_sections:
+        return max(set(measured_sections), key=lambda value: (measured_sections.count(value), value))
     viga_segs = links.get("viga_segs") if isinstance(links.get("viga_segs"), dict) else {}
     bottom = viga_segs.get("seg_bottom") if isinstance(viga_segs.get("seg_bottom"), list) else []
     candidates: list[str] = []
@@ -198,8 +205,17 @@ def reconcile_beam_fundo_facts(beams: list[dict]) -> int:
                 re.fullmatch(r"viga_fundo_seg_\d+_dim", str(field_name))
                 and field_name not in validated
             ):
-                fields[field_name] = dim
-                beam[field_name] = dim
+                slot = str(field_name).removesuffix('_dim') + '_area_segs'
+                contour = (beam.get('links') or {}).get(slot, {}).get('contour') or []
+                if any(isinstance(part, dict) and part.get('fv_section_transition_unlocated')
+                       for part in contour):
+                    # Conflicting local callouts cannot inherit the tail's section.
+                    continue
+                measured = {clean_beam_section_dim(part.get('fv_measured_section_dim'))
+                            for part in contour if isinstance(part, dict)} - {''}
+                segment_dim = next(iter(measured)) if len(measured)==1 else dim
+                fields[field_name] = segment_dim
+                beam[field_name] = segment_dim
         nums = re.findall(r"\d+(?:[.,]\d+)?", dim)
         if len(nums) >= 2 and "altura_h1" not in validated:
             fields["altura_h1"] = float(nums[1].replace(",", "."))
@@ -463,7 +479,11 @@ _RUN_PAD = 12.0
 
 def _traced_runs(beam: dict) -> list[tuple[float, float, float, float]]:
     """Corredores do traçador, ignorando o reparo pelo par de paredes."""
-    sem_reparo = {k: v for k, v in beam.items() if k != "_recovered_corridor"}
+    # Verified FV panels are a subset of the structural beam: crossings can
+    # interrupt a panel without removing the beam's contact at the support.
+    # Bilateral contact must read the original trace, not that panel subset.
+    sem_reparo = {k: v for k, v in beam.items()
+                  if k not in {"_recovered_corridor", "_verified_wall_runs"}}
     return beam_runs_from_entity(sem_reparo)
 
 
@@ -564,6 +584,59 @@ def _merge_spans_boxes(
     return [tuple(b) for b in saida]
 
 
+def beam_fundo_candidate_runs(beam: dict) -> list[tuple[tuple[float, float, float, float], str]]:
+    """Final SA wall-reference rectangles, kept separate across supports.
+
+    Only typed, closed, axis-aligned area contours qualify. A concave or
+    diagonal contour must never become a bounding rectangle for contacts.
+    """
+    result = []
+    links = beam.get("links") if isinstance(beam.get("links"), dict) else {}
+    for key, payload in links.items():
+        if not re.fullmatch(r"viga_fundo_seg_\d+_area_segs", str(key)) or not isinstance(payload, dict):
+            continue
+        for part in payload.get("contour") or []:
+            # All typed final FV rectangles are proposals, including contours
+            # produced by the width repairer. The producer-specific LV flag is
+            # not evidence of a physical wall and cannot exclude another
+            # producer's proposal. Recovery still verifies both original DXF
+            # walls before any candidate becomes a usable contact run.
+            if not isinstance(part, dict):
+                continue
+            if part.get("geometry_role") != "area_fundo" or not part.get("closed"):
+                continue
+            points = part.get("points") or []
+            try:
+                pts = [(float(p[0]), float(p[1])) for p in points]
+            except (TypeError, ValueError, IndexError):
+                continue
+            if len(pts) < 4:
+                continue
+            ring = pts if pts[0] == pts[-1] else pts + [pts[0]]
+            if any(abs(a[0]-b[0]) > 1e-6 and abs(a[1]-b[1]) > 1e-6 for a,b in zip(ring,ring[1:])):
+                continue
+            box = (min(p[0] for p in pts), min(p[1] for p in pts),
+                   max(p[0] for p in pts), max(p[1] for p in pts))
+            box_area = (box[2]-box[0])*(box[3]-box[1])
+            area = abs(sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(ring,ring[1:]))) / 2
+            if box_area <= 0 or abs(area-box_area) > max(1e-4,box_area*1e-6):
+                continue
+            dim = clean_beam_section_dim(part.get("fv_measured_section_dim"))
+            if not dim or not _run_thickness_matches_section(min(box[2]-box[0],box[3]-box[1]), dim):
+                continue
+            result.append((box, dim))
+    return result
+
+
+def beam_fundo_runs(beam: dict) -> list[tuple[tuple[float, float, float, float], str]]:
+    """Candidates accepted only after independent DXF wall verification.
+
+    The persisted FV contour alone is never ground truth for pillar tags.
+    This transient evidence is rebuilt by recover_pillar_beam_corridors.
+    """
+    return [(tuple(box), dim) for box, dim in beam.get("_verified_wall_runs", [])]
+
+
 def beam_runs_from_entity(beam: dict) -> list[tuple[float, float, float, float]]:
     """Corredores contíguos (um bbox por trecho físico) da viga.
 
@@ -574,6 +647,9 @@ def beam_runs_from_entity(beam: dict) -> list[tuple[float, float, float, float]]
     próximos vira um corredor independente; passa/para e wall-hits devem
     ser avaliados corredor a corredor.
     """
+    final_runs = beam_fundo_runs(beam)
+    if final_runs:
+        return [box for box, _dim in final_runs]
     # Corredor recuperado do par de paredes do DXF vence o traçado: ele é a
     # medição direta do desenho, e o traçado pode vir truncado ou deslocado.
     recovered = beam.get("_recovered_corridor")
@@ -875,12 +951,14 @@ def _bridgeable_gap(
     beam_info: list, name: str, axis: str, fixed: float, outward: int,
     face_lo: float, face_hi: float, own_thickness: float, gap: float,
 ) -> float:
-    """Quanto do vão até a face é ocupado por outras vigas, mais a própria seção.
+    """União dos cruzamentos transversais na faixa candidata, mais sua seção.
 
     O vão só é continuação da viga enquanto o que está nele for viga. Somar a
-    própria seção cobre o trecho de apoio que o desenho não repete.
+    própria seção cobre o trecho de apoio que o desenho não repete. Outro
+    corredor longitudinal com nome distinto interrompe essa continuidade.
     """
-    occupied = 0.0
+    intervals = []
+    lo, hi = ((fixed, fixed + gap) if outward > 0 else (fixed - gap, fixed))
     for other in beam_info:
         if str(other.get("name") or "") == name:
             continue
@@ -899,12 +977,23 @@ def _bridgeable_gap(
                 near_lo, near_hi = rx0, rx1
             if min(across_hi, face_hi) - max(across_lo, face_lo) <= 0:
                 continue
-            lo, hi = (
-                (fixed, fixed + gap) if outward > 0 else (fixed - gap, fixed)
-            )
             overlap = min(near_hi, hi) - max(near_lo, lo)
             if overlap > 0:
-                occupied += overlap
+                # A parallel, differently named corridor owns this direction;
+                # it cannot extend the candidate through its own section.
+                if bool(other.get("is_h")) != (axis == "H"):
+                    return 0.0
+                intervals.append((max(near_lo, lo), min(near_hi, hi)))
+    # Duplicate or overlapping crossings occupy their union, never their sum.
+    occupied = 0.0
+    end = None
+    for start, stop in sorted(intervals):
+        if end is None or start > end:
+            occupied += stop - start
+            end = stop
+        elif stop > end:
+            occupied += stop - end
+            end = stop
     return occupied + own_thickness
 
 
@@ -1030,7 +1119,7 @@ def apply_transversal_crossing_arrivals(
                 if not crossing and outward and gap > tol:
                     bridge = _bridgeable_gap(
                         beam_info, name, axis, fixed, outward,
-                        lo_face, hi_face, thickness, gap,
+                        lo, hi, thickness, gap,
                     )
                 if not _run_reaches_face(near, far, fixed, tol, outward, bridge):
                     continue
@@ -1470,6 +1559,14 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
             continue
         bbox = beam_bbox_from_entity(beam)
         if not bbox:
+            # A wall-pair repair can be available even when the legacy
+            # classified geometry has no bbox. Do not discard that independently
+            # measured corridor before the physical-run/contact checks below.
+            measured_runs = beam_runs_from_entity(beam)
+            if measured_runs:
+                bbox = (min(r[0] for r in measured_runs), min(r[1] for r in measured_runs),
+                        max(r[2] for r in measured_runs), max(r[3] for r in measured_runs))
+        if not bbox:
             continue
         x0, y0, x1, y1 = bbox
         bw, bh = x1 - x0, y1 - y0
@@ -1511,6 +1608,8 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                 "y1": y1,
                 "is_h": is_h,
                 "runs": runs,
+                "final_sections": beam_fundo_runs(beam),
+                "source_sections": beam.get("_verified_section_texts", []),
                 # Trecho como o traçador entregou, sem reparo. O reparo pelo
                 # par de paredes conserta posição transversal, mas pode
                 # alongar a viga: `V332` sai traçada até 3103 (a face sul do
@@ -1529,14 +1628,67 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
             }
         )
 
-    def _run_view(bi: dict, run: tuple[float, float, float, float]) -> dict:
+    def _run_view(bi: dict, run: tuple[float, float, float, float], contact_along=None) -> dict:
         """Projeção do vínculo no corredor: coords e eixo do trecho, não do todo."""
         rx0, ry0, rx1, ry1 = run
         run_is_h = bool(bi["is_h"])
-        return {**bi, "x0": rx0, "y0": ry0, "x1": rx1, "y1": ry1,
+        local_dim = next((dim for box,dim in bi.get("final_sections", []) if box == run), bi["dim"])
+        if contact_along is None:
+            contact_along = ((px0+px1)/2) if run_is_h else ((py0+py1)/2)
+        else:
+            # Original tracing proves the reach, while the independently
+            # verified wall pair supplies the section at this particular cap.
+            # Their longitudinal extents need not be identical (FV is partial).
+            local_sections = set()
+            # Traced display bounds can include padding. For this bilateral
+            # contact, compare to the pillar's measured transverse faces.
+            contact_walls = (py0, py1) if run_is_h else (px0, px1)
+            measured_width = contact_walls[1] - contact_walls[0]
+            declared_width = beam_section_width(local_dim)
+            if declared_width is not None and abs(declared_width - measured_width) > 0.6:
+                # A coarse global section cannot fill a local contact whose
+                # measured wall pair has another width. Await local evidence.
+                local_dim = ""
+            for box, dim in bi.get("final_sections", []):
+                transverse = (1, 3) if run_is_h else (0, 2)
+                longitudinal = (0, 2) if run_is_h else (1, 3)
+                if (all(abs(box[i] - wall) <= 0.6
+                        for i, wall in zip(transverse, contact_walls))
+                        and box[longitudinal[0]] - 0.6 <= contact_along
+                        <= box[longitudinal[1]] + 0.6):
+                    local_sections.add(dim)
+            if local_sections:
+                local_dim = next(iter(local_sections)) if len(local_sections) == 1 else ""
+        candidates = sorted((abs((pos[0] if run_is_h else pos[1])-contact_along),dim)
+                            for box,dim,pos in bi.get("source_sections", []) if tuple(box)==tuple(run))
+        if candidates and candidates[0][0] <= 220:
+            # Equidistant contradictory annotations remain unresolved, never
+            # arbitrarily break a tie by lexicographic order of B/H.
+            if not any(abs(distance-candidates[0][0]) <= 0.6 and dim != candidates[0][1]
+                       for distance,dim in candidates[1:]):
+                local_dim = candidates[0][1]
+            else:
+                local_dim = ""
+        return {**bi, "dim": local_dim, "x0": rx0, "y0": ry0, "x1": rx1, "y1": ry1,
                 "is_h": run_is_h}
 
     for _nm, entry in report.items():
+        previous_faces = entry.get('face_beams') or {}
+        original_slots = []
+        for face, data in previous_faces.items():
+            if not isinstance(data, dict):
+                continue
+            for family, values in data.items():
+                slots = values if isinstance(values, list) else [values]
+                for slot in slots:
+                    if (isinstance(slot, dict) and slot.get('source') in
+                            ('original_contact_identity', 'original_contact_section')
+                            and slot.get('original_identity_evidence')):
+                        original_slots.append((face, family, copy.deepcopy(slot)))
+        if original_slots:
+            # Reconciliation checks the current source hash and physical points
+            # before restoring metadata onto an identical freshly rebuilt slot.
+            entry['_pil_original_provenance_pending'] = original_slots
         pts = entry.get("points") or []
         if not pts:
             continue
@@ -1846,6 +1998,25 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
             if not (reaches_c and reaches_d):
                 continue
 
+            # A seção pertence ao trecho que toca cada tampa, não à caixa
+            # global da viga. Uma mesma viga pode mudar B/H ao atravessar
+            # o apoio; conservar essas duas evidências evita copiar a seção
+            # de um lado para as tags do outro.
+            contact_runs = {}
+            for short_face in ("C", "D"):
+                candidates = [run for run in aligned_runs if (
+                    (run[0] < px0 - MIN_OV and run[2] >= px0 - TOL_ALIGN)
+                    if horizontal and short_face == "C" else
+                    (run[2] > px1 + MIN_OV and run[0] <= px1 + TOL_ALIGN)
+                    if horizontal else
+                    (run[3] > py1 + MIN_OV and run[1] <= py1 + TOL_ALIGN)
+                    if short_face == "C" else
+                    (run[1] < py0 - MIN_OV and run[3] >= py0 - TOL_ALIGN)
+                )]
+                cap_axis = (px0 if short_face == "C" else px1) if horizontal else (
+                    py1 if short_face == "C" else py0)
+                contact_runs[short_face] = _run_view(bi, candidates[0], cap_axis)
+
             payload = {
                 "name": bi["name"],
                 "dim": bi["dim"],
@@ -1863,7 +2034,11 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                     current = face_beams[long_face].get(slot)
                     if current and current.get("name") != bi["name"]:
                         continue
-                    face_beams[long_face][slot] = {**payload, "corner": corner}
+                    short_face = "C" if "C" in corner else "D"
+                    face_beams[long_face][slot] = {
+                        **payload, "corner": corner,
+                        "dim": contact_runs[short_face]["dim"],
+                    }
 
                 # A viga axial já foi provada nos dois extremos. Remover a
                 # chegada residual do mesmo nome evita o conflito passa+chega
@@ -1886,13 +2061,14 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                     for arrival in slots["para"]
                     if arrival.get("name") != bi["name"]
                 ]
-                if not any(
-                    interior.get("name") == bi["name"]
-                    for interior in slots["interior"]
-                ):
+                existing = next((interior for interior in slots["interior"]
+                                 if interior.get("name") == bi["name"]), None)
+                if existing is not None:
+                    existing["dim"] = contact_runs[short_face]["dim"]
+                else:
                     slots["interior"].append({
                         "name": bi["name"],
-                        "dim": bi["dim"],
+                        "dim": contact_runs[short_face]["dim"],
                         "source": "axial_bilateral_runs",
                         **({"evidence_segments": copy.deepcopy(bi["evidence_segments"])}
                            if bi.get("evidence_segments") else {}),
@@ -1925,7 +2101,7 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
                     face_beams[fid]["para"].append(
                         {
                             "name": br["name"],
-                            "dim": br["dim"],
+                            "dim": best_bi["dim"],
                             "corner": corner,
                             **({"evidence_segments": copy.deepcopy(br["evidence_segments"])}
                                if br.get("evidence_segments") else {}),
@@ -1945,7 +2121,11 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
             if slots["para"] or slots["interior"]:
                 continue
             axis, fixed, r0, r1 = face_coords[fid]
-            for bi in beam_info:
+            # A caixa global pode incluir escadas e trechos separados. A
+            # coincidência com C/D deve ser provada no corredor físico local,
+            # como os demais contatos, nunca nos extremos dessa caixa.
+            for bi in (_run_view(source, run)
+                       for source in beam_info for run in source["runs"]):
                 if bool(bi["is_h"]) == bool(horizontal):
                     continue  # eixo paralelo a A/B: já coberto acima
                 if axis == "V":
@@ -2097,15 +2277,21 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
 
         laje_entries = entry.get("lajes", [])
         covered: set = set()
+        retained_entries = []
 
         for le in laje_entries:
             fid = le.get("side", "NULO")
-            covered.add(fid)
             hits = [h[0] for h in face_hits.get(fid, [])]
             is_long_face = fid in ("A", "B")
             has_laje = bool(le.get("laje"))
             if not hits:
+                # Reclassification cannot turn an obsolete automatic beam
+                # annotation into a slab with no slab identity. Keep actual
+                # slab evidence, but clear the rejected beam reference.
+                if not has_laje and le.get("source") == "beam_wall_alignment":
+                    continue
                 le["content_type"] = "laje"
+                le.pop("viga", None)
             elif face_inside.get(fid) and not (is_long_face and has_laje):
                 le["content_type"] = "viga"
                 le["viga"] = {"name": hits[0]["name"], "dim": hits[0]["dim"]}
@@ -2115,6 +2301,10 @@ def enrich_pillar_report_with_beams(report: dict, beams: list) -> None:
             else:
                 le["content_type"] = "viga"
                 le["viga"] = {"name": hits[0]["name"], "dim": hits[0]["dim"]}
+            covered.add(fid)
+            retained_entries.append(le)
+
+        laje_entries = retained_entries
 
         for fid, hits in face_hits.items():
             if fid in covered or not hits:

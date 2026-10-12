@@ -5128,172 +5128,189 @@ class PreValidationDialog(QDialog):
             suffix = f'{suffix}_pid{os.getpid()}'
         return os.path.join(base, f'estado_{pav_slug}{suffix}.json')
 
+    def _serialize_analysis_state(self) -> dict:
+        """Build the canonical portal state in memory, without publishing it."""
+        nr_pilares = (self._nivel_report or {}).get('pilares', {})
+
+        # Pilares: geometria + classificação atual + lajes enriquecidas
+        pilares_serial: list[dict] = []
+        for key, pillar in sorted(
+            self._pillar_report.items(),
+            key=lambda kv: self._natural_sort_key(kv[0])
+        ):
+            combo = self._pillar_combos.get(key)
+            classif = combo.currentText() if combo else pillar.get('classification', 'INDETERMINADO')
+            # face_beams + tabelas ABCD para portal N1 / ficha (sem evidence_segments pesados)
+            _fb_raw = pillar.get('face_beams') or {}
+            _fb_light: dict = {}
+            if isinstance(_fb_raw, dict):
+                for _fid, _fd in _fb_raw.items():
+                    if not isinstance(_fd, dict):
+                        continue
+                    def _lite_beam(b):
+                        if not isinstance(b, dict):
+                            return b
+                        return {
+                            k: b.get(k)
+                            for k in ('name', 'dim', 'corner', 'behavior', 'nivel', 'n')
+                            if b.get(k) is not None
+                        }
+                    _fb_light[_fid] = {
+                        'passa_esq': _lite_beam(_fd.get('passa_esq')),
+                        'passa_dir': _lite_beam(_fd.get('passa_dir')),
+                        'corner_esq': _fd.get('corner_esq'),
+                        'corner_dir': _fd.get('corner_dir'),
+                        'para': [_lite_beam(x) for x in (_fd.get('para') or []) if isinstance(x, dict)],
+                        'interior': [_lite_beam(x) for x in (_fd.get('interior') or []) if isinstance(x, dict)],
+                    }
+            _abcd = pillar.get('_abcd_tables')
+            if not _abcd and _fb_light:
+                try:
+                    from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar
+                    from src.core.pillar_special_faces import enrich_special_pillar_tables
+                    _nv = ''
+                    try:
+                        from src.core.niveis_extractor import resolve_beam_default_level
+                        _nv = resolve_beam_default_level(
+                            getattr(self, '_obra', '') or getattr(self, '_obra_name', '') or '',
+                            getattr(self, '_pavimento', '') or '',
+                            getattr(self, '_sa_floor_level_reference', None),
+                        )
+                    except Exception:
+                        pass
+                    _pillar_tables_source = {
+                            'name': pillar.get('name') or key,
+                            'points': pillar.get('points') or [],
+                            'orientation': pillar.get('orientation') or 'vertical',
+                            'lajes': pillar.get('lajes') or [],
+                            'face_beams': _fb_raw,
+                            'sides_data': pillar.get('sides_data') or {},
+                            'format': pillar.get('format'),
+                        }
+                    _abcd = build_abcd_tables_from_pillar(
+                        _pillar_tables_source,
+                        slab_height_map=getattr(self, '_slab_height_map', None) or {},
+                        slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        slab_points_map=getattr(self, '_slab_poly_map', None),
+                        slab_regions_map={s.get('name'): s.get('slab_steps') or
+                            (s.get('extra') or {}).get('slab_steps') or []
+                            for s in (getattr(self, '_slabs', None) or [])},
+                        beams=getattr(self, '_beams', None) or [],
+                        nivel_viga_default=_nv,
+                    )
+                    _abcd = enrich_special_pillar_tables(
+                        _abcd, _pillar_tables_source,
+                        slab_height_map=getattr(self, '_slab_height_map', None) or {},
+                        slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        slab_points_map=getattr(self, '_slab_poly_map', None),
+                        beams=getattr(self, '_beams', None) or [],
+                        nivel_viga_default=_nv,
+                    )
+                except Exception:
+                    _abcd = None
+            pilares_serial.append({
+                'key':            key,
+                'name':           pillar.get('name') or key,
+                'classification': classif,
+                'orientation':    pillar.get('orientation') or 'vertical',
+                'points':         pillar.get('points') or [],
+                'bbox':           pillar.get('bbox') or [],
+                'lajes':          pillar.get('lajes') or [],
+                'face_beams':     _fb_light,
+                'sides_data':     pillar.get('sides_data') or {},
+                'format':         pillar.get('format'),
+                'interpretacao_abcd': _abcd,
+                'nivel_str':      (nr_pilares.get(key) or {}).get('level_str') or '',
+                'lado_A':         self._get_side_cell(pillar, 'A'),
+                'lado_B':         self._get_side_cell(pillar, 'B'),
+                'lado_C':         self._get_side_cell(pillar, 'C'),
+                'lado_D':         self._get_side_cell(pillar, 'D'),
+                'atencao':        self._atencao_notes.get(key, ''),
+            })
+
+        # Slabs
+        slabs_serial = []
+        accepted_slab_levels = self._build_slab_nivel_map()
+        for s in (self._slabs or []):
+            row = {
+                'name':   s.get('name') or '',
+                'nivel':  accepted_slab_levels.get(s.get('name') or '', ''),
+                'height': slab_height_cm(s),
+                # Geometria bruta (antes ausente do snapshot) — necessária para o
+                # diagnóstico numérico headless N1×N2 comparar bbox sem depender de
+                # self.slabs_found (só existe com UI aberta). Aditivo: nenhum
+                # consumidor existente do estado JSON lia essas chaves antes.
+                'points': s.get('points') or [],
+            }
+            # The LV reader re-detects contours. Without this map the principal
+            # vote is dropped and the cut fails as "nível ausente".
+            if s.get('preprocess_region_levels'):
+                row['preprocess_region_levels'] = s['preprocess_region_levels']
+            steps = s.get('slab_steps') or (s.get('extra') or {}).get('slab_steps')
+            if steps:
+                row['slab_steps'] = steps
+            slabs_serial.append(row)
+
+        # Cortes de viga
+        cuts_serial = []
+        for cut in self._cut_view_data:
+            combo = self._cut_combos.get(cut['uid'])
+            sc = self._cut_status_combos.get(cut['uid'])
+            cuts_serial.append({
+                'uid':        cut['uid'],
+                'beam_name':  combo.currentText() if combo else cut.get('beam_name', ''),
+                'conf_pct':   cut.get('conf_pct', 0),
+                'own_laje':   cut.get('own_laje', ''),
+                'neigh_laje': cut.get('neigh_laje', ''),
+                'beam_h':     cut.get('beam_h', ''),
+                'status':     sc.currentText() if sc else 'Válido',
+                'atencao':    self._cut_attention.get(cut['uid'], ''),
+                'pts':        cut.get('pts') or [],
+            })
+
+        # Segmentos
+        segs_serial: dict[str, list] = {}
+        for kind in SEGMENT_TAB_SPECS:
+            segs_serial[kind] = []
+            for raw in self._segment_data.get(kind, []):
+                seg = serializable_segment(raw)
+                cb = self._segment_status_combos.get(seg['uid'])
+                segs_serial[kind].append({
+                    'uid':           seg['uid'],
+                    'beam_name':     seg['beam_name'],
+                    'segment_label': seg['segment_label'],
+                    'side':          seg['side'],
+                    'behavior':      seg['behavior'],
+                    'length':        seg['length'],
+                    'width':         seg.get('width', ''),
+                    'level':         seg.get('level', ''),
+                    'level_source':  seg.get('level_source', 'unresolved'),
+                    'level_slabs':   seg.get('level_slabs', []),
+                    'level_distance_cm': seg.get('level_distance_cm'),
+                    'status':        cb.currentText() if cb else seg.get('status', 'valid'),
+                    'atencao':       self._segment_attention.get(seg['uid'], seg.get('attention', '')),
+                    'points':        seg.get('points') or [],
+                    'lv_cell':       (seg.get('details') or {}).get('lv_cell') or {},
+                })
+
+        state = {
+            'gerado_em':  datetime.now().isoformat(timespec='seconds'),
+            'obra':       self._obra,
+            'pavimento':  self._pavimento,
+            'db_path':    self._db_path or '',
+            'pilares':    pilares_serial,
+            'slabs':      slabs_serial,
+            'cortes':     cuts_serial,
+            'segmentos':  segs_serial,
+        }
+        return state
+
     def _save_analysis_state(self) -> None:
         """Serializa o estado completo da análise para JSON headless-friendly."""
         try:
+            state = self._serialize_analysis_state()
             state_path = self._analysis_state_path()
             os.makedirs(os.path.dirname(state_path), exist_ok=True)
-
-            nr_pilares = (self._nivel_report or {}).get('pilares', {})
-
-            # Pilares: geometria + classificação atual + lajes enriquecidas
-            pilares_serial: list[dict] = []
-            for key, pillar in sorted(
-                self._pillar_report.items(),
-                key=lambda kv: self._natural_sort_key(kv[0])
-            ):
-                combo = self._pillar_combos.get(key)
-                classif = combo.currentText() if combo else pillar.get('classification', 'INDETERMINADO')
-                # face_beams + tabelas ABCD para portal N1 / ficha (sem evidence_segments pesados)
-                _fb_raw = pillar.get('face_beams') or {}
-                _fb_light: dict = {}
-                if isinstance(_fb_raw, dict):
-                    for _fid, _fd in _fb_raw.items():
-                        if not isinstance(_fd, dict):
-                            continue
-                        def _lite_beam(b):
-                            if not isinstance(b, dict):
-                                return b
-                            return {
-                                k: b.get(k)
-                                for k in ('name', 'dim', 'corner', 'behavior', 'nivel', 'n')
-                                if b.get(k) is not None
-                            }
-                        _fb_light[_fid] = {
-                            'passa_esq': _lite_beam(_fd.get('passa_esq')),
-                            'passa_dir': _lite_beam(_fd.get('passa_dir')),
-                            'corner_esq': _fd.get('corner_esq'),
-                            'corner_dir': _fd.get('corner_dir'),
-                            'para': [_lite_beam(x) for x in (_fd.get('para') or []) if isinstance(x, dict)],
-                            'interior': [_lite_beam(x) for x in (_fd.get('interior') or []) if isinstance(x, dict)],
-                        }
-                _abcd = pillar.get('_abcd_tables')
-                if not _abcd and _fb_light:
-                    try:
-                        from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar
-                        from src.core.pillar_special_faces import enrich_special_pillar_tables
-                        _nv = ''
-                        try:
-                            from src.core.niveis_extractor import get_pavimento_niveis_abs
-                            _ai = get_pavimento_niveis_abs(
-                                getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or '',
-                                getattr(self, '_pavimento', '') or '',
-                            )
-                            if _ai and _ai.get('chegada_abs') is not None:
-                                _nv = f"{_ai['chegada_abs']}cm"
-                        except Exception:
-                            pass
-                        _pillar_tables_source = {
-                                'name': pillar.get('name') or key,
-                                'points': pillar.get('points') or [],
-                                'orientation': pillar.get('orientation') or 'vertical',
-                                'lajes': pillar.get('lajes') or [],
-                                'face_beams': _fb_light,
-                                'sides_data': pillar.get('sides_data') or {},
-                                'format': pillar.get('format'),
-                            }
-                        _abcd = build_abcd_tables_from_pillar(
-                            _pillar_tables_source,
-                            slab_height_map=getattr(self, '_slab_height_map', None) or {},
-                            slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
-                            nivel_viga_default=_nv,
-                        )
-                        _abcd = enrich_special_pillar_tables(
-                            _abcd, _pillar_tables_source,
-                            slab_height_map=getattr(self, '_slab_height_map', None) or {},
-                            slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
-                            beams=getattr(self, '_beams', None) or [],
-                            nivel_viga_default=_nv,
-                        )
-                    except Exception:
-                        _abcd = None
-                pilares_serial.append({
-                    'key':            key,
-                    'name':           pillar.get('name') or key,
-                    'classification': classif,
-                    'orientation':    pillar.get('orientation') or 'vertical',
-                    'points':         pillar.get('points') or [],
-                    'bbox':           pillar.get('bbox') or [],
-                    'lajes':          pillar.get('lajes') or [],
-                    'face_beams':     _fb_light,
-                    'sides_data':     pillar.get('sides_data') or {},
-                    'format':         pillar.get('format'),
-                    'interpretacao_abcd': _abcd,
-                    'nivel_str':      (nr_pilares.get(key) or {}).get('level_str') or '',
-                    'lado_A':         self._get_side_cell(pillar, 'A'),
-                    'lado_B':         self._get_side_cell(pillar, 'B'),
-                    'lado_C':         self._get_side_cell(pillar, 'C'),
-                    'lado_D':         self._get_side_cell(pillar, 'D'),
-                    'atencao':        self._atencao_notes.get(key, ''),
-                })
-
-            # Slabs
-            slabs_serial = [
-                {
-                    'name':   s.get('name') or '',
-                    'nivel':  (s.get('fields') or {}).get('laje_nivel') or s.get('nivel') or '',
-                    'height': slab_height_cm(s),
-                    # Geometria bruta (antes ausente do snapshot) — necessária para o
-                    # diagnóstico numérico headless N1×N2 comparar bbox sem depender de
-                    # self.slabs_found (só existe com UI aberta). Aditivo: nenhum
-                    # consumidor existente do estado JSON lia essas chaves antes.
-                    'points': s.get('points') or [],
-                }
-                for s in (self._slabs or [])
-            ]
-
-            # Cortes de viga
-            cuts_serial = []
-            for cut in self._cut_view_data:
-                combo = self._cut_combos.get(cut['uid'])
-                sc = self._cut_status_combos.get(cut['uid'])
-                cuts_serial.append({
-                    'uid':        cut['uid'],
-                    'beam_name':  combo.currentText() if combo else cut.get('beam_name', ''),
-                    'conf_pct':   cut.get('conf_pct', 0),
-                    'own_laje':   cut.get('own_laje', ''),
-                    'neigh_laje': cut.get('neigh_laje', ''),
-                    'beam_h':     cut.get('beam_h', ''),
-                    'status':     sc.currentText() if sc else 'Válido',
-                    'atencao':    self._cut_attention.get(cut['uid'], ''),
-                    'pts':        cut.get('pts') or [],
-                })
-
-            # Segmentos
-            segs_serial: dict[str, list] = {}
-            for kind in SEGMENT_TAB_SPECS:
-                segs_serial[kind] = []
-                for raw in self._segment_data.get(kind, []):
-                    seg = serializable_segment(raw)
-                    cb = self._segment_status_combos.get(seg['uid'])
-                    segs_serial[kind].append({
-                        'uid':           seg['uid'],
-                        'beam_name':     seg['beam_name'],
-                        'segment_label': seg['segment_label'],
-                        'side':          seg['side'],
-                        'behavior':      seg['behavior'],
-                        'length':        seg['length'],
-                        'width':         seg.get('width', ''),
-                        'level':         seg.get('level', ''),
-                        'level_source':  seg.get('level_source', 'unresolved'),
-                        'level_slabs':   seg.get('level_slabs', []),
-                        'level_distance_cm': seg.get('level_distance_cm'),
-                        'status':        cb.currentText() if cb else seg.get('status', 'valid'),
-                        'atencao':       self._segment_attention.get(seg['uid'], seg.get('attention', '')),
-                        'points':        seg.get('points') or [],
-                        'lv_cell':       (seg.get('details') or {}).get('lv_cell') or {},
-                    })
-
-            state = {
-                'gerado_em':  datetime.now().isoformat(timespec='seconds'),
-                'obra':       self._obra,
-                'pavimento':  self._pavimento,
-                'db_path':    self._db_path or '',
-                'pilares':    pilares_serial,
-                'slabs':      slabs_serial,
-                'cortes':     cuts_serial,
-                'segmentos':  segs_serial,
-            }
             with open(state_path, 'w', encoding='utf-8') as f:
                 json.dump(state, f, ensure_ascii=False, indent=2)
         except Exception:
@@ -6228,7 +6245,7 @@ class PreValidationDialog(QDialog):
             return ''
 
     def materialize_pl_n3_variants(
-        self, visual_mode: str = "NOVA",
+        self, visual_mode: str = "NOVA", *, max_workers: int = 3,
     ) -> tuple[list[str], list[str]]:
         """N3 de pilares: **sempre** PARA e PASSA (sem escolha manual).
 
@@ -6244,6 +6261,7 @@ class PreValidationDialog(QDialog):
         if visual_mode not in {"NOVA", "INI", "MOLDE_1", "MOLDE_2", "MOLDE_3"}:
             raise ValueError(f"modo de desenho invalido: {visual_mode!r}")
         self._pl_n3_visual_mode = visual_mode
+        self._pl_n3_workers = max_workers
         # Reset flag para forçar batch neste call (mesmo se export anterior
         # na mesma instância já tiver materializado).
         self._pl_n3_materialized_once = False
@@ -6925,10 +6943,13 @@ class PreValidationDialog(QDialog):
                     bits.append(f'N: {v_nivel}')
                 else:
                     try:
-                        from src.core.niveis_extractor import get_pavimento_niveis_abs
-                        _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
-                        if _abs_info and _abs_info.get('chegada_abs') is not None:
-                            bits.append(f'N: {_abs_info["chegada_abs"]}cm')
+                        from src.core.niveis_extractor import resolve_beam_default_level
+                        _default_level = resolve_beam_default_level(
+                            getattr(self, '_obra', '') or getattr(self, '_obra_name', '') or '',
+                            getattr(self, '_pavimento', '') or '',
+                            getattr(self, '_sa_floor_level_reference', None))
+                        if _default_level:
+                            bits.append(f'N: {_default_level}')
                     except Exception:
                         pass
                 src = e.get('side_source') or e.get('source') or ''
@@ -7161,10 +7182,13 @@ class PreValidationDialog(QDialog):
                             _bits.append(f'N: {_bnv}')
                         else:
                             try:
-                                from src.core.niveis_extractor import get_pavimento_niveis_abs
-                                _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
-                                if _abs_info and _abs_info.get('chegada_abs') is not None:
-                                    _bits.append(f'N: {_abs_info["chegada_abs"]}cm')
+                                from src.core.niveis_extractor import resolve_beam_default_level
+                                _default_level = resolve_beam_default_level(
+                                    getattr(self, '_obra', '') or getattr(self, '_obra_name', '') or '',
+                                    getattr(self, '_pavimento', '') or '',
+                                    getattr(self, '_sa_floor_level_reference', None))
+                                if _default_level:
+                                    _bits.append(f'N: {_default_level}')
                             except Exception:
                                 pass
                         _bits.append(f'vínculo topológico SA: corre ao longo da face {_fid}')
@@ -7206,10 +7230,13 @@ class PreValidationDialog(QDialog):
                             _bits.append(f'N: {_bnv}')
                         else:
                             try:
-                                from src.core.niveis_extractor import get_pavimento_niveis_abs
-                                _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
-                                if _abs_info and _abs_info.get('chegada_abs') is not None:
-                                    _bits.append(f'N: {_abs_info["chegada_abs"]}cm')
+                                from src.core.niveis_extractor import resolve_beam_default_level
+                                _default_level = resolve_beam_default_level(
+                                    getattr(self, '_obra', '') or getattr(self, '_obra_name', '') or '',
+                                    getattr(self, '_pavimento', '') or '',
+                                    getattr(self, '_sa_floor_level_reference', None))
+                                if _default_level:
+                                    _bits.append(f'N: {_default_level}')
                             except Exception:
                                 pass
                         _bits.append(f'vínculo topológico SA: chega perpendicularmente na face {_fid}')
@@ -7225,10 +7252,13 @@ class PreValidationDialog(QDialog):
                             _bits.append(f'N: {_bnv}')
                         else:
                             try:
-                                from src.core.niveis_extractor import get_pavimento_niveis_abs
-                                _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
-                                if _abs_info and _abs_info.get('chegada_abs') is not None:
-                                    _bits.append(f'N: {_abs_info["chegada_abs"]}cm')
+                                from src.core.niveis_extractor import resolve_beam_default_level
+                                _default_level = resolve_beam_default_level(
+                                    getattr(self, '_obra', '') or getattr(self, '_obra_name', '') or '',
+                                    getattr(self, '_pavimento', '') or '',
+                                    getattr(self, '_sa_floor_level_reference', None))
+                                if _default_level:
+                                    _bits.append(f'N: {_default_level}')
                             except Exception:
                                 pass
                         _bits.append(f'vínculo topológico SA: face {_fid} e limite interno da viga (Caso 4)')
@@ -7731,14 +7761,9 @@ class PreValidationDialog(QDialog):
                                 if _viga_name_from_detail(item) not in _shared
                             ]
 
-                _viga_top_nivel = '852.19cm'
-                try:
-                    from src.core.niveis_extractor import get_pavimento_niveis_abs
-                    _abs_info = get_pavimento_niveis_abs(getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
-                    if _abs_info and _abs_info.get('chegada_abs') is not None:
-                        _viga_top_nivel = f'{_abs_info["chegada_abs"]}cm'
-                except Exception:
-                    pass
+                # A floor datum is not independent evidence of a beam's level.
+                # Unknown arrivals retain geometry without receiving a fake altitude.
+                _viga_top_nivel = ''
 
                 for _face_id in ('A', 'B', 'C', 'D'):
                     _arrivals = result[_face_id]['chega']
@@ -7753,7 +7778,7 @@ class PreValidationDialog(QDialog):
                             for item in result[_face_id][kind]
                         } - {''}
                         if _new_name not in _continuous:
-                            _dim = '19/66'
+                            _dim = ''  # no section dimension without CAD evidence
                             _detail = f'Viga: {_new_name}  ·  dim: {_dim}  ·  N: {_viga_top_nivel}  ·  chega perpendicularmente na face {_face_id} (nome ancorado no canto do pilar)'
                             result[_face_id]['chega'].append(_detail)
                     elif len(_arrivals) == 1:
@@ -7801,20 +7826,15 @@ class PreValidationDialog(QDialog):
                     )
                     from src.core.pillar_special_faces import enrich_special_pillar_tables
                     _nv = ''
-                    try:
-                        from src.core.niveis_extractor import get_pavimento_niveis_abs
-                        _ai = get_pavimento_niveis_abs(
-                            getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or '',
-                            getattr(self, '_pavimento', '') or '',
-                        )
-                        if _ai and _ai.get('chegada_abs') is not None:
-                            _nv = f"{_ai['chegada_abs']}cm"
-                    except Exception:
-                        _nv = _viga_top_nivel
                     _payload = build_abcd_tables_from_pillar(
                         pillar,
                         slab_height_map=getattr(self, '_slab_height_map', None) or {},
                         slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        slab_points_map=getattr(self, '_slab_poly_map', None),
+                        slab_regions_map={s.get('name'): s.get('slab_steps') or
+                            (s.get('extra') or {}).get('slab_steps') or []
+                            for s in (getattr(self, '_slabs', None) or [])},
+                        beams=getattr(self, '_beams', None) or [],
                         nivel_viga_default=_nv or _viga_top_nivel,
                         face_interp_lines=result,
                     )
@@ -7822,6 +7842,7 @@ class PreValidationDialog(QDialog):
                         _payload, pillar,
                         slab_height_map=getattr(self, '_slab_height_map', None) or {},
                         slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        slab_points_map=getattr(self, '_slab_poly_map', None),
                         beams=getattr(self, '_beams', None) or [],
                         nivel_viga_default=_nv or _viga_top_nivel,
                     )
@@ -8240,7 +8261,7 @@ class PreValidationDialog(QDialog):
 
                 # Convenção de Níveis (Elevação Típica da Obra)
                 try:
-                    from src.core.niveis_extractor import get_pavimento_niveis_abs as _gpna
+                    from src.core.niveis_extractor import resolve_panel_level_reference
                     # Na VPS, passar apenas o nome fazia niveis_extractor usar
                     # seu fallback Windows (D:/Agente-cad-PYSIDE/...), logo a
                     # convenção não era encontrada e a altura caía em 280 cm.
@@ -8250,21 +8271,14 @@ class PreValidationDialog(QDialog):
                         getattr(self, '_obra', '')
                         or getattr(self, '_obra_name', '')
                         or row.get('obra')
-                        or 'Obra_TREINO_1'
+                        or ''
                     )
-                    _pav = str(row.get('pavimento') or '13_PAV')
-                    _nabs = _gpna(_obra, _pav)
-                    if not _nabs:
-                        # O headless fixa essa referência ao hash, torre e
-                        # pavimento antes de construir o diálogo. É apenas a
-                        # altura geral do painel PL; não atribui nível a item.
-                        _direct = getattr(self, '_sa_floor_level_reference', None)
-                        if _direct and _direct.get('unit') == 'm':
-                            _nabs = {'saida_abs': _direct['base'],
-                                     'chegada_abs': _direct['top']}
-                            if not getattr(self, '_sa_level_reference_logged', False):
-                                print('[PL-N3] Referência direta fixada aplicada à altura do pavimento', flush=True)
-                                self._sa_level_reference_logged = True
+                    _pav = str(getattr(self, '_pavimento', '') or row.get('pavimento') or '')
+                    _nabs = resolve_panel_level_reference(
+                        _obra, _pav, getattr(self, '_sa_floor_level_reference', None))
+                    if _nabs.get('fonte') == 'verified_run_context' and not getattr(self, '_sa_level_reference_logged', False):
+                        print('[PL-N3] Referência direta fixada aplicada à altura do pavimento', flush=True)
+                        self._sa_level_reference_logged = True
                     if _nabs:
                         if _nabs.get('saida_abs') is not None:
                             _pillar_bot_level_abs = _nabs['saida_abs']
@@ -8481,6 +8495,28 @@ class PreValidationDialog(QDialog):
                     contract,
                     str(row.get('pavimento') or getattr(self, '_pavimento', '') or ''),
                 )
+                # Physical contacts replace the whole-face scalar slab cut.
+                # Rectangular faces only; special faces need their physical ring.
+                from src.core.pillar_special_faces import supports_rectangular_tag_renderer
+                if supports_rectangular_tag_renderer(pillar.get('points') or []):
+                    from src.core.pillar_abcd_tables import build_abcd_tables_from_pillar
+                    from src.core.pillar_slab_contacts import contacts_from_tables, finite_level
+                    contact_tables = build_abcd_tables_from_pillar(
+                        pillar, slab_height_map=self._slab_height_map,
+                        slab_nivel_map=self._slab_nivel_map,
+                        slab_points_map=self._slab_poly_map,
+                        slab_regions_map={s.get('name'): s.get('slab_steps') or
+                            (s.get('extra') or {}).get('slab_steps') or [] for s in self._slabs},
+                        beams=self._beams,
+                    )
+                    for contact_face in contact_tables['faces'].values():
+                        for contact_row in contact_face.get('lajes') or []:
+                            local_level = finite_level(self._slab_nivel_map.get(contact_row.get('nome')))
+                            if local_level is not None:
+                                contact_row['nivel'] = local_level
+                                contact_row['nivel_status'] = 'sa'
+                    contract['physical_slab_contacts'] = contacts_from_tables(
+                        contact_tables, _pillar_top_level_abs)
                 return contract
 
             def _variant_payload(contract: dict) -> dict:
@@ -8668,6 +8704,9 @@ class PreValidationDialog(QDialog):
                 base['_sa_mode_contract'] = contract
                 base['_sa_mode_variant'] = contract.get('modo_semantico')
                 base['modo_distribuicao'] = 'NOVA'
+                from src.core.pillar_slab_contacts import apply_contact_openings
+                base = apply_contact_openings(base, contract.get('physical_slab_contacts') or {})
+                contract = base['_sa_mode_contract']
                 # Motor NOVA universal: malha 122, rebaixo dual, y_rel, clamp
                 try:
                     import sys as _sys
@@ -8754,6 +8793,19 @@ class PreValidationDialog(QDialog):
                 with open(json_path, 'w', encoding='utf-8') as handle:
                     json.dump(payload, handle, ensure_ascii=False, indent=2)
                 result['paths']['json'] = json_path
+                if materialize_pl_only and getattr(self, '_pl_n3_workers', 1) > 1:
+                    # Resolve SA/overrides on the owner thread. Only immutable
+                    # JSON and isolated output paths cross the process boundary.
+                    from pathlib import Path as _Path
+                    stable = _Path(obra_ref) / 'Fase-6_Execucao_CAD'
+                    visual_mode = str(contract.get('modo_visual') or 'NOVA').upper()
+                    destinations = [str(stable / 'n3_modes' / visual_mode / 'pilares' / mode_slug)]
+                    if visual_mode == 'NOVA':
+                        destinations.append(str(stable / 'n3_variants' / mode_slug))
+                    result['_draw_task'] = (
+                        f'{item}_{mode_slug}', payload, variant_dir, visual_mode, destinations,
+                    )
+                    return result
                 try:
                     # O gerador historico importa visual_modes/pl_grade_visual_config
                     # como modulos irmaos. Quando consumido como biblioteca pelo SA,
@@ -8849,6 +8901,8 @@ class PreValidationDialog(QDialog):
                         result = _materialize_n3_variant(row, pillar_m, mode)
                         _pl_n3_cache[(nome_m, mode)] = result
                         _batch_new += 1
+                        if result.get('_draw_task') is not None:
+                            continue
                         paths = result.get('paths') or {}
                         if paths.get('json') and (
                             paths.get('abcd') or paths.get('grades')
@@ -8865,6 +8919,28 @@ class PreValidationDialog(QDialog):
                             f'[HTML] N3 PL {label} falhou: {exc}',
                             flush=True,
                         )
+            pending = [(key, result) for key, result in _pl_n3_cache.items()
+                       if result.get('_draw_task') is not None]
+            if pending:
+                from src.core.pillar_n3_tasks import run_pillar_tasks, ZONES
+                import time as _time
+                started = _time.monotonic()
+                results = run_pillar_tasks(
+                    [result['_draw_task'] for _, result in pending],
+                    max_workers=getattr(self, '_pl_n3_workers', 1),
+                )
+                for (key, result), (label, paths, error, seconds) in zip(pending, results):
+                    result.pop('_draw_task', None)
+                    result['paths'].update(paths)
+                    if all(paths.get(zone) for zone in ZONES) and not error:
+                        if label not in _pl_n3_generated:
+                            _pl_n3_generated.append(label)
+                    else:
+                        if label not in _pl_n3_failed:
+                            _pl_n3_failed.append(label)
+                        print(f'[HTML] N3 PL {label} falhou: {error}', flush=True)
+                print(f'[PERF] N3 PL lote: {_time.monotonic()-started:.2f}s '
+                      f'variantes={len(pending)}', flush=True)
             self._pl_n3_cache = _pl_n3_cache
             self._pl_n3_materialized_once = True
             self._last_pl_n3_materialize = {
@@ -9140,19 +9216,23 @@ class PreValidationDialog(QDialog):
                     from src.core.pillar_special_faces import enrich_special_pillar_tables
                     _nv = ''
                     try:
-                        from src.core.niveis_extractor import get_pavimento_niveis_abs
-                        _ai = get_pavimento_niveis_abs(
-                            getattr(self, '_obra_name', '') or getattr(self, '_obra', '') or '',
+                        from src.core.niveis_extractor import resolve_beam_default_level
+                        _nv = resolve_beam_default_level(
+                            getattr(self, '_obra', '') or getattr(self, '_obra_name', '') or '',
                             getattr(self, '_pavimento', '') or '',
+                            getattr(self, '_sa_floor_level_reference', None),
                         )
-                        if _ai and _ai.get('chegada_abs') is not None:
-                            _nv = f"{_ai['chegada_abs']}cm"
                     except Exception:
                         pass
                     _tables = pillar.get('_abcd_tables') or build_abcd_tables_from_pillar(
                         pillar,
                         slab_height_map=getattr(self, '_slab_height_map', None) or {},
                         slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        slab_points_map=getattr(self, '_slab_poly_map', None),
+                        slab_regions_map={s.get('name'): s.get('slab_steps') or
+                            (s.get('extra') or {}).get('slab_steps') or []
+                            for s in (getattr(self, '_slabs', None) or [])},
+                        beams=getattr(self, '_beams', None) or [],
                         nivel_viga_default=_nv,
                         face_interp_lines=face_interp,
                     )
@@ -9160,6 +9240,7 @@ class PreValidationDialog(QDialog):
                         _tables, pillar,
                         slab_height_map=getattr(self, '_slab_height_map', None) or {},
                         slab_nivel_map=getattr(self, '_slab_nivel_map', None) or {},
+                        slab_points_map=getattr(self, '_slab_poly_map', None),
                         beams=getattr(self, '_beams', None) or [],
                         nivel_viga_default=_nv,
                     )
@@ -9244,7 +9325,7 @@ class PreValidationDialog(QDialog):
                     if saida is None or chegada is None:
                         try:
                             from src.core.niveis_extractor import get_pavimento_niveis_abs as _gpna
-                            _nabs = _gpna(getattr(self, '_obra_name', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                            _nabs = _gpna(getattr(self, '_obra_name', '') or '', getattr(self, '_pavimento', '') or '')
                             if _nabs:
                                 if saida is None:
                                     saida = _nabs.get('saida_abs')
@@ -9253,14 +9334,15 @@ class PreValidationDialog(QDialog):
                         except Exception:
                             pass
                     try:
-                        s_val = float(saida) if saida is not None else 848.98
-                        c_val = float(chegada) if chegada is not None else 852.19
-                        calc_altura = abs(c_val - s_val)
-                        calc_altura_cm = calc_altura * 100.0 if calc_altura < 50 else calc_altura
+                        if saida is None or chegada is None:
+                            return '<span class="muted">Referencias de nivel indisponiveis.</span>'
+                        s_val = float(saida)
+                        c_val = float(chegada)
+                        calc_altura_cm = abs(c_val - s_val) * 100.0
                         altura_txt = f'{calc_altura_cm:.1f}cm'
                         return (
-                            f'Nível de saída: <b>{s_val:.2f}cm</b> · '
-                            f'Nível de chegada: <b>{c_val:.2f}cm</b> · '
+                            f'Nível de saída: <b>{s_val:.2f}m</b> · '
+                            f'Nível de chegada: <b>{c_val:.2f}m</b> · '
                             f'Pé-direito (altura): <b>{altura_txt}</b> '
                             f'<span class="muted">(chegada − saída = {calc_altura_cm:.1f}cm; conversão do SA)</span>'
                         )
@@ -9514,7 +9596,7 @@ class PreValidationDialog(QDialog):
                     if saida is None or chegada is None:
                         try:
                             from src.core.niveis_extractor import get_pavimento_niveis_abs as _gpna
-                            _nabs = _gpna(getattr(self, '_obra_name', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                            _nabs = _gpna(getattr(self, '_obra_name', '') or '', getattr(self, '_pavimento', '') or '')
                             if _nabs:
                                 if saida is None:
                                     saida = _nabs.get('saida_abs')
@@ -9523,14 +9605,15 @@ class PreValidationDialog(QDialog):
                         except Exception:
                             pass
                     try:
-                        s_val = float(saida) if saida is not None else 848.98
-                        c_val = float(chegada) if chegada is not None else 852.19
-                        calc_altura = abs(c_val - s_val)
-                        calc_altura_cm = calc_altura * 100.0 if calc_altura < 50 else calc_altura
+                        if saida is None or chegada is None:
+                            return '<span class="muted">Referencias de nivel indisponiveis.</span>'
+                        s_val = float(saida)
+                        c_val = float(chegada)
+                        calc_altura_cm = abs(c_val - s_val) * 100.0
                         altura_txt = f'{calc_altura_cm:.1f}cm'
                         return (
-                            f'Nível de saída: <b>{s_val:.2f}cm</b> · '
-                            f'Nível de chegada: <b>{c_val:.2f}cm</b> · '
+                            f'Nível de saída: <b>{s_val:.2f}m</b> · '
+                            f'Nível de chegada: <b>{c_val:.2f}m</b> · '
                             f'Pé-direito (altura): <b>{altura_txt}</b> '
                             f'<span class="muted">(chegada − saída = {calc_altura_cm:.1f}cm; conversão do SA)</span>'
                         )
@@ -9706,7 +9789,7 @@ class PreValidationDialog(QDialog):
                 if s_ident is None or c_ident is None:
                     try:
                         from src.core.niveis_extractor import get_pavimento_niveis_abs as _gpna
-                        _nabs = _gpna(getattr(self, '_obra_name', '') or 'Obra_TREINO_1', getattr(self, '_pavimento', '') or '13_PAV')
+                        _nabs = _gpna(getattr(self, '_obra_name', '') or '', getattr(self, '_pavimento', '') or '')
                         if _nabs:
                             if s_ident is None:
                                 s_ident = _nabs.get('saida_abs')

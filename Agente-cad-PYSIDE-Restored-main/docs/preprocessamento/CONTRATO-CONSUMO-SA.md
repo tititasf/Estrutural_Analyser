@@ -1,5 +1,9 @@
 # Contrato de consumo assistido pelo SA
 
+**Leitura temporal:** as seções abaixo conservam estados datados de implantação.
+Para o consumo de níveis atualmente comprovado, consultar a atualização de
+09/10/2026 ao final; `consumed` sozinho não comprova todos os campos do pacote.
+
 Data: 2026-09-22. Estado inicial: investigação P26. Atualização de 2026-09-23
 ao final deste documento registra a integração habilitada e seus limites.
 
@@ -146,3 +150,53 @@ Para lajes sem cota, a relação entre abas de um corte horizontal pode fornecer
 ### Consolidação de níveis — 2026-10-01
 
 Regra integrada: `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` (canônico). O pacote pode coletar evidências SA necessárias antes da convenção. Registrar separadamente produção do fato e consumo real pelo SA. Cota regional derivada/QA não escreve aprovação N1. Ledger por segmento e grafo acíclico de fontes são obrigatórios; ver relatório de resolução L317 e D64 local.
+
+### Cadeia da obra — 2026-10-08
+A cadeia completa roda o inventário escopado antes do SA/N3, com recibo e duração próprios por pavimento. A revisão humana dos recortes é opcional; o estado real `validated` permanece nas fontes, e mudança de arquivo ou revisão durante a rodada impede o commit. Uma referência absoluta indisponível não bloqueia a coleta SA de geometrias, segmentos e cortes. O consumo de altura absoluta continua exigindo unidade, vínculo e referência direta coerente. Níveis desconhecidos não são preenchidos para completar a produção.
+
+### Consumo de níveis com contorno final menor — 2026-10-09
+
+Correção técnica comprovada de `portal/app/preprocessamento/sa_levels.py`, sem
+nova decisão de projeto: uma laje interpretada pelo SA pode ter contorno menor
+que o candidato pré-processado. Rejeitar o fato inteiro porque uma das posições
+ficou fora descartava também a marca válida interna; conservar todas as posições
+contaminaria a proveniência do campo efetivamente aplicado.
+
+O pacote atual transporta `cad_marks` por marca, com handle original, posição e
+valor. O consumidor seleciona as marcas do valor solicitado dentro do contorno
+final, restringe posições e evidências CAD a essa seleção e conserva as
+referências não CAD de origem. Sem marca válida interna, não aplica o nível.
+Pacotes antigos sem `cad_marks` mantêm a exigência anterior de todas as posições
+internas. Campos humanos protegidos não são substituídos. O carregador
+`src/core/dxf_loader.py` conserva o handle do texto original, inclusive texto
+transformado de bloco; a identidade não é retirada de uma cópia sem handle.
+
+Prova de consumo exige manifesto escopado com hash/run da entrada, chamada real
+por item/campo e valor/evidências do estado SA persistido. Quantidades do
+inventário pré-SA e do estado SA podem diferir por topologia; não associar
+segmentos por número igual nem tomar quantidade preenchida como aprovação.
+
+Evidência datada e local da Obra_TREINO_1/14_PAV:
+[relatório de produção](../../scripts/arete/relatorios/20261009_continuacao_niveis_14pav/RELATORIO.md).
+O caso L401 preservou D8B interno e excluiu D7D externo; a primeira rodada
+divergente e a segunda corrigida foram conservadas. Os 56 testes locais/VPS
+incluem exclusão de marca externa, pacote sem marca interna, proteção humana e
+identidade original do texto. Isso prova o reparo técnico e o consumo observado,
+não valida todas as lajes/obras nem certifica N3/N5. Valores e handles desse caso
+permanecem exemplos de auditoria, jamais constantes do motor ou regra global.
+
+### Comparabilidade do recibo de cortes — inspeção 2026-10-09
+
+`beam_section_crosscheck` deve ser lido com a origem de cada inventário:
+`runner_sections` projeta o runner transitório; `collect_sections` sobre o estado
+publicado percorre outro caminho. Comparar contagens desses caminhos não prova
+sozinho perda de cortes ou erro físico. A chave atual inclui tipo, fingerprint,
+semântica, âncora e desenho em coordenadas absolutas; mudança de âncora ou warning
+pode impedir igualdade mesmo conservando o desenho relativo. Separar esses
+componentes antes de decidir a causa; diferenças de datum/painel continuam
+pendentes de prova local. `human_confirmation=pending` não certifica uma rodada.
+
+Reconstrução somente leitura e diferenças ainda abertas:
+[dossiê de cortes 14_PAV](../../scripts/arete/relatorios/20261009_continuacao_niveis_14pav/inspecao_cortes/RELATORIO.md).
+Esta nota corrige a interpretação do diagnóstico, sem trocar o comparador,
+reescrever o manifesto histórico ou aprovar cortes automaticamente.

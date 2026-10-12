@@ -1,5 +1,6 @@
 from src.core.slab_tracer import SlabTracer
 from src.core.spatial_index import SpatialIndex
+import pytest
 
 
 def _slab(id_, name, points, method="motor_geom"):
@@ -14,6 +15,37 @@ def _slab(id_, name, points, method="motor_geom"):
         "method": method,
         "trace_diagnostics": {},
     }
+
+
+@pytest.mark.parametrize('ids', [('temp_0', 'temp_1'), ('temp_1', 'temp_0')])
+@pytest.mark.parametrize('reverse', [False, True])
+def test_rejects_intrusion_without_reverting_neighbor_axis_adjustment(ids, reverse):
+    original = [(0, 0), (100, 0), (100, 80), (0, 80), (0, 0)]
+    neighbor_original = [(150, 0), (250, 0), (250, 80), (150, 80), (150, 0)]
+    adjusted = [(150, 0), (250.1, 0), (250.1, 80), (150, 80), (150, 0)]
+    invading = _slab(ids[0], 'L1', [(0, 0), (200, 0), (200, 80), (0, 80), (0, 0)])
+    neighbor = _slab(ids[1], 'L2', adjusted, 'structural_axis_snap')
+    slabs = [invading, neighbor]
+    if reverse:
+        slabs.reverse()
+    originals = {ids[0]: (original, 8000, 'motor_geom'),
+                 ids[1]: (neighbor_original, 8000, 'motor_geom')}
+    SlabTracer(SpatialIndex())._reject_overlapping_row_expansions(slabs, originals)
+    assert invading['points'] == original
+    assert neighbor['points'] == adjusted
+    assert neighbor['method'] == 'structural_axis_snap'
+    assert 'row_expansion_reverted_overlap' not in neighbor['trace_diagnostics']
+
+
+def test_rejects_both_new_intrusions_independently_of_iteration_order():
+    a = [(0, 0), (100, 0), (100, 80), (0, 80), (0, 0)]
+    b = [(150, 0), (250, 0), (250, 80), (150, 80), (150, 0)]
+    first = _slab('temp_0', 'L1', [(0, 0), (200, 0), (200, 80), (0, 80), (0, 0)])
+    second = _slab('temp_1', 'L2', [(50, 0), (250, 0), (250, 80), (50, 80), (50, 0)])
+    SlabTracer(SpatialIndex())._reject_overlapping_row_expansions(
+        [first, second], {'temp_0': (a, 8000, 'motor_geom'), 'temp_1': (b, 8000, 'motor_geom')})
+    assert first['points'] == a
+    assert second['points'] == b
 
 
 def _insert_line(si, start, end, layer="VIGA"):

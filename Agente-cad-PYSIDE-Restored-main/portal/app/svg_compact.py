@@ -10,6 +10,78 @@ ET.register_namespace('xlink', XLINK)
 VERSION = 'compact-v1'
 BATCH = 128
 
+_PATH_TOKEN = re.compile(r'[MmZzLlHhVvCcSsQqTtAa]|[-+]?(?:\d*\.\d+|\d+\.?)(?:[eE][-+]?\d+)?')
+
+def compact_svg_serialization(source: bytes) -> bytes:
+    """Lossless lexical compaction: no rounding, merging or style inheritance.
+
+    Keep each numeric lexeme and command unchanged. Text, comments, IDs and
+    custom attributes remain available to tags, navigation and editing.
+    """
+    parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
+    root = ET.fromstring(source, parser=parser)
+    for style_node in root.iter(f'{{{SVG}}}style'):
+        css = re.sub(r'/\*.*?\*/', '', ''.join(style_node.itertext()), flags=re.S)
+        if any(s.strip() != '*' for s in re.findall(r'([^{}]+)\{', css)):
+            return source
+    containers = {f'{{{SVG}}}{name}' for name in ('svg', 'g', 'defs', 'clipPath')}
+    for node in root.iter():
+        if node.tag == f'{{{SVG}}}path' and 'd' in node.attrib:
+            value = node.get('d')
+            tokens = _PATH_TOKEN.findall(value)
+            # Unsupported syntax fails open to the original path representation.
+            if tokens and not re.sub(r'[\s,]', '', _PATH_TOKEN.sub('', value)):
+                node.set('d', ''.join(
+                    token if i == 0 or token.isalpha() or tokens[i-1].isalpha()
+                    else ' ' + token for i, token in enumerate(tokens)))
+        style = node.get('style')
+        if style and re.fullmatch(r'[a-zA-Z0-9_:#.;%+\-\s]+', style):
+            node.set('style', re.sub(r'\s*([:;])\s*', r'\1', style.strip()))
+        if node.tag in containers:
+            if node.text and not node.text.strip():
+                node.text = None
+            for child in node:
+                if child.tail and not child.tail.strip():
+                    child.tail = None
+    result = ET.tostring(root, encoding='utf-8', xml_declaration=True)
+    return result if len(result) < len(source) else source
+
+def compact_svg_structure(source: bytes) -> bytes:
+    """Remove only redundant groups; retain separate paint operations and comments.
+
+    Joining strokes can change antialiasing at overlaps. This conservative path
+    preserves path data, marker uses, draw order and every rendering attribute.
+    """
+    parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
+    root = ET.fromstring(source, parser=parser)
+    # Unknown CSS can depend on group IDs or ancestry. Matplotlib's universal
+    # stroke rule does not; leave other stylesheets untouched.
+    for style in root.iter(f'{{{SVG}}}style'):
+        css = re.sub(r'/\*.*?\*/', '', ''.join(style.itertext()), flags=re.S)
+        if any(selector.strip() != '*' for selector in re.findall(r'([^{}]+)\{', css)):
+            return source
+    references = set()
+    for node in root.iter():
+        for key, value in node.attrib.items():
+            if key.endswith('href'):
+                references.add(value.lstrip('#'))
+            references.update(re.findall(r'url\(\s*[\"\']?#([^\s)\"\']+)', value))
+    def walk(parent, protected=False):
+        protected = protected or parent.tag in (f'{{{SVG}}}defs', f'{{{SVG}}}style')
+        children = []
+        for child in list(parent):
+            walk(child, protected)
+            if (not protected and child.tag == f'{{{SVG}}}g'
+                    and set(child.attrib) <= {'id'}
+                    and child.get('id') not in references):
+                children.extend(list(child))
+            else:
+                children.append(child)
+        parent[:] = children
+    walk(root)
+    root.set('data-cad-compact', 'structure-v1')
+    return ET.tostring(root, encoding='utf-8', xml_declaration=True)
+
 def _relative_marker(d):
     # Matplotlib scatter markers consist of absolute M/C and close only.
     tokens = re.findall(r'[A-Za-z]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?', d)

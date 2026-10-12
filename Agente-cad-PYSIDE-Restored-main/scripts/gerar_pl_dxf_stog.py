@@ -2578,7 +2578,7 @@ def draw_grades(
     try:
         from src.core.cima_l_contract import is_cima_l, n3_faces_l, split_panel_grades
         if is_cima_l(pj) or n3_faces_l(pj):
-            l_faces = n3_faces_l(pj)
+            l_faces = n3_faces_l(pj, grades_only=True)
     except Exception:
         l_faces = []
     if l_faces:

@@ -1,5 +1,7 @@
 # Contrato Rigido do Motor LV N3/N4
 
+> **NOVA/LV — padrão aprovado em 2026-10-05:** para o desenho N3 AB e Visão Corte, prevalece a [especificação vigente](PADRAO-NOVA-LATERAIS-APROVADO.md). Para/Passa conservam contratos independentes; gradeadas/sarrafeadas conservam artefatos independentes. As descrições do motor anterior abaixo continuam como referência de interpretação/contrato e não substituem as regras visuais aprovadas. Integração local em validação; geração publicada N3/N5 ainda não comprovada.
+
 Data: 2026-07-21  
 Status: contrato arquitetural e comportamento executavel (`lv_draw_contract/v2`)
 
@@ -928,4 +930,22 @@ origens, IDs de evidência, avisos e aliases das lajes são preservados, com
 `section_members` registrando os cortes de origem. Não altera N1 nem DB.
 Auditoria por viga do 13_PAV: 236 entradas → 202 seções, sem perda de pares
 ou evidências; V301 Para e Passa: 12 → 10. 27 testes focados passaram.
+
+### Ajustes por ponta — orientação do dono em 2026-10-09
+
+Células `guia_lv_cells_v12_endpoint_owner_rules` fornecem os ajustes de cada
+segmento diretamente ao contrato N3. Chegada PARA em pilar vale 0; encontro
+simultâneo com parede de viga dá -4 na lateral afetada. PASSA pela face longa
+do pilar dá +11; C/D simples vale 0 e esquina externa comprovada vale +4.
+Esquina por face longa usa +11, sem acumular +4. Em cruzamento de alturas
+iguais, horizontal chega e vertical cede -4. Na passagem por baixo de viga
+menos profunda, o painel recebe -4 e a patinha conserva +8 de largura total
+(+4 de cada lado). Ajustes não alteram coordenadas estruturais e não devem
+ser reaplicados pela heurística antiga de conversão. Partições recebem o
+ajuste só na ponta estrutural original, não em cada subdivisão.
+
+Registro e limites de validação:
+`scripts/arete/relatorios/20261009_lv_endpoint_rules/RELATORIO.md`.
+Consolidação global/RAG aguarda a revisão do dono; validação visual no
+TIPO_TESTE depende da disponibilidade do recorte no portal.
 

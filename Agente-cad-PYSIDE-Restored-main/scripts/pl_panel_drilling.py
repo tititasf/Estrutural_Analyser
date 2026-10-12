@@ -280,6 +280,8 @@ def install(namespace, mode, options):
             if name not in namespace:
                 continue
             function = namespace[name]
+            if getattr(function, '_native_panel_drilling', False):
+                continue
             signature = inspect.signature(function)
             @functools.wraps(function)
             def wrapped(*args, __f=function, __sig=signature, **kwargs):

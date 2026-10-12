@@ -929,6 +929,39 @@ def prune_beams_far_from_face(
                     mantidas.append(row)
                     continue
                 trechos = _beam_runs_for_name(beams, nome)
+                # A directly measured original corridor is positive evidence
+                # of reach even when the interpreted trace omitted that arm.
+                # This retains a candidate; independent CAD QA still certifies it.
+                for beam in beams:
+                    measured = beam.get('_measured_corridor') if isinstance(beam, dict) else None
+                    if (row.get('_source') in ('original_contact_identity', 'original_contact_section')
+                            and isinstance(beam, dict) and str(beam.get('name') or '').strip() == nome
+                            and isinstance(measured, (list, tuple)) and len(measured) == 4):
+                        trechos = trechos + [tuple(measured)]
+                # Verified FV runs prove presence in those runs, not absence
+                # everywhere else. A partial FV proposal can omit a real arm
+                # from the original trace. Keep its contact candidate for the
+                # independent source gate; never use it to measure/approve.
+                from src.core.pillar_face_beams import beam_runs_from_entity
+                for beam in beams:
+                    if (isinstance(beam, dict)
+                            and str(beam.get('name') or '').strip() == nome
+                            and beam.get('_verified_wall_runs')):
+                        traced = {key: value for key, value in beam.items()
+                                  if key not in ('_verified_wall_runs',
+                                                 '_recovered_corridor')}
+                        proposed = [run for run in
+                            (beam_runs_from_entity(traced) or [])
+                            if abs(run[2] - run[0]) > 0.6
+                            and abs(run[3] - run[1]) > 0.6]
+                        measured = beam.get('_measured_corridor')
+                        if isinstance(measured, (list, tuple)) and len(measured) == 4:
+                            from src.core.pillar_face_beams import beam_axis_is_horizontal
+                            start, end = (1, 3) if beam_axis_is_horizontal(beam) else (0, 2)
+                            proposed = [run for run in proposed
+                                if min(run[end], measured[end])
+                                - max(run[start], measured[start]) > 0.6]
+                        trechos = trechos + proposed
                 if not trechos:
                     mantidas.append(row)
                     continue
@@ -967,6 +1000,49 @@ def _short_faces_of(
 ) -> set[str]:
     """As duas faces curtas do retângulo — as tampas."""
     return {"C", "D"} if vertical else {"C", "D"}
+
+
+def measured_arrival_dists(fid, pbb, beams, name, *, vertical=True, verified_only=False,
+                           section_dim=None, original_contact_bound=False):
+    """Mede a chegada no trecho local, sem deslocá-la para o canto da marca.
+
+    A marca classifica a relação; não prova que a parede da viga coincida
+    com a extremidade do pilar. Trechos disjuntos não podem ser unidos por bbox.
+    Contatos contraditórios não são resolvidos pela ordem dos trechos.
+    Uma caixa acolchoada não prova ocupação: sua espessura deve corresponder
+    à seção local da ligação, inclusive quando difere da seção global.
+    """
+    axis = _face_axis_span(fid, *pbb, vertical=vertical)[0]
+    fixed = _face_fixed_coord(fid, pbb, vertical=vertical)
+    distances = []
+    local_width = _dim_first_number(section_dim)
+    runs = _beam_runs_for_name(beams, name)
+    if verified_only:
+        from src.core.pillar_face_beams import beam_fundo_runs
+        runs = [box for beam in beams
+                if isinstance(beam, dict) and str(beam.get("name") or "").strip() == name
+                for box, _dim in beam_fundo_runs(beam)]
+    elif original_contact_bound:
+        # Keep disjoint source measurements separate; conflicting local
+        # distances below remain unmeasurable rather than picking the first.
+        runs = runs + [tuple(beam['_measured_corridor']) for beam in beams or []
+                       if isinstance(beam, dict) and str(beam.get('name') or '').strip() == name
+                       and isinstance(beam.get('_measured_corridor'), (list, tuple))
+                       and len(beam['_measured_corridor']) == 4]
+    for run in runs:
+        horizontal = abs(run[2] - run[0]) >= abs(run[3] - run[1])
+        if horizontal != (axis == "y"):
+            continue
+        thickness = abs(run[3] - run[1]) if horizontal else abs(run[2] - run[0])
+        if local_width and abs(thickness - local_width) > 0.6:
+            continue
+        across = (min(run[0], run[2]), max(run[0], run[2])) if axis == "y" else (min(run[1], run[3]), max(run[1], run[3]))
+        if max(across[0] - fixed, fixed - across[1], 0.0) > 0.6:
+            continue
+        de, dd = span_dists_on_face(fid, pbb, run, vertical=vertical)
+        if de is not None and not any(abs(de - a) <= 0.6 and abs(dd - b) <= 0.6 for a, b in distances):
+            distances.append((de, dd))
+    return distances[0] if len(distances) == 1 else (None, None)
 
 
 def prune_beams_without_face_occupancy(
@@ -1016,6 +1092,30 @@ def prune_beams_without_face_occupancy(
                 if not trechos:
                     mantidas.append(row)
                     continue
+                # R4: a beam ending exactly at the corner reaches the long
+                # face and passes its short-face corner simultaneously. Its
+                # short-face overlap is zero; that does not invalidate the
+                # dual when the independent corridor actually touches it.
+                canto = str(row.get("canto") or "").upper()
+                if role == "passa" and fid in ("C", "D") and canto in (fid + "A", fid + "B"):
+                    other = canto[1]
+                    counterpart = any(
+                        candidate.get("nome") == nome
+                        and candidate.get("canto") == other + fid
+                        for candidate in (tables.get(other) or {}).get("chega", [])
+                    )
+                    long_coord = _face_fixed_coord(other, pbb, vertical=vertical)
+                    short_coord = _face_fixed_coord(fid, pbb, vertical=vertical)
+                    cx, cy = (long_coord, short_coord) if vertical else (short_coord, long_coord)
+                    if counterpart and _beam_comes_from_outside(
+                        nome, other, pbb, beams, vertical=vertical,
+                    ) and any(
+                        min(r[0], r[2]) - 0.6 <= cx <= max(r[0], r[2]) + 0.6
+                        and min(r[1], r[3]) - 0.6 <= cy <= max(r[1], r[3]) + 0.6
+                        for r in trechos
+                    ):
+                        mantidas.append(row)
+                        continue
                 if any(
                     min(hi, max(r[0], r[2]) if axis == "x" else max(r[1], r[3]))
                     - max(lo, min(r[0], r[2]) if axis == "x" else min(r[1], r[3]))
@@ -1790,8 +1890,8 @@ def apply_axial_bilateral_short_faces(
 
     notes: list[str] = []
     for name in sorted(set(short_rows["C"]) & set(short_rows["D"])):
-        source = short_rows["C"].get(name) or short_rows["D"][name]
         for face in ("C", "D"):
+            source = short_rows[face][name]
             for role in ("passa", "chega", "interior"):
                 tables.setdefault(face, {}).setdefault(role, [])
                 tables[face][role] = [
@@ -1816,6 +1916,7 @@ def apply_axial_bilateral_short_faces(
                 if str(row.get("nome") or "").strip() != name
             ]
             for corner in corners:
+                source = short_rows["C" if "C" in corner else "D"][name]
                 if any(
                     str(row.get("nome") or "").strip() == name
                     and str(row.get("canto") or "").upper() == corner
@@ -1833,12 +1934,221 @@ def apply_axial_bilateral_short_faces(
     return notes
 
 
+def scoped_slab_contact_height(fid, pbb, slab_points, regions, principal, *, vertical=True):
+    """Espessura no contato físico, sem inferir altitude de uma hachura.
+
+    Só regiões fechadas com texto interno explícito podem substituir a
+    espessura principal. Contato misto/contraditório permanece sem escalar.
+    """
+    from shapely.geometry import LineString, Polygon
+    from shapely.ops import unary_union
+    axis, first, last, length = _face_axis_span(fid, *pbb, vertical=vertical)
+    start = min(first, last)
+    fixed = _face_fixed_coord(fid, pbb, vertical=vertical)
+    line = LineString([(start, fixed), (start + length, fixed)] if axis == 'x'
+                      else [(fixed, start), (fixed, start + length)])
+    try:
+        slab = Polygon(slab_points)
+        if not slab.is_valid:
+            return principal, 'invalid_contact_geometry'
+        # Coordenadas de regiões são serializadas com três casas; tolerância
+        # apenas para essa quantização, nunca para atravessar uma viga.
+        contact = line.intersection(slab.buffer(.001))
+        if contact.length <= MIN_SLAB_FACE_CONTACT_CM:
+            return principal, 'no_measurable_contact'
+        covered = []
+        heights = set()
+        for region in regions or []:
+            checks = region.get('evidence_checks') or {}
+            if not (checks.get('closed_cad_boundary') and checks.get('internal_height')):
+                continue
+            height = float(region.get('height_cm'))
+            poly = Polygon(region.get('points') or [])
+            if height <= 0 or not poly.is_valid:
+                continue
+            part = contact.intersection(poly.buffer(.001))
+            if part.length <= MIN_SLAB_FACE_CONTACT_CM:
+                continue
+            covered.append(part)
+            heights.add(height)
+        if not covered:
+            return principal, 'principal_contact'
+        remaining = contact.difference(unary_union(covered)).length
+        if len(heights) == 1 and remaining <= .01:
+            return f'{next(iter(heights)):g}', 'explicit_region_contact'
+        return '', 'mixed_or_conflicting_contact_thickness'
+    except (TypeError, ValueError):
+        return '', 'invalid_region_contact_evidence'
+
+
+def slab_face_contact_intervals(fid, pbb, slab_points, regions, principal,
+                                *, vertical=True):
+    """Contatos físicos independentes, em cm desde o canto esquerdo da face.
+
+    Não usa a caixa da laje nem preenche vazios entre contatos desconexos.
+    Regiões comprovadas dividem a espessura; hachura não determina altitude.
+    Resultado derivado, sem mudar o schema N1 persistido.
+    """
+    import math
+    from shapely.geometry import LineString, Polygon
+    axis, first, last, length = _face_axis_span(fid, *pbb, vertical=vertical)
+    fixed = _face_fixed_coord(fid, pbb, vertical=vertical)
+    line = LineString([(first, fixed), (last, fixed)] if axis == 'x'
+                      else [(fixed, first), (fixed, last)])
+
+    def spans(geometry):
+        if geometry.geom_type in ('LineString', 'LinearRing'):
+            values = [point[0 if axis == 'x' else 1] for point in geometry.coords]
+            distances = [(value - first) * (1 if last > first else -1) for value in values]
+            yield max(0.0, min(distances)), min(length, max(distances))
+        elif hasattr(geometry, 'geoms'):
+            for part in geometry.geoms:
+                yield from spans(part)
+
+    try:
+        poly = Polygon(slab_points)
+        if not poly.is_valid or length <= 0:
+            return []
+        try:
+            principal_height = float(str(principal).replace(',', '.'))
+            if not math.isfinite(principal_height) or principal_height <= 0:
+                principal_height = None
+        except (TypeError, ValueError):
+            principal_height = None
+        # Buffer admits normal-coordinate serialization tolerance only. Clip
+        # the along-face span to the source contour so its ends cannot create
+        # a spurious principal interval beyond an explicit regional boundary.
+        projected = [(p[0 if axis == 'x' else 1] - first) *
+                     (1 if last > first else -1) for p in poly.exterior.coords]
+        source_lo, source_hi = min(projected), max(projected)
+        contacts = [(max(a, source_lo), min(b, source_hi))
+                    for a, b in spans(line.intersection(poly.buffer(.001)))]
+        local_regions = []
+        for region in regions or []:
+            checks = region.get('evidence_checks') or {}
+            if not (checks.get('closed_cad_boundary') and checks.get('internal_height')):
+                continue
+            polygon = Polygon(region.get('points') or [])
+            height = float(region.get('height_cm'))
+            if not polygon.is_valid or not math.isfinite(height) or height <= 0:
+                continue
+            # Only normal distance needs quantization tolerance. Project the
+            # original boundary along the face so no artificial .001cm strip
+            # is created at a thickness transition.
+            coordinates = polygon.exterior.coords
+            projected = [(p[0 if axis == 'x' else 1] - first) *
+                         (1 if last > first else -1) for p in coordinates]
+            lo, hi = min(projected), max(projected)
+            for start, end in spans(line.intersection(polygon.buffer(.001))):
+                start, end = max(start, lo), min(end, hi)
+                if end > start:
+                    local_regions.append((start, end, height, region))
+        output = []
+        for start, end in contacts:
+            if end - start <= MIN_SLAB_FACE_CONTACT_CM:
+                continue
+            cuts = sorted({start, end} | {max(start, min(end, value))
+                          for a, b, _, _ in local_regions for value in (a, b)})
+            for a, b in zip(cuts, cuts[1:]):
+                if b - a <= .000001:
+                    continue
+                matching = [r for x, y, _, r in local_regions if x < (a+b)/2 < y]
+                heights = {float(r['height_cm']) for r in matching}
+                levels = {value for r in matching
+                          if (value := _supported_region_level(r)) is not None}
+                output.append(dict(
+                    start_cm=a, end_cm=b, face_length_cm=length,
+                    left_distance_cm=a, right_distance_cm=length-b, width_cm=b-a,
+                    thickness_cm=(next(iter(heights)) if len(heights) == 1 else
+                                  None if heights else principal_height),
+                    level_m=next(iter(levels)) if len(levels) == 1 else None,
+                    evidence='explicit_region_contact' if matching else 'principal_contact',
+                    region_ids=sorted({str(r.get('uid') or '') for r in matching}),
+                    conflict=len(heights) > 1 or len(levels) > 1,
+                ))
+        return output
+    except (TypeError, ValueError):
+        return []
+
+
+def _supported_region_level(region):
+    """A CAD altitude or a source-scoped owner verdict supports this region only."""
+    from .pillar_slab_contacts import finite_level
+    direct = (region.get('evidence_checks') or {}).get('direct_internal_level')
+    owner = (region.get('method') == 'owner_confirmed_scoped_same_bottom'
+             and (region.get('owner_review') or {}).get('decision_id')
+             and not region.get('review_conflict'))
+    return finite_level(region.get('level_m')) if direct or owner else None
+
+
+def _refine_contact_row_level(row, principal):
+    """Publish a scalar only when every physical interval supports the same top."""
+    from .pillar_slab_contacts import finite_level
+    contacts = row.get('_contact_intervals') or []
+    if not any(c.get('region_ids') for c in contacts):
+        return
+    values = []
+    for contact in contacts:
+        value = finite_level(contact.get('level_m'))
+        if value is None and not contact.get('region_ids'):
+            value = finite_level(principal)
+        if contact.get('conflict') or value is None:
+            row['nivel'] = ''
+            row['_level_evidence'] = 'unknown_or_conflicting_contact_level'
+            return
+        values.append(value)
+    if len(set(values)) != 1:
+        row['nivel'] = ''
+        row['_level_evidence'] = 'mixed_contact_levels'
+        return
+    from .number_presentation import display_level
+    row['nivel'] = display_level(values[0])
+    row['_level_evidence'] = 'scoped_contact_level'
+
+
+def refine_slab_contact_thickness(tables, pillar, slabs):
+    """Refina somente a espessura local; preserva os demais fatos serializados."""
+    import copy
+    from .pillar_special_faces import supports_rectangular_tag_renderer
+    points = pillar.get('points') or []
+    if not supports_rectangular_tag_renderer(points):
+        return tables
+    pbb = _bbox_from_points(points)
+    if not pbb or not isinstance(tables, dict):
+        return tables
+    result = copy.deepcopy(tables)
+    vertical = result.get('orientation', pillar.get('orientation', 'vertical')) != 'horizontal'
+    for fid, face in (result.get('faces') or {}).items():
+        if fid not in 'ABCD':
+            continue
+        for row in face.get('lajes') or []:
+            slab = slabs.get(row.get('nome')) or {}
+            regions = slab.get('slab_steps') or (slab.get('extra') or {}).get('slab_steps') or []
+            row['_contact_intervals'] = slab_face_contact_intervals(
+                fid, pbb, slab.get('points'), regions,
+                slab.get('height', row.get('dim', '')), vertical=vertical,
+            )
+            if not regions:
+                continue
+            _refine_contact_row_level(row, slab.get('nivel'))
+            row['dim'], row['_thickness_evidence'] = scoped_slab_contact_height(
+                fid, pbb, slab.get('points'), regions,
+                slab.get('height', row.get('dim', '')), vertical=vertical,
+            )
+            if not row['dim']:
+                row['_attention'] = 'Espessuras distintas no contato; escalar não determinado'
+            else:
+                row.pop('_attention', None)
+    return result
+
+
 def build_abcd_tables_from_pillar(
     pillar: dict,
     *,
     slab_height_map: Optional[dict] = None,
     slab_nivel_map: Optional[dict] = None,
     slab_points_map: Optional[dict] = None,
+    slab_regions_map: Optional[dict] = None,
     beams: Optional[list] = None,
     nivel_viga_default: str = "",
     face_interp_lines: Optional[dict] = None,
@@ -1916,7 +2226,8 @@ def build_abcd_tables_from_pillar(
                     "laje",
                     nome=ln,
                     dim=(slab_height_map.get(ln) or e.get("h") or e.get("esp") or ""),
-                    nivel=(slab_nivel_map.get(ln) or e.get("nivel") or e.get("n") or ""),
+                    nivel=(slab_nivel_map[ln] if ln in slab_nivel_map
+                           else e.get("nivel") or e.get("n") or ""),
                     papel="laje",
                 )
             )
@@ -2065,7 +2376,8 @@ def build_abcd_tables_from_pillar(
                                 "laje",
                                 nome=nome,
                                 dim=(m_esp.group(1) if m_esp else slab_height_map.get(nome, "")),
-                                nivel=(m_n.group(1).strip() if m_n else slab_nivel_map.get(nome, "")),
+                                nivel=(slab_nivel_map[nome] if nome in slab_nivel_map
+                                       else m_n.group(1).strip() if m_n else ""),
                                 papel="laje",
                                 raw=str(line),
                             )
@@ -2167,6 +2479,18 @@ def build_abcd_tables_from_pillar(
                 de, dd = span_dists_on_face(fid, pbb, ebb, vertical=is_vertical)
                 r["dist_esq"] = _fmt_dist(de)
                 r["dist_dir"] = _fmt_dist(dd)
+                r['_contact_intervals'] = slab_face_contact_intervals(
+                    fid, pbb, slab_points_map.get(nome), (slab_regions_map or {}).get(nome),
+                    slab_height_map.get(nome, r.get('dim', '')), vertical=is_vertical,
+                )
+                if slab_regions_map and slab_regions_map.get(nome):
+                    _refine_contact_row_level(r, slab_nivel_map.get(nome))
+                    r['dim'], r['_thickness_evidence'] = scoped_slab_contact_height(
+                        fid, pbb, slab_points_map.get(nome), slab_regions_map[nome],
+                        r.get('dim', ''), vertical=is_vertical,
+                    )
+                    if not r['dim']:
+                        r['_attention'] = 'Espessuras distintas no contato; escalar não determinado'
             # passa: sem distâncias posicionais
             for r in tables[fid]["passa"]:
                 r["dist_esq"] = "—"
@@ -2183,6 +2507,17 @@ def build_abcd_tables_from_pillar(
                     if nome in ("", "—", "nenhuma"):
                         r["dist_esq"] = r["dist_dir"] = "—"
                         continue
+                    if kind in ("chega", "interior"):
+                        de, dd = measured_arrival_dists(
+                            fid, pbb, beams, nome, vertical=is_vertical,
+                            verified_only=kind == "interior",
+                            section_dim=r.get('dim'),
+                            original_contact_bound=r.get('_source') in (
+                                'original_contact_identity', 'original_contact_section'),
+                        )
+                        if de is not None:
+                            r["dist_esq"], r["dist_dir"] = _fmt_dist(de), _fmt_dist(dd)
+                            continue
                     if r.get("dist_esq") not in ("", "—") and r.get("dist_dir") not in ("", "—"):
                         continue
 
@@ -2379,9 +2714,9 @@ def face_slab_beam_violations(
 
     Regra do domínio: a viga que chega parte o contato da laje naquela face.
 
-    - chega no meio da face (``XX``) → duas lajes, uma em cada canto;
-    - chega num canto → uma laje só, no canto **oposto**;
-    - nenhuma viga chegando → uma laje cobrindo a face (``XX``).
+    Uma face aceita várias lajes/regiões. Quando há intervalos físicos,
+    conferimos conflito e sobreposição, nunca uma cardinalidade fixa.
+    Sem intervalos, cantos continuam sendo indícios de consistência.
 
     Devolve as violações; lista vazia significa face coerente. A checagem não
     decide quem está errado — ela expõe a incoerência para o gate humano.
@@ -2402,8 +2737,20 @@ def face_slab_beam_violations(
     def add(rule: str, detail: str) -> None:
         violations.append({"face": fid, "rule": rule, "detail": detail})
 
+    intervals = [(row, interval) for row in lajes
+                 for interval in row.get('_contact_intervals') or []]
+    if intervals:
+        ordered = sorted(intervals, key=lambda pair: pair[1]['start_cm'])
+        for row, interval in ordered:
+            if interval.get('conflict'):
+                add('contato_laje_conflitante', f"{row.get('nome')}: evidências regionais conflitantes")
+        for (_, previous), (row, current) in zip(ordered, ordered[1:]):
+            if current['start_cm'] < previous['end_cm'] - .01:
+                add('contatos_laje_sobrepostos', f"{row.get('nome')}: contato sobreposto na face {fid}")
+        return violations
+
     if mid in chega_corners:
-        if len(lajes) != 2 or set(laje_corners) != ends:
+        if set(laje_corners) != ends:
             add(
                 "chega_no_meio_exige_duas_lajes",
                 f"viga chega em {mid}; lajes esperadas em {sorted(ends)}, "
@@ -2416,7 +2763,7 @@ def face_slab_beam_violations(
         expected = ends - corner_arrivals
         if len(corner_arrivals) > 1 or not expected:
             return violations
-        if len(lajes) != 1 or laje_corners[0] not in expected:
+        if not set(laje_corners).issubset(expected):
             add(
                 "chega_no_canto_exige_laje_no_oposto",
                 f"viga chega em {sorted(corner_arrivals)[0]}; laje esperada em "
@@ -2424,7 +2771,7 @@ def face_slab_beam_violations(
             )
         return violations
 
-    if len(lajes) != 1 or laje_corners[0] != mid:
+    if len(lajes) == 1 and laje_corners[0] != mid:
         add(
             "sem_chega_exige_laje_cobrindo_a_face",
             f"nenhuma viga chega em {fid}; laje esperada em {mid}, "
@@ -2563,6 +2910,9 @@ def format_abcd_tables_html(tables_payload: dict, *, compact: bool = False) -> s
                 f"<td>{html.escape(str(r.get('dist_dir') or '—'))}</td>"
                 "</tr>"
             )
+            if r.get('_attention'):
+                body.append('<tr><td colspan="7" class="abcd-attention">'
+                            + html.escape(str(r['_attention'])) + '</td></tr>')
         cards.append(
             f'<div class="abcd-face-card" style="border-left:3px solid {color}">'
             f'<div class="abcd-face-title" style="color:{color}">{html.escape(label)}</div>'
@@ -2611,8 +2961,10 @@ def format_abcd_tables_portal_html(tables_payload: dict) -> str:
                         if index >= 0 and field in {'nome', 'dim', 'nivel', 'canto'} else '')
                 warning = ''
                 status_key = 'dist' if field in {'dist_esq', 'dist_dir'} else field
-                if r.get(f'{status_key}_status') in {'inferred', 'fallback', 'ambiguous', 'conflict', 'missing'}:
-                    reason = html.escape(str(r.get(f'{status_key}_motivo') or 'Requer revisão'), quote=True)
+                if (r.get(f'{status_key}_status') in {'inferred', 'fallback', 'ambiguous', 'conflict', 'missing'}
+                        or (field == 'dim' and r.get('_attention'))):
+                    reason = html.escape(str((r.get('_attention') if field == 'dim' else None)
+                                             or r.get(f'{status_key}_motivo') or 'Requer revisão'), quote=True)
                     warning = f' <span class="abcd-level-attention" role="img" aria-label="Atenção: {reason}" title="{reason}">⚠</span>'
                 return f'<td{attr}>{value}{warning}</td>'
             body.append(

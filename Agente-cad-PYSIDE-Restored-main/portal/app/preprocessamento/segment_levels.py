@@ -13,6 +13,30 @@ TOL = .0025  # metres; never merge a centimetre step
 CONTACT_CM = 1.0
 
 
+def preserve_local_seed_over_estimated_fv(native, sources):
+    """A weak agreeing FV is geometry, not a replacement for local slab proof.
+
+    Explicit cuts/profile readings and disagreements retain normal precedence.
+    No estimated FV enters the retained seed's level ancestry or support score.
+    """
+    if (native.get('status') not in ('inferred', 'sa_evidence')
+            or native.get('method') != 'spatial_slab_region_reference'
+            or (native.get('confidence_pct') or 0) < 50
+            or not native.get('source_fact_ids') or native.get('value') is None
+            or not sources):
+        return False
+    return all(
+        source.get('status') in ('estimated', 'unknown')
+        and (source.get('confidence_pct') or 0) < 50
+        and source.get('value') is not None
+        and abs(source['value'] - native['value']) <= TOL
+        and 'cut' not in str(source.get('method') or '').lower()
+        and not any(source.get(k) for k in ('cut_id', 'cut_ids', 'cut_profile_geometry',
+                                           'cut_association', 'shortened_section_top_read'))
+        for source in sources
+    )
+
+
 def numeric(value):
     try:
         value = float(str(value).replace(',', '.'))
@@ -126,6 +150,27 @@ def cut_region_source(item, shape):
     return max(touched, key=lambda f: f.get('confidence_pct') or 0)
 
 
+# A region level produced by the neighbour vote, not by a measured step cut.
+LAYERED_REGION_METHODS = ('slab_neighbor_continuity_without_step_cut',
+                          'slab_neighbor_majority_vote')
+
+
+def cut_owner_level(slab_name, shape, slab_sources, slab_items):
+    """Scalar of the slab, unless the cut sits on a voted region of another level.
+
+    The CAD mark inside a rebaixo becomes the slab scalar. A cut drawn on the
+    principal reads that region's own vote (L413 at 855.25), not the rebaixo
+    mark. A measured step that already had its level (L320) does not replace
+    the scalar.
+    """
+    scalar = slab_sources.get(slab_name)
+    regional = cut_region_source(slab_items.get(slab_name), shape)
+    if (regional and regional.get('method') in LAYERED_REGION_METHODS
+            and (scalar is None or abs(regional['value'] - scalar['value']) > TOL)):
+        return regional
+    return scalar or regional
+
+
 def score(fact):
     """Versioned, reproducible rubric; a missing altitude has zero support."""
     status, method = fact.get('status'), fact.get('method', '')
@@ -228,7 +273,7 @@ def confirmations(used, pool):
             for c in pool if c['fact_id'] not in ids]
 
 
-def cut_matches_fund(profile, fund, depth):
+def cut_matches_fund(profile, fund, depth, height_evidence=None):
     """Associate a section by geometry: stem inside the FV with its depth and width."""
     from shapely.geometry import shape as from_geojson
     if not profile or fund is None or fund.geom_type != 'Polygon' or numeric(depth) is None:
@@ -243,6 +288,10 @@ def cut_matches_fund(profile, fund, depth):
         return False
     b = stem.bounds
     depth = numeric(depth)
+    from .declared_cut_height import reconciled_depth
+    declared = reconciled_depth(height_evidence, stem, fund, depth, width, axis)
+    if declared is not None:
+        depth = declared
     return (abs((b[axis+2]-b[axis])-depth) <= .25 and abs((b[3-axis]-b[1-axis])-width) <= .25
             and abs(stem.area-depth*width) <= depth*.5)
 
@@ -268,18 +317,45 @@ def inherited(fact, sources, method, factor, **extra):
     return result
 
 
+def carries_slab_level(item):
+    return any(f.get('field') == 'slab_level' and f.get('value') is not None
+               and f.get('status') not in ('conflict', 'candidate')
+               for f in item.get('levels') or [])
+
+
+def index_slabs(items):
+    """One item per slab name. A later empty homonym must not hide the level."""
+    chosen = {}
+    for item in items:
+        if item.get('item_class') != 'slab':
+            continue
+        name = item['display_name']
+        previous = chosen.get(name)
+        carries = carries_slab_level(item)
+        if previous is None or (carries and not carries_slab_level(previous)):
+            chosen[name] = item
+        elif carries == carries_slab_level(previous):
+            chosen[name] = item
+    return chosen
+
+
 def resolve(tower, context):
     """Resolve FV first; LV falls back into FV, then reads the resolved FV once."""
     items = tower['items']
     for item in items:
         for fact in item.get('levels', []):
             score(fact)
-    slab_items = {i['display_name']: i for i in items if i['item_class'] == 'slab'}
+    slab_items = index_slabs(items)
     add_slab_region_facts(slab_items, context)
-    resolve_missing_slab_cut_regions(slab_items, context)
+    from .level_provenance import collect
+    resolve_missing_slab_cut_regions(slab_items, context, collect(tower))
     # Layers 2/4 only after the measured cut layer has had its chance.
-    from .slab_level_layers import resolve as resolve_slab_layers
+    from .slab_level_layers import MIN_FACING_CM, resolve as resolve_slab_layers
     resolve_slab_layers(slab_items, items, context, geometry, inherited, tower)
+    # One bounded reconciliation after continuity: measured wings can correct
+    # an unmeasured neighbour convention. Frozen, traced roots forbid feedback
+    # from the target through another class or a prior inferred slab.
+    resolve_missing_slab_cut_regions(slab_items, context, collect(tower), allow_traced_inferred=True)
     slab_sources = {}
     for name, item in slab_items.items():
         facts = [f for f in item['levels'] if f['field'] == 'slab_level'
@@ -289,7 +365,7 @@ def resolve(tower, context):
         if len(values) == 1:
             slab_sources[name] = max(facts, key=lambda f: f['confidence_pct'])
 
-    from .slab_contact_levels import contact_sources, contact_level
+    from .slab_contact_levels import apply_uncovered_range_contacts, contact_sources, contact_level
     local_sources = contact_sources(slab_items, context, slab_sources, geometry)
     from .no_slab_levels import regions, floor_source, level as no_slab_level
     absence_regions = regions(context)
@@ -307,8 +383,9 @@ def resolve(tower, context):
     from .beam_cut_continuity import scoped_cut_profile, paint_regions, propagate
     paints = paint_regions(context.get('tower_path'))
     breaks = cut_break_shapes(context)
-    from .standard_beam_level import sources as standard_sources, level as standard_level
+    from .standard_beam_level import sources as standard_sources, level as standard_level, inner_step_values
     principal_references = standard_sources(slab_items, context, slab_sources, geometry)
+    step_values = inner_step_values(slab_items)
     all_cut_shapes = []
     seen_cuts = set()
     for slab in context['state'].get('slabs', []):
@@ -325,6 +402,12 @@ def resolve(tower, context):
                 all_cut_shapes.append(shape)
             seen_cuts.add((key, slab['name']))
             ficha = cut.get('ficha') or {}
+            from .cut_level_scope import incompatible_own_height, own_wing_top
+            if incompatible_own_height(cut, slab):
+                tower.setdefault('rejected_cut_level_evidence', []).append({
+                    'slab': slab['name'], 'cut_id': key,
+                    'reason': 'cut_own_height_requires_separate_region_level'})
+                continue
             distance = numeric(ficha.get('own_dist_top'))
             near = [b for b in breaks if shape.distance(b) <= CONTACT_CM]
             break_read = break_spares_top(shape, near, distance) if near else None
@@ -336,13 +419,16 @@ def resolve(tower, context):
                 continue
             # The link owner supplies the own-side semantics; names on a diagram
             # are not sufficient to select a beam. Match the actual cut footprint.
-            own = slab_sources.get(slab['name']) or cut_region_source(slab_items.get(slab['name']), shape)
+            own = cut_owner_level(slab['name'], shape, slab_sources, slab_items)
             if own and distance is not None and 0 <= distance < 100:
                 # The cut is its own hop in the chain: slab level -> CAD cut -> FV.
                 cut_fact = inherited(own, [own], 'cut_slab_plus_top_offset_cm', .9,
                     value=round(own['value']+distance/100, 4), cut_id=key,
                     field='cut_beam_reference', cut_owner_slab=slab['name'], top_offset_cm=distance,
-                    cut_profile_geometry=scoped_cut_profile(cut, slab))
+                    cut_profile_geometry=scoped_cut_profile(cut, slab),
+                    cut_height_evidence=deepcopy(ficha.get('beam_height_evidence')))
+                cut_fact.update(own_slab_value=own['value'],
+                                own_wing_top_coordinate_cm=own_wing_top(shape, slab, own))
                 if break_read:
                     # Only the top offset survives the break; never the section depth.
                     cut_fact.update(shortened_section_top_read=break_read, cut_profile_geometry=None)
@@ -375,25 +461,31 @@ def resolve(tower, context):
             sources = [slab_sources.get(n) or segment_region_source(slab_items.get(n), shapes[uid], record)
                        for n in seg.get('level_slabs', [])]
             sources = [s for s in sources if s]
-            if sources and record['status'] not in ('estimated', 'human_review'):
+            # A lateral keeps a cited slab only when the altitudes agree.
+            # The fund rule is unchanged: a lower contact can still be a step.
+            usable = sources
+            if seg.get('family') != 'fundo' and record.get('value') is not None:
+                usable = [s for s in sources if s.get('value') is not None
+                          and abs(s['value'] - record['value']) <= TOL]
+            if usable and record['status'] not in ('estimated', 'human_review'):
                 native = records[uid]['confidence_pct']
-                lifted = stale_slab_penalty_lift(record, seg, sources, shapes[uid], local_sources, datum_source)
+                lifted = stale_slab_penalty_lift(record, seg, usable, shapes[uid], local_sources, datum_source)
                 if lifted is not None:
                     native = lifted
                     record['warnings'] = sorted(set(record['warnings']) - STALE_SLAB_WARNINGS
                                                 | {'sa_slab_penalty_superseded_by_proven_source'})
-                record['confidence_pct'] = min(native, min(s['confidence_pct'] for s in sources)*.95)
-                record['evidence_ids'] = sorted(set(record['evidence_ids'] + [e for s in sources for e in s['evidence_ids']]))
-                record['source_fact_ids'] = [s['fact_id'] for s in sources]
+                record['confidence_pct'] = min(native, min(s['confidence_pct'] for s in usable)*.95)
+                record['evidence_ids'] = sorted(set(record['evidence_ids'] + [e for s in usable for e in s['evidence_ids']]))
+                record['source_fact_ids'] = [s['fact_id'] for s in usable]
                 record['confidence_components'] = {'native_support_cap': native,
-                    'weakest_source': min(s['confidence_pct'] for s in sources), 'spatial_transfer_factor': .95}
+                    'weakest_source': min(s['confidence_pct'] for s in usable), 'spatial_transfer_factor': .95}
                 if lifted is not None:
                     record['confidence_components']['stale_sa_native_cap'] = records[uid]['confidence_pct']
             # No complete level provenance: keep its native score, capped.
-            if seg.get('level_slabs') and len(sources) != len(seg['level_slabs']):
+            if seg.get('level_slabs') and len(usable) != len(seg['level_slabs']):
                 record['confidence_pct'] = min(record['confidence_pct'], 35)
                 record['confidence_components']['incomplete_source_cap'] = 35
-            if not sources and record['status'] != 'human_review' and record['value'] is not None:
+            if not usable and record['status'] != 'human_review' and record['value'] is not None:
                 record['confidence_pct'] = min(record['confidence_pct'], 30)
                 record['confidence_components']['no_independent_source_cap'] = 30
                 record['warnings'] = sorted(set(record['warnings']+['missing_independent_level_evidence']))
@@ -406,7 +498,16 @@ def resolve(tower, context):
             current, shape = seeds[uid], shapes[uid]
             candidates = []
             if shape is not None and current['status'] != 'human_review':
-                candidates = [f for cg, f in cuts if cg.distance(shape) <= CONTACT_CM]
+                from .cut_level_scope import for_fund
+                candidates = [for_fund(f, shape, fund.get('height_cm'))
+                              for cg, f in cuts if cg.distance(shape) <= CONTACT_CM]
+                candidates = [f for f in candidates if f is not None]
+                # Persist each measured per-stem reading with its own identity;
+                # the source slab chain remains the same independent origin.
+                for f in candidates:
+                    if f.get('top_offset_source') == 'matched_stem_and_scoped_own_wing':
+                        f['fact_id'] += ':fund:' + uid
+                        tower.setdefault('cut_level_facts', []).append(f)
             if candidates:
                 values = {round(f['value'], 4) for f in candidates}
                 if max(values)-min(values) <= TOL:
@@ -414,7 +515,8 @@ def resolve(tower, context):
                     # path: score the strongest one. Unvalidated touching cuts
                     # keep the conservative weakest-of-all rule.
                     validated = [c for c in candidates if cut_matches_fund(
-                        c.get('cut_profile_geometry'), shape, fund.get('height_cm'))]
+                        c.get('cut_profile_geometry'), shape, fund.get('height_cm'),
+                        c.get('cut_height_evidence'))]
                     # Both sides of one drawing are readings of the same cut:
                     # the stronger agreeing side carries it (never a sum).
                     drawings = {}
@@ -428,6 +530,8 @@ def resolve(tower, context):
                                         cut_ids=sorted({c['cut_id'] for c in candidates}),
                                         cut_association=('stem_matches_fv_section' if validated
                                                          else 'contact_only'),
+                                        cut_height_evidence=(deepcopy(used[0].get('cut_height_evidence'))
+                                            if len(used) == 1 else None),
                                         cut_profile_geometry=(used[0].get('cut_profile_geometry')
                                             if len(used) == 1 else None))
                     current['independent_confirmations'] = confirmations(
@@ -471,13 +575,19 @@ def resolve(tower, context):
             # convention source must not suppress stronger reciprocal LV proof.
             if not candidates:
                 standard = standard_level(shape, current, principal_references, paints,
-                                          all_cut_shapes, inherited, projected_coverage, datum_source)
+                                          all_cut_shapes, inherited, projected_coverage, datum_source,
+                                          step_values)
                 if standard and standard['confidence_pct'] > current['confidence_pct']:
                     current = standard
             resolved_funds[uid] = current
             current['fact_id'] = records[uid]['fact_id']
             records[uid].update(current)
             sync(fund, current)
+        from .beam_junction_continuity import propagate_junctions
+        all_funds = [s for beam in items if beam.get('item_class') == 'beam'
+                     for s in beam.get('segments') or [] if s.get('family') == 'fundo']
+        propagate_junctions(funds, all_funds, records, shapes, cuts,
+                            context.get('tower_path'), paints, inherited, sync)
         propagate(funds, sides, records, shapes, paints, inherited, sync)
         estimate_same_beam_funds([item])
         resolved_funds = {uid: records[uid] for uid in resolved_funds}
@@ -513,8 +623,13 @@ def resolve(tower, context):
                         row.update(value=None,status='conflict',confidence_pct=0,
                                    warnings=['source_fv_level_conflict'],fv_segments=[f['segment_label'] for f in matched])
                     elif sources and max(f['value'] for f in sources)-min(f['value'] for f in sources) <= TOL:
-                        row = inherited(native, sources, 'spatial_fv_reference', .95,
-                            value=sources[0]['value'], fv_segments=[f['segment_label'] for f in matched])
+                        if preserve_local_seed_over_estimated_fv(native, sources):
+                            row = deepcopy(native)
+                            row['fv_segments'] = []
+                            row['fv_geometry_segments'] = [f['segment_label'] for f in matched]
+                        else:
+                            row = inherited(native, sources, 'spatial_fv_reference', .95,
+                                value=sources[0]['value'], fv_segments=[f['segment_label'] for f in matched])
                     elif sources:
                         row = deepcopy(native)
                         row.update(value=None,status='conflict',confidence_pct=0,
@@ -523,7 +638,7 @@ def resolve(tower, context):
                         row = deepcopy(native)
                         row['fv_segments'] = []
                     row.update(range_start=round(start*shape.length, 2), range_end=round(end*shape.length, 2), range_unit='cm')
-                    if ranges and ranges[-1].get('value') == row.get('value') and ranges[-1].get('fv_segments') == row.get('fv_segments') and ranges[-1]['method']==row['method']:
+                    if ranges and ranges[-1].get('value') == row.get('value') and ranges[-1].get('fv_segments') == row.get('fv_segments') and ranges[-1].get('fv_geometry_segments') == row.get('fv_geometry_segments') and ranges[-1]['method']==row['method']:
                         ranges[-1]['range_end'] = row['range_end']
                     else:
                         ranges.append(row)
@@ -548,6 +663,42 @@ def resolve(tower, context):
             record['fact_id'] = fact_id
             sync(side, record)
         continue_pillar_wall_segments(sides, records, shapes)
+        # After both continuity passes. The stretch must not paint the far gap,
+        # and it must not take a row that the pillar-wall rule was going to keep.
+        for side in sides:
+            uid = side['segment_id']
+            ranges = side.get('level_ranges') or []
+            updated = apply_uncovered_range_contacts(
+                shapes[uid], ranges, local_sources, inherited, projected_coverage, MIN_FACING_CM)
+            if len(updated) == len(ranges) and all(new is old for new, old in zip(updated, ranges)):
+                continue
+            record = records[uid]
+            base = record['fact_id']
+            mapping = {}
+            for index, row in enumerate(updated):
+                previous = row.get('fact_id')
+                row['fact_id'] = base + ':range:' + str(index)
+                if previous:
+                    mapping[previous] = row['fact_id']
+            for row in updated:
+                refs = row.get('continuity_source_ranges')
+                if refs:
+                    row['continuity_source_ranges'] = [mapping.get(ref, ref) for ref in refs]
+            native = seeds[uid]
+            fact_id = record['fact_id']
+            values = {r['value'] for r in updated}
+            if len(values) == 1:
+                record.update(inherited(native, updated, 'lateral_spatial_level_ranges', 1,
+                    value=updated[0]['value']))
+            else:
+                record.update(value=None,status='segmented',confidence_pct=min(r['confidence_pct'] for r in updated),
+                              method='multiple_fv_levels_along_lateral', warnings=['see_spatial_level_ranges'],
+                              confidence_components={'aggregation':'weakest_spatial_range',
+                                  'range_scores':[r['confidence_pct'] for r in updated]})
+            record['level_ranges'] = updated
+            record['fact_id'] = fact_id
+            side['level_ranges'] = updated
+            sync(side, record)
         for fact in item['levels']:
             if fact['field'] == 'beam_bottom':
                 source = records[fact['segment_id']]
@@ -698,14 +849,16 @@ def add_slab_region_facts(slab_items, context):
             parts.append(('principal', principal, value, proof,
                           not proof.get('evidence_checks', {}).get('direct_principal_level', False)))
         for uid, shape, value, proof, inferred_level in parts:
-            if value is None or shape.is_empty:
+            if shape.is_empty:
                 continue
             fact = dict(item_id=item['item_id'], fact_id=item['item_id']+':region:'+uid,
                 field='slab_region_level', value=value, unit='m',
                 datum_id=(item['levels'][0].get('datum_id') if item['levels'] else None),
                 region_id=uid, region_geometry=mapping(shape),
-                method='slab_step_cut_scoped_level' if inferred_level else 'cad_level_inside_slab',
-                status='inferred' if inferred_level else 'sa_evidence',
+                region_height_cm=proof.get('owner_height_cm') if uid=='principal' else proof.get('height_cm'),
+                method='unresolved_scoped_region' if value is None else
+                    'slab_step_cut_scoped_level' if inferred_level else 'cad_level_inside_slab',
+                status='unknown' if value is None else 'inferred' if inferred_level else 'sa_evidence',
                 evidence_ids=[context['evidence_id'], *['cad:'+h for h in proof['evidence_handles']]],
                 warnings=['level_transferred_through_flat_bottom_section'] if inferred_level else [])
             score(fact)
@@ -762,7 +915,29 @@ def add_slab_region_facts(slab_items, context):
                         region_id='principal',region_geometry=principal_fact['region_geometry']))
 
 
-def resolve_missing_slab_cut_regions(slab_items, context):
+def _cut_level_targets(slab_items, slabs):
+    """Unknown regions use their own contour/h, never the whole owner slab."""
+    import re
+    from shapely.geometry import shape as from_geojson
+    for name, item in slab_items.items():
+        slab = slabs.get(name)
+        if not slab:
+            continue
+        levels = [f for f in item['levels'] if f['field']=='slab_level']
+        if len(levels)==1 and not slab.get('slab_steps'):
+            match=re.search(r'h\s*=\s*(\d+(?:[.,]\d+)?)',str(slab.get('fields',{}).get('laje_dim','')),re.I)
+            if match:
+                yield name,item,slab,levels[0],float(match.group(1).replace(',','.')),geometry(slab['points'])
+        for fact in item['levels']:
+            if fact.get('field')!='slab_region_level' or fact.get('region_id')=='principal':
+                continue
+            height=numeric(fact.get('region_height_cm'))
+            if height is None or height<=0 or not fact.get('region_geometry'):
+                continue
+            yield name,item,slab,fact,height,from_geojson(fact['region_geometry'])
+
+
+def resolve_missing_slab_cut_regions(slab_items, context, fact_index=None, *, allow_traced_inferred=False):
     """Use the actual section wings and scoped regions, never nearby slab names.
 
     A shortened beam stem invalidates an absolute beam offset, but leaves the
@@ -774,18 +949,33 @@ def resolve_missing_slab_cut_regions(slab_items, context):
     same altitude; measured/human values and competing altitudes are untouched.
     """
     from shapely.geometry import shape as from_geojson
+    from .level_provenance import walk, origin_kind
+    # Include other classes when called from the full resolver: an apparently
+    # independent slab can depend on the target through a beam/contact fact.
+    fact_index = dict(fact_index or {})
+    fact_index.update({f['fact_id']: f for item in slab_items.values()
+                       for f in item['levels'] if f.get('fact_id')})
     slabs = {s['name']: s for s in context['state'].get('slabs', [])}
+    def usable_seed(f):
+        if f.get('status') in ('sa_evidence', 'human_review'):
+            return True
+        if not allow_traced_inferred or f.get('status') != 'inferred':
+            return False
+        roots, cycles, missing = walk(f['fact_id'], fact_index)
+        return (not cycles and not missing and bool(roots) and all(
+                r.get('status') in ('sa_evidence', 'human_review') and origin_kind(r) in
+                ('cad_direct_level', 'cad_named_section_level', 'human_review') for r in roots))
     sources = []
     for name, item in slab_items.items():
         region_facts = [f for f in item['levels'] if f['field']=='slab_region_level']
         for f in region_facts:
             if (numeric(f.get('value')) is not None
-                    and f.get('status') in ('sa_evidence','human_review')
+                    and usable_seed(f)
                     and f.get('evidence_ids')):
                 sources.append((name, deepcopy(f), from_geojson(f['region_geometry'])))
         if not slabs.get(name, {}).get('slab_steps'):
             valid = [f for f in item['levels'] if f['field']=='slab_level'
-                     and f['value'] is not None and f['status'] in ('sa_evidence','human_review')]
+                     and f['value'] is not None and usable_seed(f)]
             if len({f['value'] for f in valid}) == 1:
                 sources.append((name,deepcopy(max(valid,key=lambda f:f['confidence_pct'])),geometry(slabs[name]['points'])))
     def wing(section, region, height, up=(1,1)):
@@ -822,17 +1012,9 @@ def resolve_missing_slab_cut_regions(slab_items, context):
         delta=wings.centroid.x-stem.centroid.x
         if abs(delta) < 1: return None
         return (0, 1 if delta>0 else -1)
-    for name,item in slab_items.items():
-        levels=[f for f in item['levels'] if f['field']=='slab_level']
-        if len(levels)!=1: continue
-        target=levels[0]
+    for name,item,slab,target,height,owner in _cut_level_targets(slab_items,slabs):
         if target.get('status') not in ('unknown','inferred','estimated'): continue
-        slab=slabs.get(name)
-        if not slab or slab.get('slab_steps'): continue
         import re
-        match=re.search(r'h\s*=\s*(\d+(?:[.,]\d+)?)',str(slab.get('fields',{}).get('laje_dim','')),re.I)
-        if not match: continue
-        height=float(match.group(1).replace(',','.')); owner=geometry(slab['points'])
         candidates=[]
         mismatched={}
         for cut in (slab.get('cut_links') or {}).get('cut_view_geom',[]):
@@ -853,7 +1035,10 @@ def resolve_missing_slab_cut_regions(slab_items, context):
             target_top,target_off=target_wing
             for source_name,source,region in sources:
                 if source_name==name or region is None: continue
-                if target['fact_id'] in source.get('source_fact_ids',[]): continue
+                # Seeding the traversal with the target also catches indirect
+                # self-confirmation; existing cycles in a source are unusable.
+                _, cycles, _ = walk(source['fact_id'], fact_index, (target['fact_id'],))
+                if cycles: continue
                 # A region supplies its h from the same scoped contour.
                 source_slab=slabs[source_name]
                 step=next((s for s in source_slab.get('slab_steps',[]) if s['uid']==source.get('region_id')),None)
@@ -873,7 +1058,9 @@ def resolve_missing_slab_cut_regions(slab_items, context):
         values=[round(s['value']+delta/100,4) for s,delta,_,_,_ in candidates]
         if not values or max(values)-min(values)>TOL: continue
         previous_value=numeric(target.get('value'))
-        if previous_value is not None and abs(previous_value-values[0])>TOL: continue
+        correcting_convention = (allow_traced_inferred and target.get('method') in LAYERED_REGION_METHODS
+                                 and previous_value is not None and abs(previous_value-values[0]) > TOL)
+        if previous_value is not None and abs(previous_value-values[0])>TOL and not correcting_convention: continue
         from shapely.geometry import mapping
         # Every candidate passed both wing checks on its own: score the
         # strongest sufficient path; agreeing others are audit-only.
@@ -881,7 +1068,7 @@ def resolve_missing_slab_cut_regions(slab_items, context):
         # NIV-LAJE-CAMADAS-20261003) stays valid at a reduced factor.
         ranked=[(not mismatched[id(c[0]),i],c[0]['confidence_pct'],i) for i,c in enumerate(candidates)]
         clean,_,pick=max(ranked)
-        if not clean and previous_value is None: continue  # mis-drawn wing only re-proves
+        if not clean and (previous_value is None or correcting_convention): continue  # mis-drawn wing only re-proves
         best=candidates[pick]
         result=inherited(target,[best[0]],'scoped_cut_wing_relative_delta_cm',.9 if clean else .9*.95,
             independent_confirmations=confirmations([best[0]],[s for s,_,_,_,_ in candidates]),
@@ -892,10 +1079,16 @@ def resolve_missing_slab_cut_regions(slab_items, context):
             result['confidence_components']['drawn_wing_mismatch_factor']=.95
             result['owner_decision']='NIV-LAJE-CAMADAS-20261003'
         if previous_value is not None:
-            if result['confidence_pct']<=target.get('confidence_pct',0): continue
+            if result['confidence_pct']<=target.get('confidence_pct',0) and not correcting_convention: continue
             result['previous_level_evidence']=deepcopy(target)
+        if correcting_convention:
+            result['warnings']=sorted(set(result['warnings']+['measured_wing_supersedes_neighbor_convention']))
         target.update(result)
-        item['level_review']=dict(status='inferred',reason=result['method'],value=result['value'],evidence=result['cut_region_evidence'])
+        review=dict(status='inferred',reason=result['method'],value=result['value'],evidence=result['cut_region_evidence'])
+        if target.get('field')=='slab_region_level':
+            item.setdefault('region_level_reviews',{})[target['region_id']]=review
+        else:
+            item['level_review']=review
 
 
 def estimate_same_beam_funds(items):
@@ -940,16 +1133,51 @@ def sync(segment, fact):
 
 
 def projected_coverage(fund, spans):
-    if not spans:
+    if fund is None or fund.is_empty or not spans:
         return 0.
-    x1,y1,x2,y2 = fund.bounds
-    axis = 0 if x2-x1 >= y2-y1 else 1
-    lo,hi = (x1,x2) if axis == 0 else (y1,y2)
+    # Stations belong to the target's longitudinal axis, not the drawing's
+    # world X/Y axes. World-axis bounds include the width of an oblique beam
+    # and can reject an otherwise sufficient physical contact.
+    from math import hypot
+    from shapely.affinity import affine_transform
+    rectangle = fund.minimum_rotated_rectangle
+    coords = list(rectangle.exterior.coords) if rectangle.geom_type == 'Polygon' else list(rectangle.coords)
+    edges = [(hypot(b[0]-a[0], b[1]-a[1]), a, b) for a,b in zip(coords, coords[1:])]
+    if not edges:
+        return 0.
+    length, a, b = max(edges, key=lambda edge: edge[0])
+    if length <= 0:
+        return 0.
+    ux, uy = (b[0]-a[0])/length, (b[1]-a[1])/length
+    # A local origin avoids cancellation in drawings with large coordinates.
+    matrix = [ux, uy, -uy, ux, -ux*a[0]-uy*a[1], uy*a[0]-ux*a[1]]
+    target = affine_transform(fund, matrix)
+    lo,hi = target.bounds[0], target.bounds[2]
     if hi <= lo:
         return 0.
-    from shapely.geometry import box
-    projected = [box(max(lo,s.bounds[axis]),0,min(hi,s.bounds[axis+2]),1) for s in spans]
-    return min(1., unary_union(projected).area/(hi-lo))
+    intervals = []
+    def collect(shape):
+        if shape is None or shape.is_empty:
+            return
+        if hasattr(shape, 'geoms'):
+            for part in shape.geoms:
+                collect(part)
+            return
+        bounds = affine_transform(shape, matrix).bounds
+        start, end = max(lo,bounds[0]), min(hi,bounds[2])
+        if end > start:
+            intervals.append((start,end))
+    for span in spans:
+        collect(span)
+    # Union connected spans individually: disconnected contacts do not fill
+    # the gap between them, and duplicate Para/Passa evidence is not summed.
+    covered = 0.
+    end = lo
+    for start, stop in sorted(intervals):
+        if stop > end:
+            covered += stop-max(start,end)
+            end = stop
+    return min(1., covered/(hi-lo))
 
 
 def resolve_pillars(items, context, slab_sources):
@@ -963,6 +1191,8 @@ def resolve_pillars(items, context, slab_sources):
     regional_names = {s['name'] for s in context['state'].get('slabs', []) if s.get('slab_steps')}
     for item in items:
         if item['item_class'] != 'pillar' or item['display_name'] not in pillars:
+            continue
+        if 'canonical_owner_item_id' in item and item['canonical_owner_item_id'] != item['item_id']:
             continue
         top = next((f for f in item['levels'] if f['field']=='top'), None)
         if not top or top['status'] in ('human_review','not_applicable'):

@@ -1,4 +1,6 @@
 # MASTERPLAN — Arete LATERAL DE VIGA (LV): N2→N4 → N2↔N1 → N1→N3
+
+> **NOVA/LV — padrão aprovado em 2026-10-05:** para o desenho N3 AB e Visão Corte, prevalece a [especificação vigente](PADRAO-NOVA-LATERAIS-APROVADO.md). Para/Passa conservam contratos independentes; gradeadas/sarrafeadas conservam artefatos independentes. As descrições do motor anterior abaixo continuam como referência de interpretação/contrato e não substituem as regras visuais aprovadas. Integração local em validação; geração publicada N3/N5 ainda não comprovada.
 **Versão:** 1.1
 **Data:** 2026-06-14 | **Atualizado:** 2026-07-05
 **Autor:** Fable (Estrategista) — Cowork

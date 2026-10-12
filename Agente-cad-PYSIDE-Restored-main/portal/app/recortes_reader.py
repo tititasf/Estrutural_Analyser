@@ -108,7 +108,8 @@ def listar_brutos_recorte(obra_dir: Path) -> list[dict]:
     if not pasta.exists():
         return []
     por_canon: dict[str, Path] = {}
-    for arquivo in sorted(pasta.glob("*.dxf")) + sorted(pasta.glob("*.dwg")):
+    for arquivo in sorted(p for p in pasta.iterdir()
+                          if p.is_file() and p.suffix.lower() in (".dxf", ".dwg")):
         canon = stem_bruto_canonico(arquivo.stem)
         atual = por_canon.get(canon)
         if atual is None or _score_bruto_entrada(arquivo) > _score_bruto_entrada(atual):

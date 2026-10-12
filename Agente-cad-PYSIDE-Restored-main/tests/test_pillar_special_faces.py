@@ -3,12 +3,21 @@ from src.core.pillar_special_faces import (
     enrich_special_pillar_tables,
     physical_ring,
     special_l_face_segments,
+    supports_rectangular_tag_renderer,
 )
 
 
 POINTS = [
     [0, 0], [165, 0], [165, 19], [19, 19], [19, 218], [0, 218], [0, 0],
 ]
+
+
+def test_bbox_tag_renderer_requires_actual_rectangular_walls():
+    assert supports_rectangular_tag_renderer([[0, 0], [10, 0], [10, 20], [0, 20], [0, 0]])
+    assert supports_rectangular_tag_renderer([[0, 0], [5, 0], [10, 0], [10, 20], [0, 20]])
+    assert not supports_rectangular_tag_renderer(POINTS)
+    assert not supports_rectangular_tag_renderer([[0, 0], [10, 0], [8, 20], [0, 20]])
+    assert not supports_rectangular_tag_renderer([[0, 0], [0, 0], [0, 20]])
 
 
 def _base_tables():
@@ -256,3 +265,30 @@ P26_L = [
     (3936.4, 2242.0), (4101.4, 2242.0), (4101.4, 2261.0),
     (3955.4, 2261.0), (3955.4, 2460.0), (3936.4, 2460.0),
 ]
+
+
+def test_physical_contact_interval_follows_each_original_face_direction():
+    from src.core.pillar_special_faces import (
+        special_l_face_segments, _oriented_face_interval, physical_face_contact,
+    )
+    transforms = [lambda x,y:(x,y), lambda x,y:(-x,y),
+                  lambda x,y:(y,-x), lambda x,y:(-y,x)]
+    for points in (P26_L, P27_L):
+        for transform in transforms:
+            for reverse in (False, True):
+                ring = [transform(x,y) for x,y in points]
+                if reverse:
+                    ring.reverse()
+                for fid, edge in special_l_face_segments(ring).items():
+                    axis = 0 if abs(edge['p1'][1]-edge['p0'][1]) < .05 else 1
+                    length = edge['length']
+                    unit = tuple((b-a)/length for a,b in zip(edge['p0'],edge['p1']))
+                    contact = tuple(a+u*3 for a,u in zip(edge['p0'],unit))
+                    end = tuple(a+u*8 for a,u in zip(edge['p0'],unit))
+                    low,high = sorted((contact[axis],end[axis]))
+                    interval = _oriented_face_interval(edge,low,high,axis)
+                    assert interval == (3,8)
+                    row = {'_physical_contact_interval_cm': interval, '_physical_contact_origin': 'p0'}
+                    start_out,end_out,_ = physical_face_contact({fid:edge},fid,'chega',row)
+                    assert start_out == contact
+                    assert end_out == end

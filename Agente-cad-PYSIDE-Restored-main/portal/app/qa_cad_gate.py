@@ -13,6 +13,8 @@ import math
 import re
 from pathlib import Path
 
+from src.core.qa_original_polyline import original_polyline_xyb
+
 EPS = .05  # extraction tolerance in CAD cm, not an engineering acceptance rate
 _CACHE = {}
 
@@ -43,58 +45,113 @@ def number(value):
     return float(match[1].replace(',', '.')) if match else None
 
 
+def _pil_section_handles(sections):
+    return sorted({h for t in sections for h in t.get('evidence_handles', [t['handle']])})
+
+
 def measure(source, snapshot):
     source = Path(source)
     doc = _readfile(source)
-    walls, labels, contours = [], [], []
+    from src.core.cad_object_recognition import section_layer
+    from src.core.lv_beam_scene import split_dimension_lines
+    walls, labels, contours, source_segments = [], [], [], []
     for entity in doc.modelspace():
         kind = entity.dxftype()
+        if section_layer(entity.dxf.layer):
+            continue
         segments = []
         if kind == 'LINE':
             segments = [(entity.dxf.start, entity.dxf.end)]
-        elif kind == 'LWPOLYLINE':
-            pts = list(entity.get_points('xyb'))
+        elif kind in {'LWPOLYLINE', 'POLYLINE'}:
+            pts, closed = original_polyline_xyb(entity)
             repeated_end = len(pts) > 3 and abs(pts[0][0]-pts[-1][0]) < EPS and abs(pts[0][1]-pts[-1][1]) < EPS
-            if (entity.closed or repeated_end) and not any(p[2] for p in pts):
+            if (closed or repeated_end) and not any(p[2] for p in pts):
                 contours.append((entity.dxf.handle, {(float(p[0]), float(p[1])) for p in pts}))
-            pairs = list(zip(pts, pts[1:] + (pts[:1] if entity.closed else [])))
+            pairs = list(zip(pts, pts[1:] + (pts[:1] if closed else [])))
             segments = [(a, b) for a, b in pairs if not a[2]]
-        elif kind == 'TEXT':
-            labels.append(dict(text=entity.dxf.text.strip(), x=float(entity.dxf.insert.x),
-                               y=float(entity.dxf.insert.y), handle=entity.dxf.handle,
-                               margin=max(float(entity.dxf.height)*2, EPS)))
+        elif kind in {'TEXT', 'MTEXT'}:
+            raw = entity.dxf.text if kind == 'TEXT' else entity.plain_text()
+            height = float(entity.dxf.height if kind == 'TEXT' else entity.dxf.char_height)
+            for token in re.split(r'\s+', raw.strip()):
+                labels.append(dict(text=token, x=float(entity.dxf.insert.x),
+                                   y=float(entity.dxf.insert.y), handle=entity.dxf.handle,
+                                   margin=max(height*2, EPS),
+                                   rotation=float(entity.dxf.get('rotation', 0) if kind == 'TEXT'
+                                                  else entity.get_rotation())))
         for a, b in segments:
+            segment = tuple(float(v) for v in (a[0], a[1], b[0], b[1]))
+            source_segments.append(segment)
             if abs(a[1]-b[1]) < EPS:
                 walls.append(dict(axis='x', pos=float(a[1]), lo=min(a[0], b[0]),
-                                  hi=max(a[0], b[0]), handle=entity.dxf.handle))
+                                  hi=max(a[0], b[0]), handle=entity.dxf.handle,
+                                  source_kind=kind, source_segment=segment))
             elif abs(a[0]-b[0]) < EPS:
                 walls.append(dict(axis='y', pos=float(a[0]), lo=min(a[1], b[1]),
-                                  hi=max(a[1], b[1]), handle=entity.dxf.handle))
+                                  hi=max(a[1], b[1]), handle=entity.dxf.handle,
+                                  source_kind=kind, source_segment=segment))
+    dimension_segments = _cached('pil_dimension_segments', source, lambda: set(
+        split_dimension_lines(source_segments,
+            [dict(text=t['text'], pos=[t['x'], t['y']]) for t in labels])[1]))
+    # Exploded dimension LINE provenance never discards an independent
+    # structural polyline which happens to occupy the same coordinates.
+    walls = [w for w in walls if not (w['source_kind'] == 'LINE' and
+                                     w['source_segment'] in dimension_segments)]
+    # Original drafting can split one beam wall into several touching pieces.
+    # Join only collinear open strokes with no gap beyond extraction EPS;
+    # closed contours remain separate so a pillar edge cannot bridge its gap.
+    original_walls = list(walls)
+    closed_handles = {handle for handle, _ in contours}
+    joined = []
+    for wall in sorted(walls, key=lambda w: (w['axis'], w['pos'], w['lo'])):
+        compatible = [w for w in joined if wall['handle'] not in closed_handles and
+                      not w.get('closed_contour') and w['axis'] == wall['axis'] and
+                      abs(w['pos']-wall['pos']) <= EPS and
+                      wall['lo'] <= w['hi']+EPS and wall['hi'] >= w['lo']-EPS]
+        if len(compatible) == 1:
+            target = compatible[0]
+            target.update(lo=min(target['lo'],wall['lo']), hi=max(target['hi'],wall['hi']))
+            target['handles'] = sorted(set(target['handles']+[wall['handle']]))
+        else:
+            joined.append(dict(wall, handles=[wall['handle']],
+                               closed_contour=wall['handle'] in closed_handles))
+    from src.core.pil_qa_wall_pairs import independent_open_wall_candidates
+    walls = independent_open_wall_candidates(joined, EPS)
+    # A numeric B/H already owned by one original pillar is not a beam
+    # callout. Match the identity reader's existing source ownership contract.
+    pillar_dimension_handles = _cached('pil_numeric_dimension_handles', source,
+        lambda: _proved_pillar_section_handles(doc, _beam_texts(doc)))
+    labels = [t for t in labels if t['handle'] not in pillar_dimension_handles]
     contacts = []
     for index, pillar in enumerate(snapshot.get('collections', {}).get('pilares', [])):
         points = pillar.get('points') or []
-        faces = (pillar.get('interpretacao_abcd') or {}).get('faces', {})
+        interpretation = pillar.get('interpretacao_abcd') or {}
+        faces = interpretation.get('faces', {})
         pillar_items = []
         for face, data in faces.items():
-            for link in data.get('chega') or []:
-                if str(link.get('nome') or '').strip().lower() in {'', 'nenhuma', 'nenhum', '—', '-'}:
-                    continue
-                record = dict(unit_path=f'/collections/pilares/{index}', face=face,
-                              beam=link.get('nome'), status='uncertain', errors={})
-                contacts.append(record)
-                pillar_items.append((face, link, record))
+            for role in ('chega', 'interior', 'passa'):
+                for link in data.get(role) or []:
+                    if str(link.get('nome') or '').strip().lower() in {'', 'nenhuma', 'nenhum', '—', '-'}:
+                        continue
+                    record = dict(unit_path=f'/collections/pilares/{index}', face=face,
+                                  beam=link.get('nome'), role=role, status='uncertain', errors={})
+                    contacts.append(record)
+                    pillar_items.append((face, link, record))
 
         # Fase 1: Medição determinística
         measured_beams = {}
         unresolved = []
         for face, link, record in pillar_items:
+            if record['role'] == 'passa':
+                record['reason'] = ('contato passa exige prova própria de corredor/canto; '
+                                    'medidor de chegada não certifica esse papel')
+                continue
             try:
                 xs, ys = [float(p[0]) for p in points], [float(p[1]) for p in points]
                 xmin, xmax, ymin, ymax = min(xs), max(xs), min(ys), max(ys)
-                if (face not in 'ABCD' or len(set((x, y) for x, y in zip(xs, ys))) != 4 or
-                        not all(math.isfinite(v) for v in xs+ys) or
-                        not all(abs(x-xmin)<EPS or abs(x-xmax)<EPS for x in xs) or
-                        not all(abs(y-ymin)<EPS or abs(y-ymax)<EPS for y in ys)):
+                rectangular = (face in 'ABCD' and len(set((x, y) for x, y in zip(xs, ys))) == 4 and
+                        all(abs(x-xmin)<EPS or abs(x-xmax)<EPS for x in xs) and
+                        all(abs(y-ymin)<EPS or abs(y-ymax)<EPS for y in ys))
+                if (not all(math.isfinite(v) for v in xs+ys)):
                     raise ValueError('contorno não retangular/alinhado; medir no CAD manualmente')
                 own = set(zip(xs, ys))
                 matching = [handle for handle, vertices in contours if len(vertices) == len(own) and
@@ -102,10 +159,38 @@ def measure(source, snapshot):
                 if len(matching) != 1:
                     raise ValueError('contorno candidato não corresponde a um único contorno fechado original')
                 record['pillar_handle'] = matching[0]
-                axis = 'x' if face in 'AB' else 'y'
-                anchor = {'A':xmin, 'B':xmax, 'C':ymax, 'D':ymin}[face]
-                low, high = (ymin, ymax) if axis == 'x' else (xmin, xmax)
-                direction = 1 if face in 'BC' else -1
+                from src.core.pil_qa_original_faces import original_special_face_planes
+                physical_faces = original_special_face_planes(doc.entitydb[matching[0]], tolerance_cm=EPS)
+                if not rectangular and face not in physical_faces:
+                    raise ValueError('contorno não retangular/alinhado; medir no CAD manualmente')
+                # ABCD describes long/short faces, so horizontal pillars use
+                # A south, B north, C west, D east. Distances follow the same
+                # oriented face contract as the canonical interpretation table.
+                from src.core.pillar_abcd_tables import _face_axis_span
+                orientation = str(interpretation.get('orientation') or
+                                  pillar.get('orientation') or '').lower()
+                vertical = ('vertical' in orientation if any(
+                    value in orientation for value in ('vertical', 'horizontal'))
+                    else ymax-ymin > xmax-xmin)
+                transverse, left_coord, right_coord, _ = _face_axis_span(
+                    face, xmin, ymin, xmax, ymax, vertical=vertical)
+                axis = 'x' if transverse == 'y' else 'y'
+                if vertical and rectangular:
+                    anchor = {'A':xmin, 'B':xmax, 'C':ymax, 'D':ymin}[face]
+                    direction = 1 if face in 'BC' else -1
+                elif rectangular:
+                    anchor = {'A':ymin, 'B':ymax, 'C':xmin, 'D':xmax}[face]
+                    direction = 1 if face in 'BD' else -1
+                if not rectangular:
+                    edge = physical_faces[face]
+                    transverse = 'y' if abs(edge['p0'][0]-edge['p1'][0]) <= EPS else 'x'
+                    axis = 'x' if transverse == 'y' else 'y'
+                    ti, ai = (1, 0) if transverse == 'y' else (0, 1)
+                    left_coord, right_coord = edge['p0'][ti], edge['p1'][ti]
+                    anchor = edge['p0'][ai]
+                    direction = 1 if edge['out'][ai] > 0 else -1
+                    record['physical_face'] = dict(p0=edge['p0'], p1=edge['p1'], out=edge['out'])
+                low, high = sorted((left_coord, right_coord))
                 # Parede da viga do lado de fora da face: termina na face ou a
                 # atravessa (viga que passa com a mesma largura do pilar).  Só o
                 # trecho externo conta, para o rótulo não vir do outro lado.
@@ -117,7 +202,14 @@ def measure(source, snapshot):
                     reaches = (w['lo']-EPS <= anchor <= w['hi']+EPS)
                     if reaches and hi-lo > EPS:
                         candidates.append(dict(w, lo=lo, hi=hi))
+                # Only the original exterior of this face is being measured.
+                # A closed edge extending behind the face cannot duplicate an
+                # open wall that fully proves its complete exterior portion.
+                candidates = independent_open_wall_candidates(candidates, EPS)
                 pairs = []
+                unnamed_pairs = []
+                named_pair_reviews = []
+                pair_section_boundaries = {}
                 for i, a in enumerate(candidates):
                     for b in candidates[i+1:]:
                         bw = abs(a['pos']-b['pos'])
@@ -131,67 +223,236 @@ def measure(source, snapshot):
                         near = [t for t in labels if
                                 overlap_lo-EPS <= t[axis] <= overlap_hi+EPS and
                                 bottom-t['margin'] <= t['y' if axis == 'x' else 'x'] <= top+t['margin']]
+                        # Own first span is bounded by the first perpendicular
+                        # support. Both beam name and section must occur inside
+                        # this same corridor/span; a nearby foreign section does
+                        # not prove the requested beam's identity.
+                        stops = []
+                        # A solitary crossing stroke may be a section glyph or
+                        # annotation. Support ownership requires an original
+                        # named closed pillar or a named perpendicular wall pair.
+                        from src.core.pil_qa_pillar_ownership import foreign_named_contour
+                        ownership_bindings = _cached('pil_numeric_pillar_owners', source,
+                            lambda: _proved_pillar_section_handles(doc, _beam_texts(doc), return_bindings=True))
+                        for _, vertices in contours:
+                            cx = [v[0] for v in vertices]
+                            cy = [v[1] for v in vertices]
+                            if len(vertices) != 4:
+                                continue
+                            bx0, bx1, by0, by1 = min(cx), max(cx), min(cy), max(cy)
+                            if not all((abs(x-bx0)<EPS or abs(x-bx1)<EPS) and
+                                       (abs(y-by0)<EPS or abs(y-by1)<EPS) for x,y in vertices):
+                                continue
+                            named = [t for t in labels if re.fullmatch(r'P\d+[A-Z]?', t['text'], re.I)
+                                     and bx0-EPS <= t['x'] <= bx1+EPS
+                                     and by0-EPS <= t['y'] <= by1+EPS]
+                            if len({t['text'] for t in named}) != 1:
+                                continue
+                            if foreign_named_contour(_, named, ownership_bindings):
+                                continue
+                            cross_lo, cross_hi = (by0, by1) if axis == 'x' else (bx0, bx1)
+                            if not any(cross_lo-EPS <= edge <= cross_hi+EPS for edge in (bottom, top)):
+                                continue
+                            for coord in ((bx0, bx1) if axis == 'x' else (by0, by1)):
+                                if overlap_lo+EPS < coord < overlap_hi-EPS:
+                                    stops.append(coord)
+                        perpendicular = [w for w in walls if w['axis'] != axis and
+                            overlap_lo+EPS < w['pos'] < overlap_hi-EPS and
+                            any(w['lo']-EPS <= edge <= w['hi']+EPS for edge in (bottom, top))]
+                        for pi, pa in enumerate(perpendicular):
+                            for pb in perpendicular[pi+1:]:
+                                width = abs(pa['pos']-pb['pos'])
+                                plo, phi = max(pa['lo'], pb['lo']), min(pa['hi'], pb['hi'])
+                                if not EPS < width <= 150 or phi-plo < 10:
+                                    continue
+                                if not any(plo-EPS <= edge <= phi+EPS for edge in (bottom, top)):
+                                    continue
+                                tlo, thi = sorted((pa['pos'], pb['pos']))
+                                local = [t for t in labels if plo-EPS <= t['y' if axis == 'x' else 'x'] <= phi+EPS
+                                         and tlo-t['margin'] <= t[axis] <= thi+t['margin']]
+                                names = {t['text'] for t in local if re.fullmatch(r'(?:V|VF)\d+[A-Z]?', t['text'], re.I) and
+                                         abs(math.sin(math.radians(t['rotation'] - (90 if axis == 'x' else 0)))) < 1e-6}
+                                dims = [t for t in local if re.fullmatch(r'\d+(?:[.,]\d+)?/\d+(?:[.,]\d+)?', t['text'])
+                                        and abs(float(t['text'].split('/')[0].replace(',', '.'))-width) <= EPS and
+                                        abs(math.sin(math.radians(t['rotation'] - (90 if axis == 'x' else 0)))) < 1e-6]
+                                if len(names) == 1 and len({t['text'] for t in dims}) == 1:
+                                    # An original capped T ends at one outer
+                                    # wall; it does not divide the longitudinal
+                                    # identity corridor. Require both transverse
+                                    # endpoints, its original cap, and continuous
+                                    # longitudinal walls. An unproved partial
+                                    # junction remains a conservative barrier.
+                                    from src.core.pil_qa_t_junctions import capped_exterior_t
+                                    tangent = capped_exterior_t(pa, pb, (a, b), original_walls,
+                                        axis=axis, positions=(bottom, top),
+                                        closed_handles=closed_handles, tolerance_cm=EPS)
+                                    if tangent:
+                                        continue
+                                    stops.extend((pa['pos'], pb['pos']))
+                        if stops:
+                            first = min(stops) if direction > 0 else max(stops)
+                            span = (anchor, first) if direction > 0 else (first, anchor)
+                            near = [t for t in near if span[0]-EPS <= t[axis] <= span[1]+EPS]
+                        from src.core.pil_qa_section_boundaries import own_section_span
+                        section_boundary = own_section_span(original_walls, near,
+                            axis=axis, positions=(bottom, top),
+                            span=span if stops else (overlap_lo, overlap_hi), anchor=anchor,
+                            closed_handles=closed_handles, tolerance_cm=EPS, source_path=source)
+                        if section_boundary:
+                            near = [t for t in near if
+                                    section_boundary['span'][0]-EPS <= t[axis] <= section_boundary['span'][1]+EPS]
                         sections = [t for t in near if re.fullmatch(r'\d+(?:[.,]\d+)?/\d+(?:[.,]\d+)?', t['text']) and
-                                    abs(float(t['text'].split('/')[0].replace(',', '.'))-bw) <= EPS]
-                        if len({t['text'] for t in sections}) > 1:
-                            # Parede contínua por vários vãos: vale o rótulo do
-                            # primeiro vão, até a primeira parede perpendicular
-                            # que encosta no corredor (apoio), nunca o mais perto.
-                            stops = [w['pos'] for w in walls if w['axis'] != axis and
-                                     overlap_lo+EPS < w['pos'] < overlap_hi-EPS and
-                                     any(w['lo']-EPS <= edge <= w['hi']+EPS for edge in (bottom, top))]
-                            if stops:
-                                first = min(stops) if direction > 0 else max(stops)
-                                span = (anchor, first) if direction > 0 else (first, anchor)
-                                sections = [t for t in sections if span[0]-EPS <= t[axis] <= span[1]+EPS]
+                                    abs(float(t['text'].split('/')[0].replace(',', '.'))-bw) <= EPS and
+                                    abs(math.sin(math.radians(t['rotation'] - (0 if axis == 'x' else 90)))) < 1e-6]
+                        if not sections:
+                            from src.core.pil_qa_dimensioned_sections import collect_dimensioned_sections, sections_in_span
+                            section_glyphs = _cached('pil_dimensioned_sections', source,
+                                lambda: collect_dimensioned_sections(doc, EPS))
+                            own_span = span if stops else (overlap_lo, overlap_hi)
+                            sections = sections_in_span(section_glyphs, axis=axis,
+                                positions=(bottom,top), span=own_span, tolerance_cm=EPS)
                         if len({t['text'] for t in sections}) != 1:
                             continue
-                        has_beam = any(t['text'] == record['beam'] for t in near)
-                        pairs.append((a, b, bottom, top, sections, has_beam))
+                        longitudinal_names = {t['text'] for t in near
+                            if re.fullmatch(r'(?:V|VF)\d+[A-Z]?', t['text'], re.I) and
+                            abs(math.sin(math.radians(t['rotation'] - (0 if axis == 'x' else 90)))) < 1e-6}
+                        has_beam = longitudinal_names == {record['beam']}
+                        pairs.append((a, b, bottom, top, sections, has_beam,
+                                      [t['handle'] for t in near if t['text'] == record['beam']]))
+                        if section_boundary:
+                            # Evidence of source ownership only; the normal
+                            # identity, section and distance checks still run.
+                            pair_section_boundaries[id(pairs[-1])] = section_boundary
+                        if not longitudinal_names:
+                            unnamed_pairs.append(pairs[-1])
+                        elif len(longitudinal_names) == 1 and not has_beam:
+                            named_pair_reviews.append((pairs[-1], sorted(longitudinal_names),
+                                sorted({t['handle'] for t in near if t['text'] in longitudinal_names})))
                 with_beam = [p for p in pairs if p[5]]
-                final_pairs = with_beam if len(with_beam) == 1 else pairs
+                final_pairs = with_beam
                 if len(final_pairs) != 1:
+                    # Keep source-proved geometry without certifying a name.
+                    # A later bilateral proof may connect it to the original
+                    # named corridor on the opposite physical pillar face.
+                    if len(pairs) == 1 and len(unnamed_pairs) == 1:
+                        record['_unnamed_source_pair'] = pairs[0]
+                        record['_face_coordinates'] = (left_coord, right_coord)
+                        record['_source_anchor'] = anchor
+                    elif len(pairs) == 1 and len(named_pair_reviews) == 1:
+                        # Expose a contradictory original name for independent
+                        # reconciliation; never approve the requested alias.
+                        (a,b,bottom,top,sections,_,_), names, handles = named_pair_reviews[0]
+                        record['geometry_only'] = dict(
+                            wall_handles=sorted(set(a['handles']+b['handles'])),
+                            section_handles=_pil_section_handles(sections),
+                            section=sections[0]['text'], width_cm=top-bottom)
+                        record['identity_path_review'] = dict(status='uncertain',
+                            reason='unique original local name contradicts requested identity',
+                            names=names, beam_handles=handles)
                     unresolved.append((face, link, record, len(candidates), None))
                     continue
-                a, b, bottom, top, sections, _ = final_pairs[0]
+                a, b, bottom, top, sections, _, beam_handles = final_pairs[0]
+                if id(final_pairs[0]) in pair_section_boundaries:
+                    record['section_boundary'] = pair_section_boundaries[id(final_pairs[0])]
                 distances = sorted((bottom-low, high-top))
-                dist_esq = (bottom-low) if face in 'BD' else (high-top)
-                dist_dir = (high-top) if face in 'BD' else (bottom-low)
+                dist_esq = (bottom-low) if left_coord < right_coord else (high-top)
+                dist_dir = (high-top) if left_coord < right_coord else (bottom-low)
                 section = sections[0]['text']
-                record.update(status='measured', wall_handles=[a['handle'], b['handle']],
-                              section_handles=[t['handle'] for t in sections], section=section,
+                record.update(status='measured', wall_handles=sorted(set(a['handles']+b['handles'])),
+                              beam_handles=beam_handles,
+                              section_handles=_pil_section_handles(sections), section=section,
                               width_cm=top-bottom, distances_cm=distances,
                               dist_esq_cm=dist_esq, dist_dir_cm=dist_dir,
                               face_length_cm=high-low)
                 measured_beams[record['beam']] = face
                 actual = [number(link.get('dist_esq')), number(link.get('dist_dir'))]
-                if None in actual or any(abs(v-e) > EPS for v, e in zip(sorted(actual), distances)):
+                if None in actual or any(abs(v-e) > EPS for v, e in zip(actual, (dist_esq, dist_dir))):
                     record['errors']['distancias_cantos'] = 'distâncias da ligação divergem das paredes originais; conferir distances_cm e handles'
-                # Every repeated reference to this beam must use the proven section.
-                def visit(value):
-                    if isinstance(value, dict):
-                        name = value.get('nome', value.get('name'))
-                        if name == record['beam'] and 'dim' in value:
-                            parts = str(value['dim']).replace(',', '.').split('/')
-                            expected = section.replace(',', '.').split('/')
-                            try:
-                                agrees = len(parts) == 2 and all(abs(float(v)-float(e)) <= EPS for v,e in zip(parts,expected))
-                            except ValueError:
-                                agrees = False
-                            if not agrees:
-                                record['errors']['dimensoes'] = 'seção da viga diverge do rótulo e das paredes originais; corrigir todas as referências desta viga'
-                        for child in value.values():
-                            visit(child)
-                    elif isinstance(value, list):
-                        for child in value:
-                            visit(child)
-                visit(pillar)
+                # A beam may change section at a pillar. Certify only this
+                # locally proved row; other faces/corners need their own proof.
+                parts = str(link.get('dim') or '').replace(',', '.').split('/')
+                expected = section.replace(',', '.').split('/')
+                try:
+                    agrees = len(parts) == 2 and all(abs(float(v)-float(e)) <= EPS
+                                                    for v,e in zip(parts,expected))
+                except ValueError:
+                    agrees = False
+                if not agrees:
+                    record['errors']['dimensoes'] = 'seção da ligação diverge do rótulo e das paredes originais deste vão'
             except (ValueError, TypeError, KeyError, IndexError) as exc:
                 unresolved.append((face, link, record, -1, str(exc)))
+
+        # A closed pillar bounds local section measurement. It need not split
+        # beam identity when BOTH original longitudinal walls continue on the
+        # opposite physical face in the exact same band. The section on each
+        # side stays local; source name proof comes from the measured corridor,
+        # never from the SA's claim that both rows share a beam name.
+        for face, link, record, _, _ in unresolved:
+            from src.core.pillar_special_faces import supports_rectangular_tag_renderer
+            pair = record.pop('_unnamed_source_pair', None)
+            coords = record.pop('_face_coordinates', None)
+            source_anchor = record.pop('_source_anchor', None)
+            if pair is None or face not in {'A', 'B', 'C', 'D'}:
+                continue
+            a,b,bottom,top,sections,_,_ = pair
+            record['geometry_only'] = dict(wall_handles=sorted(set(a['handles']+b['handles'])),
+                section_handles=_pil_section_handles(sections), section=sections[0]['text'], width_cm=top-bottom)
+            if not supports_rectangular_tag_renderer(points, tol_cm=EPS):
+                continue
+            opposite = {'A':'B', 'B':'A', 'C':'D', 'D':'C'}[face]
+            proofs = [p for _,_,p in pillar_items if p['face'] == opposite and
+                p['status'] == 'measured' and p['beam'] == record['beam'] and
+                p.get('role') in {'chega','interior'} and not p.get('identity_path')]
+            identity_proof = None
+            if len(proofs) == 1:
+                proof = proofs[0]
+                source_walls = [w for w in walls if set(w['handles']).issubset(proof['wall_handles']) and
+                                w['axis'] == a['axis'] and not w.get('closed_contour')]
+                if (not any(w.get('closed_contour') for w in (a,b)) and len(source_walls) == 2 and
+                    sorted(round(w['pos'],6) for w in source_walls) == sorted(round(w['pos'],6) for w in (a,b))):
+                    identity_proof = dict(kind='original_bilateral_collinear_walls', through_pillar=proof['pillar_handle'],
+                        source_face=opposite, source_wall_handles=proof['wall_handles'],
+                        source_section_handles=proof['section_handles'])
+                    beam_handles = proof['beam_handles']
+            if identity_proof is None:
+                from src.core.pil_qa_identity_paths import collect_identity_scene, prove_identity_path
+                original_scene = _cached('pil_identity_scene', source,
+                    lambda: collect_identity_scene(doc, EPS))
+                path = prove_identity_path(original_scene, axis=a['axis'], positions=(bottom,top),
+                    wall_handles=record['geometry_only']['wall_handles'], anchor=source_anchor,
+                    requested_name=record['beam'], tolerance_cm=EPS)
+                if path['status'] != 'measured':
+                    record['identity_path_review'] = path
+                    continue
+                # The graph certifies identity, not local distances or section.
+                # Those remain measured from this face's original wall pair.
+                identity_proof = path
+                beam_handles = path['beam_handles']
+            left,right = coords
+            low,high = sorted(coords)
+            de,dd = ((bottom-low,high-top) if left < right else (high-top,bottom-low))
+            section = sections[0]['text']
+            record.update(status='measured', wall_handles=record['geometry_only']['wall_handles'],
+                section_handles=record['geometry_only']['section_handles'], section=section,
+                width_cm=top-bottom, distances_cm=sorted((de,dd)), dist_esq_cm=de, dist_dir_cm=dd,
+                face_length_cm=high-low, beam_handles=beam_handles, identity_path=identity_proof)
+            actual = [number(link.get('dist_esq')),number(link.get('dist_dir'))]
+            if None in actual or any(abs(v-e)>EPS for v,e in zip(actual,(de,dd))):
+                record['errors']['distancias_cantos'] = 'distâncias da ligação divergem das paredes originais; conferir distances_cm e handles'
+            declared = str(link.get('dim') or '').replace(',','.').split('/')
+            expected = section.replace(',','.').split('/')
+            try:
+                agrees = len(declared)==2 and all(abs(float(v)-float(e))<=EPS for v,e in zip(declared,expected))
+            except ValueError:
+                agrees = False
+            if not agrees:
+                record['errors']['dimensoes'] = 'seção da ligação diverge do rótulo e das paredes originais deste vão'
 
         # Fase 2: resíduo.  Não achar parede é limite do medidor, não prova de
         # que a viga não existe: fica incerto, sem remover o vínculo.
         for face, link, record, cand_count, exc_str in unresolved:
+            if record['status'] == 'measured':
+                continue
             if cand_count == 0:
                 other_face = measured_beams.get(record['beam'])
                 record.update(
@@ -205,7 +466,71 @@ def measure(source, snapshot):
             elif exc_str:
                 record['reason'] = exc_str
             else:
-                record['reason'] = 'par de paredes/rótulo original ausente ou ambíguo; não aprovar por proximidade'
+                record['reason'] = ('par de paredes/nome/seção no vão próprio ausente ou ambíguo; '
+                                    'não aprovar por proximidade')
+        # A passage at any rectangular face is certified from an independently
+        # measured perpendicular adjacent face, never from its name alone.
+        for face, link, record in pillar_items:
+            if record['role'] != 'passa':
+                continue
+            from src.core.pillar_special_faces import supports_rectangular_tag_renderer
+            if not supports_rectangular_tag_renderer(points, tol_cm=EPS):
+                record['reason'] = 'passa em contorno especial exige prova do canto físico; não certificar por bbox'
+                continue
+            corner = str(link.get('canto') or '').upper()
+            adjacent_faces = {'C', 'D'} if face in {'A', 'B'} else {'A', 'B'}
+            if face not in {'A', 'B', 'C', 'D'} or len(corner) != 2 or corner[0] != face or corner[1] not in adjacent_faces:
+                record['reason'] = 'passa sem canto entre faces perpendiculares comprovável; não inventar posição'
+                continue
+            proofs = [candidate for candidate in contacts
+                      if candidate['unit_path'] == record['unit_path']
+                      and candidate['status'] == 'measured'
+                      and candidate.get('role') in {'chega', 'interior'}
+                      and candidate['face'] == corner[1]
+                      and candidate['beam'] == record['beam']]
+            if len(proofs) != 1:
+                record['reason'] = 'passa sem par de paredes e identidade medidos na face perpendicular adjacente'
+                continue
+            proof = proofs[0]
+            xs, ys = [float(p[0]) for p in points], [float(p[1]) for p in points]
+            xmin, xmax, ymin, ymax = min(xs), max(xs), min(ys), max(ys)
+            orientation = str(interpretation.get('orientation') or pillar.get('orientation') or '').lower()
+            vertical = ('vertical' in orientation if any(v in orientation for v in ('vertical', 'horizontal'))
+                        else ymax-ymin > xmax-xmin)
+            face_planes = ({'A': ('y', xmin), 'B': ('y', xmax),
+                            'C': ('x', ymax), 'D': ('x', ymin)} if vertical else
+                           {'A': ('x', ymin), 'B': ('x', ymax),
+                            'C': ('y', xmin), 'D': ('y', xmax)})
+            longitudinal, fixed = face_planes[face]
+            corner_coord = face_planes[corner[1]][1]
+            axis_low, axis_high = (ymin, ymax) if longitudinal == 'y' else (xmin, xmax)
+            outside_positive = abs(corner_coord-axis_high) <= EPS
+            source_walls = [w for w in walls if set(w['handles']).issubset(proof['wall_handles']) and
+                            w['axis'] == longitudinal and w['lo']-EPS <= corner_coord <= w['hi']+EPS]
+            pairs = [(wa, wb) for wi, wa in enumerate(source_walls) for wb in source_walls[wi+1:]
+                     if abs(abs(wa['pos']-wb['pos'])-proof['width_cm']) <= EPS
+                     and any(abs(w['pos']-fixed) <= EPS for w in (wa, wb))
+                     and all((w['hi']-corner_coord if outside_positive else corner_coord-w['lo']) > EPS
+                             for w in (wa, wb))]
+            if len(pairs) != 1:
+                record['reason'] = ('paredes medidas não comprovam tangência e continuidade externa '
+                                    'no canto declarado; conferir face/canto no CAD')
+                record['proof_wall_handles'] = proof['wall_handles']
+                continue
+            record.update(status='measured', aspect='passa_corner', corner=corner,
+                          source_contact_face=proof['face'], pillar_handle=proof['pillar_handle'],
+                          wall_handles=proof['wall_handles'], beam_handles=proof['beam_handles'],
+                          section_handles=proof['section_handles'], section=proof['section'],
+                          width_cm=proof['width_cm'])
+            record.pop('reason', None)
+            declared = str(link.get('dim') or '').replace(',', '.').split('/')
+            written = proof['section'].replace(',', '.').split('/')
+            try:
+                equal = len(declared) == 2 and all(abs(float(d)-float(w)) <= EPS for d,w in zip(declared,written))
+            except ValueError:
+                equal = False
+            if not equal:
+                record['errors']['dimensoes'] = 'seção da passagem diverge da seção original vinculada às paredes'
     return dict(schema='cad.qa_original_contacts/v1', source_sha256=_sha256(source),
                 tolerance_cm=EPS, contacts=contacts, measured_accuracy=False)
 
@@ -252,7 +577,9 @@ def measure_slabs(source, snapshot):
     source = Path(source)
     digest = hashlib.sha256(json.dumps(snapshot.get('collections', {}).get('lajes', []), sort_keys=True,
                                        default=str).encode()).hexdigest()
-    return copy.deepcopy(_cached('slabs', source, lambda: _measure_slabs(source, snapshot), digest))
+    report = copy.deepcopy(_cached('slabs', source, lambda: _measure_slabs(source, snapshot), digest))
+    from .qa_slab_parcels import annotate_slab_parcels
+    return annotate_slab_parcels(report, snapshot.get('collections', {}).get('lajes', []))
 
 
 def _measure_slabs(source, snapshot):
@@ -1063,6 +1390,118 @@ def _beam_texts(doc):
     return texts
 
 
+def _proved_pillar_section_handles(doc, texts, *, return_bindings=False):
+    """Identify B/H annotations by original P label and matching closed contour.
+
+    Position alone cannot establish ownership: require the written two
+    dimensions to match an original rectangular contour near that label.
+    Ambiguous matching contours leave the section available for review.
+    """
+    from shapely.geometry import Point, Polygon, box as text_box
+    from ezdxf.bbox import extents as entity_extents
+    rectangles = []
+    for entity in doc.modelspace().query('LWPOLYLINE POLYLINE'):
+        vertices, closed = original_polyline_xyb(entity)
+        if not vertices or any(p[2] for p in vertices):
+            continue
+        points = [p[:2] for p in vertices]
+        repeated_end = len(points) > 1 and points[0] == points[-1]
+        if len(points) > 1 and points[0] == points[-1]:
+            points.pop()
+        if len(points) != 4 or not (closed or repeated_end):
+            continue
+        xs, ys = [p[0] for p in points], [p[1] for p in points]
+        bounds = min(xs), min(ys), max(xs), max(ys)
+        if all((abs(x-bounds[0]) <= EPS or abs(x-bounds[2]) <= EPS) and
+               (abs(y-bounds[1]) <= EPS or abs(y-bounds[3]) <= EPS) for x,y in points):
+            rectangles.append((entity.dxf.handle, Polygon(points),
+                               sorted((bounds[2]-bounds[0], bounds[3]-bounds[1]))))
+    proved = set()
+    bindings = []
+    for section in texts:
+        match = SECTION_TEXT.fullmatch(section['text'])
+        if not match:
+            continue
+        dimensions = sorted((number(match[1]), number(match[2])))
+        labels = [p for p in texts if re.fullmatch(r'P\d+[A-Z]?', p['text']) and
+                  p['axis'] == section['axis'] and
+                  abs(p['x']-section['x']) <= 1.5*p['margin'] and
+                  0 < p['y']-section['y'] <= 1.5*p['margin']]
+        if len(labels) != 1:
+            continue
+        label = labels[0]
+        label_shape = Point(label['x'],label['y'])
+        entity = doc.entitydb.get(label['handle'])
+        if entity is not None and entity.dxftype() in {'TEXT','MTEXT'}:
+            original_text = entity.dxf.text if entity.dxftype() == 'TEXT' else entity.plain_text()
+            # A token within a longer MTEXT may not claim that whole footprint.
+            if original_text.strip() == label['text']:
+                bounds = entity_extents([entity])
+                if bounds.has_data:
+                    label_shape = text_box(bounds.extmin.x,bounds.extmin.y,bounds.extmax.x,bounds.extmax.y)
+        candidates = [handle for handle, poly, dims in rectangles
+                      if all(abs(a-b) <= EPS for a,b in zip(dimensions,dims)) and
+                      poly.distance(label_shape) <= 2*label['margin']]
+        if len(candidates) == 1:
+            proved.add(section['handle'])
+            bindings.append(dict(contour_handle=candidates[0],name_handles=[label['handle']],
+                dimension_handles=[section['handle']],section=section['text'],
+                label_footprint=list(label_shape.bounds)))
+    return bindings if return_bindings else proved
+
+
+def _exact_axis_rectangle(points):
+    """Recognize the actual rectangle, including redundant collinear vertices.
+
+    Exact polygon equality deliberately retains thin slivers and notches;
+    EPS-sized material must never be replaced by its bounding rectangle.
+    """
+    from shapely.geometry import Polygon, box as sbox
+    try:
+        shape = Polygon([(float(p[0]), float(p[1])) for p in points or []])
+        if not shape.is_valid or shape.is_empty:
+            return None
+        xmin, ymin, xmax, ymax = shape.bounds
+        if xmax-xmin <= EPS or ymax-ymin <= EPS or not shape.equals(sbox(xmin, ymin, xmax, ymax)):
+            return None
+        return xmin, xmax, ymin, ymax
+    except (TypeError, ValueError, IndexError):
+        return None
+
+
+def _fv_rectangle_axis(bounds, walls):
+    """Resolve a short panel's axis from original opposite walls, not its claim.
+
+    A clipped panel can be shorter than bw. If only one orientation has both
+    original edges fully covered, it can define the corridor. However, complete
+    end caps must not outweigh longer, partly interrupted longitudinal walls.
+    Closed boxes retain the geometric default; no invented proof.
+    """
+    xmin, xmax, ymin, ymax = bounds
+    default = 'x' if xmax-xmin >= ymax-ymin else 'y'
+    proved = []
+    paired_coverage = {}
+    for axis in ('x', 'y'):
+        lo, hi, edges = ((xmin, xmax, (ymin, ymax)) if axis == 'x' else
+                         (ymin, ymax, (xmin, xmax)))
+        if hi <= lo:
+            continue
+        coverage = [
+            _covered([(w['lo'], w['hi']) for w in walls
+                      if w['axis'] == axis and abs(w['pos']-pos) < EPS
+                      and w['hi'] > lo and w['lo'] < hi], lo, hi)
+            for pos in edges
+        ]
+        paired_coverage[axis] = min(coverage)
+        if min(coverage) >= hi-lo-EPS:
+            proved.append(axis)
+    if len(proved) == 1:
+        axis = proved[0]
+        if paired_coverage[axis] > paired_coverage.get(default, 0.0) + EPS:
+            return axis
+    return default
+
+
 def measure_beams(source, snapshot, slabs=None, floor=None):
     """Fundo de viga FV: arestas longas sobre paredes originais + seção bw/h na faixa.
 
@@ -1076,6 +1515,9 @@ def measure_beams(source, snapshot, slabs=None, floor=None):
     source = Path(source)
     walls = _cached('walls', source, lambda: list(_straight_walls(_readfile(source))))
     texts = _cached('beam_texts', source, lambda: _beam_texts(_readfile(source)))
+    pillar_sections = _cached('proved_pillar_sections', source,
+                             lambda: _proved_pillar_section_handles(_readfile(source), texts))
+    texts = [t for t in texts if t['handle'] not in pillar_sections]
     strokes = _cached('strokes', source, lambda: _strokes(_readfile(source), source))
     try:
         nasce_outlines = _cached('nasce', source, lambda: _nasce_outlines(source))
@@ -1091,18 +1533,26 @@ def measure_beams(source, snapshot, slabs=None, floor=None):
     except (ValueError, OSError, KeyError, json.JSONDecodeError) as exc:
         original_fills, original_solids, fills_error = [], [], str(exc)
     rows = snapshot.get('collections', {}).get('fundo', [])
-    boxes = []
-    for p in rows:
-        try:
-            xs, ys = [float(v[0]) for v in p.get('points') or []], [float(v[1]) for v in p.get('points') or []]
-            box = (min(xs), max(xs), min(ys), max(ys))
-            if not all(abs(x-box[0]) < EPS or abs(x-box[1]) < EPS for x in xs) or \
-                    not all(abs(y-box[2]) < EPS or abs(y-box[3]) < EPS for y in ys) or \
-                    box[1]-box[0] <= EPS or box[3]-box[2] <= EPS:
-                raise ValueError
-            boxes.append(box)
-        except ValueError:
-            boxes.append(None)
+    # Automatic crossing ownership needs actual original pillar polygons and
+    # their source convention, including NASCE exclusion. Filled section-view
+    # glyphs are not a substitute for this physical inventory.
+    from .qa_fv_source_inventory import pillar_solids, competing_ownership_checked, original_convention, declaration_signature
+    try:
+        from .item_semantics import pillar_source
+        source_data, source_convention = pillar_source(source)
+        source_convention = _cached('fv_source_declaration', source,
+            lambda: original_convention(source, source_convention),
+            json.dumps(source_convention, sort_keys=True, ensure_ascii=False)+declaration_signature(source))
+        physical_solids, physical_inventory = _cached('fv_physical_inventory', source,
+            lambda: pillar_solids(_readfile(source), source_data, source_convention, EPS),
+            json.dumps(source_convention, sort_keys=True, ensure_ascii=False))
+    except (ImportError, OSError, ValueError, TypeError) as exc:
+        physical_solids, physical_inventory = None, {'checked':False,'reason':str(exc)}
+    inventory_checked = physical_inventory['checked'] and fills_error is None and competing_ownership_checked(rows)
+    # Original fills are conservative obstacles as well as named contours.
+    if physical_solids is not None:
+        physical_solids = physical_solids + [shape for handle, shape in original_solids]
+    boxes = [_exact_axis_rectangle(p.get('points')) for p in rows]
     contacts = []
     for index, row in enumerate(rows):
         unit = f'/collections/fundo/{index}'
@@ -1110,12 +1560,21 @@ def measure_beams(source, snapshot, slabs=None, floor=None):
         label = f"{name} seg {row.get('segment_label', index+1)}"
         box = boxes[index]
         if box is None:
-            contacts.append(dict(unit_path=unit, item=label, aspect='contorno', status='uncertain', errors={},
-                                 guards=FV_GUARDS, blocks_promotion=False,
-                                 reason='contorno não retangular/alinhado aos eixos; medir no CAD manualmente'))
+            from .qa_fv_corridors import measure_source_polygon
+            local_contacts = measure_source_polygon(source, row, unit, epsilon=EPS,
+                original_solids=physical_solids, source_inventory_checked=inventory_checked,
+                source_inventory=(physical_inventory if fills_error is None and competing_ownership_checked(rows)
+                                  else None))
+            for contact in local_contacts:
+                if contact.get('original_crossing'):
+                    contact['source_inventory'] = physical_inventory
+                    contact['competing_ownership_checked'] = competing_ownership_checked(rows)
+                    if fills_error:
+                        contact['original_fill_inventory_error'] = fills_error
+            contacts.extend(local_contacts)
             continue
         xmin, xmax, ymin, ymax = box
-        axis = 'x' if xmax-xmin >= ymax-ymin else 'y'
+        axis = _fv_rectangle_axis(box, walls)
         lo, hi, edges = (xmin, xmax, (ymin, ymax)) if axis == 'x' else (ymin, ymax, (xmin, xmax))
         length = hi - lo
         edge = dict(unit_path=unit, item=label, aspect='arestas', status='uncertain', errors={},
@@ -1391,11 +1850,21 @@ def measure_beams(source, snapshot, slabs=None, floor=None):
             problems.append(f'length {row.get("length")} ≠ extensão do contorno {_fmt(length)}')
         if declared_width is None or abs(declared_width-(edges[1]-edges[0])) > EPS:
             problems.append(f'width {row.get("width")} ≠ largura do contorno {_fmt(edges[1]-edges[0])}')
-        if row.get('status') == 'valid' and number(row.get('level')) is None:
-            problems.append('status valid sem nível')
         source_kind = row.get('level_source')
+        # União sob invertida com lajes de níveis diferentes: o SA declara o nível pendente
+        # (FV.md "Fundo normal contínuo sob invertida"). É dúvida declarada, não incoerência.
+        pending = (source_kind == 'unresolved_local_slab_references' and row.get('level_slabs')
+                   and len({m.get('level') for m in row.get('merged_source_segments') or []}) > 1)
+        if pending:
+            contacts.append(dict(unit_path=unit, item=label, aspect='nível', guards=['consistencia_alertas'],
+                                 blocks_promotion=True, status='uncertain', errors={},
+                                 reason='nível da união sob invertida pendente no SA: ' + ', '.join(
+                                     f"{m.get('level') or '?'}" for m in row['merged_source_segments'])
+                                     + f" ({', '.join(map(str, row['level_slabs']))}); decisão do dono"))
+        elif row.get('status') == 'valid' and number(row.get('level')) is None:
+            problems.append('status valid sem nível')
         # fundo_segment_levels: laje que toca e laje mais próxima (D-61) citam as lajes; estimado/sem fonte não.
-        if (source_kind in ('highest_touching_slab', 'nearest_levelled_slab')) != bool(row.get('level_slabs')):
+        if not pending and (source_kind in ('highest_touching_slab', 'nearest_levelled_slab')) != bool(row.get('level_slabs')):
             problems.append(f'level_source {source_kind} incoerente com level_slabs {row.get("level_slabs")}')
         contacts.append(dict(unit_path=unit, item=label, aspect='coerência', guards=['consistencia_alertas'],
                              blocks_promotion=False, status='measured',
@@ -1863,7 +2332,8 @@ def errors(report, checks=None):
             if approved is None and not c.get('blocks_promotion', True):
                 continue
             if approved is None or approved & guards:
-                result.append(prefix+c['reason'])
+                result.append(prefix+str(c.get('reason') or
+                    'medição original inconclusiva sem motivo registrado; revisar evidência'))
         else:
             result.extend(prefix+message for criterion,message in c.get('errors', {}).items()
                           if approved is None or criterion in approved)

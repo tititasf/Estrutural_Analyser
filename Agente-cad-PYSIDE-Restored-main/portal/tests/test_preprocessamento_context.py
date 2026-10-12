@@ -165,3 +165,28 @@ def test_referencia_direta_fixada_pode_informar_altura_n3_sem_recorte(tmp_path):
     package = copy.deepcopy(payload['package'])
     package['level_inventory']['reference']['status'] = 'partial'
     assert level_reference_input(package) is None
+
+
+def test_floor_only_context_does_not_claim_item_levels(tmp_path, monkeypatch):
+    from portal.app.preprocessamento import context_resolver as resolver
+    path, kwargs, payload = prepared(tmp_path)
+    package = copy.deepcopy(payload['package'])
+    package['pillar_conventions'] = {}
+    source_id = package['sources'][0]['source_id']
+    package['level_inventory']['reference'] = {
+        'status': 'direct_local_reference', 'unit': 'm', 'base': 100,
+        'top': 103, 'height': 3, 'source_id': source_id,
+        'datum_id': f'source-local:{source_id}', 'evidence_handles': ['floor-text']}
+    monkeypatch.setattr(resolver, 'read_tower', lambda *args: package)
+    # No independent item evidence exists in this prepared fixture.
+    assert resolver.item_level_input(package) == {}
+    path, reason = resolver.pin_context(obra_dir=tmp_path, obra_id='obra-1',
+        pavimento='14_PAV', project_id='project-1', dxf_path=kwargs['dxf_path'])
+    assert reason == 'accepted_floor_reference'
+    pinned = json.loads(path.read_text(encoding='utf-8'))
+    _, receipt = resolver.load_context(path, **{**kwargs, 'expected_hash': pinned['context_hash']})
+    assert receipt['status'] == 'accepted'
+    assert receipt['reason'] == 'validated_floor_reference'
+    assert receipt['item_levels'] == {}
+    assert receipt['convention'] == {}
+    assert receipt['level_reference']['height'] == 3

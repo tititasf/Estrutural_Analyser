@@ -153,7 +153,7 @@ def _check_distance(row, role, face, pillar_bbox, element_bbox=None):
                                    f"{measured[0]:.2f}/{measured[1]:.2f}cm; conferir no DXF.")
 
 
-def load_preprocess_slab_levels(obra_dir: Path, pavimento: str) -> dict[str, set[float]]:
+def _load_consumed_preprocess_package(obra_dir: Path, pavimento: str) -> dict: 
     """Lê somente o pacote fixado no último SA produtivo do pavimento."""
     root = obra_dir / "Fase-6_Execucao_CAD" / "production_sa" / pavimento
     manifests = sorted(root.glob("*/production_manifest.json"))
@@ -175,12 +175,40 @@ def load_preprocess_slab_levels(obra_dir: Path, pavimento: str) -> dict[str, set
         package = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, ValueError, TypeError, KeyError):
         return {}
+    return package
+
+
+def load_preprocess_pillar_levels(obra_dir: Path, pavimento: str, item: str) -> dict:
+    package = _load_consumed_preprocess_package(obra_dir, pavimento)
+    inventory = (package.get('level_inventory') or {}).get('items') or []
+    ids = {x['item_id'] for x in inventory if x.get('item_class') == 'pillar'
+           and x.get('display_name') == item}
+    candidates = defaultdict(set)
+    for fact in package.get('levels') or []:
+        if fact.get('item_id') not in ids or fact.get('field') not in {'top', 'base'}:
+            continue
+        if fact.get('status') not in {'floor_reference', 'human_review', 'sa_evidence', 'observed_text'}:
+            continue
+        value = _number(fact.get('value'))
+        if value is not None:
+            candidates[fact['field']].add(value)
+    return {field: next(iter(values)) for field, values in candidates.items() if len(values) == 1}
+
+
+def load_preprocess_slab_levels(obra_dir: Path, pavimento: str) -> dict[str, set[float]]:
+    package = _load_consumed_preprocess_package(obra_dir, pavimento)
+    names = {i['item_id']: i['display_name']
+             for i in (package.get('level_inventory') or {}).get('items', [])
+             if i.get('item_class') == 'slab'}
     found: dict[str, set[float]] = defaultdict(set)
     for fact in package.get("levels") or []:
-        if fact.get("field") != "slab_level" or fact.get("status") != "observed_text":
+        direct = (fact.get('status') == 'observed_text' or
+                  (fact.get('method') == 'cad_level_inside_slab'
+                   and fact.get('status') == 'sa_evidence'))
+        if fact.get("field") != "slab_level" or not direct:
             continue
         value = _number(fact.get("value"))
-        name = str(fact.get("display_name") or "").strip()
+        name = str(names.get(fact.get('item_id')) or fact.get("display_name") or "").strip()
         if name and value is not None:
             found[name].add(round(value, 4))
     return dict(found)
@@ -235,9 +263,6 @@ def enrich_pillar_abcd_levels(tables: dict, estado: dict, arrival, preprocess_sl
                         row["nome_status"] = "conflict"
                         row["nome_motivo"] = "Contorno da laje não confirma contato com esta face."
                     candidates = _values(slabs[name], "nivel")
-                    if not candidates:
-                        existing = _number(row.get("nivel"))
-                        candidates = {round(existing, 4)} if existing is not None else set()
                     if len(candidates) == 1:
                         value = next(iter(candidates))
                         status, reason = "sa", "Cota da laje registrada no SA/N1."

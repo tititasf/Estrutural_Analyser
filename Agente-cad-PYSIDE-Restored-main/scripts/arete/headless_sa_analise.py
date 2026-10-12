@@ -82,17 +82,26 @@ _FAST_CONTEXT_ENGINE_FILES = (
     'main.py',
     'scripts/analise_geral_headless.py',
     'src/core/dxf_loader.py',
+    'src/core/dimension_geometry.py',
+    'src/core/analysis_helpers.py',
+    'src/core/level_text_semantics.py',
+    'src/core/slab_level_inference.py',
     'src/core/spatial_index.py',
     'src/core/slab_tracer.py',
+    'src/core/slab_regions.py',
+    'src/core/cad_object_recognition.py',
+    'src/core/slab_steps.py',
     'src/core/beam_tracer.py',
     'src/core/beam_interpreters/__init__.py',
     'src/core/beam_interpreters/fundo_viga.py',
-    # Estes donos alteram a topologia FV antes de armazenar o contexto.
+    # FV topology owners must invalidate the contextual cache.
     'src/core/beam_interpreters/fundo_viga_lateral_ref.py',
     'src/core/beam_interpreters/fundo_viga_linhas.py',
     'src/core/beam_interpreters/lateral_viga.py',
     'src/core/beam_interpreters/lateral_viga_cells.py',
     'src/core/lv_beam_scene.py',
+    'src/core/cut_declared_section.py',
+    'src/core/section_dimension_evidence.py',
     'src/core/preficha_segments.py',
     'src/core/beam_interpreters/pilar_viga.py',
     # O fast path reaplica este contrato depois de restaurar o snapshot. Logo
@@ -101,6 +110,7 @@ _FAST_CONTEXT_ENGINE_FILES = (
     'src/core/fv_generation_contract.py',
     'src/core/pillar_face_beams.py',
     'src/core/pillar_geometry_recovery.py',
+    'src/core/pillar_geometry_association.py',
     'src/core/beam_corridor_recovery.py',
 )
 
@@ -118,7 +128,7 @@ def _link_bare_slab_levels_from_floor_band(
     """
     low = min(float(level_exit), float(level_arrival)) - 5.0
     high = max(float(level_exit), float(level_arrival)) + 5.0
-    level_pattern = re.compile(r"^[+-]?\d{3}(?:[.,]\d+)$")
+    level_pattern = re.compile(r"^[+-]?\d+(?:[.,]\d+)$")
 
     def _contains(points: list, x: float, y: float) -> bool:
         try:
@@ -141,6 +151,8 @@ def _link_bare_slab_levels_from_floor_band(
 
     candidates: list[tuple[dict, float, float, float]] = []
     for text_item in texts or []:
+        if text_item.get('annotation_role') == 'dimension':
+            continue
         raw = str(text_item.get("text") or "").strip()
         if not level_pattern.fullmatch(raw):
             continue
@@ -160,6 +172,10 @@ def _link_bare_slab_levels_from_floor_band(
         contained = [row for row in candidates if _contains(slab.get("points") or [], row[2], row[3])]
         if not contained:
             continue
+        if max(row[1] for row in contained) - min(row[1] for row in contained) > 1e-9:
+            slab['_nivel_provenance'] = {'provenance': 'contida_ambigua',
+                'alternatives': [row[1] for row in contained], 'needs_human_review': True}
+            continue
         cx, cy = slab.get("pos") or (0.0, 0.0)
         text_item, value, _, _ = min(
             contained,
@@ -167,6 +183,8 @@ def _link_bare_slab_levels_from_floor_band(
         )
         normalized = f"{value:.2f}"
         fields["laje_nivel"] = normalized
+        slab['_nivel_provenance'] = {'provenance': 'contida', 'value': normalized,
+                                    'needs_human_review': False}
         slab["laje_nivel"] = normalized
         links = slab.setdefault("links", {}).setdefault("laje_nivel", {"label": []})
         links.setdefault("label", []).append({
@@ -429,13 +447,12 @@ def _fresh_laj_geometry_for_readonly_preview(
     replacing only the derived N1 geometry used by the verification artifact.
     Nothing in this helper is persisted.
     """
-    fresh_by_name = {
-        _item_name(item): item for item in fresh_slabs or []
-        if _item_name(item)
-    }
+    from src.core.slab_parcel_identity import same_source_parcel
     refreshed = 0
     for slab in merged_slabs or []:
-        fresh = fresh_by_name.get(_item_name(slab))
+        candidates = [item for item in fresh_slabs or []
+                      if same_source_parcel(slab, item)]
+        fresh = candidates[0] if len(candidates) == 1 else None
         if not isinstance(fresh, dict) or not fresh.get("points"):
             continue
         slab["points"] = copy.deepcopy(fresh["points"])
@@ -449,6 +466,41 @@ def _fresh_laj_geometry_for_readonly_preview(
         slab["n1_geometry_preview_source"] = "fresh_dxf_readonly"
         refreshed += 1
     return refreshed
+
+
+def _preserve_unrequested_fundo(old_beams, beams):
+    """A contextual LV/PIL run cannot publish a new FV interpretation."""
+    def owned(key):
+        return str(key).startswith(('viga_fundo_', 'fv_', '_fv_', 'preficha_fundo_'))
+    old_by_name = {_item_name(b): b for b in old_beams}
+    for beam in beams:
+        old = old_by_name.get(_item_name(beam))
+        if old is None:
+            continue
+        for mapping in (None, 'fields', 'links', 'validated_link_classes', 'na_link_classes', 'na_reasons'):
+            target = beam if mapping is None else beam.setdefault(mapping, {})
+            source = old if mapping is None else old.get(mapping) or {}
+            for key in list(target):
+                if owned(key):
+                    target.pop(key)
+            for key, value in source.items():
+                if owned(key):
+                    target[key] = copy.deepcopy(value)
+        for key in ('validated_fields', 'na_fields'):
+            if isinstance(beam.get(key), list):
+                beam[key] = [f for f in beam[key] if not owned(f)] + [
+                    f for f in old.get(key) or [] if owned(f)]
+        target = beam.setdefault('links', {}).setdefault('viga_segs', {})
+        source = (old.get('links') or {}).get('viga_segs') or {}
+        target.pop('seg_bottom', None)
+        if 'seg_bottom' in source:
+            target['seg_bottom'] = copy.deepcopy(source['seg_bottom'])
+        target = beam.setdefault('geometry', {}).setdefault('classified', {})
+        source = (old.get('geometry') or {}).get('classified') or {}
+        for key in ('merged_bottom_groups_coords', 'merged_bottom_lengths'):
+            target.pop(key, None)
+            if key in source:
+                target[key] = copy.deepcopy(source[key])
 
 
 def _refresh_recovered_pillar_geometry(
@@ -496,6 +548,9 @@ def _refresh_recovered_pillar_geometry(
             ]
         except (TypeError, ValueError, IndexError):
             old_signature, fresh_signature = [], []
+        for derived in ('shape_type', 'orientation', '_geometry_repaired'):
+            if derived in fresh:
+                pillar[derived] = copy.deepcopy(fresh[derived])
         if old_signature == fresh_signature:
             continue
         # O cache contextual já guarda o relatório depois da recuperação e
@@ -522,7 +577,8 @@ def _refresh_recovered_pillar_geometry(
             old_short, old_long = sorted((old_w, old_h))
             new_short, new_long = sorted((new_w, new_h))
             transfer_dimensions = (
-                old_long < 45.0
+                repair.get('method') != 'source_convention_second_pass'
+                and old_long < 45.0
                 and new_long >= max(45.0, old_long * 1.8)
                 and abs(new_short - old_short) <= max(2.0, old_short * 0.12)
             )
@@ -763,7 +819,7 @@ def _attach_lv_generation_contracts(
     attached = 0
     for beam in beams or []:
         name = str(beam.get('name') or '').strip().upper()
-        if not re.fullmatch(r'V\d+[A-Z]?', name):
+        if not re.fullmatch(r'(?:V|VF)\d+[A-Z]?', name):
             continue
         contracts = build_lv_generation_contracts(
             beam, beam_name=name, floor=floor,
@@ -1011,6 +1067,10 @@ def _bind_mainwindow_methods(runner: HeadlessRunner) -> None:
 # Pipeline principal
 # ─────────────────────────────────────────────────────────────────────────────
 
+from src.core.analysis_run_cache import analysis_run_cache
+
+
+@analysis_run_cache
 def _run_legacy_analysis(
     dxf_path: str,
     obra: str,
@@ -1121,7 +1181,7 @@ def _run_legacy_analysis(
     print('[SA] Detectando lajes...', flush=True)
     slab_tracer = SlabTracer(si)
     runner.slabs_found = slab_tracer.detect_slabs_from_texts(
-        texts, valid_layers=None, search_radius=2000.0, teacher_dims=None,
+        texts, valid_layers=None, search_radius=2000.0, teacher_dims=None, floor_name=pavimento,
     )
     runner.slabs_found.sort(key=_nat_key)
     print(f'[SA] Lajes detectadas: {len(runner.slabs_found)}', flush=True)
@@ -1221,7 +1281,7 @@ def _run_legacy_analysis(
         if 'points' in l:
             all_geo.append(l)
         elif 'start' in l:
-            all_geo.append({'points': [l['start'], l['end']]})
+            all_geo.append({**l, 'points': [l['start'], l['end']]})
 
     visual_obstacles: list = []
     for p_name, p_data in runner.pavimento_pillar_report.items():
@@ -1310,13 +1370,16 @@ def _run_legacy_analysis(
     from src.core.beam_interpreters.fundo_viga_linhas import (
         audit_fv_lines_all, report_summary,
     )
-    runner._fv_line_gate_report = audit_fv_lines_all(runner.beams_found, texts, all_geo)
+    runner._fv_line_gate_report = audit_fv_lines_all(
+        runner.beams_found, texts, all_geo, runner.pavimento_pillar_report)
     print(f"[SA] FV gate linhas: {report_summary(runner._fv_line_gate_report)}", flush=True)
     from src.core.beam_interpreters.fundo_viga_lateral_ref import resolve_automatic_overlaps_all, complete_measured_junctions_all
     _fv_nodes = complete_measured_junctions_all(runner.beams_found, texts, all_geo,
                                                runner.pavimento_pillar_report, runner.slabs_found)
     print(f'[SA] FV encontros medidos: {_fv_nodes}', flush=True)
-    _fv_final_owners = resolve_automatic_overlaps_all(runner.beams_found)
+    _fv_final_owners = resolve_automatic_overlaps_all(
+        runner.beams_found, texts=texts, lines=all_geo,
+        pillar_report=runner.pavimento_pillar_report, slabs=runner.slabs_found)
     print(f'[SA] FV propriedade final: {_fv_final_owners}', flush=True)
 
     # LV: passada global das QUATRO celulas (A/B x Para/Passa) pelas regras do
@@ -1341,6 +1404,9 @@ def _run_legacy_analysis(
     n_fundo_facts = reconcile_beam_fundo_facts(runner.beams_found)
     if n_fundo_facts:
         print(f'[SA] Fatos FV canônicos reaplicados: {n_fundo_facts} viga(s)', flush=True)
+
+    from src.core.cut_declared_section import refresh_declared_sections
+    refresh_declared_sections(runner)
 
     print(f'[SA] Vigas: {len(runner.beams_found)}', flush=True)
 
@@ -1909,9 +1975,6 @@ def _generate_fv_n3_nova_previews(
     state_path: Path | None = None,
     visual_mode: str = "NOVA",
     vigas_config: dict | None = None,
-    section_records: dict | None = None,
-    section_slabs: list | None = None,
-    source_dxf: str | Path | None = None,
 ) -> tuple[list[str], list[str]]:
     """Gera N3 no perfil solicitado, em diretórios isolados."""
     from src.core.fv_generation_contract import (
@@ -1920,7 +1983,9 @@ def _generate_fv_n3_nova_previews(
         overlay_fv_state_measurements,
     )
 
-    script = _REPO_ROOT / 'scripts' / 'gerar_fv_dxf_stog.py'
+    script = (_REPO_ROOT / 'scripts' / 'arete' / 'fv_ini_draw.py'
+              if visual_mode == 'INI'
+              else _REPO_ROOT / 'scripts' / 'gerar_fv_dxf_stog.py')
     output_dir.mkdir(parents=True, exist_ok=True)
     input_dir = output_dir.parent / 'contracts'
     input_dir.mkdir(parents=True, exist_ok=True)
@@ -1932,24 +1997,26 @@ def _generate_fv_n3_nova_previews(
     if state_path and state_path.is_file():
         try:
             state_payload = json.loads(state_path.read_text(encoding='utf-8'))
-            # O viewer aplica o sidecar humano ao ler o SA. O adaptador N3
-            # precisa consumir a mesma geometria efetiva, não o snapshot base.
+            # Consume the same manual geometry that the portal viewer uses.
             from portal.app.item_geometry import apply_state as apply_geometry_state
             pavimento = str(state_payload.get('pavimento') or '')
             if not pavimento:
                 raise ValueError('snapshot FV sem pavimento para aplicar geometria humana')
             state_payload = apply_geometry_state(state_payload, obra_dir, pavimento)
-            if section_records is not None:
-                state_payload['_section_beam_records'] = section_records
-            if section_slabs is not None:
-                from src.core.beam_vertical_context import current_section_slabs
-                state_payload['slabs'] = current_section_slabs(state_payload.get('slabs') or [], section_slabs)
+            from portal.app.ficha_reader import _fonte_estrutural_producao
+            source_dxf = _fonte_estrutural_producao(obra_dir, pavimento)
             if source_dxf:
                 from src.core.slab_steps import enrich_state
+                from portal.app.effective_soffits import apply_state as apply_soffits
                 enrich_state(state_payload, source_dxf)
-            # Context belongs to this exact effective geometry and slab pass.
-            # A serialized inventory predating either replacement is stale.
-            state_payload.pop('_current_beam_sections', None)
+                if visual_mode in ('MOLDE_1','INI'):
+                    # FV consumes only soffits; unrelated LV reconciliation must not
+                    # interrupt this independently approved drawing class.
+                    state_payload = dict(state_payload)
+                    state_payload['segmentos'] = {
+                        'fundo': (state_payload.get('segmentos') or {}).get('fundo', [])
+                    }
+                state_payload = apply_soffits(state_payload, obra_dir, pavimento, source_dxf)
             state_rows = ((state_payload.get('segmentos') or {}).get('fundo') or [])
             merged_results = overlay_fv_state_measurements(merged_results, state_rows)
         except (OSError, json.JSONDecodeError) as exc:
@@ -1958,38 +2025,7 @@ def _generate_fv_n3_nova_previews(
         if not isinstance(fv_data, dict):
             continue
         raw_name = str(fv_data.get('viga_nome') or '')
-        # Resolve the current physical section inventory from the exact state
-        # consumed by this N3 run. Frozen precollection alone is not authority.
-        if '_current_beam_sections' not in state_payload and state_payload:
-            from portal.app.structural_cut_overlay import collect_sections
-            context_names = _complete_lv_section_context(state_payload, section_records) if section_records else [
-                str(row.get('viga_nome') or '') for row in merged_results]
-            state_payload['_current_beam_sections'] = collect_sections(
-                obra_dir, str(state_payload['pavimento']), state_payload,
-                beam_names=context_names)
-            if source_dxf:
-                from src.core.fv_inverted_crossings import reconcile_state, structural_lines_from_dxf
-                source_stat = Path(source_dxf).stat()
-                from portal.app.item_geometry import load as load_manual_geometry
-                custom_geometry = load_manual_geometry(obra_dir, str(state_payload['pavimento']))
-                protected_soffits = set((custom_geometry.get('edits') or {}).get('fundo') or {}) | set(
-                    (custom_geometry.get('created') or {}).get('fundo') or {})
-                state_payload = reconcile_state(state_payload, state_payload['_current_beam_sections'],
-                    structural_lines_from_dxf(str(source_dxf), (source_stat.st_mtime_ns,source_stat.st_size)),
-                    protected_soffits)
-                # Reapply effective measured lengths before N3 modulation.
-                merged_results = overlay_fv_state_measurements(merged_results,
-                    (state_payload.get('segmentos') or {}).get('fundo') or [])
-            (input_dir / 'section_context.json').write_text(
-                json.dumps(state_payload['_current_beam_sections'], ensure_ascii=False, indent=2), encoding='utf-8')
-        fv_data = next(row for row in merged_results if str(row.get('viga_nome') or '') == raw_name)
-        try:
-            contract = build_fv_generation_contract(raw_name, fv_data, pillars=state_payload.get('pilares'),
-                section_context=state_payload.get('_current_beam_sections'))
-        except ValueError as exc:
-            failed.append(raw_name)
-            print(f'[SA-HUMAN] N3 FV pendente {raw_name}: {exc}', flush=True)
-            continue
+        contract = build_fv_generation_contract(raw_name, fv_data, pillars=state_payload.get('pilares'))
         beam_name = str(contract.get('name') or '')
         if beam_name and state_path:
             # Edições web entram no adaptador N3, sem alterar o schema SA.
@@ -2035,6 +2071,26 @@ def _generate_fv_n3_nova_previews(
             generated.remove(beam_name)
             failed.append(beam_name)
             print(f'[SA-HUMAN] N3 FV cotas ausentes para {beam_name}: {exc}', flush=True)
+    if visual_mode in ('MOLDE_1','INI'):
+        # Publish each native segment through the same motor for N5 cells.
+        segment_tasks = []
+        for beam_name, command, expected, timeout in tasks:
+            if beam_name not in generated:
+                continue
+            for seg_idx in range(len(contracts[beam_name]['segments_rich'])):
+                name = f'{beam_name}_seg{seg_idx}'
+                segment_tasks.append((name, command + ['--seg_idx', str(seg_idx)],
+                    output_dir / f'FV_preview_{name}.dxf', timeout))
+        segment_ok, segment_failed = _run_n3_subprocess_tasks(
+            segment_tasks, max_workers=max_workers, label='N3 MOLDE_1 segmentos')
+        for name in segment_ok:
+            format_fv_n3_dimensions(output_dir / f'FV_preview_{name}.dxf')
+        for name in segment_failed:
+            beam_name = name.rsplit('_seg', 1)[0]
+            if beam_name in generated:
+                generated.remove(beam_name)
+            if beam_name not in failed:
+                failed.append(beam_name)
     return sorted(generated), sorted(failed)
 
 
@@ -2324,19 +2380,29 @@ def _generate_lv_n3_nova_previews(
         state.pop('_current_beam_sections', None)
         section_context = collect_sections(obra_dir, state['pavimento'], state,
             beam_names=context_beam_names)
+        if source_dxf:
+            from src.core.fv_inverted_crossings import structural_lines_from_dxf
+            from src.core.lv_inverted_crossings import reconcile_state as reconcile_laterals
+            source_stat = Path(source_dxf).stat()
+            state = reconcile_laterals(state, section_context, structural_lines_from_dxf(
+                str(source_dxf), (source_stat.st_mtime_ns, source_stat.st_size)))
         input_root.mkdir(parents=True, exist_ok=True)
         (input_root / 'section_context.json').write_text(
             json.dumps(section_context, ensure_ascii=False, indent=2), encoding='utf-8')
 
     tasks: list[tuple[str, list[str], Path, int]] = []
     local_sections_generated = []
+    local_tasks = []
     for beam in beams or []:
+        if section_context is not None:
+            from src.core.lv_inverted_crossings import overlay_beam
+            beam = overlay_beam(beam, state)
         contracts = beam.get('lv_generation_contracts')
-        if section_context is not None and any(
+        if section_context is not None and (beam.get('_effective_lateral_geometry') or any(
             str(e.get('beam') or '').upper() == str(beam.get('name') or '').upper()
             and (e.get('section_contract') or {}).get('beam_type') == 'inverted'
             for e in section_context.get('physical_entries', [])
-        ):
+        )):
             from src.core.lv_generation_contract import build_lv_generation_contracts
             pillar_bboxes = {}
             for pillar in state.get('pilares') or []:
@@ -2371,48 +2437,85 @@ def _generate_lv_n3_nova_previews(
                 continue
             behavior_input_dir = input_root / f'LV-{behavior.upper()}'
             behavior_input_dir.mkdir(parents=True, exist_ok=True)
+            from src.core.vigas_drawing_config import LV_ASSEMBLIES,apply_lv_config,prepare_lv_sources
+            try:
+                prepared_sides=prepare_lv_sources(sides,mode=visual_mode)
+                selected_sides={side:apply_lv_config(sides.get(side) or {},vigas_config)
+                                for side in ('A','B')}
+                variants={assembly:{side:apply_lv_config(prepared_sides.get(side) or {},
+                    {**(vigas_config or {}),'comportamento_laterais_vigas':assembly})
+                    for side in ('A','B')} for assembly in LV_ASSEMBLIES}
+            except (ValueError,KeyError,TypeError) as exc:
+                failed.append(f'{beam_name}_{behavior}')
+                for side in ('A','B'):
+                    contract=copy.deepcopy(sides.get(side) or {})
+                    contract['vertical_pending']=str(exc)
+                    (behavior_input_dir/f'{beam_name}_{side}.json').write_text(
+                        json.dumps(contract,ensure_ascii=False,indent=2),encoding='utf8')
+                print(f'[SA-HUMAN] N3 LV contrato pendente {beam_name}/{behavior}: {exc}',flush=True)
+                continue
             for side in ('A', 'B'):
-                contract = sides.get(side) or {}
-                if vigas_config is not None:
-                    from src.core.vigas_drawing_config import apply_lv_config
-                    contract = apply_lv_config(contract, vigas_config)
+                contract = selected_sides[side]
                 contract_path = behavior_input_dir / f'{beam_name}_{side}.json'
                 contract_path.write_text(
                     json.dumps(contract, ensure_ascii=False, indent=2),
                     encoding='utf-8',
                 )
-            for view in ('CORTE', 'A', 'B'):
-                view_suffix = 'CORTE' if view == 'CORTE' else f'VIEW_{view}'
-                label = f'{beam_name}_{behavior}_{view_suffix}'
-                expected = output_dir / f'LV_preview_{beam_name}_{behavior}_{view_suffix}.dxf'
-                if view == 'CORTE' and any(
-                    (segment.get('section_contract') or {}).get('beam_type') == 'inverted'
-                    for side in ('A', 'B')
-                    for segment in (sides.get(side) or {}).get('structural_segments') or []
-                ):
-                    try:
-                        from scripts.arete.lv_n3_cut_draw import generate_local_sections
-                        generate_local_sections(sides, expected, visual_mode, behavior)
-                        local_sections_generated.append(label)
-                    except Exception as exc:
-                        failed.append(label)
-                        print(f'[SA-HUMAN] N3 LV corte local pendente {label}: {exc}', flush=True)
-                    continue
-                command = [
-                    sys.executable,
-                    str(script),
-                    '--obra', str(obra_dir),
-                    '--item', beam_name,
-                    '--behavior', behavior,
-                    '--view', view,
-                    '--visual-mode', visual_mode,
-                    '--output-dir', str(output_dir),
-                    '--input-dir', str(behavior_input_dir),
-                ]
-                expected = output_dir / f'LV_preview_{beam_name}_{behavior}_{view_suffix}.dxf'
-                tasks.append((label, command, expected, 90))
+            sides=prepared_sides
+            for assembly in LV_ASSEMBLIES:
+                variant_sides=variants[assembly]
+                variant_input=behavior_input_dir/assembly
+                variant_input.mkdir(parents=True,exist_ok=True)
+                variant_output=output_dir/assembly
+                variant_output.mkdir(parents=True,exist_ok=True)
+                for side in ('A','B'):
+                    (variant_input/f'{beam_name}_{side}.json').write_text(
+                        json.dumps(variant_sides[side],ensure_ascii=False,indent=2),encoding='utf8')
+                for view in ('CORTE', 'A', 'B'):
+                    view_suffix = 'CORTE' if view == 'CORTE' else f'VIEW_{view}'
+                    label = f'{beam_name}_{behavior}_{view_suffix}_{assembly}'
+                    expected = variant_output / f'LV_preview_{beam_name}_{behavior}_{view_suffix}.dxf'
+                    if visual_mode in ('NOVA', 'MOLDE_1', 'INI') or (view == 'CORTE' and all(
+                        segment.get('section_contract')
+                        for side in ('A', 'B')
+                        for segment in (sides.get(side) or {}).get('structural_segments') or []
+                    )):
+                        local_tasks.append((label, variant_sides, str(expected),
+                                            view, visual_mode, behavior))
+                        continue
+                    command = [
+                        sys.executable,
+                        str(script),
+                        '--obra', str(obra_dir),
+                        '--item', beam_name,
+                        '--behavior', behavior,
+                        '--view', view,
+                        '--visual-mode', visual_mode,
+                        '--output-dir', str(variant_output),
+                        '--input-dir', str(variant_input),
+                    ]
+                    expected = variant_output / f'LV_preview_{beam_name}_{behavior}_{view_suffix}.dxf'
+                    tasks.append((label, command, expected, 90))
+    from src.core.n3_local_tasks import run_local_tasks
+    local_started = time.monotonic()
+    for label, ok, detail, seconds in run_local_tasks(local_tasks, max_workers):
+        if ok:
+            local_sections_generated.append(label)
+        else:
+            failed.append(label)
+            print(f'[SA-HUMAN] N3 LV corte local pendente {label}: {detail}', flush=True)
+        print(f'[PERF] N3 LV {label}: {seconds:.2f}s ok={ok}', flush=True)
+    print(f'[PERF] N3 LV lote local: {time.monotonic()-local_started:.2f}s '
+          f'itens={len(local_tasks)}', flush=True)
     generated, subprocess_failed = _run_n3_subprocess_tasks(
         tasks, max_workers=max_workers, label='N3 LV')
+    # Compatibility for downstream consumers: only the selected variant is
+    # exposed at the former single-output path; both originals remain intact.
+    import shutil
+    from src.core.vigas_drawing_config import normalize_config
+    selected_root=output_dir/normalize_config(vigas_config)['comportamento_laterais_vigas']
+    for artifact in selected_root.glob('LV_preview_*.dxf'):
+        shutil.copyfile(artifact,output_dir/artifact.name)
     return local_sections_generated + generated, failed + subprocess_failed
 
 
@@ -2491,6 +2594,76 @@ def _generate_lj_n3_nova_previews(
     return sorted(set(generated + generated_tasks)), sorted(set(failed + failed_tasks))
 
 
+def _validate_development_run(db_path, workspace, *, persist_db, generate_n3,
+                              sections, item_names):
+    """Fail before loading CAD when development could mutate published data."""
+    if persist_db or generate_n3:
+        raise ValueError('development forbids persistence and N3 generation')
+    if sections is not None or item_names:
+        raise ValueError('development requires the complete contextual SA scope')
+    if not workspace:
+        raise ValueError('development requires an isolated caller-owned workspace')
+    root = Path(workspace).resolve()
+    database = Path(db_path).resolve()
+    if root in {_REPO_ROOT.resolve(), _REPO_ROOT.parent.resolve()}:
+        raise ValueError('development workspace must be isolated from repository and production')
+    if not database.is_relative_to(root) or database == root:
+        raise ValueError('development DB must be inside its isolated workspace')
+    production = _dados_obras_root().resolve()
+    if root.is_relative_to(production) or database == Path(_DB_DEFAULT).resolve():
+        raise ValueError('development may not use production data as its workspace')
+    if not database.is_file():
+        raise ValueError('development requires an existing temporary project DB')
+
+
+def _suppress_development_canvas_rendering(window):
+    """Adapt only this hidden canvas; keep source loading and SA engines intact.
+
+    Qt offscreen still constructs every DXF GraphicsItem unless these visual
+    entry points are suppressed. Entity metadata remains available to callers;
+    neither original DXF dictionaries nor structural collections are modified.
+    """
+    if hasattr(window, '_development_rendering_receipt'):
+        return window._development_rendering_receipt
+    receipt = {'mode': 'SUPPRESSED_INSTANCE_GRAPHICS', 'suppressed_calls': {}}
+    window._development_rendering_receipt = receipt
+    canvas = getattr(window, 'canvas', None)
+    if canvas is None:
+        receipt['mode'] = 'NO_CANVAS'
+        return receipt
+
+    def called(name):
+        counts = receipt['suppressed_calls']
+        counts[name] = counts.get(name, 0) + 1
+
+    def metadata_only(entities, progress_callback=None, render_mode=None,
+                      compute_snaps=True, source_dxf_path=None, color_override=None):
+        called('add_dxf_entities')
+        if render_mode is None:
+            from src.ui.canvas import RenderMode
+            render_mode = RenderMode.TRUE_GEOMETRY
+        canvas.last_entities = entities
+        canvas.last_render_mode = render_mode
+        canvas.source_dxf_path = source_dxf_path
+        canvas.compute_snaps = False
+        entities = entities or {}
+        canvas.dxf_entities = list(entities.get('texts') or [])
+        for line in entities.get('lines') or []:
+            canvas.dxf_entities.append({**line, 'points': [line.get('start'), line.get('end')]})
+        canvas.dxf_entities.extend(entities.get('polylines') or [])
+        canvas.dxf_entities.extend(entities.get('circles') or [])
+
+    canvas.add_dxf_entities = metadata_only
+    for name in dir(canvas):
+        if (name.startswith(('draw_', 'focus_on_', 'highlight_')) or name == 'isolate_item') \
+                and callable(getattr(canvas, name, None)):
+            def suppressed(*_args, _name=name, **_kwargs):
+                called(_name)
+            setattr(canvas, name, suppressed)
+    return receipt
+
+
+@analysis_run_cache
 def run_analysis(
     obra: str,
     pavimento: str,
@@ -2508,6 +2681,9 @@ def run_analysis(
     context_manifest: str | None = None,
     context_hash: str | None = None,
     vigas_config: dict | None = None,
+    generate_n3: bool = True,
+    development: bool = False,
+    development_workspace: str | None = None,
 ) -> dict:
     """Executa a Análise Geral real do SA e exporta um pack imutável.
 
@@ -2515,6 +2691,12 @@ def run_analysis(
     `None` (default) gera todas as classes, como antes. Um subconjunto de
     `{'pilares', 'lajes', 'fundos_viga'}` gera só essas (ver `--secao`).
     """
+    if development:
+        _validate_development_run(
+            db_path, development_workspace, persist_db=persist_db,
+            generate_n3=generate_n3, sections=sections, item_names=item_names,
+        )
+    timings_s = {}
     visual_mode = str(visual_mode or "NOVA").strip().upper()
     if visual_mode not in {"INI", "NOVA", "MOLDE_1", "MOLDE_2", "MOLDE_3"}:
         raise ValueError(f"modo de desenho invalido: {visual_mode!r}")
@@ -2522,7 +2704,8 @@ def run_analysis(
         from src.core.vigas_drawing_config import normalize_config
         vigas_config = normalize_config(vigas_config)
         from src.core.vigas_drawing_config import require_supported_generation
-        require_supported_generation(vigas_config, sections)
+        if generate_n3:
+            require_supported_generation(vigas_config, sections)
     started_at = time.perf_counter()
     stage_started_at = started_at
 
@@ -2535,6 +2718,7 @@ def run_analysis(
             f'(acumulado {now - started_at:.2f}s)',
             flush=True,
         )
+        timings_s[label] = now - stage_started_at
         stage_started_at = now
         # A telemetria da trava é informativa, mas não pode converter uma
         # análise válida em falha se o filesystem não aceitar a atualização.
@@ -2560,8 +2744,10 @@ def run_analysis(
     # O `project_id` é a fonte de verdade da obra selecionada. Normalizar o
     # pavimento resolvido evita que o default legado de CLI (13_PAV) vaze para
     # diagnósticos, manifestos e artefatos de um projeto diferente.
-    from src.core.ficha_utils import canonical_pavimento
-    pavimento = canonical_pavimento(project_name)
+    from src.core.ficha_utils import canonical_pavimento, stable_token
+    # No portal, nomes personalizados identificam escopos distintos. Não
+    # colapsar TIPO_A e TIPO_B em TIPO ao publicar e consumir o contexto.
+    pavimento = stable_token(project_name) if production_web or context_manifest else canonical_pavimento(project_name)
     context_convention, context_receipt = {}, None
     if context_manifest:
         from portal.app.preprocessamento.context_resolver import load_context
@@ -2596,6 +2782,7 @@ def run_analysis(
             db_path=db_path,
             context_convention=context_convention,
             context_item_levels=(context_receipt or {}).get('item_levels'),
+            context_level_reference=(context_receipt or {}).get('level_reference'),
         )
         window = fast_result['runner']
         from src.core.database import DatabaseManager
@@ -2657,9 +2844,15 @@ def run_analysis(
         else:
             window = MainWindow(db_path_override=db_path)
         window._sa_read_only_run = True
+        if development:
+            # Legacy diagnostic dump writes outside the isolated workspace.
+            # It is supplementary output; canonical analysis and QA still run.
+            window._dump_slab_diagnostics = lambda: None
         window.current_project_id = project_id
         window.active_project_id = project_id
         window.current_project_name = project_name
+    if development:
+        _suppress_development_canvas_rendering(window)
     try:
         window._sa_preprocessed_item_levels = copy.deepcopy((context_receipt or {}).get('item_levels') or {})
         window.load_project_action()
@@ -2683,7 +2876,7 @@ def run_analysis(
         if context_receipt is not None:
             from portal.app.preprocessamento.context_resolver import consumption_evidence
             from portal.app.preprocessamento.freshness import changed_sources
-            if context_convention and changed_sources(Path(obra), context_receipt['sources']):
+            if context_receipt.get('status') == 'accepted' and changed_sources(Path(obra), context_receipt['sources']):
                 raise RuntimeError('Contexto alterado durante SA; resultado não publicado')
             context_receipt = consumption_evidence(window, context_receipt)
         report_stage('analise N1 contextual completa')
@@ -2706,6 +2899,13 @@ def run_analysis(
         window.pillars_found = merged['pillars']
         window.slabs_found = merged['slabs']
         window.beams_found = merged['beams']
+        from src.core.pillar_geometry_recovery import reconcile_pillar_source_geometry
+        _pillar_dxf = getattr(window, 'dxf_data', None) or {}
+        reconcile_pillar_source_geometry(
+            getattr(window, 'pavimento_pillar_report', {}) or {},
+            list(_pillar_dxf.get('lines', []) or []) + list(_pillar_dxf.get('polylines', []) or []),
+            list(_pillar_dxf.get('texts', []) or []),
+        )
         recovered_geometry_count = _refresh_recovered_pillar_geometry(
             merged['pillars'],
             getattr(window, 'pavimento_pillar_report', {}) or {},
@@ -2720,7 +2920,7 @@ def run_analysis(
         # executar.  Não pode renderizar o contorno antigo de um item azul por
         # causa da proteção de persistência humana do merge.  O commit continua
         # usando o merge normal; esta sobreposição nunca alcança o banco.
-        if not persist_db and 'lajes' in active_sections:
+        if not persist_db and not development and 'lajes' in active_sections:
             fresh_preview_count = _fresh_laj_geometry_for_readonly_preview(
                 window.slabs_found, fresh_slabs,
             )
@@ -2752,6 +2952,20 @@ def run_analysis(
         # vizinho só vem de fonte semanticamente válida. Não altera vínculos
         # humanos e não depende de item/pavimento/obra.
         window._infer_slab_levels_from_context(window.slabs_found)
+        # Reports and pillar scalars precede the merge/inference above. Rebuild
+        # from final evidence so a rejected level cannot survive in another class.
+        window.pavimento_nivel_report = window._build_nivel_report(
+            window.slabs_found, window.pavimento_pillar_report,
+        )
+        from src.core.pillar_slab_levels import reconcile_pillar_slab_levels
+        reconcile_pillar_slab_levels(
+            window.pillars_found, window.slabs_found,
+            window._slab_level_source, window._format_slab_level_value,
+        )
+        reconcile_pillar_slab_levels(
+            window.pavimento_pillar_report.values(), window.slabs_found,
+            window._slab_level_source, window._format_slab_level_value,
+        )
         # O merge também pode restaurar contornos automáticos antigos de quatro
         # vértices. Normalize-os somente depois da proteção granular, para o
         # objeto efetivamente diagnosticado/persistido obedecer ao contrato.
@@ -2796,6 +3010,7 @@ def run_analysis(
             window.beams_found if _fv_apply else copy.deepcopy(window.beams_found),
             list(_gate_dxf.get('texts', []) or []),
             list(_gate_dxf.get('lines', []) or []) + list(_gate_dxf.get('polylines', []) or []),
+            window.pavimento_pillar_report,
         )
         print(f'[SA-HUMAN] FV gate linhas ({"aplicado" if _fv_apply else "so auditoria"}): '
               f'{report_summary(_fv_gate)}', flush=True)
@@ -2809,7 +3024,10 @@ def run_analysis(
                 window.pavimento_pillar_report, window.slabs_found,
             )
             print(f'[SA-HUMAN] FV encontros medidos: {_fv_nodes}', flush=True)
-            _fv_final_owners = resolve_automatic_overlaps_all(window.beams_found)
+            _fv_final_owners = resolve_automatic_overlaps_all(
+                window.beams_found, texts=list(_gate_dxf.get('texts', []) or []),
+                lines=list(_gate_dxf.get('lines', []) or []) + list(_gate_dxf.get('polylines', []) or []),
+                pillar_report=window.pavimento_pillar_report, slabs=window.slabs_found)
             print(f'[SA-HUMAN] FV propriedade final: {_fv_final_owners}', flush=True)
 
         # A ficha FV fica completa só depois do merge e do reparador. Releia
@@ -2850,6 +3068,10 @@ def run_analysis(
         _log_selected_pillar_topology(window.pillars_found, item_names)
         apply_manual_geometry(window, _dados_obras_root() / obra, pavimento)
         report_stage('merge granular e saneamento N1')
+        if 'fundos_viga' not in active_sections:
+            _preserve_unrequested_fundo(old_snapshot['beams'], window.beams_found)
+        from src.core.cut_declared_section import refresh_declared_sections
+        refresh_declared_sections(window)
         if 'laterais_viga' in active_sections:
             # LV: as quatro celulas pelas regras do guia TAMBEM no caminho
             # MainWindow/--production-web (o do portal). Roda depois do merge:
@@ -2870,6 +3092,16 @@ def run_analysis(
                 f'sem cena: {lv_cells_report.get("__sem_cena__")}',
                 flush=True,
             )
+            # This precedes both development and portal publication: the same
+            # original parcel corroborates the real cell, never a saved report.
+            if context_receipt and context_receipt.get('status') in (
+                    'accepted', 'consumed', 'accepted_no_item_effect'):
+                from portal.app.preprocessamento.lateral_level_consumption import corroborate_cells
+                context_receipt['segment_level_consumption'] = corroborate_cells(
+                    window.beams_found, context_receipt.get('lateral_level_parcels') or [],
+                    source_revision=context_receipt['scope']['source_revision'])
+                if context_receipt['segment_level_consumption']['consumed']:
+                    context_receipt['status'] = 'consumed'
             lv_contracts_attached = _attach_lv_generation_contracts(
                 window.beams_found, window.pillars_found, pavimento
             )
@@ -2891,9 +3123,6 @@ def run_analysis(
                 'Gate FV recusou contorno sem área fechada: '
                 + '; '.join(invalid_fv_areas[:10])
             )
-        # Capture dependency evidence before --item limits the generated pack.
-        n3_section_records = {str(b['id']): copy.deepcopy({**b, 'project_id': project_id})
-                              for b in window.beams_found if b.get('id')}
         partial_collections = None
         if item_names:
             # Consumido pelo writer LV para que o microciclo nao reintroduza
@@ -2934,6 +3163,35 @@ def run_analysis(
             flush=True,
         )
 
+        if development:
+            # The same lightweight dialog owns the portal serializer. Its tab
+            # renderers are deferred Qt callbacks: do not process events or export.
+            dialog = window._build_pre_validation_dialog()
+            if dialog is None:
+                raise RuntimeError('SA development: canonical state builder unavailable')
+            # Defensive: closing/deleting the hidden child must never save history.
+            dialog._history_path = None
+            if context_receipt and context_receipt.get('level_reference'):
+                dialog._sa_floor_level_reference = context_receipt['level_reference']
+            state = dialog._serialize_analysis_state()
+            report_stage('serializacao N1 em memoria')
+            return {
+                'obra': obra, 'pavimento': project_name, 'project_id': project_id,
+                'dxf_path': source_path, 'analysis_state': state,
+                'collections': copy.deepcopy({
+                    'pillars': window.pillars_found,
+                    'slabs': window.slabs_found, 'beams': window.beams_found,
+                }),
+                'n_pilares': len(window.pillars_found),
+                'n_slabs': len(window.slabs_found), 'n_beams': len(window.beams_found),
+                'merge_stats': merge_stats, 'fv_line_gate': _fv_gate,
+                'development_rendering': copy.deepcopy(window._development_rendering_receipt),
+                'timings_s': {**timings_s, 'total': time.perf_counter() - started_at},
+                'persistence': {'status': 'DEVELOPMENT_READ_ONLY'},
+                'html_dir': '', 'production_manifest': '', 'arete_manifest': '',
+                **({'preprocess_context': context_receipt} if context_receipt is not None else {}),
+            }
+
         html_dir = None
         dialog = None
         diagnostics = {}
@@ -2942,7 +3200,7 @@ def run_analysis(
         try:
             dialog = window._build_pre_validation_dialog()
             if dialog:
-                if context_convention and context_receipt and context_receipt.get('level_reference'):
+                if context_receipt and context_receipt.get('level_reference'):
                     dialog._sa_floor_level_reference = context_receipt.get('level_reference')
                     print('[SA-CONTEXT] Referência direta de pavimento para N3 PL: '
                           f'{bool(dialog._sa_floor_level_reference)}', flush=True)
@@ -3117,7 +3375,7 @@ def run_analysis(
         # NÃO reverte o commit acima nem aborta a rodada. ``--item`` filtra
         # somente após a análise contextual completa; por isso a seção ativa
         # também deve limitar estes subprocessos caros.
-        active_n3_sections = active_sections
+        active_n3_sections = active_sections if generate_n3 else set()
         manifest_path = ''
         try:
             obra_dir = _dados_obras_root() / obra
@@ -3148,12 +3406,9 @@ def run_analysis(
                             max_workers=3 if production_web else 1,
                             state_path=(
                                 Path(dialog._analysis_state_path())
-                                if dialog is not None else None
+                                if production_web and dialog is not None else None
                             ),
                             visual_mode=visual_mode, vigas_config=vigas_config,
-                            section_records=n3_section_records,
-                            section_slabs=fresh_slabs,
-                            source_dxf=source_path,
                         )
                         print(
                             f'[SA-HUMAN] N3 NOVA isolado: {len(generated)} gerado(s), '
@@ -3169,7 +3424,8 @@ def run_analysis(
                             max_workers=3 if production_web else 1,
                             visual_mode=visual_mode, vigas_config=vigas_config,
                             state_path=Path(dialog._analysis_state_path()) if dialog is not None else None,
-                            section_records=n3_section_records,
+                            section_records={str(b['id']): {**b, 'project_id': project_id}
+                                             for b in window.beams_found if b.get('id')},
                             section_slabs=fresh_slabs, source_dxf=source_path,
                         )
                         print(
@@ -3198,11 +3454,11 @@ def run_analysis(
                 # variantes PL e preencheu seu cache antes de escrever HTML.
                 if 'pilares' in active_n3_sections and dialog is None:
                     dialog = window._build_pre_validation_dialog()
-                    if dialog and context_convention and context_receipt and context_receipt.get('level_reference'):
+                    if dialog and context_receipt and context_receipt.get('level_reference'):
                         dialog._sa_floor_level_reference = context_receipt.get('level_reference')
                     if dialog is not None and item_names:
                         dialog._headless_item_names = set(item_names)
-                pl_generated, pl_failed = [], ['dialog-ausente']
+                pl_generated, pl_failed = [], (['dialog-ausente'] if 'pilares' in active_n3_sections else [])
                 if 'pilares' in active_n3_sections and dialog is not None:
                     try:
                         # A primeira exportação pode ter aquecido o cache no modo
@@ -3232,10 +3488,6 @@ def run_analysis(
                     dialog._n3_preview_dir = str(Path(n3_temp) / 'dxf')
                     dialog._n3_contract_dir = str(Path(n3_temp) / 'contracts')
                     html_dir = dialog._export_html_snapshot(sections=sections)
-                    lv_inputs = Path(n3_temp) / 'contracts_lv'
-                    if html_dir and lv_inputs.is_dir():
-                        import shutil
-                        shutil.copytree(lv_inputs, Path(html_dir) / 'n3_contracts_lv', dirs_exist_ok=True)
                     print(f'[SA-HUMAN] Pack reexportado c/ N3: {html_dir}', flush=True)
                 if production_web:
                     # O cache PL nasce durante a materialização acima. Anexá-lo
@@ -3324,6 +3576,7 @@ def run_analysis(
                             'beams': len(window.beams_found),
                         },
                         'n3': {
+                            'status': 'requested' if generate_n3 else 'not_requested',
                             'visual_mode': visual_mode,
                             'fv_generated': list(generated if 'generated' in locals() else []),
                             'fv_failed': list(failed if 'failed' in locals() else []),
@@ -3346,6 +3599,7 @@ def run_analysis(
                         encoding='utf-8',
                     )
                     production_manifest = str(manifest_file)
+                    print(f'[SA-HUMAN] PRODUCTION_MANIFEST {manifest_file}', flush=True)
                     print(f'[SA-PROD] Manifesto: {manifest_file}', flush=True)
                     report_stage('N3 permanente e manifesto de producao')
                 else:
@@ -3492,7 +3746,11 @@ def main() -> None:
                     help='Se outro headless estiver rodando, aguardar a vez '
                          '(poll 10s, sem timeout artificial) em vez de abortar — '
                          'recomendado para agentes/automacao')
+    ap.add_argument('--sa-only', action='store_true',
+                    help='Publicar apenas N1 no portal, sem gerar desenhos N3.')
     args = ap.parse_args()
+    if args.sa_only and not args.production_web:
+        ap.error('--sa-only exige --production-web')
     try:
         sections = _parse_sections(args.secao)
     except ValueError as exc:
@@ -3620,6 +3878,7 @@ def main() -> None:
         wait_for_db_lock=args.wait,
         stage_callback=_set_lock_stage,
         production_web=args.production_web,
+        generate_n3=not args.sa_only,
         visual_mode=args.visual_mode,
         context_manifest=args.context_manifest,
         context_hash=args.context_hash,
@@ -3648,6 +3907,15 @@ def main() -> None:
     print(f'  Manifest: {result["arete_manifest"]}', flush=True)
     print(f'  Fonte   : {result["dxf_path"]}', flush=True)
     persistence = result.get('persistence') or {}
+    context = result.get('preprocess_context') or {}
+    if context:
+        print('[SA-CONTEXT] USO ' + json.dumps({
+            'status': context.get('status'), 'scope': context.get('scope'),
+            'level_reference': context.get('level_reference'),
+            'level_consumer_calls': context.get('level_consumer_calls', []),
+            'knowledge_qa': context.get('knowledge_qa'),
+            'persistence': persistence.get('status'),
+        }, ensure_ascii=False), flush=True)
     print(f'  DB      : {persistence.get("status", "READ_ONLY")}', flush=True)
     if persistence.get('status') == 'COMMITTED':
         print(f'    Antes : {persistence["before"]}', flush=True)

@@ -128,7 +128,8 @@ def _primeira_torre(obra_dir: Path, bruto_id: str) -> Optional[dict]:
 
 
 def encontrar_estrutural_limpo(
-    obra_dir: Path, obra: dict, pavimento: Optional[str] = None
+    obra_dir: Path, obra: dict, pavimento: Optional[str] = None,
+    *, documents: Optional[list[dict]] = None,
 ) -> Optional[dict]:
     """Torre limpa DO PAVIMENTO pedido.
 
@@ -149,6 +150,36 @@ def encontrar_estrutural_limpo(
         return None
 
     if pavimento:
+        # O cadastro é a identidade do pavimento, inclusive nomes personalizados.
+        # Não reinterpretar um vínculo explícito pelo código/nome da prancha.
+        if documents:
+            from ..preprocessamento.sources import inventory_floor_sources, SourceKind
+            sources = inventory_floor_sources(
+                obra_dir=obra_dir, obra_id=str(obra['id']),
+                pavimento_id=pavimento, documents=documents,
+            )
+            for source in sources:
+                if source.kind is SourceKind.TOWER:
+                    item = torre_crop.obter_recorte_bruto(
+                        obra_dir, source.bruto_id, source.item_id,
+                    )
+                    if item:
+                        return {'bruto_id': source.bruto_id, **item}
+            return None
+
+        # Consumidores sem conexão do portal reutilizam a proveniência da rodada
+        # SA, apenas quando ela aponta a um recorte atual dentro desta obra.
+        source = ficha_reader._fonte_estrutural_producao(obra_dir, pavimento)
+        if source:
+            root = (obra_dir / 'Fase-2_Triagem' / 'recortes').resolve()
+            try:
+                relative = source.resolve().relative_to(root)
+            except ValueError:
+                relative = None
+            if relative and len(relative.parts) == 2 and relative.stem.startswith(_PREFIXO_TORRE):
+                item = torre_crop.obter_recorte_bruto(obra_dir, relative.parts[0], relative.stem)
+                if item and Path(item['path']).resolve() == source.resolve():
+                    return {'bruto_id': relative.parts[0], **item}
         alvo = normalizar_pavimento(pavimento)
         for bruto_id in disponiveis:
             if alvo and pavimento_de_codigo_prancha(bruto_id) == alvo:
@@ -186,6 +217,39 @@ def _rotulo(item: dict, classe: str = "") -> str:
             return f"{viga} SEG {segmento}-{lado}"
         return f"{viga} SEG {segmento}"
     return str(item.get("titulo") or item.get("item_id") or "")
+
+
+def _ajustes_pontas_lateral(item: dict, classe: str) -> dict | None:
+    """Expose SA endpoint metadata without modifying geometry or guessing N3 rules.
+
+    Left/right follow the local segment reading order, including reversed B sides.
+    Missing metadata is unknown; explicit zero is a measured absence of adjustment.
+    """
+    if not classe.startswith("lateral_"):
+        return None
+    import math
+    cell = item.get("lv_cell") or {}
+    result = {"fonte": "SA / lv_cell", "ordem": "inicio/fim do segmento"}
+    for label, key in (("esquerda", "adjustment_start"), ("direita", "adjustment_end")):
+        raw = cell.get(key)
+        try:
+            value = float(raw) if raw is not None and not isinstance(raw, bool) else None
+        except (TypeError, ValueError):
+            value = None
+        result[label] = value if value is not None and math.isfinite(value) else None
+        support_key = "support_start" if label == "esquerda" else "support_end"
+        support = cell.get(support_key) or {}
+        result[label + "_ponto"] = str(support.get("name") or "") if support.get("type") in ("pilar", "viga") else ""
+    from src.core.lv_generation_contract import _terminal_underpass_extension
+    points = item.get("points") or []
+    if len(points) >= 2:
+        tongue = _terminal_underpass_extension({
+            "lv_cell": cell, "points": points,
+            "end_adjustment": result["direita"],
+        })
+        if tongue > 0:
+            result["direita_patinha"] = tongue
+    return result
 
 
 def _geometria_dos_itens(estado: dict, classe: str, transform) -> list[dict]:
@@ -234,6 +298,9 @@ def _geometria_dos_itens(estado: dict, classe: str, transform) -> list[dict]:
             "beam_name": item.get("beam_name"),
             "segmento": campos.get("Segmento"),
             "lado": campos.get("Lado"),
+            "ajustes_pontas": _ajustes_pontas_lateral(item, classe),
+            "nivel_m": campos.get("Nível") if classe.startswith("lateral_") else None,
+            "nivel_fonte": item.get("level_source") if classe.startswith("lateral_") else None,
             "bbox_dxf": [min(xs), min(ys), max(xs), max(ys)],
             "pontos_dxf": dxf,
             "pontos_px": pontos_px,
@@ -252,7 +319,10 @@ def viewer_pavimento_endpoint(
     obra = _obra_do_membro(conn, obra_id, membro)
     obra_dir = _obra_dir(request, obra)
 
-    fonte = encontrar_estrutural_limpo(obra_dir, obra, pavimento)
+    fonte = encontrar_estrutural_limpo(
+        obra_dir, obra, pavimento,
+        documents=repo.listar_documentos_por_obra(conn, obra_id),
+    )
     if fonte is None:
         raise HTTPException(
             status_code=409,
@@ -265,7 +335,7 @@ def viewer_pavimento_endpoint(
 
     try:
         transform = dxf_preview.transform_preview_completo(
-            caminho, cache_dir=obra_dir / ".previews"
+            caminho, cache_dir=obra_dir / ".previews", incluir_svg=False
         )
     except Exception as exc:  # noqa: BLE001 - DXF pode ter geometria nao suportada
         log.exception("falha ao renderizar estrutural limpo: %s", caminho)
@@ -295,7 +365,7 @@ def viewer_pavimento_endpoint(
     # before a production SA has ever run. Later SA snapshots regenerate pairs.
     from ..preprocessamento.service import read_floor, read_tower
     from ..preprocessamento.freshness import changed_sources
-    floor_package = read_floor(obra_dir, pavimento)
+    floor_package = read_floor(obra_dir, pavimento) if estado is None else None
     frozen = None
     if floor_package:
         matches = [s for s in floor_package['sources'] if s['kind'] == 'tower'
@@ -309,6 +379,9 @@ def viewer_pavimento_endpoint(
                                str(obra.get('comportamento') or 'misto').lower())
     elif frozen:
         grupos = viewer_groups(obra_dir, pavimento, {}, transform, grupos, inventory=frozen)
+
+    from ..source_section_overlay import original_groups
+    grupos = original_groups(grupos, caminho, estado or {}, transform)
 
     return {
         "obra_id": obra_id,
@@ -328,6 +401,38 @@ def viewer_pavimento_endpoint(
     }
 
 
+@router.get("/{obra_id}/viewer/{pavimento}/pilares/{item_id}/tags")
+def pillar_highlight_tags_endpoint(
+    obra_id: str, pavimento: str, item_id: str, request: Request,
+    membro: dict = Depends(auth.exige_login),
+    conn: sqlite3.Connection = Depends(get_db_conn),
+):
+    from .n1_routes import obter_item_n1_endpoint
+    from ..pillar_highlight_tags import project_s1_tags
+
+    obra = _obra_do_membro(conn, obra_id, membro)
+    obra_dir = _obra_dir(request, obra)
+    fonte = encontrar_estrutural_limpo(
+        obra_dir, obra, pavimento, documents=repo.listar_documentos_por_obra(conn, obra_id),
+    )
+    if fonte is None:
+        raise HTTPException(status_code=409, detail="estrutural limpo indisponível")
+    transform = dxf_preview.transform_preview_completo(
+        Path(fonte['path']), cache_dir=obra_dir / '.previews', incluir_svg=False,
+    )
+    estado = ficha_reader.ler_estado_pavimento(obra_dir, pavimento)
+    item = next((i for i in ficha_reader.listar_itens_n1(estado or {}, 'pilares')
+                 if i.get('item_id') == item_id), None)
+    if item is None:
+        raise HTTPException(status_code=404, detail="pilar não encontrado")
+    ficha = obter_item_n1_endpoint(obra_id, 'pilares', item_id, request,
+                                  pavimento=pavimento, membro=membro, conn=conn)
+    svg = (ficha.get('visualizacoes_n1') or {}).get('com_tag')
+    layer = project_s1_tags(svg, item.get('points') or [], transform) if svg and transform else None
+    return {'item_id': item_id, 'svg': layer, 'disponivel': bool(layer),
+            'fonte': 'S1 com tags', 'tag_sync': ficha.get('tag_sync')}
+
+
 @router.get("/{obra_id}/viewer/{pavimento}/transform")
 def transform_pavimento_endpoint(
     obra_id: str, pavimento: str, request: Request,
@@ -337,11 +442,14 @@ def transform_pavimento_endpoint(
     """Só a transform — para o front converter clique sem baixar os itens todos."""
     obra = _obra_do_membro(conn, obra_id, membro)
     obra_dir = _obra_dir(request, obra)
-    fonte = encontrar_estrutural_limpo(obra_dir, obra, pavimento)
+    fonte = encontrar_estrutural_limpo(
+        obra_dir, obra, pavimento,
+        documents=repo.listar_documentos_por_obra(conn, obra_id),
+    )
     if fonte is None:
         raise HTTPException(status_code=409, detail="estrutural limpo ainda nao gerado")
     transform = dxf_preview.transform_preview_completo(
-        Path(fonte["path"]), cache_dir=obra_dir / ".previews"
+        Path(fonte["path"]), cache_dir=obra_dir / ".previews", incluir_svg=False
     )
     if transform is None:
         raise HTTPException(status_code=502, detail="estrutural limpo sem extents legiveis")
@@ -484,7 +592,10 @@ def regiao_pavimento_endpoint(
     """Entidades do estrutural limpo dentro/tocando a janela DXF (box do apontamento)."""
     obra = _obra_do_membro(conn, obra_id, membro)
     obra_dir = _obra_dir(request, obra)
-    fonte = encontrar_estrutural_limpo(obra_dir, obra, pavimento)
+    fonte = encontrar_estrutural_limpo(
+        obra_dir, obra, pavimento,
+        documents=repo.listar_documentos_por_obra(conn, obra_id),
+    )
     if fonte is None:
         raise HTTPException(status_code=409, detail="estrutural limpo ainda nao gerado")
     caminho = Path(fonte["path"])
@@ -544,7 +655,10 @@ def criar_item_endpoint(
     if len(payload.poligono_px) < 3:
         raise HTTPException(status_code=422, detail="o traço precisa de pelo menos 3 pontos")
 
-    fonte = encontrar_estrutural_limpo(obra_dir, obra, pavimento)
+    fonte = encontrar_estrutural_limpo(
+        obra_dir, obra, pavimento,
+        documents=repo.listar_documentos_por_obra(conn, obra_id),
+    )
     if fonte is None:
         raise HTTPException(status_code=409, detail="estrutural limpo ainda nao gerado")
     caminho = Path(fonte["path"])

@@ -29,6 +29,7 @@
             node.style.setProperty('stroke-width','2px','important');
           }
           node.setAttribute('vector-effect','non-scaling-stroke'); group.appendChild(node);
+          if (options.item && item.kind === 'polygon') node._geometryItem = options.item;
         });
         parent.appendChild(group);
       });

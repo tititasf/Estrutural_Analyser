@@ -24,6 +24,13 @@ está na seção 1 deste doc, NÃO use sem ordem explícita do dono.**
 
 ## 1. O loop canônico (dois eixos, um conjunto de ferramentas)
 
+### Ciclo rápido do SA antes de publicar (dono, 10/10/2026)
+
+Entrada autorizada: `scripts/arete/dev_sa_cycle.py`. Reexecuta pré-processamento
+→ SA completo → novo QA Gate pós-SA sem renderização ou publicação, até resolver
+as pendências e aprovar a regressão. Só então publica e faz a conferência visual
+final. Procedimento e limites: [SA-DESENVOLVIMENTO-CICLO-RAPIDO.md](SA-DESENVOLVIMENTO-CICLO-RAPIDO.md).
+
 ### Memória operacional autoevolutiva
 
 O agente deve evoluir o motor e a documentação juntos: evidência nova → hipótese

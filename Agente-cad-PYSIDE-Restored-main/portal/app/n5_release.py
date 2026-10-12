@@ -1,7 +1,7 @@
 """Liberacao self-service do N5 (DP-13/R9): assemble_n5 real + registro auditavel.
 
-Gating (HANDOFF §1.2 / DP-13): so libera se a validacao do usuario (etapa 5) para a
-classe estiver registrada. O rotulo certificado/beta e' um SNAPSHOT congelado no
+Geração exige N3 completo e verificações automáticas; revisão humana é opcional
+(decisão do dono, 2026-10-08). O rotulo certificado/beta e' um SNAPSHOT congelado no
 momento da liberacao (repository.registrar_n5_release) — auditar depois "o que ele
 sabia quando liberou" independe do estado atual da curadoria.
 
@@ -46,6 +46,7 @@ def liberar_n5(
     engine_version: Optional[str] = None,
     dry_run: bool = False,
     visual_mode: str = "NOVA",
+    vigas_config: Optional[dict] = None,
 ) -> dict:
     """Monta o N5 da classe+pav e registra a liberacao com snapshot de certificacao.
 
@@ -55,9 +56,17 @@ def liberar_n5(
     resultado = pipeline_runner.executar_n5(
         settings, obra, classe=classe, pavimento=pavimento, dry_run=dry_run,
         visual_mode=visual_mode,
+        **({"vigas_config": vigas_config} if vigas_config is not None else {}),
     )
+    if not resultado.ok and resultado.artefatos.get('item_pending'):
+        return dict(release_id=None, classe=classe, pavimento=pavimento,
+                    dxf_path=None, ok=False, partial=True, status='pendente',
+                    item_pending=resultado.artefatos['item_pending'],
+                    manifest_path=resultado.artefatos.get('n5_manifest'))
     if not resultado.ok:
         detalhe = resultado.log_tail or "o motor N5 não concluiu o artefato"
+        if classe.upper() == "PL" and visual_mode == "MOLDE_1":
+            log.warning("N5 Formascia PL não concluído: %s", detalhe)
         raise ValueError(detalhe)
     dxf_path = resultado.artefatos.get("n5_dxf") if not dry_run else None
     dxf_hash = _hash_dxf(dxf_path) if dxf_path else None
@@ -81,6 +90,9 @@ def liberar_n5(
         "dxf_path": dxf_path,
         "dxf_hash": dxf_hash,
         "ok": resultado.ok,
+        "partial": resultado.artefatos.get("partial", False),
+        "item_pending": resultado.artefatos.get("item_pending", []),
+        "manifest_path": resultado.artefatos.get("n5_manifest"),
         "dry_run": dry_run,
         "visual_mode": str(visual_mode or "NOVA").strip().upper(),
     }

@@ -269,9 +269,11 @@ def criar_sessao_apontamento_ui(
 
 @ui_router.get("/sessoes")
 def listar_sessoes_apontamento_ui(
-    meus: bool = Query(default=False), membro: dict = Depends(auth.exige_login),
+    request: Request, meus: bool = Query(default=False), membro: dict = Depends(auth.exige_login),
     conn: sqlite3.Connection = Depends(get_db_conn),
 ):
+    from ..structural_audit import flush
+    flush(conn, request, membro)
     sessions = repo.listar_sessoes_apontamento_ui(conn, membro=membro, somente_meus=meus)
     for session in sessions:
         for page in session["paginas"]:

@@ -428,11 +428,20 @@ def test_oda_linux_converte_em_diretorios_isolados(tmp_path, monkeypatch):
 # aqui SEMPRE aponta pra tmp (conftest.py) — nunca toca o project_data.vision real.
 # --------------------------------------------------------------------------- #
 
+def _registrar_documento_pavimento(settings, obra, nome="teste.dxf", pavimento="13_PAV"):
+    import sqlite3
+    obra["id"] = "obra-fixture"
+    with sqlite3.connect(settings.db_path) as conn:
+        conn.execute("CREATE TABLE IF NOT EXISTS portal_documentos (obra_id TEXT, arquivo_nome TEXT, pavimento_confirmado TEXT, pavimento_sugerido TEXT)")
+        conn.execute("INSERT INTO portal_documentos VALUES (?, ?, ?, NULL)", (obra["id"], nome, pavimento))
+
+
 def test_garantir_project_registra_quando_nao_existe(settings, tmp_path):
     from src.core.database import DatabaseManager
     from src.core.sa_project_source import select_sa_project
 
     obra_dir, obra = _obra_com_entrada(tmp_path, "teste.dxf")
+    _registrar_documento_pavimento(settings, obra)
     # simula o dxf ja' convertido pela triagem (mesmo nome, .dxf)
     project_id = pipeline_runner._garantir_project_registrado(settings, obra, "13_PAV")
 
@@ -448,6 +457,7 @@ def test_garantir_project_e_idempotente_nao_duplica(settings, tmp_path):
     from src.core.database import DatabaseManager
 
     obra_dir, obra = _obra_com_entrada(tmp_path, "teste.dxf")
+    _registrar_documento_pavimento(settings, obra)
     pipeline_runner._garantir_project_registrado(settings, obra, "13_PAV")
     pipeline_runner._garantir_project_registrado(settings, obra, "13_PAV")  # de novo
 
@@ -468,6 +478,38 @@ def test_garantir_project_obra_container_sem_arquivo_nome_nao_registra(settings,
     database = DatabaseManager(db_path=str(settings.sa_db_path))
     projetos = [p for p in database.get_projects() if p.get("work_name") == str(obra_dir)]
     assert projetos == []
+
+
+def test_garantir_project_dxf_maiusculo_usa_torre_da_fonte_exata(settings, tmp_path):
+    from src.core.database import DatabaseManager
+    obra_dir, obra = _obra_com_entrada(tmp_path)
+    _dxf_valido(obra_dir / "entrada" / "NOVO.DXF")
+    torre = obra_dir / "Fase-2_Triagem" / "recortes" / "NOVO" / "torre_1.dxf"
+    _dxf_valido(torre)
+    _registrar_documento_pavimento(settings, obra, "NOVO.DXF", "TIPO_TESTE")
+    project_id = pipeline_runner._garantir_project_registrado(settings, obra, "TIPO_TESTE")
+    project = next(p for p in DatabaseManager(db_path=str(settings.sa_db_path)).get_projects() if p["id"] == project_id)
+    assert Path(project["dxf_path"]) == torre
+
+
+def test_garantir_project_sem_documento_do_pavimento_nao_usa_outro(settings, tmp_path):
+    _, obra = _obra_com_entrada(tmp_path)
+    _registrar_documento_pavimento(settings, obra, pavimento="13_PAV")
+    assert pipeline_runner._garantir_project_registrado(settings, obra, "TIPO_TESTE") is None
+
+
+def test_garantir_project_outra_fonte_cria_projeto_isolado(settings, tmp_path):
+    from src.core.database import DatabaseManager
+    obra_dir, obra = _obra_com_entrada(tmp_path)
+    _registrar_documento_pavimento(settings, obra)
+    database = DatabaseManager(db_path=str(settings.sa_db_path))
+    old_id = database.create_project(name="13_PAV", dxf_path=str(obra_dir / "entrada" / "OUTRO.dxf"), work_name=str(obra_dir), pavement_name="13_PAV")
+    new_id = pipeline_runner._garantir_project_registrado(settings, obra, "13_PAV")
+    assert new_id and new_id != old_id
+    projects = {p["id"]: p for p in database.get_projects()}
+    assert len(projects) == 2
+    assert Path(projects[old_id]["dxf_path"]).name == "OUTRO.dxf"
+    assert Path(projects[new_id]["dxf_path"]).name == "teste.dxf"
 
 
 def test_garantir_project_sem_dxf_convertido_ainda_nao_registra(settings, tmp_path):
@@ -741,7 +783,7 @@ def test_job_sa_falha_fechado_quando_project_id_nao_resolve(settings, tmp_path, 
     assert "projeto exato" in result.log_tail
 
 
-def test_job_sa_nao_declara_sucesso_com_desenhos_n3_ausentes(settings, tmp_path, monkeypatch):
+def test_job_sa_isola_publicacao_e_expoe_desenhos_n3_ausentes(settings, tmp_path, monkeypatch):
     obra_dir = tmp_path / "obra_sa_sem_n3"
     obra_dir.mkdir()
     obra = {"nome": "obra_sa_sem_n3", "local_path": str(obra_dir)}
@@ -763,12 +805,16 @@ def test_job_sa_nao_declara_sucesso_com_desenhos_n3_ausentes(settings, tmp_path,
         settings, ["python", "headless"], obra=obra, etapa="sa",
         dry_run=False, log_path=None, pav="TERREO",
     )
-    assert not result.ok
+    assert result.ok  # core completed; missing outputs remain explicit pending items
+    assert result.artefatos["pilar_n1_tags"]["status"] == "pendente"
+    assert any("PIL/N1" in item for item in result.artefatos["item_pending"])
     assert len(result.artefatos["pilar_n3"]["missing"]) == 8
     assert "pacote N3 de pilares incompleto" in result.log_tail
 
 
 def test_materializar_n1_tags_usa_modo_rapido_e_audita_todos(settings, tmp_path, monkeypatch):
+    from portal.app import pillar_tag_cache
+    monkeypatch.setattr(pillar_tag_cache, 'fingerprint', lambda *a: 'verified-inputs')
     repo = tmp_path / "repo"
     script = repo / "scripts" / "arete" / "export_pilares_abcd_fichas.py"
     script.parent.mkdir(parents=True)
@@ -803,6 +849,50 @@ def test_materializar_n1_tags_usa_modo_rapido_e_audita_todos(settings, tmp_path,
     assert stats["missing"] == []
     assert stats["paridade_arete"]["status"] == "sem_referencia"
     assert Path(stats["pack"]).parent == repo / "scripts" / "arete" / "html_fichas" / "obra_tags"
+    monkeypatch.setattr(pipeline_runner.subprocess, 'run',
+                        lambda *a, **kw: pytest.fail('unchanged complete pack rendered again'))
+    reused = pipeline_runner.materializar_n1_tags_pilares(
+        settings, obra, project_id='proj', pavimento='TERREO')
+    assert reused['reused'] is True
+    assert reused['pack'] == stats['pack']
+    assert reused['gerados'] == 2
+
+
+def test_n1_tags_sem_poligono_registra_pendencia_sem_render(settings, tmp_path, monkeypatch):
+    script = settings.repo_root / 'scripts/arete/export_pilares_abcd_fichas.py'
+    # Test uses the existing exporter path, but must never invoke it.
+    assert script.is_file()
+    root = tmp_path / 'obra_sem_geometria'
+    root.mkdir()
+    (root / 'estado_TERREO.json').write_text(json.dumps(dict(pilares=[dict(name='P1', points=[])])))
+    monkeypatch.setattr(pipeline_runner.subprocess, 'run', lambda *a, **kw: pytest.fail('render sem geometria'))
+    stats = pipeline_runner.materializar_n1_tags_pilares(settings, dict(nome='teste',local_path=str(root)), project_id='p', pavimento='TERREO')
+    assert stats['missing'] == ['P1']
+    assert stats['gerados'] == 0
+    assert 'polígono estrutural ausente' in stats['item_pending'][0]
+
+
+def test_n1_tags_publica_geometria_valida_e_isola_pilar_sem_poligono(settings, tmp_path, monkeypatch):
+    settings.repo_root = tmp_path / 'repo'
+    script = settings.repo_root / 'scripts/arete/export_pilares_abcd_fichas.py'
+    script.parent.mkdir(parents=True)
+    script.write_text('# isolated exporter fixture', encoding='utf-8')
+    root = tmp_path / 'obra_tags_parcial'
+    root.mkdir()
+    (root / 'estado_TERREO.json').write_text(json.dumps(dict(pilares=[
+        dict(name='P1', points=[[0,0],[20,0],[20,20],[0,20]]), dict(name='P2', points=[])])))
+    def render(cmd, **kwargs):
+        assert cmd[cmd.index('--item')+1:] == ['P1']
+        pack = Path(cmd[cmd.index('--output-root')+1]) / 'obra_tags_parcial' / 'TERREO_fixture_pilares_abcd'
+        (pack / 'propostas').mkdir(parents=True)
+        (pack / 'propostas/P1_sa_motor.svg').write_text('<svg/>')
+        return pipeline_runner.subprocess.CompletedProcess(cmd,0,'','')
+    monkeypatch.setattr(pipeline_runner, 'python_sa_executable',lambda *a:'python')
+    monkeypatch.setattr(pipeline_runner.subprocess,'run',render)
+    stats = pipeline_runner.materializar_n1_tags_pilares(settings,dict(nome=root.name,local_path=str(root)),project_id='p',pavimento='TERREO')
+    assert stats['gerados'] == 1
+    assert 'P2' in stats['item_pending'][0]
+    assert Path(stats['pack']).is_dir()
 
 
 def test_paridade_semantica_tags_bloqueia_interpretacao_divergente(tmp_path):

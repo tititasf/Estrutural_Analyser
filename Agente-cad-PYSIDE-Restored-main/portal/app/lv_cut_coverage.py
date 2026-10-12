@@ -8,6 +8,14 @@ from .lv_cut_map import pair_polygon, section_drawings
 from src.core.lv_n3_cut_contract import build_cut_contract, CutContractError
 
 
+def profile_key(contract):
+    """Physical shape, including slab steps; identities are not equivalence."""
+    return (round(contract['width_cm'], 3), round(contract['height_cm'], 3),
+            contract.get('beam_type', 'normal'),
+            tuple(tuple(sorted((round(s['height_cm'], 3), round(s['drop_cm'], 3))
+                               for s in contract['slabs'][side])) for side in ('A', 'B')))
+
+
 def soffit_drawings(cuts, sides, fundos, pillars=()):
     if not fundos:
         drawings, blocked = section_drawings(cuts, sides, pillars)
@@ -46,30 +54,9 @@ def soffit_drawings(cuts, sides, fundos, pillars=()):
         uid = segment['uid']
         row = dict(fundo_id=uid, beam=segment.get('beam_name'),
                    segment=segment.get('segment_label'))
-        if uid in original_by_bottom:
-            original_indexes = original_by_bottom[uid]
-            known = [build_cut_contract(cuts[i]) for i in original_indexes]
-            dimensions = {(c['width_cm'], c['height_cm']) for c in known}
-            changes = []
-            for index, pair, line, delta in candidates:
-                if polygon.intersection(line).length <= .5:
-                    continue
-                candidate = cuts[index]
-                width, height = candidate.get('width_cm'), candidate.get('beam_height_cm')
-                if width is not None and height is not None and not any(
-                        abs(width-w) <= .5 and abs(height-h) <= .5 for w,h in dimensions):
-                    changes.append(index)
-            # A point occurrence cannot certify a whole soffit containing a
-            # measured profile transition. Keep the original drawing visible;
-            # expose subdivision instead of silently hiding the other profile.
-            if changes or len(dimensions) > 1:
-                coverage.append(dict(row, status='pending', cut_indexes=original_indexes,
-                    profile_change_indexes=changes,
-                    reason='fundo atravessa mudança de seção; original preservado, subdivisão necessária'))
-            else:
-                coverage.append(dict(row, status='original', cut_indexes=original_indexes))
-            continue
-        choices = []
+        original_indexes = original_by_bottom.get(uid, [])
+        known = [build_cut_contract(cuts[i]) for i in original_indexes]
+        choices = {}
         reasons = []
         for index, pair, line, delta in candidates:
             intersection = polygon.intersection(line)
@@ -77,28 +64,44 @@ def soffit_drawings(cuts, sides, fundos, pillars=()):
                 if part.geom_type != 'LineString' or part.length <= .5:
                     continue
                 try:
-                    build_cut_contract(cuts[index])
+                    local = deepcopy(cuts[index])
+                    if pair.get('profiles'):
+                        local['profiles'] = deepcopy(pair['profiles'])
+                    contract = build_cut_contract(local)
                 except CutContractError as exc:
                     reasons.append(str(exc))
                     continue
-                choices.append((part.distance(polygon.centroid), -part.length,
-                                index, pair, part, delta))
+                key = profile_key(contract)
+                # A CAD original replaces only the same physical profile. It
+                # cannot hide a height change or a recessed slab in this fundo.
+                if any(profile_key(c) == key for c in known):
+                    continue
+                choice = (part.distance(polygon.centroid), -part.length,
+                          index, pair, part, delta, local)
+                if key not in choices or choice[:3] < choices[key][:3]:
+                    choices[key] = choice
         if not choices:
-            coverage.append(dict(row, status='pending', reason='; '.join(sorted(set(reasons))) or 'sem par A/B válido neste fundo'))
+            if original_indexes and not reasons:
+                coverage.append(dict(row, status='original', cut_indexes=original_indexes))
+            else:
+                coverage.append(dict(row, status='pending', reason='; '.join(sorted(set(reasons))) or 'sem par A/B válido neste fundo'))
             continue
-        _, _, index, pair, part, delta = min(choices, key=lambda c:c[:3])
-        clipped = deepcopy(pair)
-        pts = list(part.coords)
-        # Preserve the A-face reading direction when clipping at the soffit.
-        if dist(pts[0], line_start := [pair['start'][i]+delta[i] for i in (0,1)]) > dist(pts[-1], line_start):
-            pts.reverse()
-        clipped.update(start=[pts[0][i]-delta[i] for i in (0,1)],
-                       end=[pts[-1][i]-delta[i] for i in (0,1)], length_cm=part.length)
-        cut = deepcopy(cuts[index])
-        cut['pairs'] = [clipped]
-        instances.append(cut)
-        source_indexes.append((index, uid))
-        coverage.append(dict(row, status='interpreted', cut_index=index))
+        indexes = []
+        for _, _, index, pair, part, delta, cut in choices.values():
+            clipped = deepcopy(pair)
+            pts = list(part.coords)
+            # Preserve the A-face reading direction when clipping at the soffit.
+            line_start = [pair['start'][i]+delta[i] for i in (0,1)]
+            if dist(pts[0], line_start) > dist(pts[-1], line_start):
+                pts.reverse()
+            clipped.update(start=[pts[0][i]-delta[i] for i in (0,1)],
+                           end=[pts[-1][i]-delta[i] for i in (0,1)], length_cm=part.length)
+            cut['pairs'] = [clipped]
+            instances.append(cut)
+            source_indexes.append((index, uid))
+            indexes.append(index)
+        coverage.append(dict(row, status='mixed' if original_indexes else 'interpreted',
+                             cut_indexes=original_indexes, interpreted_cut_indexes=indexes))
     drawings, failures = section_drawings(instances, sides, pillars)
     for drawing in drawings:
         index, uid = source_indexes[drawing['cut_index']]
@@ -111,7 +114,7 @@ def soffit_drawings(cuts, sides, fundos, pillars=()):
     # Titles retain the same VC identity in repeated physical occurrences.
     for drawing in originals:
         cut = cuts[drawing['cut_index']]
-        contract = build_cut_contract(cut)
+        contract = drawing.get('section_contract') or build_cut_contract(cut)
         for primitive in drawing['primitives']:
             if primitive.get('role') == 'section_title':
                 primitive['text'] = (f'{cut["beam"]} - VC{drawing["cut_index"]+1} - '

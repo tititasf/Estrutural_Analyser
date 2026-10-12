@@ -63,6 +63,7 @@ class LVPillarOpeningsPayload(BaseModel):
 
 
 class LVN3FichaPayload(BaseModel):
+    assembly_variant: Literal["gradeadas", "sarrafeadas"] | None = None
     source_hash: str
     revision: int
     sides: dict
@@ -359,6 +360,7 @@ def obter_ficha_lv_endpoint(
     request: Request,
     pavimento: Optional[str] = None,
     include_svgs: bool = True,
+    visual_mode: Literal["NOVA", "INI", "MOLDE_1", "MOLDE_2", "MOLDE_3"] = "NOVA",
     membro: dict = Depends(auth.exige_login),
     conn: sqlite3.Connection = Depends(get_db_conn),
 ):
@@ -392,9 +394,15 @@ def obter_ficha_lv_endpoint(
         for segment in side_data["segments"]:
             segment["human_validated"] = (side_data["class"], segment["id"]) in validated
     try:
-        result["n3_ficha"] = lv_n3_operations.load_ficha(obra_dir, pav, behavior, beam)
+        result["assembly_variant"] = repo.obter_config_vigas_pavimento(conn,obra_id,pav).get("comportamento_laterais_vigas","sarrafeadas")
+        result["n3_variants"] = {kind:lv_n3_operations.load_ficha(obra_dir,pav,behavior,beam,kind,mode=visual_mode)
+                                 for kind in ("gradeadas","sarrafeadas")}
+        result["n3_ficha"] = result["n3_variants"][result["assembly_variant"]]
     except FileNotFoundError:
         result["n3_ficha"] = None
+    except ValueError as exc:
+        result["n3_ficha"] = None
+        result["n3_pending_reason"] = str(exc)
     return result
 
 
@@ -410,6 +418,7 @@ def obter_camada_lv_endpoint(
     segment_index: int = 1,
     cut_index: int = 0,
     visual_mode: Literal["NOVA", "INI", "MOLDE_1", "MOLDE_2", "MOLDE_3"] = "NOVA",
+    assembly: Literal["gradeadas", "sarrafeadas"] | None = None,
     membro: dict = Depends(auth.exige_login),
     conn: sqlite3.Connection = Depends(get_db_conn),
 ):
@@ -426,6 +435,7 @@ def obter_camada_lv_endpoint(
             obra_dir, pav, beam, behavior, estado, layer,
             obra_id=obra_id, side=side, segment_index=segment_index, cut_index=cut_index,
             visual_mode=visual_mode,
+            assembly=assembly or repo.obter_config_vigas_pavimento(conn,obra_id,pav).get("comportamento_laterais_vigas","sarrafeadas"),
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -464,6 +474,7 @@ def salvar_aberturas_pilar_lv_endpoint(
 def salvar_n3_ficha_lv_endpoint(
     obra_id: str, behavior: str, beam: str, body: LVN3FichaPayload,
     request: Request, pavimento: Optional[str] = None,
+    visual_mode: Literal["NOVA", "INI", "MOLDE_1", "MOLDE_2", "MOLDE_3"] = "NOVA",
     membro: dict = Depends(auth.exige_login),
     conn: sqlite3.Connection = Depends(get_db_conn),
 ):
@@ -476,7 +487,7 @@ def salvar_n3_ficha_lv_endpoint(
         ficha = lv_n3_operations.save_ficha(
             obra_dir, pav, behavior, beam,
             {"source_hash": body.source_hash, "revision": body.revision,
-             "sides": body.sides},
+             "sides": body.sides}, assembly=body.assembly_variant, mode=visual_mode,
         )
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
@@ -501,17 +512,19 @@ def regenerar_n3_vista_lv_endpoint(
         raise HTTPException(status_code=404, detail="pavimento não encontrado")
     try:
         behavior, beam = lv_n3_operations._identity(behavior, beam)
-        ficha = lv_n3_operations.load_ficha(obra_dir, pav, behavior, beam)
+        visual_mode = normalize_visual_mode(body.visual_mode if body else "NOVA")
+        fichas = [lv_n3_operations.load_ficha(obra_dir, pav, behavior, beam, kind,mode=visual_mode)
+                  for kind in ('gradeadas', 'sarrafeadas')]
     except FileNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
-    if ficha["stale"]:
+    if any(ficha["stale"] for ficha in fichas):
         raise HTTPException(status_code=409, detail="contrato SA mudou; revise e salve a ficha N3 LV")
     meta = {
         "etapa": "n3_lv_view_item", "secao": "lv", "item": beam,
         "pav": pav, "behavior": behavior, "requested_view": view,
-        "visual_mode": normalize_visual_mode(body.visual_mode if body else "NOVA"),
+        "visual_mode": visual_mode,
     }
     job_id, criado = repo.enfileirar_job_unico_por_meta(
         conn, obra_id=obra_id, meta=meta,
@@ -1218,7 +1231,8 @@ def _exigir_pilar_n3(estado: dict, item_id: str) -> None:
     from src.core.pillar_sa_review import eligible
     pillar = _pilar_raw(estado, item_id)
     if pillar and not eligible(pillar):
-        raise HTTPException(status_code=409, detail="Pilar NASCE no próximo pavimento: disponível somente no SA")
+        from src.core.pillar_sa_review import generation_exclusion
+        raise HTTPException(status_code=409, detail=generation_exclusion(pillar))
 
 
 def _n3_modo(vista: Optional[str]) -> str:
@@ -1234,7 +1248,20 @@ def _ler_json_objeto(path: Path) -> dict:
     return value if isinstance(value, dict) else {}
 
 
-def _robot_pilar(obra_dir: Path, item_id: str, modo: Optional[str] = None) -> dict:
+def _pillar_payload_in_floor(payload: dict, obra_dir: Path, pavimento: str, scoped_path=False) -> bool:
+    declared = payload.get('pavimento') or (payload.get('_sa_mode_contract') or {}).get('n1_base', {}).get('pavimento')
+    if declared:
+        return str(declared) == pavimento
+    if scoped_path:
+        return True
+    # Unscoped legacy output is safe only in a genuinely single-floor work.
+    floors = {p.stem.removeprefix('estado_') for p in obra_dir.glob('estado_*.json')
+              if '_pid' not in p.stem}
+    return floors == {pavimento}
+
+
+def _robot_pilar(obra_dir: Path, item_id: str, modo: Optional[str] = None,
+                 pavimento: Optional[str] = None) -> dict:
     """Retorna o payload N3 que alimenta o DXF da aba solicitada.
 
     A Fase 4 fornece a base comum, mas as divisões e aberturas de cada face
@@ -1243,19 +1270,23 @@ def _robot_pilar(obra_dir: Path, item_id: str, modo: Optional[str] = None) -> di
     """
     path = obra_dir / "Fase-4_Sincronizacao" / "JSON_Pilares" / f"{item_id}.json"
     base = _ler_json_objeto(path)
+    if pavimento and not _pillar_payload_in_floor(base, obra_dir, pavimento):
+        base = {}
     if modo not in {"para", "passa"}:
         return base
     candidatos = [
-        obra_dir / "Fase-6_Execucao_CAD" / "n3_variants" / modo / f"{item_id}.json",
         *sorted(
-            obra_dir.glob(f"*_*/pilares/n3_variants/{modo}/{item_id}.json"),
+            obra_dir.glob(f"{pavimento or '*'}_*/pilares/n3_variants/{modo}/{item_id}.json"),
             key=lambda candidate: candidate.stat().st_mtime,
             reverse=True,
         ),
+        obra_dir / "Fase-6_Execucao_CAD" / "n3_variants" / modo / f"{item_id}.json",
     ]
     for candidato in candidatos:
         variante = _ler_json_objeto(candidato)
-        if variante:
+        if variante and (not pavimento or _pillar_payload_in_floor(
+                variante, obra_dir, pavimento,
+                scoped_path=candidato.parent.parent.parent.parent.name.startswith(pavimento + '_'))):
             resultado = deepcopy(base)
             resultado.update(variante)
             resultado["_portal_n3_variant"] = modo
@@ -1272,13 +1303,21 @@ def _override_da_variante(saved: dict | None, modo: str) -> dict | None:
 
 def _anexar_lajes_n3(ficha: dict, robot: dict, abcd: dict | None = None) -> None:
     """Anexa somente a laje realmente vinculada a cada face pelo contrato N3."""
+    source_meta = ficha.get('source') or {}
+    robot_slab_faces = set(source_meta.get('robot_slab_faces') or []) if not source_meta.get('human_override') else set()
+    manual_slab_faces = {face for face, data in (ficha.get('faces') or {}).items()
+                         if 'slabs' in data and face not in robot_slab_faces}
     contract = robot.get("_sa_mode_contract") or {}
     faces_contract = contract.get("faces") if isinstance(contract, dict) else None
     altura_contract = contract.get("altura_pilar") if isinstance(contract, dict) else None
-    pillar_top = robot.get("nivel_chegada_abs") or (
+    pillar_top = robot.get("nivel_chegada_abs")
+    if pillar_top is None:
+        pillar_top = (
         altura_contract.get("nivel_chegada_abs") if isinstance(altura_contract, dict) else None
     )
-    pillar_bottom = robot.get("nivel_saida_abs") or (
+    pillar_bottom = robot.get("nivel_saida_abs")
+    if pillar_bottom is None:
+        pillar_bottom = (
         altura_contract.get("nivel_saida_abs") if isinstance(altura_contract, dict) else None
     )
     if pillar_top is not None:
@@ -1384,6 +1423,12 @@ def _anexar_lajes_n3(ficha: dict, robot: dict, abcd: dict | None = None) -> None
             behavior = "viga_interna"
         return behavior, nominal
     for face, face_data in (ficha.get("faces") or {}).items():
+        face_data['slab_contacts'] = [
+            dict(interval, slab_name=row.get('nome'),
+                 principal_level=row.get('nivel') if row.get('nivel_status') == 'sa' else None)
+            for row in (((abcd or {}).get('faces') or {}).get(face) or {}).get('lajes') or []
+            for interval in row.get('_contact_intervals') or []
+        ]
         # O DXF N3 fecha A/B com as duas chapas laterais: comprimento interno
         # + 22 cm.  Isto e' geometria de exibicao N3, nao um novo campo N1.
         face_data["n3_width_extra"] = 22.0 if face in {"A", "B"} else 0.0
@@ -1461,6 +1506,8 @@ def _anexar_lajes_n3(ficha: dict, robot: dict, abcd: dict | None = None) -> None
         face_width = max((float(panel.get("width") or 0) for panel in face_data.get("panels") or []), default=0)
         for key, raw in sorted(robot.items()):
             if not str(key).startswith(f"abertura_{face}_") or not isinstance(raw, dict):
+                continue
+            if raw.get('_origem') == 'slab_contact' and f'_portal_slabs_{face}' in robot:
                 continue
             lado = str(raw.get("origem_portal") or raw.get("lado") or raw.get("side") or "").lower()
             raw_by_side["right" if lado in {"direito", "right"} else "left"].append(raw)
@@ -1609,6 +1656,8 @@ def _anexar_lajes_n3(ficha: dict, robot: dict, abcd: dict | None = None) -> None
             }]
         else:
             for index, slab in enumerate(face_data["slabs"]):
+                if slab.get('contact_id') and (slab.get('pending') or slab.get('level') is None):
+                    continue
                 if slab.get("level") is None and pillar_top is not None:
                     if index == 0 and slab_level and slab["top_distance"] == face_data["slab"]["recess"]:
                         slab["level"] = slab_level
@@ -1617,17 +1666,33 @@ def _anexar_lajes_n3(ficha: dict, robot: dict, abcd: dict | None = None) -> None
                 if pillar_top is not None and slab.get("level") is not None:
                     slab["top_distance"] = round((float(pillar_top) - slab["level"]) * 100, 2)
         for slab in face_data.get("slabs") or []:
-            if interpreted_thickness is not None and abs(float(slab.get("height") or 0) - old_void) < 0.2:
+            # Cada trecho guarda sua própria identidade. Uma segunda laje ou
+            # região não herda o nome/espessura da primeira fonte da face.
+            own_name = str(slab.get('slab_name') or '')
+            own_thickness = (None if slab.get('contact_id') else
+                             current_slab_thickness(face, own_name) if own_name else interpreted_thickness)
+            if not slab.get('contact_id') and (not own_name or own_name == slab_name) and interpreted_thickness is not None and abs(float(slab.get("height") or 0) - old_void) < 0.2:
                 slab["height"] = void
-            slab["slab_name"] = slab_name
-            slab["slab_dimension"] = slab_dimension or f"{thickness:g}cm"
+            if own_name:
+                if own_thickness is not None:
+                    slab['slab_dimension'] = f'{own_thickness:g}'
+            elif len(face_data.get('slabs') or []) == 1:
+                slab["slab_name"] = slab_name
+                slab["slab_dimension"] = slab_dimension or f"{thickness:g}cm"
             slab["slab_behavior"] = "laje"
     if pillar_top is not None:
         for face_data in (ficha.get("faces") or {}).values():
             for slab in face_data.get("slabs") or []:
+                if slab.get('contact_id') and (slab.get('pending') or slab.get('level') is None):
+                    continue
                 if slab.get("level") is None:
                     slab["level"] = round(float(pillar_top) - slab["top_distance"] / 100, 4)
                 slab["top_distance"] = round((float(pillar_top) - slab["level"]) * 100, 2)
+    from src.core.pillar_slab_contacts import contact_slabs
+    for face, face_data in (ficha.get('faces') or {}).items():
+        contacts = face_data.get('slab_contacts') or []
+        if contacts and face not in manual_slab_faces:
+            face_data['slabs'] = contact_slabs(contacts, pillar_top)
 
 
 def _salvar_override_da_variante(
@@ -1816,40 +1881,40 @@ def _resumo_pilar_n1(
     """Resumo visual canônico da ficha N1 do pilar.
 
     A tela não deve voltar a exibir o dump genérico de lados/lajes. Classificação
-    e orientação vêm do snapshot SA; níveis e pé-direito usam a mesma conversão
-    automática consumida pelo N3, sem aplicar eventual override humano do N3.
+    e orientação vêm do snapshot SA; níveis e pé-direito vêm do contexto
+    consumido pelo SA, preservando apenas overrides humanos da própria ficha SA.
     """
     pilar = _pilar_raw(estado, item_id)
     if pilar is None:
         return None
     ficha = pillar_n3_ficha.build_ficha(
-        pilar, _robot_pilar(obra_dir, item_id), None, pavimento=pavimento,
+        pilar, _robot_pilar(obra_dir, item_id, None, pavimento), None, pavimento=pavimento,
     )
-    dimensions = ficha["dimensions"]
     top_view = ficha["top_view"]
-    niveis = _niveis_absolutos_pilar(obra_dir, pavimento, item_id)
+    # SA levels must come from the consumed source context, never old N3 output.
+    levels = pillar_level_view.load_preprocess_pillar_levels(obra_dir, pavimento, item_id)
+    top, base = levels.get("top"), levels.get("base")
+    height = round((top - base) * 100, 6) if top is not None and base is not None and top > base else None
     from src.core.pillar_sa_review import load
     manual = load(obra_dir, pavimento, item_id)
     return {
         "classificacao": top_view.get("classification") or "—",
         "orientacao": top_view.get("orientation") or "—",
-        "nivel_chegada": manual.get("nivel_chegada", niveis.get("nivel_chegada_abs", dimensions.get("nivel_chegada"))),
-        "nivel_saida": manual.get("nivel_saida", niveis.get("nivel_saida_abs", dimensions.get("nivel_saida"))),
-        "pe_direito": manual.get("pe_direito", niveis.get("pd_pavimento_cm", dimensions.get("height"))),
+        "nivel_chegada": manual.get("nivel_chegada", top),
+        "nivel_saida": manual.get("nivel_saida", base),
+        "pe_direito": manual.get("pe_direito", height),
     }
 
 
 def _niveis_absolutos_pilar(obra_dir: Path, pavimento: str, item_id: str) -> dict:
     """Localiza o payload N3 de produção que preserva os níveis absolutos do SA."""
-    candidatos = [
-        obra_dir / "Fase-6_Execucao_CAD" / "n3_variants" / modo / f"{item_id}.json"
-        for modo in ("para", "passa")
-    ]
-    candidatos.extend(sorted(
+    candidatos = sorted(
         obra_dir.glob(f"{pavimento}_*/pilares/n3_variants/para/{item_id}.json"),
         key=lambda path: path.stat().st_mtime,
         reverse=True,
-    ))
+    )
+    candidatos.extend(obra_dir / "Fase-6_Execucao_CAD" / "n3_variants" / modo / f"{item_id}.json"
+                      for modo in ("para", "passa"))
     for path in candidatos:
         try:
             import json
@@ -1857,6 +1922,9 @@ def _niveis_absolutos_pilar(obra_dir: Path, pavimento: str, item_id: str) -> dic
         except (OSError, ValueError):
             continue
         if not isinstance(payload, dict):
+            continue
+        if not _pillar_payload_in_floor(payload, obra_dir, pavimento,
+                scoped_path=path.parent.parent.parent.parent.name.startswith(pavimento + '_')):
             continue
         if payload.get("nivel_chegada_abs") is None or payload.get("nivel_saida_abs") is None:
             continue
@@ -1892,7 +1960,7 @@ def obter_pilar_n3_ficha_endpoint(
         raise HTTPException(status_code=404, detail="pilar nao encontrado no N1")
     modo = _n3_modo(vista)
     from src.core.pillar_sa_review import load, apply_robot
-    robot = apply_robot(_robot_pilar(obra_dir, base_id, modo), load(obra_dir, pav, base_id))
+    robot = apply_robot(_robot_pilar(obra_dir, base_id, modo, pav), load(obra_dir, pav, base_id))
     saved_root = pillar_n3_ficha.load_ficha(obra_dir, pav, base_id)
     saved = _override_da_variante(saved_root, modo)
     ficha = pillar_n3_ficha.build_ficha(
@@ -1900,8 +1968,13 @@ def obter_pilar_n3_ficha_endpoint(
     )
     abcd = None
     if pilar.get("interpretacao_abcd"):
+        from src.core.pillar_abcd_tables import refine_slab_contact_thickness
+        contact_tables = refine_slab_contact_thickness(
+            pilar['interpretacao_abcd'], pilar,
+            {str(slab.get('name') or ''): slab for slab in estado.get('slabs') or []},
+        )
         abcd = pillar_level_view.enrich_pillar_abcd_levels(
-            pilar["interpretacao_abcd"], estado, robot.get("nivel_chegada_abs"),
+            contact_tables, estado, robot.get("nivel_chegada_abs"),
             pillar_level_view.load_preprocess_slab_levels(obra_dir, pav),
             pillar_name=base_id,
             beam_dim_texts=pillar_level_view.load_beam_dimension_texts(estado),

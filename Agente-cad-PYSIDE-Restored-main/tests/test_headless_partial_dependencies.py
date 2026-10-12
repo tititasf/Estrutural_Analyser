@@ -182,9 +182,19 @@ def test_unchanged_canonical_beam_is_not_a_partial_dependency():
     assert _changed_canonical_beam_names(old, new, {'V308'}) == set()
 
 
+def test_readonly_laj_preview_does_not_replace_a_disjoint_homonym():
+    from copy import deepcopy
+    old = [dict(name='L9', source_label_handle='left', points=[[0,0],[2,0],[2,2],[0,0]], is_validated=True)]
+    before = deepcopy(old)
+    fresh = [dict(name='L9', source_label_handle='right', points=[[10,0],[12,0],[12,2],[10,0]])]
+    assert _fresh_laj_geometry_for_readonly_preview(old, fresh) == 0
+    assert old == before
+
+
 def test_readonly_laj_preview_uses_fresh_geometry_without_losing_human_seal():
     merged = [{
         'name': 'L318',
+        'source_label_handle': 'original-label',
         'points': [[0, 0], [1, 0], [1, 1], [0, 0]],
         'area': 1.0,
         'is_validated': True,
@@ -193,6 +203,7 @@ def test_readonly_laj_preview_uses_fresh_geometry_without_losing_human_seal():
     }]
     fresh = [{
         'name': 'L318',
+        'source_label_handle': 'original-label',
         'points': [[10, 10], [30, 10], [30, 20], [10, 10]],
         'area': 100.0,
         'method': 'motor_geom',

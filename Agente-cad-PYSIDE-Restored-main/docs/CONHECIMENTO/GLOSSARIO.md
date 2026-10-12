@@ -51,6 +51,10 @@ Uma linha por termo, com a fonte onde a definição completa mora (caminhos rela
 | **Para / Passa** | comportamento da lateral no encontro; A e B decidem caso a caso, faces C/D do pilar são sempre Passa | `docs/CONTRATO-RIGIDO-MOTOR-LV-N3-N4.md` G10 |
 | **FV** | fundo de viga; o ponto crítico é a **segmentação** (viga contínua = N segmentos) | `docs/SA-ANALISE/CLASSES/FV.md` |
 | **LAJ** | laje; **hachura de apoio** nos apoios e **HLAZ** (faixa de união) | `docs/SA-ANALISE/CLASSES/LAJ.md` |
+| **Região principal / rebaixo** | a principal é o contorno da laje menos os trechos internos (`slab_step`); o rebaixo é cada trecho interno com o próprio h e, quando houver, o próprio nível | `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`; `src/core/slab_steps.py` |
+| **Linha de degrau provada** | trecho de viga em que duas lajes com nível próprio já diferem; o voto de continuidade não atravessa esse trecho. Contato mais adiante na mesma viga só completa um alvo sem outro voto | `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` |
+| **Voto por camadas** | laje ou região sem cota lê as vizinhas do outro lado da viga: unânimes até 85, maioria até 75, empate abstém. Uma origem por voto; a laje não confirma a si mesma | `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md` |
+| **`preprocess_filled`** | campos de degrau que o pré-processamento preencheu a partir do voto. A coleta não os relê como cota medida | `src/core/slab_steps.py` `fill_region_levels` |
 | **Contaminação** | elemento de outro item capturado no recorte (vizinho), não defeito do item | `scripts/arete/g2v_harness.py` (prompt) |
 | **Painel montado** | chapa já cortada com os sarrafos pregados; sobe inteiro para o pavimento seguinte e é cortado junto com os sarrafos (D-71) | `docs/MATERIAIS-E-CONSTRUCAO.md` §12 |
 | **Sobra (chapa/barra)** | pedaço que sobra do plano de corte ou do recorte de painel; tem ID rastreável e nunca é descarte (D-68/D-69) | `docs/MATERIAIS-E-CONSTRUCAO.md` §10–11 |
@@ -81,6 +85,10 @@ Uma linha por termo, com a fonte onde a definição completa mora (caminhos rela
 | **Pacote de evidência Jev** | JSON pequeno por item/campo/segmento com candidatos reais do DXF (handle, layer, coordenada, relação espacial) e pergunta fechada; hipótese SA fica fora do estado enviado ao modelo | `scripts/arete/examples/jev_sa_second_read_l410.json`; `scripts/arete/jev_sa_second_read.py` |
 | **Controle de retirada** | segunda consulta que remove evidência decisiva para testar se Jev se abstém ou muda a leitura; não é gabarito da obra | `docs/SA-ANALISE/JEV-SEGUNDA-LEITURA-OPCIONAL.md` |
 | **INSUFFICIENT** | opção explícita de uma pergunta `Choice` quando os candidatos/dados da fonte não sustentam a escolha; sinal para recuperar evidência ou revisar, não para preencher N1 | `scripts/arete/jev_sa_second_read.py`; `docs/SA-ANALISE/JEV-SEGUNDA-LEITURA-OPCIONAL.md` |
+| **Trava CAD** | medida determinística no DXF original: valor mais handles. Divergência do SA é FAIL. Jev não mede | `docs/MASTERPLAN-QA-JEV.md` §1; `portal/app/qa_cad_gate.py` |
+| **NÃO CERTIFICADO** | campo ou item sem cobertura, ou com leitura insuficiente. Não vira PASS nem FAIL e não segue sozinho para Grok ou humano | `docs/MASTERPLAN-QA-JEV.md` §4 |
+| **Âncora do renderer** | ponto em que o renderer da ficha coloca o marcador do segmento. A trava de tags exige o marcador do SVG nessa âncora (≤ 0,5 cm), medido pela transformação DXF→SVG | `qa_cad_gate.measure_fv_tags`; relatório `20261004_qa_jev_fv_f0_f2` 4ª passada |
+| **Leitura de corte** | elevação do corte de planta (título `CORTE k` fora do recorte) lida para dizer se a marca indica nível diferente do datum. Não atribui nível à laje | `docs/INTERPRETACAO-NIVEIS-POR-REGIAO-E-SEGMENTO.md`, seção Leitura do corte de planta na trava QA |
 
 ## Conhecimento e RAG
 

@@ -1,4 +1,5 @@
 import json
+import math
 import sys
 from pathlib import Path
 import ezdxf
@@ -17,6 +18,21 @@ def test_flatten_preserves_nested_geometry_layer_and_individual_lines():
     assert [e.dxftype() for e in d.modelspace()]==['LINE','LINE']
     assert all(e.dxf.layer=='red' and e.dxf.color==3 for e in d.modelspace())
     assert not d.audit().errors
+
+
+def test_special_cima_bolt_heads_point_back_to_the_rod_for_each_axis():
+    """The normal-based rule covers rotations/mirrors used by L, T, and U."""
+    from src.core.pillar_nova_special import bolt_head_angles
+
+    for nx, ny in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+        end1_angle, end0_angle = bolt_head_angles((nx, ny))
+        end1_direction = (math.cos(end1_angle), math.sin(end1_angle))
+        end0_direction = (math.cos(end0_angle), math.sin(end0_angle))
+
+        # end1 is outside along the normal and end0 outside against it: each
+        # asymmetric tip must face the shared shaft, not the free exterior.
+        assert math.isclose(end1_direction[0] * nx + end1_direction[1] * ny, -1.0, abs_tol=1e-9)
+        assert math.isclose(end0_direction[0] * nx + end0_direction[1] * ny, 1.0, abs_tol=1e-9)
 
 
 def test_actual_zone_hook_and_ini_isolation():

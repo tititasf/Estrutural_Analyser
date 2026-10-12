@@ -5,7 +5,18 @@ import re
 from shapely.geometry import box, LineString, shape
 
 
-def fund_section(segment, fields, peers):
+def fund_section(segment, fields, peers, source=None):
+    section = _axis_fund_section(segment, fields, peers)
+    if section is not None or not source:
+        return section
+    from .oriented_beam_section import source_section
+    try:
+        return source_section(segment.get('points'), segment.get('beam_name'), source)
+    except (OSError, ValueError, TypeError):
+        return None
+
+
+def _axis_fund_section(segment, fields, peers):
     """Read a dimension only when its width and spatial segment agree."""
     from .segment_levels import geometry
     geom = geometry(segment.get('points'))
@@ -13,6 +24,29 @@ def fund_section(segment, fields, peers):
         return None
     b = geom.bounds
     axis = 0 if b[2]-b[0] >= b[3]-b[1] else 1
+    # A short end parcel can be shorter than the beam's transverse width.
+    # Own lateral edges supply its longitudinal direction; bbox size cannot.
+    supported_axes = set()
+    for family, side in peers:
+        if not family.startswith('lateral'):
+            continue
+        if (segment.get('beam_name') and side.get('beam_name')
+                and segment['beam_name'] != side['beam_name']):
+            continue
+        line = geometry(side.get('points'))
+        if line is None or line.geom_type != 'LineString' or line.length <= 0:
+            continue
+        lb = line.bounds
+        direction = 0 if lb[2]-lb[0] >= lb[3]-lb[1] else 1
+        if lb[3-direction]-lb[1-direction] > .1:
+            continue
+        span = b[direction+2]-b[direction]
+        if span > .1 and line.intersection(geom.boundary.buffer(.1)).length >= .8*span:
+            supported_axes.add(direction)
+    if len(supported_axes) > 1:
+        return None  # Ambiguous branches do not certify a dimension.
+    if supported_axes:
+        axis = next(iter(supported_axes))
     width = b[3-axis]-b[1-axis]
     length = b[axis+2]-b[axis]
     def section_dim(value):
@@ -153,16 +187,12 @@ def propagate(funds, sides, records, shapes, paints, inherit, sync):
             profile = source.get('cut_profile_geometry')
             if source.get('method') != 'cut_geometry_on_fv' or not profile:
                 continue
-            # The stem coincides with the FV strip. Its measured depth and
-            # width must match the beam, regardless of a nearby text label.
-            stem = shape(profile).intersection(shapes[fund['segment_id']])
-            if stem.is_empty or stem.geom_type != 'Polygon':
-                continue
-            b = stem.bounds
+            # Numeric height has authority only with a traced physical binding;
+            # the same validator preserves footprint, width and stem shape.
+            from .segment_levels import cut_matches_fund
             depth = depths[group.index(fund)]
-            if (abs((b[axis+2]-b[axis])-depth) <= .25
-                    and abs((b[3-axis]-b[1-axis])-widths[0]) <= .25
-                    and abs(stem.area-depth*widths[0]) <= depth*.5):
+            if cut_matches_fund(profile, shapes[fund['segment_id']], depth,
+                                source.get('cut_height_evidence')):
                 anchors.append(source)
         if not anchors:
             continue
@@ -172,6 +202,11 @@ def propagate(funds, sides, records, shapes, paints, inherit, sync):
         # Use the strongest independent cut; weaker agreeing observations are
         # corroboration, not artificial confidence amplification.
         anchor = max(anchors, key=lambda s: s['confidence_pct'])
+        height_authority = anchor.get('cut_height_evidence')
+        anchor_fund = next(f for f in group if frozen[f['segment_id']] is anchor)
+        anchor_stem = shape(anchor['cut_profile_geometry']).intersection(
+            shapes[anchor_fund['segment_id']])
+        measured_depth = anchor_stem.bounds[axis+2]-anchor_stem.bounds[axis]
         for fund in group:
             uid = fund['segment_id']
             current = records[uid]
@@ -179,7 +214,9 @@ def propagate(funds, sides, records, shapes, paints, inherit, sync):
                 continue
             result = inherit(current, [anchor], 'cut_anchored_constant_beam_section', .95,
                 value=value, continuity_segment_id=side['segment_id'],
-                measured_width_cm=widths[0], measured_depth_cm=depths[0],
+                measured_width_cm=widths[0], measured_depth_cm=measured_depth,
+                declared_height_cm=depths[0],
+                section_height_authority=deepcopy(height_authority),
                 previous_level_evidence=deepcopy(frozen[uid]),
                 agreeing_cut_fact_ids=[s['fact_id'] for s in anchors])
             current.update(result)

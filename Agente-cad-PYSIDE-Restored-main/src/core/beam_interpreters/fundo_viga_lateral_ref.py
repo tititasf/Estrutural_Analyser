@@ -150,6 +150,53 @@ def _walls_are_real(run: Any, a0: float, a1: float) -> bool:
     )
 
 
+def _bridge_cut_annotation_wall_gaps(runs, lines, texts):
+    """Recover a wall obscured by a source glyph, not arbitrary empty space.
+
+    Require collinear walls on both sides, continuous opposite wall, a source
+    section polygon covering the entire missing strip and no real divider or
+    section change. Derived coverage only; DXF entities remain untouched.
+    """
+    from src.core.cad_object_recognition import section_piece_keys
+    from src.core.lv_beam_scene import _line_segments
+    from shapely.geometry import LineString
+    _, records = section_piece_keys(lines or [], texts or [])
+    glyphs = [_polygon(r.get('points')) for r in records if r.get('section_kind') == 'beam']
+    glyphs = [p for p in glyphs if p is not None]
+    if not glyphs:
+        return
+    edges = [LineString([(x,y),(a,b)]) for x,y,a,b in _line_segments(lines)]
+    for scenes in runs.values():
+        for run in scenes:
+            if run.angle:
+                continue
+            original = {s: _merge(run.face_coverage.get(s, [])) for s in ('A','B')}
+            for side, other in (('A','B'), ('B','A')):
+                additions = []
+                for left, right in zip(original[side], original[side][1:]):
+                    lo, hi = left[1], right[0]
+                    if hi <= lo or not any(a <= lo+.05 and b >= hi-.05 for a,b in original[other]):
+                        continue
+                    strip = run.rect(lo, hi, run.t_lo, run.t_hi)
+                    if not any(p.buffer(.05).covers(strip) for p in glyphs):
+                        continue
+                    dims = {z.get('dim') for z in run.sections if z['end'] > lo and z['start'] < hi}
+                    if len(dims) != 1 or None in dims:
+                        continue
+                    # An independent transverse divider inside the strip is
+                    # physical evidence, even when a cut glyph is drawn over it.
+                    interior = run.rect(lo+.05, hi-.05, run.t_lo+.05, run.t_hi-.05)
+                    if any(e.intersection(interior).length >= run.width-.2
+                           and abs((e.coords[-1][0]-e.coords[0][0]) if run.is_horizontal
+                                   else (e.coords[-1][1]-e.coords[0][1])) < .1
+                           for e in edges):
+                        continue
+                    additions.append([lo,hi])
+                if additions:
+                    run.face_coverage[side] = _merge(original[side]+additions)
+                    run.provenance.setdefault('paredes_ocultas_por_visao_corte', {})[side] = additions
+
+
 def _bottom_scene(run: Any, runs_by_name: dict, pillar_report: Any) -> Any:
     """FV uses final incident extents, not stale LV context before end trimming.
 
@@ -203,7 +250,7 @@ def _rect_link(run: Any, a0: float, a1: float, width: float) -> dict:
     else:
         pts = [[run.t_lo, lo], [run.t_hi, lo], [run.t_hi, hi], [run.t_lo, hi], [run.t_lo, lo]]
     length = hi - lo
-    return {
+    result = {
         "type": "poly",
         "points": pts,
         "len": length,
@@ -217,6 +264,10 @@ def _rect_link(run: Any, a0: float, a1: float, width: float) -> dict:
             "largura_total_fundo": f"{width:.2f}".rstrip("0").rstrip("."),
         },
     }
+    section = run.section_at((lo + hi) / 2) or {}
+    if section.get('dim') and abs(float(section.get('width', 0))-run.width) <= .15:
+        result['fv_measured_section_dim'] = section['dim']
+    return result
 
 
 def _rewrite_slots(beam: dict, ordered: list[tuple[Optional[int], dict]], is_h: bool) -> None:
@@ -324,12 +375,16 @@ def _panel_overlap_priority(
     index: int,
     link: dict,
     panels: list[tuple[int, dict, Any]],
+    *, run: Any = None, source_runs: Any = None,
 ) -> tuple[int, float, float, float, float, str, int]:
     """Prioridade estrutural estavel para uma area que nao pode ter dois donos.
 
     Contorno humano vence. Entre automaticos: maior profundidade, maior largura
     e, no empate, a maior fracao continua, antes do desenvolvimento total.
-    Somar varios vaos separados nao torna uma viga mais continua.
+    Somar varios vaos separados nao torna uma viga mais continua. Quando o
+    encontro fornece runs medidos, componentes de outra orientacao comprovada
+    nao participam. Vaos paralelos conservam a rubrica anterior; ausencia de
+    pareamento nao autoriza excluir um painel.
     O nome serve somente como desempate deterministico final.
     """
     validated = int(_has_validated(panels))
@@ -349,10 +404,20 @@ def _panel_overlap_priority(
             dimensions = (min(values), max(values))
             break
     width, depth = dimensions or (0.0, 0.0)
-    lengths = [
-        max(poly.bounds[2] - poly.bounds[0], poly.bounds[3] - poly.bounds[1])
-        for _, _, poly in panels if poly is not None
-    ]
+    local = [poly for _, _, poly in panels if poly is not None]
+    if run is not None:
+        measured = list(source_runs or [run])
+        retained = []
+        for poly in local:
+            witnesses = [scene for scene in measured if _frac(poly, scene.world_band()) >= .5]
+            parallel = any(min(abs(scene.axis_angle-run.axis_angle) % 180,
+                               180-abs(scene.axis_angle-run.axis_angle) % 180) < 15
+                           for scene in witnesses)
+            if not witnesses or parallel:
+                retained.append(poly)
+        local = retained
+    lengths = [max(poly.bounds[2] - poly.bounds[0], poly.bounds[3] - poly.bounds[1])
+               for poly in local]
     development = sum(lengths)
     continuity = max(lengths, default=0.0) / development if development else 0.0
     name = str(beam.get("parent_name") or beam.get("name") or "").upper()
@@ -375,7 +440,7 @@ def _polygon_parts(geometry: Any) -> list[Any]:
 def resolve_automatic_overlaps_all(
     beams: list[dict],
     report: Optional[dict[str, Any]] = None,
-    *, prefer_continuity: bool = True,
+    *, prefer_continuity: bool = True, texts=None, lines=None, pillar_report=None, slabs=None,
 ) -> dict[str, Any]:
     """Elimina dupla propriedade FV sem retangularizar chanfros/diagonais.
 
@@ -387,6 +452,11 @@ def resolve_automatic_overlaps_all(
     """
     report = report if report is not None else {}
     beam_list = [beam for beam in beams or [] if isinstance(beam, dict)]
+    source_runs = {}
+    if prefer_continuity and texts is not None and lines is not None:
+        from src.core.lv_beam_scene import build_scene_runs
+        source_runs = build_scene_runs(beam_list, texts, lines, pillar_report or {}, slabs,
+                                       allow_width_hint_fallback=True)
     for beam in beam_list:
         _merge_coplanar_slots(beam)
     # A relocated legacy slot can become wholly contained in another slot of
@@ -422,7 +492,12 @@ def resolve_automatic_overlaps_all(
                 # same beam needs to be rewritten during overlap arbitration.
                 opaque_by_beam.setdefault(id(beam), []).append((index, link))
                 continue
-            priority = _panel_overlap_priority(beam, index, link, panels)
+            measured = source_runs.get(str(beam.get('name')), [])
+            witnesses = [(scene, _frac(poly, scene.world_band())) for scene in measured]
+            witnesses = [(scene, fraction) for scene, fraction in witnesses if fraction >= .5]
+            own_run = max(witnesses, key=lambda item:item[1])[0] if witnesses else None
+            priority = _panel_overlap_priority(beam, index, link, panels,
+                                               run=own_run, source_runs=measured)
             if not prefer_continuity:
                 priority = (*priority[:3], 0.0, *priority[4:])
             panel_items.append((priority, beam, index, link, poly))
@@ -496,7 +571,11 @@ def resolve_automatic_overlaps_all(
             new_link["points"] = points
             new_link["closed"] = True
             minx, miny, maxx, maxy = part.bounds
-            length = max(maxx - minx, maxy - miny)
+            axis_hint = link.get("fv_axis_is_horizontal")
+            if isinstance(axis_hint, bool):
+                length = maxx - minx if axis_hint else maxy - miny
+            else:
+                length = max(maxx - minx, maxy - miny)
             new_link["len"] = length
             ficha = dict(new_link.get("ficha") or {})
             ficha["comprimento_total_fundo"] = f"{length:.2f}".rstrip("0").rstrip(".")
@@ -543,11 +622,60 @@ def clip_automatic_bottoms_to_solid_pillars(beams, pillar_report):
     the shared physical-solid contract. No minimum panel length is imposed.
     """
     from src.core.lv_beam_scene import _pillar_polygons
+    return _clip_automatic_bottoms_to_obstacles(beams, _pillar_polygons(pillar_report), 'pilares')
+
+
+def _confirmed_cut_obstacles(slabs, lines):
+    """Source-witnessed annotation polygons for diagnostics, never FV solids."""
+    from src.core.lv_cut_inventory import collect_explicit_cuts
+    from src.core.lv_beam_scene import _line_segments
+    from shapely.geometry import LineString
+    from shapely.strtree import STRtree
+    edges = [LineString([(x,y),(a,b)]) for x,y,a,b in _line_segments(lines)]
+    if not edges:
+        return []
+    tree = STRtree(edges)
+    result = []
+    for cut in collect_explicit_cuts([], slabs or []):
+        poly = _polygon(cut.get('pts'))
+        if poly is None or poly.boundary.length <= 0:
+            continue
+        candidates = tree.query(poly.boundary.buffer(.15))
+        witness = unary_union([edges[int(i)] for i in candidates]).buffer(.15)
+        if poly.boundary.difference(witness).length > .01 * poly.boundary.length:
+            continue
+        result.append((cut['uid'], 'corte_dxf', poly))
+    return result
+
+
+def _clip_automatic_bottoms_to_obstacles(beams, solids, kind):
+    # Compatibility callers must also respect annotation semantics: source
+    # confirmation proves the glyph exists, not that it is a physical hole.
+    if kind == 'cortes':
+        return {}
     from shapely.geometry import LineString
     from shapely.ops import split
-
-    solids = _pillar_polygons(pillar_report)
     report = {}
+
+    def source_mask(poly, solid):
+        if kind != 'cortes' or poly is None or solid.geom_type != 'Polygon':
+            return solid
+        # Expand source edges only by the generated band's half-quantum.
+        # Keeping the original mask in the union prevents shrinking a cut.
+        band = poly.bounds
+        def align(ring, side):
+            result=[]
+            for point in ring.coords:
+                values=list(point)
+                for k in ((0,1) if side==0 else (2,3)):
+                    bound=band[k]
+                    if abs(values[k%2]-bound)<=.05:
+                        values[k%2]=bound
+                result.append(values)
+            return result
+        adjusted=[make_valid(Polygon(align(solid.exterior, side),
+                  [align(r, side) for r in solid.interiors])) for side in (0,1)]
+        return unary_union([solid,*adjusted])
 
     def parts_without_holes(geom, is_h):
         if geom.is_empty:
@@ -572,17 +700,19 @@ def clip_automatic_bottoms_to_solid_pillars(beams, pillar_report):
             for _, link, _ in panels)
         ordered, cuts = [], []
         for index, link, poly in panels:
-            hits = [(name, solid) for name, _, solid in solids
+            masks = [(name, source_mask(poly, solid)) for name, _, solid in solids]
+            hits = [(name, solid) for name, solid in masks
                     if poly is not None and poly.intersection(solid).area > OVERLAP_AREA_TOL]
             if not hits:
                 ordered.append((index, link))
                 continue
-            event = {"segmento": index, "pilares": [name for name, _ in hits]}
+            event = {"segmento": index, kind: [name for name, _ in hits]}
             if protected:
                 report.setdefault(str(beam.get("name")), []).append(dict(event, motivo="geometria_humana_preservada"))
                 ordered.append((index, link))
                 continue
-            difference = make_valid(poly.difference(unary_union([p for _, p in hits])))
+            obstacles = unary_union([p for _, p in hits])
+            difference = make_valid(poly.difference(obstacles))
             event["area_cm2"] = round(poly.area-difference.area, 6)
             cuts.append(event)
             for part in parts_without_holes(difference, is_h):
@@ -590,9 +720,10 @@ def clip_automatic_bottoms_to_solid_pillars(beams, pillar_report):
                     continue  # numerical zero, never a semantic length limit
                 lo, hi = _axis_span(part, is_h)
                 new_link = copy.deepcopy(link)
-                new_link.update(points=[list(p) for p in part.exterior.coords], closed=True,
-                                len=hi-lo, fv_solid_pillar_trimmed=True,
-                                fv_solid_pillar_trimmed_by=event["pilares"])
+                new_link.update(points=[list(p) for p in part.exterior.coords], closed=True, len=hi-lo)
+                prefix = 'fv_solid_pillar' if kind == 'pilares' else 'fv_source_cut'
+                new_link[prefix+'_trimmed'] = True
+                new_link[prefix+'_trimmed_by'] = event[kind]
                 new_link["ficha"] = dict(link.get("ficha") or {},
                     comprimento_total_fundo=f"{hi-lo:.2f}".rstrip("0").rstrip("."))
                 new_link.pop("fv_provenance", None)
@@ -616,10 +747,13 @@ def apply_lateral_reference_all(
     from src.core.beam_interpreters.fundo_viga import FundoVigaInterpreter
 
     beam_list = [b for b in beams or [] if isinstance(b, dict)]
-    solid_cuts = clip_automatic_bottoms_to_solid_pillars(beam_list, pillar_report)
+    from src.core.pillar_geometry_recovery import reconcile_pillar_source_geometry
+    reconcile_pillar_source_geometry(pillar_report, lines, texts)
+    solid_cuts = {}  # anchor to measured walls before subtracting support polygons
     runs_by_name = build_scene_runs(
         beam_list, texts, lines, pillar_report, slabs, allow_width_hint_fallback=True,
     )
+    _bridge_cut_annotation_wall_gaps(runs_by_name, lines, texts)
     bands = {
         name: unary_union([run.world_band() for run in runs])
         for name, runs in runs_by_name.items() if runs
@@ -653,12 +787,22 @@ def apply_lateral_reference_all(
         name = _norm_name(beam.get("parent_name") or beam.get("name"))
         own = bands.get(name)
         panels = _panels(beam)
-        if own is None or not panels or _has_validated(panels):
+        if own is None or not panels or _has_validated(panels) or any(l.get("manual") or str(l.get("geometry_source", "")).startswith("manual") for _,l,_ in panels):
             continue
         others = unary_union([band for other, band in bands.items() if other != name])
         keep, dropped = [], []
         for idx, link, poly in panels:
-            if poly is not None and _frac(poly, own) < OWN_BAND_MAX and _frac(poly, others) >= OTHER_BAND_MIN:
+            measured_rectangle = False
+            if poly is not None and not link.get('special_geometry') and abs(poly.area-poly.envelope.area)<.01:
+                for r in runs_by_name.get(name, []):
+                    if r.angle or not r.sections or not r.face_coverage:
+                        continue
+                    lo,hi=_axis_span(poly,r.is_horizontal)
+                    span=max(hi-lo,GEOMETRIC_EPS)
+                    if min(r.end,hi)-max(r.start,lo) >= .95*span and not r.world_band().buffer(.15,join_style=2).covers(poly):
+                        measured_rectangle=True
+                        break
+            if poly is not None and (_frac(poly, own) < OWN_BAND_MAX or measured_rectangle):
                 dropped.append(idx)
             else:
                 keep.append((idx, link, poly))
@@ -667,6 +811,9 @@ def apply_lateral_reference_all(
             keep.sort(key=lambda item: _axis_span(item[2], is_h)[0] if item[2] is not None else 0.0)
             _rewrite_slots(beam, [(idx, link) for idx, link, _ in keep], is_h)
             entry(beam)["removidos"].extend(dropped)
+
+    for name,cuts in clip_automatic_bottoms_to_solid_pillars(beam_list,pillar_report).items():
+        report.setdefault(name, {'removidos':[], 'criados':[]})['pilares_solidos']=cuts
 
     # Fundo ja' reconhecido, por viga dona, para nao duplicar painel.
     claimed = [
@@ -719,7 +866,6 @@ def apply_lateral_reference_all(
                     additions.append((a0, a1, run))
         if not additions:
             continue
-        width = float(pair[0]) if pair else additions[0][2].width
         items: list[tuple[float, float, Optional[int], dict]] = []
         for idx, link, poly in panels:
             if poly is None:
@@ -728,6 +874,7 @@ def apply_lateral_reference_all(
             items.append((lo, hi, idx, link))
         created = []
         for a0, a1, run in additions:
+            width = run.width  # two measured walls, never a neighbouring section
             touching = [
                 i for i, (lo, hi, idx, link) in enumerate(items)
                 if idx is not None and (abs(lo - a1) <= TOUCH_TOL or abs(hi - a0) <= TOUCH_TOL)
@@ -763,6 +910,12 @@ def apply_lateral_reference_all(
         assign_dims = getattr(FundoVigaInterpreter, "assign_segment_dimensions_from_texts", None)
         if assign_dims is not None:
             assign_dims(beam)
+        for idx, link, _ in _panels(beam):
+            dim = link.get('fv_measured_section_dim')
+            key = f'viga_fundo_seg_{idx}_dim'
+            if dim and key not in (beam.get('validated_fields') or []):
+                beam.setdefault('fields', {})[key] = dim
+                beam[key] = dim
         entry(beam)["criados"].extend(created)
         claimed.extend(
             (_polygon(link.get("points")), name) for _, _, _, link in items
@@ -779,13 +932,87 @@ def apply_lateral_reference_all(
         current = _panels(beam)
         # Painel fora da propria faixa nao e' fundo desta viga: o gate D-60 o
         # anularia de qualquer forma; aqui ele da' lugar ao da faixa medida.
-        if _has_validated(current) or any(
-            poly is not None and _frac(poly, own) >= 0.5 for _, _, poly in current
-        ):
+        if _has_validated(current):
             continue
-        ordered = []
-        for run in runs:
+        # Um master pode juntar ocorrencias desconectadas do mesmo nome.
+        # Recuperacao nova exige identidade local antes de unir orientacoes;
+        # labels da cena horizontal sao cotas, por isso consultar textos fonte.
+        from src.core.lv_beam_scene import BEAM_NAME_RE, LABEL_BAND_DIST
+        run_bands = [run.world_band() for run in runs]
+        components = list(range(len(runs)))
+
+        def component(index):
+            while components[index] != index:
+                index = components[index]
+            return index
+
+        for i, first in enumerate(run_bands):
+            for j in range(i):
+                # Apenas contato fisico/submilimetrico; nao unir gap de cena.
+                if first.distance(run_bands[j]) <= 0.1:
+                    components[component(i)] = component(j)
+        named_runs = []
+        for text in texts or []:
+            label = _norm_name(str(text.get("text") or ""))
+            pos = text.get("pos")
+            if label != name or not BEAM_NAME_RE.fullmatch(label) or not pos or len(pos) < 2:
+                continue
+            try:
+                rotation = float(text.get("rotation") or 0.0) % 180.0
+                point = Point(float(pos[0]), float(pos[1]))
+            except (TypeError, ValueError):
+                continue
+            candidates = []
+            for index, run in enumerate(runs):
+                heading = (run.angle if run.angle else (0.0 if run.is_horizontal else 90.0)) % 180.0
+                delta = abs(rotation - heading)
+                if min(delta, 180.0 - delta) > 15.0:
+                    continue
+                x, y = run.to_local(point.x, point.y)
+                axial = x if run.angle or run.is_horizontal else y
+                extents = [run.face_extent.get(side) or (run.start, run.end) for side in ("A", "B")]
+                lo = min(value for extent in extents for value in extent)
+                hi = max(value for extent in extents for value in extent)
+                distance = point.distance(run_bands[index])
+                if lo - 0.1 <= axial <= hi + 0.1 and distance <= LABEL_BAND_DIST:
+                    candidates.append((distance, index, heading))
+            if candidates:
+                _, index, heading = min(candidates)
+                named_runs.append((component(index), heading, text.get("handle"), index))
+        named_components = {item[0] for item in named_runs}
+        mixed_component_orientations = any(
+            min(abs(first.axis_angle - second.axis_angle) % 180.0,
+                180.0 - abs(first.axis_angle - second.axis_angle) % 180.0) > 15.0
+            for i, first in enumerate(runs) for j, second in enumerate(runs)
+            if component(i) != component(j)
+        )
+        require_local_identity = bool(named_runs) and mixed_component_orientations
+        # Um retorno ortogonal pertence a propria viga, mas nao cobre seu
+        # corpo diagonal. Conservar seus contornos e decidir por faixa local,
+        # sem trocar contorno rico/chanfrado que ja pertence ao run angular.
+        retained = [(idx, link, poly) for idx, link, poly in current
+                    if poly is not None and _frac(poly, own) >= 0.5]
+        ordered = [(idx, link) for idx, link, _ in retained]
+        created_diagonal = False
+        for run_index, run in enumerate(runs):
             if not run.angle:
+                continue
+            band = run.world_band()
+            if any(_frac(poly, band) >= 0.5 or _frac(band, poly) >= 0.5
+                   for _, _, poly in retained):
+                continue
+            # Homonimos remotos nao vetam uma faixa local comprovada e nao
+            # emprestam seu rotulo a outra faixa. A associacao acima mede
+            # orientacao, projecao axial e distancia no CAD fonte, por run.
+            local_labels = [item[2] for item in named_runs if item[3] == run_index]
+            if require_local_identity and not local_labels:
+                pending = entry(beam).setdefault("angular_identity_pending", {
+                    "motivo": "run_angular_sem_rotulo_local_em_nome_desconectado",
+                    "named_components": len(named_components),
+                    "label_handles": [item[2] for item in named_runs],
+                    "run_indices": [],
+                })
+                pending["run_indices"].append(run_index)
                 continue
             ext_a = run.face_extent.get("A") or (run.start, run.end)
             ext_b = run.face_extent.get("B") or (run.start, run.end)
@@ -814,9 +1041,20 @@ def apply_lateral_reference_all(
                 },
             }
             ordered.append((None, link))
+            created_diagonal = True
+            if require_local_identity:
+                entry(beam).setdefault("angular_local_identity", []).append({
+                    "run_index": run_index,
+                    "component_index": component(run_index),
+                    "label_handles": local_labels,
+                    "orientation": run.axis_angle,
+                })
             entry(beam)["criados"].append([round(min(ext_a[0], ext_b[0]), 1), round(max(ext_a[1], ext_b[1]), 1)])
-        if ordered:
-            entry(beam)["removidos"].extend(idx for idx, _, _ in current)
+        if created_diagonal:
+            retained_indices = {idx for idx, _, _ in retained}
+            entry(beam)["removidos"].extend(
+                idx for idx, _, _ in current if idx not in retained_indices
+            )
             _rewrite_slots(beam, ordered, bool(beam.get("fv_is_h", beam.get("is_h", True))))
     # D-82: encontro a 90 graus conserva dois paineis independentes, mesmo
     # quando a perna incidente mede apenas 1 cm. Nao consumir a cauda no corpo.
@@ -837,12 +1075,18 @@ def complete_measured_junctions_all(beams, texts, lines, pillar_report, slabs=No
     band's width, and solid supports/hatch veto the cell.
     """
     from src.core.lv_beam_scene import build_scene_runs, _line_segments, _pillar_polygons
+    from src.core.pillar_geometry_recovery import reconcile_pillar_source_geometry
+    reconcile_pillar_source_geometry(pillar_report, lines, texts)
     runs = build_scene_runs(
         beams, texts, lines, pillar_report, slabs, allow_width_hint_fallback=True,
     )
+    _bridge_cut_annotation_wall_gaps(runs, lines, texts)
     owners = {str(b.get("name")): b for b in beams}
     segs = _line_segments(lines)
     solids = [p for _, _, p in _pillar_polygons(pillar_report)]
+    # A cut-view contour is a drawing annotation, never a physical support.
+    # Its profile can inform levels/sections, but must not remove bottom area
+    # or veto a junction. Actual pillar polygons remain solid obstacles.
     report = {}
     scenes = [r for rr in runs.values() for r in rr
               if r.provenance.get('band_source') != 'trecho_de_canto_em_L']
@@ -878,7 +1122,10 @@ def complete_measured_junctions_all(beams, texts, lines, pillar_report, slabs=No
             if missing.area <= OVERLAP_AREA_TOL:
                 continue
             beam,candidates = max(near,key=lambda bc:max(
-                _panel_overlap_priority(bc[0],i,l,_panels(bc[0]))[:5] for i,l,p in bc[1]))
+                _panel_overlap_priority(bc[0],i,l,_panels(bc[0]),
+                                        run=first if bc[0] is b1 else second,
+                                        source_runs=runs.get(str(bc[0].get('name')), []))[:5]
+                for i,l,p in bc[1]))
             i,link,poly = max(candidates,key=lambda v:v[2].area)
             # Snapping can create a self-intersection; repair before union,
             # since GEOS cannot union invalid inputs (repairing afterwards
@@ -924,6 +1171,11 @@ def complete_measured_junctions_all(beams, texts, lines, pillar_report, slabs=No
             for i,link,poly in _panels(beam):
                 if poly is None or not any(r.angle for r in rr) or poly.distance(stub.world_band()) > 1.:
                     continue
+                # The gate can retain a separate rectangle of this measured
+                # stub. It is not the diagonal body receiving the corner;
+                # do not let it consume the closure merely by slot order.
+                if stub.world_band().buffer(.15).covers(poly):
+                    continue
                 coords=list(poly.exterior.coords)
                 caps=[]
                 for t in (stub.t_lo,stub.t_hi):
@@ -951,7 +1203,203 @@ def complete_measured_junctions_all(beams, texts, lines, pillar_report, slabs=No
     _chamfer_arriving_junctions(beams, runs, solids, report)
     for name, cuts in clip_automatic_bottoms_to_solid_pillars(beams, pillar_report).items():
         report.setdefault(name, []).extend({"pilar_solido": cut} for cut in cuts)
+    _optimize_unmarked_junctions(beams, runs, lines, solids, report)
+    _merge_unsupported_section_seams(beams, runs, lines, report)
+    _refresh_measured_panel_sections(beams, runs)
     return report
+
+
+def _merge_unsupported_section_seams(beams, runs, lines, report):
+    """Remove automatic seams not located at a source section transition.
+
+    Conflicting callouts remain recorded on the combined contour. A field
+    conflict alone cannot invent a short physical panel at an unrelated point.
+    Never bridge openings, source dividers, manual geometry or differing levels.
+    """
+    from src.core.lv_beam_scene import _line_segments
+    from shapely.geometry import LineString
+    edges = [LineString([(x,y),(a,b)]) for x,y,a,b in _line_segments(lines)]
+    for beam in beams:
+        panels = _panels(beam)
+        if beam.get('is_validated') or beam.get('validated_fields') or _has_validated(panels):
+            continue
+        is_h = bool(beam.get('fv_is_h', beam.get('is_h', True)))
+        result = []
+        merged = 0
+        for idx, link, poly in sorted(panels, key=lambda p: _axis_span(p[2],is_h)[0] if p[2] is not None else 0):
+            protected = lambda l: l.get('manual') or l.get('special_geometry') or str(l.get('geometry_source','')).startswith('manual')
+            if not result or poly is None or protected(link):
+                result.append((idx,link)); continue
+            prev_idx, prev_link = result[-1]
+            prev = _polygon(prev_link.get('points'))
+            if prev is None or protected(prev_link):
+                result.append((idx,link)); continue
+            seam = _axis_span(prev,is_h)[1]
+            transverse = (1,3) if is_h else (0,2)
+            same_band = all(abs(prev.bounds[k]-poly.bounds[k]) <= .05 for k in transverse)
+            rectangular = all(p.envelope.difference(p).area <= .05*p.length for p in (prev,poly))
+            candidate = next((r for r in runs.get(beam.get('name'),[]) if not r.angle
+                              and r.world_band().buffer(.05).covers(prev.union(poly))
+                              and any(z['start']+.05 < seam < z['end']-.05 for z in r.sections)),None)
+            if (not same_band or not rectangular or abs(_axis_span(poly,is_h)[0]-seam) > .05 or candidate is None):
+                result.append((idx,link)); continue
+            seam_line = LineString([candidate.point(seam,'A'),candidate.point(seam,'B')])
+            if any(e.intersection(seam_line.buffer(.05)).length > .15 for e in edges):
+                result.append((idx,link)); continue
+            fields = beam.get('fields') or {}
+            conflict = False
+            for store in (fields,beam):
+                a = {m.group(2):v for k,v in store.items() if (m:=_SEG_KEY_RE.match(str(k))) and int(m.group(1))==prev_idx}
+                b = {m.group(2):v for k,v in store.items() if (m:=_SEG_KEY_RE.match(str(k))) and int(m.group(1))==idx}
+                if any(a[k]!=b[k] for k in a.keys() & b.keys() if k not in ('exists','dim')):
+                    conflict = True
+            if conflict:
+                result.append((idx,link)); continue
+            combined = dict(prev_link)
+            union = prev.union(poly)
+            combined.update(points=[list(p) for p in union.envelope.exterior.coords],
+                            len=_axis_span(union,is_h)[1]-_axis_span(union,is_h)[0],
+                            fv_unmarked_section_seam_merged=True)
+            refs = [dict(z) for z in candidate.sections if z['end']>_axis_span(union,is_h)[0] and z['start']<_axis_span(union,is_h)[1]]
+            combined['fv_source_section_references'] = refs
+            dims = {z.get('dim') for z in refs}
+            if len(dims)>1:
+                combined['fv_section_transition_unlocated'] = True
+                combined.pop('fv_measured_section_dim',None)
+            keep_idx = prev_idx if prev.area >= poly.area else idx
+            result[-1] = (keep_idx,combined)
+            merged += 1
+        if merged:
+            _rewrite_slots(beam,result,is_h)
+            report.setdefault(beam['name'],[]).append({'costuras_sem_transicao_removidas':merged})
+
+
+def _refresh_measured_panel_sections(beams, runs):
+    """Source-local section facts override unvalidated stale segment dimensions."""
+    for beam in beams:
+        for idx,link,poly in _panels(beam):
+            if (poly is None or link.get('manual') or link.get('validated')
+                    or str(link.get('geometry_source','')).startswith('manual')):
+                continue
+            key=f'viga_fundo_seg_{idx}_dim'
+            if key in (beam.get('validated_fields') or []) or beam.get('is_validated'):
+                continue
+            candidates=[]
+            for run in runs.get(beam.get('name'),[]):
+                overlap=poly.intersection(run.world_band()).area
+                if overlap < .8*poly.area:
+                    continue
+                local=run.to_local_geom(poly);lo,hi=run.axis_bounds(local)
+                sections={z.get('dim') for z in run.sections if z['end']>lo+.05 and z['start']<hi-.05}
+                if len(sections)==1 and None not in sections:
+                    candidates.append(next(iter(sections)))
+            if len(set(candidates))==1:
+                dim=candidates[0]
+                beam.setdefault('fields',{})[key]=beam[key]=dim
+                link['fv_measured_section_dim']=dim
+
+
+def _optimize_unmarked_junctions(beams, runs, lines, obstacles, report):
+    """Reassign an occupied, unmarked equal-depth junction to reduce panels.
+
+    No new material, no erased gap, no L-shaped rectangle approximation.
+    A source line on the proposed seam vetoes reassignment. Different depths
+    retain structural priority; validated/manual contours remain untouched.
+    """
+    from src.core.lv_beam_scene import _line_segments
+    from shapely.geometry import box, LineString
+    owners = {b.get('name'): b for b in beams}
+    scenes = [r for rr in runs.values() for r in rr if not r.angle]
+    structural = [LineString([(x,y),(a,b)]) for x,y,a,b in _line_segments(lines)]
+    for j, first in enumerate(scenes):
+        for second in scenes[j+1:]:
+            if first.beam_name == second.beam_name or first.is_horizontal == second.is_horizontal:
+                continue
+            pair = [owners.get(r.beam_name) for r in (first, second)]
+            if any(b is None or _has_validated(_panels(b)) or any(l.get('manual') or str(l.get('geometry_source','')).startswith('manual') for _,l,_ in _panels(b)) for b in pair):
+                continue
+            cell = first.world_band(second.width).intersection(second.world_band(first.width))
+            if cell.is_empty or cell.area <= OVERLAP_AREA_TOL:
+                continue
+            nearby = [[p for p in _panels(b) if p[2] is not None and p[2].distance(cell) <= .05] for b in pair]
+            if any(not pp for pp in nearby):
+                continue
+            coords = [xy for pp in nearby for _,_,p in pp for xy in p.exterior.coords]
+            # Align only independent sub-.05 cm coordinate rounding.
+            bounds = []
+            for k,a in enumerate(cell.bounds):
+                near = [p[k%2] for p in coords if abs(p[k%2]-a)<=.05]
+                bounds.append((min(near) if k<2 else max(near)) if near else a)
+            cell = box(*bounds)
+            if any(cell.intersection(p).area > OVERLAP_AREA_TOL for p in obstacles):
+                continue
+            zones = [r.section_at(r.local_axis(cell.centroid.x,cell.centroid.y)) or {} for r in (first,second)]
+            if any(z.get('depth') is None for z in zones) or abs(zones[0]['depth']-zones[1]['depth']) > .01:
+                continue
+            if any(any(abs(float(z.get('depth',0))-float(zone.get('depth',0))) > .01
+                       for z in r.sections
+                       if any(min(z['end'],r.local_axis(p.bounds[2],p.bounds[3]))
+                              -max(z['start'],r.local_axis(p.bounds[0],p.bounds[1])) > .05
+                              for _,_,p in pp))
+                   for r,pp,zone in zip((first,second),nearby,zones)):
+                continue  # joining different sections would erase their local facts
+            original = [unary_union([p for _,_,p in pp]) for pp in nearby]
+            existing_seam = original[0].boundary.intersection(original[1].boundary).intersection(cell.buffer(.05))
+            if existing_seam.length and any(edge.intersection(existing_seam.buffer(.05)).length > .15 for edge in structural):
+                continue  # never erase a divider already witnessed by the DXF
+            union = unary_union(original)
+            precision_area = cell.difference(union).area
+            if precision_area > .05*cell.boundary.length or not union.buffer(.05,join_style=2).covers(cell):
+                continue
+            third = [p for b in beams if all(b is not own for own in pair) for _,_,p in _panels(b) if p is not None]
+            if any(cell.intersection(p).area > OVERLAP_AREA_TOL for p in third):
+                continue
+            def partition_rank(parts):
+                lengths = [max(r.local_axis(x, y) for x, y in p.exterior.coords)
+                           - min(r.local_axis(x, y) for x, y in p.exterior.coords)
+                           for r, polygons in zip((first, second), parts) for p in polygons]
+                short = [length for length in lengths if length < 60. - .05]
+                # Equal depths only: panel count wins, then avoid short pieces.
+                # This preference never removes a necessary short panel.
+                return (sum(map(len, parts)), len(short), sum(60. - length for length in short))
+
+            baseline_parts = [[p for _, _, p in pp] for pp in nearby]
+            baseline_rank = partition_rank(baseline_parts)
+            baseline = baseline_rank[0]
+            choices = []
+            for winner in (0,1):
+                shapes = [original[k].union(cell) if k==winner else original[k].difference(cell) for k in (0,1)]
+                parts = [_polygon_parts(make_valid(p)) for p in shapes]
+                if any(p.difference(r.world_band(r.width).buffer(.05,join_style=2)).area > .01
+                       for r,pp in zip((first,second),parts) for p in pp):
+                    continue  # cannot turn a straight run into an L
+                if unary_union(shapes).symmetric_difference(union).area > precision_area+OVERLAP_AREA_TOL:
+                    continue
+                count = sum(map(len,parts))
+                rank = partition_rank(parts)
+                if rank >= baseline_rank:
+                    continue
+                seam = shapes[0].boundary.intersection(shapes[1].boundary)
+                if seam.length and any(edge.intersection(seam.buffer(.05)).length > .15 for edge in structural):
+                    continue
+                choices.append((rank,winner,parts))
+            if not choices:
+                continue
+            _,winner,parts = min(choices,key=lambda c:(c[0],-zones[c[1]].get('width',0)))
+            for k,b in enumerate(pair):
+                replaced = {idx for idx,_,_ in nearby[k]}
+                ordered = [(idx,l) for idx,l,_ in _panels(b) if idx not in replaced]
+                for p in parts[k]:
+                    idx,old,_ = max(nearby[k],key=lambda v:v[2].intersection(p).area)
+                    lo,hi = _axis_span(p, bool(b.get('fv_is_h',b.get('is_h',True))))
+                    link = copy.deepcopy(old)
+                    link.update(points=[list(xy) for xy in p.exterior.coords],len=hi-lo,fv_unmarked_junction_optimized=True)
+                    link['ficha'] = dict(link.get('ficha') or {},comprimento_total_fundo=f'{hi-lo:.2f}'.rstrip('0').rstrip('.'))
+                    link.pop('fv_provenance',None)
+                    ordered.append((idx,link))
+                ordered.sort(key=lambda x:_axis_span(_polygon(x[1]['points']),bool(b.get('fv_is_h',b.get('is_h',True))))[0])
+                _rewrite_slots(b,ordered,bool(b.get('fv_is_h',b.get('is_h',True))))
+                report.setdefault(b['name'],[]).append({'cruzamento_sem_divisoria':pair[1-k]['name'],'dono':pair[winner]['name'],'paineis_antes':baseline,'paineis_depois':sum(map(len,parts)), 'arredondamento_area_cm2':round(precision_area,6)})
 
 
 def _chamfer_arriving_junctions(beams, runs, solids, report):

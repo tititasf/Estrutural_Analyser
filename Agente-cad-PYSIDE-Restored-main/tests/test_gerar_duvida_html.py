@@ -71,6 +71,17 @@ def test_leituras_e_consequencias_ficam_lado_a_lado(tmp_path, dxf):
     assert "Se for essa" in page
 
 
+def test_solid_do_dxf_vira_poligono(tmp_path, dxf):
+    doc = ezdxf.readfile(str(dxf))
+    doc.modelspace().add_solid([(0, 0), (12, 0), (12, 19), (0, 19)], dxfattribs={"layer": "8"})
+    doc.saveas(dxf)
+
+    page = _gerar(tmp_path, dxf)
+
+    assert "<polygon " in page
+    assert "12.00,-0.00" in page or "12.00,0.00" in page
+
+
 def test_texto_do_desenho_e_escapado(tmp_path, dxf):
     doc = ezdxf.readfile(str(dxf))
     doc.modelspace().add_text("<b>&", dxfattribs={"layer": "4"}).set_placement((50, 30))

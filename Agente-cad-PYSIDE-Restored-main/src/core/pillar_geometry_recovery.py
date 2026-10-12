@@ -6,6 +6,40 @@ from typing import Any
 from src.core.pillar_geometry_fix import _bbox
 
 
+def reconcile_pillar_source_geometry(pillar_report, polylines, texts):
+    """Replace an automatic obstacle only with independently dimensioned DXF evidence."""
+    from src.core.pillar_geometry_association import reassociate
+    from shapely.geometry import Polygon
+    import re
+    if not isinstance(pillar_report, dict):
+        return []
+    names = {}
+    for t in texts or []:
+        name = str(t.get('text') or '').strip().upper()
+        if re.fullmatch(r'P\d+[A-Z]?', name) and t.get('pos'):
+            names.setdefault(name, []).append(t['pos'])
+    initial = {str(p.get('name') or n):p.get('points') for n,p in pillar_report.items() if isinstance(p,dict)}
+    candidates = reassociate({'polylines':polylines, 'texts':texts}, names, initial,
+                            lambda p,pts:80<=p.area<=60000)
+    repaired=[]
+    for key,p in pillar_report.items():
+        if not isinstance(p,dict) or p.get('is_validated') or p.get('validated_fields') or p.get('ignore_in_beams'):
+            continue
+        name=str(p.get('name') or key)
+        candidate=candidates.get(name)
+        if not candidate or not candidate['evidence']['dimension_match']:
+            continue
+        old=p.get('points') or []
+        new=candidate['points']
+        if len(old)>=3 and Polygon(old).symmetric_difference(Polygon(new)).area<=.01:
+            continue
+        p['points']=[list(xy) for xy in new]
+        p['bbox']=list(Polygon(new).bounds)
+        p['_source_geometry_evidence']=candidate['evidence']
+        repaired.append({'item':name,'evidence':candidate['evidence']})
+    return repaired
+
+
 def repair_truncated_named_pillars_from_dxf(
     pillar_report: dict[str, dict], *, polylines: list[dict], texts: list[dict]
 ) -> list[dict[str, Any]]:

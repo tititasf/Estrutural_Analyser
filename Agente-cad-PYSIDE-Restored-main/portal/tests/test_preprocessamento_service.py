@@ -34,15 +34,29 @@ def run(root, declarations, **kw):
                              declarations=declarations, **kw)
 
 
+def test_human_review_optional_preserves_unreviewed_source_metadata(tmp_path):
+    declarations = prepare(tmp_path, towers=1)
+    (tmp_path / 'Fase-2_Triagem/recortes/A/validado.json').unlink()
+    result = run(tmp_path, declarations)
+    assert result['coverage'] == {'total': 1, 'processed': 1, 'failed': 0}
+    assert all(not s['validated'] for s in result['sources'])
+    package = service.read_tower(tmp_path, result, next(iter(result['towers'])))
+    assert package['review'] == 'unreviewed'
+
+
+
 def test_lote_isolado_duas_torres_indices_e_niveis_desconhecidos(tmp_path):
     declarations = prepare(tmp_path)
     before = {p: p.read_bytes() for p in tmp_path.rglob("*") if p.is_file()}
     progress = []
     result = run(tmp_path, declarations, progress=progress.append, known_floors=["15_PAV"])
     assert result["coverage"] == {"total": 2, "processed": 2, "failed": 0}
-    assert result["details"]["status"] == "not_supported"
+    assert result["details"]["status"] == "evidence_inventory"
     assert progress[-1]["completed"] == progress[-1]["total"] == 2
     packages = [service.read_tower(tmp_path, result, s) for s in result["towers"]]
+    assert all(p['auxiliary_evidence'] for p in packages)
+    assert all(a['numeric_authority'] == 'source_geometry_only'
+               for p in packages for a in p['auxiliary_evidence'])
     assert packages[0]["pillars"]["items"][0]["item_id"] != packages[1]["pillars"]["items"][0]["item_id"]
     assert all(f["value"] is None for p in packages for f in p["levels"])
     assert all(p.read_bytes() == content for p, content in before.items())
@@ -82,7 +96,9 @@ def test_convencao_unica_em_outro_bruto_serve_duas_torres_sem_misturar_identidad
     assert {tuple(p["pillar_conventions"]) for p in packages} == {
         tuple(p["pillar_conventions"]) for p in packages[:1]
     }
-    assert all(len(p["sources"]) == 2 for p in packages)
+    assert sorted(len(p["sources"]) for p in packages) == [2, 3]
+    assert all(s['bruto_id'] == 'A' for p in packages for s in p['sources']
+               if s['kind'] == 'details')
 
 
 def test_multiplas_convencoes_externas_nao_sao_escolhidas_por_ordem(tmp_path):

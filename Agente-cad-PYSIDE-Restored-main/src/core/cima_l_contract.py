@@ -91,8 +91,12 @@ def secao_l_do_payload(pj: dict) -> dict[str, float] | None:
     return None
 
 
-def n3_faces_l(pj: dict | None) -> list[dict[str, Any]]:
-    """6 faces A–F do pilar L para ABCD e GRADES (mesma interpretação N1)."""
+def n3_faces_l(pj: dict | None, *, grades_only: bool = False) -> list[dict[str, Any]]:
+    """Named special faces; preserve the legacy L contract and bind U A–H."""
+    from src.core.pillar_u_nova_contract import n3_u_faces
+    u_faces = n3_u_faces(pj, grades_only=grades_only)
+    if u_faces:
+        return u_faces
     secao = secao_l_do_payload(pj or {})
     if not secao:
         return []

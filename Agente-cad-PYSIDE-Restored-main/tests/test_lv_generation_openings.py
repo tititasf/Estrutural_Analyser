@@ -45,3 +45,26 @@ def test_opening_does_not_bridge_physical_gap_or_invent_unknown_height():
     assert [p['width'] for p in c['panels']] == [100,100]
     assert not c['panels'][-1].get('holes')
     assert c['total_length'] == 200
+
+
+@pytest.mark.parametrize('vertical,reverse', [(False,False),(True,False),(False,True),(True,True)])
+@pytest.mark.parametrize('behavior,suffix', [('Para','comprimento_total'),('Passa','comp_total_passa')])
+def test_terminal_underpass_keeps_wall_minus4_and_complete_tongue_plus8(vertical, reverse, behavior, suffix):
+    from src.core.beam_interpreters.lateral_viga_cells import CELL_RULES_VERSION
+    def point(x):
+        x = -x if reverse else x
+        return [0,x] if vertical else [x,0]
+    rows = [dict(points=[point(0),point(319)], len=319, lv_dimensao='19/120', lv_cell=dict(
+        rules=CELL_RULES_VERSION, adjustment_start=0., adjustment_end=-4., beam_openings=[dict(
+            name='incident', largura=19., abertura_largura=27., abertura_altura=54., pos_inicio=300.,
+            rule='G7_incidente_menos_profunda_passa_por_baixo')])),
+        dict(points=[point(319),point(500)], len=181, lv_dimensao='19/120', lv_cell=dict(
+            rules=CELL_RULES_VERSION, adjustment_start=0., adjustment_end=0.))]
+    beam = dict(links={f'viga_a_seg_{i}_{suffix}':dict(seg_side_a=[row]) for i,row in enumerate(rows,1)})
+    result = build_lv_generation_contracts(beam)[behavior]['A']
+    first = [p for p in result['panels'] if p['physical_segment_index'] == 1]
+    holes = [h for p in first for h in p.get('holes', [])]
+    assert sum(p['width'] for p in first) == 323.  # Far face +4.
+    assert sum(h['width'] for h in holes) == 27.  # Crossing +8, never clipped.
+    assert sum(p['width'] for p in first) - sum(h['width'] for h in holes) == 296.  # Near face -4.
+    assert not any(p.get('holes') for p in result['panels'] if p['physical_segment_index'] == 2)

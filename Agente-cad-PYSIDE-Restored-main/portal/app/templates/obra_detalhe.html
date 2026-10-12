@@ -59,7 +59,7 @@
 
 {% block conteudo %}
 <link rel="stylesheet" href="/static/pillar_ficha.css?v={{ request.app.state.static_versao | default('0') }}-pillar-levels-v12">
-<link rel="stylesheet" href="/static/fv_ficha.css?v={{ request.app.state.static_versao | default('0') }}-human-qa-evidence4">
+<link rel="stylesheet" href="/static/fv_ficha.css?v={{ request.app.state.static_versao | default('0') }}-human-qa-evidence5">
 <div class="shell-obra">
     <nav class="painel-2" aria-label="Etapas da obra" style="display: flex; flex-direction: column;">
     <!-- Fases da Obra Global -->
@@ -354,9 +354,13 @@
           <button type="button" class="docs-tab-btn" role="tab" data-docs-tab="ordem" aria-selected="false">
             Ordem dos pavimentos
           </button>
+          <button type="button" class="docs-tab-btn" role="tab" data-docs-tab="unificados" aria-selected="false" aria-controls="docs-unificados-panel">
+            Unificados
+          </button>
         </div>
 
         {{ painel_ordem(true) }}
+        {% include 'n5_document_downloads.html' %}
         <div id="docs-documentos-conteudo">
         <div id="docs-lista-tab" class="docs-lista-wrap" aria-live="polite"></div>
         <div id="docs-viewer-tab" class="docs-viewer-panel" hidden>
@@ -401,6 +405,7 @@
           </button>
         </div>
         <div id="docs-triagem-resultado" role="status" aria-live="polite"></div>
+        {% include "obra_cadeia.html" %}
         </div>{# /#docs-documentos-conteudo #}
       </section>
 
@@ -457,11 +462,13 @@
 
         <div class="n5-final-list">
           {% for grupo in n5_pavimentos %}
+          {% set completion = namespace(partial=false) %}
+          {% for item in grupo.classes %}{% if item.release and item.release.partial %}{% set completion.partial = true %}{% endif %}{% endfor %}
           <article class="n5-final-pav">
             <header>
               <div><small>PAVIMENTO</small><h3>{{ grupo.pavimento }}</h3></div>
               <span class="n5-final-summary {{ 'done' if grupo.todo_aprovado else 'pending' }}">
-                {{ '✓ Todos aprovados' if grupo.todo_aprovado else '⏳ Revisão pendente' }}
+                {{ '⚠ Produção parcial · itens pendentes' if completion.partial else ('✓ Todos aprovados' if grupo.todo_aprovado else '⏳ Revisão pendente') }}
               </span>
             </header>
             <div class="n5-final-classes">
@@ -473,7 +480,12 @@
                 </div>
                 <div class="n5-final-state {{ 'approved' if item.aprovado else 'pending' }}">
                   <span>{{ '✓ Aprovado' if item.aprovado else '⏳ Pendente' }}</span>
+                  {% if item.release and item.release.partial %}
+                  <small>⚠ N5 parcial: {{ item.release.item_pending|length }} item(ns) pendente(s)</small>
+                  {% for issue in item.release.item_pending %}<small>{{ issue.item_id }}: {{ issue.message }}</small>{% endfor %}
+                  {% else %}
                   <small>{{ 'N5 revisado' if item.aprovado else ('Aguardando revisão' if item.release else 'Ainda não gerado') }}</small>
+                  {% endif %}
                 </div>
                 <div class="n5-final-actions">
                   {% if item.release %}
@@ -488,7 +500,7 @@
             </div>
             <footer>
               {% if grupo.completo %}
-              <a class="btn btn-pri" href="/obras/{{ obra.id }}/n5/download?pavimento={{ grupo.pavimento|urlencode }}">Baixar ZIP completo de {{ grupo.pavimento }}</a>
+              <a class="btn btn-pri" href="/obras/{{ obra.id }}/n5/download?pavimento={{ grupo.pavimento|urlencode }}">{{ 'Baixar ZIP parcial (itens válidos)' if completion.partial else 'Baixar ZIP completo' }} de {{ grupo.pavimento }}</a>
               {% else %}
               <button type="button" class="btn btn-pri" disabled title="As quatro classes precisam estar geradas">ZIP do pavimento aguardando classes</button>
               {% endif %}
@@ -515,81 +527,12 @@
           <div>
             <p class="fv-web-kicker">N5 · unificados do pavimento</p>
             <h2 id="n5-pav-title">{{ pavimento }}</h2>
-            <p>Alterne entre as classes para revisar, validar ou baixar o N5.</p>
+            <p>Baixe os unificados por classe, combinação e modo de desenho.</p>
           </div>
-          <div class="n5-pav-zip">
-            {% if n5_grupo_atual and n5_grupo_atual.completo %}
-            <a class="btn btn-pri" href="/obras/{{ obra.id }}/n5/download?pavimento={{ pavimento|urlencode }}&amp;visual_mode={{ n5_modo_ativo }}">Baixar ZIP do pavimento · {{ {'INI':'Modo iNI','NOVA':'Modo Nova','MOLDE_1':'Modo Molde 1','MOLDE_2':'Modo Molde 2','MOLDE_3':'Modo Molde 3'}[n5_modo_ativo] }}</a>
-            {% else %}
-            <button type="button" class="btn btn-pri" disabled title="As quatro classes precisam estar geradas">ZIP aguardando todas as classes</button>
-            {% endif %}
-          </div>
+
         </header>
 
-        <nav class="n5-pav-tabs" role="tablist" aria-label="Classes N5">
-          {% for classe, titulo, slug in [('PL','Pilares','pilares'), ('LV','Laterais de viga','lateral_para'), ('FV','Fundos de viga','fundo'), ('LJ','Lajes','lajes')] %}
-          {% set release = n5_por_pav_classe_modo.get(pavimento, {}).get(classe, {}).get(n5_modo_ativo) %}
-          {% set aprovado = release and release.id in releases_aprovados %}
-          <button type="button" role="tab" data-n5-tab="{{ classe }}" data-n5-slug="{{ slug }}"
-                  aria-selected="{{ 'true' if classe == n5_classe_ativa else 'false' }}"
-                  class="{{ 'active' if classe == n5_classe_ativa else '' }}">
-            <strong>{{ classe }}</strong><span>{{ titulo }}</span>
-            <i aria-label="{{ 'Aprovado' if aprovado else ('Pendente' if release else 'Não gerado') }}">{{ '✓' if aprovado else ('⏳' if release else '—') }}</i>
-          </button>
-          {% endfor %}
-        </nav>
-
-        <div class="n5-pav-viewer-shell">
-          {% for classe, titulo, slug in [('PL','Pilares','pilares'), ('LV','Laterais de viga','lateral_para'), ('FV','Fundos de viga','fundo'), ('LJ','Lajes','lajes')] %}
-          {% set release = n5_por_pav_classe_modo.get(pavimento, {}).get(classe, {}).get(n5_modo_ativo) %}
-          {% set aprovado = release and release.id in releases_aprovados %}
-          <article class="n5-pav-panel {{ 'done' if aprovado else 'pending' }}" data-n5-panel="{{ classe }}"
-                   role="tabpanel" {% if classe != n5_classe_ativa %}hidden{% endif %}>
-            <div class="n5-pav-card-head">
-              <div><small>{{ classe }}</small><h3>{{ titulo }}</h3></div>
-              <span>{{ '✓ Aprovado' if aprovado else ('⏳ Pendente' if release else '— Não gerado') }}</span>
-            </div>
-            {% if classe == 'PL' %}
-            <nav class="n5-pav-tabs" role="tablist" aria-label="Conjuntos de pilares">
-              <button type="button" role="tab" data-pillar-group="PARA" aria-selected="true" class="active">Pilares Para</button>
-              <button type="button" role="tab" data-pillar-group="PASSA" aria-selected="false">Pilares Passa</button>
-            </nav>
-            {% endif %}
-            <nav class="n5-pav-tabs" role="tablist" aria-label="Modo de desenho N5">
-              {% for mode in ['INI', 'NOVA', 'MOLDE_1', 'MOLDE_2', 'MOLDE_3'] %}
-              <button type="button" role="tab" data-n5-select-mode="{{ mode }}" aria-selected="{{ 'true' if mode == n5_modo_ativo else 'false' }}" class="{{ 'active' if mode == n5_modo_ativo else '' }}">{{ {'INI':'Modo iNI','NOVA':'Modo Nova','MOLDE_1':'Modo Molde 1','MOLDE_2':'Modo Molde 2','MOLDE_3':'Modo Molde 3'}[mode] }}</button>
-              {% endfor %}
-            </nav>
-            {% if release %}
-            {% for group in (['PARA', 'PASSA'] if classe == 'PL' else ['']) %}
-            <section data-pillar-panel="{{ group }}" {% if group == 'PASSA' %}hidden{% endif %}>
-              {% if group %}<p>Cima · ABCD {{ group|title }} · Grade {{ group|title }}</p>{% endif %}
-            <div class="zoom-pan-viewport n5-pav-preview"
-                 data-n5-svg-src="/obras/{{ obra.id }}/n5/{{ classe }}/foto?pavimento={{ pavimento|urlencode }}&amp;visual_mode={{ n5_modo_ativo }}{% if group %}&amp;pillar_group={{ group }}{% endif %}"
-                 data-drawing-mode="{{ release.visual_mode }}"
-                 data-drawing-mode-switch="n5"
-                 data-n5-svg-label="N5 {{ titulo }} {{ group|title }} · {{ pavimento }}"
-                 role="img" aria-label="N5 {{ titulo }} {{ group|title }} · {{ pavimento }}">
-              <span class="n5-svg-loading" role="status">Carregando desenho vetorial…</span>
-            </div>
-            <a class="btn btn-sec" href="/obras/{{ obra.id }}/n5/{{ classe }}/download?pavimento={{ pavimento|urlencode }}&amp;visual_mode={{ n5_modo_ativo }}{% if group %}&amp;pillar_group={{ group }}{% endif %}">Baixar DXF · {{ {'INI':'Modo iNI','NOVA':'Modo Nova','MOLDE_1':'Modo Molde 1','MOLDE_2':'Modo Molde 2','MOLDE_3':'Modo Molde 3'}[n5_modo_ativo] }}</a>
-            </section>
-            {% endfor %}
-            {% if aprovado %}
-            <button type="button" class="btn btn-sec" disabled>N5 aprovado</button>
-            {% else %}
-            <button type="button" class="btn btn-pri" data-validar-n5="{{ classe }}"
-                    data-pavimento="{{ pavimento }}" data-visual-mode="{{ n5_modo_ativo }}" data-obra="{{ obra.id }}">Validar N5</button>
-            {% endif %}
-            {% else %}
-            <div class="n5-pav-empty">
-              <strong>{{ {'INI':'Modo iNI','NOVA':'Modo Nova','MOLDE_1':'Modo Molde 1','MOLDE_2':'Modo Molde 2','MOLDE_3':'Modo Molde 3'}[n5_modo_ativo] }} ainda não gerado.</strong>
-              Rode o motor N5 desta classe escolhendo esse modo para visualizar ou baixar.
-            </div>
-            {% endif %}
-          </article>
-          {% endfor %}
-        </div>
+        {% include 'n5_download_matrix.html' %}
       </section>
     </div>
 
@@ -692,6 +635,15 @@
 {% endblock %}
 
 {% block scripts %}
+<style>
+.zoom-pan-viewport[data-regional-loading="1"]::after,
+.zoom-pan-viewport[data-regional-error="1"]::after{content:"Carregando região completa…";position:absolute;bottom:10px;left:10px;z-index:4;background:#15213c;color:#fff;padding:6px 10px;border-radius:5px;pointer-events:none;font-size:.8rem}
+.zoom-pan-viewport[data-regional-error="1"]::after{content:"Região indisponível ou desenho alterado. Reabra o desenho."}
+.zoom-pan-viewport[data-regional="1"]:not([data-active-paths]) svg{visibility:hidden}
+</style>
+<script defer src="/static/obra_cadeia.js?v=20261008e"></script>
+<script src="/static/viewer_spatial.js?v=regional-ml-v1-i5"></script>
+<script src="/static/viewer_regional.js?v=regional-ml-v1-i9"></script>
 <script>
   var OBRA_ID = {{ obra.id|tojson }};
   var OBRA_COMPORTAMENTO = {{ (obra.comportamento or 'misto')|tojson }};
@@ -799,14 +751,39 @@
     if (svg) {
       prepSvgPanZoom(svg);
       var home = parseHomeVb(svg);
-      var state = { x: home.x, y: home.y, w: home.w, h: home.h };
-      var drag = false, lx = 0, ly = 0;
+      var initial = svg._cadInitialCamera || [home.x, home.y, home.w, home.h];
+      var state = { x: initial[0], y: initial[1], w: initial[2], h: initial[3] };
+      var drag = false, lx = 0, ly = 0, frame = 0, dragRect = null;
+      var panAbort = new AbortController();
+      svg._panSimpleAbort = panAbort;
+      panAbort.signal.addEventListener('abort', function () {
+        if (frame) cancelAnimationFrame(frame);
+        frame = 0; drag = false;
+      });
+      // Navigation uses the latest desired viewBox, without SVG layout reads.
+      // Exact displayed CTM remains reserved for crop drawing below.
+      function navigationPoint(cx, cy, rect) {
+        rect = rect || viewport.getBoundingClientRect();
+        var scale = Math.min(rect.width / state.w, rect.height / state.h);
+        if (!(scale > 0)) return { x: state.x + state.w / 2, y: state.y + state.h / 2 };
+        var left = rect.left + (rect.width - state.w * scale) / 2;
+        var top = rect.top + (rect.height - state.h * scale) / 2;
+        return { x: state.x + (cx - left) / scale, y: state.y + (cy - top) / scale };
+      }
 
       function apply() {
-        svg.setAttribute('viewBox', state.x + ' ' + state.y + ' ' + state.w + ' ' + state.h);
+        if (frame) return;
+        frame = requestAnimationFrame(function () {
+          frame = 0;
+          if (!viewport.isConnected || panAbort.signal.aborted) return;
+          var box = [state.x, state.y, state.w, state.h];
+          function commit() { svg.setAttribute('viewBox', box.join(' ')); }
+          if (svg._cadRegional) svg._cadRegional.camera(box, commit);
+          else commit();
+        });
       }
       function reset() {
-        state = { x: home.x, y: home.y, w: home.w, h: home.h };
+        state.x = home.x; state.y = home.y; state.w = home.w; state.h = home.h;
         apply();
       }
       function clientToSvg(cx, cy) {
@@ -814,6 +791,7 @@
         pt.x = cx; pt.y = cy;
         var ctm = svg.getScreenCTM();
         if (!ctm) return { x: state.x + state.w / 2, y: state.y + state.h / 2 };
+        // Use the displayed camera: pending regional fetches must not shift crop coordinates.
         return pt.matrixTransform(ctm.inverse());
       }
 
@@ -830,37 +808,40 @@
         var minW = home.w * 0.006, maxW = home.w * 4.5;
         if (nextW < minW) { factor = minW / state.w; nextW = minW; nextH = state.h * factor; }
         if (nextW > maxW) { factor = maxW / state.w; nextW = maxW; nextH = state.h * factor; }
-        var p = clientToSvg(e.clientX, e.clientY);
+        var p = navigationPoint(e.clientX, e.clientY);
         state.x = p.x - (p.x - state.x) * (nextW / state.w);
         state.y = p.y - (p.y - state.y) * (nextH / state.h);
         state.w = nextW; state.h = nextH;
         apply();
-      }, { passive: false });
+      }, { passive: false, signal: panAbort.signal });
 
       viewport.addEventListener('mousedown', function (e) {
         if ((window._modoCropManualAtivo || window._modoPolylineAtivo) && e.button === 0) return;
         if (e.button !== 0 && e.button !== 1) return;
         drag = true; lx = e.clientX; ly = e.clientY;
+        dragRect = viewport.getBoundingClientRect();
         viewport.classList.add('arrastando');
         e.preventDefault();
-      });
+      }, { signal: panAbort.signal });
       window.addEventListener('mousemove', function (e) {
         if (!drag) return;
-        var a = clientToSvg(lx, ly), b = clientToSvg(e.clientX, e.clientY);
+        if (!viewport.isConnected) { panAbort.abort(); return; }
+        var a = navigationPoint(lx, ly, dragRect), b = navigationPoint(e.clientX, e.clientY, dragRect);
         state.x -= (b.x - a.x);
         state.y -= (b.y - a.y);
         lx = e.clientX; ly = e.clientY;
         apply();
-      });
+      }, { signal: panAbort.signal });
       window.addEventListener('mouseup', function () {
         if (!drag) return;
         drag = false;
         viewport.classList.remove('arrastando');
-      });
+        dragRect = null;
+      }, { signal: panAbort.signal });
       viewport.addEventListener('dblclick', function (e) {
         if (e.target && e.target.closest && e.target.closest('button,input,select,textarea,a')) return;
         reset();
-      });
+      }, { signal: panAbort.signal });
       apply();
       return;
     }
@@ -1912,6 +1893,7 @@
     var inputFile = document.getElementById('docs-input');
     var docsConteudo = document.getElementById('docs-documentos-conteudo');
     var ordemPainel = document.getElementById('obra-ordem-panel');
+    var unificadosPainel = document.getElementById('docs-unificados-panel');
 
     var CLASSES_DOC = ['', 'Bruto', 'Detalhe', 'PDF', 'Outro', 'PIL', 'LV', 'FV', 'LAJ', 'GF'];
     var CLASSES_LABEL = {
@@ -1992,12 +1974,13 @@
         b.classList.toggle('ativo', on);
         b.setAttribute('aria-selected', on ? 'true' : 'false');
       });
-      if (docsConteudo) docsConteudo.hidden = tab === 'ordem';
+      if (docsConteudo) docsConteudo.hidden = tab === 'ordem' || tab === 'unificados';
       if (ordemPainel) ordemPainel.hidden = tab !== 'ordem';
+      if (unificadosPainel) unificadosPainel.hidden = tab !== 'unificados';
       if (convertWrap) convertWrap.hidden = tab !== 'dwg';
       if (dropHint) dropHint.textContent = TAB_HINT[tab] || TAB_HINT.pdf;
       if (inputFile && TAB_ACCEPT[tab]) inputFile.setAttribute('accept', TAB_ACCEPT[tab]);
-      if (tab !== 'ordem') renderLista();
+      if (tab !== 'ordem' && tab !== 'unificados') renderLista();
       limparViewer();
     }
 
@@ -2312,7 +2295,7 @@
           return carregarDwgsMeta();
         })
         .then(function () {
-          if (state.tab !== 'ordem') renderLista();
+          if (state.tab !== 'ordem' && state.tab !== 'unificados') renderLista();
           if (state.selectedId) {
             var d = state.docs.find(function (x) { return x.id === state.selectedId; });
             if (d && tabOf(d) === state.tab) mostrarViewer(d);
@@ -3761,12 +3744,18 @@
   function parsePathVertices(d) {
     var out = [];
     if (!d) return out;
+    // O renderer produz predominantemente segmentos M→L. Evita criar e
+    // percorrer um vetor de tokens para cada um dos milhares de segmentos.
+    var simple = d.match(/^\s*M\s*([-+\d.eE]+)[\s,]+([-+\d.eE]+)\s*L\s*([-+\d.eE]+)[\s,]+([-+\d.eE]+)\s*$/);
+    if (simple && simple.slice(1).every(function(n) { return isFinite(+n); })) {
+      return [[+simple[1], +simple[2], true], [+simple[3], +simple[4], false]];
+    }
     var tokens = d.match(/[MmLlHhVvCcSsQqTtAaZz]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?/g);
     if (!tokens || !tokens.length) return out;
     var i = 0, cmd = null, cx = 0, cy = 0, sx = 0, sy = 0;
     function num() { return parseFloat(tokens[i++]); }
-    function push(x, y) {
-      if (isFinite(x) && isFinite(y)) out.push([x, y]);
+    function push(x, y, move) {
+      if (isFinite(x) && isFinite(y)) out.push([x, y, !!move]);
       cx = x; cy = y;
     }
     while (i < tokens.length) {
@@ -3777,17 +3766,17 @@
         if (cmd === 'M' || cmd === 'L') {
           var x = num(), y = num();
           if (cmd === 'M') { sx = x; sy = y; }
-          push(x, y);
+          push(x, y, cmd === 'M');
           if (cmd === 'M') cmd = 'L'; // M implícito vira L
         } else if (cmd === 'm' || cmd === 'l') {
           var dx = num(), dy = num();
-          if (cmd === 'm') { sx = cx + dx; sy = cy + dy; push(sx, sy); cmd = 'l'; }
+          if (cmd === 'm') { sx = cx + dx; sy = cy + dy; push(sx, sy, true); cmd = 'l'; }
           else push(cx + dx, cy + dy);
         } else if (cmd === 'H') { push(num(), cy); }
         else if (cmd === 'h') { push(cx + num(), cy); }
         else if (cmd === 'V') { push(cx, num()); }
         else if (cmd === 'v') { push(cx, cy + num()); }
-        else if (cmd === 'Z' || cmd === 'z') { push(sx, sy); }
+        else if (cmd === 'Z' || cmd === 'z') { push(sx, sy); cmd = null; }
         else if (cmd === 'C') {
           num(); num(); num(); num(); // c1 c2
           push(num(), num());
@@ -3920,12 +3909,16 @@
       for (var pi = 0; pi < nPaths; pi++) {
         var elp = paths[pi];
         if (isUiLayer(elp)) continue;
+        // These exact M/L paths are in the complete Float64 OSNAP derivative.
+        // Mounted regions never decide which geometry is available to snap.
+        if (svg._cadRegional && !svg._cadRegional.disabled && elp.closest('[data-cad-chunk]')) continue;
         var d0 = elp.getAttribute('d') || '';
         if (d0.length < 12) continue;
         if (/^M\s*0[\s,]/.test(d0) && /z\s*$/i.test(d0) && d0.length < 80) continue;
         var verts = parsePathVertices(d0);
         for (var vi = 1; vi < verts.length; vi++) {
-          addSeg(verts[vi - 1][0], verts[vi - 1][1], verts[vi][0], verts[vi][1]);
+          if (!verts[vi][2]) addSeg(verts[vi - 1][0], verts[vi - 1][1], verts[vi][0], verts[vi][1]);
+          else add(verts[vi][0], verts[vi][1]);
         }
         if (verts.length === 1) add(verts[0][0], verts[0][1]);
       }
@@ -4039,6 +4032,12 @@
   function nearestSnapClient(svg, clientX, clientY, rawUser) {
     if (!svg || !rawUser) return null;
     var thrU = snapThrUser(svg);
+    if (svg._cadSnapIndex && window.CadSpatial) {
+      var extra = (window._polyAtual || []).map(function(p) { return [p.x,p.y]; });
+      (window._polyGeoms || []).forEach(function(pl) { (pl.points || []).forEach(function(p) { extra.push([p.x,p.y]); }); });
+      return window.CadSpatial.nearest(svg._cadSnapIndex, rawUser.x, rawUser.y, thrU,
+        (svg._cadSnapVertices || []).concat(extra));
+    }
     var thrU2 = thrU * thrU;
     var best = null, bestD = thrU2;
 
@@ -4135,6 +4134,38 @@
   function rebuildSnapIndex(svg, opts) {
     if (!svg) return;
     opts = opts || {};
+    if (svg._cadRegional && !svg._cadRegional.disabled) {
+      var controller = svg._cadRegional;
+      var generation = (svg._cadSnapGeneration || 0) + 1;
+      svg._cadSnapGeneration = generation;
+      window._snapBuilding = true;
+      window._snapSvg = svg;
+      var started = performance.now();
+      var staticPoints = coletarSnapCandidates(svg);
+      var staticSegments = (window._snapSegs || []).slice();
+      controller.buildSnap(staticSegments).then(function(index) {
+        if (controller.disposed || !svg.isConnected || svg._cadSnapGeneration !== generation) return;
+        svg._cadSnapIndex = index;
+        svg._cadSnapVertices = staticPoints;
+        window._snapPts = staticPoints;
+        window._snapCount = index.segments.length / 2;
+        window._snapBuilding = false;
+        window._snapBuildMs = Math.round(performance.now() - started);
+        if (typeof opts.onDone === 'function') opts.onDone(window._snapCount, window._snapBuildMs);
+      }).catch(function(error) {
+        if (controller.disposed || !svg.isConnected || svg._cadSnapGeneration !== generation) return;
+        console.warn('[osnap] usando geometria integral', error);
+        controller.fallback().then(function() {
+          if (!controller.disposed && svg.isConnected) rebuildSnapIndex(svg, opts);
+        }).catch(function() {
+          var status = document.getElementById('criar-item-status');
+          if (status) status.textContent = 'OSNAP indisponível. Reabra o desenho antes de marcar pontos.';
+          // Keep point commit blocked while complete geometry is unavailable.
+          window._snapBuilding = true;
+        });
+      });
+      return;
+    }
     var vb = svg.viewBox && svg.viewBox.baseVal;
     var span = (vb && vb.width > 0) ? Math.max(vb.width, vb.height) : 1000;
     window._snapCell = Math.max(span * 0.012, 1.5);
@@ -4338,7 +4369,7 @@
       var svg = svgOf();
       if (!svg) return null;
       if (window._snapBuilding) return svg;
-      if (!window._snapPts || !window._snapPts.length || window._snapSvg !== svg) {
+      if ((!svg._cadSnapIndex && (!window._snapPts || !window._snapPts.length)) || window._snapSvg !== svg) {
         rebuildSnapIndex(svg, { async: true });
       }
       return svg;
@@ -4391,6 +4422,11 @@
       e.preventDefault();
       e.stopPropagation();
       ensureSnapIndex();
+      if (window._snapBuilding) {
+        var snapStatus = document.getElementById('criar-item-status');
+        if (snapStatus) snapStatus.textContent = 'Aguarde o OSNAP terminar de indexar antes de marcar o ponto.';
+        return;
+      }
       var raw = toSvg(e);
       var pt = snapPoint(e, raw);
       window._polyAtual = window._polyAtual || [];
@@ -4539,21 +4575,25 @@
       partes = ['<span style="color:#4ea1ff">●</span><span style="color:#c9a27e">●</span> ' + oQue + ' horizontal (azul/marrom alternam entre segmentos)',
         '<span style="color:#ff9a1f">●</span><span style="color:#ff5fb2">●</span> ' + oQue + ' vertical (laranja/rosa alternam entre segmentos)'];
       if (g === 'fundos' || g === 'fundo') partes.push(m('#ff4545', 'Viga invertida / tampa superior'));
+      else partes.push('<span style="color:#ff4545">●</span><span style="color:#fff">●</span> Lateral de viga invertida (vermelho/branco)');
     } else if (g === 'lajes') {
       partes = [m(COR_DESTAQUE_ESTRUTURAL, 'Laje'), m('#ffe033', 'Degrau / corte de laje'),
         m('#ff4545', 'Degrau com fundo diferente'), 'nível pendente fica explícito na ficha'];
     } else if (g === 'cortes_interpretados') {
-      partes = [m('#ff9a1f', 'Cortes de viga interpretados · pares A/B'), 'cotas em cm'];
+      partes = [m('#7dd3fc', 'Interpretado · confiança alta'), m('#ff9a1f', 'Interpretado · revisar'),
+        m('#ff4545', 'Interpretado · viga invertida'),
+        m('#ffe033', 'Visão corte degrau de laje'),
+        'cotas em cm · compressão indicada por COMP.'];
       var cobertura = grupo.soffit_coverage || [];
       if (cobertura.length) {
         var originais = cobertura.filter(function (r) { return r.status === 'original'; }).length;
-        var interpretados = cobertura.filter(function (r) { return r.status === 'interpreted'; }).length;
+        var interpretados = cobertura.filter(function (r) { return r.status === 'interpreted' || r.status === 'mixed'; }).length;
         var pendentes = cobertura.filter(function (r) { return r.status === 'pending'; });
         partes.push((originais + interpretados) + '/' + cobertura.length + ' fundos atendidos (' +
           originais + ' originais + ' + interpretados + ' interpretados)');
-        if (pendentes.length) partes.push(m('#fff38c', 'Pendentes: ' + pendentes.map(function (r) {
-          return String(r.beam + ' · fundo ' + r.segment + ': ' + r.reason).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        }).join('; ')));
+        if (pendentes.length) partes.push(m('#fff38c', pendentes.length + ' fundos pendentes: ' + pendentes.slice(0, 3).map(function (r) {
+          return String(r.beam + ' · fundo ' + r.segment + ': ' + (r.reason || 'evidência de corte insuficiente')).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }).join('; ') + (pendentes.length > 3 ? '; mais ' + (pendentes.length - 3) : '')));
       }
     } else if (g === 'cortes') {
       partes = [m(CORES_DESTAQUE.cortes, 'Corte de viga'), m('#ffe033', 'Corte de laje · degrau')];
@@ -4611,6 +4651,10 @@
       '<span class="destaque-botoes" id="destaque-botoes"></span>' +
       '<button type="button" class="btn-sec btn btn-sm" id="destaque-nenhuma" title="Limpar destaques">Nenhuma</button>' +
       '<label class="destaque-nomes"><input type="checkbox" id="destaque-rotulos" checked> nomes</label>' +
+      '<label class="destaque-nomes"><input type="checkbox" id="destaque-ajustes" checked> ajustes extremidades</label>' +
+      '<label class="destaque-nomes"><input type="checkbox" id="destaque-apoios" checked> pontos de apoio</label>' +
+      '<label class="destaque-nomes"><input type="checkbox" id="destaque-nivel" checked> nível</label>' +
+      '<label class="destaque-nomes" hidden><input type="checkbox" id="destaque-tags-pilares" checked> Tags Interpretativas</label>' +
       '<span class="meta" id="destaque-info"></span>' +
       '<span class="destaque-legenda" id="destaque-legenda" style="flex-basis:100%;font-size:.72rem" hidden></span>';
     hostEl.insertBefore(bar, hostEl.firstChild);
@@ -4621,6 +4665,11 @@
     // pan/zoom relativo fundo (pt) + overlay (px) — igual viewer.html
     if (!viewport || !svgFundo || !svgOverlay) return;
     if (viewport.dataset.zoomInit === '1' && viewport._pzDual) return;
+    // Há um único estrutural central. Solte os handlers globais do anterior:
+    // closures antigas retinham todo o SVG mesmo depois de sair da torre.
+    if (window._panDualAbort) window._panDualAbort.abort();
+    var panAbort = new AbortController();
+    window._panDualAbort = panAbort;
     viewport.dataset.zoomInit = '1';
     if (window.prepSvgPanZoom) window.prepSvgPanZoom(svgFundo);
     var camadas = [];
@@ -4631,8 +4680,8 @@
         svg.dataset.homeVb = vb.x + ' ' + vb.y + ' ' + vb.width + ' ' + vb.height;
       }
       var home = {
-        x: parseFloat(svg.dataset.homeVb.split(/\s+/)[0]) || vb.x,
-        y: parseFloat(svg.dataset.homeVb.split(/\s+/)[1]) || vb.y,
+        x: Number(svg.dataset.homeVb.split(/\s+/)[0]),
+        y: Number(svg.dataset.homeVb.split(/\s+/)[1]),
         w: parseFloat(svg.dataset.homeVb.split(/\s+/)[2]) || vb.width,
         h: parseFloat(svg.dataset.homeVb.split(/\s+/)[3]) || vb.height
       };
@@ -4642,22 +4691,49 @@
     var ref = camadas[camadas.length - 1];
     var casa = ref.casa;
     var estado = { x: casa.x, y: casa.y, w: casa.w, h: casa.h };
+    if (svgFundo._cadRegional && svgFundo._cadInitialCamera) {
+      var initial = svgFundo._cadInitialCamera, full = svgFundo._cadRegional.manifest.home;
+      estado = { x: casa.x + (initial[0]-full[0])/full[2]*casa.w,
+        y: casa.y + (initial[1]-full[1])/full[3]*casa.h,
+        w: initial[2]/full[2]*casa.w, h: initial[3]/full[3]*casa.h };
+    }
     var drag = false, ux = 0, uy = 0;
+    var panFrame = 0;
 
     function aplicar() {
+      if (panFrame) return;
+      panFrame = requestAnimationFrame(function () {
+        panFrame = 0;
+        if (viewport.isConnected && !panAbort.signal.aborted) aplicarAgora();
+      });
+    }
+    panAbort.signal.addEventListener('abort', function () {
+      if (panFrame) cancelAnimationFrame(panFrame);
+      panFrame = 0;
+    });
+    function aplicarAgora() {
       var zx = estado.w / casa.w, zy = estado.h / casa.h;
       var rx = (estado.x - casa.x) / casa.w, ry = (estado.y - casa.y) / casa.h;
-      camadas.forEach(function (c) {
+      var commit = function() { camadas.forEach(function (c) {
         var k = c.casa;
         c.svg.setAttribute('viewBox',
           (k.x + rx * k.w) + ' ' + (k.y + ry * k.h) + ' ' + (k.w * zx) + ' ' + (k.h * zy));
-      });
+      }); };
+      var regional = svgFundo._cadRegional;
+      if (regional && !regional.disposed) {
+        var home = regional.manifest.home;
+        regional.camera([home[0]+rx*home[2],home[1]+ry*home[3],home[2]*zx,home[3]*zy], commit);
+      } else commit();
     }
-    function paraSvg(cx, cy) {
-      var ctm = ref.svg.getScreenCTM();
-      if (!ctm) return { x: estado.x + estado.w / 2, y: estado.y + estado.h / 2 };
-      var pt = ref.svg.createSVGPoint(); pt.x = cx; pt.y = cy;
-      return pt.matrixTransform(ctm.inverse());
+    function paraSvg(cx, cy, rect) {
+      // xMidYMid meet; usa o estado mais recente, inclusive antes do próximo
+      // frame. Evita forçar o layout do desenho para ler getScreenCTM a cada evento.
+      rect = rect || ref.svg.getBoundingClientRect();
+      var scale = Math.min(rect.width / estado.w, rect.height / estado.h);
+      if (!(scale > 0)) return { x: estado.x + estado.w / 2, y: estado.y + estado.h / 2 };
+      var left = rect.left + (rect.width - estado.w * scale) / 2;
+      var top = rect.top + (rect.height - estado.h * scale) / 2;
+      return { x: estado.x + (cx - left) / scale, y: estado.y + (cy - top) / scale };
     }
 
     viewport._pz = {
@@ -4696,7 +4772,7 @@
       estado.y = p.y - (p.y - estado.y) * (nh / estado.h);
       estado.w = nw; estado.h = nh;
       aplicar();
-    }, { passive: false });
+    }, { passive: false, signal: panAbort.signal });
 
     viewport.addEventListener('mousedown', function (e) {
       // desenho (retângulo ou polyline) consome o clique — não inicia pan
@@ -4705,24 +4781,25 @@
       drag = true; ux = e.clientX; uy = e.clientY;
       viewport.classList.add('arrastando');
       e.preventDefault();
-    });
+    }, { signal: panAbort.signal });
     window.addEventListener('mousemove', function (e) {
       if (!drag) return;
-      var a = paraSvg(ux, uy), b = paraSvg(e.clientX, e.clientY);
+      var rect = ref.svg.getBoundingClientRect();
+      var a = paraSvg(ux, uy, rect), b = paraSvg(e.clientX, e.clientY, rect);
       estado.x -= (b.x - a.x); estado.y -= (b.y - a.y);
       ux = e.clientX; uy = e.clientY;
       aplicar();
-    });
+    }, { signal: panAbort.signal });
     window.addEventListener('mouseup', function () {
       if (!drag) return;
       drag = false;
       viewport.classList.remove('arrastando');
-    });
+    }, { signal: panAbort.signal });
     viewport.addEventListener('dblclick', function (e) {
       if (e.target && e.target.closest && e.target.closest('button,input,select,a')) return;
       estado = { x: casa.x, y: casa.y, w: casa.w, h: casa.h };
       aplicar();
-    });
+    }, { signal: panAbort.signal });
     aplicar();
   }
 
@@ -4802,11 +4879,48 @@
           });
         });
 
+        var pillarTagCache = {};
+        function selectedPillarTags(item) {
+          var key = item.item_id;
+          var cached = pillarTagCache[key];
+          if (cached && cached.svg) {
+            var fragment = new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg">' + cached.svg + '</svg>', 'image/svg+xml');
+            if (!fragment.querySelector('parsererror')) {
+              Array.from(fragment.documentElement.children).forEach(function (child) {
+                overlay.appendChild(document.importNode(child, true));
+              });
+            }
+            return;
+          }
+          if (cached) {
+            if (infoEl && cached.error) infoEl.textContent += ' · tags indisponíveis';
+            return;
+          }
+          pillarTagCache[key] = {loading: true};
+          fetch('/obras/' + OBRA_ID + '/viewer/' + encodeURIComponent(pavimento) + '/pilares/' + encodeURIComponent(key) + '/tags', {credentials: 'same-origin'})
+            .then(function (r) { if (!r.ok) throw new Error('Tags: HTTP ' + r.status); return r.json(); })
+            .then(function (result) { pillarTagCache[key] = {svg: result.svg, error: !result.disponivel}; desenhar(); })
+            .catch(function () { pillarTagCache[key] = {error: true}; desenhar(); });
+        }
         function desenhar() {
+          var activeGroups = gruposDestaque.filter(function (gr) { return ativos[gr.grupo]; });
+          var lateralActive = activeGroups.some(function (gr) { return (gr.itens || []).some(function (it) { return !!it.ajustes_pontas; }); });
+          var pillarActive = activeGroups.some(function (gr) { return gr.grupo === 'pilares'; });
+          ['destaque-ajustes', 'destaque-apoios', 'destaque-nivel'].forEach(function (id) {
+            var control = document.getElementById(id);
+            if (control) control.parentElement.hidden = !lateralActive;
+          });
+          var pillarControl = document.getElementById('destaque-tags-pilares');
+          if (pillarControl) pillarControl.parentElement.hidden = !pillarActive;
+          var renderStarted = performance.now();
           overlay.innerHTML = '';
           var mostrarRotulos = !!(document.getElementById('destaque-rotulos') || {}).checked;
+          var mostrarAjustes = !!(document.getElementById('destaque-ajustes') || {}).checked;
+          var mostrarApoios = !!(document.getElementById('destaque-apoios') || {}).checked;
+          var mostrarNivel = !!(document.getElementById('destaque-nivel') || {}).checked;
           var visiveis = 0;
           var tagItens = [];
+          var selectedPillar = null;
           function rotuloEmLinhas(s) {
             s = String(s || '').trim();
             var m = s.match(/^(.*?)\s+(SEG\s*\d+(?:\.\d+)?(?:-[AB])?)\s*$/i);
@@ -4833,9 +4947,11 @@
                 cor = gLat === 'pilares' ? corPilar(item) : corGrupo;
               }
               if (item.highlight_color) cor = item.highlight_color;
+              var selecionado = window.ItemGeometry && window.ItemGeometry.isSelected(item);
+              if (selecionado && gLat === 'pilares') selectedPillar = item;
               visiveis++;
               if (item.section_drawing) {
-                window.StructuralSections.draw(document, overlay, [item.section_drawing], function(p) { return p; }, {names: mostrarRotulos});
+                window.StructuralSections.draw(document, overlay, [item.section_drawing], function(p) { return p; }, {names: mostrarRotulos, item: item});
                 return;
               }
               var pts = (item.pontos_px || []).map(function (p) { return p[0] + ',' + p[1]; }).join(' ');
@@ -4843,7 +4959,8 @@
               var poly = document.createElementNS(SVGNS, 'polygon');
               poly.setAttribute('points', pts);
               poly.setAttribute('fill', item.fora_do_frame ? 'rgba(255,0,0,.18)' : cor + '22');
-              poly.setAttribute('stroke', item.fora_do_frame ? '#ff2d2d' : cor);
+              poly.setAttribute('stroke', selecionado ? '#22c55e' : (item.fora_do_frame ? '#ff2d2d' : cor));
+              poly.setAttribute('data-selected', selecionado ? 'true' : 'false');
               // Destaque azul reforcado; vermelho de erro permanece distinto.
               // Laterais/fundos 30% mais finos (dono 2026-10-02).
               var esp = item.fora_do_frame ? 4.6 : 6;
@@ -4882,11 +4999,41 @@
                 gIdTag.indexOf('lat_') === 0 || gIdTag.indexOf('lateral') === 0 ||
                 gIdTag.indexOf('laterais') === 0;
               if (window.TagLeader && tagViga) {
+                var linhasNome = mostrarRotulos ? rotuloEmLinhas(item.rotulo) : [];
+                if (item.ajustes_pontas && mostrarNivel) {
+                  var nivel = item.nivel_m;
+                  linhasNome.push(nivel != null && nivel !== '' && typeof nivel !== 'boolean' && Number.isFinite(Number(nivel)) ?
+                    '(' + Number(nivel).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ')' : '(nível não informado)');
+                }
                 tagItens.push({
                   pts: item.pontos_px || [], color: item.fora_do_frame ? '#ff6b6b' : cor,
-                  lines: rotuloEmLinhas(item.rotulo), place: mostrarRotulos,
+                  lines: linhasNome, place: mostrarRotulos || !!item.ajustes_pontas,
+                  render: linhasNome.length > 0, itemId: item.item_id, geometryItem: item,
+                  fontScale: item.ajustes_pontas ? 0.4 : 1, nameOffsetScale: item.ajustes_pontas ? (5 / 3) : 1, nameOffsetCm: item.ajustes_pontas ? 3 : 0, roundedBox: !!item.ajustes_pontas,
+                  fixedPlacement: !!item.ajustes_pontas, lateralSide: item.lado,
                   title: (item.rotulo || '') + (item.fora_do_frame ? ' — FORA DA PRANCHA' : ''),
                 });
+                if (item.ajustes_pontas && item.pontos_px && item.pontos_px.length >= 2) {
+                  ['esquerda', 'direita'].forEach(function (ponta, index) {
+                    var valor = item.ajustes_pontas[ponta];
+                    var medida = valor == null ? 'não informado' :
+                      (valor > 0 ? '+' : '') + Number(valor).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + ' cm';
+                    var ponto = item.pontos_px[index === 0 ? 0 : item.pontos_px.length - 1];
+                    var linhasAjuste = [];
+                    if (mostrarAjustes) linhasAjuste.push('Ajuste (' + medida.replace(/ cm$/, '') + ')');
+                    var patinha = item.ajustes_pontas[ponta + '_patinha'];
+                    if (mostrarAjustes && patinha > 0) linhasAjuste.push('Patinha (+' + Number(patinha).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + ')');
+                    if (mostrarApoios) linhasAjuste.push('(' + (item.ajustes_pontas[ponta + '_ponto'] || '—') + ')');
+                    tagItens.push({
+                      pts: item.pontos_px, anchor: ponto, color: item.fora_do_frame ? '#ff6b6b' : cor,
+                      lines: linhasAjuste, place: mostrarAjustes || mostrarApoios,
+                      endpoint: ponta, itemId: item.item_id, geometryItem: item, value: valor, lateralSide: item.lado,
+                      fontScale: 0.4, roundedBox: true,
+                      title: item.rotulo + ' — Ajuste ponta ' + ponta + ': ' + medida +
+                        ' — SA / lv_cell; esquerda = início, direita = fim na ordem local do segmento',
+                    });
+                  });
+                }
                 return;
               }
               if (mostrarRotulos && item.pontos_px && item.pontos_px.length) {
@@ -4946,19 +5093,21 @@
               }
             });
           });
-          if (tagItens.length && mostrarRotulos) {
+          if (tagItens.length) {
             window.TagLeader.place(document, overlay, tagItens, {fontSize: 3.25, halo: 0.7});
           }
           if (infoEl) infoEl.textContent = visiveis ? (visiveis + ' item(ns)') : (dados.sa_rodado ? 'nenhum destaque' : 'sem SA');
+          if (selectedPillar && pillarControl && pillarControl.checked) selectedPillarTags(selectedPillar);
           var legendaEl = document.getElementById('destaque-legenda');
           if (legendaEl) {
             var grupoAtivo = gruposDestaque.filter(function (gr) { return ativos[gr.grupo]; })[0];
             legendaEl.innerHTML = legendaDestaque(grupoAtivo);
             legendaEl.hidden = !grupoAtivo;
           }
-          // reindex OSNAP com vértices SA + geometria do fundo
-          var svgF = vp.querySelector('svg:not(.destaque-overlay)');
-          if (svgF && window.rebuildSnapIndex) window.rebuildSnapIndex(svgF);
+          // Trocar destaques não altera o SVG de fundo. O OSNAP é preparado
+          // ao entrar no desenho, sem varrer toda a geometria na navegação.
+          overlay.dataset.renderMs = (performance.now() - renderStarted).toFixed(1);
+          overlay.dataset.visibleItems = String(visiveis);
         }
 
         container._renderDestaques = desenhar;
@@ -4983,6 +5132,7 @@
             .then(function (r) { if (!r.ok) throw new Error('Destaques: HTTP ' + r.status); return r.json(); })
             .then(function (updated) {
               dados = updated;
+              pillarTagCache = {};
               gruposDestaque = gruposDestaqueParaExibicao(updated.grupos || []);
               window._destaqueSnapPts = [];
               gruposDestaque.forEach(function (grupo) {
@@ -5061,6 +5211,10 @@
           } catch (eHub) { /* */ }
         };
         if (chkRot) chkRot.onchange = desenhar;
+        ['destaque-ajustes', 'destaque-apoios', 'destaque-nivel', 'destaque-tags-pilares'].forEach(function (id) {
+          var checkbox = document.getElementById(id);
+          if (checkbox) checkbox.onchange = desenhar;
+        });
 
         // por padrão: Nenhuma
         Object.keys(ativos).forEach(function (k) { ativos[k] = false; });
@@ -5079,8 +5233,36 @@
   }
   window.carregarDestaquesEstrutural = carregarDestaquesEstrutural;
 
+  // Uma única referência: evita duplicar o DOM grande e valida a revisão
+  // no servidor antes de reutilizá-lo. Nunca guarda overlays de destaques.
+  var _previewSvgMem = null;
+  var _previewFetchAbort = null;
+  function lerPreviewValidado(url, opts) {
+    return fetch(url, { cache: 'no-cache', signal: opts.signal }).then(function(res) {
+      if (!res.ok) throw new Error('Falha na rede');
+      var etag = res.headers.get('ETag');
+      if (!opts.force && opts.reuse && etag && _previewSvgMem &&
+          _previewSvgMem.url === url && _previewSvgMem.etag === etag) {
+        if (res.body) res.body.cancel().catch(function() {});
+        return { svg: _previewSvgMem.svg, chars: _previewSvgMem.chars,
+          paths: _previewSvgMem.paths, etag: etag, reused: true };
+      }
+      return res.text().then(function(text) { return { text: text, etag: etag }; });
+    });
+  }
+
   function renderizarFotoRecorte(container, src, alt, forcarRecarga) {
     var meuToken = ++_fotoRecorteReqToken;
+    var oldSvg = container.querySelector('svg');
+    if (oldSvg && oldSvg._panSimpleAbort) oldSvg._panSimpleAbort.abort();
+    if (oldSvg && oldSvg._cadRegional) oldSvg._cadRegional.dispose();
+    if (window._snapBuildTimer) clearTimeout(window._snapBuildTimer);
+    window._snapBuilding = false;
+    window._snapSvg = null;
+    window._snapPts = null;
+    if (_previewFetchAbort) _previewFetchAbort.abort();
+    _previewFetchAbort = new AbortController();
+    if (window._panDualAbort) window._panDualAbort.abort();
     container.innerHTML = '<p class="muted">Carregando foto em alta resolução…</p>';
     var url = forcarRecarga ? src + (src.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now() : src;
 
@@ -5095,13 +5277,24 @@
     var isRecorteEstruturalEditavel = !!(itemIdFoto &&
       (isTorreLimpa || String(itemIdFoto) === 'detalhes'));
 
-    fetch(url, { cache: 'no-store' }).then(function(res) {
-      if (!res.ok) throw new Error('Falha na rede');
-      return res.text();
-    }).then(function(text) {
+    var previewStarted = performance.now();
+    var previewSignal = _previewFetchAbort.signal;
+    var regionalOption = new URLSearchParams(location.search).get('viewer_regional');
+    var useRegional = window.CadRegional &&
+      ((isBrutoCompleto || isTorreLimpa) && regionalOption === '1');
+    var fetchPreview = function() { return lerPreviewValidado(url, { signal: previewSignal,
+      force: !!forcarRecarga, reuse: isRecorteEstruturalEditavel || isBrutoCompleto }); };
+    var previewPromise = useRegional ? window.CadRegional.load(src, previewSignal).catch(function(error) {
+      if (previewSignal.aborted) throw error;
+      console.warn('[viewer-regional] pacote indisponível; SVG integral', error);
+      return fetchPreview();
+    }) : fetchPreview();
+    previewPromise.then(function(preview) {
       if (meuToken !== _fotoRecorteReqToken) return;
+      var text = preview.text || '';
       
       var vpHtml = '<div class="zoom-pan-viewport"></div><p class="zoom-pan-dica">Scroll zoom · arraste pan · duplo-clique reseta (viewBox em SVG)</p>';
+      if (preview.regional) vpHtml += '<button type="button" class="btn-sec btn btn-sm" data-cad-full>Ver planta inteira</button>';
       
       // UI de recorte manual só no BRUTO completo (não na torre — o criar-item
       // do estrutural limpo fica acima, na barra de validação).
@@ -5169,9 +5362,24 @@
       }
 
       var vp = container.querySelector('.zoom-pan-viewport');
-      if (text.toLowerCase().includes('<svg')) {
-        vp.innerHTML = text;
+      vp.dataset.sourceChars = String(preview.chars || text.length);
+      vp.dataset.domReused = preview.reused ? '1' : '0';
+      vp.dataset.fetchMs = (performance.now() - previewStarted).toFixed(1);
+      var parseStarted = performance.now();
+      if (preview.svg || text.toLowerCase().includes('<svg')) {
+        if (preview.svg) {
+          var cachedSvg = preview.svg;
+          if (cachedSvg.dataset.homeVb) cachedSvg.setAttribute('viewBox', cachedSvg.dataset.homeVb);
+          cachedSvg.querySelectorAll('g.poly-draw-layer, g.crop-svg-layer').forEach(function(layer) { layer.remove(); });
+          vp.appendChild(cachedSvg);
+        } else vp.innerHTML = text;
         var svgEl = vp.querySelector('svg');
+        if (svgEl && preview.regional) {
+          _previewSvgMem = null;
+          preview.regional.attach(svgEl, vp, { initialZoom: isBrutoCompleto ? .4 : 1, responsive: isBrutoCompleto });
+          var fullButton = container.querySelector('[data-cad-full]');
+          if (fullButton) fullButton.addEventListener('click', function() { if (vp._pz) vp._pz.reset(); });
+        }
         if (svgEl && window.afinarSvgEstruturalDom) window.afinarSvgEstruturalDom(svgEl);
         if (svgEl && window.prepSvgPanZoom) window.prepSvgPanZoom(svgEl);
         else if (svgEl) {
@@ -5180,12 +5388,21 @@
           svgEl.style.display = 'block';
           svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
         }
+        if (svgEl && (isRecorteEstruturalEditavel || isBrutoCompleto)) {
+          // O fundo é referência visual/OSNAP; picking é feito no overlay.
+          // Não faça hit-test em centenas de milhares de segmentos do fundo.
+          svgEl.style.pointerEvents = 'none';
+          vp.dataset.pathCount = String(preview.paths || svgEl.querySelectorAll('path').length);
+          if (preview.etag && !preview.regional) _previewSvgMem = { url: url, etag: preview.etag,
+            svg: svgEl, chars: preview.chars || text.length, paths: +vp.dataset.pathCount };
+        }
       } else {
         var img = new Image();
         img.alt = alt;
         img.src = url;
         vp.appendChild(img);
       }
+      vp.dataset.parseMs = (performance.now() - parseStarted).toFixed(1);
 
       // Torre limpa: pan dual + destaques (não inicializa pan simples antes)
       if (isRecorteEstruturalEditavel && window._viewerPavimentoAtual) {
@@ -5203,9 +5420,7 @@
         if (typeof window.ligarDesenhoPolyline === 'function') {
           window.ligarDesenhoPolyline(vp);
         }
-        // índice OSNAP preliminar (melhora quando destaques SA chegarem)
-        var svgFundo0 = vp.querySelector('svg');
-        if (svgFundo0 && window.rebuildSnapIndex) window.rebuildSnapIndex(svgFundo0);
+        // OSNAP sob demanda no modo de desenho; o fundo permanece completo.
         carregarDestaquesEstrutural(container, window._viewerPavimentoAtual);
       } else {
         ativarZoomEmContainer(container);
@@ -5317,6 +5532,7 @@
       }
     }).catch(function(err) {
       if (meuToken !== _fotoRecorteReqToken) return;
+      if (err.name === 'AbortError') return;
       container.innerHTML = '<p class="muted">Falha ao renderizar esta foto.</p>';
     });
   }
@@ -5590,7 +5806,8 @@
     { id: 'lateral_a_passa', nome: 'Lateral A · Passa' },
     { id: 'lateral_b_para', nome: 'Lateral B · Para' },
     { id: 'lateral_b_passa', nome: 'Lateral B · Passa' },
-    { id: 'cortes', nome: 'Visão de Cortes' }
+    { id: 'cortes', nome: 'Visão de Cortes' },
+    { id: 'cortes_interpretados', nome: 'Cortes interpretados · validar/excluir' }
   ];
 
   function isClasseVigaCriar(classe) {
@@ -5693,6 +5910,7 @@
           '</span>' +
           '<button type="button" class="btn-sec btn" id="btn-item-redesenhar" disabled>Redesenhar item</button>' +
           '<button type="button" class="btn-sec btn" id="btn-item-excluir" disabled>Excluir Item</button>' +
+          '<button type="button" class="btn-sec btn" id="btn-corte-validar" hidden disabled>Validar referência de nível</button>' +
           '<button type="button" class="btn-sec btn" id="btn-segmento-excluir" hidden disabled>Excluir Segmento</button>' +
           '<button type="button" class="btn-sec btn" id="btn-item-cancelar" hidden>Cancelar edição</button>' +
           '<button type="button" class="btn-sec btn" id="btn-criar-item-limpar">Limpar</button>' +
@@ -5994,6 +6212,7 @@
     chk.addEventListener('change', function () {
       window._modoPolylineAtivo = this.checked;
       window._modoCropManualAtivo = false;
+      if (viewerContainer._renderDestaques) viewerContainer._renderDestaques();
       if (this.checked) {
         var vp = viewerContainer.querySelector('.zoom-pan-viewport');
         var svg = vp && ((vp._pz && vp._pz.svg) || vp.querySelector('svg:not(.destaque-overlay)') || vp.querySelector('svg'));
@@ -6008,8 +6227,14 @@
           window.rebuildSnapIndex(svg, {
             async: true,
             onDone: function (n, ms) {
-              if (!status) return;
+              if (!status || !window._modoPolylineAtivo || !viewerContainer.isConnected) return;
               var viga = isClasseVigaCriar(selClasse && selClasse.value);
+              if (svg && svg._cadSnapIndex) {
+                status.textContent = 'Modo linha · OSNAP completo · ' +
+                  (svg._cadSnapIndex.segments.length / 4) + ' segmentos · ' + ms + 'ms' +
+                  (viga ? ' · Enter = próximo SEG' : '');
+                return;
+              }
               status.textContent = n
                 ? ('Modo linha · OSNAP · ' + n + ' alvos · ' +
                   (window._snapXCount || 0) + ' cruzes · ' + ms + 'ms' +
@@ -6596,14 +6821,14 @@ window.atualizarEstatisticasGlobais = function() {
     });
   })();
 </script>
-<script src="/static/drill_grade.js?v={{ request.app.state.static_versao | default('0') }}&dm=20261001evidence4-manual-sa-highlight-pick1&status=20261002compact&qa=20261003dismiss"></script>
+<script src="/static/drill_grade.js?v={{ request.app.state.static_versao | default('0') }}&dm=20261001evidence4-manual-sa-highlight-pick1&status=20261002compact&qa=20261006confirmo&n5tab=20261007obra-docs-unificados&sections=20261007review-list"></script>
 <script src="/static/drawing_mode.js?v={{ request.app.state.static_versao | default('0') }}"></script>
-<script src="/static/human_qa.js?v=20261003decimal2"></script>
-<script src="/static/fv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&fv=20261003decimal1-chamfer"></script>
-<script src="/static/tag_leader.js?v={{ request.app.state.static_versao | default('0') }}&tl=20260927c"></script>
-<script src="/static/structural_sections.js?v={{ request.app.state.static_versao | default('0') }}&lv=20261001versions"></script>
-<script src="/static/lv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lv=20261003structural-sections-manual-sa"></script>
+<script src="/static/human_qa.js?v=20261006confirmo"></script>
+<script src="/static/fv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&fv=20261003decimal1-chamfer&qa=20261006confirmo"></script>
+<script src="/static/tag_leader.js?v={{ request.app.state.static_versao | default('0') }}&tl=20261009-vertical-a-endpoints-v2"></script>
+<script src="/static/structural_sections.js?v={{ request.app.state.static_versao | default('0') }}&lv=20261006section-review"></script>
+<script src="/static/lv_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lv=20261009ajustes-sa"></script>
 <script src="/static/laje_ficha.js?v={{ request.app.state.static_versao | default('0') }}&lj=20261001versions"></script>
 <script src="/static/pillar_ficha.js?v={{ request.app.state.static_versao | default('0') }}-pillar-actions-v20"></script>
-<script src="/static/item_geometry.js?v={{ request.app.state.static_versao | default('0') }}-manual-sa-granular-20261001-ux2-delete1-highlight-pick1"></script>
+<script src="/static/item_geometry.js?v={{ request.app.state.static_versao | default('0') }}-viewer-edit-tags-20261009"></script>
 {% endblock %}

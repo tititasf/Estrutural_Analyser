@@ -390,12 +390,14 @@
     }
 
     function requestQa(button, layer) {
+      if (!window.confirmQaTestRun || !window.confirmQaTestRun(layer, 'FV', 1)) return;
       button.disabled = true;
       qaStatus.className = 'fv-qa-status';
       qaStatus.textContent = 'Salvando notas e enfileirando revisão ' + layer + '…';
       saveNotes(false).then(function () { return fetch('/obras/' + encodeURIComponent(options.obraId) + '/qa-agentico', {
         method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({items: [data.beam.name], classe: 'FV', pavimento: options.pavimento, layer: layer})
+        body: JSON.stringify({items: [data.beam.name], classe: 'FV', pavimento: options.pavimento,
+          layer: layer, confirmacao: 'confirmo'})
       }); }).then(function (response) {
         return response.json().then(function (body) {
           if (!response.ok) throw new Error(body.detail || ('HTTP ' + response.status));

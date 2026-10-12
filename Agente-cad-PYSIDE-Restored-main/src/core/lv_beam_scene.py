@@ -30,7 +30,7 @@ from dataclasses import dataclass, field
 from typing import Any, Iterable, Optional
 
 from shapely import affinity
-from shapely.geometry import Polygon, box
+from shapely.geometry import Polygon, Point, box
 from shapely.validation import make_valid
 
 SECTION_RE = re.compile(r"^\s*(\d+(?:[.,]\d+)?)\s*[/xX]\s*(\d+(?:[.,]\d+)?)\s*$")
@@ -211,9 +211,16 @@ class LvScene:
 
 # ---------------------------------------------------------------- geometria
 
-def _line_segments(lines: Iterable[dict]) -> list[tuple[float, float, float, float]]:
+def _line_segments(lines: Iterable[dict], *, include_annotations=False) -> list[tuple[float, float, float, float]]:
+    from .cad_object_recognition import section_layer
     segs = []
     for item in lines or []:
+        # Filter source entities before losing their layer in coordinate tuples.
+        # A coincident independent beam wall must remain available.
+        if isinstance(item, dict) and section_layer(item.get('layer')):
+            continue
+        if not include_annotations and isinstance(item, dict) and item.get('annotation_role') == 'dimension':
+            continue
         pts = item.get("points") if isinstance(item, dict) else None
         if not pts and isinstance(item, dict) and "start" in item:
             pts = [item["start"], item["end"]]
@@ -225,6 +232,17 @@ def _line_segments(lines: Iterable[dict]) -> list[tuple[float, float, float, flo
             except (TypeError, ValueError, IndexError):
                 continue
     return segs
+
+
+def split_dimension_geometry(lines, texts=None):
+    """Keep proven annotation coverage separate from independent real walls."""
+    lines = list(lines or [])
+    structural, inferred = split_dimension_lines(_line_segments(lines), texts)
+    proven = _line_segments(
+        [item for item in lines if item.get('annotation_role') == 'dimension'],
+        include_annotations=True,
+    )
+    return structural, inferred + proven
 
 
 # ------------------------------------------------------- antialucinacao: cotas
@@ -406,8 +424,18 @@ def _find_band(
                 for t in (t0, t1)
             ):
                 continue
+            # A pair must share an axial interval. Prefer the interval at the
+            # label over a transversely closer pair in a distant crossing or
+            # pillar: proximity to just one wall cannot identify a beam.
+            paired = [(max(a0, b0), min(a1, b1))
+                      for tt0, a0, a1 in near if abs(tt0-t0) <= .1
+                      for tt1, b0, b1 in near if abs(tt1-t1) <= .1
+                      if min(a1, b1)-max(a0, b0) > .5]
+            if not paired:
+                continue
+            axial_gap = min(max(a-la, la-b, 0.0) for a, b in paired)
             gap = 0.0 if t0 <= lt <= t1 else min(abs(lt - t0), abs(lt - t1))
-            score = (0 if width_hint else abs(w - 19.0) / 50.0) + gap
+            score = (axial_gap, gap, 0 if width_hint else abs(w - 19.0) / 50.0)
             if best is None or score < best[0]:
                 best = (score, t0, t1)
     return (best[1], best[2]) if best else None
@@ -616,6 +644,7 @@ def build_band_scene(
     if not ext:
         return None
     start, end = ext
+    raw_start, raw_end = ext
     # Outra viga rotulada sobre a mesma faixa limita a extensao. A fronteira e'
     # o PILAR entre os dois rotulos (o mais proximo do proprio rotulo), nao o
     # ponto de insercao do texto vizinho: cortar no texto deixava lascas de
@@ -627,9 +656,40 @@ def build_band_scene(
             continue
         ox, oy = float(other["pos"][0]), float(other["pos"][1])
         oa, ot = (ox, oy) if horizontal else (oy, ox)
-        if not (t_lo - 8.0 <= ot <= t_hi + 8.0):
+        if abs(oa - label_axis) < 5.0:
             continue
-        if not (start - 5.0 <= oa <= end + 5.0) or abs(oa - label_axis) < 5.0:
+        direct_label = (t_lo - 8.0 <= ot <= t_hi + 8.0
+                        and start - 5.0 <= oa <= end + 5.0)
+        if not direct_label:
+            # An offset annotation can identify the same measured corridor.
+            # Reconstruct its own wall pair; increasing text tolerances would
+            # let a label on a nearby parallel beam steal this extent.
+            width = _nearest_section_width(other, horizontal, section_texts, combined_section_hint)
+            other_band = _find_band(other, horizontal, edges, width,
+                require_pair_at_label=allow_width_hint_fallback and width is None)
+            if other_band is None and (width is None or allow_width_hint_fallback):
+                other_band = _find_band(other, horizontal, edges, None,
+                    require_pair_at_label=allow_width_hint_fallback)
+            if other_band is None or any(abs(a-b) > AXIS_TOL for a,b in zip(other_band,(t_lo,t_hi))):
+                continue
+            other_extent = _extent(horizontal, *other_band, oa, edges, blockers)
+            if other_extent is None or min(raw_end,other_extent[1])-max(raw_start,other_extent[0]) <= .5:
+                continue
+            # A label beyond the measured endpoint must not choose the last
+            # pillar of a long corridor. Use the label inside the measured
+            # union to witness the ownership boundary, for both directions.
+            lo,hi = min(raw_start,other_extent[0]),max(raw_end,other_extent[1])
+            inside = [a for a in (label_axis,oa) if lo-5. <= a <= hi+5.]
+            between = [(a,b) for a,b in blockers
+                       if min(label_axis,oa)-1. <= a and b <= max(label_axis,oa)+1.]
+            if not inside or not between:
+                continue  # no solid boundary: retain ambiguity, do not guess
+            pivot = label_axis if len(inside)==2 else inside[0]
+            boundary = min(between,key=lambda b:min(abs(b[0]-pivot),abs(b[1]-pivot)))
+            if oa > label_axis:
+                end = min(end,boundary[0])
+            else:
+                start = max(start,boundary[1])
             continue
         if oa > label_axis:
             between = [b0 for b0, b1 in blockers if label_axis - 1.0 <= b0 < oa]
@@ -662,7 +722,17 @@ def _sections(scene: LvScene, beam: dict, section_texts: list[dict], pillar_text
             continue
         dist = 0.0 if scene.t_lo <= st <= scene.t_hi else min(abs(st - scene.t_lo), abs(st - scene.t_hi))
         if dist > SECTION_LABEL_DIST:
-            continue
+            # An offset dimension can sit outside the narrow beam band.
+            # Accept only a local, aligned callout without another structural
+            # wall between the band and its text; no fixed drawing coordinates.
+            height = float(s.get('height') or 1)
+            if dist > 4 * height or edges is None or not (scene.start <= sa <= scene.end):
+                continue
+            near_face = scene.t_hi if st > scene.t_hi else scene.t_lo
+            if any(min(st, near_face)+.15 < t < max(st, near_face)-.15
+                   and lo-.15 <= sa <= hi+.15
+                   for t,lo,hi in edges.along(scene.is_horizontal)):
+                continue
         if abs(s["section"][0] - scene.width) > 2.0:
             continue
         # Rotulo de pilar (P43 + 19/50 empilhados) nao e' secao da viga.
@@ -807,10 +877,12 @@ def _attach_context(
                 for x, y in cores + [[a1, a1]]:
                     if x - cursor >= 0.5:
                         scene.passa_pillars[side].append(dict(name=name, classification=classification,
-                                                            start=cursor, end=x, miolo=False))
+                                                            start=cursor, end=x, miolo=False,
+                                                            face_lateral_curta=_side_face_is_short(scene, poly, cursor, x, side)))
                     if y - x >= 0.5:
                         scene.passa_pillars[side].append(dict(name=name, classification=classification,
-                                                            start=x, end=y, miolo=True))
+                                                            start=x, end=y, miolo=True,
+                                                            face_lateral_curta=_side_face_is_short(scene, poly, x, y, side)))
                     cursor = y
         for name, classification, poly in pillars:
             inter = poly.intersection(inside)
@@ -849,6 +921,19 @@ def _attach_context(
                     found.setdefault("face_curta_por_lado", {})[side] = item["face_lateral_curta"]
                 else:
                     scene.pillars[side].append(item)
+        # Passa can follow an endpoint pillar wall farther than the ordinary
+        # scene margin. Search that full connected wall for beam junctions;
+        # keep the original strips for Para and endpoint-support classification.
+        wall_start, wall_end = scene.face_extent.get(side, (scene.start, scene.end))
+        for wall in scene.passa_pillars[side]:
+            if (not wall.get("miolo") and wall["end"] >= scene.start - 1.0
+                    and wall["start"] <= scene.end + 1.0):
+                wall_start = min(wall_start, wall["start"])
+                wall_end = max(wall_end, wall["end"])
+        passa_inside, passa_outside = _face_strips(
+            scene, side, min(scene.start - margin, wall_start),
+            max(scene.end + margin, wall_end),
+        )
         for other in other_scenes:
             if other is scene or other.beam_name == scene.beam_name:
                 continue
@@ -860,8 +945,17 @@ def _attach_context(
             # V306 cortar a face A da V307 e a V307 encurtar a face de fora da
             # V309 no canto em L (la' a diagonal so' vira a esquina).
             band = scene.to_local_geom(other.world_band())
-            touch = band.intersection(outside)
-            through = band.intersection(inside)
+            # A source wall may continue through an endpoint pillar before
+            # that other scene is trimmed. Such an internal continuation is
+            # not an incident beam on the exterior pillar face. Measure only
+            # beam material outside source solids, independently of scene order.
+            # 0.05 cm absorbs the 0.1 cm band rounding, never extends a wall.
+            passa_band = band
+            for _, _, solid in pillars:
+                if passa_band.intersects(solid):
+                    passa_band = passa_band.difference(solid.buffer(0.05))
+            touch = passa_band.intersection(passa_outside)
+            through = passa_band.intersection(passa_inside)
             hit = touch if not touch.is_empty else through
             if hit.is_empty:
                 continue
@@ -886,10 +980,19 @@ def _attach_context(
                 poly.covers(hit) for _, _, poly in pillars
             ))
             scene.passa_incidents[side].append(item_passa)
+            legacy_touch = band.intersection(outside)
+            legacy_through = band.intersection(inside)
+            legacy_hit = legacy_touch if not legacy_touch.is_empty else legacy_through
+            if legacy_hit.is_empty:
+                continue
+            a0, a1 = scene.axis_bounds(legacy_hit)
+            if a1 - a0 < 0.5:
+                continue
+            item = dict(item, start=a0, end=a1)
             if a1 <= scene.start + 1.0:
-                scene.end_supports["start"].append(dict(item, type="viga"))
+                scene.end_supports["start"].append(dict(item, type="viga", face=side))
             elif a0 >= scene.end - 1.0:
-                scene.end_supports["end"].append(dict(item, type="viga"))
+                scene.end_supports["end"].append(dict(item, type="viga", face=side))
             elif not any(i["name"] == item["name"] and abs(i["start"] - a0) < 1.0 for i in scene.incidents[side]):
                 scene.incidents[side].append(item)
         # Passa também tem laje no trecho que corre pela parede do pilar (D-91):
@@ -962,6 +1065,8 @@ def _trim_end_pillars(scene: LvScene) -> None:
     As bordas da viga costumam atravessar o pilar de canto (P41 na V301); a
     lateral comeca na face interna dele, nao no lado de fora.
     """
+    original_start, original_end = scene.start, scene.end
+
     def full_band(item: dict) -> bool:
         return any(
             o["name"] == item["name"] and abs(o["start"] - item["start"]) < 1.0
@@ -997,6 +1102,14 @@ def _trim_end_pillars(scene: LvScene) -> None:
                 i for i in scene.pillars[side]
                 if i["end"] > scene.start + 0.5 and i["start"] < scene.end - 0.5
             ]
+    # A corner extension on one end must not freeze the ordinary extent on
+    # the other end before endpoint pillars trim it. Measured extensions
+    # beyond the original bounds remain intact; Passa handles pillars later.
+    for side, (lo, hi) in list(scene.face_extent.items()):
+        scene.face_extent[side] = (
+            scene.start if abs(lo - original_start) <= 1e-6 else lo,
+            scene.end if abs(hi - original_end) <= 1e-6 else hi,
+        )
     for side in ("A", "B"):
         keep = []
         for inc in scene.incidents[side]:
@@ -1263,7 +1376,8 @@ def _cede_shared_end_pillars(scenes: list[LvScene]) -> None:
     """Passa: pilar entre duas vigas COLINEARES, cada uma encostando de um lado.
 
     Dono 2026-09-28: so' a MAIS PROFUNDA engloba o pilar (a lateral dela
-    tapa o pilar); a outra para na face. Mesma altura: as duas mantem.
+    tapa o pilar); a outra para na face. Alturas iguais: um dono por face,
+    escolhido por conveniencia (maior largura, depois chave geometrica).
     """
     for sc in scenes:
         for end in ("start", "end"):
@@ -1289,6 +1403,139 @@ def _cede_shared_end_pillars(scenes: list[LvScene]) -> None:
                                 if s.get("type") == "pilar" and s.get("name") == sup.get("name"):
                                     s["engloba_ini"] = min(s.get("engloba_ini", s["start"]), sup["start"])
                                     s["engloba_fim"] = max(s.get("engloba_fim", s["end"]), sup["end"])
+
+    # Equal-depth runs can belong to the same beam and have different widths.
+    # Ownership is per coincident physical wall, not per A/B letter or name.
+    # This supplements the established deeper-beam rule above.
+    ownership_groups = []
+    for sc in scenes:
+        for supports in sc.end_supports.values():
+            for support in supports:
+                support.pop('passa_ownership', None)
+    for sc in scenes:
+        for end in ('start', 'end'):
+            mine = _end_depth(sc, end)
+            if mine is None:
+                continue
+            for sup in sc.end_supports[end]:
+                if sup.get('type') != 'pilar':
+                    continue
+                face = sup['end'] if end == 'start' else sup['start']
+                if abs((sc.start if end == 'start' else sc.end)-face) > 1.0:
+                    continue
+                for side in ('A', 'B'):
+                    if (sup.get('miolo_por_lado') or {}).get(side):
+                        continue
+                    # D-64/G10 keeps short C/D walls outside this ownership rule.
+                    if (sup.get('face_curta_por_lado') or {}).get(side):
+                        continue
+                    if sc.passa_pillars is not None and not any(
+                            p['name'] == sup['name'] and not p.get('miolo')
+                            and p['start'] <= face+.15 and p['end'] >= face-.15
+                            for p in sc.passa_pillars[side]):
+                        continue
+                    candidates = [(sc, side, sup)]
+                    for other in scenes:
+                        if other is sc or abs(other.axis_angle-sc.axis_angle) > .001:
+                            continue
+                        oend = 'end' if end == 'start' else 'start'
+                        theirs = _end_depth(other, oend)
+                        if theirs is None or abs(theirs-mine) > .01:
+                            continue
+                        for osup in other.end_supports[oend]:
+                            if osup.get('type') != 'pilar' or osup.get('name') != sup['name']:
+                                continue
+                            oface = osup['start'] if oend == 'end' else osup['end']
+                            if abs((other.end if oend == 'end' else other.start)-oface) > 1.0:
+                                continue
+                            for oside in ('A', 'B'):
+                                if (osup.get('miolo_por_lado') or {}).get(oside):
+                                    continue
+                                if (osup.get('face_curta_por_lado') or {}).get(oside):
+                                    continue
+                                p = sc.to_local(*other.point(oface, oside))
+                                transverse = p[1] if sc.is_horizontal else p[0]
+                                if abs(transverse-sc.face_t(side)) > .15:
+                                    continue
+                                if other.passa_pillars is not None and not any(
+                                        w['name'] == sup['name'] and not w.get('miolo')
+                                        and w['start'] <= oface+.15 and w['end'] >= oface-.15
+                                        for w in other.passa_pillars[oside]):
+                                    continue
+                                candidates.append((other, oside, osup))
+                    if len(candidates) < 2:
+                        continue
+                    group = {(id(run),rside,id(support)):(run,rside,support)
+                             for run,rside,support in candidates}
+                    # Resolve the whole connected meeting, not each pair:
+                    # three candidates must not elect two different owners.
+                    joined = True
+                    while joined:
+                        joined = False
+                        for existing in list(ownership_groups):
+                            if group.keys() & existing.keys():
+                                group.update(existing)
+                                ownership_groups.remove(existing)
+                                joined = True
+                    ownership_groups.append(group)
+    for group in ownership_groups:
+        def key(candidate):
+            run, _, _ = candidate
+            return (-run.width, run.beam_name, run.axis_angle,
+                    run.t_lo, run.t_hi, run.start, run.end)
+        winner = min(group.values(), key=key)
+        winner_run = winner[0]
+        owner_key = list(key(winner))
+        for run, rside, support in group.values():
+            support.setdefault('passa_ownership', {})[rside] = {
+                'chosen': run is winner_run,
+                'owner_beam': winner_run.beam_name,
+                'owner_key': owner_key,
+                'rule': 'equal_depth_unique_pillar_wall_owner',
+            }
+
+
+def _orthogonal_outer_corners(scene: LvScene, others: list[LvScene]) -> None:
+    """Completa a parede externa de um L ate o canto medido no DXF.
+
+    O trecho comum das duas faces acaba no canto interno. A face externa
+    continua uma largura da viga perpendicular, desde que esta termine na
+    face interna e haja linha estrutural continua ate o canto externo.
+    Um T/cruzamento, uma linha de cota ou um pilar nao provam esse canto.
+    """
+    if scene.angle:
+        return
+    for other in others:
+        if (other is scene or other.beam_name == scene.beam_name or other.angle
+                or other.is_horizontal == scene.is_horizontal):
+            continue
+        for side in ("A", "B"):
+            inner = scene.face_t("B" if side == "A" else "A")
+            # A perpendicular fica inteiramente para dentro desta parede.
+            near = other.start if side == "A" else other.end
+            if abs(near - inner) > AXIS_TOL:
+                continue
+            lo, hi = scene.face_extent.get(side, (scene.start, scene.end))
+            targets = []
+            if abs(other.t_hi - scene.start) <= AXIS_TOL:
+                targets.append(("start", other.t_lo))
+            if abs(other.t_lo - scene.end) <= AXIS_TOL:
+                targets.append(("end", other.t_hi))
+            for end, target in targets:
+                origin = scene.start if end == "start" else scene.end
+                a0, a1 = sorted((origin, target))
+                if a1 - a0 <= AXIS_TOL:
+                    continue
+                if not any(a <= a0 + AXIS_TOL and b >= a1 - AXIS_TOL
+                           for a, b in _merge(scene.face_coverage[side], gap=AXIS_TOL)):
+                    continue
+                if scene.dimension_overlap(side, a0, a1) > 0.05:
+                    continue
+                lo, hi = (min(lo, target), hi) if end == "start" else (lo, max(hi, target))
+                scene.face_extent[side] = (lo, hi)
+                scene.provenance.setdefault("cantos_externos_ortogonais", []).append(
+                    {"face": side, "extremidade": end, "com": other.beam_name,
+                     "inicio": origin, "fim": target, "fonte": "linha_estrutural_continua"})
 
 
 def _diagonal_face_extents(scene: LvScene, others: list[LvScene],
@@ -1366,6 +1613,134 @@ def _split_shared_diagonal_faces(diagonals: list[LvScene]) -> None:
                         {"face": other_side, "com": first.beam_name, "convencao": "fim_do_trecho_comum"})
 
 
+def _recover_unlabelled_support_spans(runs, by_name, edges, section_texts,
+                                     pillar_texts, beam_labels, pillars):
+    """Recover a dimensioned span across a solid support, using source walls.
+
+    A width transition needs a common wall and equal declared depth; the
+    support must cover both bands. Clip to its opposite face before overlap
+    and competing-label checks: the source extent can include support edges
+    and a piece of the already named narrower band.
+    """
+    from dataclasses import replace
+
+    additions = []
+    existing = [r for rr in runs.values() for r in rr]
+    for text in section_texts:
+        horizontal = _rotation_axis(text.get('rotation'))
+        if horizontal is None:
+            continue
+        candidate = build_band_scene({'name':'__section_candidate__'}, [], edges,
+                                     section_texts, beam_labels, pillars,
+                                     only_label=text)
+        if candidate is None or candidate.angle:
+            continue
+        _sections(candidate, {}, section_texts, pillar_texts, edges)
+        dims = {z.get('dim') for z in candidate.sections}
+        if len(dims) != 1 or not candidate.sections:
+            continue
+        section_axis = float(text['pos'][0 if horizontal else 1])
+        proposals = []
+        for run in existing:
+            if run.angle or run.is_horizontal is not horizontal:
+                continue
+            same_band = max(abs(run.t_lo-candidate.t_lo),abs(run.t_hi-candidate.t_hi)) <= .15
+            same_section = {z.get('dim') for z in run.sections} == dims
+            common_wall = (abs(run.t_lo-candidate.t_lo) <= .15
+                           or abs(run.t_hi-candidate.t_hi) <= .15)
+            depths = {parse_section(z.get('dim') or '') for z in run.sections}
+            candidate_depths = {parse_section(z.get('dim') or '') for z in candidate.sections}
+            depth_match = (bool(depths) and None not in depths and None not in candidate_depths
+                           and len({d[1] for d in depths | candidate_depths}) == 1)
+            if not ((same_band and same_section) or (common_wall and depth_match)):
+                continue
+            # Existing same-width recovery remains strict. Only an actual
+            # width transition may clip away overlap with its older band.
+            if same_band and same_section:
+                if any(candidate.world_band().intersection(r.world_band()).area>.05
+                       for r in existing):
+                    continue
+                # Preserve the older same-section rule: any nearby name,
+                # including this owner's own name, means this is not an
+                # unlabelled span. Only a real width change uses the clipped
+                # local competitor proof below.
+                if any(_rotation_axis(t.get('rotation')) is horizontal
+                       and candidate.start-5 <= float(t['pos'][0 if horizontal else 1]) <= candidate.end+5
+                       and candidate.t_lo-8 <= float(t['pos'][1 if horizontal else 0]) <= candidate.t_hi+8
+                       for t in beam_labels):
+                    continue
+            for support_name, _, support in pillars:
+                a,b = run.axis_bounds(support)
+                if (not support.buffer(.15).covers(run.rect(a,b,run.t_lo,run.t_hi))
+                        or not support.buffer(.15).covers(candidate.rect(a,b,candidate.t_lo,candidate.t_hi))):
+                    continue
+                start,end = candidate.start,candidate.end
+                if abs(run.end-a)<=.15 and start<=b+.15 and end>b+.5:
+                    if same_band and same_section and abs(start-b)>.15:
+                        continue
+                    start=b
+                    direction=1
+                elif abs(run.start-b)<=.15 and end>=a-.15 and start<a-.5:
+                    if same_band and same_section and abs(end-a)>.15:
+                        continue
+                    end=a
+                    direction=-1
+                else:
+                    continue
+                # The local section must identify the recovered side, and
+                # both real walls must leave this support face. A distant
+                # pair joined by the extent's gap policy is insufficient.
+                if not start-.15<=section_axis<=end+.15:
+                    continue
+                face=start if direction>0 else end
+                if not all(any(lo-.15<=face<=hi+.15 and
+                               (hi>face+.5 if direction>0 else lo<face-.5)
+                               for lo,hi in edges.coverage(horizontal,t))
+                           for t in (candidate.t_lo,candidate.t_hi)):
+                    continue
+                clipped=replace(candidate,start=start,end=end,sections=[],labels=[])
+                _sections(clipped, {}, section_texts, pillar_texts, edges)
+                band=clipped.world_band()
+                if any(band.intersection(r.world_band()).area>.05 for r in existing):
+                    continue
+                competing=False
+                for label in beam_labels:
+                    if (_norm_name(label.get('text'))==run.beam_name
+                            or _rotation_axis(label.get('rotation')) is not horizontal
+                            or not start-5<=float(label['pos'][0 if horizontal else 1])<=end+5):
+                        continue
+                    lt=float(label['pos'][1 if horizontal else 0])
+                    own_band=_find_band(label,horizontal,edges,None,require_pair_at_label=True)
+                    if (clipped.t_lo-8<=lt<=clipped.t_hi+8
+                            or (own_band is not None and
+                                max(abs(own_band[0]-clipped.t_lo),abs(own_band[1]-clipped.t_hi))<=.15)):
+                        competing=True
+                        break
+                if competing:
+                    continue
+                proposals.append((run.beam_name,clipped,support_name))
+        if len({name for name,_,_ in proposals})!=1:
+            continue
+        # Multiple supports proving different spans are not one unique run.
+        if len({(round(c.start,2),round(c.end,2)) for _,c,_ in proposals})!=1:
+            continue
+        name,candidate,support_name=proposals[0]
+        beam=by_name[name]
+        if beam.get('is_validated') or beam.get('validated_fields'):
+            continue
+        band=candidate.world_band()
+        if any(band.intersection(r.world_band()).area>.05 for _,r in additions):
+            continue
+        candidate.beam_name=name
+        candidate.provenance=dict(band_source='source_walls_unlabelled_support_span',
+                                  section_source=dict(text=text['text'],pos=list(text['pos'])),
+                                  support=support_name,
+                                  ownership_source='unique_adjacent_equal_depth_across_solid_support')
+        additions.append((name,candidate))
+    for name,candidate in additions:
+        runs[name].append(candidate)
+
+
 def build_scene_runs(
     beams: list[dict],
     texts: list[dict],
@@ -1380,7 +1755,11 @@ def build_scene_runs(
     trechos, cada um com orientacao e A/B proprios (G0). Rotulos da mesma
     faixa colapsam num trecho so'. Rotulo diagonal (Caso 8) fica de fora.
     """
-    structural_segs, dimension_segs = split_dimension_lines(_line_segments(lines), texts)
+    from .cad_object_recognition import section_layer
+    source_lines = list(lines or [])
+    cut_items = [item for item in source_lines if section_layer(item.get('layer'))]
+    lines = [item for item in source_lines if not section_layer(item.get('layer'))]
+    structural_segs, dimension_segs = split_dimension_geometry(lines, texts)
     edges = _EdgeIndex(structural_segs)
     dim_edges = _EdgeIndex(dimension_segs)
     section_texts = []
@@ -1442,9 +1821,64 @@ def build_scene_runs(
                 "B": dim_edges.coverage(scene.is_horizontal, scene.t_hi),
             }
             scene.provenance["linhas_de_cota_excluidas"] = len(dimension_segs)
+    _recover_unlabelled_support_spans(runs, by_name, edges, section_texts,
+                                     pillar_texts, beam_labels, pillars)
+    # A change in width across a solid end support can leave a short, real
+    # tail without another name label. Recover only a pair of source walls
+    # at the opposite support face, with a section leader into that tail.
+    for name, scenes in list(runs.items()):
+        tails = []
+        for scene in list(scenes):
+            if scene.angle:
+                continue
+            for pillar_name, _, poly in pillars:
+                a0,a1 = scene.axis_bounds(poly)
+                t0,t1 = (poly.bounds[1],poly.bounds[3]) if scene.is_horizontal else (poly.bounds[0],poly.bounds[2])
+                if abs((t0+t1)-(scene.t_lo+scene.t_hi)) > .3:
+                    continue
+                direction = 1 if abs(scene.end-a0)<=.15 else -1 if abs(scene.start-a1)<=.15 else 0
+                if not direction:
+                    continue
+                face = a1 if direction>0 else a0
+                spans = []
+                for lo,hi in edges.coverage(scene.is_horizontal,t0):
+                    for low,high in edges.coverage(scene.is_horizontal,t1):
+                        x,y = max(lo,low),min(hi,high)
+                        if direction>0 and abs(x-face)<=.15 and y>x:
+                            spans.append((face,y))
+                        elif direction<0 and abs(y-face)<=.15 and y>x:
+                            spans.append((x,face))
+                        elif x<=face<=y:
+                            spans.append((face,y) if direction>0 else (x,face))
+                for x,y in spans:
+                    if y-x<=.5 or y-x>MAX_EDGE_GAP:
+                        continue
+                    tail = LvScene(name,scene.is_horizontal,t0,t1,x,y)
+                    if any(tail.world_band().intersection(r.world_band()).area>.01 for r in scenes+tails):
+                        continue
+                    candidates = []
+                    for s in section_texts:
+                        if _rotation_axis(s.get('rotation')) is not scene.is_horizontal or abs(s['section'][0]-tail.width)>.15:
+                            continue
+                        sx,sy = map(float,s['pos'][:2]);height=float(s.get('height') or 1)
+                        for line in lines:
+                            pts = line.get('points') or []
+                            if len(pts)<3 or math.dist(pts[0][:2],(sx,sy))>2*height:
+                                continue
+                            if any(tail.world_band().buffer(.15).covers(Point(p[:2])) for p in pts[1:]):
+                                candidates.append(s);break
+                    if len({s['text'] for s in candidates})!=1:
+                        continue
+                    s=candidates[0]
+                    tail.sections=[{'start':x,'end':y,'width':tail.width,'depth':s['section'][1],'dim':s['text'],'end_source':'source_walls_support_tail'}]
+                    tail.face_coverage={'A':edges.coverage(scene.is_horizontal,t0),'B':edges.coverage(scene.is_horizontal,t1)}
+                    tail.provenance={'band_source':'source_walls_opposite_support_tail','support':pillar_name,'section_source':'dxf_section_leader'}
+                    tails.append(tail)
+        scenes.extend(tails)
     slab_polys = _slab_polygons(slabs)
     others = [scene for scenes in runs.values() for scene in scenes]
     for scene in others:
+        scene.provenance['entidades_visao_corte_excluidas'] = len(cut_items)
         if scene.angle:
             _diagonal_face_extents(scene, others)
     _split_shared_diagonal_faces([sc for sc in others if sc.angle])
@@ -1455,6 +1889,7 @@ def build_scene_runs(
                 _diagonal_face_extents(scene, others, ends)
     stubs = _corner_stubs_beyond_pillar(others, pillars)
     for scene in others:
+        _orthogonal_outer_corners(scene, others)
         _attach_context(scene, pillars, others, slab_polys)
     for owner, stub in stubs:
         _attach_context(stub, pillars, others, slab_polys)

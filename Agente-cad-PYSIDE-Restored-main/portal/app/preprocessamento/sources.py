@@ -163,7 +163,13 @@ def inventory_floor_sources(
     atualmente publicadas. Históricos de ``recortes_reversos`` não participam.
     """
     selected_stems: set[str] = set()
+    work_stems: set[str] = set()
     for document in documents:
+        if document.get('obra_id') not in (None, obra_id):
+            continue
+        filename = str(document.get('arquivo_nome') or '').strip()
+        if filename:
+            work_stems.add(recortes_reader.stem_bruto_canonico(Path(filename).stem).lower())
         floor = document.get("pavimento_confirmado") or document.get("pavimento_sugerido")
         if str(floor or "").strip() != pavimento_id:
             continue
@@ -174,10 +180,14 @@ def inventory_floor_sources(
     sources: list[SourceRecord] = []
     for bruto in recortes_reader.listar_brutos_recorte(obra_dir):
         canonical = str(bruto.get("bruto_base") or "").lower()
-        if canonical not in selected_stems:
+        if canonical not in work_stems:
             continue
         bruto_id = str(bruto["bruto_id"])
         for item in torre_crop.listar_recortes_bruto(obra_dir, bruto_id):
+            # Only the work-wide level legend is reusable across floors. Never
+            # import another floor's tower, pillars, slabs or local cut geometry.
+            if canonical not in selected_stems and _kind(str(item['item_id'])) is not SourceKind.LEVEL_CONVENTION:
+                continue
             sources.append(
                 resolve_crop_source(
                     obra_dir=obra_dir,
@@ -198,8 +208,15 @@ def raw_level_references(obra_dir: Path, sources: Sequence[SourceRecord]) -> tup
     """
     root = obra_dir.resolve()
     found = []
+    if not (root / "entrada").is_dir():
+        return ()
     for tower in (source for source in sources if source.kind is SourceKind.TOWER):
-        path = _inside(root, root / "entrada" / f"{tower.bruto_id}.dxf")
+        candidates = sorted(p for p in (root / "entrada").iterdir()
+                            if p.is_file() and p.suffix.lower() == ".dxf"
+                            and p.stem == tower.bruto_id)
+        if not candidates:
+            continue
+        path = _inside(root, candidates[0])
         if not path.is_file():
             continue
         identity = "\0".join((tower.obra_id, tower.pavimento_id, tower.bruto_id)).encode()

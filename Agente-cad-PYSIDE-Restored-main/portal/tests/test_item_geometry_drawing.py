@@ -24,10 +24,10 @@ assert.deepEqual(pointsToDxf([{x:0,y:0},{x:864,y:391.68}],bbox,[0,0,864,391.68])
     assert "overlay.dataset.homeVb" not in source
 
 
-def test_redraw_hides_only_target_and_cancel_refreshes_overlay():
+def test_redraw_isolates_target_and_cancel_refreshes_overlay():
     source = (Path(__file__).resolve().parents[1] / "app/static/item_geometry.js").read_text(encoding="utf-8")
     template = (Path(__file__).resolve().parents[1] / "app/templates/obra_detalhe.html").read_text(encoding="utf-8")
-    assert "item.classe_sa===target.classe && item.item_id===target.itemId" in source
+    assert "item.classe_sa!==target.classe || item.item_id!==target.itemId" in source
     assert "window.ItemGeometry.hides(item)" in template
     assert "container._renderDestaques = desenhar" in template
     assert source.count("if(container._renderDestaques) container._renderDestaques();") == 2

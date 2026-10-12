@@ -6,6 +6,47 @@ from src.core.slab_level_inference import cut_delta_level, gate_cut_delta_level
 from src.core.slab_level_inference import paired_cut_level_source
 
 
+def test_regional_wing_does_not_borrow_principal_altitude():
+    cut = {'ficha': {'side_a_laje_name':'own', 'side_b_laje_name':'other',
+        'own_slab_height':12, 'neigh_slab_height':10, 'own_dist_top':2, 'neighbor_dist_top':2}}
+    source = {'slab':'other', 'value':537.86}
+    own = {'fields':{'laje_dim':'h=12'}}
+    other = {'fields':{'laje_dim':'12'}}
+    assert paired_cut_level_source(cut,'own',source,own_slab=own,source_slab=other) is None
+    cut['ficha']['neigh_slab_height'] = 12
+    assert paired_cut_level_source(cut,'own',source,own_slab=own,source_slab=other)['value'] == 537.86
+
+
+def test_named_neighbor_without_measured_wing_cannot_make_a_false_step():
+    cut = {'ficha': {'side_a_laje_name': 'own', 'side_b_laje_name': 'other',
+                     'own_dist_top': 75, 'neighbor_dist_top': 0,
+                     'own_slab_height': 12, 'neigh_slab_height': 0}}
+    assert paired_cut_level_source(cut, 'own', {'slab': 'other', 'value': 0}) is None
+    cut['ficha']['neigh_slab_height'] = 12
+    assert paired_cut_level_source(cut, 'own', {'slab': 'other', 'value': 0})['value'] == -.75
+
+
+def test_secondary_delta_path_requires_named_pair_and_both_measurements():
+    import ast
+    from pathlib import Path
+    tree = ast.parse((Path(__file__).parents[1] / 'main.py').read_text(encoding='utf8'))
+    method = next(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef)
+                  and n.name == '_cut_view_level_delta')
+    namespace = {}
+    exec(compile(ast.Module(body=[method], type_ignores=[]), 'main.py', 'exec'), namespace)
+    delta = namespace['_cut_view_level_delta']
+    cut = {'ficha': {'side_a_laje_name':'own', 'side_b_laje_name':'other', 'own_dist_top':7}}
+    args = (None,cut,'centro','topo',{'name':'own'},{'name':'other'})
+    assert delta(*args) is None
+    cut['ficha']['neighbor_dist_top'] = 0
+    assert delta(*args) == -7
+    cut['ficha']['neigh_slab_height'] = 0
+    assert delta(*args) is None
+    cut['ficha']['neigh_slab_height'] = 12
+    assert delta(*args) == -7
+    assert delta(None,cut,'centro','topo',{'name':'unrelated'},{'name':'other'}) is None
+
+
 def test_shared_cut_transports_step_instead_of_copying_neighbor_level():
     cut = {'ficha': {'side_a_laje_name': 'own', 'side_b_laje_name': 'other',
                      'own_dist_top': '7', 'neighbor_dist_top': '0'}}

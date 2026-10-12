@@ -103,14 +103,17 @@ def gerar_recortes_bruto(
     """Detecta e recorta torre(s)+detalhes de um DXF bruto. Idempotente (skip
     se já existir, a menos que force=True). Nunca inventa geometria — se o
     DBSCAN não achar cluster, devolve erro explícito (sem gerar arquivo)."""
-    from scripts.obra_crop_engine import crop_dxf, crop_dxf_multi, detect_regions
+    from scripts.obra_crop_engine import crop_dxf, crop_dxf_multi, crop_dxf_complement, detect_regions
 
     out_dir = _dir_recortes_bruto(obra_dir, bruto_stem)
     validados = _ler_validacao(out_dir)
     bad_bboxes = validados.get("bad_bboxes", None)
 
     if not force and out_dir.exists() and any(out_dir.glob("torre_*.dxf")):
-        return {"cached": True, "out_dir": str(out_dir)}
+        from .crop_islands import ensure_detail_islands
+        islands = ensure_detail_islands(dxf_bruto_path, out_dir)
+        _preparar_viewers(obra_dir, out_dir)
+        return {"cached": True, "out_dir": str(out_dir), "islands": islands}
 
     regions = detect_regions(dxf_bruto_path, n_torres=n_torres, bad_bboxes=bad_bboxes)
     if regions.get("error"):
@@ -139,7 +142,7 @@ def gerar_recortes_bruto(
         resultado["torres"].append({"nome": f"torre_{i}", "path": str(out_path),
                                      "entidades": crop["entities_copied"]})
 
-    if regions["detalhes"]:
+    if resultado["torres"]:
         out_path = out_dir / "detalhes.dxf"
         if validados.get("detalhes") and out_path.is_file():
             resultado["detalhes"] = {
@@ -147,15 +150,31 @@ def gerar_recortes_bruto(
                 "entidades": contar_entidades(out_path), "cached": True,
             }
         else:
-            bboxes = [d["bbox"] for d in regions["detalhes"]]
-            crop = crop_dxf_multi(dxf_bruto_path, out_path, bboxes, padding_pct=0.01)
+            if any(t.get("cached") for t in resultado["torres"]):
+                # An approved legacy/manual crop has no source-handle contract.
+                bboxes = [d["bbox"] for d in regions["detalhes"]]
+                crop = crop_dxf_multi(dxf_bruto_path, out_path, bboxes, padding_pct=0.01)
+            else:
+                crop = crop_dxf_complement(dxf_bruto_path, out_path,
+                                           [t["path"] for t in resultado["torres"]])
+                resultado["coverage"] = {k: crop[k] for k in
+                    ("source_entities", "tower_entities", "uncovered_entities") if k in crop}
             if crop.get("error"):
                 resultado["error"] = f"detalhes: {crop['error']}"
             else:
                 resultado["detalhes"] = {"nome": "detalhes", "path": str(out_path),
                                           "entidades": crop["entities_copied"]}
 
+    from .crop_islands import ensure_detail_islands
+    resultado["islands"] = ensure_detail_islands(dxf_bruto_path, out_dir, regions)
+    _preparar_viewers(obra_dir, out_dir)
     return resultado
+
+
+def _preparar_viewers(obra_dir: Path, out_dir: Path):
+    from .viewer_preparation import schedule
+    for source in sorted(out_dir.glob("*.dxf")):
+        schedule(source, obra_dir / ".previews")
 
 
 def listar_recortes_bruto(obra_dir: Path, bruto_stem: str) -> list[dict]:

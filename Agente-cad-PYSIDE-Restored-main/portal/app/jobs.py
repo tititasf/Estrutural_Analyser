@@ -190,6 +190,8 @@ def processar_um_job(app_state, job: dict) -> None:
                 vigas_config=meta.get("vigas_config"),
             )
             if resultado.ok:
+                from .knowledge_scope import best_effort_sa
+                best_effort_sa(obra, meta.get('pav'))
                 repo.finalizar_job(conn, job["id"], "concluido", log_path=str(log_path))
             else:
                 erro_tail = resultado.log_tail[-500:] or "microciclo do item falhou"
@@ -229,13 +231,21 @@ def processar_um_job(app_state, job: dict) -> None:
             )
             return
 
-        etapa_efetiva = etapa if etapa in pipeline_runner.ETAPAS_SUBPROCESS else "sa"
+        if etapa == "motores_obra":
+            from .obra_pipeline import executar_cadeia
+            executar_cadeia(app_state, conn, settings, obra, job, meta, log_path)
+            repo.finalizar_job(conn, job["id"], "concluido", log_path=str(log_path))
+            repo.atualizar_estado_obra(conn, obra["id"], "pronta", processada_em=_agora(), etapa_concluida="sa")
+            return
+
+        etapa_efetiva = "n3" if etapa == "motores" else (etapa if etapa in pipeline_runner.ETAPAS_SUBPROCESS else "sa")
 
         if etapa == "n5":
             resultado = pipeline_runner.executar_n5(
                 settings, obra, classe=meta.get("classe", "PL"),
                 pavimento=meta.get("pavimento", "GERAL"), dry_run=False,
                 visual_mode=meta.get("visual_mode", "NOVA"),
+                vigas_config=meta.get("vigas_config"),
             )
         elif etapa == "converter_dwg":
             # [novo, a pedido do dono] conversao avulsa DWG->DXF, fora do fluxo
@@ -282,7 +292,7 @@ def processar_um_job(app_state, job: dict) -> None:
                         )
             finally:
                 release_lock(lock)
-        elif etapa_efetiva == "sa":
+        elif etapa_efetiva in {"sa", "n3"}:
             # [FIX 2026-07-06] achado real rodando SA pela 1a vez de verdade contra
             # uma obra nova: DEADLOCK. Este branch ANTES tambem chamava
             # wait_for_lock(_LOCK_NAME) aqui, no processo do WORKER, e so' depois
@@ -296,7 +306,7 @@ def processar_um_job(app_state, job: dict) -> None:
             # Correcao: SA nao trava aqui — o subprocess `--wait` JA' e' a
             # serializacao (contra o dono na app PySide6 e contra outros jobs).
             resultado = pipeline_runner.executar_etapa(
-                settings, "sa", obra, secao=meta.get("secao"), pav=meta.get("pav"),
+                settings, etapa_efetiva, obra, secao=meta.get("secao"), pav=meta.get("pav"),
                 dry_run=False, log_path=log_path,
                 visual_mode=meta.get("visual_mode", "NOVA"),
                 vigas_config=meta.get("vigas_config"),
@@ -323,9 +333,8 @@ def processar_um_job(app_state, job: dict) -> None:
                     # depois que o runtime for corrigido. A triagem chama
                     # `_converter_e_validar_um`, portanto todo DWG sem par DXF
                     # é convertido ANTES da sanidade/classificação.
-                    pendentes = [
-                        d for d in documentos if d["status"] in ("pendente", "erro")
-                    ]
+                    from .obra_pipeline import documentos_para_triagem
+                    pendentes = documentos_para_triagem(settings, obra, documentos)
                     por_id = {d["id"]: d for d in pendentes}
                     resultado = pipeline_runner.executar_triagem_documentos(
                         settings, obra, pendentes, dry_run=False, log_path=log_path,
@@ -342,10 +351,13 @@ def processar_um_job(app_state, job: dict) -> None:
                         # classe+pavimento ja' eram inequivocos; senao 'revisar'
                         # (humano decide na tela da obra, arquivo em si esta' ok).
                         doc = por_id[item["doc_id"]]
-                        inequivoco = bool(doc["classe_sugerida"] and doc["pavimento_sugerido"])
+                        classe_escolhida = doc.get('classe_confirmada') or doc['classe_sugerida']
+                        pavimento_escolhido = doc.get('pavimento_confirmado') or doc['pavimento_sugerido']
+                        tipo_escolhido = doc.get('tipo_documento_confirmado') or doc.get('tipo_documento_sugerido')
+                        inequivoco = bool((classe_escolhida or tipo_escolhido) and pavimento_escolhido)
                         status_final = "classificado" if inequivoco else "revisar"
-                        classe_final = doc["classe_sugerida"] if inequivoco else None
-                        pavimento_final = doc["pavimento_sugerido"] if inequivoco else None
+                        classe_final = classe_escolhida if inequivoco else None
+                        pavimento_final = pavimento_escolhido if inequivoco else None
                         repo.atualizar_classificacao_documento(
                             conn, item["doc_id"],
                             status=status_final,
@@ -376,22 +388,34 @@ def processar_um_job(app_state, job: dict) -> None:
             finally:
                 release_lock(lock)
 
+        if resultado.artefatos.get('item_pending'):
+            meta['item_pending'] = resultado.artefatos['item_pending']
+            meta['parcial'] = True
+            repo.salvar_job_meta(conn, job['id'], meta)
+            app_state.job_meta[job['id']] = meta
         if resultado.ok:
+            if etapa_efetiva in {'sa','n3'}:
+                from .knowledge_scope import best_effort_sa
+                best_effort_sa(obra, meta.get('pav'))
             if meta.get("cascade_n5"):
                 # O headless SA materializa o N3 da mesma rodada. Depois disso,
-                # unifica apenas classes que já passaram pelo gate humano.
-                for class_code in ("PL", "LV", "FV", "LAJ"):
-                    validation = repo.obter_validacao_classe(conn, obra["id"], class_code)
-                    if not validation.get("validado"):
-                        continue
-                    n5_release.liberar_n5(
+                # unifica as quatro classes com verificações automáticas.
+                # Revisão humana é opcional (decisão do dono, 2026-10-08).
+                for class_code in ("PL", "LV", "FV", "LJ"):
+                    release = n5_release.liberar_n5(
                         conn, settings, obra=obra, classe=class_code,
                         pavimento=meta.get("pav") or "GERAL",
                         membro_id=meta.get("membro_id") or obra.get("membro_id") or "system",
                         job_id=job["id"],
                         engine_version=job.get("engine_version"), dry_run=False,
                         visual_mode=meta.get("visual_mode", "NOVA"),
+                        vigas_config=meta.get("vigas_config"),
                     )
+                    if release and release.get('item_pending'):
+                        meta.setdefault('item_pending', []).extend(release['item_pending'])
+                        meta['parcial'] = True
+                        repo.salvar_job_meta(conn, job['id'], meta)
+                        app_state.job_meta[job['id']] = meta
             repo.finalizar_job(conn, job["id"], "concluido", log_path=str(log_path))
             if etapa == "converter_dwg":
                 # [novo] conversao avulsa NAO e' etapa formal do pipeline —
@@ -399,7 +423,7 @@ def processar_um_job(app_state, job: dict) -> None:
                 # etapa_concluida, que fica preservado via COALESCE) pra nao
                 # regredir etapa_atual (_PROXIMA_ETAPA nao conhece essa chave).
                 repo.atualizar_estado_obra(conn, obra["id"], "processando")
-            elif etapa == "n5" or etapa_efetiva == "sa":
+            elif etapa == "n5" or etapa_efetiva in {"sa", "n3"}:
                 repo.atualizar_estado_obra(conn, obra["id"], "pronta", processada_em=_agora(),
                                            etapa_concluida=None if etapa == "n5" else "sa")
             else:
@@ -453,7 +477,7 @@ def processar_um_job(app_state, job: dict) -> None:
                                erro_msg=erro_tail, log_path=str(log_path))
             repo.atualizar_estado_obra(conn, obra["id"], "erro", erro_msg=erro_tail)
     except Exception as exc:  # noqa: BLE001 - quarentena (R6): job com erro nao para a fila
-        if etapa == 'preprocessamento' and isinstance(exc, InterruptedError):
+        if etapa in {'preprocessamento', 'motores_obra'} and isinstance(exc, InterruptedError):
             return  # Mantém o cancelamento persistido pelo operador.
         log.exception("job %s falhou", job["id"])
         if etapa == "qa_agentico" and meta.get("round_id"):

@@ -1,6 +1,27 @@
 from __future__ import annotations
 
+import pytest
+
 from src.core import pillar_n3_ficha as ficha
+
+
+@pytest.mark.parametrize('shift', range(8))
+@pytest.mark.parametrize('reverse', [False, True])
+@pytest.mark.parametrize('rotated', [False, True])
+def test_u_fallback_widths_follow_named_walls(shift, reverse, rotated):
+    ring = [(0, 0), (100, 0), (100, 80), (80, 80),
+            (80, 15), (25, 15), (25, 65), (0, 65)]
+    if rotated:
+        ring = [(-y, x) for x, y in ring]
+    if reverse:
+        ring.reverse()
+    ring = ring[shift:] + ring[:shift]
+    result = ficha.build_ficha({'name': 'PU', 'points': ring}, {'altura': 280})
+    expected = dict(A=100, B=55, C=25, D=20, E=65, F=50, G=80, H=65)
+    assert {face: data['panels'][0]['width'] for face, data in result['faces'].items()} == expected
+    overridden = ficha.build_ficha({'name': 'PU', 'points': ring},
+                                  {'altura': 280, 'larg1_E': 77})
+    assert overridden['faces']['E']['panels'][0]['width'] == 77
 
 
 def _rect_pillar():

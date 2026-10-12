@@ -1,0 +1,29 @@
+<section id="obra-cadeia" data-obra="{{ obra.id }}" style="margin-top:14px">
+  <button type="button" class="obra-action-btn obra-action-btn-pri" id="btn-cadeia-completa" style="width:100%" disabled>
+    <span class="obra-action-ico" aria-hidden="true">▶</span>
+    <span class="obra-action-txt">
+      <span class="obra-action-title">Processamento completo · Pré-proc. → SA → N3 → N5</span>
+      <span class="obra-action-sub">Todas as classes do pavimento escolhido ou de todos · fichas, desenhos e unificados</span>
+    </span>
+  </button>
+  <fieldset id="cadeia-opcoes" style="margin:10px 0;padding:12px;border:1px solid #dbe4f0;border-radius:8px;display:flex;flex-wrap:wrap;gap:14px">
+    <legend>Opções de desenho e unificação</legend>
+    <label>Pavimento<br><select name="pavimento" class="input" disabled>
+      <option value="">Carregando pavimentos…</option>
+    </select></label>
+    <button type="button" class="btn btn-sec" id="cadeia-atualizar-pavimentos">Atualizar pavimentos</button>
+    <label>Modo N3 / N5<br><select name="visual_mode" class="input">
+      <option value="INI">Modo INI</option><option value="NOVA">Modo Nova</option>
+      <option value="MOLDE_1">Formascia</option><option value="MOLDE_2" disabled>Molde 2 · indisponível</option>
+      <option value="MOLDE_3" disabled>Molde 3 · indisponível</option>
+    </select></label>
+    <label>Laterais de vigas<br><select name="lateral_assembly" class="input">
+      <option value="gradeadas">Vigas gradeadas</option><option value="sarrafeadas">Vigas sarrafeadas</option>
+    </select></label>
+    <label>Fundos possuem garfos?<br><select name="fundos_garfos" class="input">
+      <option value="nao">Não</option><option value="sim" disabled>Sim · ainda não implementado</option>
+    </select></label>
+    <p class="meta" style="margin:0;flex-basis:100%">Triagem + Recortes processa todos os pavimentos. Aqui, escolha um pavimento para testar ou todos para processar a obra. As mesmas opções são usadas do N3 ao N5. A execução continua mesmo ao sair da página.</p>
+  </fieldset>
+  <div id="cadeia-resultado" role="status" aria-live="polite"></div>
+</section>

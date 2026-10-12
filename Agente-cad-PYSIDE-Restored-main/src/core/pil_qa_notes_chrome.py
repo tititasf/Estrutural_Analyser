@@ -352,10 +352,15 @@ def n1_layer_toggle_and_layers(
     return toggle + viewer
 
 
-def wrap_n1_panzoom(svg_markup: str, *, viewer_id: str) -> str:
+def wrap_n1_panzoom(svg_markup: str, *, viewer_id: str, svg_src: str = "") -> str:
     """Viewer pan/zoom para um SVG isolado (ex. N1 distante)."""
     safe_cid = html_lib.escape(viewer_id, quote=True)
     inner = svg_markup or '<p class="muted">indisponível</p>'
+    if svg_src:
+        inner = (
+            f'<div class="pil-layer" data-proposal-src="{html_lib.escape(svg_src, quote=True)}">'
+            '<p class="muted">Abra esta vista para carregar o desenho.</p></div>'
+        )
     return (
         f'<div id="{safe_cid}" class="pil-panzoom" data-panzoom="1" data-pil-pz="1">'
         f'<button type="button" class="pil-panzoom-reset" data-pz-reset="{safe_cid}">Reset zoom</button>'
@@ -592,10 +597,15 @@ def js_pil_qa(*, notes_api_default: str = "http://127.0.0.1:18765") -> str:
         ag.setAttribute('viewBox', (hx+rx*hw)+' '+(hy+ry*hh)+' '+(hw*zx)+' '+(hh*zy));
       }});
     }}
+    var pendingFrame=0;
     function apply(){{
+      if(pendingFrame){{ cancelAnimationFrame(pendingFrame); pendingFrame=0; }}
       var vb=state.x+' '+state.y+' '+state.w+' '+state.h;
       _allSyncSvgs(outer).forEach(function(s){{ s.setAttribute('viewBox', vb); }});
       applyAgentRelative();
+    }}
+    function scheduleApply(){{
+      if(!pendingFrame) pendingFrame=requestAnimationFrame(function(){{ pendingFrame=0; apply(); }});
     }}
     function reset(){{ state={{x:home.x,y:home.y,w:home.w,h:home.h}}; apply(); }}
     outer._pzReset=reset;
@@ -607,7 +617,12 @@ def js_pil_qa(*, notes_api_default: str = "http://127.0.0.1:18765") -> str:
       var pt=act.createSVGPoint(); pt.x=cx; pt.y=cy;
       var ctm=act.getScreenCTM();
       if(!ctm) return {{x:state.x+state.w/2,y:state.y+state.h/2}};
-      return pt.matrixTransform(ctm.inverse());
+      var p=pt.matrixTransform(ctm.inverse());
+      var shown=act.viewBox.baseVal;
+      // Events can arrive before the scheduled frame. Map the displayed camera
+      // into the pending camera so successive wheel events keep their anchor.
+      return {{x:state.x+(p.x-shown.x)*state.w/shown.width,
+               y:state.y+(p.y-shown.y)*state.h/shown.height}};
     }}
     outer.addEventListener('wheel',function(e){{
       e.preventDefault();
@@ -619,7 +634,7 @@ def js_pil_qa(*, notes_api_default: str = "http://127.0.0.1:18765") -> str:
       var p=clientToSvg(e.clientX,e.clientY);
       state.x=p.x-(p.x-state.x)*(nextW/state.w);
       state.y=p.y-(p.y-state.y)*(nextH/state.h);
-      state.w=nextW; state.h=nextH; apply();
+      state.w=nextW; state.h=nextH; scheduleApply();
     }},{{passive:false}});
     outer.addEventListener('mousedown',function(e){{
       if(e.button!==0) return;
@@ -635,11 +650,13 @@ def js_pil_qa(*, notes_api_default: str = "http://127.0.0.1:18765") -> str:
       var p0=act.createSVGPoint(); p0.x=lx; p0.y=ly;
       var p1=act.createSVGPoint(); p1.x=e.clientX; p1.y=e.clientY;
       var a=p0.matrixTransform(inv), b=p1.matrixTransform(inv);
-      state.x-=(b.x-a.x); state.y-=(b.y-a.y);
-      lx=e.clientX; ly=e.clientY; apply();
+      var shown=act.viewBox.baseVal;
+      state.x-=(b.x-a.x)*state.w/shown.width;
+      state.y-=(b.y-a.y)*state.h/shown.height;
+      lx=e.clientX; ly=e.clientY; scheduleApply();
     }});
     window.addEventListener('mouseup',function(){{
-      if(!drag) return; drag=false; outer.style.cursor='grab';
+      if(!drag) return; drag=false; outer.style.cursor='grab'; apply();
     }});
     outer.addEventListener('dblclick',function(e){{
       if(e.target&&e.target.closest&&e.target.closest('button,textarea')) return;
@@ -718,6 +735,7 @@ def js_pil_qa(*, notes_api_default: str = "http://127.0.0.1:18765") -> str:
       if(s){{
         _namespacePilSvg(s,layerEl); _prepPilSvg(s);
         _auditPilSvgNamespaces();
+        if(outer && outer.dataset.pzInit!=='1') initPilPanZoom(outer);
         if(outer&&outer._pzApply) outer._pzApply();
       }}
       if(done) done();
@@ -738,6 +756,13 @@ def js_pil_qa(*, notes_api_default: str = "http://127.0.0.1:18765") -> str:
     }}
     tryFetch(0);
   }}
+  window.loadPilView=function(panel){{
+    if(!panel) return;
+    panel.querySelectorAll('.pil-layer[data-proposal-src]').forEach(function(el){{
+      if(el.closest('[data-ctx-layers]')) return;
+      _loadLayerSvg(el, el.closest('[data-panzoom]'));
+    }});
+  }};
   function setHlMode(mode){{
     var root=document.querySelector('[data-ctx-layers]');
     if(!root) return;

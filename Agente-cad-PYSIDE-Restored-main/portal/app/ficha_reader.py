@@ -215,6 +215,9 @@ def _ler_estado_pavimento(obra_dir: Path, pavimento: str, *, apply_qa: bool = Tr
         if source:
             from src.core.slab_steps import enrich_state
             enrich_state(state, source)
+            state = apply_geometry(state, obra_dir, pavimento)
+        from .structural_review import load as load_section_review
+        state['_section_review'] = load_section_review(obra_dir, pavimento)
         state = apply_state(state, obra_dir, pavimento)
         if apply_qa:
             from .qa_interpretation import apply_effective
@@ -295,6 +298,7 @@ def _normalizar_pilar(p: dict, lajes_por_nome: Optional[dict] = None) -> dict:
         from src.core.pillar_abcd_tables import (
             build_abcd_tables_from_pillar,
             format_abcd_tables_portal_html,
+            refine_slab_contact_thickness,
         )
         from src.core.pillar_special_faces import (
             enrich_special_pillar_tables,
@@ -324,6 +328,24 @@ def _normalizar_pilar(p: dict, lajes_por_nome: Optional[dict] = None) -> dict:
                 slab_nivel_map=slab_n,
                 nivel_viga_default="",
             )
+        abcd_tables = refine_slab_contact_thickness(abcd_tables, pillar_src, lajes_por_nome)
+        # Os campos granulares mostram o mesmo contato da tabela, não a
+        # espessura principal de uma laje com regiões locais diferentes.
+        for entry in pillar_src.get('lajes') or []:
+            if not isinstance(entry, dict):
+                continue
+            side = str(entry.get('side') or '').strip().upper()
+            name = entry.get('laje')
+            local = next((row for row in (abcd_tables.get('faces', {}).get(side, {}).get('lajes') or [])
+                          if row.get('nome') == name and row.get('_thickness_evidence')), None)
+            if local is None:
+                continue
+            for label, identifier in field_ids_granular.items():
+                if identifier.startswith(f'p_s{side}_l') and identifier.endswith('_n') and campos.get(label) == name:
+                    height_id = identifier[:-1] + 'h'
+                    for height_label, field_id in field_ids_granular.items():
+                        if field_id == height_id:
+                            campos[height_label] = local.get('dim', '')
         abcd_tables = enrich_special_pillar_tables(
             abcd_tables, pillar_src,
             slab_height_map=slab_h, slab_nivel_map=slab_n,
@@ -437,7 +459,7 @@ def _normalizar_segmento(s: dict, classe: Optional[str] = None) -> dict:
         "Largura": s.get("width") or None,
         "Altura da viga": s.get("beam_height"),
         "Seção": s.get("section_dim"),
-        "Nível": s.get("level") or None,
+        "Nível": s.get("level"),
         "Status": s.get("status"),
     }
     mapa = _FIELD_ID_SEGMENTO_SUFIXO.get(classe or "", {})
@@ -636,7 +658,14 @@ def _parse_html_cache(caminho_str: str, mtime: float) -> list[dict]:
     from bs4 import BeautifulSoup
 
     texto = Path(caminho_str).read_text(encoding="utf-8", errors="replace")
-    soup = BeautifulSoup(texto, "html.parser")
+    vectors = []
+    def keep_vector(match):
+        vectors.append(match.group(0))
+        opening = match.group(0).split('>', 1)[0]
+        return opening + ' data-vector-index="%d"></svg>' % (len(vectors) - 1)
+    markup = re.sub(r'<script\b[^>]*>.*?</script\s*>', '', texto, flags=re.S | re.I)
+    skeleton = re.sub(r'<svg\b[^>]*>.*?</svg\s*>', keep_vector, markup, flags=re.S | re.I)
+    soup = BeautifulSoup(skeleton, "html.parser")
     cartas = []
     for svg in soup.select("svg.img-geo, svg.img-fv-hifi, svg.img-n4, svg.img-n3"):
         # card ao redor (achado real: nome da classe do container varia por
@@ -659,7 +688,7 @@ def _parse_html_cache(caminho_str: str, mtime: float) -> list[dict]:
         segmento = segmento_match.group(1) if segmento_match else None
         cartas.append({
             "nivel": nivel, "lado": lado, "segmento": segmento,
-            "aria": svg.get("aria-label") or "", "svg": str(svg),
+            "aria": svg.get("aria-label") or "", "svg": vectors[int(svg['data-vector-index'])],
         })
     return cartas
 
@@ -830,17 +859,41 @@ def _parse_pilar_n1_views_cache(caminho_str: str, mtime: float) -> dict[str, Opt
     from bs4 import BeautifulSoup
 
     texto = Path(caminho_str).read_text(encoding="utf-8", errors="replace")
-    soup = BeautifulSoup(texto, "html.parser")
+    # Parse the panel structure without building a DOM for millions of SVG nodes.
+    # Keep the original vectors verbatim so this never changes geometry/quality.
+    vectors = []
+    def keep_vector(match):
+        vectors.append(match.group(0))
+        return '<svg data-vector-index="%d"></svg>' % (len(vectors) - 1)
+    # Scripts contain literal "<svg" strings; remove them before matching vectors.
+    markup = re.sub(r'<script\b[^>]*>.*?</script\s*>', '', texto, flags=re.S | re.I)
+    skeleton = re.sub(r'<svg\b[^>]*>.*?</svg\s*>', keep_vector, markup, flags=re.S | re.I)
+    soup = BeautifulSoup(skeleton, "html.parser")
+    def read_view(panel):
+        if panel is None:
+            return None
+        node = panel.select_one('svg[data-vector-index]')
+        if node is not None:
+            return vectors[int(node['data-vector-index'])]
+        lazy = panel if panel.has_attr('data-proposal-src') else panel.select_one('[data-proposal-src]')
+        if lazy is None:
+            return None
+        asset = (Path(caminho_str).parent / lazy['data-proposal-src']).resolve()
+        # Exported assets belong to the same pack; do not follow arbitrary paths.
+        if not asset.is_relative_to(Path(caminho_str).resolve().parent.parent):
+            return None
+        try:
+            return re.sub(r'<\?xml[^?]*\?>', '', asset.read_text(encoding='utf-8')).strip()
+        except OSError:
+            return None
     near_panel = soup.select_one('[data-n1panel="near"]')
     far_panel = soup.select_one('[data-n1panel="far"]')
-    near_svg = None
-    if near_panel is not None:
-        near_svg = near_panel.select_one('[data-layer="sa_plain"] svg')
-        near_svg = near_svg or near_panel.select_one("svg")
-    far_svg = far_panel.select_one("svg") if far_panel is not None else None
+    near_svg = read_view(near_panel.select_one('[data-layer="sa_plain"]')) if near_panel is not None else None
+    near_svg = near_svg or read_view(near_panel)
+    far_svg = read_view(far_panel)
     return {
-        "proximo": str(near_svg) if near_svg is not None else None,
-        "distante": str(far_svg) if far_svg is not None else None,
+        "proximo": near_svg,
+        "distante": far_svg,
     }
 
 
@@ -1025,6 +1078,9 @@ def resolver_camadas_qa_pilar(
     }
     if classe not in {"pilares", "pilares_especiais", "pilares_n3_para", "pilares_n3_passa"}:
         return vazio
+    from src.core.pillar_special_faces import supports_physical_tag_renderer, physical_tag_artifact_matches
+    if not supports_physical_tag_renderer(item.get('points')):
+        return vazio
     pack = _encontrar_dir_ficha_item(obra_dir, pavimento, classe, item)
     item_name = str(item.get("beam_name") or "").strip()
     if not item_name:
@@ -1052,11 +1108,13 @@ def resolver_camadas_qa_pilar(
                 tables = json.loads(tables_path.read_text(encoding="utf-8")) if tables_path.is_file() else None
             except (OSError, ValueError):
                 tables = None
+            if not physical_tag_artifact_matches(svg, item.get('points')):
+                svg = tables = None
             if svg is not None or tables is not None:
                 break
         new_layer = qa_layers.get(layer.lower().replace("l", "c"))
         interpretation = None
-        if new_layer is not None:
+        if new_layer is not None and physical_tag_artifact_matches(new_layer.get('svg'), item.get('points')):
             svg = new_layer.get("svg")
             tables = None
             interpretation = (qa_records.get(layer) or {}).get("candidate_interpretation")
@@ -1121,13 +1179,16 @@ def resolver_visualizacoes_n1_pilar(
                     resultado["proximo"] = carta["svg"]
             if views_html.get("proximo") and views_html.get("distante"):
                 break
+    from src.core.pillar_special_faces import supports_physical_tag_renderer, physical_tag_artifact_matches
+    if not supports_physical_tag_renderer(item.get('points')):
+        return resultado
     for candidate in packs:
         tagged_path = candidate / "propostas" / f"{item_name}_sa_motor.svg"
         try:
             tagged = tagged_path.read_text(encoding="utf-8") if tagged_path.is_file() else None
         except OSError:
             tagged = None
-        if tagged:
+        if tagged and physical_tag_artifact_matches(tagged, item.get('points')):
             resultado["com_tag"] = re.sub(r"<\?xml[^?]*\?>", "", tagged).strip()
             break
     return resultado
@@ -1520,6 +1581,12 @@ def modo_visual_n3(
         if classe in ("pilares", "pilares_especiais") or classe in _PILARES_N3_VARIANTE:
             dxf = _pilar_n3_dxf(Path(obra_dir), {**item, "pavimento": pavimento}, vista or "cima", visual_mode)
             if dxf is not None:
+                # Formascia possui diretório independente. O payload SA copiado
+                # conserva metadados NOVA de outras vistas e não deve trocar
+                # a identidade do DXF que acabou de ser localizado neste modo.
+                formascia_root = Path(obra_dir) / "Fase-6_Execucao_CAD" / "n3_modes" / "MOLDE_1" / "pilares"
+                if requested == "MOLDE_1" and dxf.is_relative_to(formascia_root):
+                    return "MOLDE_1"
                 name = str(item.get("beam_name") or item.get("name") or "").strip()
                 payload_path = dxf.parent / f"{name}.json"
                 if payload_path.is_file():

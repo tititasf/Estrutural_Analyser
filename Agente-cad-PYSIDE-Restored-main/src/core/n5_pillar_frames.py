@@ -82,6 +82,9 @@ def uploaded_template(collection: str, classe: str = 'PL') -> Path | None:
         raise ValueError('Identificador de documento inválido')
     path = root / (token + '.dxf')
     expected = FRAME_SHA if collection == 'drawing_frames' else INDEX_SHA
+    if collection == 'drawing_legends' and classe in ('LV_PARA', 'LV_PASSA'):
+        from .n5_lateral_frames import LV_INDEX_SHA
+        expected = LV_INDEX_SHA
     if hashlib.sha256(path.read_bytes()).hexdigest() != expected:
         raise ValueError('A moldura/índice foi substituída; calibre a área útil antes de unificar')
     return path
@@ -91,11 +94,14 @@ def position(page: int):
     return ((page-1) % 4 * DX, -((page-1)//4) * DY)
 
 
-def index_sheet_order(continuations):
+def index_sheet_order(continuations, titles=None):
     """Keep overflow beside the index and shift every subsequent sheet."""
-    return ([(0, INDEX_TITLES[0]), (1, INDEX_TITLES[1])]
+    titles = INDEX_TITLES if titles is None else titles
+    if len(titles) not in (2, len(INDEX_ORIGINS)):
+        raise ValueError('O índice calibrado requer duas ou seis folhas iniciais')
+    return ([(0, titles[0]), (1, titles[1])]
             + [(1, 'ÍNDICE — CONTINUAÇÃO')] * continuations
-            + list(enumerate(INDEX_TITLES[2:], start=2)))
+            + list(enumerate(titles[2:], start=2)))
 
 
 def primitives(entities):
@@ -247,6 +253,9 @@ class SheetBuilder:
     def block(self, doc, entities):
         self.blocks += 1
         name = 'N5_FRAME_PART_' + str(self.blocks)
+        while name in doc.blocks:
+            self.blocks += 1
+            name = 'N5_FRAME_PART_' + str(self.blocks)
         block = doc.blocks.new(name)
         for e in primitives(entities):
             block.add_entity(e.copy())
@@ -328,13 +337,14 @@ class SheetBuilder:
             'dimclrd':5,'dimclre':5,'dimclrt':7})
         dim.render()
 
-    def finish(self, index, pages_dir=None):
+    def finish(self, index, pages_dir=None, *, index_titles=None, index_sha256=INDEX_SHA):
         counted=[s for s in self.sheets if s['counted']]
         # Overflow follows the index itself, before the remaining template sheets.
         continuations = 0
+        base_count = len(INDEX_TITLES if index_titles is None else index_titles)
         while True:
-            rows=[(i+1,t) for i,(_,t) in enumerate(index_sheet_order(continuations))]
-            rows += [(7+continuations+i,s['title']) for i,s in enumerate(counted)]
+            rows=[(i+1,t) for i,(_,t) in enumerate(index_sheet_order(continuations, index_titles))]
+            rows += [(base_count+1+continuations+i,s['title']) for i,s in enumerate(counted)]
             lines=[]
             for number,title in rows:
                 for j,line in enumerate(textwrap.wrap(title,width=72,break_long_words=False)):
@@ -357,7 +367,7 @@ class SheetBuilder:
                 flatten_editable(page_doc)
                 page_doc.saveas(pages_dir/f'page_{len(layout):03d}.dxf')
         index_part=0
-        for page,(i,title) in enumerate(index_sheet_order(continuations),start=1):
+        for page,(i,title) in enumerate(index_sheet_order(continuations, index_titles),start=1):
             old=INDEX_ORIGINS[i]
             selected=[e for e in index_entities if (lambda b:b.has_data and
                 old[0]-.01<=b.center.x<=old[0]+W+.01 and old[1]-.01<=b.center.y<=old[1]+H+.01)(bbox.extents([e],fast=True))]
@@ -382,7 +392,7 @@ class SheetBuilder:
                         selected.append(label)
             emit(index,selected,old,position(page))
             layout.append({'page':page,'title':title,'origin':position(page),'counted':True})
-        number=7+continuations
+        number=base_count+1+continuations
         individual=0
         for sheet in self.sheets:
             target=sheet['doc'];ms=target.modelspace()
@@ -399,14 +409,14 @@ class SheetBuilder:
             else:
                 new=(4*DX+400,-individual*DY);individual+=1;page=None
             display_title=sheet['title'] if not sheet['title'].startswith('Grades: ') else 'Grades unificadas'
-            if not sheet.get('level_headers'):
+            if not sheet.get('level_headers') and sheet.get('show_header', True):
                 ms.add_text(display_title,dxfattribs={'height':14,'color':7,'insert':(UX+30,UY+UH-24)})
             emit(target,list(ms),(0,0),new)
             layout.append({'page':page,'title':sheet['title'],'origin':new,'counted':sheet['counted']})
         flatten_editable(self.dst)
         return {'kind':'nova_frames_v1','columns':4,'pages':layout,'index_rows':rows,
                 'minimum_grade_gap_cm':60,'placements':self.placements,
-                'template_sha256':FRAME_SHA,'index_sha256':INDEX_SHA}
+                'template_sha256':FRAME_SHA,'index_sha256':index_sha256}
 
     @staticmethod
     def index_body(doc, entities, lines):

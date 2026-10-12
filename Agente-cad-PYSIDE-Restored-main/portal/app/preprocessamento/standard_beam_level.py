@@ -45,7 +45,30 @@ def common_datum_contacts(contacts, datum, coverage, geom):
     return at, others
 
 
-def level(geom, native, references, paints, cut_shapes, inherited, coverage, datum=None):
+def inner_step_values(slab_items):
+    """Níveis de rebaixo que diferem da principal da mesma laje.
+
+    O escalar da laje às vezes é a cota escrita dentro do rebaixo. Esse número
+    não é medição da viga.
+    """
+    found = {}
+    for name, item in (slab_items or {}).items():
+        principal = [f.get('value') for f in item.get('levels') or []
+                     if f.get('field') == 'slab_region_level' and f.get('region_id') == 'principal'
+                     and f.get('value') is not None]
+        if len({round(v, 4) for v in principal}) != 1:
+            continue
+        top = principal[0]
+        values = [f['value'] for f in item.get('levels') or []
+                  if f.get('field') == 'slab_region_level' and f.get('region_id') not in (None, 'principal')
+                  and f.get('value') is not None and abs(f['value'] - top) > .0025
+                  and f.get('status') not in ('unknown', 'conflict', 'candidate', 'estimated')]
+        if values:
+            found[name] = values
+    return found
+
+
+def level(geom, native, references, paints, cut_shapes, inherited, coverage, datum=None, steps_by_slab=None):
     if (geom is None or geom.geom_type != 'Polygon' or paints is None
             or native.get('status') in ('human_review', 'conflict')
             or 'cut' in native.get('method', '')):
@@ -82,9 +105,18 @@ def level(geom, native, references, paints, cut_shapes, inherited, coverage, dat
         return None
     value = values[0]
     # A convention cannot silently repair a different already-derived datum.
+    # The exception is the slab scalar copied from the inner step: NIV-VIGA-LAJE-PAINEL
+    # keeps the beam on the principal. A cut, an explicit beam field or a third
+    # value stays put.
     if (native.get('value') is not None and native.get('status') not in ('estimated', 'unknown')
             and abs(native['value']-value) > .0025):
-        return None
+        contacted = {name for name, _, _ in contacts}
+        step_values = [v for name in contacted for v in (steps_by_slab or {}).get(name, ())]
+        copied_from_step = (native.get('method') == 'highest_touching_slab'
+                            and any(abs(native['value'] - v) <= .0025 for v in step_values))
+        copied_from_lower = any(abs(native['value'] - s['value']) <= .0025 for _, _, s in lower)
+        if not copied_from_step and not copied_from_lower:
+            return None
     result = inherited(native, sources,
                        'standard_beam_top_principal_slab', .95*fraction,
                        value=value, spatial_coverage=fraction,

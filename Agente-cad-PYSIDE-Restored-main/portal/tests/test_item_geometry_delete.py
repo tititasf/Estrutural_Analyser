@@ -27,7 +27,7 @@ const document={body:new Element('body'),activeElement:new Element('button'),
   createElement:t=>new Element(t), listeners:{},
   addEventListener(k,fn){this.listeners[k]=fn;},removeEventListener(k){delete this.listeners[k];}};
 let requests=[],navigation=[],rejectRequest=true;
-function remove(t,whole){requests.push({t,whole});return rejectRequest?Promise.reject(new Error('HTTP 403')):Promise.resolve({});}
+function remove(t,whole,comment){requests.push({t,whole,comment});return rejectRequest?Promise.reject(new Error('HTTP 403')):Promise.resolve({});}
 function reload(t,deleted){navigation.push({t,deleted});}
 """ + controller + """
 (async()=>{
@@ -67,8 +67,17 @@ function reload(t,deleted){navigation.push({t,deleted});}
  const requestCount=requests.length;
  refreshDeleted=async()=>{};retry.click();await new Promise(setImmediate);
  assert.equal(requests.length,requestCount);assert.equal(deletionDialog,null);
+ // Interpreted cuts retain the optional human explanation with the captured target.
+ deleteItem({classe:'cortes_interpretados',itemId:'interpreted:V307',structural:true},false);
+ const interpreted=deletionDialog.children[0],label=interpreted.children[1];
+ assert.equal(label.textContent,'Comentário (opcional)');
+ const comment=label.children[0];
+ comment.value='A laje está em outro nível';
+ interpreted.children[4].click();await new Promise(setImmediate);
+ assert.equal(requests.at(-1).comment,'A laje está em outro nível');
+ assert.equal(requests.at(-1).t.itemId,'interpreted:V307');
+ assert.equal(deletionDialog,null);
 })().catch(e=>{console.error(e);process.exitCode=1;});
 """
     result = subprocess.run([node, "-e", script], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
-
