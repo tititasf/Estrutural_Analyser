@@ -133,3 +133,26 @@ def test_portal_endpoint_highlights_expose_the_same_signed_owner_adjustments():
         payload=_segment(Path('unused'),'PAV','lateral_a_passa',item,
                          include_svgs=False,beam_record=beam)
         assert payload['adjustment'] == row['details']['adjustment']
+
+
+@pytest.mark.parametrize('horizontal', [True, False])
+@pytest.mark.parametrize('section_change', [False, True])
+def test_short_face_between_two_trechos_is_one_lateral(horizontal, section_change):
+    # LV-FACE-CURTA-SEGMENTO-UNICO-20261012 (V517 x P16, TIPO_TESTE): a face A
+    # corre pela face curta do pilar; os dois trechos englobavam o pilar e se
+    # sobrepunham. Para e Passa viram um segmento só; a face B para no pilar.
+    left, right = runs(horizontal, right_width=14, right_depth=60 if section_change else 55)
+    for run, end in ((left, 'end'), (right, 'start')):
+        run.end_supports[end][0]['face_curta_por_lado'] = {'A': True, 'B': False}
+    beam = dict(name='V1', id='one', links={})
+    apply_cells_to_beam(beam, [left, right])
+    rows = collect_preficha_segments([beam])
+    for kind in ('lateral_a_para', 'lateral_a_passa'):
+        lengths = [r['length'] for r in rows[kind]]
+        if section_change:
+            assert len(lengths) == 2
+            continue
+        assert lengths == [300]
+        opening, = rows[kind][0]['details']['lv_cell']['pillar_openings']
+        assert (opening['dist_face_inicio'], opening['dist_face_fim']) == ((100, 180) if horizontal else (180, 100))
+    assert [r['length'] for r in rows['lateral_b_para']] == [100, 180]

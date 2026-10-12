@@ -750,6 +750,100 @@ def _link_entry(scene: LvScene, side: str, behavior: str, seg: CellSegment) -> d
     }
 
 
+def _join_runs_across_shared_pillar(segments: list, side: str) -> list:
+    """Two collinear trechos that both engulf the same pillar are one lateral.
+
+    LV-FACE-CURTA-SEGMENTO-UNICO-20261012 (V517 x P16, TIPO_TESTE): the face
+    runs along the pillar's short face, so each trecho's G10 extension reaches
+    the far face of the pillar and the two panels overlap by its width. Only
+    an actual overlap on a pillar both segments open is joined; a section
+    change keeps the trechos apart.
+    """
+    out: list = []
+    for run, seg in segments:
+        if out:
+            prev_run, prev = out[-1]
+            joined = _joined_segment(prev_run, prev, run, seg, side)
+            if joined is not None:
+                out[-1] = (prev_run, joined)
+                continue
+        out.append((run, seg))
+    for index, (_, seg) in enumerate(out, start=1):
+        seg.index = index
+    return out
+
+
+def _joined_segment(r1, s1, r2, s2, side):
+    if r1 is r2 or r1.angle or r2.angle or r1.is_horizontal != r2.is_horizontal:
+        return None
+    t1, t2 = (r1.t_lo, r1.t_hi), (r2.t_lo, r2.t_hi)
+    if any(abs(a-b) > .5 for a, b in zip(t1, t2)):
+        return None
+    lo1, hi1 = sorted((s1.start, s1.end))
+    lo2, hi2 = sorted((s2.start, s2.end))
+    overlap = min(hi1, hi2) - max(lo1, lo2)
+    if overlap <= .5 or s1.dim != s2.dim or s1.depth != s2.depth:
+        return None
+    shared = {o["name"] for o in s1.pillar_openings} & {o["name"] for o in s2.pillar_openings}
+    if not any(abs(o["comprimento"] - overlap) <= .5 for o in s1.pillar_openings if o["name"] in shared):
+        return None
+    ascending = reading_ascending(r1, side)
+    lo, hi = min(lo1, lo2), max(hi1, hi2)
+    start, end = (lo, hi) if ascending else (hi, lo)
+    length = round(hi - lo, 2)
+    first, last = (s1, s2) if abs(s1.start - start) <= abs(s2.start - start) else (s2, s1)
+
+    def shifted(opening, seg, fields_near, fields_far):
+        lead = abs(seg.start - start)
+        tail = length - seg.length - lead
+        moved = dict(opening)
+        for key in fields_near:
+            if moved.get(key) is not None:
+                moved[key] = round(moved[key] + lead, 2)
+        for key in fields_far:
+            if moved.get(key) is not None:
+                moved[key] = round(moved[key] + tail, 2)
+        return moved
+
+    pillar_openings, seen = [], set()
+    for seg in (first, last):
+        for opening in seg.pillar_openings:
+            if opening["name"] in seen:
+                continue
+            seen.add(opening["name"])
+            pillar_openings.append(shifted(
+                opening, seg, ("pos_inicio", "pos_fim", "dist_face_inicio", "dist_abertura_inicio"),
+                ("dist_face_fim", "dist_abertura_fim")))
+    beam_openings = [shifted(o, seg, ("pos_inicio",), ()) for seg in (first, last) for o in seg.beam_openings]
+    slabs, names = [], set()
+    for slab in first.slabs + last.slabs:
+        key = (slab.get("name"), slab.get("region_id"))
+        if key not in names:
+            names.add(key)
+            slabs.append(slab)
+    levels = [v for v in (_level_value(s.level) for s in (s1, s2)) if v is not None]
+    sections = sorted({(z["start"], z["end"], z["dim"], z["depth"], z.get("source", "")) for z in s1.sections + s2.sections})
+    shared_pillars = sorted(shared)
+    flags = [f for f in first.flags if not f.startswith(("ajuste_end:", "trecho_", "G8_abertura_excede_segmento:"))]
+    flags += [f for f in last.flags if f.startswith("ajuste_end:")]
+    flags += [f for f in last.flags if f not in flags and not f.startswith(("ajuste_start:", "trecho_", "G8_abertura_excede_segmento:"))]
+    flags.append("G10_face_curta_segmento_unico:" + ",".join(shared_pillars))
+
+    def weighted(attr):
+        return round((getattr(s1, attr) * s1.length + getattr(s2, attr) * s2.length) / max(s1.length + s2.length, .01), 3)
+
+    return CellSegment(
+        index=first.index, start=start, end=end, length=length, dim=s1.dim, depth=s1.depth,
+        sections=[{"start": a, "end": b, "dim": d, "depth": h, "source": s} for a, b, d, h, s in sections],
+        support_start=first.support_start, support_end=last.support_end,
+        pillar_openings=pillar_openings, beam_openings=beam_openings, slabs=slabs,
+        level=f"{max(levels):g}" if levels else "",
+        adjustment_start=first.adjustment_start, adjustment_end=last.adjustment_end,
+        line_coverage=weighted("line_coverage"), dimension_overlap=weighted("dimension_overlap"),
+        flags=flags,
+    )
+
+
 def apply_cells_to_beam(beam: dict, scene: "LvScene | list[LvScene]") -> dict[str, int]:
     """Substitui os vinculos laterais das celulas NAO congeladas desta viga.
 
@@ -787,6 +881,7 @@ def apply_cells_to_beam(beam: dict, scene: "LvScene | list[LvScene]") -> dict[st
                     if len(runs) > 1:
                         seg.flags.append(f"trecho_{run_index}_de_{len(runs)}")
                     segments.append((run, seg))
+            segments = _join_runs_across_shared_pillar(segments, side)
             for run, seg in segments:
                 key = f"viga_{side.lower()}_seg_{seg.index}_{suffix}"
                 links[key] = {f"seg_side_{side.lower()}": [_link_entry(run, side, behavior, seg)]}
