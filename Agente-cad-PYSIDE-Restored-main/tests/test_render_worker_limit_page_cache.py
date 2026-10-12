@@ -24,3 +24,5 @@ def test_cache_de_pagina_inativo_nao_conta_como_memoria_em_uso(monkeypatch):
     monkeypatch.setattr('os.sched_getaffinity', lambda _: set(range(8)), raising=False)
     # 5 GB max - (2 GB current - 1 GB inactive cache) = 4 GB spare -> 3 workers.
     assert render_worker_limit(8, 21) == 3
+    # A measured 384 MB worker fits 9 times in the same spare, capped by CPUs.
+    assert render_worker_limit(8, 21, worker_bytes=384 * 1024**2) == 8

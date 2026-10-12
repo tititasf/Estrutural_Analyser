@@ -140,8 +140,12 @@ def prepared_cad_canvas(path, width, height, dpi, *, reuse=True):
             close_cached_canvas()
 
 
-def render_worker_limit(requested, item_count):
-    """Bound explicit parallelism by available CPUs and spare host memory."""
+def render_worker_limit(requested, item_count, worker_bytes=1024**3):
+    """Bound explicit parallelism by available CPUs and spare host memory.
+
+    `worker_bytes` is the peak budget of one worker; callers that measured
+    their workers pass a smaller one.
+    """
     try:
         cpus = len(os.sched_getaffinity(0))
     except AttributeError:
@@ -172,7 +176,7 @@ def render_worker_limit(requested, item_count):
                     spare = int(maximum) - used
                     available = min(available, max(0, spare))
                 group = group.parent
-        memory_limit = max(1, (available - 512 * 1024**2) // (1024**3))
+        memory_limit = max(1, (available - 512 * 1024**2) // worker_bytes)
     except (OSError, KeyError, ValueError):
         pass
     return max(1, min(max(1, requested), max(1, item_count), cpus, memory_limit))
