@@ -161,7 +161,15 @@ def render_worker_limit(requested, item_count):
             while group.is_relative_to(Path('/sys/fs/cgroup')) and group != Path('/sys/fs/cgroup'):
                 maximum = (group / 'memory.max').read_text().strip()
                 if maximum != 'max':
-                    spare = int(maximum) - int((group / 'memory.current').read_text())
+                    # memory.current counts page cache; inactive file pages are
+                    # reclaimed before the limit bites, so they are not in use.
+                    try:
+                        stat = dict(line.split() for line in
+                                    (group / 'memory.stat').read_text().splitlines())
+                    except OSError:
+                        stat = {}
+                    used = int((group / 'memory.current').read_text()) - int(stat.get('inactive_file', 0))
+                    spare = int(maximum) - used
                     available = min(available, max(0, spare))
                 group = group.parent
         memory_limit = max(1, (available - 512 * 1024**2) // (1024**3))
