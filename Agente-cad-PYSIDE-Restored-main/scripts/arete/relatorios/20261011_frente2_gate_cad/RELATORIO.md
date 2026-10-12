@@ -52,6 +52,7 @@ Antes dos fixes, o TIPO_TESTE estava assim:
    - **Resolvida 12/10 (dono: "compare os cortes").** Cortes da VF301: 7 + 48 sobre a laje de 852,12, topo 852,19, fundo 851,64. Corte da V332 19/55 rente à L317 (852,19): fundo 851,64. Fundo único, sem degrau, igual ao seg 7. Decisão FV-UNIAO-NIVEL-PELO-CORTE-20261012.
    - Achados medidos no estado publicado: (a) L317 está com 852,22 no SA, contra 852,19 da D-64 (regressão); (b) o contrato vertical da VF301 é "nível estimado" (topo 852,12 / 852,22), sem ler o 7 + 48 do próprio corte.
 2. **V517 × P16 (TIPO_TESTE):** pilar entre dois trechos da mesma viga, com a lateral pela face curta C/D. Qual trecho engloba o pilar? Os dois englobando dá painel sobreposto.
+   - **Resolvida 12/10 (dono):** a lateral passa só pela face C do P16; em Para e em Passa é um segmento único. Defeito do SA: parte em dois e sobrepõe 19 cm. Decisão LV-FACE-CURTA-SEGMENTO-UNICO-20261012.
 
 ## Próximo FAIL a atacar
 

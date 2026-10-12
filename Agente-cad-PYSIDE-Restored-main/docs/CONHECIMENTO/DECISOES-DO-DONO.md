@@ -1116,3 +1116,13 @@ padrão do VF202 já confirmado). O corte da V332 (19/55) tem o topo rente à
 L317 (852,19 m): fundo 851,64 m. Logo o fundo da VF301 seg 8 é um plano só,
 igual ao seg 7, sem degrau sob a V330. Lajes de níveis diferentes dos dois
 lados não criam degrau quando o corte da viga fixa o topo.
+
+
+## LV-FACE-CURTA-SEGMENTO-UNICO-20261012
+
+| ID | Data | Decisão vigente | Fonte |
+|---|---|---|---|
+| LV-FACE-CURTA-SEGMENTO-UNICO-20261012 | 2026-10-12 | Quando a lateral de uma viga passa por um pilar só pela face curta (C/D), entre dois trechos da mesma viga, é um segmento único de lateral, em Para e em Passa. Não se parte no pilar. | Resposta do dono neste chat sobre V517 × P16 (TIPO_TESTE). |
+
+Caso: V517, lado A da viga, passando pela face C do P16. Hoje o SA gera dois
+segmentos que englobam o pilar e se sobrepõem 19 cm; o correto é um só.
