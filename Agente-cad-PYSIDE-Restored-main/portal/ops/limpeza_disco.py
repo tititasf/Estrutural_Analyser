@@ -16,7 +16,7 @@ Regras:
   (R5/R6 só apagam depois de capturar a rodada em historico_rodadas.sqlite; falhou = mantém)
   R7 scripts/arete/relatorios/<dir>   (exceto qa_portal) > 1 dia: apaga só *.dxf e arquivos > 20 MB
                                       que não sejam .md (o texto/evidência fica)
-  R8 /tmp/sa-dev-validation/*/project_snapshot.sqlite3  > 6 h e nenhum dev_sa_cycle rodando
+  R8 /tmp/sa-dev-validation/*/project_snapshot.sqlite3  > 20 min e não aberto por nenhum processo
                                       (cópia descartável do banco; o resto do ciclo fica)
   R9 scripts/arete/html_fichas/<obra>/<PAV>_<ts>_*  3 mais novas por obra/PAV/escopo + < 1 dia
                                       + referenciadas no DB; .staging/<obra>/* > 1 dia
@@ -268,24 +268,41 @@ def r7_relatorios(plan: Plan):
                     plan.add("R7_relatorios", f)
 
 
-def _processo_rodando(trecho: str) -> bool:
+def _processo_rodando(trecho: bytes) -> bool:
     for c in Path("/proc").glob("[0-9]*/cmdline"):
         try:
-            if trecho in c.read_bytes().decode(errors="ignore"):
+            if trecho in c.read_bytes():
                 return True
         except OSError:
             continue
     return False
 
 
+def _arquivos_abertos() -> set[str]:
+    abertos = set()
+    for fd in Path("/proc").glob("[0-9]*/fd/*"):
+        try:
+            abertos.add(os.readlink(fd))
+        except OSError:
+            continue
+    return abertos
+
+
 def r8_snapshots_dev(plan: Plan):
     # dev_sa_cycle.py copia o banco inteiro (~1,4 GB) para cada ciclo e não apaga
-    # no fim: 20 ciclos lotaram o disco em 11/10.  O resto do ciclo (relatório,
-    # contexto, pre) fica; só a cópia do banco sai, e nunca com ciclo rodando.
-    if _processo_rodando("dev_sa_cycle"):
-        return
-    for f in (TMP / "sa-dev-validation").glob("*/project_snapshot.sqlite3"):
-        if NOW - f.stat().st_mtime > 6 * 3600:
+    # no fim: ~20 ciclos lotaram o disco em 11/10 (duas vezes).  Ciclos rodam em
+    # sequência contínua, então a trava é por arquivo: só sai a cópia que nenhum
+    # processo tem aberta e que não muda há 20 min.  O resto do ciclo fica.
+    abertos = _arquivos_abertos()
+    copias = sorted((TMP / "sa-dev-validation").glob("*/project_snapshot.sqlite3*"),
+                    key=lambda f: f.stat().st_mtime)
+    # O ciclo em curso pode abrir/fechar a cópia entre etapas: a mais nova fica.
+    ciclo_ativo = _processo_rodando(b"dev_sa_cycle")
+    ativa = copias[-1].parent if ciclo_ativo and copias else None
+    for f in copias:
+        if f.parent == ativa or str(f) in abertos or str(f.parent / "project_snapshot.sqlite3") in abertos:
+            continue
+        if NOW - f.stat().st_mtime > 20 * 60:
             plan.add("R8_snapshot_dev", f)
 
 
