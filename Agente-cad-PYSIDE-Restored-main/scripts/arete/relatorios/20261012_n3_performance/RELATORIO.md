@@ -19,6 +19,8 @@ Obra_TREINO_1, INI, gradeadas). Os tempos vêm dos recibos em `portal_job_meta`.
 | bdc6d268 | + #8 auto_publish pula obra com job | 95 | 644 | 342 | 327 | 13 | 8 | **23 min 49 s** |
 | f2f62b37 | + #9 orçamento por worker N3 medido + #10 N5 em processo filho | 92 | 614 | 356 | 172 | 13 | 9 | **20 min 56 s** |
 | 78f1f09d | (nenhuma; regime estável, tags 3,5 s, gate 59 s) | 112 | 478 | 339 | 157 | 11 | 9 | **18 min 26 s** |
+| a5ff8b67 | + #11 gate CAD em paralelo ao N5 (tags erram o cache: código novo, 125 s) | 93 | 524 | 353 | 176 | 12 | 10 | **19 min 28 s** |
+| aad44abc | (nenhuma; tags 7,9 s; `/dev/shm` liberado por terceiros: 3 GB → 208 MB) | 99 | 463 | 179 | 156 | 11 | 8 | **15 min 16 s** |
 
 As cadeias 4a15763b e 0087a302 mostram o problema que as correções 8–10 atacam: sem
 mudar o código, a mesma cadeia variava de 21 para 32 min conforme o portal acumulava
@@ -44,6 +46,8 @@ números acima são do 13_PAV completo.
 | 8 | O `auto_publish_poller` republica, a cada 60 s, todos os pavimentos de cada obra via `ler_estado_pavimento` (reconcile de fundos + cortes LV), no processo do portal. Depois do SA o cache de fundos é invalidado, e um ciclo chega a minutos (08:36 → 08:42). Ele disputa o GIL com o N5 e as pós-etapas, que rodam no mesmo processo, e pode publicar um estado pela metade. A cadeia B (4a15763b) teve SA+N3 1006 s, PL 399 e LV 382, contra 640/349/173 na A | obra com job na fila ou executando é pulada, e publica no ciclo seguinte ao fim do job (`auto_publish_poller.py`) | `portal/tests/test_portal_auto_publish_job_ativo.py` + 5 testes antigos | `bak_autopub_jobativo_202610120920` |
 | 9 | O `render_worker_limit` supunha 1 GB por worker. Os workers spawn do N3 LV/PL medidos (amostrador de 3 s na cadeia bdc6d268) têm pico de 106–138 MB, então com 2,4 GB livres o N3 rodava com 1 worker | parâmetro `worker_bytes` (padrão de 1 GB inalterado); os chamadores N3 (`n3_local_tasks.run_local_tasks`, `pillar_n3_tasks.run_pillar_tasks`) passam 384 MB, cerca de 3× o pico | teste novo em `test_render_worker_limit_page_cache.py`; cadeia f2f62b37 com 3 workers: N3 LV de 122 para 87 s, PL de 128 para 92 s, headless de 444 para 375 s | `bak_n3workers_n5filho_202610120950` |
 | 10 | Com 1 worker, o N5 rodava dentro do processo do portal. O PL leva o RSS do portal de 0,5 para 1,9 GB, e o heap não devolve a memória (fica em ~1,1 GB), o que rouba workers das cadeias seguintes | o lote de 1 worker roda num único processo filho (`n5_tasks.assemble_serial`), que mantém a leitura única do estado e devolve a memória no fim | `tests/test_n5_tasks.py` + `test_item_pending_production.py` (10 passaram); portal termina a cadeia f2f62b37 com 515 MB | idem #9 |
+
+| 11 | O gate CAD pós-SA (só avisa, nunca derruba o job) segurava a cadeia por 60–90 s antes do N5 | autorizado pelo dono em 12/10: na cadeia completa ele roda numa thread junto do N5 (`pipeline_runner.gate_cad_em_fundo` / `_gate_cad`), e a cadeia espera por ele antes de concluir. Fora da cadeia continua síncrono | `portal/tests/test_pipeline_gate_cad_fundo.py` + 21 testes de `test_obra_pipeline.py`; na VPS o sidecar `qa_cad_gate/13_PAV.json` é gravado e o log registra `gate_cad (em paralelo ao N5): 69,2 s` | `bak_gatefundo_202610121207` |
 
 A correção #6 explica por que a cadeia piorava com o uso: o cache de página cresce
 entre rodadas, e o paralelismo do N3 caía junto, sem nenhum aviso.
@@ -96,6 +100,11 @@ cadeia e não voltava.
 Em regime estável (tags acertando o cache), a cadeia 78f1f09d fechou em 18 min 26 s
 (headless 389 s, tags 3,5 s, gate 59 s, cortes 18 s), com as mesmas 60 pendências LV
 pré-existentes de todas as cadeias.
+
+**Atualização (aad44abc, 15 min 16 s):** com `/dev/shm` liberado (não por esta sessão)
+o N5 PL rodou as 3 variantes em paralelo, de 339 para 179 s. Com o gate em paralelo, o
+item 3 abaixo está feito, e o item 1 vale enquanto `/dev/shm` não voltar a encher. O
+dono decidiu (12/10) não trocar qualidade por tempo: o item 2 fica fora.
 
 ## O que falta para 8 min (precisa de decisão)
 
