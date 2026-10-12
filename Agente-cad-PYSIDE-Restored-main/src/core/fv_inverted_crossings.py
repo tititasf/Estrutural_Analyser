@@ -198,12 +198,42 @@ def reconcile_state(state, inventory, structural_lines, protected_uids=()):
     # prove the same non-blocking crossing. Merge their owners instead of
     # publishing two overlapping continuations or dropping the crossing gap.
     rows = merge_opposite_arrivals(rows, inventory.get('physical_entries') or [],
-                                   structural_lines, state.get('pilares') or [], protected_uids)
+                                   structural_lines, state.get('pilares') or [], protected_uids,
+                                   presented=inventory.get('entries') or [])
     result.setdefault('segmentos',{})['fundo']=rows
     return result
 
 
-def merge_opposite_arrivals(rows, entries, structural_lines, pillars=(), protected_uids=()):
+def _float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _cut_bottom_proof(presented, sides):
+    """One top/base proven by the beam's own cut on BOTH sides of the union.
+
+    Slabs at different levels do not make a step when the drawn section fixes
+    the top (FV-UNIAO-NIVEL-PELO-CORTE-20261012): 7 + 48 over 852,12 and 0 +
+    55 under 852,19 are the same soffit.
+    """
+    proven = set()
+    for row, shape in sides:
+        local = [e.get('section_contract') or {} for e in presented if e.get('beam') == row.get('beam_name') and
+                 any(len(p.get('footprint') or []) >= 3 and Polygon(p['footprint']).intersection(shape).area > .05
+                     for p in e.get('pairs') or [])]
+        local = [c for c in local if c.get('vertical_datum_source') == 'original_cut_datum']
+        if not local or any(c.get('top_level_m') is None or c.get('base_level_m') is None for c in local):
+            return None
+        proven.update((round(float(c['top_level_m']), 3), round(float(c['base_level_m']), 3)) for c in local)
+    if len(proven) != 1:
+        return None
+    top, base = proven.pop()
+    return {'method': 'original_cut_datum_single_bottom', 'top_level_m': top, 'base_level_m': base}
+
+
+def merge_opposite_arrivals(rows, entries, structural_lines, pillars=(), protected_uids=(), presented=()):
     def identity(row):
         uid = str(row.get('uid') or '').split('|')
         return row.get('beam_identity') or (uid[1] if len(uid)>1 else None)
@@ -279,7 +309,17 @@ def merge_opposite_arrivals(rows, entries, structural_lines, pillars=(), protect
                 merged['merged_source_uids']=sources
                 merged['normal_inverted_continuations']=lc
                 merged['merged_source_segments']=[s for r in (left,right) for s in r.get('merged_source_segments',[dict(uid=r.get('uid'),segment_index=r.get('segment_index') or r.get('segment_label'),level=r.get('level'),level_source=r.get('level_source'),points=deepcopy(r['points']))])]
-                if len(levels)>1:
+                proof = _cut_bottom_proof(presented, ((left,lp),(right,rp))) if len(levels)>1 else None
+                if proof:
+                    # The row keeps its own rule (highest touching slab) over the union.
+                    numeric = [r for r in (left,right) if _float(r.get('level')) is not None]
+                    if len(numeric)==2 and all(r.get('level_source')=='highest_touching_slab' for r in numeric):
+                        top = max(numeric, key=lambda r: _float(r['level']))
+                        merged.update(level=top['level'], level_source='highest_touching_slab',
+                                      level_slabs=list(top.get('level_slabs') or []), level_proof=proof)
+                    else:
+                        proof = None
+                if len(levels)>1 and not proof:
                     merged.update(level='',level_source='unresolved_local_slab_references',
                                   level_slabs=sorted({s for r in (left,right) for s in r.get('level_slabs',[])}))
                     merged['attention']='Fundo contínuo: referências de nível das lajes diferem; nível da viga a confirmar.'

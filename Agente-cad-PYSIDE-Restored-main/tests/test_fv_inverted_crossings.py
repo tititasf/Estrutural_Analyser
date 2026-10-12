@@ -126,3 +126,30 @@ def test_neighbor_slab_levels_are_preserved_as_unresolved_not_invented():
     merged=result['segmentos']['fundo'][0]
     assert merged['level']==''
     assert [r['level'] for r in merged['merged_source_segments']]==['852.12','852.19']
+
+
+def _cut_contract(footprint, top, base, drop):
+    return dict(beam='NORMAL', pairs=[dict(footprint=footprint)], section_contract=dict(
+        width_cm=19, height_cm=55, top_level_m=top, base_level_m=base,
+        vertical_datum_source='original_cut_datum', slabs=dict(A=[dict(drop_cm=drop)], B=[])))
+
+
+@pytest.mark.parametrize('case',['proven','one_side_only','different_base'])
+def test_union_level_is_decided_by_the_beam_cut_on_both_sides(case):
+    # VF301 seg 8 (13_PAV): 7 + 48 sobre 852,12 e 0 + 55 sob 852,19 = mesmo fundo 851,64.
+    row,entries,lines=scene()
+    row.update(level='852.12',level_source='highest_touching_slab',level_slabs=['L308'])
+    other=deepcopy(row);other.update(uid='bottom2',level='852.19',level_slabs=['L317'],
+                                     points=[[119,0],[200,0],[200,19],[119,19]])
+    entries[0]['pairs'].append(dict(footprint=other['points']))
+    presented=[_cut_contract(row['points'],852.19,851.64,7)]
+    if case!='one_side_only':
+        presented.append(_cut_contract(other['points'],852.19,851.64 if case=='proven' else 851.57,0))
+    inventory=dict(physical_entries=entries,entries=presented)
+    merged=reconcile_state(dict(segmentos=dict(fundo=[row,other])),inventory,[(0,0,200,0),(0,19,200,19)])['segmentos']['fundo'][0]
+    if case=='proven':
+        assert (merged['level'],merged['level_source'],merged['level_slabs'])==('852.19','highest_touching_slab',['L317'])
+        assert merged['level_proof']['base_level_m']==851.64
+        assert 'attention' not in merged
+    else:
+        assert merged['level']=='' and merged['level_source']=='unresolved_local_slab_references'
