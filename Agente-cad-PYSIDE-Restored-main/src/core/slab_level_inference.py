@@ -364,7 +364,36 @@ def principal_cut_wings_match(cut, own_slab, source_slab):
         measured = number(ficha.get(key))
         if principal is not None and measured is not None and abs(principal-measured) > .5:
             return False
-    return True
+    # The ficha copies h from the slab name, not from the drawn wing: a section
+    # drawn inside a thinner regional step of the source (L316/BD4 h=10 under
+    # the V330 cut, D-64) would borrow the principal altitude. Leave it to the
+    # region-scoped wing reading instead.
+    return not _cut_inside_thinner_step(cut, source_slab)
+
+
+def _cut_inside_thinner_step(cut, slab):
+    from .lv_cut_inventory import number
+    steps = (slab or {}).get('slab_steps') or []
+    points = cut.get('original_pts') or cut.get('points')
+    principal = number(((slab or {}).get('fields') or {}).get('laje_dim') or (slab or {}).get('height'))
+    if not steps or not points or len(points) < 3 or principal is None:
+        return False
+    from shapely.geometry import Polygon
+    try:
+        section = Polygon(points).buffer(0)
+    except (TypeError, ValueError):
+        return False
+    for step in steps:
+        height = number(step.get('height_cm'))
+        region = step.get('points') or []
+        if height is None or abs(height-principal) <= .5 or len(region) < 3:
+            continue
+        try:
+            if Polygon(region).buffer(0).intersection(section).area > 1:
+                return True
+        except (TypeError, ValueError):
+            continue
+    return False
 
 
 def paired_cut_level_source(cut: dict, own_name: str, source: dict, *, own_slab=None, source_slab=None) -> dict | None:

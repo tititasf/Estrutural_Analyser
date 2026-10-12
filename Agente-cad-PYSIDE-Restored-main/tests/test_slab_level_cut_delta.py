@@ -17,6 +17,23 @@ def test_regional_wing_does_not_borrow_principal_altitude():
     assert paired_cut_level_source(cut,'own',source,own_slab=own,source_slab=other)['value'] == 537.86
 
 
+def test_cut_drawn_inside_thinner_step_does_not_borrow_principal_altitude():
+    # D-64 (13_PAV): o corte da V330 está dentro da região h=10 da L316 (852,16);
+    # a ficha copia h=13 do nome e levava a L317 a 852,19 + 3 cm = 852,22.
+    cut = {'points': [(0, 0), (20, 0), (20, 10), (0, 10)],
+           'ficha': {'side_a_laje_name': 'own', 'side_b_laje_name': 'other',
+                     'own_slab_height': 13, 'neigh_slab_height': 13,
+                     'own_dist_top': 69.1, 'neighbor_dist_top': 72.1}}
+    source = {'slab': 'other', 'value': 852.19}
+    own = {'fields': {'laje_dim': 'h=13'}}
+    step = {'points': [(-5, -5), (25, -5), (25, 15), (-5, 15)], 'height_cm': 10}
+    other = {'fields': {'laje_dim': 'h=13'}, 'slab_steps': [step]}
+    assert paired_cut_level_source(cut, 'own', source, own_slab=own, source_slab=other) is None
+    remote = {**step, 'points': [(100, 100), (120, 100), (120, 120), (100, 120)]}
+    other['slab_steps'] = [remote]
+    assert paired_cut_level_source(cut, 'own', source, own_slab=own, source_slab=other)['value'] == 852.22
+
+
 def test_named_neighbor_without_measured_wing_cannot_make_a_false_step():
     cut = {'ficha': {'side_a_laje_name': 'own', 'side_b_laje_name': 'other',
                      'own_dist_top': 75, 'neighbor_dist_top': 0,
