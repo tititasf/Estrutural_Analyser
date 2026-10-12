@@ -64,8 +64,14 @@ def _ciclo(settings: Settings) -> dict:
     resultado = {"publicadas": 0, "erros": 0, "ignoradas": 0}
     try:
         obras = repo.listar_todas_obras(conn)
+        # Obra com job na fila ou rodando tem estado em fluxo: publicar agora
+        # leria um SA pela metade e disputaria CPU/GIL com a própria cadeia.
+        # O ciclo seguinte ao fim do job publica o estado final.
+        em_job = {row[0] for row in conn.execute(
+            "SELECT DISTINCT obra_id FROM portal_jobs "
+            "WHERE status NOT IN ('concluido', 'falhou', 'cancelado')")}
         for obra in obras:
-            if obra.get("estado") not in _ESTADOS_PUBLICAVEIS:
+            if obra.get("estado") not in _ESTADOS_PUBLICAVEIS or obra.get("id") in em_job:
                 resultado["ignoradas"] += 1
                 continue
             obra_dir = _obra_dir(obra, settings)
