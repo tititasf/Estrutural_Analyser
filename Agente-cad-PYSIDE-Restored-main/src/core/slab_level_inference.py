@@ -367,8 +367,9 @@ def principal_cut_wings_match(cut, own_slab, source_slab):
     # The ficha copies h from the slab name, not from the drawn wing: a section
     # drawn inside a thinner regional step of the source (L316/BD4 h=10 under
     # the V330 cut, D-64) would borrow the principal altitude. Leave it to the
-    # region-scoped wing reading instead.
-    return not _cut_inside_thinner_step(cut, source_slab)
+    # region-scoped wing reading instead. Either side may hold the step: the
+    # rooted graph also reads the same cut from the stepped slab's side.
+    return not any(_cut_inside_thinner_step(cut, s) for s in (own_slab, source_slab))
 
 
 def _cut_inside_thinner_step(cut, slab):

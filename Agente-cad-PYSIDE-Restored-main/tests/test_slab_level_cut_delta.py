@@ -29,6 +29,9 @@ def test_cut_drawn_inside_thinner_step_does_not_borrow_principal_altitude():
     step = {'points': [(-5, -5), (25, -5), (25, 15), (-5, 15)], 'height_cm': 10}
     other = {'fields': {'laje_dim': 'h=13'}, 'slab_steps': [step]}
     assert paired_cut_level_source(cut, 'own', source, own_slab=own, source_slab=other) is None
+    # O grafo de cortes lê o mesmo corte pelo lado da laje com o degrau.
+    from src.core.slab_level_inference import principal_cut_wings_match
+    assert not principal_cut_wings_match(cut, other, own)
     remote = {**step, 'points': [(100, 100), (120, 100), (120, 120), (100, 120)]}
     other['slab_steps'] = [remote]
     assert paired_cut_level_source(cut, 'own', source, own_slab=own, source_slab=other)['value'] == 852.22
